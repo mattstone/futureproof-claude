@@ -124,6 +124,7 @@ GEM
       fiber-local (~> 1.1)
       json
     crass (1.0.6)
+    csv (3.3.5)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
@@ -491,6 +492,7 @@ DEPENDENCIES
   brakeman
   capybara
   claude-on-rails
+  csv
   debug
   devise
   importmap-rails

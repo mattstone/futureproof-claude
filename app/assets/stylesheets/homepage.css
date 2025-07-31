@@ -42,7 +42,6 @@ body {
     padding: 0;
 }
 
-
 /* Button Styles */
 .btn {
     display: inline-flex;
@@ -524,7 +523,22 @@ body {
     height: 100%;
 }
 
-/* Footer CTA Section */
+.partner-logo-img {
+    max-width: 120px;
+    max-height: 60px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+}
+
+.partner-logo:hover .partner-logo-img {
+    filter: grayscale(0%);
+}
+
+/* Original Footer CTA Section - Commented Out */
+/*
 .footer-cta-section {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     padding: 80px 0;
@@ -567,6 +581,72 @@ body {
     background-color: var(--background-light);
     border-color: var(--background-light);
     color: var(--primary-color);
+}
+*/
+
+/* New Site Footer Section */
+.site-footer {
+    background-color: var(--background-white);
+    border-top: 1px solid var(--border-color);
+    padding: 40px 0 20px 0;
+    margin-top: 60px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.footer-copyright {
+    margin-bottom: 10px;
+}
+
+.footer-copyright p {
+    margin: 0 0 8px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.trademark-notice {
+    font-size: 12px !important;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.disclaimer {
+    font-size: 10px !important;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* Responsive Design */
@@ -676,6 +756,14 @@ body {
     .footer-cta-subtitle {
         font-size: 16px;
     }
+
+    .footer-links {
+        gap: 15px;
+    }
+
+    .footer-link {
+        font-size: 13px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -684,7 +772,8 @@ body {
     .unique-features-container,
     .detailed-features-container,
     .partners-container,
-    .footer-cta-container {
+    .footer-cta-container,
+    .footer-container {
         padding: 0 16px;
     }
 
@@ -716,5 +805,22 @@ body {
 
     .footer-cta-subtitle {
         font-size: 15px;
+    }
+
+    .footer-links {
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .footer-link {
+        font-size: 12px;
+    }
+
+    .footer-copyright p {
+        font-size: 13px;
+    }
+
+    .trademark-notice {
+        font-size: 11px !important;
     }
 }

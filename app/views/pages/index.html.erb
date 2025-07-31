@@ -36,10 +36,10 @@
       <%= image_tag "hero.png", class: "hero-bg-image" %>
     </div>
     <div class="calculator-overlay">
-      <div class="calculator-card">
+      <div class="calculator-card" data-controller="calculator">
         <h2 class="calculator-title">How much could you receive?</h2>
         <div class="calculator-content">
-          <div class="calculator-input" data-controller="calculator">
+          <div class="calculator-input">
             <label for="home-value">Home Value</label>
             <div class="slider-container">
               <input type="range" id="home-value" min="1000000" max="10000000" step="200000" value="1500000" class="value-slider" data-calculator-target="slider" data-action="input->calculator#updateValue">
@@ -48,8 +48,8 @@
           </div>
           <div class="calculator-result">
             <div class="monthly-income">
-              <span class="income-amount">$2,500</span>
-              <span class="income-period">Every month over 10 years</span>
+              <span class="income-amount" data-calculator-target="incomeAmount">Calculating...</span>
+              <span class="income-period">Monthly Annuity Range*</span>
             </div>
             <%= link_to "Calculate", "#", class: "btn btn-primary calculate-btn" %>
           </div>
@@ -59,6 +59,7 @@
   </section>
 
   <!-- Unique Features Section -->
+  <br>
   <section class="unique-features-section">
     <div class="unique-features-container">
       <div class="section-header">
@@ -68,7 +69,12 @@
       <div class="unique-features-grid">
         <div class="unique-feature-card">
           <div class="feature-check">✓</div>
-          <h3 class="feature-title">Receive tax-free monthly annuity income</h3>
+          <h3 class="feature-title">Tax-free monthly income</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">No property appreciation sharing</h3>
         </div>
 
         <div class="unique-feature-card">
@@ -83,18 +89,21 @@
 
         <div class="unique-feature-card">
           <div class="feature-check">✓</div>
-          <h3 class="feature-title">Equity preserved for wealth transfer</h3>
+          <h3 class="feature-title">Stay in your home longer</h3>
         </div>
 
         <div class="unique-feature-card">
           <div class="feature-check">✓</div>
-          <h3 class="feature-title">No property appreciation sharing</h3>
+          <h3 class="feature-title">Equity preserved for wealth transfer</h3>
         </div>
+
       </div>
     </div>
+
   </section>
 
-  <!-- Detailed Features Section -->
+  <!-- Detailed Features Section - Commented Out -->
+  <!--
   <section class="detailed-features-section">
     <div class="detailed-features-container">
       <div class="detailed-features-grid">
@@ -172,6 +181,7 @@
       </div>
     </div>
   </section>
+  -->
 
   <!-- Partner Logos Section -->
   <section class="partners-section">
@@ -181,42 +191,26 @@
       </div>
       <div class="partners-logos">
         <div class="partner-logo">
-          <div class="logo-placeholder">
-            <svg viewBox="0 0 120 60" class="placeholder-svg">
-              <rect width="120" height="60" fill="#e2e8f0"/>
-              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 1</text>
-            </svg>
-          </div>
+          <%= image_tag "partners/westpac-logo.png", alt: "Westpac", class: "partner-logo-img" %>
         </div>
         <div class="partner-logo">
-          <div class="logo-placeholder">
-            <svg viewBox="0 0 120 60" class="placeholder-svg">
-              <rect width="120" height="60" fill="#e2e8f0"/>
-              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 2</text>
-            </svg>
-          </div>
+          <%= image_tag "partners/ing-logo.png", alt: "ING", class: "partner-logo-img" %>
         </div>
         <div class="partner-logo">
-          <div class="logo-placeholder">
-            <svg viewBox="0 0 120 60" class="placeholder-svg">
-              <rect width="120" height="60" fill="#e2e8f0"/>
-              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 3</text>
-            </svg>
-          </div>
+          <%= image_tag "partners/ppr-logo.png", alt: "PPR", class: "partner-logo-img" %>
         </div>
         <div class="partner-logo">
-          <div class="logo-placeholder">
-            <svg viewBox="0 0 120 60" class="placeholder-svg">
-              <rect width="120" height="60" fill="#e2e8f0"/>
-              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 4</text>
-            </svg>
-          </div>
+          <%= image_tag "partners/macquarie-logo.png", alt: "Macquarie", class: "partner-logo-img" %>
+        </div>
+        <div class="partner-logo">
+          <%= image_tag "partners/blackrock-logo.png", alt: "BlackRock", class: "partner-logo-img" %>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer CTA Section -->
+  <!-- Footer CTA Section - Commented Out -->
+  <!--
   <footer class="footer-cta-section">
     <div class="footer-cta-container">
       <div class="footer-cta-content">
@@ -225,6 +219,33 @@
           <p class="footer-cta-subtitle">Join FutureProof today and take control of your financial future</p>
           <%= link_to "Sign Up Now", new_user_registration_path, class: "btn btn-primary btn-lg" %>
         <% end %>
+      </div>
+    </div>
+  </footer>
+  -->
+
+  <!-- New Footer Section - Based on FutureProof Website -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-copyright">
+          <p>&copy;2025 Futureproof Financial Group Limited | All Rights Reserved</p>
+          <p class="trademark-notice">Equity Preservation Mortgage ® is a registered trademark of Futureproof Financial Group Limited</p>
+
+          <p class="disclaimer">
+            *Calculations are not a loan approval. Applications are subject to final property valuations, satisfactory security and borrower eligibility requirements. Full terms and conditions will be set out in the Final Loan Offer if an offer is made by one of our preferred lenders.
+          </p>
+
+          <p class="disclaimer">
+            All Equity Preservation Mortgages® are secured by registered first mortgage over a residential property and subject to independent valuation of your property. Financial results shown are true only for the examples given and do not include lender’s fees and charges. Different mortgage types, loan amounts and loan terms may result in a different total annuity income amounts and annuity durations.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <%= link_to "Privacy Policy", "#", class: "footer-link" %>
+          <%= link_to "Terms of Use", "#", class: "footer-link" %>
+          <%= link_to "FAQs", "#", class: "footer-link" %>
+        </div>
       </div>
     </div>
   </footer>

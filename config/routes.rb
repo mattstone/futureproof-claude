@@ -5,7 +5,13 @@ Rails.application.routes.draw do
   # Admin routes
   namespace :admin do
     resources :users
+    resources :mortgages
     root "users#index"
+  end
+
+  # API routes
+  namespace :api do
+    get 'mortgage_estimate', to: 'calculations#mortgage_estimate'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

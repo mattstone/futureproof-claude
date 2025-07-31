@@ -1,0 +1,56 @@
+<% content_for :page_title, "Mortgage Management" %>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <%= form_with(url: admin_mortgages_path, method: :get, local: true, class: "search-form") do |form| %>
+      <%= form.text_field :search, placeholder: "Search mortgages...", value: params[:search] %>
+    <% end %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "Add New Mortgage", new_admin_mortgage_path, class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<div class="admin-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mortgages.each do |mortgage| %>
+        <tr>
+          <td><%= mortgage.name %></td>
+          <td>
+            <span class="admin-badge <%= mortgage.interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
+              <%= mortgage.mortgage_type.humanize %>
+            </span>
+          </td>
+          <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
+          <td>
+            <%= link_to "View", admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+            <%= link_to "Edit", edit_admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+            <%= link_to "Delete", admin_mortgage_path(mortgage), method: :delete, 
+                data: { confirm: "Are you sure you want to delete this mortgage?" }, 
+                class: "admin-btn admin-btn-sm admin-btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <% if @mortgages.empty? %>
+    <div style="padding: 40px; text-align: center; color: #6b7280;">
+      <% if params[:search].present? %>
+        No mortgages found matching "<%= params[:search] %>"
+      <% else %>
+        No mortgages found. <%= link_to "Create the first mortgage", new_admin_mortgage_path, class: "admin-link" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

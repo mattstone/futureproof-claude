@@ -1,15 +1,33 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["slider", "value"]
+  static targets = ["slider", "value", "incomeAmount"]
   
   connect() {
     this.updateValue()
+    this.updateMonthlyIncome()
   }
   
-  updateValue() {
+  async updateValue() {
     const value = parseInt(this.sliderTarget.value)
     this.valueTarget.textContent = this.formatCurrency(value)
+    
+    // Update the monthly income with random mortgage calculation
+    await this.updateMonthlyIncome()
+  }
+  
+  async updateMonthlyIncome() {
+    try {
+      const homeValue = this.sliderTarget.value
+      const response = await fetch(`/api/mortgage_estimate?home_value=${homeValue}`)
+      const data = await response.json()
+      
+      if (this.hasIncomeAmountTarget) {
+        this.incomeAmountTarget.textContent = data.formatted_range
+      }
+    } catch (error) {
+      console.error('Error fetching mortgage estimate:', error)
+    }
   }
   
   formatCurrency(value) {

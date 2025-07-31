@@ -1,0 +1,43 @@
+<% content_for :page_title, "Add New Mortgage" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Mortgages", admin_mortgages_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<%= form_with(model: [:admin, @mortgage], local: true, class: "admin-form") do |form| %>
+  <h2>Add New Mortgage</h2>
+  
+  <% if @mortgage.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@mortgage.errors.count, "error") %> prohibited this mortgage from being saved:</h4>
+      <ul>
+        <% @mortgage.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_area :name, rows: 3, required: true, placeholder: "Enter mortgage name or description" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :mortgage_type, "Mortgage Type" %>
+    <%= form.select :mortgage_type, 
+        options_for_select([
+          ['Interest Only', 'interest_only'],
+          ['Principal and Interest', 'principal_and_interest']
+        ], @mortgage.mortgage_type), 
+        { prompt: 'Select Mortgage Type' }, 
+        { required: true } %>
+  </div>
+
+  <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
+    <%= form.submit "Create Mortgage", class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Cancel", admin_mortgages_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+<% end %>

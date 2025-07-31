@@ -1,0 +1,150 @@
+class FPCalculator
+
+  LOAN_TYPE = {
+    interest_only: "Interest only",
+    principal_and_interest: "Principal+Interest"
+  }
+
+
+  def initialize
+    require 'csv'
+
+    @reference_table = []
+
+    read_reference_table
+
+    # p @reference_table.inspect
+  end
+
+  def self.test
+    calc = FPCalculator.new
+
+    principal        = 1500000
+    principal        = 6000000
+    loan_duration    = 30
+    annuity_duration = 30
+    #loan_type = FPCalculator::LOAN_TYPE[:interest_only]
+
+    #p calc.calculate(principal, loan_duration, annuity_duration, loan_type)
+    p calc.calculate(principal, loan_duration, annuity_duration)
+
+  end
+
+  def find(loan_duration, annuity_duration, loan_type)
+    @reference_table.each do |row|
+      # p row.inspect
+
+      if row["loan_duration"].to_i    == loan_duration.to_i and
+         row["annuity_duration"].to_i == annuity_duration.to_i and
+         row["loan_type"]             == loan_type
+           return row
+      end
+    end
+
+    nil
+  end
+
+  def calculate(principal, loan_duration, annuity_duration)
+    result = {
+      interest_only_annual_income: 0,
+      interest_only_monthly_income: 0,
+      principal_and_interest_annual_income: 0,
+      principal_and_interest_monthly_income: 0
+    }
+
+    interest_only          = self.find(loan_duration, annuity_duration, LOAN_TYPE[:interest_only])
+    principal_and_interest = self.find(loan_duration, annuity_duration, LOAN_TYPE[:principal_and_interest])
+
+
+    p "interest_only"
+    p interest_only.inspect
+    p ""
+    p "principal_and_interest"
+    p principal_and_interest.inspect
+
+    if interest_only
+      incomes = incomes_from_row(principal, interest_only)
+      result[:interest_only_annual_income]  = incomes[:annual_income]
+      result[:interest_only_monthly_income] = incomes[:monthly_income]
+    end
+
+    if principal_and_interest
+      incomes = incomes_from_row(principal, principal_and_interest)
+      result[:principal_and_interest_annual_income]  = incomes[:annual_income]
+      result[:principal_and_interest_monthly_income] = incomes[:monthly_income]
+    end
+
+    # "loan_duration":"30" "annuity_duration":"10"
+    # "loan_type":"Interest only" "annual_income":"30000"
+    # "total_income":"300000" "roi":"375" "pcnt_hol":"23.5"
+    # "insurance_pa":"0.34" "holiday_enter":"1" "holiday_exit":"1.45"
+    # "repay_amount_factor":"1.24" "repay_start_factor":"1.37"
+    # "funder_profit_share":"2280770" "surplus":"4372649"
+    # "interest_deficit":"232007" "funder_earned":"1984092"
+    # "cum_interest_paid":"2374661" principal:1500000>
+    result
+  end
+
+  def read_reference_table
+    csv_text = File.read("#{Rails.root}/data/ReferenceTableV2.csv")
+    csv = CSV.parse(csv_text, :headers => true)
+    csv.each do |row|
+      new_row = row
+      new_row[:principal] = 1500000
+
+      @reference_table << new_row
+    end
+  end
+
+  def percent_of(amount, n)
+      (amount.to_f / n.to_f) * 100
+  end
+
+  # Interest only
+  # - is a debt at the end
+  #
+  # Principal and interest
+  # - no debt at the end
+  #
+  # TODO: minimal annual income of $10,000 per year..
+
+  def incomes_from_row(principal, row)
+    percentage     = percent_of(row["annual_income"], 1500000)
+    annual_income  = (principal.to_f * percentage.to_f/100).round(2)
+    monthly_income = (annual_income / 12.to_f).round(2)
+    { annual_income: annual_income, monthly_income: monthly_income }
+  end
+
+end
+
+
+
+# loan_duration	annuity_duration	loan_type	annual_income	total_income	roi	pcnt_hol	insurance_pa	holiday_enter	holiday_exit	repay_amount_factor	repay_start_factor	funder_profit_share	surplus	interest_deficit	funder_earned	cum_interest_paid
+# 30	10	Interest only	30000	300000	375	23.5	0.34	1	1.45	1.24	1.37	2280770	4372649	232007	1984092	2374661
+# 30	10	Principal+Interest	26299	262986	340	25	0.66	0.91	1.66	0.8	1	1850462	3464505	271794	1959781	2345564
+# 30	15	Interest only	27365	410468	286	25	0.67	1	1.46	0.5	1.3	1296811	2185267	376520	1763205	2110293
+# 30	15	Principal+Interest	22343	335142	295	25	1.01	1	1.51	1.05	1.37	1371425	2379564	336438	1831545	2192085
+# 30	20	Interest only	22165	443306	307	25	0.45	1.04	1.47	0.81	1.5	1644355	2976271	298003	1744816	2088284
+# 30	20	Principal+Interest	17993	359861	348	25	0.58	1.01	1.57	0.94	1.38	2094670	3981262	241496	1843813	2206768
+# 30	25	Interest only	19939	498478	255	25	0.63	1	1.48	0.97	1.42	1125259	1807291	319503	1613193	1930751
+# 30	25	Principal+Interest	15860	396494	326	25	0.68	1.01	1.55	0.92	1.5	1907571	3569920	258041	1744732	2088183
+# 30	30	Interest only	18436	553088	254	25	0.46	1	1.59	1.05	1.47	1249226	2124268	270806	1524411	1824492
+# 30	30	Principal+Interest	14199	425961	322	25	0.61	1	1.58	1	1.5	1951377	3683231	223864	1683213	2014554
+# 25	10	Interest only	27285	272848	250	25	0.65	1	1.39	0.86	1.36	1143899	1996433	302821	1553174	1858917
+# 25	10	Principal+Interest	19624	196243	250	25	0.9	0.93	1.48	1.08	1.18	1127078	1983061	266002	1607107	1923467
+# 25	15	Interest only	19716	295737	251	25	0.53	0.97	1.5	1.1	1.29	1220092	2184504	260691	1534949	1837104
+# 25	15	Principal+Interest	15830	237457	255	25	0.84	0.95	1.51	1.08	1.46	1232231	2212077	301813	1527421	1828094
+# 25	20	Interest only	16435	328701	250	25	0.46	0.96	1.52	1.06	1.4	1271845	2308130	257578	1470577	1760060
+# 25	20	Principal+Interest	13147	262946	250	25	0.84	0.98	1.48	1.2	1.47	1228931	2205878	277532	1494589	1788799
+# 25	25	Interest only	13429	335734	250	24.9	0.42	0.93	1.58	1.12	1.49	1329176	2444824	257926	1412909	1691041
+# 25	25	Principal+Interest	11424	285593	250	25	0.76	0.97	1.52	1.23	1.5	1290517	2353172	263208	1447489	1732428
+# 20	10	Interest only	18608	186081	191	28.4	0.71	0.88	1.57	0.62	1.48	773145	1315800	391750	1125392	1346926
+# 20	10	Principal+Interest	12474	124742	199	30.3	0.79	0.87	1.71	1.5	1.23	862635	1534255	333678	1191690	1426274
+# 20	15	Interest only	15461	231921	186	28.5	0.62	0.95	1.51	1.14	1.44	777124	1331483	316772	1137817	1361796
+# 20	15	Principal+Interest	1010	15145	254	25	0.21	0.99	1.4	1.02	1.38	1508451	2927890	250489	1295030	1549957
+# 20	20	Interest only	1240	24810	251	24.4	0.21	0.98	1.36	1.46	1.5	1476868	2859724	246226	1290509	1544546
+# 20	20	Principal+Interest	7643	152859	183	28.3	0.92	0.85	1.61	1.14	1.2	729277	1236308	309125	1156575	1384247
+# 15	10	Interest only	8354	83542	129	32.3	1.41	0.95	1.4	1.1	1.49	391465	492535	342254	819225	980490
+# 15	10	Principal+Interest	1088	10879	131	26.4	1.54	0.98	1.12	1.38	1.48	394939	511182	267749	905871	1084192
+# 15	15	Interest only	15734	236012	109	38.3	1.55	0.98	1.55	1.11	1.42	229124	53690	370708	709916	849663
+# 15	15	Principal+Interest	3805	57073	123	30.9	1.82	1	1.24	1.5	1.48	321889	314975	307162	848155
