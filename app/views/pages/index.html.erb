@@ -1,0 +1,232 @@
+<div class="homepage" style="margin: auto;">
+
+  <!-- Header Section -->
+  <section class="header-section">
+    <div class="header-container">
+      <div class="header-content">
+        <div class="top-left-logo">
+          <%= image_tag "futureproof-logo.png", class: "futureproof-logo" %>
+        </div>
+        <div class="logo-title-wrapper">
+          <%= image_tag "futureproof-financial-group-logo.jpeg", class: "company-logo" %>
+          <div class="title-group">
+            <h1 class="main-title">Equity Preservation Mortgage ®</h1>
+            <p class="subtitle-text">Tax free income from your property equity</p>
+          </div>
+        </div>
+        <div class="header-auth">
+          <% if user_signed_in? %>
+            <span class="nav-user">Welcome, <%= current_user.email %></span>
+            <% if current_user.admin? %>
+              <%= link_to "Admin", admin_root_path, class: "nav-link" %>
+            <% end %>
+            <%= link_to "Profile", edit_user_registration_path, class: "nav-link" %>
+            <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
+          <% else %>
+            <%= link_to "Sign In", new_user_session_path, class: "nav-link nav-signin" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Section with Calculator Overlay -->
+  <section class="hero-section">
+    <div class="hero-background">
+      <%= image_tag "hero.png", class: "hero-bg-image" %>
+    </div>
+    <div class="calculator-overlay">
+      <div class="calculator-card">
+        <h2 class="calculator-title">How much could you receive?</h2>
+        <div class="calculator-content">
+          <div class="calculator-input" data-controller="calculator">
+            <label for="home-value">Home Value</label>
+            <div class="slider-container">
+              <input type="range" id="home-value" min="1000000" max="10000000" step="200000" value="1500000" class="value-slider" data-calculator-target="slider" data-action="input->calculator#updateValue">
+              <div class="slider-value" data-calculator-target="value">$1,500,000</div>
+            </div>
+          </div>
+          <div class="calculator-result">
+            <div class="monthly-income">
+              <span class="income-amount">$2,500</span>
+              <span class="income-period">Every month over 10 years</span>
+            </div>
+            <%= link_to "Calculate", "#", class: "btn btn-primary calculate-btn" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unique Features Section -->
+  <section class="unique-features-section">
+    <div class="unique-features-container">
+      <div class="section-header">
+        <h2 class="section-title">Equity Preservation Mortgage ®</h2>
+      </div>
+
+      <div class="unique-features-grid">
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Receive tax-free monthly annuity income</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">No depletion of home equity</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Interest paid on behalf</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Equity preserved for wealth transfer</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">No property appreciation sharing</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Detailed Features Section -->
+  <section class="detailed-features-section">
+    <div class="detailed-features-container">
+      <div class="detailed-features-grid">
+        <div class="detailed-feature-card">
+          <div class="feature-image">
+            <div class="feature-placeholder">
+              <svg viewBox="0 0 300 200" class="placeholder-svg">
+                <rect width="300" height="200" fill="#e2e8f0"/>
+                <text x="150" y="100" text-anchor="middle" fill="#64748b">Flexibility</text>
+              </svg>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h3 class="feature-title">Flexibility</h3>
+            <p class="feature-description">
+              Maintain control over your home while accessing its equity for retirement income.
+            </p>
+            <%= link_to "Learn more", "#", class: "feature-link" %>
+          </div>
+        </div>
+
+        <div class="detailed-feature-card">
+          <div class="feature-image">
+            <div class="feature-placeholder">
+              <svg viewBox="0 0 300 200" class="placeholder-svg">
+                <rect width="300" height="200" fill="#e2e8f0"/>
+                <text x="150" y="100" text-anchor="middle" fill="#64748b">Wealth</text>
+              </svg>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h3 class="feature-title">Wealth</h3>
+            <p class="feature-description">
+              Preserve your home equity while generating steady monthly income for retirement.
+            </p>
+            <%= link_to "Learn more", "#", class: "feature-link" %>
+          </div>
+        </div>
+
+        <div class="detailed-feature-card">
+          <div class="feature-image">
+            <div class="feature-placeholder">
+              <svg viewBox="0 0 300 200" class="placeholder-svg">
+                <rect width="300" height="200" fill="#e2e8f0"/>
+                <text x="150" y="100" text-anchor="middle" fill="#64748b">Joy</text>
+              </svg>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h3 class="feature-title">Joy</h3>
+            <p class="feature-description">
+              Enjoy your retirement with financial peace of mind and the security of your own home.
+            </p>
+            <%= link_to "Learn more", "#", class: "feature-link" %>
+          </div>
+        </div>
+
+        <div class="detailed-feature-card">
+          <div class="feature-image">
+            <div class="feature-placeholder">
+              <svg viewBox="0 0 300 200" class="placeholder-svg">
+                <rect width="300" height="200" fill="#e2e8f0"/>
+                <text x="150" y="100" text-anchor="middle" fill="#64748b">Inheritance</text>
+              </svg>
+            </div>
+          </div>
+          <div class="feature-content">
+            <h3 class="feature-title">Inheritance</h3>
+            <p class="feature-description">
+              Preserve your home equity for your heirs while enjoying retirement income today.
+            </p>
+            <%= link_to "Learn more", "#", class: "feature-link" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partner Logos Section -->
+  <section class="partners-section">
+    <div class="partners-container">
+      <div class="section-header">
+        <h2 class="section-title">Trusted Partners</h2>
+      </div>
+      <div class="partners-logos">
+        <div class="partner-logo">
+          <div class="logo-placeholder">
+            <svg viewBox="0 0 120 60" class="placeholder-svg">
+              <rect width="120" height="60" fill="#e2e8f0"/>
+              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 1</text>
+            </svg>
+          </div>
+        </div>
+        <div class="partner-logo">
+          <div class="logo-placeholder">
+            <svg viewBox="0 0 120 60" class="placeholder-svg">
+              <rect width="120" height="60" fill="#e2e8f0"/>
+              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 2</text>
+            </svg>
+          </div>
+        </div>
+        <div class="partner-logo">
+          <div class="logo-placeholder">
+            <svg viewBox="0 0 120 60" class="placeholder-svg">
+              <rect width="120" height="60" fill="#e2e8f0"/>
+              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 3</text>
+            </svg>
+          </div>
+        </div>
+        <div class="partner-logo">
+          <div class="logo-placeholder">
+            <svg viewBox="0 0 120 60" class="placeholder-svg">
+              <rect width="120" height="60" fill="#e2e8f0"/>
+              <text x="60" y="35" text-anchor="middle" fill="#64748b" font-size="12">Partner 4</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA Section -->
+  <footer class="footer-cta-section">
+    <div class="footer-cta-container">
+      <div class="footer-cta-content">
+        <% unless user_signed_in? %>
+          <h2 class="footer-cta-title">Ready to Get Started?</h2>
+          <p class="footer-cta-subtitle">Join FutureProof today and take control of your financial future</p>
+          <%= link_to "Sign Up Now", new_user_registration_path, class: "btn btn-primary btn-lg" %>
+        <% end %>
+      </div>
+    </div>
+  </footer>
+
+</div>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en" style="color-scheme:light">
+  <head>
+    <title>Admin - <%= content_for(:title) || "Futureproof" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="admin-body">
+    <div class="admin-container">
+      <!-- Admin Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="admin-brand">
+          <%= link_to admin_root_path, class: "admin-brand-link" do %>
+            <h2>Admin Panel</h2>
+          <% end %>
+        </div>
+        
+        <nav class="admin-nav">
+          <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
+            <span>👥 Users</span>
+          <% end %>
+        </nav>
+        
+        <div class="admin-user-info">
+          <div class="admin-current-user">
+            <strong><%= current_user.display_name %></strong>
+            <small><%= current_user.email %></small>
+          </div>
+          <div class="admin-actions">
+            <%= link_to "View Site", root_path, class: "admin-link", target: "_blank" %>
+            <%= link_to "Sign Out", destroy_user_session_path, 
+                data: { "turbo-method": :delete }, class: "admin-link" %>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <div class="admin-header">
+          <h1><%= yield(:page_title) || "Admin Panel" %></h1>
+        </div>
+
+        <div class="admin-content">
+          <% if notice %>
+            <div class="alert alert-success"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="alert alert-danger"><%= alert %></div>
+          <% end %>
+          
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

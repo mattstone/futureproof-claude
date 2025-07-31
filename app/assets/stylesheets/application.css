@@ -8,3 +8,6 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+@import url("homepage.css");
+@import url("devise.css");

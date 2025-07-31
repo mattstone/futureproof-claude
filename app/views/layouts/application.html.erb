@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light" lan="en" style="color-scheme:light, background-color: transparent">
   <head>
     <title><%= content_for(:title) || "Futureproof" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -23,7 +23,14 @@
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <% if notice %>
+      <div class="alert alert-success alert-notice"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div class="alert alert-danger alert-alert"><%= alert %></div>
+    <% end %>
+    
+    <main class="homepage-main">
       <%= yield %>
     </main>
   </body>

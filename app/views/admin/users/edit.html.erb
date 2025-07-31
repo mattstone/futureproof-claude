@@ -1,0 +1,80 @@
+<% content_for :page_title, "Edit User" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Users", admin_users_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View User", admin_user_path(@user), class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<%= form_with(model: [:admin, @user], local: true, class: "admin-form") do |form| %>
+  <h2>Edit User: <%= @user.display_name %></h2>
+  
+  <% if @user.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.email_field :email, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :first_name %>
+    <%= form.text_field :first_name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :last_name %>
+    <%= form.text_field :last_name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :country_of_residence %>
+    <%= form.select :country_of_residence, 
+        options_for_select([
+          ['Australia', 'Australia'],
+          ['United States', 'United States'],
+          ['United Kingdom', 'United Kingdom'],
+          ['Canada', 'Canada'],
+          ['New Zealand', 'New Zealand'],
+          ['Other', 'Other']
+        ], @user.country_of_residence), 
+        { prompt: 'Select Country' }, 
+        { required: true } %>
+  </div>
+
+  <div class="field">
+    <%= form.label :password, "New Password (leave blank to keep current)" %>
+    <%= form.password_field :password %>
+    <small style="color: #6b7280; font-size: 14px;">Leave blank to keep current password</small>
+  </div>
+
+  <div class="field">
+    <%= form.label :password_confirmation, "Confirm New Password" %>
+    <%= form.password_field :password_confirmation %>
+  </div>
+
+  <div class="field checkbox-field">
+    <%= form.check_box :admin, disabled: (@user == current_user) %>
+    <%= form.label :admin, "Admin User" %>
+    <% if @user == current_user %>
+      <small style="color: #6b7280; font-size: 14px; margin-left: 8px;">You cannot change your own admin status</small>
+    <% end %>
+  </div>
+
+  <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
+    <%= form.submit "Update User", class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Cancel", admin_user_path(@user), class: "admin-btn admin-btn-secondary" %>
+  </div>
+<% end %>
