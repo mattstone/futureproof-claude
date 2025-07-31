@@ -1,0 +1,31 @@
+<!-- Header Section -->
+<section class="header-section">
+  <div class="header-container">
+    <div class="header-content">
+      <div class="top-left-logo">
+        <%= link_to root_path do %>
+          <%= image_tag "futureproof-logo.png", class: "futureproof-logo" %>
+        <% end %>
+      </div>
+      <div class="logo-title-wrapper">
+        <%= image_tag "futureproof-financial-group-logo.jpeg", class: "company-logo" %>
+        <div class="title-group">
+          <h1 class="main-title">Equity Preservation Mortgage ®</h1>
+          <p class="subtitle-text">Tax free income from your property equity</p>
+        </div>
+      </div>
+      <div class="header-auth">
+        <% if user_signed_in? %>
+          <span class="nav-user"><%= current_user.email %></span>
+          <% if current_user.admin? %>
+            <%= link_to "Admin", admin_root_path, class: "nav-link" %>
+          <% end %>
+          <%= link_to "Profile", edit_user_registration_path, class: "nav-link" %>
+          <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
+        <% else %>
+          <%= link_to "Sign In", new_user_session_path, class: "nav-link nav-signin" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

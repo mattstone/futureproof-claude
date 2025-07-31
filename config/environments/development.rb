@@ -33,18 +33,19 @@ Rails.application.configure do
 
   # Configure Action Mailer for development
   config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: 'localhost',
-    port: 1025,
-    domain: 'localhost:3000'
-  }
+  config.action_mailer.delivery_method = :letter_opener
+  config.action_mailer.perform_deliveries = true
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+
+  # reCAPTCHA test keys for development (always pass)
+  # In production, you should set proper environment variables
+  ENV['RECAPTCHA_SITE_KEY'] ||= '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+  ENV['RECAPTCHA_SECRET_KEY'] ||= '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

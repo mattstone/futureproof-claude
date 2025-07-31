@@ -24,10 +24,16 @@
 
   <body>
     <% if notice %>
-      <div class="alert alert-success alert-notice"><%= notice %></div>
+      <div class="alert alert-success alert-notice" data-controller="alert">
+        <%= notice %>
+        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
+      </div>
     <% end %>
     <% if alert %>
-      <div class="alert alert-danger alert-alert"><%= alert %></div>
+      <div class="alert alert-danger alert-alert" data-controller="alert">
+        <%= alert %>
+        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
+      </div>
     <% end %>
     
     <main class="homepage-main">

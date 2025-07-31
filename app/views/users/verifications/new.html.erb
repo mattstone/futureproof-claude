@@ -1,0 +1,72 @@
+<%= render 'shared/header' %>
+
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1 class="auth-title">Verify Your Email</h1>
+        <p class="auth-subtitle">Enter the 6-digit code sent to <%= @user.email %></p>
+      </div>
+
+      <div class="auth-form">
+        <%= form_with url: users_verifications_path, local: true, html: { class: "auth-form-inner" } do |f| %>
+          <%= hidden_field_tag :email, @user.email %>
+          
+          <% if flash[:alert] %>
+            <div class="alert alert-danger">
+              <%= flash[:alert] %>
+            </div>
+          <% end %>
+
+          <% if flash[:notice] %>
+            <div class="alert alert-success">
+              <%= flash[:notice] %>
+            </div>
+          <% end %>
+
+          <div class="form-group">
+            <%= label_tag :verification_code, "Verification Code", class: "form-label" %>
+            <%= text_field_tag :verification_code, "", 
+                class: "form-input verification-code-input", 
+                placeholder: "000000", 
+                maxlength: 6,
+                pattern: "[0-9]{6}",
+                inputmode: "numeric",
+                autocomplete: "one-time-code",
+                data: { 
+                  controller: "verification-code",
+                  action: "input->verification-code#formatInput"
+                } %>
+            <div class="form-hint">Enter the 6-digit code from your email</div>
+          </div>
+
+          <div class="form-actions">
+            <%= submit_tag "Verify Account", class: "btn btn-primary btn-lg auth-submit-btn" %>
+          </div>
+        <% end %>
+
+        <div class="verification-actions">
+          <p class="resend-text">Didn't receive the code?</p>
+          <%= link_to "Resend Code", 
+              resend_users_verifications_path(email: @user.email), 
+              data: { "turbo-method": :post },
+              class: "resend-link" %>
+        </div>
+
+        <div class="verification-info">
+          <p class="verification-note">
+            <strong>Code expires in 15 minutes.</strong><br>
+            Check your spam folder if you don't see the email.
+          </p>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <%= link_to "← Back to Sign Up", new_user_registration_path, class: "back-link" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>
+

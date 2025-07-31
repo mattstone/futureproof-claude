@@ -1,13 +1,193 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      /* Email styles need to be inline */
-    </style>
-  </head>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title><%= @email_title || "Futureproof Financial Group" %></title>
+  
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  
+  <style type="text/css">
+    /* Reset styles for email clients */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+    
+    /* Client-specific styles */
+    .ReadMsgBody { width: 100%; }
+    .ExternalClass { width: 100%; }
+    .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {
+      line-height: 100%;
+    }
+    
+    /* Prevent Webkit and Windows Mobile platforms from changing declared text sizes */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    /* Remove spacing between tables in Outlook 2007 and up */
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    
+    /* Fix webkit padding issue */
+    table {
+      border-spacing: 0 !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+      margin: 0 auto !important;
+    }
+    
+    /* iOS BLUE LINKS */
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: underline !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+    
+    /* Mobile styles */
+    @media only screen and (max-width: 480px) {
+      .mobile-hide {
+        display: none !important;
+      }
+      .mobile-center {
+        text-align: center !important;
+      }
+      .mobile-padding {
+        padding: 20px !important;
+      }
+      .mobile-font-size {
+        font-size: 16px !important;
+      }
+    }
+  </style>
+</head>
 
-  <body>
-    <%= yield %>
-  </body>
+<body style="margin: 0; padding: 0; width: 100%; height: 100%; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  
+  <!-- Email Container -->
+  <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc;">
+    <tr>
+      <td align="center" style="padding: 40px 0;">
+        
+        <!-- Main Email Table -->
+        <table role="presentation" style="width: 600px; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
+          <tr>
+            <td style="padding: 0; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+                <tr>
+                  <td align="center" style="padding: 40px 40px 32px 40px;">
+                    <%= image_tag "futureproof-logo.png", 
+                        alt: "Futureproof Financial Group", 
+                        style: "height: 60px; width: auto; display: block; margin: 0 auto 16px auto;",
+                        width: "auto",
+                        height: "60" %>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; line-height: 1.2; text-align: center;">
+                      Futureproof Financial Group
+                    </h1>
+                    <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.5; text-align: center;">
+                      Equity Preservation Mortgage ®
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Email Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <%= yield %>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 0; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+                <tr>
+                  <td style="padding: 32px 40px; text-align: center;">
+                    
+                    <!-- Company Info -->
+                    <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                      <strong style="color: #374151;">Futureproof Financial Group Limited</strong><br>
+                      Email: <a href="mailto:info@futureprooffinancial.app" style="color: #3b82f6; text-decoration: none;">info@futureprooffinancial.app</a><br>
+                      Website: <a href="<%= root_url %>" style="color: #3b82f6; text-decoration: none;">www.futureprooffinancial.app</a>
+                    </p>
+                    
+                    <!-- Legal Links -->
+                    <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 13px; line-height: 1.6;">
+                      <a href="<%= privacy_policy_url %>" style="color: #3b82f6; text-decoration: none; margin: 0 8px;">Privacy Policy</a> |
+                      <a href="<%= terms_of_use_url %>" style="color: #3b82f6; text-decoration: none; margin: 0 8px;">Terms of Use</a>
+                    </p>
+                    
+                    <!-- Copyright -->
+                    <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 12px; line-height: 1.6;">
+                      &copy;<%= Date.current.year %> Futureproof Financial Group Limited | All Rights Reserved
+                    </p>
+                    
+                    <!-- Trademark -->
+                    <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 12px; line-height: 1.6;">
+                      Equity Preservation Mortgage ® is a registered trademark of Futureproof Financial Group Limited
+                    </p>
+                    
+                    <!-- Disclaimer -->
+                    <p style="margin: 0; color: #9ca3af; font-size: 11px; line-height: 1.5; max-width: 500px; margin: 0 auto;">
+                      This email was sent to you because you have an account with Futureproof Financial Group. 
+                      If you received this email in error, please contact us immediately.
+                    </p>
+                    
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+        </table>
+        
+      </td>
+    </tr>
+  </table>
+
+  <!-- Outlook-specific table wrapper -->
+  <!--[if mso]>
+  </td>
+  </tr>
+  </table>
+  <![endif]-->
+
+</body>
 </html>

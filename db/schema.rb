@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_013001) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_31_123835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "applications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "address"
+    t.integer "home_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "ownership_status", default: 0, null: false
+    t.integer "property_state", default: 0, null: false
+    t.boolean "has_existing_mortgage", default: false, null: false
+    t.decimal "existing_mortgage_amount", precision: 12, scale: 2
+    t.integer "status", default: 0, null: false
+    t.text "rejected_reason"
+    t.index ["user_id"], name: "index_applications_on_user_id"
+  end
 
   create_table "mortgages", force: :cascade do |t|
     t.text "name"
@@ -37,8 +52,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_013001) do
     t.string "last_name"
     t.string "country_of_residence", default: "Australia"
     t.boolean "admin", default: false, null: false
+    t.string "verification_code"
+    t.datetime "verification_code_expires_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "applications", "users"
 end

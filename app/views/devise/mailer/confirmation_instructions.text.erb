@@ -1,0 +1,14 @@
+Welcome to Futureproof!
+Thank you for creating your account with us.
+
+Hello <%= @email %>,
+
+We're excited to have you join the Futureproof Financial Group family! To complete your registration and secure your account, please confirm your email address by visiting the link below.
+
+Confirm your account:
+<%= confirmation_url(@resource, confirmation_token: @token) %>
+
+Once confirmed, you'll be able to access your account and begin your application for an Equity Preservation Mortgage®.
+
+SECURITY NOTICE:
+This confirmation link will expire in 24 hours for your security. If you didn't create an account with us, please ignore this email or contact our support team.

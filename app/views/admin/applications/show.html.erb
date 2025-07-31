@@ -1,0 +1,77 @@
+<% content_for :page_title, "Application Details" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Applications", admin_applications_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "Edit Application", edit_admin_application_path(@application), class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Delete Application", admin_application_path(@application), method: :delete, 
+        data: { confirm: "Are you sure you want to delete this application?" }, 
+        class: "admin-btn admin-btn-danger" %>
+  </div>
+</div>
+
+<div class="admin-form">
+  <h2>Application #<%= @application.id %></h2>
+  
+  <div class="application-details">
+    <div class="detail-row">
+      <strong>User:</strong>
+      <div>
+        <%= @application.user.display_name %>
+        <br>
+        <small style="color: #6b7280;"><%= @application.user.email %></small>
+        <br>
+        <%= link_to "View User", admin_user_path(@application.user), class: "admin-link" %>
+      </div>
+    </div>
+    
+    <div class="detail-row">
+      <strong>Address:</strong>
+      <%= @application.address %>
+    </div>
+    
+    <div class="detail-row">
+      <strong>Home Value:</strong>
+      <span class="admin-badge admin-badge-user">
+        <%= @application.formatted_home_value %>
+      </span>
+    </div>
+    
+    <div class="detail-row">
+      <strong>Created:</strong>
+      <%= @application.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+    </div>
+    
+    <div class="detail-row">
+      <strong>Last Updated:</strong>
+      <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+    </div>
+  </div>
+</div>
+
+<style>
+.application-details {
+  margin-top: 24px;
+}
+
+.detail-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 16px;
+  align-items: start;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row strong {
+  min-width: 120px;
+  color: #374151;
+  flex-shrink: 0;
+}
+</style>

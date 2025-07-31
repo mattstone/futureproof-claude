@@ -1,0 +1,113 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Account Created</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">2</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">3</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-label">Pre-approval</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Property Details Saved</h1>
+        <p class="application-subtitle">Your property information has been successfully recorded</p>
+      </div>
+
+      <div class="application-form">
+        <div class="success-content">
+          <div class="success-icon">
+            <div class="checkmark-circle">
+              <div class="checkmark">✓</div>
+            </div>
+          </div>
+
+          <div class="property-summary">
+            <h3 class="summary-title">Property Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Address:</span>
+                <span class="summary-value"><%= @application.address %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Estimated Value:</span>
+                <span class="summary-value"><%= @application.formatted_home_value %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Ownership:</span>
+                <span class="summary-value"><%= @application.ownership_status_display %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Property Type:</span>
+                <span class="summary-value"><%= @application.property_state_display %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Existing Mortgage:</span>
+                <span class="summary-value">
+                  <% if @application.has_existing_mortgage? %>
+                    Yes - <%= @application.formatted_existing_mortgage_amount %>
+                  <% else %>
+                    No
+                  <% end %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-steps">
+            <h3 class="next-steps-title">What's Next?</h3>
+            <div class="next-steps-content">
+              <div class="next-step-item">
+                <div class="step-icon">3</div>
+                <div class="step-content">
+                  <h4>Income & Loan Options</h4>
+                  <p>Provide your financial information and select your preferred loan structure.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">4</div>
+                <div class="step-content">
+                  <h4>Apply for Pre-approval</h4>
+                  <p>Submit your complete application and receive a decision within 48 hours.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg application-submit-btn" disabled>
+            Continue to Step 3 (Coming Soon)
+          </button>
+          <%= link_to "Edit Property Details", edit_application_path(@application), class: "btn btn-secondary" %>
+          <%= link_to "Back to Home", root_path, class: "btn btn-secondary" %>
+        </div>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * Your application is automatically saved. You can return at any time to continue the process.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

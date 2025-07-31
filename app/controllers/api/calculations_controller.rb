@@ -16,6 +16,16 @@ class Api::CalculationsController < ApplicationController
     }
   end
 
+  def check_email
+    email = params[:email]
+    exists = User.exists?(email: email) if email.present?
+    
+    render json: { 
+      exists: !!exists,
+      email: email 
+    }
+  end
+
   private
 
   def number_to_currency(amount, options = {})

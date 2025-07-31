@@ -1,17 +1,28 @@
 Rails.application.routes.draw do
-  devise_for :users
+  namespace :users do
+    resources :verifications, only: [:new, :create] do
+      collection do
+        post :resend
+      end
+    end
+  end
+  devise_for :users, controllers: {
+    registrations: 'users/registrations'
+  }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Admin routes
   namespace :admin do
     resources :users
     resources :mortgages
+    resources :applications
     root "users#index"
   end
 
   # API routes
   namespace :api do
     get 'mortgage_estimate', to: 'calculations#mortgage_estimate'
+    get 'check_email', to: 'calculations#check_email'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -21,6 +32,16 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
+  # Legal pages
+  get "privacy-policy", to: "pages#privacy_policy"
+  get "terms-of-use", to: "pages#terms_of_use"
+  
+  # Apply page
+  get "apply", to: "pages#apply"
+
+  # Application routes
+  resources :applications, except: [:index, :destroy]
 
   # Defines the root path route ("/")
   root "pages#index"

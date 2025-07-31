@@ -1,0 +1,112 @@
+<%= render 'shared/header' %>
+
+<div class="apply-page">
+  <div class="apply-container">
+    <div class="apply-header">
+      <h1>Application Process</h1>
+      <p class="apply-subtitle">Follow these simple steps to apply for your Equity Preservation Mortgage®</p>
+    </div>
+
+    <div class="steps-container">
+      <!-- Step 1: Create Account -->
+      <div class="step-card">
+        <div class="step-number step-1">1</div>
+        <div class="step-content">
+          <h2 class="step-title">Create Account</h2>
+          <p class="step-description">
+            Get started by creating your secure account. We'll send you a confirmation email to verify your identity and set up two-factor authentication for your security.
+          </p>
+          <ul class="step-details">
+            <li>Provide your basic contact information</li>
+            <li>Verify your email address</li>
+            <li>Set up secure login credentials</li>
+            <li>Enable two-factor authentication</li>
+          </ul>
+          <div class="step-duration">
+            <span class="duration-text">Takes about 5 minutes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Property Details -->
+      <div class="step-card">
+        <div class="step-number step-2">2</div>
+        <div class="step-content">
+          <h2 class="step-title">Property Details</h2>
+          <p class="step-description">
+            Tell us about your property. We'll need information about your home's location, estimated value, and current mortgage status to calculate your potential monthly income.
+          </p>
+          <ul class="step-details">
+            <li>Property address and type</li>
+            <li>Current estimated market value</li>
+            <li>Existing mortgage details (if any)</li>
+            <li>Property ownership documentation</li>
+          </ul>
+          <div class="step-duration">
+            <span class="duration-text">Takes about 10 minutes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Income and Loan Options -->
+      <div class="step-card">
+        <div class="step-number step-3">3</div>
+        <div class="step-content">
+          <h2 class="step-title">Income and Loan Options</h2>
+          <p class="step-description">
+            Provide your financial information and select your preferred loan structure. This helps us determine the best Equity Preservation Mortgage® option for your situation.
+          </p>
+          <ul class="step-details">
+            <li>Current income and financial position</li>
+            <li>Preferred monthly income amount</li>
+            <li>Loan term preferences</li>
+            <li>Interest-only or principal & interest options</li>
+          </ul>
+          <div class="step-duration">
+            <span class="duration-text">Takes about 15 minutes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Apply for Pre-approval -->
+      <div class="step-card">
+        <div class="step-number step-4">4</div>
+        <div class="step-content">
+          <h2 class="step-title">Apply for Pre-approval</h2>
+          <p class="step-description">
+            Submit your complete application for pre-approval. Our team will review your information and one of our preferred lenders will provide you with a formal loan offer.
+          </p>
+          <ul class="step-details">
+            <li>Review and submit your application</li>
+            <li>Upload required supporting documents</li>
+            <li>Schedule property valuation (if required)</li>
+            <li>Receive pre-approval decision within 48 hours</li>
+          </ul>
+          <div class="step-duration">
+            <span class="duration-text">Decision within 48 hours</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="apply-footer">
+      <div class="apply-actions">
+        <% if user_signed_in? %>
+          <%= link_to "Start Your Application", "#", class: "btn btn-primary btn-lg start-application-btn" %>
+        <% else %>
+          <%= link_to "Create Account to Start", new_user_registration_path, class: "btn btn-primary btn-lg start-application-btn" %>
+        <% end %>
+        <%= link_to "← Back to Home", root_path, class: "back-link" %>
+      </div>
+      
+      <div class="apply-disclaimer">
+        <p class="disclaimer-text">
+          * Applications are subject to final property valuations, satisfactory security and borrower eligibility requirements. 
+          Full terms and conditions will be set out in the Final Loan Offer if an offer is made by one of our preferred lenders.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

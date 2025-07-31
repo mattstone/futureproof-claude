@@ -28,6 +28,9 @@ gem 'csv'
 # Use Devise for authentication [https://github.com/plataformatec/devise]
 gem "devise"
 
+# Google reCAPTCHA for spam protection
+gem "recaptcha"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
@@ -63,6 +66,9 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem 'claude-on-rails'
+  
+  # Preview emails in browser during development
+  gem "letter_opener"
 end
 
 group :test do

@@ -1,34 +1,6 @@
 <div class="homepage" style="margin: auto;">
 
-  <!-- Header Section -->
-  <section class="header-section">
-    <div class="header-container">
-      <div class="header-content">
-        <div class="top-left-logo">
-          <%= image_tag "futureproof-logo.png", class: "futureproof-logo" %>
-        </div>
-        <div class="logo-title-wrapper">
-          <%= image_tag "futureproof-financial-group-logo.jpeg", class: "company-logo" %>
-          <div class="title-group">
-            <h1 class="main-title">Equity Preservation Mortgage ®</h1>
-            <p class="subtitle-text">Tax free income from your property equity</p>
-          </div>
-        </div>
-        <div class="header-auth">
-          <% if user_signed_in? %>
-            <span class="nav-user">Welcome, <%= current_user.email %></span>
-            <% if current_user.admin? %>
-              <%= link_to "Admin", admin_root_path, class: "nav-link" %>
-            <% end %>
-            <%= link_to "Profile", edit_user_registration_path, class: "nav-link" %>
-            <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
-          <% else %>
-            <%= link_to "Sign In", new_user_session_path, class: "nav-link nav-signin" %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </section>
+  <%= render 'shared/header' %>
 
   <!-- Hero Section with Calculator Overlay -->
   <section class="hero-section">
@@ -51,7 +23,7 @@
               <span class="income-amount" data-calculator-target="incomeAmount">Calculating...</span>
               <span class="income-period">Monthly Annuity Range*</span>
             </div>
-            <%= link_to "Calculate", "#", class: "btn btn-primary calculate-btn" %>
+            <%= link_to "Apply Now", apply_path, class: "btn btn-primary calculate-btn" %>
           </div>
         </div>
       </div>
@@ -224,30 +196,6 @@
   </footer>
   -->
 
-  <!-- New Footer Section - Based on FutureProof Website -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-content">
-        <div class="footer-copyright">
-          <p>&copy;2025 Futureproof Financial Group Limited | All Rights Reserved</p>
-          <p class="trademark-notice">Equity Preservation Mortgage ® is a registered trademark of Futureproof Financial Group Limited</p>
-
-          <p class="disclaimer">
-            *Calculations are not a loan approval. Applications are subject to final property valuations, satisfactory security and borrower eligibility requirements. Full terms and conditions will be set out in the Final Loan Offer if an offer is made by one of our preferred lenders.
-          </p>
-
-          <p class="disclaimer">
-            All Equity Preservation Mortgages® are secured by registered first mortgage over a residential property and subject to independent valuation of your property. Financial results shown are true only for the examples given and do not include lender’s fees and charges. Different mortgage types, loan amounts and loan terms may result in a different total annuity income amounts and annuity durations.
-          </p>
-        </div>
-
-        <div class="footer-links">
-          <%= link_to "Privacy Policy", "#", class: "footer-link" %>
-          <%= link_to "Terms of Use", "#", class: "footer-link" %>
-          <%= link_to "FAQs", "#", class: "footer-link" %>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <%= render 'shared/footer' %>
 
 </div>

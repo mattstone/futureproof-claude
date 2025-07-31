@@ -1,0 +1,51 @@
+<% content_for :page_title, "Edit Application" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Applications", admin_applications_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Application", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<%= form_with(model: [:admin, @application], local: true, class: "admin-form") do |form| %>
+  <h2>Edit Application #<%= @application.id %></h2>
+  
+  <% if @application.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
+      <ul>
+        <% @application.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :user_id, "User" %>
+    <%= form.select :user_id, 
+        options_from_collection_for_select(@users, :id, :display_name, @application.user_id), 
+        { prompt: 'Select User' }, 
+        { required: true } %>
+  </div>
+
+  <div class="field">
+    <%= form.label :address %>
+    <%= form.text_area :address, rows: 3, required: true, placeholder: "Enter property address" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :home_value, "Home Value ($)" %>
+    <%= form.number_field :home_value, required: true, min: 1, max: 50000000, 
+        placeholder: "e.g., 1500000", step: 1000 %>
+    <small style="color: #6b7280; font-size: 14px;">Enter amount without commas (e.g., 1500000 for $1.5M)</small>
+  </div>
+
+  <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
+    <%= form.submit "Update Application", class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
+  </div>
+<% end %>

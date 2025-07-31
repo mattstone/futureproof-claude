@@ -1,58 +1,153 @@
-<div class="devise-form">
-  <h2>Sign up</h2>
+<%= render 'shared/header' %>
 
-  <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-    <%= render "devise/shared/error_messages", resource: resource %>
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1 class="auth-title" data-auth-target="title">Create Account</h1>
+        <p class="auth-subtitle" data-auth-target="subtitle">Start your journey with Equity Preservation Mortgage®</p>
+      </div>
 
-    <div class="field">
-      <%= f.label :first_name %>
-      <%= f.text_field :first_name, autofocus: true, required: true %>
+      <div class="form-toggle" data-controller="auth-form">
+        <!-- Registration Form -->
+        <div class="auth-form registration-form" data-auth-target="registrationForm">
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name), local: true, html: { class: "auth-form-inner" }) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+
+            <div class="form-group">
+              <%= f.label :first_name, class: "form-label" %>
+              <%= f.text_field :first_name, class: "form-input", placeholder: "Enter your first name" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :last_name, class: "form-label" %>
+              <%= f.text_field :last_name, class: "form-input", placeholder: "Enter your last name" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :email, class: "form-label" %>
+              <%= f.email_field :email, 
+                  class: "form-input", 
+                  placeholder: "Enter your email address",
+                  data: { 
+                    "auth-form-target": "emailInput",
+                    "action": "blur->auth-form#checkEmail change->auth-form#checkEmail"
+                  } %>
+              <div class="email-status" data-auth-form-target="emailStatus"></div>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :country_of_residence, "Country of Residence", class: "form-label" %>
+              <%= f.select :country_of_residence, 
+                  options_for_select([
+                    ['Australia', 'Australia'],
+                    ['New Zealand', 'New Zealand'],
+                    ['United Kingdom', 'United Kingdom'],
+                    ['United States', 'United States'],
+                    ['Canada', 'Canada'],
+                    ['Other', 'Other']
+                  ], 'Australia'), 
+                  {}, 
+                  { class: "form-select" } %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :password, class: "form-label" %>
+              <% if @minimum_password_length %>
+                <span class="password-hint">(<%= @minimum_password_length %> characters minimum)</span>
+              <% end %>
+              <%= f.password_field :password, 
+                  class: "form-input", 
+                  placeholder: "Create a secure password",
+                  autocomplete: "new-password" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+              <%= f.password_field :password_confirmation, 
+                  class: "form-input", 
+                  placeholder: "Confirm your password",
+                  autocomplete: "new-password" %>
+            </div>
+
+            <div class="form-group recaptcha-group">
+              <%= recaptcha_tags theme: 'light', size: 'normal' %>
+            </div>
+
+            <div class="form-actions">
+              <%= f.submit "Create Account", class: "btn btn-primary btn-lg auth-submit-btn" %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Login Form -->  
+        <div class="auth-form login-form" data-auth-target="loginForm" style="display: none;">
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true, html: { class: "auth-form-inner" }) do |f| %>
+
+            <div class="form-group">
+              <%= f.label :email, class: "form-label" %>
+              <%= f.email_field :email, 
+                  class: "form-input", 
+                  placeholder: "Enter your email address",
+                  data: { "auth-form-target": "loginEmailInput" } %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :password, class: "form-label" %>
+              <%= f.password_field :password, 
+                  class: "form-input", 
+                  placeholder: "Enter your password",
+                  autocomplete: "current-password" %>
+            </div>
+
+            <% if devise_mapping.rememberable? %>
+              <div class="form-group checkbox-group">
+                <%= f.check_box :remember_me, class: "form-checkbox" %>
+                <%= f.label :remember_me, "Remember me", class: "checkbox-label" %>
+              </div>
+            <% end %>
+
+            <div class="form-actions">
+              <%= f.submit "Sign In", class: "btn btn-primary btn-lg auth-submit-btn" %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Toggle Links -->
+        <div class="auth-toggle">
+          <div class="toggle-to-login" data-auth-target="toggleToLogin" style="display: none;">
+            <p class="toggle-text">Already have an account? 
+              <button type="button" class="toggle-link" data-action="click->auth-form#showLogin">Sign In</button>
+            </p>
+          </div>
+          
+          <div class="toggle-to-register" data-auth-target="toggleToRegister" style="display: none;">
+            <p class="toggle-text">Don't have an account? 
+              <button type="button" class="toggle-link" data-action="click->auth-form#showRegistration">Create Account</button>
+            </p>
+          </div>
+        </div>
+
+        <!-- Additional Links -->
+        <div class="auth-links">
+          <div class="auth-links-row">
+            <%= link_to "Forgot your password?", new_password_path(resource_name), class: "auth-link" %>
+            <span class="auth-links-separator" data-auth-target="linkSeparator" style="display: none;"> | </span>
+            <button type="button" class="auth-link-button" data-auth-target="createAccountLink" data-action="click->auth-form#showRegistration" style="display: none;">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <p class="auth-disclaimer">
+          By creating an account, you agree to our 
+          <%= link_to "Terms of Use", terms_of_use_path, class: "auth-link" %> and 
+          <%= link_to "Privacy Policy", privacy_policy_path, class: "auth-link" %>.
+        </p>
+        <%= link_to "← Back to Home", root_path, class: "back-link" %>
+      </div>
     </div>
-
-    <div class="field">
-      <%= f.label :last_name %>
-      <%= f.text_field :last_name, required: true %>
-    </div>
-
-    <div class="field">
-      <%= f.label :email %>
-      <%= f.email_field :email, autocomplete: "email", required: true %>
-    </div>
-
-    <div class="field">
-      <%= f.label :country_of_residence %>
-      <%= f.select :country_of_residence, 
-          options_for_select([
-            ['Australia', 'Australia'],
-            ['United States', 'United States'],
-            ['United Kingdom', 'United Kingdom'],
-            ['Canada', 'Canada'],
-            ['New Zealand', 'New Zealand'],
-            ['Other', 'Other']
-          ], 'Australia'), 
-          { prompt: 'Select Country' }, 
-          { required: true } %>
-    </div>
-
-    <div class="field">
-      <%= f.label :password %>
-      <% if @minimum_password_length %>
-      <em>(<%= @minimum_password_length %> characters minimum)</em>
-      <% end %>
-      <%= f.password_field :password, autocomplete: "new-password", required: true %>
-    </div>
-
-    <div class="field">
-      <%= f.label :password_confirmation %>
-      <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true %>
-    </div>
-
-    <div class="actions">
-      <%= f.submit "Sign up", class: "btn btn-primary" %>
-    </div>
-  <% end %>
-
-  <div class="devise-links">
-    <%= render "devise/shared/links" %>
   </div>
 </div>
+
+<%= render 'shared/footer' %>

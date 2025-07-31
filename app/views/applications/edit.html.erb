@@ -1,0 +1,141 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Account Created</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">2</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-label">Pre-approval</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Edit Property Details</h1>
+        <p class="application-subtitle">Update your property information as needed</p>
+      </div>
+
+      <div class="application-form">
+        <%= form_with model: @application, local: true, html: { 
+              class: "application-form-inner",
+              data: { controller: "application-form" }
+            } do |f| %>
+          
+          <%= render "shared/error_messages", resource: @application %>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Property Information</h3>
+            
+            <div class="form-group">
+              <%= f.label :address, "Property Address", class: "form-label" %>
+              <%= f.text_area :address, 
+                  class: "form-input", 
+                  placeholder: "Enter the complete address of your property",
+                  rows: 3 %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :home_value, "Estimated Property Value", class: "form-label" %>
+              <div class="input-with-prefix">
+                <span class="input-prefix">$</span>
+                <%= f.number_field :home_value,
+                    class: "form-input with-prefix",
+                    placeholder: "1,500,000",
+                    min: 100000,
+                    max: 50000000,
+                    step: 10000 %>
+              </div>
+              <div class="form-hint">Enter your best estimate of the current market value</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <%= f.label :ownership_status, "Ownership Status", class: "form-label" %>
+                <%= f.select :ownership_status,
+                    options_for_select([
+                      ['Individual', 'individual'],
+                      ['Joint Ownership', 'joint'],
+                      ['Company', 'company'],
+                      ['Superannuation Fund', 'super']
+                    ], @application.ownership_status),
+                    {},
+                    { class: "form-select" } %>
+              </div>
+
+              <div class="form-group">
+                <%= f.label :property_state, "Property Type", class: "form-label" %>
+                <%= f.select :property_state,
+                    options_for_select([
+                      ['Primary Residence', 'primary_residence'],
+                      ['Investment Property', 'investment'],
+                      ['Holiday Home', 'holiday']
+                    ], @application.property_state),
+                    {},
+                    { class: "form-select" } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Existing Mortgage</h3>
+            
+            <div class="form-group checkbox-group">
+              <%= f.check_box :has_existing_mortgage, 
+                  class: "form-checkbox",
+                  data: { 
+                    "application-form-target": "mortgageCheckbox",
+                    "action": "change->application-form#toggleMortgageAmount"
+                  } %>
+              <%= f.label :has_existing_mortgage, "This property has an existing mortgage", class: "checkbox-label" %>
+            </div>
+
+            <div class="form-group mortgage-amount-group" 
+                 data-application-form-target="mortgageAmountGroup"
+                 style="display: <%= @application.has_existing_mortgage? ? 'block' : 'none' %>;">
+              <%= f.label :existing_mortgage_amount, "Outstanding Mortgage Amount", class: "form-label" %>
+              <div class="input-with-prefix">
+                <span class="input-prefix">$</span>
+                <%= f.number_field :existing_mortgage_amount,
+                    class: "form-input with-prefix",
+                    placeholder: "500,000",
+                    min: 0,
+                    max: 50000000,
+                    step: 1000 %>
+              </div>
+              <div class="form-hint">Enter the current outstanding balance on your mortgage</div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <%= f.submit "Update Property Details", class: "btn btn-primary btn-lg application-submit-btn" %>
+            <%= link_to "Cancel", application_path(@application), class: "btn btn-secondary" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * All information provided will be kept confidential and used only for your mortgage application assessment.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

@@ -42,3 +42,5 @@
 .claude-on-rails/sessions/
 .claude-swarm/
 claude-swarm.log
+
+/config/credentials/production.key

@@ -35,6 +35,9 @@
           <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
             <span>🏠 Mortgages</span>
           <% end %>
+          <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
+            <span>📋 Applications</span>
+          <% end %>
         </nav>
         
         <div class="admin-user-info">
