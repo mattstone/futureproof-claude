@@ -1,0 +1,228 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Account Created</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">2</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">3</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-label">Pre-approval</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Income & Loan Options</h1>
+        <p class="application-subtitle">Configure your loan terms to calculate your potential monthly income</p>
+      </div>
+
+      <div class="application-form">
+        <%= form_with model: @application, url: update_income_and_loan_application_path(@application), local: true, html: { 
+              class: "application-form-inner",
+              data: { 
+                controller: "income-loan-form",
+                "income-loan-form-principal-value": @application.home_value || 1500000
+              }
+            } do |f| %>
+          
+          <%= render "shared/error_messages", resource: @application %>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Property Summary</h3>
+            
+            <div class="property-summary">
+              <div class="summary-title">Your Property Details</div>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Address:</span>
+                  <span class="summary-value"><%= @application.address %></span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Property Value:</span>
+                  <span class="summary-value"><%= @application.formatted_home_value %></span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Ownership:</span>
+                  <span class="summary-value"><%= @application.ownership_status_display %></span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Property Type:</span>
+                  <span class="summary-value"><%= @application.property_state_display %></span>
+                </div>
+                <% if @application.has_existing_mortgage? %>
+                  <div class="summary-item">
+                    <span class="summary-label">Existing Mortgage:</span>
+                    <span class="summary-value"><%= @application.formatted_existing_mortgage_amount %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Loan Configuration</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <%= f.label :loan_term, "Loan Term", class: "form-label" %>
+                <div class="slider-container">
+                  <%= f.range_field :loan_term,
+                      min: 10,
+                      max: 30,
+                      step: 5,
+                      value: @application.loan_term || 30,
+                      class: "value-slider",
+                      data: { 
+                        "income-loan-form-target": "loanTermSlider",
+                        "action": "input->income-loan-form#updateLoanTerm"
+                      } %>
+                  <div class="slider-value" data-income-loan-form-target="loanTermDisplay">
+                    <%= @application.loan_term || 30 %> years
+                  </div>
+                </div>
+                <div class="form-hint">Choose your loan repayment period</div>
+              </div>
+
+              <div class="form-group">
+                <%= f.label :income_payout_term, "Income Payout Term", class: "form-label" %>
+                <div class="slider-container">
+                  <%= f.range_field :income_payout_term,
+                      min: 10,
+                      max: 30,
+                      step: 5,
+                      value: @application.income_payout_term || 30,
+                      class: "value-slider",
+                      data: { 
+                        "income-loan-form-target": "incomePayoutSlider",
+                        "action": "input->income-loan-form#updateIncomePayout"
+                      } %>
+                  <div class="slider-value" data-income-loan-form-target="incomePayoutDisplay">
+                    <%= @application.income_payout_term || 30 %> years
+                  </div>
+                </div>
+                <div class="form-hint">Choose your income distribution period</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mortgage Type</label>
+              <div class="mortgage-type-cards">
+                <% Mortgage.all.each do |mortgage| %>
+                  <div class="mortgage-card <%= 'selected' if @application.mortgage_id == mortgage.id || (@application.mortgage_id.nil? && mortgage.mortgage_type_principal_and_interest?) %>" 
+                       data-mortgage-id="<%= mortgage.id %>"
+                       data-income-loan-form-target="mortgageCard"
+                       data-action="click->income-loan-form#selectMortgage">
+                    <div class="mortgage-card-header">
+                      <h4 class="mortgage-card-title"><%= mortgage.name %></h4>
+                    </div>
+                    <div class="mortgage-card-content">
+                      <% if mortgage.mortgage_type_principal_and_interest? %>
+                        <div class="mortgage-badge recommended">Recommended</div>
+                      <% end %>
+                      
+                      <div class="mortgage-income-display">
+                        <div class="income-label">Estimated Monthly Income</div>
+                        <div class="income-amount" data-income-loan-form-target="<%= mortgage.mortgage_type_interest_only? ? 'interestOnlyIncome' : 'principalInterestIncome' %>">
+                          Calculating...
+                        </div>
+                        <div class="repayment-info">
+                          <% if mortgage.mortgage_type_interest_only? %>
+                            <span class="money-icon">💰</span>
+                            <span>Loan repayment at end of term <span data-income-loan-form-target="interestOnlyRepayment">Calculating...</span></span>
+                          <% else %>
+                            <span class="money-icon">💰</span>
+                            <span>No repayment at end of term</span>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              <%= f.hidden_field :mortgage_id, data: { "income-loan-form-target": "mortgageHidden" } %>
+              <%= f.hidden_field :growth_rate, data: { "income-loan-form-target": "growthRateHidden" } %>
+              <div class="form-hint">Choose the Equity Preservation Mortgage® type that best fits your financial strategy</div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Estimated Property Value at End of Loan</h3>
+            
+            <div class="property-appreciation-section">
+              <div class="growth-rate-options">
+                <label class="form-label">Property Growth Rate</label>
+                
+                <div class="growth-rate-buttons">
+                  <button type="button" class="growth-rate-btn active" data-rate="2" data-income-loan-form-target="growthRateBtn" data-action="click->income-loan-form#selectGrowthRate">
+                    Low (2%)
+                  </button>
+                  <button type="button" class="growth-rate-btn" data-rate="4" data-income-loan-form-target="growthRateBtn" data-action="click->income-loan-form#selectGrowthRate">
+                    Medium (4%)
+                  </button>
+                  <button type="button" class="growth-rate-btn" data-rate="7" data-income-loan-form-target="growthRateBtn" data-action="click->income-loan-form#selectGrowthRate">
+                    High (7%)
+                  </button>
+                  <button type="button" class="growth-rate-btn custom-btn" data-rate="custom" data-income-loan-form-target="growthRateBtn" data-action="click->income-loan-form#selectGrowthRate">
+                    Custom
+                  </button>
+                </div>
+                
+                <div class="custom-rate-input" data-income-loan-form-target="customRateInput" style="display: none;">
+                  <label class="form-label">Custom Growth Rate (%)</label>
+                  <input type="range" min="1" max="10" step="0.1" value="2" class="growth-rate-slider" 
+                         data-income-loan-form-target="customRateSlider" 
+                         data-action="input->income-loan-form#updateCustomRate">
+                  <div class="slider-value" data-income-loan-form-target="customRateDisplay">2.0%</div>
+                </div>
+              </div>
+              
+              <div class="property-value-result">
+                <div class="estimated-value-display">
+                  <div class="value-label">Estimated Property Value</div>
+                  <div class="value-amount" data-income-loan-form-target="estimatedPropertyValue">
+                    Calculating...
+                  </div>
+                  <div class="value-appreciation" data-income-loan-form-target="appreciationAmount">
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="calculation-note">
+              <em>Note: This calculation uses simple interest to estimate future property value based on the selected growth rate and loan term.</em>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <%= f.submit "Continue to Pre-approval", class: "btn btn-primary btn-lg application-submit-btn" %>
+            <%= link_to "Back to Property Details", edit_application_path(@application), class: "btn btn-secondary" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * Loan terms and income calculations are estimates based on your property value and selected options.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

@@ -39,8 +39,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       UserMailer.verification_code(resource).deliver_now
       
       # Redirect to verification page
-      redirect_to new_users_verification_path(email: resource.email), 
-                  notice: 'Account created! Please check your email for a verification code.'
+      redirect_to new_users_verification_path(email: resource.email)
     else
       set_minimum_password_length
       render :new, status: :unprocessable_entity

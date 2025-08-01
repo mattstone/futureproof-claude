@@ -7,7 +7,8 @@ Rails.application.routes.draw do
     end
   end
   devise_for :users, controllers: {
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -22,6 +23,7 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     get 'mortgage_estimate', to: 'calculations#mortgage_estimate'
+    get 'monthly_income', to: 'calculations#monthly_income'
     get 'check_email', to: 'calculations#check_email'
   end
 
@@ -41,7 +43,13 @@ Rails.application.routes.draw do
   get "apply", to: "pages#apply"
 
   # Application routes
-  resources :applications, except: [:index, :destroy]
+  resources :applications, except: [:index, :destroy] do
+    member do
+      get :income_and_loan
+      patch :update_income_and_loan
+      get :summary
+    end
+  end
 
   # Defines the root path route ("/")
   root "pages#index"

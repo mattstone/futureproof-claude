@@ -166,13 +166,20 @@ body {
 /* Header Auth */
 .header-auth {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
     margin-left: auto;
 }
 
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .nav-user {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-secondary);
     font-weight: 500;
 }
@@ -670,8 +677,13 @@ body {
     }
 
     .header-auth {
+        flex-direction: row;
         gap: 12px;
         margin-left: 0;
+    }
+
+    .nav-links {
+        gap: 12px;
     }
 
     .nav-user {

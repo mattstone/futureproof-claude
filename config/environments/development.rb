@@ -41,6 +41,10 @@ Rails.application.configure do
 
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  
+  # Set asset host for emails so image_url generates full URLs
+  config.action_mailer.asset_host = "http://localhost:3000"
+  config.asset_host = "http://localhost:3000"
 
   # reCAPTCHA test keys for development (always pass)
   # In production, you should set proper environment variables

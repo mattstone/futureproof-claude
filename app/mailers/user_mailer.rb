@@ -14,4 +14,18 @@ class UserMailer < ApplicationMailer
       subject: 'Verify Your Futureproof Account'
     )
   end
+
+  def security_notification(user, browser_signature, browser_info, ip_address = nil, location = nil)
+    @user = user
+    @browser_signature = browser_signature
+    @browser_info = browser_info
+    @ip_address = ip_address
+    @location = location
+    @sign_in_time = Time.current
+
+    mail(
+      to: user.email,
+      subject: 'Security Alert: Sign-in from New Browser'
+    )
+  end
 end

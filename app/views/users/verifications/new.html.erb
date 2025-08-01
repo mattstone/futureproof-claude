@@ -18,14 +18,7 @@
             </div>
           <% end %>
 
-          <% if flash[:notice] %>
-            <div class="alert alert-success">
-              <%= flash[:notice] %>
-            </div>
-          <% end %>
-
           <div class="form-group">
-            <%= label_tag :verification_code, "Verification Code", class: "form-label" %>
             <%= text_field_tag :verification_code, "", 
                 class: "form-input verification-code-input", 
                 placeholder: "000000", 
@@ -37,7 +30,6 @@
                   controller: "verification-code",
                   action: "input->verification-code#formatInput"
                 } %>
-            <div class="form-hint">Enter the 6-digit code from your email</div>
           </div>
 
           <div class="form-actions">
@@ -45,12 +37,22 @@
           </div>
         <% end %>
 
-        <div class="verification-actions">
+        <div class="verification-actions" data-controller="resend-timer" data-resend-timer-countdown-value="120">
           <p class="resend-text">Didn't receive the code?</p>
+          <div data-resend-timer-target="resendContainer">
+            <span class="resend-countdown" data-resend-timer-target="countdown">
+              You can resend in <span data-resend-timer-target="timeDisplay">2:00</span>
+            </span>
+          </div>
           <%= link_to "Resend Code", 
               resend_users_verifications_path(email: @user.email), 
-              data: { "turbo-method": :post },
-              class: "resend-link" %>
+              data: { 
+                "turbo-method": :post,
+                "resend-timer-target": "resendLink",
+                "action": "click->resend-timer#resendClicked"
+              },
+              class: "resend-link",
+              style: "display: none;" %>
         </div>
 
         <div class="verification-info">

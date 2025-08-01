@@ -1,0 +1,101 @@
+<!-- Security Alert Content -->
+<div style="text-align: center; margin-bottom: 32px;">
+  <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+  <h1 style="margin: 0; color: #dc2626; font-size: 32px; font-weight: 700;">Security Alert</h1>
+</div>
+
+<!-- Alert Box -->
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 24px;">
+  <tr>
+    <td style="padding: 16px;">
+      <h2 style="margin: 0 0 8px 0; color: #92400e; font-size: 18px; font-weight: 600;">New Browser Sign-in Detected</h2>
+      <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
+        We detected a sign-in to your Futureproof account from a browser we haven't seen before.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+  Hello <%= @user.first_name || @user.email %>,
+</p>
+
+<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+  We're writing to let you know that your Futureproof account was accessed from a new browser or device.
+</p>
+
+<!-- Sign-in Details -->
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc; border-radius: 8px; margin: 24px 0;">
+  <tr>
+    <td style="padding: 20px;">
+      <h3 style="margin: 0 0 16px 0; color: #374151; font-size: 18px; font-weight: 600;">Sign-in Details:</h3>
+      
+      <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px; width: 30%;">Time:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @sign_in_time.strftime("%B %d, %Y at %I:%M %p %Z") %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Browser:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['browser'] || 'Unknown Browser' %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Platform:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['platform'] || 'Unknown Platform' %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Language:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['language'] || 'Unknown' %></td>
+        </tr>
+        <% if @ip_address %>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">IP Address:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @ip_address %></td>
+        </tr>
+        <% end %>
+        <% if @location %>
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; color: #6b7280; font-size: 14px;">Location:</td>
+          <td style="padding: 8px 0; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @location %></td>
+        </tr>
+        <% end %>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 24px 0 16px 0;">
+  <strong>Was this you?</strong>
+</p>
+
+<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+  If you recognize this activity, you can ignore this email. We'll continue to monitor your account for any suspicious activity.
+</p>
+
+<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
+  If you don't recognize this activity:
+</p>
+
+<ul style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 32px; padding-left: 20px;">
+  <li style="margin-bottom: 8px;">Change your password immediately</li>
+  <li style="margin-bottom: 8px;">Review your account for any unauthorized changes</li>
+  <li style="margin-bottom: 8px;">Contact our support team if you need assistance</li>
+</ul>
+
+<!-- Action Buttons -->
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+  <tr>
+    <td align="center" style="padding: 0;">
+      <table role="presentation" style="border-collapse: collapse; border: 0; border-spacing: 0;">
+        <tr>
+          <td style="padding: 0 8px;">
+            <a href="<%= edit_user_registration_url %>" style="display: inline-block; background-color: #dc2626; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">Change Password</a>
+          </td>
+          <td style="padding: 0 8px;">
+            <a href="mailto:info@futureprooffinancial.app" style="display: inline-block; background-color: #6b7280; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">Contact Support</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

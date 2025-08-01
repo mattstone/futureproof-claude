@@ -104,17 +104,29 @@
         <!-- Main Email Table -->
         <table role="presentation" style="width: 600px; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
           
-          <!-- Header with Logo -->
+          <!-- Header with Logo (White Background) -->
+          <tr>
+            <td style="padding: 0; background-color: #ffffff;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+                <tr>
+                  <td align="center" style="padding: 32px 40px 24px 40px;">
+                    <img src="<%= image_url("futureproof-logo.png") %>" 
+                         alt="Futureproof Financial Group" 
+                         style="height: 60px; width: auto; display: block; margin: 0 auto;"
+                         width="auto"
+                         height="60" />
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Company Name Section (Blue Background) -->
           <tr>
             <td style="padding: 0; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
               <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
                 <tr>
-                  <td align="center" style="padding: 40px 40px 32px 40px;">
-                    <%= image_tag "futureproof-logo.png", 
-                        alt: "Futureproof Financial Group", 
-                        style: "height: 60px; width: auto; display: block; margin: 0 auto 16px auto;",
-                        width: "auto",
-                        height: "60" %>
+                  <td align="center" style="padding: 24px 40px 32px 40px;">
                     <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; line-height: 1.2; text-align: center;">
                       Futureproof Financial Group
                     </h1>

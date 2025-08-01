@@ -1,0 +1,26 @@
+SECURITY ALERT - New Browser Sign-in Detected
+
+Hello <%= @user.first_name || @user.email %>,
+
+We detected a sign-in to your Futureproof account from a browser we haven't seen before.
+
+Sign-in Details:
+================
+Time: <%= @sign_in_time.strftime("%B %d, %Y at %I:%M %p %Z") %>
+Browser: <%= @browser_info['browser'] || 'Unknown Browser' %>
+Platform: <%= @browser_info['platform'] || 'Unknown Platform' %>  
+Language: <%= @browser_info['language'] || 'Unknown' %>
+<% if @ip_address %>IP Address: <%= @ip_address %><% end %>
+<% if @location %>Location: <%= @location %><% end %>
+
+Was this you?
+=============
+If you recognize this activity, you can ignore this email. We'll continue to monitor your account for any suspicious activity.
+
+If you don't recognize this activity:
+- Change your password immediately: <%= edit_user_registration_url %>
+- Review your account for any unauthorized changes
+- Contact our support team: support@futureproof.com
+
+This is an automated security notification from Futureproof Financial Group.
+If you have questions, please contact us at support@futureproof.com

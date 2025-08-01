@@ -1,0 +1,245 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Account Created</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">2</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">3</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">4</div>
+              <div class="step-label">Application Summary</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Application Summary</h1>
+        <p class="application-subtitle">Review your Equity Preservation Mortgage® application details</p>
+      </div>
+
+      <div class="application-form">
+        <div class="summary-sections">
+          
+          <!-- Personal Information -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Personal Information</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Name:</span>
+                <span class="summary-value"><%= current_user.full_name %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Email:</span>
+                <span class="summary-value"><%= current_user.email %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loan Summary -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Loan Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Mortgage Type:</span>
+                <span class="summary-value"><%= @application.mortgage&.name %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">LVR (Loan to Value Ratio):</span>
+                <span class="summary-value"><%= @application.mortgage&.lvr %>%</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Interest Rate:</span>
+                <span class="summary-value">7.45%</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Loan Term:</span>
+                <span class="summary-value"><%= @application.loan_term %> years</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Loan Value:</span>
+                <span class="summary-value"><%= @application.formatted_loan_value %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Property Summary -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Property Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Address:</span>
+                <span class="summary-value"><%= @application.address %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Current Property Value:</span>
+                <span class="summary-value"><%= @application.formatted_home_value %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Your projected annual growth:</span>
+                <span class="summary-value"><%= @application.formatted_growth_rate %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Home value at end of loan:</span>
+                <span class="summary-value"><%= @application.formatted_future_property_value %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Estimate of home equity preserved:</span>
+                <span class="summary-value equity-preserved"><%= @application.formatted_home_equity_preserved %></span>
+              </div>
+              <% if @application.borrower_names.present? %>
+                <div class="summary-item">
+                  <span class="summary-label">Borrower Names:</span>
+                  <span class="summary-value"><%= @application.borrower_names %></span>
+                </div>
+              <% end %>
+              <% if @application.company_name.present? %>
+                <div class="summary-item">
+                  <span class="summary-label">Company Name:</span>
+                  <span class="summary-value"><%= @application.company_name %></span>
+                </div>
+              <% end %>
+              <% if @application.super_fund_name.present? %>
+                <div class="summary-item">
+                  <span class="summary-label">Super Fund Name:</span>
+                  <span class="summary-value"><%= @application.super_fund_name %></span>
+                </div>
+              <% end %>
+              <% if @application.has_existing_mortgage? %>
+                <div class="summary-item">
+                  <span class="summary-label">Existing Mortgage:</span>
+                  <span class="summary-value"><%= @application.formatted_existing_mortgage_amount %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Payment Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Interest paid on your behalf:</span>
+                <span class="summary-value"><%= @application.formatted_interest_paid_on_behalf %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Loan principal paid on your behalf:</span>
+                <span class="summary-value"><%= @application.formatted_loan_principal_paid_on_behalf %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Repayment due at end of loan:</span>
+                <span class="summary-value"><%= @application.formatted_repayment_due_at_end_of_loan %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Income Summary -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Income Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Total income amount:</span>
+                <span class="summary-value"><%= @application.formatted_total_income_amount %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Monthly income:</span>
+                <span class="summary-value"><%= @application.formatted_monthly_income_amount %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Annuity duration:</span>
+                <span class="summary-value"><%= @application.annuity_duration_years %> years</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Income Estimates -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Estimated Monthly Income</h3>
+            <div class="income-estimate-display" 
+                 data-controller="application-summary"
+                 data-application-summary-principal-value="<%= @application.home_value || 1500000 %>"
+                 data-application-summary-loan-term-value="<%= @application.loan_term || 30 %>"
+                 data-application-summary-income-payout-value="<%= @application.income_payout_term || 30 %>"
+                 data-application-summary-mortgage-id-value="<%= @application.mortgage_id %>">
+              
+              <div class="income-result">
+                <div class="income-amount" data-application-summary-target="monthlyIncome">
+                  Calculating...
+                </div>
+                <div class="income-type">Based on your selected mortgage type</div>
+              </div>
+              
+              <% if @application.mortgage&.mortgage_type_interest_only? %>
+                <div class="repayment-info">
+                  <span class="money-icon">💰</span>
+                  <span>Loan repayment at end of term: <span data-application-summary-target="repaymentAmount">Calculating...</span></span>
+                </div>
+              <% else %>
+                <div class="repayment-info">
+                  <span class="money-icon">💰</span>
+                  <span>No repayment at end of term</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Next Steps -->
+          <div class="summary-section">
+            <h3 class="summary-section-title">Next Steps</h3>
+            <div class="next-steps-content">
+              <div class="next-step-item">
+                <div class="step-icon">1</div>
+                <div class="step-content">
+                  <h4>Property Valuation</h4>
+                  <p>An independent property valuation will be arranged to confirm the current market value of your property.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">2</div>
+                <div class="step-content">
+                  <h4>Document Review</h4>
+                  <p>Our team will review your application and may request additional documentation to support your application.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">3</div>
+                <div class="step-content">
+                  <h4>Final Approval</h4>
+                  <p>Once all requirements are met, we'll provide your final loan approval and settlement details.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Submit Application", "#", class: "btn btn-primary btn-lg application-submit-btn", 
+                      onclick: "alert('Application submission functionality would be implemented here'); return false;" %>
+          <%= link_to "Back to Loan Details", income_and_loan_application_path(@application), class: "btn btn-secondary" %>
+        </div>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * This summary shows the information collected during your application process. All details are subject to verification and final approval.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

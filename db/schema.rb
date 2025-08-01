@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_123835) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_220115) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,6 +26,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_123835) do
     t.decimal "existing_mortgage_amount", precision: 12, scale: 2
     t.integer "status", default: 0, null: false
     t.text "rejected_reason"
+    t.integer "borrower_age"
+    t.text "borrower_names"
+    t.string "company_name"
+    t.string "super_fund_name"
+    t.integer "loan_term"
+    t.integer "income_payout_term"
+    t.bigint "mortgage_id"
+    t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
+    t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
   end
 
@@ -34,6 +43,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_123835) do
     t.integer "mortgage_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
   end
 
   create_table "users", force: :cascade do |t|
@@ -54,10 +64,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_123835) do
     t.boolean "admin", default: false, null: false
     t.string "verification_code"
     t.datetime "verification_code_expires_at"
+    t.text "known_browser_signatures"
+    t.string "last_browser_signature"
+    t.text "last_browser_info"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
 end

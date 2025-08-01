@@ -5,28 +5,32 @@ class FPCalculator
     principal_and_interest: "Principal+Interest"
   }
 
-
   def initialize
     require 'csv'
 
-    @reference_table = []
-
     read_reference_table
-
-    # p @reference_table.inspect
   end
 
   def self.test
     calc = FPCalculator.new
 
     principal        = 1500000
-    principal        = 6000000
+    principal        = 2000000
     loan_duration    = 30
     annuity_duration = 30
     #loan_type = FPCalculator::LOAN_TYPE[:interest_only]
 
     #p calc.calculate(principal, loan_duration, annuity_duration, loan_type)
     p calc.calculate(principal, loan_duration, annuity_duration)
+
+    loan_type = "interest_only"
+    p calc.mortgage_monthly_income(principal, loan_duration, annuity_duration, loan_type)
+    loan_type = "principal_and_interest"
+    p calc.mortgage_monthly_income(principal, loan_duration, annuity_duration, loan_type)
+
+    p "---------"
+
+    p calc.interest_paid(principal, loan_duration, annuity_duration, loan_type)
 
   end
 
@@ -44,6 +48,20 @@ class FPCalculator
     nil
   end
 
+  def mortgage_monthly_income(principal, loan_duration, annuity_duration, loan_type)
+    results = self.find(loan_duration, annuity_duration, LOAN_TYPE[loan_type.to_sym])
+    incomes = incomes_from_row(principal, results)
+    incomes[:monthly_income]
+  end
+
+  def interest_paid(principal, loan_duration, annuity_duration, loan_type)
+    result = self.find(loan_duration, annuity_duration, LOAN_TYPE[loan_type.to_sym])
+    p result.inspect
+
+    result["cum_interest_paid"]
+  end
+
+
   def calculate(principal, loan_duration, annuity_duration)
     result = {
       interest_only_annual_income: 0,
@@ -54,13 +72,6 @@ class FPCalculator
 
     interest_only          = self.find(loan_duration, annuity_duration, LOAN_TYPE[:interest_only])
     principal_and_interest = self.find(loan_duration, annuity_duration, LOAN_TYPE[:principal_and_interest])
-
-
-    p "interest_only"
-    p interest_only.inspect
-    p ""
-    p "principal_and_interest"
-    p principal_and_interest.inspect
 
     if interest_only
       incomes = incomes_from_row(principal, interest_only)
@@ -86,6 +97,8 @@ class FPCalculator
   end
 
   def read_reference_table
+    @reference_table = []
+
     csv_text = File.read("#{Rails.root}/data/ReferenceTableV2.csv")
     csv = CSV.parse(csv_text, :headers => true)
     csv.each do |row|

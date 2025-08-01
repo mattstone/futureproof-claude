@@ -11,6 +11,9 @@
 
 @import url("homepage.css");
 @import url("devise.css");
+@import url("application_form.css");
+@import url("auth.css");
+@import url("apply.css");
 
 /* Alert styles */
 .alert {
