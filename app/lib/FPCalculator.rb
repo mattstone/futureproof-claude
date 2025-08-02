@@ -1,5 +1,7 @@
 class FPCalculator
 
+  BASE_VALUE = 1500000
+
   LOAN_TYPE = {
     interest_only: "Interest only",
     principal_and_interest: "Principal+Interest"
@@ -28,10 +30,14 @@ class FPCalculator
     loan_type = "principal_and_interest"
     p calc.mortgage_monthly_income(principal, loan_duration, annuity_duration, loan_type)
 
+    # p "---------"
+    # p calc.interest_paid(principal, loan_duration, annuity_duration, loan_type)
+
     p "---------"
 
-    p calc.interest_paid(principal, loan_duration, annuity_duration, loan_type)
-
+    p calc.adjusted_value(BASE_VALUE, 50)
+    p calc.adjusted_value(1000000, 50)
+    p calc.adjusted_value(2000000, 50)
   end
 
   def find(loan_duration, annuity_duration, loan_type)
@@ -56,9 +62,7 @@ class FPCalculator
 
   def interest_paid(principal, loan_duration, annuity_duration, loan_type)
     result = self.find(loan_duration, annuity_duration, LOAN_TYPE[loan_type.to_sym])
-    p result.inspect
-
-    result["cum_interest_paid"]
+     adjusted_value(principal, result["cum_interest_paid"])
   end
 
 
@@ -103,14 +107,15 @@ class FPCalculator
     csv = CSV.parse(csv_text, :headers => true)
     csv.each do |row|
       new_row = row
-      new_row[:principal] = 1500000
-
+      new_row[:principal] = BASE_VALUE
       @reference_table << new_row
     end
   end
 
-  def percent_of(amount, n)
-      (amount.to_f / n.to_f) * 100
+  # calculate ration of principal to 1500000
+
+  def adjusted_value(principal, original_value)
+    (principal.to_f / BASE_VALUE.to_f).to_f * original_value
   end
 
   # Interest only
@@ -122,9 +127,9 @@ class FPCalculator
   # TODO: minimal annual income of $10,000 per year..
 
   def incomes_from_row(principal, row)
-    percentage     = percent_of(row["annual_income"], 1500000)
-    annual_income  = (principal.to_f * percentage.to_f/100).round(2)
-    monthly_income = (annual_income / 12.to_f).round(2)
+    annual_income  = row["annual_income"].to_f
+    annual_income  = adjusted_value(principal, annual_income)
+    monthly_income = adjusted_value(principal, annual_income.to_f / 12)
     { annual_income: annual_income, monthly_income: monthly_income }
   end
 
