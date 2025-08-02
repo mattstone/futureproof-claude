@@ -11,6 +11,8 @@ class User < ApplicationRecord
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :country_of_residence, presence: true
+  validates :mobile_number, format: { with: /\A[0-9\s\-\(\)]+\z/, message: "must contain only numbers, spaces, hyphens, and parentheses" }, allow_blank: true
+  validates :mobile_country_code, presence: true, if: :mobile_number?
 
   # Scopes
   scope :admins, -> { where(admin: true) }
@@ -27,6 +29,11 @@ class User < ApplicationRecord
 
   def display_name
     full_name.present? ? full_name : email
+  end
+
+  def full_mobile_number
+    return nil unless mobile_country_code.present? && mobile_number.present?
+    "#{mobile_country_code} #{mobile_number}"
   end
 
   # Verification code methods

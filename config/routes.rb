@@ -41,6 +41,10 @@ Rails.application.routes.draw do
   
   # Apply page
   get "apply", to: "pages#apply"
+  
+  # User dashboard
+  get "dashboard", to: "dashboard#index"
+  get "start-application", to: "dashboard#start_application"
 
   # Application routes
   resources :applications, except: [:index, :destroy] do
@@ -48,6 +52,21 @@ Rails.application.routes.draw do
       get :income_and_loan
       patch :update_income_and_loan
       get :summary
+      patch :submit
+      get :congratulations
+    end
+  end
+
+  # Dashboard Application routes
+  namespace :dashboard do
+    resources :applications, except: [:index, :destroy], path: 'app' do
+      member do
+        get :income_and_loan
+        patch :update_income_and_loan
+        get :summary
+        patch :submit
+        get :congratulations
+      end
     end
   end
 

@@ -1,0 +1,104 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Account Created</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">2</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">3</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">4</div>
+              <div class="step-label">Submitted</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">🎉 Congratulations!</h1>
+        <p class="application-subtitle">Your Equity Preservation Mortgage® application has been submitted</p>
+      </div>
+
+      <div class="application-form">
+        <div class="congratulations-content">
+          <div class="success-message">
+            <div class="success-icon">✅</div>
+            <h2>Application Successfully Submitted</h2>
+            <p>Thank you for choosing our Equity Preservation Mortgage®. Your application has been received and we will be in touch shortly.</p>
+          </div>
+
+          <div class="next-steps-summary">
+            <h3>What happens next?</h3>
+            <div class="next-steps-list">
+              <div class="next-step-item">
+                <div class="step-icon">1</div>
+                <div class="step-content">
+                  <h4>Confirmation Email</h4>
+                  <p>You will receive an email confirmation with your application summary within the next few minutes.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">2</div>
+                <div class="step-content">
+                  <h4>Property Valuation</h4>
+                  <p>We will arrange an independent property valuation to confirm the current market value of your property.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">3</div>
+                <div class="step-content">
+                  <h4>Document Review</h4>
+                  <p>Our team will review your application and may contact you for additional documentation.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">4</div>
+                <div class="step-content">
+                  <h4>Final Approval</h4>
+                  <p>Once all requirements are met, we'll provide your final loan approval and settlement details.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-info">
+            <h3>Need Help?</h3>
+            <p>If you have any questions about your application, please don't hesitate to contact our team.</p>
+            <div class="contact-details">
+              <div class="contact-item">
+                <strong>Email:</strong> info@futureprooffinancial.co
+              </div>
+              <div class="contact-item">
+                <strong>Phone:</strong> 1300 XXX XXX
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Dashboard", dashboard_path, class: "btn btn-primary btn-lg" %>
+        </div>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * Your application reference number is: <strong>#<%= @application.id.to_s.rjust(6, '0') %></strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

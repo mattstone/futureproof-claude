@@ -227,8 +227,9 @@
         </div>
 
         <div class="form-actions">
-          <%= link_to "Submit Application", "#", class: "btn btn-primary btn-lg application-submit-btn", 
-                      onclick: "alert('Application submission functionality would be implemented here'); return false;" %>
+          <%= form_with model: @application, url: submit_application_path(@application), method: :patch, local: true do |f| %>
+            <%= f.submit "Submit Application", class: "btn btn-primary btn-lg application-submit-btn" %>
+          <% end %>
           <%= link_to "Back to Loan Details", income_and_loan_application_path(@application), class: "btn btn-secondary" %>
         </div>
       </div>

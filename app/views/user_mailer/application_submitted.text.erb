@@ -1,0 +1,53 @@
+🎉 CONGRATULATIONS!
+Your Equity Preservation Mortgage® Application Has Been Submitted
+
+Application Reference: #<%= @application.id.to_s.rjust(6, '0') %>
+
+Dear <%= @user.first_name %>,
+
+Thank you for choosing our Equity Preservation Mortgage®. We have received your application and will be in touch shortly to guide you through the next steps.
+
+===== PERSONAL INFORMATION =====
+Name: <%= @user.full_name %>
+Email: <%= @user.email %>
+
+===== LOAN SUMMARY =====
+Mortgage Type: <%= @application.mortgage&.name %>
+LVR (Loan to Value Ratio): <%= @application.mortgage&.lvr %>%
+Interest Rate: 7.45%
+Loan Term: <%= @application.loan_term %> years
+Loan Value: <%= @application.formatted_loan_value %>
+
+===== PROPERTY SUMMARY =====
+Address: <%= @application.address %>
+Current Property Value: <%= @application.formatted_home_value %>
+Your projected annual growth: <%= @application.formatted_growth_rate %>
+Home value at end of loan: <%= @application.formatted_future_property_value %>
+Estimate of home equity preserved: <%= @application.formatted_home_equity_preserved %>
+
+===== INCOME SUMMARY =====
+Monthly Income: <%= @application.formatted_monthly_income_amount %>
+Total Income Amount: <%= @application.formatted_total_income_amount %>
+Annuity Duration: <%= @application.annuity_duration_years %> years
+
+===== WHAT HAPPENS NEXT? =====
+
+1. PROPERTY VALUATION
+   We will arrange an independent property valuation to confirm the current market value of your property.
+
+2. DOCUMENT REVIEW
+   Our team will review your application and may contact you for additional documentation.
+
+3. FINAL APPROVAL
+   Once all requirements are met, we'll provide your final loan approval and settlement details.
+
+===== NEED HELP? =====
+If you have any questions about your application, please contact our team:
+
+Email: info@futureprooffinancial.co
+Phone: 1300 XXX XXX
+
+Thank you for choosing Equity Preservation Mortgage®
+
+---
+This email was sent to <%= @user.email %>. Please do not reply to this email.

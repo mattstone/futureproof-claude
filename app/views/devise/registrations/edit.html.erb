@@ -1,43 +1,195 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<div class="application-header">
+  <h1 class="application-title">Profile Settings</h1>
+  <p class="application-subtitle">Update your account information and security settings</p>
+</div>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+<div class="dashboard-sections">
+  <!-- Personal Information -->
+  <div class="summary-section">
+    <h3 class="summary-section-title">Personal Information</h3>
+    
+    <div id="profile_notices"></div>
+    
+    <div id="profile_form_container">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "profile-form", data: { turbo_stream: true } }) do |f| %>
+        <%= render "shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :first_name, "First Name", class: "form-label" %>
+          <%= f.text_field :first_name, class: "form-input", autocomplete: "given-name" %>
+        </div>
+        
+        <div class="form-group">
+          <%= f.label :last_name, "Last Name", class: "form-label" %>
+          <%= f.text_field :last_name, class: "form-input", autocomplete: "family-name" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :email, "Email Address", class: "form-label" %>
+        <%= f.email_field :email, class: "form-input", autocomplete: "email" %>
+        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+          <div class="form-hint">Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+        <% end %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :country_of_residence, "Country of Residence", class: "form-label" %>
+        <%= f.select :country_of_residence,
+            options_for_select([
+              ['🇦🇺 Australia', 'Australia'],
+              ['🇳🇿 New Zealand', 'New Zealand'],
+              ['🇺🇸 United States', 'United States'],
+              ['🇬🇧 United Kingdom', 'United Kingdom'],
+              ['🇨🇦 Canada', 'Canada'],
+              ['🇩🇪 Germany', 'Germany'],
+              ['🇫🇷 France', 'France'],
+              ['🇮🇹 Italy', 'Italy'],
+              ['🇪🇸 Spain', 'Spain'],
+              ['🇳🇱 Netherlands', 'Netherlands'],
+              ['🇧🇪 Belgium', 'Belgium'],
+              ['🇨🇭 Switzerland', 'Switzerland'],
+              ['🇦🇹 Austria', 'Austria'],
+              ['🇸🇪 Sweden', 'Sweden'],
+              ['🇳🇴 Norway', 'Norway'],
+              ['🇩🇰 Denmark', 'Denmark'],
+              ['🇫🇮 Finland', 'Finland'],
+              ['🇮🇪 Ireland', 'Ireland'],
+              ['🇯🇵 Japan', 'Japan'],
+              ['🇰🇷 South Korea', 'South Korea'],
+              ['🇸🇬 Singapore', 'Singapore'],
+              ['🇭🇰 Hong Kong', 'Hong Kong'],
+              ['🇨🇳 China', 'China'],
+              ['🇮🇳 India', 'India'],
+              ['🇧🇷 Brazil', 'Brazil'],
+              ['🇦🇷 Argentina', 'Argentina'],
+              ['🇨🇱 Chile', 'Chile'],
+              ['🇲🇽 Mexico', 'Mexico'],
+              ['🇿🇦 South Africa', 'South Africa'],
+              ['🇮🇱 Israel', 'Israel'],
+              ['🇦🇪 United Arab Emirates', 'United Arab Emirates'],
+              ['🌍 Other', 'Other']
+            ], resource.country_of_residence || 'Australia'),
+            { prompt: 'Select your country of residence' },
+            { class: "form-select", autocomplete: "country" } %>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :mobile_country_code, "Mobile Country Code", class: "form-label" %>
+          <%= f.select :mobile_country_code,
+              options_for_select([
+                ['+61 🇦🇺 Australia', '+61'],
+                ['+64 🇳🇿 New Zealand', '+64'],
+                ['+1 🇺🇸 United States', '+1'],
+                ['+44 🇬🇧 United Kingdom', '+44'],
+                ['+1 🇨🇦 Canada', '+1'],
+                ['+49 🇩🇪 Germany', '+49'],
+                ['+33 🇫🇷 France', '+33'],
+                ['+39 🇮🇹 Italy', '+39'],
+                ['+34 🇪🇸 Spain', '+34'],
+                ['+31 🇳🇱 Netherlands', '+31'],
+                ['+32 🇧🇪 Belgium', '+32'],
+                ['+41 🇨🇭 Switzerland', '+41'],
+                ['+43 🇦🇹 Austria', '+43'],
+                ['+46 🇸🇪 Sweden', '+46'],
+                ['+47 🇳🇴 Norway', '+47'],
+                ['+45 🇩🇰 Denmark', '+45'],
+                ['+358 🇫🇮 Finland', '+358'],
+                ['+353 🇮🇪 Ireland', '+353'],
+                ['+81 🇯🇵 Japan', '+81'],
+                ['+82 🇰🇷 South Korea', '+82'],
+                ['+65 🇸🇬 Singapore', '+65'],
+                ['+852 🇭🇰 Hong Kong', '+852'],
+                ['+86 🇨🇳 China', '+86'],
+                ['+91 🇮🇳 India', '+91'],
+                ['+55 🇧🇷 Brazil', '+55'],
+                ['+54 🇦🇷 Argentina', '+54'],
+                ['+56 🇨🇱 Chile', '+56'],
+                ['+52 🇲🇽 Mexico', '+52'],
+                ['+27 🇿🇦 South Africa', '+27'],
+                ['+972 🇮🇱 Israel', '+972'],
+                ['+971 🇦🇪 United Arab Emirates', '+971']
+              ], resource.mobile_country_code || '+61'),
+              { prompt: 'Select country code' },
+              { class: "form-select", autocomplete: "tel-country-code" } %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :mobile_number, "Mobile Number", class: "form-label" %>
+          <%= f.telephone_field :mobile_number, 
+              class: "form-input", 
+              placeholder: "Enter your mobile number",
+              autocomplete: "tel-national" %>
+          <div class="form-hint">Enter your mobile number without the country code</div>
+        </div>
+      </div>
+
+      <!-- Current password only for profile updates that change email -->
+      <div class="form-group">
+        <%= f.label :current_password, "Current Password", class: "form-label" %>
+        <%= f.password_field :current_password, class: "form-input", autocomplete: "current-password" %>
+        <div class="form-hint">Required to confirm changes to your profile</div>
+      </div>
+
+        <div class="form-actions">
+          <%= f.submit "Update Profile", class: "btn btn-primary" %>
+          <%= link_to "Cancel", dashboard_path, class: "btn btn-secondary" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-  <% end %>
+  <!-- Change Password -->
+  <div class="summary-section">
+    <h3 class="summary-section-title">Change Password</h3>
+    
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "password-form" }) do |f| %>
+      <div class="form-group">
+        <%= f.label :password, "New Password", class: "form-label" %>
+        <%= f.password_field :password, class: "form-input", autocomplete: "new-password", placeholder: "Leave blank to keep current password" %>
+        <% if @minimum_password_length %>
+          <div class="form-hint"><%= @minimum_password_length %> characters minimum</div>
+        <% end %>
+      </div>
 
-  <div class="field">
-    <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-    <% if @minimum_password_length %>
-      <br />
-      <em><%= @minimum_password_length %> characters minimum</em>
+      <div class="form-group">
+        <%= f.label :password_confirmation, "Confirm New Password", class: "form-label" %>
+        <%= f.password_field :password_confirmation, class: "form-input", autocomplete: "new-password" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :current_password, "Current Password", class: "form-label" %>
+        <%= f.password_field :current_password, class: "form-input", autocomplete: "current-password" %>
+        <div class="form-hint">We need your current password to confirm changes</div>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Update Password", class: "btn btn-primary" %>
+      </div>
     <% end %>
   </div>
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+  <!-- Account Actions -->
+  <div class="summary-section">
+    <h3 class="summary-section-title">Account Actions</h3>
+    
+    <div class="danger-zone">
+      <h4>Delete Account</h4>
+      <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+      <%= button_to "Delete Account", 
+          registration_path(resource_name), 
+          method: :delete,
+          class: "btn btn-danger",
+          data: { 
+            confirm: "Are you sure you want to delete your account? This action cannot be undone.",
+            turbo_confirm: "Are you sure you want to delete your account? This action cannot be undone."
+          } %>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
-    <%= f.password_field :current_password, autocomplete: "current-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Update" %>
-  </div>
+<% content_for :help_section do %>
+  <%= render 'shared/account_help' %>
 <% end %>
-
-<h3>Cancel my account</h3>
-
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
-
-<%= link_to "Back", :back %>

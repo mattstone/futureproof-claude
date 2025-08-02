@@ -1,4 +1,42 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  layout 'dashboard', only: [:edit, :update]
+
+  # Override the update method to handle Turbo Stream responses
+  def update
+    self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
+    prev_unconfirmed_email = resource.unconfirmed_email if resource.respond_to?(:unconfirmed_email)
+
+    resource_updated = update_resource(resource, account_update_params)
+    yield resource if block_given?
+    
+    if resource_updated
+      set_flash_message_for_update(resource, prev_unconfirmed_email)
+      bypass_sign_in resource, scope: resource_name if sign_in_after_change_password?
+
+      respond_to do |format|
+        format.html { redirect_to after_update_path_for(resource) }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("profile_form_container", partial: "profile_form_success", locals: { resource: resource }),
+            turbo_stream.replace("profile_notices", partial: "shared/notice", locals: { notice: "Your profile has been updated successfully." })
+          ]
+        end
+      end
+    else
+      clean_up_passwords resource
+      set_minimum_password_length
+      
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("profile_form_container", partial: "profile_form_errors", locals: { resource: resource }),
+            turbo_stream.replace("profile_notices", "")
+          ]
+        end
+      end
+    end
+  end
 
   # Override the create method to handle reCAPTCHA and avoid routing issues
   def create
@@ -78,5 +116,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # Strong parameters for user registration
   def sign_up_params
     params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :country_of_residence)
+  end
+
+  # Strong parameters for account update
+  def account_update_params
+    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :current_password, :country_of_residence, :mobile_country_code, :mobile_number)
   end
 end

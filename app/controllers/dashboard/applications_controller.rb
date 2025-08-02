@@ -1,6 +1,7 @@
-class ApplicationsController < ApplicationController
+class Dashboard::ApplicationsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations]
+  layout 'dashboard'
 
   def new
     @application = current_user.applications.build
@@ -17,7 +18,7 @@ class ApplicationsController < ApplicationController
     
     if @application.save
       # Don't advance status yet, just redirect to income and loan page
-      redirect_to income_and_loan_application_path(@application), notice: 'Property details saved successfully!'
+      redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details saved successfully!'
     else
       render :new, status: :unprocessable_entity
     end
@@ -33,7 +34,7 @@ class ApplicationsController < ApplicationController
 
   def update
     if @application.update(application_params)
-      redirect_to income_and_loan_application_path(@application), notice: 'Property details updated successfully!'
+      redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details updated successfully!'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -55,7 +56,7 @@ class ApplicationsController < ApplicationController
     if @application.valid?(:income_loan_update) && @application.save
       # Advance to next step after saving income and loan details
       @application.advance_to_next_step!
-      redirect_to summary_application_path(@application), notice: 'Income and loan details saved successfully!'
+      redirect_to summary_dashboard_application_path(@application), notice: 'Income and loan details saved successfully!'
     else
       render :income_and_loan, status: :unprocessable_entity
     end
@@ -72,7 +73,7 @@ class ApplicationsController < ApplicationController
     # Send confirmation email
     UserMailer.application_submitted(@application).deliver_now
     
-    redirect_to congratulations_application_path(@application), notice: 'Your application has been submitted successfully!'
+    redirect_to congratulations_dashboard_application_path(@application), notice: 'Your application has been submitted successfully!'
   end
 
   def congratulations

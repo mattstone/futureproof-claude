@@ -28,4 +28,14 @@ class UserMailer < ApplicationMailer
       subject: 'Security Alert: Sign-in from New Browser'
     )
   end
+
+  def application_submitted(application)
+    @application = application
+    @user = application.user
+
+    mail(
+      to: @user.email,
+      subject: 'Your Equity Preservation Mortgage® Application Has Been Submitted'
+    )
+  end
 end

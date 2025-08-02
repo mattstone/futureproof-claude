@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html data-theme="light" lan="en" style="color-scheme:light, background-color: #f8fafc">
+  <head>
+    <title><%= content_for(:title) || "Dashboard - Futureproof" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f8fafc;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        min-height: 100vh;
+      }
+      
+      .dashboard-layout {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .dashboard-header {
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .dashboard-nav {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .dashboard-logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+      }
+      
+      .dashboard-logo img {
+        height: 32px;
+        width: auto;
+      }
+      
+      .dashboard-user-menu {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      
+      .user-greeting {
+        color: #475569;
+        font-size: 14px;
+      }
+      
+      .user-name {
+        font-weight: 600;
+        color: #334155;
+      }
+      
+      .dashboard-content {
+        flex: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        width: 100%;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: 250px 1fr 300px;
+        gap: 30px;
+        align-items: start;
+      }
+      
+      .dashboard-sidebar {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        position: sticky;
+        top: 100px;
+      }
+      
+      .dashboard-main {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 30px;
+      }
+      
+      .dashboard-help {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        position: sticky;
+        top: 100px;
+      }
+      
+      .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .sidebar-nav li {
+        margin-bottom: 8px;
+      }
+      
+      .sidebar-nav a {
+        display: block;
+        padding: 12px 16px;
+        color: #64748b;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      
+      .sidebar-nav a:hover,
+      .sidebar-nav a.active {
+        background: #f1f5f9;
+        color: #0891b2;
+      }
+      
+      .sidebar-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 15px;
+      }
+      
+      /* Help section styling for right column */
+      .dashboard-help .summary-section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 8px;
+      }
+      
+      .dashboard-help .help-section p {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 15px;
+        line-height: 1.5;
+      }
+      
+      .dashboard-help .contact-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .dashboard-help .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+      }
+      
+      .dashboard-help .contact-icon {
+        font-size: 18px;
+      }
+      
+      .dashboard-help .contact-details strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #334155;
+        font-size: 13px;
+      }
+      
+      .dashboard-help .contact-details p {
+        margin: 0;
+        color: #64748b;
+        font-size: 12px;
+      }
+      
+      .dashboard-footer {
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 20px;
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        margin-top: auto;
+      }
+      
+      .btn-logout {
+        background: none;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      
+      .btn-logout:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #475569;
+      }
+      
+      /* Mobile optimizations */
+      @media (max-width: 1024px) {
+        .dashboard-content {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        
+        .dashboard-sidebar {
+          order: 2;
+          position: static;
+        }
+        
+        .dashboard-main {
+          order: 1;
+        }
+        
+        .dashboard-help {
+          order: 3;
+          position: static;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .dashboard-nav {
+          padding: 12px 16px;
+        }
+        
+        .dashboard-logo img {
+          height: 28px;
+        }
+        
+        .dashboard-content {
+          padding: 20px 16px;
+          gap: 16px;
+        }
+        
+        .dashboard-main {
+          padding: 20px;
+        }
+        
+        .dashboard-sidebar,
+        .dashboard-help {
+          padding: 16px;
+        }
+        
+        .user-greeting {
+          display: none;
+        }
+        
+        .dashboard-user-menu {
+          gap: 10px;
+        }
+        
+        .btn-logout {
+          padding: 6px 12px;
+          font-size: 13px;
+        }
+      }
+      
+      /* Remove application page styling */
+      .application-page {
+        background: none;
+        padding: 0;
+        min-height: auto;
+      }
+      
+      .application-container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .application-card {
+        background: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+      
+      .application-header {
+        background: none;
+        border: none;
+        padding: 0 0 30px 0;
+        text-align: left;
+      }
+      
+      .application-title {
+        font-size: 32px;
+        margin-bottom: 8px;
+        color: #1e293b;
+      }
+      
+      .application-subtitle {
+        font-size: 16px;
+        color: #64748b;
+        margin: 0;
+      }
+      
+      .application-form {
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="dashboard-layout">
+      <!-- Alert Messages -->
+      <% if notice %>
+        <div class="alert alert-success alert-notice" data-controller="alert" style="margin: 0; border-radius: 0;">
+          <%= notice %>
+          <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-danger alert-alert" data-controller="alert" style="margin: 0; border-radius: 0;">
+          <%= alert %>
+          <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
+        </div>
+      <% end %>
+
+      <!-- Dashboard Header -->
+      <header class="dashboard-header">
+        <nav class="dashboard-nav">
+          <%= link_to dashboard_path, class: "dashboard-logo" do %>
+            <%= image_tag "futureproof-logo.png", alt: "Futureproof" %>
+          <% end %>
+          
+          <div class="dashboard-user-menu">
+            <span class="user-greeting">
+              Welcome back, <span class="user-name"><%= current_user.first_name %></span>
+            </span>
+            <%= link_to "Sign Out", destroy_user_session_path, 
+                method: :delete, 
+                class: "btn-logout",
+                data: { confirm: "Are you sure you want to sign out?" } %>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Main Content -->
+      <main class="dashboard-content">
+        <!-- Left Sidebar -->
+        <aside class="dashboard-sidebar">
+          <ul class="sidebar-nav">
+            <li><%= link_to "Dashboard", dashboard_path, class: request.path == dashboard_path ? "active" : "" %></li>
+            <li><%= link_to "Applications", "#" %></li>
+            <li><%= link_to "Profile", edit_user_registration_path %></li>
+            <li><%= link_to "Start New Application", "/start-application" %></li>
+          </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="dashboard-main">
+          <%= yield %>
+        </div>
+
+        <!-- Right Help Section -->
+        <aside class="dashboard-help">
+          <%= yield :help_section %>
+        </aside>
+      </main>
+
+      <!-- Dashboard Footer -->
+      <footer class="dashboard-footer">
+        <p>&copy; <%= Date.current.year %> Futureproof Financial. All rights reserved.</p>
+      </footer>
+    </div>
+  </body>
+</html>

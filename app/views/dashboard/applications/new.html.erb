@@ -1,0 +1,230 @@
+<div class="application-header">
+  <div class="step-indicator">
+    <div class="step-progress">
+      <div class="step-item completed">
+        <div class="step-number">1</div>
+        <div class="step-label">Account Created</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item active">
+        <div class="step-number">2</div>
+        <div class="step-label">Property Details</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-label">Income & Loan</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-number">4</div>
+        <div class="step-label">Pre-approval</div>
+      </div>
+    </div>
+  </div>
+  <h1 class="application-title">Property Details</h1>
+  <p class="application-subtitle">Tell us about your property to calculate your potential monthly income</p>
+</div>
+
+<div class="dashboard-sections">
+  <%= form_with model: [:dashboard, @application], local: true, html: { 
+        class: "application-form-inner",
+        data: { controller: "application-form" }
+      } do |f| %>
+    
+    <%= render "shared/error_messages", resource: @application %>
+
+    <div class="summary-section">
+      <h3 class="summary-section-title">Property Information</h3>
+      
+      <div class="form-group">
+        <%= f.label :address, "Property Address", class: "form-label" %>
+        <%= f.text_area :address, 
+            class: "form-input", 
+            placeholder: "Enter the complete address of your property",
+            rows: 3 %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :home_value, "Estimated Property Value", class: "form-label" %>
+        <div class="slider-container">
+          <%= f.range_field :home_value,
+              min: 1000000,
+              max: 10000000,
+              step: 50000,
+              value: @application.home_value || 1500000,
+              class: "value-slider",
+              data: { 
+                "application-form-target": "homeValueSlider",
+                "action": "input->application-form#updateHomeValue"
+              } %>
+          <div class="slider-value" data-application-form-target="homeValueDisplay">
+            <%= number_to_currency(@application.home_value || 1500000, precision: 0) %>
+          </div>
+        </div>
+        <div class="form-hint">
+          Adjust the slider to set your estimated property value<br>
+          <small>An independent property valuation will be undertaken</small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :ownership_status, "Ownership", class: "form-label" %>
+          <%= f.select :ownership_status,
+              options_for_select([
+                ['Individual', 'individual'],
+                ['Joint Ownership', 'joint'],
+                ['Company', 'company'],
+                ['Superannuation Fund', 'super']
+              ], @application.ownership_status),
+              {},
+              { 
+                class: "form-select",
+                data: { 
+                  "application-form-target": "ownershipSelect",
+                  "action": "change->application-form#toggleOwnershipFields"
+                }
+              } %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :property_state, "Property Type", class: "form-label" %>
+          <%= f.select :property_state,
+              options_for_select([
+                ['Primary Residence', 'primary_residence'],
+                ['Investment Property', 'investment'],
+                ['Holiday Home', 'holiday']
+              ], @application.property_state),
+              {},
+              { class: "form-select" } %>
+        </div>
+      </div>
+
+      <!-- Individual ownership: Show borrower age -->
+      <div class="form-group" 
+           data-application-form-target="individualFields"
+           style="display: <%= @application.individual? ? 'block' : 'none' %>;">
+        <%= f.label :borrower_age, "Age of Borrower", class: "form-label" %>
+        <div class="slider-container">
+          <%= f.range_field :borrower_age,
+              min: 18,
+              max: 85,
+              step: 1,
+              value: @application.borrower_age || 60,
+              class: "value-slider",
+              data: { 
+                "application-form-target": "borrowerAgeSlider",
+                "action": "input->application-form#updateBorrowerAge"
+              } %>
+          <div class="slider-value" data-application-form-target="borrowerAgeDisplay">
+            <%= @application.borrower_age || 60 %> years
+          </div>
+        </div>
+        <div class="form-hint">Adjust the slider to set your age</div>
+      </div>
+
+      <!-- Joint ownership: Show borrower names and ages -->
+      <div class="form-group" 
+           data-application-form-target="jointFields"
+           style="display: <%= @application.joint? ? 'block' : 'none' %>;">
+        <label class="form-label">Borrower Details</label>
+        <div id="joint-borrowers">
+          <div class="joint-borrower-item">
+            <div class="joint-borrower-row">
+              <div class="joint-borrower-name">
+                <input type="text" name="borrower_name_1" placeholder="First borrower name" class="form-input">
+              </div>
+              <div class="joint-borrower-age">
+                <div class="joint-age-slider-container">
+                  <input type="range" name="borrower_age_1" min="18" max="85" step="1" value="60" class="joint-age-slider" data-borrower-index="1">
+                  <div class="joint-age-display" data-age-display="1">60 years</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="joint-borrower-item">
+            <div class="joint-borrower-row">
+              <div class="joint-borrower-name">
+                <input type="text" name="borrower_name_2" placeholder="Second borrower name" class="form-input">
+              </div>
+              <div class="joint-borrower-age">
+                <div class="joint-age-slider-container">
+                  <input type="range" name="borrower_age_2" min="18" max="85" step="1" value="60" class="joint-age-slider" data-borrower-index="2">
+                  <div class="joint-age-display" data-age-display="2">60 years</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="add-borrower" class="btn btn-secondary btn-sm" style="margin-top: 10px;">Add Another Borrower</button>
+        <%= f.hidden_field :borrower_names, data: { "application-form-target": "borrowerNamesHidden" } %>
+      </div>
+
+      <!-- Company ownership: Show company name -->
+      <div class="form-group" 
+           data-application-form-target="companyFields"
+           style="display: <%= @application.company? ? 'block' : 'none' %>;">
+        <%= f.label :company_name, "Company Name", class: "form-label" %>
+        <%= f.text_field :company_name, 
+            class: "form-input", 
+            placeholder: "Enter the company name" %>
+      </div>
+
+      <!-- Superannuation ownership: Show super fund name -->
+      <div class="form-group" 
+           data-application-form-target="superFields"
+           style="display: <%= @application.super? ? 'block' : 'none' %>;">
+        <%= f.label :super_fund_name, "Superannuation Fund Name", class: "form-label" %>
+        <%= f.text_field :super_fund_name, 
+            class: "form-input", 
+            placeholder: "Enter the superannuation fund name" %>
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <h3 class="summary-section-title">Existing Mortgage</h3>
+      
+      <div class="form-group checkbox-group">
+        <%= f.check_box :has_existing_mortgage, 
+            class: "form-checkbox",
+            data: { 
+              "application-form-target": "mortgageCheckbox",
+              "action": "change->application-form#toggleMortgageAmount"
+            } %>
+        <%= f.label :has_existing_mortgage, "This property has an existing mortgage", class: "checkbox-label" %>
+      </div>
+
+      <div class="form-group mortgage-amount-group" 
+           data-application-form-target="mortgageAmountGroup"
+           style="display: <%= @application.has_existing_mortgage? ? 'block' : 'none' %>;">
+        <%= f.label :existing_mortgage_amount, "Outstanding Mortgage Amount", class: "form-label" %>
+        <div class="slider-container">
+          <%= f.range_field :existing_mortgage_amount,
+              min: 10000,
+              max: 4000000,
+              step: 10000,
+              value: @application.existing_mortgage_amount || 500000,
+              class: "value-slider",
+              data: { 
+                "application-form-target": "mortgageSlider",
+                "action": "input->application-form#updateMortgageAmount"
+              } %>
+          <div class="slider-value" data-application-form-target="mortgageAmountDisplay">
+            <%= number_to_currency(@application.existing_mortgage_amount || 500000, precision: 0) %>
+          </div>
+        </div>
+        <div class="form-hint">Adjust the slider to set your outstanding mortgage balance</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit "Continue to Income & Loan", class: "btn btn-primary btn-lg" %>
+      <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :help_section do %>
+  <%= render 'shared/account_help' %>
+<% end %>

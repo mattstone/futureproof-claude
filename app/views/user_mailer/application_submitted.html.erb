@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Application Submitted - Equity Preservation Mortgage®</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .email-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #0891b2;
+      }
+      .header h1 {
+        color: #0891b2;
+        margin: 0;
+        font-size: 28px;
+      }
+      .congratulations {
+        text-align: center;
+        background-color: #d4edda;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 30px;
+        border-left: 4px solid #28a745;
+      }
+      .congratulations h2 {
+        color: #155724;
+        margin: 0 0 10px 0;
+        font-size: 24px;
+      }
+      .summary-section {
+        margin-bottom: 25px;
+      }
+      .summary-section h3 {
+        color: #0891b2;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+      .summary-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .summary-label {
+        font-weight: 600;
+        color: #555;
+      }
+      .summary-value {
+        color: #333;
+        text-align: right;
+      }
+      .equity-preserved {
+        color: #16a34a;
+        font-weight: 600;
+      }
+      .next-steps {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        margin-top: 30px;
+      }
+      .next-steps h3 {
+        color: #0891b2;
+        margin-top: 0;
+      }
+      .step-item {
+        margin-bottom: 15px;
+        padding-left: 30px;
+        position: relative;
+      }
+      .step-number {
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-color: #0891b2;
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .contact-info {
+        background-color: #e3f2fd;
+        padding: 20px;
+        border-radius: 6px;
+        margin-top: 30px;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        color: #666;
+        font-size: 14px;
+      }
+      .reference-number {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <h1>Equity Preservation Mortgage®</h1>
+      </div>
+
+      <div class="congratulations">
+        <h2>🎉 Congratulations!</h2>
+        <p>Your Equity Preservation Mortgage® application has been successfully submitted.</p>
+      </div>
+
+      <div class="reference-number">
+        <strong>Application Reference: #<%= @application.id.to_s.rjust(6, '0') %></strong>
+      </div>
+
+      <p>Dear <%= @user.first_name %>,</p>
+
+      <p>Thank you for choosing our Equity Preservation Mortgage®. We have received your application and will be in touch shortly to guide you through the next steps.</p>
+
+      <div class="summary-section">
+        <h3>Personal Information</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Name:</span>
+            <span class="summary-value"><%= @user.full_name %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Email:</span>
+            <span class="summary-value"><%= @user.email %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Loan Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Mortgage Type:</span>
+            <span class="summary-value"><%= @application.mortgage&.name %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">LVR (Loan to Value Ratio):</span>
+            <span class="summary-value"><%= @application.mortgage&.lvr %>%</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Interest Rate:</span>
+            <span class="summary-value">7.45%</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Loan Term:</span>
+            <span class="summary-value"><%= @application.loan_term %> years</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Loan Value:</span>
+            <span class="summary-value"><%= @application.formatted_loan_value %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Property Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Address:</span>
+            <span class="summary-value"><%= @application.address %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Current Property Value:</span>
+            <span class="summary-value"><%= @application.formatted_home_value %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Your projected annual growth:</span>
+            <span class="summary-value"><%= @application.formatted_growth_rate %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Home value at end of loan:</span>
+            <span class="summary-value"><%= @application.formatted_future_property_value %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Estimate of home equity preserved:</span>
+            <span class="summary-value equity-preserved"><%= @application.formatted_home_equity_preserved %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Income Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Monthly Income:</span>
+            <span class="summary-value"><%= @application.formatted_monthly_income_amount %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Income Amount:</span>
+            <span class="summary-value"><%= @application.formatted_total_income_amount %></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Annuity Duration:</span>
+            <span class="summary-value"><%= @application.annuity_duration_years %> years</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h3>What happens next?</h3>
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <strong>Property Valuation</strong><br>
+          We will arrange an independent property valuation to confirm the current market value of your property.
+        </div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <strong>Document Review</strong><br>
+          Our team will review your application and may contact you for additional documentation.
+        </div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <strong>Final Approval</strong><br>
+          Once all requirements are met, we'll provide your final loan approval and settlement details.
+        </div>
+      </div>
+
+      <div class="contact-info">
+        <h3>Need Help?</h3>
+        <p>If you have any questions about your application, please contact our team:</p>
+        <p><strong>Email:</strong> info@futureprooffinancial.co<br>
+        <strong>Phone:</strong> 1300 XXX XXX</p>
+      </div>
+
+      <div class="footer">
+        <p>Thank you for choosing Equity Preservation Mortgage®</p>
+        <p><small>This email was sent to <%= @user.email %>. Please do not reply to this email.</small></p>
+      </div>
+    </div>
+  </body>
+</html>

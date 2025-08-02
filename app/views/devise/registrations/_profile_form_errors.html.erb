@@ -1,0 +1,127 @@
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "profile-form", data: { turbo_stream: true } }) do |f| %>
+  <%= render "shared/error_messages", resource: resource %>
+
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :first_name, "First Name", class: "form-label" %>
+      <%= f.text_field :first_name, class: "form-input", autocomplete: "given-name" %>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :last_name, "Last Name", class: "form-label" %>
+      <%= f.text_field :last_name, class: "form-input", autocomplete: "family-name" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :email, "Email Address", class: "form-label" %>
+    <%= f.email_field :email, class: "form-input", autocomplete: "email" %>
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <div class="form-hint">Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :country_of_residence, "Country of Residence", class: "form-label" %>
+    <%= f.select :country_of_residence,
+        options_for_select([
+          ['🇦🇺 Australia', 'Australia'],
+          ['🇳🇿 New Zealand', 'New Zealand'],
+          ['🇺🇸 United States', 'United States'],
+          ['🇬🇧 United Kingdom', 'United Kingdom'],
+          ['🇨🇦 Canada', 'Canada'],
+          ['🇩🇪 Germany', 'Germany'],
+          ['🇫🇷 France', 'France'],
+          ['🇮🇹 Italy', 'Italy'],
+          ['🇪🇸 Spain', 'Spain'],
+          ['🇳🇱 Netherlands', 'Netherlands'],
+          ['🇧🇪 Belgium', 'Belgium'],
+          ['🇨🇭 Switzerland', 'Switzerland'],
+          ['🇦🇹 Austria', 'Austria'],
+          ['🇸🇪 Sweden', 'Sweden'],
+          ['🇳🇴 Norway', 'Norway'],
+          ['🇩🇰 Denmark', 'Denmark'],
+          ['🇫🇮 Finland', 'Finland'],
+          ['🇮🇪 Ireland', 'Ireland'],
+          ['🇯🇵 Japan', 'Japan'],
+          ['🇰🇷 South Korea', 'South Korea'],
+          ['🇸🇬 Singapore', 'Singapore'],
+          ['🇭🇰 Hong Kong', 'Hong Kong'],
+          ['🇨🇳 China', 'China'],
+          ['🇮🇳 India', 'India'],
+          ['🇧🇷 Brazil', 'Brazil'],
+          ['🇦🇷 Argentina', 'Argentina'],
+          ['🇨🇱 Chile', 'Chile'],
+          ['🇲🇽 Mexico', 'Mexico'],
+          ['🇿🇦 South Africa', 'South Africa'],
+          ['🇮🇱 Israel', 'Israel'],
+          ['🇦🇪 United Arab Emirates', 'United Arab Emirates'],
+          ['🌍 Other', 'Other']
+        ], resource.country_of_residence || 'Australia'),
+        { prompt: 'Select your country of residence' },
+        { class: "form-select", autocomplete: "country" } %>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :mobile_country_code, "Mobile Country Code", class: "form-label" %>
+      <%= f.select :mobile_country_code,
+          options_for_select([
+            ['+61 🇦🇺 Australia', '+61'],
+            ['+64 🇳🇿 New Zealand', '+64'],
+            ['+1 🇺🇸 United States', '+1'],
+            ['+44 🇬🇧 United Kingdom', '+44'],
+            ['+1 🇨🇦 Canada', '+1'],
+            ['+49 🇩🇪 Germany', '+49'],
+            ['+33 🇫🇷 France', '+33'],
+            ['+39 🇮🇹 Italy', '+39'],
+            ['+34 🇪🇸 Spain', '+34'],
+            ['+31 🇳🇱 Netherlands', '+31'],
+            ['+32 🇧🇪 Belgium', '+32'],
+            ['+41 🇨🇭 Switzerland', '+41'],
+            ['+43 🇦🇹 Austria', '+43'],
+            ['+46 🇸🇪 Sweden', '+46'],
+            ['+47 🇳🇴 Norway', '+47'],
+            ['+45 🇩🇰 Denmark', '+45'],
+            ['+358 🇫🇮 Finland', '+358'],
+            ['+353 🇮🇪 Ireland', '+353'],
+            ['+81 🇯🇵 Japan', '+81'],
+            ['+82 🇰🇷 South Korea', '+82'],
+            ['+65 🇸🇬 Singapore', '+65'],
+            ['+852 🇭🇰 Hong Kong', '+852'],
+            ['+86 🇨🇳 China', '+86'],
+            ['+91 🇮🇳 India', '+91'],
+            ['+55 🇧🇷 Brazil', '+55'],
+            ['+54 🇦🇷 Argentina', '+54'],
+            ['+56 🇨🇱 Chile', '+56'],
+            ['+52 🇲🇽 Mexico', '+52'],
+            ['+27 🇿🇦 South Africa', '+27'],
+            ['+972 🇮🇱 Israel', '+972'],
+            ['+971 🇦🇪 United Arab Emirates', '+971']
+          ], resource.mobile_country_code || '+61'),
+          { prompt: 'Select country code' },
+          { class: "form-select", autocomplete: "tel-country-code" } %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :mobile_number, "Mobile Number", class: "form-label" %>
+      <%= f.telephone_field :mobile_number, 
+          class: "form-input", 
+          placeholder: "Enter your mobile number",
+          autocomplete: "tel-national" %>
+      <div class="form-hint">Enter your mobile number without the country code</div>
+    </div>
+  </div>
+
+  <!-- Current password only for profile updates that change email -->
+  <div class="form-group">
+    <%= f.label :current_password, "Current Password", class: "form-label" %>
+    <%= f.password_field :current_password, class: "form-input", autocomplete: "current-password" %>
+    <div class="form-hint">Required to confirm changes to your profile</div>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit "Update Profile", class: "btn btn-primary" %>
+    <%= link_to "Cancel", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
