@@ -1,0 +1,6 @@
+<%= link_to "Sign Out", destroy_user_session_path, 
+    class: local_assigns[:css_class] || "nav-link",
+    data: { 
+      "turbo-method": :delete,
+      confirm: local_assigns[:confirm_message] || "Are you sure you want to sign out?" 
+    } %>

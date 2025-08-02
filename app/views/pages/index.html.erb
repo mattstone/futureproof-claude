@@ -15,15 +15,15 @@
             <label for="home-value">Home Value</label>
             <div class="slider-container">
               <input type="range" id="home-value" min="1000000" max="10000000" step="200000" value="1500000" class="value-slider" data-calculator-target="slider" data-action="input->calculator#updateValue">
-              <div class="slider-value" data-calculator-target="value">$1,500,000</div>
             </div>
+            <div class="slider-value" data-calculator-target="value">$1,500,000</div>
           </div>
           <div class="calculator-result">
             <div class="monthly-income">
               <span class="income-amount" data-calculator-target="incomeAmount">Calculating...</span>
-              <span class="income-period">Monthly Annuity Range*</span>
+              <span class="income-period">Estimated Monthly Annuity Range*</span>
             </div>
-            <%= link_to "Apply Now", apply_path, class: "btn btn-primary calculate-btn" %>
+            <%= link_to "Apply Now", apply_path, class: "btn btn-primary calculate-btn", data: { calculator_target: "applyButton", action: "click->calculator#applyNow" } %>
           </div>
         </div>
       </div>

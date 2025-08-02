@@ -8,6 +8,11 @@ class ApplicationsController < ApplicationController
     @application.status = :property_details
     # Set default ownership_status to individual to ensure the form displays correctly
     @application.ownership_status = :individual
+    
+    # Pre-populate home value if passed from home page calculator
+    if params[:home_value].present?
+      @application.home_value = params[:home_value].to_i
+    end
   end
 
   def create

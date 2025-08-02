@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["slider", "value", "incomeAmount"]
+  static targets = ["slider", "value", "incomeAmount", "applyButton"]
   
   connect() {
     this.updateValue()
@@ -28,6 +28,13 @@ export default class extends Controller {
     } catch (error) {
       console.error('Error fetching mortgage estimate:', error)
     }
+  }
+  
+  applyNow(event) {
+    // Store the current home value in sessionStorage so it can be retrieved on the apply page
+    const homeValue = this.sliderTarget.value
+    sessionStorage.setItem('calculator_home_value', homeValue)
+    // Let the link proceed normally
   }
   
   formatCurrency(value) {

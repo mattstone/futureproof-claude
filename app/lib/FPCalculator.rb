@@ -129,7 +129,7 @@ class FPCalculator
   def incomes_from_row(principal, row)
     annual_income  = row["annual_income"].to_f
     annual_income  = adjusted_value(principal, annual_income)
-    monthly_income = adjusted_value(principal, annual_income.to_f / 12)
+    monthly_income = annual_income.to_f / 12
     { annual_income: annual_income, monthly_income: monthly_income }
   end
 

@@ -100,12 +100,6 @@
                 <span class="summary-label">Estimate of home equity preserved:</span>
                 <span class="summary-value equity-preserved"><%= @application.formatted_home_equity_preserved %></span>
               </div>
-              <% if @application.borrower_names.present? %>
-                <div class="summary-item">
-                  <span class="summary-label">Borrower Names:</span>
-                  <span class="summary-value"><%= @application.borrower_names %></span>
-                </div>
-              <% end %>
               <% if @application.company_name.present? %>
                 <div class="summary-item">
                   <span class="summary-label">Company Name:</span>
