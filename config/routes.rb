@@ -25,6 +25,14 @@ Rails.application.routes.draw do
         post :preview
       end
     end
+    resources :privacy_policies, except: [:destroy] do
+      member do
+        patch :activate
+      end
+      collection do
+        post :preview
+      end
+    end
     root "applications#index"
   end
 

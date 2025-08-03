@@ -13,6 +13,8 @@
 <%= form_with(model: [:admin, @application], local: true, class: "admin-form") do |form| %>
   <h2>Edit Application #<%= @application.id %></h2>
   
+  <div style="margin-bottom: 24px;"></div>
+  
   <% if @application.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>

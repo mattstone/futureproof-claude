@@ -1,6 +1,6 @@
-class TermsOfUse < ApplicationRecord
-  has_many :terms_of_use_versions, dependent: :destroy
-  has_many :users, foreign_key: 'terms_version', primary_key: 'version'
+class PrivacyPolicy < ApplicationRecord
+  has_many :privacy_policy_versions, dependent: :destroy
+  has_many :users, foreign_key: 'privacy_version', primary_key: 'version'
   
   validates :title, presence: true
   validates :content, presence: true
@@ -29,59 +29,87 @@ class TermsOfUse < ApplicationRecord
   
   def self.create_default
     default_content = <<~MARKUP
-      ## 1. Acceptance of Terms
+      ## 1. Introduction
 
-      By accessing and using this website and our services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+      Futureproof Financial Group Limited ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services, including our Equity Preservation Mortgage® products.
 
-      ## 2. About Our Services
+      ## 2. Information We Collect
 
-      Futureproof Financial Group Limited provides financial services including the Equity Preservation Mortgage® product. Our services are designed to help eligible homeowners access their home equity while preserving it for wealth transfer.
+      ### Personal Information
 
-      ### Important Disclaimers:
+      We may collect the following types of personal information:
 
-      - Calculations provided on this website are estimates only and not loan approvals
-      - All applications are subject to final property valuations, satisfactory security, and borrower eligibility requirements
-      - Full terms and conditions will be set out in the Equity Preservation Mortgage® offer
-      - All Equity Preservation Mortgages® are secured by registered first mortgage over residential property
+      - Contact information (name, email address, phone number, mailing address)
+      - Property information (address, estimated value)
+      - Financial information (income, assets, liabilities)
+      - Identity verification documents
+      - Communication records and preferences
 
-      ## 3. Eligibility and Application Process
+      ### Automatically Collected Information
 
-      To be eligible for our services, you must:
+      When you visit our website, we may automatically collect:
 
-      - Be at least 18 years of age
-      - Own residential property in Australia
-      - Meet our lending criteria and creditworthiness requirements
-      - Provide accurate and complete information in your application
+      - IP address and device information
+      - Browser type and version
+      - Pages visited and time spent on our site
+      - Referring website information
+      - Cookies and similar tracking technologies
 
-      We reserve the right to decline any application at our sole discretion.
+      ## 3. How We Use Your Information
 
-      ## 4. Website Use
+      We use your information for the following purposes:
 
-      ### Permitted Use
+      - Processing and evaluating mortgage applications
+      - Providing customer service and support
+      - Communicating about our products and services
+      - Conducting risk assessments and fraud prevention
+      - Complying with legal and regulatory requirements
+      - Improving our website and services
+      - Marketing and promotional activities (with your consent)
 
-      You may use our website for lawful purposes only. You agree not to:
+      ## 4. Information Sharing and Disclosure
 
-      - Use the site in any way that violates applicable laws or regulations
-      - Transmit or procure sending of any advertising or promotional material without our consent
-      - Impersonate or attempt to impersonate our company, employees, or other users
-      - Engage in any activity that interferes with or disrupts the site
+      We may share your information with:
 
-      ### Account Security
+      - **Service Providers:** Third parties who assist us in providing our services
+      - **Financial Partners:** Approved lenders and financial institutions
+      - **Legal Authorities:** When required by law or to protect our rights
+      - **Business Transfers:** In connection with mergers, acquisitions, or asset sales
 
-      If you create an account on our website, you are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account.
+      We do not sell, trade, or rent your personal information to third parties for marketing purposes without your explicit consent.
 
-      ## 12. Contact Information
+      ## 5. Data Security
 
-      If you have any questions about these Terms of Use, please contact us at:
+      We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure.
+
+      ## 6. Your Rights
+
+      You have the right to:
+
+      - Access and review your personal information
+      - Request corrections to inaccurate information
+      - Request deletion of your information (subject to legal requirements)
+      - Opt-out of marketing communications
+      - Lodge a complaint with relevant privacy authorities
+
+      ## 7. Cookies and Tracking
+
+      Our website uses cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content. You can control cookie settings through your browser preferences.
+
+      ## 8. Changes to This Policy
+
+      We may update this Privacy Policy periodically. We will notify you of any material changes by posting the updated policy on our website with a new "Last updated" date.
+
+      ## 9. Contact Us
 
       **Contact Info:**
       Company: Futureproof Financial Group Limited
-      Email: legal@futureprooffinancial.app
+      Email: privacy@futureprooffinancial.app
       Address: [Company Address]
     MARKUP
     
     create!(
-      title: "Terms of Use",
+      title: "Privacy Policy",
       content: default_content,
       last_updated: Time.current,
       is_active: true,
@@ -212,22 +240,22 @@ class TermsOfUse < ApplicationRecord
   end
   
   def set_next_version
-    self.version = (TermsOfUse.maximum(:version) || 0) + 1
+    self.version = (PrivacyPolicy.maximum(:version) || 0) + 1
   end
   
   def ensure_single_active
     if is_active? && saved_change_to_is_active?
-      TermsOfUse.where.not(id: id).update_all(is_active: false)
+      PrivacyPolicy.where.not(id: id).update_all(is_active: false)
     end
   end
   
   def log_creation
     return unless current_user
     
-    terms_of_use_versions.create!(
+    privacy_policy_versions.create!(
       user: current_user,
       action: 'created',
-      change_details: "Created new Terms of Use version #{version}",
+      change_details: "Created new Privacy Policy version #{version}",
       new_content: content
     )
   end
@@ -237,14 +265,14 @@ class TermsOfUse < ApplicationRecord
     
     if saved_change_to_is_active? && is_active?
       # Log activation
-      terms_of_use_versions.create!(
+      privacy_policy_versions.create!(
         user: current_user,
         action: 'activated',
-        change_details: "Activated Terms of Use version #{version}"
+        change_details: "Activated Privacy Policy version #{version}"
       )
     elsif saved_change_to_content?
       # Log content update
-      terms_of_use_versions.create!(
+      privacy_policy_versions.create!(
         user: current_user,
         action: 'updated',
         change_details: build_change_summary,

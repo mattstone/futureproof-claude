@@ -41,26 +41,7 @@
             </span>
           </td>
           <td>
-            <% case application.status %>
-            <% when 'created' %>
-              <span class="admin-badge admin-badge-created">Created</span>
-            <% when 'user_details' %>
-              <span class="admin-badge admin-badge-user-details">User Details</span>
-            <% when 'property_details' %>
-              <span class="admin-badge admin-badge-property-details">Property Details</span>
-            <% when 'income_and_loan_options' %>
-              <span class="admin-badge admin-badge-income-loan">Income & Loan</span>
-            <% when 'submitted' %>
-              <span class="admin-badge admin-badge-submitted">Submitted</span>
-            <% when 'processing' %>
-              <span class="admin-badge admin-badge-processing">Processing</span>
-            <% when 'rejected' %>
-              <span class="admin-badge admin-badge-rejected">Rejected</span>
-            <% when 'accepted' %>
-              <span class="admin-badge admin-badge-accepted">Accepted</span>
-            <% else %>
-              <span class="admin-badge admin-badge-pending"><%= application.status.humanize %></span>
-            <% end %>
+            <%= render 'status_badge', application: application %>
           </td>
           <td><%= application.created_at.strftime("%B %d, %Y") %></td>
           <td>

@@ -41,6 +41,9 @@
           <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
             <span>📄 Terms of Use</span>
           <% end %>
+          <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
+            <span>🔒 Privacy Policies</span>
+          <% end %>
         </nav>
         
         <div class="admin-user-info">

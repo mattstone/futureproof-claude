@@ -1,0 +1,61 @@
+<% content_for :page_title, "Create New Privacy Policy Version" %>
+
+<div class="admin-form-container">
+  <div class="admin-form-header">
+    <h1>Create New Privacy Policy Version</h1>
+  </div>
+
+  <div class="admin-form-content">
+    <%= render 'form' %>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const previewBtn = document.getElementById('preview-btn');
+    const form = document.querySelector('form');
+    
+    if (previewBtn && form) {
+      previewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(form);
+        
+        // Create a temporary form for preview
+        const previewForm = document.createElement('form');
+        previewForm.method = 'POST';
+        previewForm.action = '<%= preview_admin_privacy_policies_path %>';
+        previewForm.target = '_blank';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = 'authenticity_token';
+          csrfInput.value = csrfToken.getAttribute('content');
+          previewForm.appendChild(csrfInput);
+        }
+        
+        // Add form data to preview form
+        for (let [key, value] of formData.entries()) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          previewForm.appendChild(input);
+        }
+        
+        // Submit preview form
+        document.body.appendChild(previewForm);
+        previewForm.submit();
+        document.body.removeChild(previewForm);
+      });
+    }
+  });
+})();
+</script>

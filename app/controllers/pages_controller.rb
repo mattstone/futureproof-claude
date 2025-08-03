@@ -6,7 +6,7 @@ class PagesController < ApplicationController
   end
 
   def privacy_policy
-    # Privacy Policy page
+    @privacy_policy = PrivacyPolicy.current
   end
 
   def terms_of_use

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_091635) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_101203) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,6 +44,43 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_091635) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
+  end
+
+  create_table "privacy_policies", force: :cascade do |t|
+    t.string "title"
+    t.text "content"
+    t.datetime "last_updated"
+    t.boolean "is_active"
+    t.integer "version"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "privacy_policy_versions", force: :cascade do |t|
+    t.bigint "privacy_policy_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["privacy_policy_id"], name: "index_privacy_policy_versions_on_privacy_policy_id"
+    t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
+  end
+
+  create_table "terms_of_use_versions", force: :cascade do |t|
+    t.bigint "terms_of_use_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action", null: false
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["terms_of_use_id", "created_at"], name: "index_terms_of_use_versions_on_terms_of_use_id_and_created_at"
+    t.index ["terms_of_use_id"], name: "index_terms_of_use_versions_on_terms_of_use_id"
+    t.index ["user_id"], name: "index_terms_of_use_versions_on_user_id"
   end
 
   create_table "terms_of_uses", force: :cascade do |t|
@@ -93,4 +130,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_091635) do
 
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
+  add_foreign_key "privacy_policy_versions", "privacy_policies"
+  add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "terms_of_use_versions", "terms_of_uses"
+  add_foreign_key "terms_of_use_versions", "users"
 end

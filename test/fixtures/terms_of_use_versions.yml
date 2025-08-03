@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  terms_of_use: one
+  user: one
+  action: MyString
+  change_details: MyText
+
+two:
+  terms_of_use: two
+  user: two
+  action: MyString
+  change_details: MyText

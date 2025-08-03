@@ -11,7 +11,12 @@
 </div>
 
 <div class="admin-form">
-  <h2>Application #<%= @application.id %></h2>
+  <div class="application-header">
+    <h2>Application #<%= @application.id %></h2>
+    <div class="application-status">
+      <%= render 'status_badge', application: @application %>
+    </div>
+  </div>
   
   <div class="application-details">
     <div class="detail-row">
@@ -50,6 +55,23 @@
 </div>
 
 <style>
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.application-header h2 {
+  margin: 0;
+}
+
+.application-status {
+  flex-shrink: 0;
+}
+
 .application-details {
   margin-top: 24px;
 }

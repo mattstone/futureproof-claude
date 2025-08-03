@@ -1,0 +1,72 @@
+<% content_for :page_title, "Privacy Policies" %>
+
+<div class="admin-actions-bar">
+  <div></div>
+  
+  <div class="admin-actions">
+    <%= link_to "Create New Version", new_admin_privacy_policy_path, class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<div class="admin-table-container">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th style="text-align: center;">Version</th>
+        <th>Last Updated</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @privacy_policies.each do |privacy_policy| %>
+        <tr class="<%= 'active-row' if privacy_policy.is_active? %>">
+          <td>
+            <strong><%= privacy_policy.title %></strong>
+          </td>
+          <td style="text-align: center;">
+            <span class="admin-badge admin-badge-info"><%= privacy_policy.version %></span>
+          </td>
+          <td>
+            <%= privacy_policy.formatted_last_updated %>
+          </td>
+          <td>
+            <% if privacy_policy.is_active? %>
+              <span class="admin-badge admin-badge-success">Active</span>
+            <% else %>
+              <span class="admin-badge admin-badge-secondary">Draft</span>
+            <% end %>
+          </td>
+          <td>
+            <%= privacy_policy.created_at.strftime("%b %d, %Y") %>
+          </td>
+          <td class="admin-table-actions">
+            <%= link_to "View", admin_privacy_policy_path(privacy_policy), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+            <%= link_to "Edit", edit_admin_privacy_policy_path(privacy_policy), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+            <% unless privacy_policy.is_active? %>
+              <%= link_to "Activate", 
+                  activate_admin_privacy_policy_path(privacy_policy), 
+                  method: :patch,
+                  class: "admin-btn admin-btn-sm admin-btn-success",
+                  data: { 
+                    confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+                  } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <% if @privacy_policies.empty? %>
+    <div class="admin-empty-state">
+      <h3>No Privacy Policies Found</h3>
+      <p>Get started by creating your first Privacy Policy.</p>
+      <%= link_to "Create First Privacy Policy", new_admin_privacy_policy_path, class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<%= paginate @privacy_policies if respond_to?(:paginate) %>
