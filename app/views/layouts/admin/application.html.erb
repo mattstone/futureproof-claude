@@ -24,19 +24,22 @@
       <aside class="admin-sidebar">
         <div class="admin-brand">
           <%= link_to admin_root_path, class: "admin-brand-link" do %>
-            <h2>Admin Panel</h2>
+            <%= image_tag "futureproof-logo.png", class: "admin-logo", style: "height: 40px;" %>
           <% end %>
         </div>
         
         <nav class="admin-nav">
+          <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
+            <span>📋 Applications</span>
+          <% end %>
           <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
             <span>👥 Users</span>
           <% end %>
           <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
             <span>🏠 Mortgages</span>
           <% end %>
-          <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
-            <span>📋 Applications</span>
+          <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
+            <span>📄 Terms of Use</span>
           <% end %>
         </nav>
         
@@ -55,7 +58,7 @@
       <!-- Main Content -->
       <main class="admin-main">
         <div class="admin-header">
-          <h1><%= yield(:page_title) || "Admin Panel" %></h1>
+          <h1><%= yield(:page_title) || "Back Office" %></h1>
         </div>
 
         <div class="admin-content">

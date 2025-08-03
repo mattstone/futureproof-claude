@@ -2,101 +2,11 @@
 
 <div class="legal-page">
   <div class="legal-container">
-    <h1>Terms of Use</h1>
-    <p class="last-updated">Last updated: January 31, 2025</p>
+    <h1><%= @terms_of_use.title %></h1>
+    <p class="last-updated">Last updated: <%= @terms_of_use.formatted_last_updated %></p>
 
     <div class="legal-content">
-      <section class="legal-section">
-        <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using this website and our services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>2. About Our Services</h2>
-        <p>Futureproof Financial Group Limited provides financial services including the Equity Preservation Mortgage® product. Our services are designed to help eligible homeowners access their home equity while preserving it for wealth transfer.</p>
-        
-        <h3>Important Disclaimers:</h3>
-        <ul>
-          <li>Calculations provided on this website are estimates only and not loan approvals</li>
-          <li>All applications are subject to final property valuations, satisfactory security, and borrower eligibility requirements</li>
-          <li>Full terms and conditions will be set out in the Final Loan Offer if an offer is made by one of our preferred lenders</li>
-          <li>All Equity Preservation Mortgages® are secured by registered first mortgage over residential property</li>
-        </ul>
-      </section>
-
-      <section class="legal-section">
-        <h2>3. Eligibility and Application Process</h2>
-        <p>To be eligible for our services, you must:</p>
-        <ul>
-          <li>Be at least 18 years of age</li>
-          <li>Own residential property in Australia</li>
-          <li>Meet our lending criteria and creditworthiness requirements</li>
-          <li>Provide accurate and complete information in your application</li>
-        </ul>
-        <p>We reserve the right to decline any application at our sole discretion.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>4. Website Use</h2>
-        <h3>Permitted Use</h3>
-        <p>You may use our website for lawful purposes only. You agree not to:</p>
-        <ul>
-          <li>Use the site in any way that violates applicable laws or regulations</li>
-          <li>Transmit or procure sending of any advertising or promotional material without our consent</li>
-          <li>Impersonate or attempt to impersonate our company, employees, or other users</li>
-          <li>Engage in any activity that interferes with or disrupts the site</li>
-        </ul>
-
-        <h3>Account Security</h3>
-        <p>If you create an account on our website, you are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>5. Intellectual Property</h2>
-        <p>The content, organization, graphics, design, compilation, and other matters related to this website are protected under applicable copyrights, trademarks, and other proprietary rights. "Equity Preservation Mortgage®" is a registered trademark of Futureproof Financial Group Limited.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>6. Financial Information and Advice</h2>
-        <p>Information provided on this website is for general informational purposes only and should not be considered as financial advice. You should consult with qualified financial advisors before making any financial decisions.</p>
-        
-        <p>We do not guarantee the accuracy, completeness, or usefulness of any information on this website, and we are not responsible for any errors or omissions.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>7. Privacy and Data Protection</h2>
-        <p>Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your information. By using our services, you consent to the collection and use of information in accordance with our Privacy Policy.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>8. Limitation of Liability</h2>
-        <p>To the fullest extent permitted by law, Futureproof Financial Group Limited shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>9. Indemnification</h2>
-        <p>You agree to defend, indemnify, and hold harmless Futureproof Financial Group Limited from and against any claims, damages, obligations, losses, liabilities, costs, or debt, and expenses (including attorney's fees).</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>10. Governing Law</h2>
-        <p>These Terms of Use are governed by and construed in accordance with the laws of Australia. Any disputes arising under these terms shall be subject to the exclusive jurisdiction of the Australian courts.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>11. Changes to Terms</h2>
-        <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on this website. Your continued use of our services after any changes constitutes acceptance of the new terms.</p>
-      </section>
-
-      <section class="legal-section">
-        <h2>12. Contact Information</h2>
-        <p>If you have any questions about these Terms of Use, please contact us at:</p>
-        <div class="contact-info">
-          <p><strong>Futureproof Financial Group Limited</strong><br>
-          Email: legal@futureprooffinancial.app<br>
-          Address: [Company Address]</p>
-        </div>
-      </section>
+      <%= raw @terms_of_use.rendered_content %>
     </div>
 
     <div class="legal-footer">

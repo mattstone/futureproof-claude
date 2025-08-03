@@ -1,4 +1,4 @@
-<% content_for :page_title, "User Management" %>
+<% content_for :page_title, "Users" %>
 
 <div class="admin-actions-bar">
   <div class="admin-search">
@@ -20,6 +20,7 @@
         <th>Email</th>
         <th>Country</th>
         <th>Role</th>
+        <th style="text-align: center;">Terms Version</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -37,6 +38,13 @@
               <span class="admin-badge admin-badge-user">User</span>
             <% end %>
           </td>
+          <td style="text-align: center;">
+            <% if user.terms_version %>
+              <span class="admin-badge admin-badge-info"><%= user.terms_version %></span>
+            <% else %>
+              <span class="admin-badge admin-badge-secondary">-</span>
+            <% end %>
+          </td>
           <td>
             <% if user.confirmed? %>
               <span class="admin-badge admin-badge-user">Confirmed</span>
@@ -47,11 +55,6 @@
           <td>
             <%= link_to "View", admin_user_path(user), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
             <%= link_to "Edit", edit_admin_user_path(user), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-            <% unless user == current_user %>
-              <%= link_to "Delete", admin_user_path(user), method: :delete, 
-                  data: { confirm: "Are you sure you want to delete this user?" }, 
-                  class: "admin-btn admin-btn-sm admin-btn-danger" %>
-            <% end %>
           </td>
         </tr>
       <% end %>
@@ -67,4 +70,8 @@
       <% end %>
     </div>
   <% end %>
+</div>
+
+<div class="admin-pagination">
+  <%= paginate @users %>
 </div>

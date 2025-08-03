@@ -24,7 +24,7 @@
     
     <div class="detail-row">
       <strong>Type:</strong>
-      <span class="admin-badge <%= @mortgage.interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
+      <span class="admin-badge <%= @mortgage.mortgage_type_interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
         <%= @mortgage.mortgage_type.humanize %>
       </span>
     </div>

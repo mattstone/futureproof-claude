@@ -71,13 +71,19 @@ class Users::RegistrationsController < Devise::RegistrationsController
     # Build the user resource
     build_resource(sign_up_params)
     
+    # Set the terms version the user agreed to
+    current_terms = TermsOfUse.current
+    resource.terms_version = current_terms&.version
+    
     if resource.save
       # Generate and send verification code instead of using Devise confirmation
       resource.generate_verification_code
       UserMailer.verification_code(resource).deliver_now
       
-      # Redirect to verification page
-      redirect_to new_users_verification_path(email: resource.email)
+      # Redirect to verification page, preserving home_value if present
+      verification_params = { email: resource.email }
+      verification_params[:home_value] = params[:home_value] if params[:home_value].present?
+      redirect_to new_users_verification_path(verification_params)
     else
       set_minimum_password_length
       render :new, status: :unprocessable_entity
@@ -115,7 +121,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # Strong parameters for user registration
   def sign_up_params
-    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :country_of_residence)
+    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :country_of_residence, :terms_accepted)
   end
 
   # Strong parameters for account update

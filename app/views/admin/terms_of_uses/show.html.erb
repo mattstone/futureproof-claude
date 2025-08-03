@@ -1,0 +1,41 @@
+<% content_for :page_title, "Terms of Use Preview" %>
+
+<div class="admin-content-header">
+  <div class="admin-content-title">
+    <h2><%= @terms_of_use.title %></h2>
+    <p>
+      Last updated: <%= @terms_of_use.formatted_last_updated %>
+      <% if @terms_of_use.is_active? %>
+        <span class="admin-badge admin-badge-success">Active</span>
+      <% else %>
+        <span class="admin-badge admin-badge-secondary">Draft</span>
+      <% end %>
+    </p>
+  </div>
+  <div class="admin-content-actions">
+    <%= link_to "Edit", edit_admin_terms_of_use_path(@terms_of_use), class: "admin-btn admin-btn-primary" %>
+    <% unless @terms_of_use.is_active? %>
+      <%= link_to "Activate This Version", 
+          activate_admin_terms_of_use_path(@terms_of_use), 
+          method: :patch,
+          class: "admin-btn admin-btn-success",
+          data: { 
+            confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+          } %>
+    <% end %>
+    <%= link_to "← Back to Terms of Use", admin_terms_of_uses_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<div class="admin-preview-container">
+  <div class="legal-page">
+    <div class="legal-container">
+      <h1><%= @terms_of_use.title %></h1>
+      <p class="last-updated">Last updated: <%= @terms_of_use.formatted_last_updated %></p>
+
+      <div class="legal-content">
+        <%= raw @terms_of_use.rendered_content %>
+      </div>
+    </div>
+  </div>
+</div>

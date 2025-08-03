@@ -1,7 +1,7 @@
 <%= render 'shared/header' %>
 
 <div class="auth-page">
-  <div class="auth-container">
+  <div class="auth-container" data-controller="terms-modal">
     <div class="auth-card">
       <div class="auth-header">
         <h1 class="auth-title" data-auth-target="title">Create Account</h1>
@@ -96,12 +96,31 @@
                   autocomplete: "new-password" %>
             </div>
 
+            <div class="form-group checkbox-group">
+              <%= f.check_box :terms_accepted, class: "form-checkbox", required: true %>
+              <%= f.label :terms_accepted, class: "checkbox-label" do %>
+                I accept the 
+                <button type="button" class="terms-link" data-action="click->terms-modal#open">
+                  Terms of Use
+                </button>
+                <% current_terms = TermsOfUse.current %>
+                <% if current_terms %>
+                  <span class="terms-version">(Version <%= current_terms.version %>)</span>
+                <% end %>
+              <% end %>
+            </div>
+
             <div class="form-group recaptcha-group">
               <%= recaptcha_tags theme: 'light', size: 'normal' %>
             </div>
 
+            <!-- Hidden field to preserve home_value through registration -->
+            <% if params[:home_value].present? %>
+              <%= hidden_field_tag :home_value, params[:home_value] %>
+            <% end %>
+
             <div class="form-actions">
-              <%= f.submit "Create Account", class: "btn btn-primary btn-lg auth-submit-btn" %>
+              <%= f.submit "Create Account", class: "btn btn-primary btn-lg auth-submit-btn", disabled: true, style: "opacity: 0.5; cursor: not-allowed;" %>
             </div>
           <% end %>
         </div>
@@ -166,11 +185,29 @@
 
       <div class="auth-footer">
         <p class="auth-disclaimer">
-          By creating an account, you agree to our 
-          <%= link_to "Terms of Use", terms_of_use_path, class: "auth-link" %> and 
+          Need help? Contact us or visit our 
           <%= link_to "Privacy Policy", privacy_policy_path, class: "auth-link" %>.
         </p>
         <%= link_to "← Back to Home", root_path, class: "back-link" %>
+      </div>
+    </div>
+
+    <!-- Terms of Use Modal -->
+    <div class="modal-overlay" data-terms-modal-target="overlay" data-action="click->terms-modal#close">
+      <div class="modal-content" data-action="click->terms-modal#stopPropagation">
+        <div class="modal-header">
+          <h2 class="modal-title">Terms of Use</h2>
+          <button type="button" class="modal-close" data-action="click->terms-modal#close">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" data-terms-modal-target="content">
+          <div class="loading-spinner">Loading...</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-action="click->terms-modal#close">Close</button>
+          <button type="button" class="btn btn-primary" data-action="click->terms-modal#accept">Accept Terms</button>
+        </div>
       </div>
     </div>
   </div>

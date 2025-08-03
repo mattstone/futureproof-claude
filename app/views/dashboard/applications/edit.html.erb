@@ -39,10 +39,11 @@
       
       <div class="form-group">
         <%= f.label :address, "Property Address", class: "form-label" %>
-        <%= f.text_area :address, 
-            class: "form-input", 
-            placeholder: "Enter the complete address of your property",
-            rows: 3 %>
+        <div class="demo-address-display">
+          <%= @application.address %>
+          <small class="demo-note">This is a demonstration system - address is randomly assigned</small>
+        </div>
+        <%= f.hidden_field :address %>
       </div>
 
       <div class="form-group">
@@ -104,7 +105,7 @@
       <!-- Individual ownership: Show borrower age -->
       <div class="form-group" 
            data-application-form-target="individualFields"
-           style="display: <%= @application.individual? ? 'block' : 'none' %>;">
+           style="display: <%= @application.ownership_status_individual? ? 'block' : 'none' %>;">
         <%= f.label :borrower_age, "Age of Borrower", class: "form-label" %>
         <div class="slider-container">
           <%= f.range_field :borrower_age,
@@ -127,7 +128,7 @@
       <!-- Joint ownership: Show borrower names and ages -->
       <div class="form-group" 
            data-application-form-target="jointFields"
-           style="display: <%= @application.joint? ? 'block' : 'none' %>;">
+           style="display: <%= @application.ownership_status_joint? ? 'block' : 'none' %>;">
         <label class="form-label">Borrower Details</label>
         <div id="joint-borrowers">
           <div class="joint-borrower-item">
@@ -164,7 +165,7 @@
       <!-- Company ownership: Show company name -->
       <div class="form-group" 
            data-application-form-target="companyFields"
-           style="display: <%= @application.company? ? 'block' : 'none' %>;">
+           style="display: <%= @application.ownership_status_company? ? 'block' : 'none' %>;">
         <%= f.label :company_name, "Company Name", class: "form-label" %>
         <%= f.text_field :company_name, 
             class: "form-input", 
@@ -174,7 +175,7 @@
       <!-- Superannuation ownership: Show super fund name -->
       <div class="form-group" 
            data-application-form-target="superFields"
-           style="display: <%= @application.super? ? 'block' : 'none' %>;">
+           style="display: <%= @application.ownership_status_super? ? 'block' : 'none' %>;">
         <%= f.label :super_fund_name, "Superannuation Fund Name", class: "form-label" %>
         <%= f.text_field :super_fund_name, 
             class: "form-input", 

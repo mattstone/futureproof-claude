@@ -3,15 +3,36 @@ class ApplicationsController < ApplicationController
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations]
 
   def new
-    @application = current_user.applications.build
-    # Set initial status to property_details since user_details is completed during registration
-    @application.status = :property_details
-    # Set default ownership_status to individual to ensure the form displays correctly
-    @application.ownership_status = :individual
+    # Check if user has an existing application in "created" status
+    existing_application = current_user.applications.status_created.first
     
-    # Pre-populate home value if passed from home page calculator
-    if params[:home_value].present?
-      @application.home_value = params[:home_value].to_i
+    if existing_application
+      # Use the existing application and update it
+      @application = existing_application
+      
+      # Pre-populate home value if passed from home page calculator
+      if params[:home_value].present?
+        @application.home_value = params[:home_value].to_i
+        # Save only the home value update without triggering validations
+        @application.update_column(:home_value, @application.home_value)
+      end
+      
+      # Set defaults for form display but don't save status change yet
+      @application.status = :property_details
+      @application.ownership_status = :individual
+      # Set a reasonable default age for the form
+      @application.borrower_age = 60 if @application.borrower_age.to_i < 18
+    else
+      # Create a new application if none exists
+      @application = current_user.applications.build
+      @application.status = :property_details
+      @application.ownership_status = :individual
+      @application.borrower_age = 60  # Set reasonable default
+      
+      # Pre-populate home value if passed from home page calculator
+      if params[:home_value].present?
+        @application.home_value = params[:home_value].to_i
+      end
     end
   end
 
@@ -47,12 +68,12 @@ class ApplicationsController < ApplicationController
   def income_and_loan
     # Show income and loan options form (step 3)
     # Ensure we're in the right status for this step
-    @application.update(status: :income_and_loan_options) if @application.property_details?
+    @application.update(status: :income_and_loan_options) if @application.status_property_details?
   end
 
   def update_income_and_loan
     # First update the status to income_and_loan_options if not already
-    @application.status = :income_and_loan_options unless @application.income_and_loan_options?
+    @application.status = :income_and_loan_options unless @application.status_income_and_loan_options?
     
     # Assign parameters and validate with context
     @application.assign_attributes(income_loan_params)
@@ -92,7 +113,6 @@ class ApplicationsController < ApplicationController
 
   def application_params
     params.require(:application).permit(
-      :address, 
       :home_value, 
       :ownership_status, 
       :property_state, 

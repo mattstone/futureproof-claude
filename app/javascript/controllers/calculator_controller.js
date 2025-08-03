@@ -33,6 +33,7 @@ export default class extends Controller {
   applyNow(event) {
     // Store the current home value in sessionStorage so it can be retrieved on the apply page
     const homeValue = this.sliderTarget.value
+    console.log('Calculator: Storing home value in sessionStorage:', homeValue)
     sessionStorage.setItem('calculator_home_value', homeValue)
     // Let the link proceed normally
   }

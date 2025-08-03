@@ -1,10 +1,11 @@
 class Admin::UsersController < Admin::BaseController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update]
 
   def index
     @users = User.all.order(:email)
     @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
                          "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+    @users = @users.page(params[:page]).per(10)
   end
 
   def show
@@ -42,15 +43,6 @@ class Admin::UsersController < Admin::BaseController
     end
   end
 
-  def destroy
-    if @user == current_user
-      redirect_to admin_users_path, alert: 'You cannot delete your own account.'
-      return
-    end
-
-    @user.destroy
-    redirect_to admin_users_path, notice: 'User was successfully deleted.'
-  end
 
   private
 

@@ -10,7 +10,7 @@ class PagesController < ApplicationController
   end
 
   def terms_of_use
-    # Terms of Use page
+    @terms_of_use = TermsOfUse.current
   end
 
   def apply

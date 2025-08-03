@@ -97,15 +97,15 @@
         <% if user_signed_in? %>
           <%= link_to "Start Your Application", new_application_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startApplication" } %>
         <% else %>
-          <%= link_to "Create Account to Start", new_user_registration_path, class: "btn btn-primary btn-lg start-application-btn" %>
+          <%= link_to "Create Account to Start", new_user_registration_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startRegistration" } %>
         <% end %>
         <%= link_to "← Back to Home", root_path, class: "back-link" %>
       </div>
       
       <div class="apply-disclaimer">
         <p class="disclaimer-text">
-          * Applications are subject to final property valuations, satisfactory security and borrower eligibility requirements. 
-          Full terms and conditions will be set out in the Final Loan Offer if an offer is made by one of our preferred lenders.
+          * Applications are subject to final property valuations and ownership search. 
+          Full terms and conditions will be set out in the Equity Preservation Mortgage® offer.
         </p>
       </div>
     </div>

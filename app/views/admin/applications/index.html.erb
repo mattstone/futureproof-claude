@@ -1,4 +1,4 @@
-<% content_for :page_title, "Application Management" %>
+<% content_for :page_title, "Applications" %>
 
 <div class="admin-actions-bar">
   <div class="admin-search">
@@ -19,6 +19,7 @@
         <th>User</th>
         <th>Address</th>
         <th>Home Value</th>
+        <th>Status</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -39,13 +40,32 @@
               <%= application.formatted_home_value %>
             </span>
           </td>
+          <td>
+            <% case application.status %>
+            <% when 'created' %>
+              <span class="admin-badge admin-badge-created">Created</span>
+            <% when 'user_details' %>
+              <span class="admin-badge admin-badge-user-details">User Details</span>
+            <% when 'property_details' %>
+              <span class="admin-badge admin-badge-property-details">Property Details</span>
+            <% when 'income_and_loan_options' %>
+              <span class="admin-badge admin-badge-income-loan">Income & Loan</span>
+            <% when 'submitted' %>
+              <span class="admin-badge admin-badge-submitted">Submitted</span>
+            <% when 'processing' %>
+              <span class="admin-badge admin-badge-processing">Processing</span>
+            <% when 'rejected' %>
+              <span class="admin-badge admin-badge-rejected">Rejected</span>
+            <% when 'accepted' %>
+              <span class="admin-badge admin-badge-accepted">Accepted</span>
+            <% else %>
+              <span class="admin-badge admin-badge-pending"><%= application.status.humanize %></span>
+            <% end %>
+          </td>
           <td><%= application.created_at.strftime("%B %d, %Y") %></td>
           <td>
             <%= link_to "View", admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
             <%= link_to "Edit", edit_admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-            <%= link_to "Delete", admin_application_path(application), method: :delete, 
-                data: { confirm: "Are you sure you want to delete this application?" }, 
-                class: "admin-btn admin-btn-sm admin-btn-danger" %>
           </td>
         </tr>
       <% end %>
@@ -61,4 +81,8 @@
       <% end %>
     </div>
   <% end %>
+</div>
+
+<div class="admin-pagination">
+  <%= paginate @applications %>
 </div>

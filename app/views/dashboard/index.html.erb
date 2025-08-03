@@ -147,7 +147,7 @@
 
                     <div class="history-actions">
                       <%= link_to "View Details", application, class: "btn btn-outline-secondary btn-sm" %>
-                      <% if application.submitted? %>
+                      <% if application.status_submitted? %>
                         <%= link_to "View Summary", summary_application_path(application), class: "btn btn-outline-primary btn-sm" %>
                       <% end %>
                     </div>

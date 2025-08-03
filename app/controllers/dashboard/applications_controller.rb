@@ -48,12 +48,12 @@ class Dashboard::ApplicationsController < ApplicationController
   def income_and_loan
     # Show income and loan options form (step 3)
     # Ensure we're in the right status for this step
-    @application.update(status: :income_and_loan_options) if @application.property_details?
+    @application.update(status: :income_and_loan_options) if @application.status_property_details?
   end
 
   def update_income_and_loan
     # First update the status to income_and_loan_options if not already
-    @application.status = :income_and_loan_options unless @application.income_and_loan_options?
+    @application.status = :income_and_loan_options unless @application.status_income_and_loan_options?
     
     # Assign parameters and validate with context
     @application.assign_attributes(income_loan_params)
@@ -93,7 +93,6 @@ class Dashboard::ApplicationsController < ApplicationController
 
   def application_params
     params.require(:application).permit(
-      :address, 
       :home_value, 
       :ownership_status, 
       :property_state, 

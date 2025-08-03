@@ -17,7 +17,15 @@ Rails.application.routes.draw do
     resources :users
     resources :mortgages
     resources :applications
-    root "users#index"
+    resources :terms_of_uses, except: [:destroy] do
+      member do
+        patch :activate
+      end
+      collection do
+        post :preview
+      end
+    end
+    root "applications#index"
   end
 
   # API routes
@@ -37,7 +45,7 @@ Rails.application.routes.draw do
 
   # Legal pages
   get "privacy-policy", to: "pages#privacy_policy"
-  get "terms-of-use", to: "pages#terms_of_use"
+  get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
   
   # Apply page
   get "apply", to: "pages#apply"

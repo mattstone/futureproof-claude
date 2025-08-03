@@ -8,23 +8,24 @@ class Application < ApplicationRecord
     joint: 1,
     company: 2,
     super: 3
-  }
+  }, prefix: true
 
   enum :property_state, {
     primary_residence: 0,
     investment: 1,
     holiday: 2
-  }
+  }, prefix: true
 
   enum :status, {
-    user_details: 0,
-    property_details: 1,
-    income_and_loan_options: 2,
-    submitted: 3,
-    processing: 4,
-    rejected: 5,
-    accepted: 6
-  }
+    created: 0,
+    user_details: 1,
+    property_details: 2,
+    income_and_loan_options: 3,
+    submitted: 4,
+    processing: 5,
+    rejected: 6,
+    accepted: 7
+  }, prefix: true
 
   # Validations
   validates :address, presence: true, length: { maximum: 255 }
@@ -41,15 +42,15 @@ class Application < ApplicationRecord
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000
   }, allow_blank: true
-  validates :rejected_reason, presence: true, if: :rejected?
+  validates :rejected_reason, presence: true, if: :status_rejected?
   validates :borrower_age, presence: true, numericality: { 
     greater_than_or_equal_to: 18, 
     less_than_or_equal_to: 85,
     only_integer: true 
-  }, if: :individual?
-  validates :borrower_names, presence: true, if: :joint?
-  validates :company_name, presence: true, if: :company?
-  validates :super_fund_name, presence: true, if: :super?
+  }, if: -> { ownership_status_individual? && !status_created? }
+  validates :borrower_names, presence: true, if: -> { ownership_status_joint? && !status_created? }
+  validates :company_name, presence: true, if: -> { ownership_status_company? && !status_created? }
+  validates :super_fund_name, presence: true, if: -> { ownership_status_super? && !status_created? }
   validates :loan_term, presence: true, numericality: { 
     greater_than_or_equal_to: 10, 
     less_than_or_equal_to: 30,
@@ -70,11 +71,14 @@ class Application < ApplicationRecord
   validate :mortgage_amount_required_if_has_mortgage
   validate :borrower_names_format_if_joint
 
+  # Callbacks
+  before_validation :assign_demo_address, on: :create
+
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
   scope :by_value_range, ->(min, max) { where(home_value: min..max) }
   scope :with_existing_mortgage, -> { where(has_existing_mortgage: true) }
-  scope :in_progress, -> { where(status: [:user_details, :property_details, :income_and_loan_options]) }
+  scope :in_progress, -> { where(status: [:created, :user_details, :property_details, :income_and_loan_options]) }
   scope :completed, -> { where(status: [:submitted, :processing, :accepted, :rejected]) }
   scope :pending_review, -> { where(status: [:submitted, :processing]) }
 
@@ -102,6 +106,8 @@ class Application < ApplicationRecord
 
   def status_badge_class
     case status
+    when 'created'
+      'badge-secondary'
     when 'user_details', 'property_details', 'income_and_loan_options'
       'badge-warning'
     when 'submitted', 'processing'
@@ -116,11 +122,13 @@ class Application < ApplicationRecord
   end
 
   def can_be_edited?
-    user_details? || property_details? || income_and_loan_options?
+    status_created? || status_user_details? || status_property_details? || status_income_and_loan_options?
   end
 
   def next_step
     case status
+    when 'created'
+      'user_details'
     when 'user_details'
       'property_details'
     when 'property_details'
@@ -134,6 +142,8 @@ class Application < ApplicationRecord
 
   def progress_percentage
     case status
+    when 'created'
+      0
     when 'user_details'
       25
     when 'property_details'
@@ -304,7 +314,7 @@ class Application < ApplicationRecord
   end
 
   def borrower_names_format_if_joint
-    return unless joint? && borrower_names.present?
+    return unless ownership_status_joint? && borrower_names.present?
     
     # Check if it's valid JSON format for multiple names/ages
     begin
@@ -315,5 +325,40 @@ class Application < ApplicationRecord
     rescue JSON::ParserError
       errors.add(:borrower_names, "must be in valid JSON format")
     end
+  end
+
+  def assign_demo_address
+    return if address.present? && address != "Placeholder - to be updated by user"
+    
+    # Random Sydney addresses for demonstration purposes
+    sydney_addresses = [
+      "15 Circular Quay West, Sydney NSW 2000",
+      "42 Kent Street, Sydney NSW 2000", 
+      "128 George Street, The Rocks NSW 2000",
+      "73 Miller Street, North Sydney NSW 2060",
+      "91 Pittwater Road, Manly NSW 2095",
+      "156 Oxford Street, Paddington NSW 2021",
+      "234 Crown Street, Surry Hills NSW 2010",
+      "67 Victoria Road, Drummoyne NSW 2047",
+      "445 Pacific Highway, Crows Nest NSW 2065",
+      "182 Blues Point Road, McMahons Point NSW 2060",
+      "298 Military Road, Neutral Bay NSW 2089",
+      "76 Anzac Parade, Kensington NSW 2033",
+      "523 King Street, Newtown NSW 2042",
+      "145 Glebe Point Road, Glebe NSW 2037",
+      "287 Darling Street, Balmain NSW 2041",
+      "94 Norton Street, Leichhardt NSW 2040",
+      "367 Cleveland Street, Redfern NSW 2016",
+      "189 Bondi Road, Bondi NSW 2026",
+      "256 Campbell Parade, Bondi Beach NSW 2026",
+      "412 Bourke Street, Darlinghurst NSW 2010",
+      "78 Liverpool Street, Sydney NSW 2000",
+      "345 Pitt Street, Sydney NSW 2000",
+      "123 Macquarie Street, Sydney NSW 2000",
+      "567 Elizabeth Street, Surry Hills NSW 2010",
+      "89 King Street, Sydney NSW 2000"
+    ]
+    
+    self.address = sydney_addresses.sample
   end
 end

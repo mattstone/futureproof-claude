@@ -6,6 +6,10 @@ class User < ApplicationRecord
 
   # Associations
   has_many :applications, dependent: :destroy
+  belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
+
+  # Temporary attribute to store home value during registration
+  attr_accessor :pending_home_value
 
   # Validations
   validates :first_name, presence: true, length: { maximum: 50 }
@@ -13,6 +17,7 @@ class User < ApplicationRecord
   validates :country_of_residence, presence: true
   validates :mobile_number, format: { with: /\A[0-9\s\-\(\)]+\z/, message: "must contain only numbers, spaces, hyphens, and parentheses" }, allow_blank: true
   validates :mobile_country_code, presence: true, if: :mobile_number?
+  validates :terms_accepted, acceptance: { message: "You must accept the Terms of Use to create an account" }
 
   # Scopes
   scope :admins, -> { where(admin: true) }
@@ -64,6 +69,24 @@ class User < ApplicationRecord
     self.confirmed_at = Time.current
     clear_verification_code
     save!
+    
+    # Create an application with "created" status to track user progression
+    # This allows us to track users who create an account but do not proceed with the application
+    unless applications.exists?
+      # Use pending_home_value if available, otherwise use default
+      home_val = pending_home_value.present? ? pending_home_value.to_i : 1000000
+      
+      applications.create!(
+        status: :created,
+        home_value: home_val,
+        ownership_status: :individual, # Default - to be updated by user
+        property_state: :primary_residence, # Default - to be updated by user
+        has_existing_mortgage: false, # Default - to be updated by user
+        growth_rate: 2.0, # Default growth rate
+        borrower_age: 60 # Default age for form display
+        # Note: address will be auto-assigned by the Application model callback
+      )
+    end
   end
 
   def confirmed?
@@ -112,5 +135,17 @@ class User < ApplicationRecord
     JSON.parse(last_browser_info)
   rescue JSON::ParserError
     {}
+  end
+
+  # Terms of Use methods
+  def agreed_to_terms_version
+    terms_version
+  end
+
+  def agreed_to_current_terms?
+    return false if terms_version.blank?
+    current_terms = TermsOfUse.current
+    return false if current_terms.blank?
+    terms_version == current_terms.version
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_02_063910) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_091635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,7 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_02_063910) do
     t.decimal "existing_mortgage_amount", precision: 12, scale: 2
     t.integer "status", default: 0, null: false
     t.text "rejected_reason"
-    t.integer "borrower_age"
+    t.integer "borrower_age", default: 0
     t.text "borrower_names"
     t.string "company_name"
     t.string "super_fund_name"
@@ -44,6 +44,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_02_063910) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
+  end
+
+  create_table "terms_of_uses", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "content", null: false
+    t.datetime "last_updated", null: false
+    t.boolean "is_active", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "sections"
+    t.integer "version", default: 1, null: false
+    t.index ["is_active"], name: "index_terms_of_uses_on_is_active"
+    t.index ["last_updated"], name: "index_terms_of_uses_on_last_updated"
+    t.index ["version"], name: "index_terms_of_uses_on_version"
   end
 
   create_table "users", force: :cascade do |t|
@@ -69,9 +83,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_02_063910) do
     t.text "last_browser_info"
     t.string "mobile_country_code"
     t.string "mobile_number"
+    t.boolean "terms_accepted", default: false, null: false
+    t.integer "terms_version"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["terms_version"], name: "index_users_on_terms_version"
   end
 
   add_foreign_key "applications", "mortgages"

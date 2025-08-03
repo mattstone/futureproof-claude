@@ -1,4 +1,4 @@
-<% content_for :page_title, "Mortgage Management" %>
+<% content_for :page_title, "Mortgages" %>
 
 <div class="admin-actions-bar">
   <div class="admin-search">
@@ -27,7 +27,7 @@
         <tr>
           <td><%= mortgage.name %></td>
           <td>
-            <span class="admin-badge <%= mortgage.interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
+            <span class="admin-badge <%= mortgage.mortgage_type_interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
               <%= mortgage.mortgage_type.humanize %>
             </span>
           </td>
@@ -53,4 +53,8 @@
       <% end %>
     </div>
   <% end %>
+</div>
+
+<div class="admin-pagination">
+  <%= paginate @mortgages %>
 </div>

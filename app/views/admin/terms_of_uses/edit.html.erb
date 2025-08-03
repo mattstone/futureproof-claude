@@ -1,0 +1,330 @@
+<% content_for :page_title, "Edit Terms of Use" %>
+
+<div class="admin-content-header">
+  <div class="admin-content-actions">
+    <%= link_to "View Public Version", terms_of_use_path, class: "admin-btn admin-btn-secondary", target: "_blank" %>
+    <%= link_to "← Back to Terms of Use", admin_terms_of_uses_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<div class="terms-editor-layout">
+  <div class="terms-form-column">
+    <div class="admin-form-container">
+      <%= render 'form' %>
+    </div>
+  </div>
+  
+  <div class="terms-preview-column">
+    <div class="preview-container">
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <p>See your changes in real-time</p>
+      </div>
+      <div class="markup-preview" id="markup-preview-standalone">
+        <p class="preview-note">Content preview will appear here as you type...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.terms-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.terms-form-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.terms-preview-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.preview-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-header {
+  background: #f9fafb;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+#markup-preview-standalone {
+  border: none;
+  border-radius: 0;
+  padding: 24px;
+  background: white;
+  min-height: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Disable animations for instant preview updates */
+#markup-preview-standalone .legal-section {
+  animation: none !important;
+  animation-delay: 0s !important;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+  .terms-editor-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .terms-editor-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .terms-preview-column {
+    position: static;
+  }
+  
+  #markup-preview-standalone {
+    min-height: 400px;
+    max-height: 500px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Check if preview is already initialized on the textarea element
+  function isAlreadyInitialized(textarea) {
+    return textarea && textarea.hasAttribute('data-preview-initialized');
+  }
+  
+  function initializeTermsPreview() {
+    const textarea = document.querySelector('.markup-editor');
+    const preview = document.getElementById('markup-preview-standalone');
+    const previewBtn = document.getElementById('preview-btn');
+    const form = document.querySelector('.admin-form');
+    
+    if (!textarea || !preview) {
+      return false;
+    }
+    
+    if (isAlreadyInitialized(textarea)) {
+      return true;
+    }
+    
+    textarea.setAttribute('data-preview-initialized', 'true');
+  
+  // Function to convert markup to HTML
+  function markupToHtml(text) {
+    if (!text.trim()) {
+      return '<p class="preview-note">Content preview will appear here as you type...</p>';
+    }
+    
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+    let currentSection = '';
+    
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      
+      if (trimmedLine.startsWith('## ')) {
+        if (currentSection) html += '</section>';
+        const heading = trimmedLine.replace(/^## /, '');
+        html += `<section class="legal-section"><h2>${heading}</h2>`;
+        currentSection = 'section';
+        inList = false;
+      } else if (trimmedLine.startsWith('### ')) {
+        const subheading = trimmedLine.replace(/^### /, '');
+        html += `<h3>${subheading}</h3>`;
+        inList = false;
+      } else if (trimmedLine.startsWith('- ')) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        const item = trimmedLine.replace(/^- /, '');
+        html += `<li>${item.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</li>`;
+      } else if (trimmedLine.startsWith('**Contact Info:**')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<div class="contact-info"><p><strong>Contact Information:</strong><br>';
+      } else if (trimmedLine && !trimmedLine.startsWith('Company:') && !trimmedLine.startsWith('Email:') && !trimmedLine.startsWith('Address:')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        if (trimmedLine) {
+          const processedLine = trimmedLine.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+          html += `<p>${processedLine}</p>`;
+        }
+      } else if (trimmedLine.startsWith('Company:') || trimmedLine.startsWith('Email:') || trimmedLine.startsWith('Address:')) {
+        html += `${trimmedLine}<br>`;
+      }
+    });
+    
+    if (inList) html += '</ul>';
+    if (currentSection) html += '</section>';
+    if (!html.includes('<section')) html = `<section class="legal-section">${html}</section>`;
+    
+    return html;
+  }
+  
+  // Instant update function for user input
+  function updatePreviewInstant() {
+    const htmlContent = markupToHtml(textarea.value);
+    preview.innerHTML = htmlContent;
+  }
+  
+  // Delayed update function for initial load
+  function updatePreviewDelayed() {
+    setTimeout(() => {
+      const htmlContent = markupToHtml(textarea.value);
+      preview.innerHTML = htmlContent;
+    }, 200);
+  }
+  
+  // Set up event listeners with instant updates
+  textarea.addEventListener('input', updatePreviewInstant);
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = this.selectionStart;
+      const end = this.selectionEnd;
+      this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+      this.selectionStart = this.selectionEnd = start + 2;
+      updatePreviewInstant();
+    }
+  });
+  
+  // Initial preview update with delay
+  updatePreviewDelayed();
+  
+  // Full page preview functionality
+  if (previewBtn && form) {
+    previewBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const tempForm = document.createElement('form');
+      tempForm.method = 'POST';
+      tempForm.action = '/admin/terms_of_uses/preview';
+      tempForm.target = '_blank';
+      tempForm.style.display = 'none';
+      
+      const csrfToken = document.querySelector('meta[name="csrf-token"]') || 
+                       document.querySelector('input[name="authenticity_token"]');
+      
+      if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'authenticity_token';
+        csrfInput.value = csrfToken.getAttribute ? csrfToken.getAttribute('content') : csrfToken.value;
+        tempForm.appendChild(csrfInput);
+      }
+      
+      const titleInput = form.querySelector('input[name*="[title]"]');
+      const contentInput = form.querySelector('textarea[name*="[content]"]');
+      
+      if (titleInput && titleInput.value) {
+        const titleField = document.createElement('input');
+        titleField.type = 'hidden';
+        titleField.name = 'terms_of_use[title]';
+        titleField.value = titleInput.value;
+        tempForm.appendChild(titleField);
+      }
+      
+      if (contentInput && contentInput.value) {
+        const contentField = document.createElement('input');
+        contentField.type = 'hidden';
+        contentField.name = 'terms_of_use[content]';
+        contentField.value = contentInput.value;
+        tempForm.appendChild(contentField);
+      }
+      
+      document.body.appendChild(tempForm);
+      tempForm.submit();
+      document.body.removeChild(tempForm);
+    });
+  }
+  
+    return true;
+  }
+
+  // Use MutationObserver to detect when form elements are added to the DOM
+  function observeForFormElements() {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(function(node) {
+            if (node.nodeType === 1) { // Element node
+              if (node.querySelector && (node.querySelector('.markup-editor') || node.classList.contains('markup-editor'))) {
+                if (initializeTermsPreview()) {
+                  observer.disconnect();
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    // Stop observing after 10 seconds to prevent memory leaks
+    setTimeout(() => {
+      observer.disconnect();
+    }, 10000);
+  }
+
+  // Multiple initialization strategies
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!initializeTermsPreview()) {
+      observeForFormElements();
+    }
+  });
+
+  window.addEventListener('load', function() {
+    if (!initializeTermsPreview()) {
+      observeForFormElements();
+    }
+  });
+
+  // Delayed attempts
+  setTimeout(() => {
+    initializeTermsPreview();
+  }, 100);
+
+  setTimeout(() => {
+    initializeTermsPreview();
+  }, 500);
+
+  setTimeout(() => {
+    initializeTermsPreview();
+  }, 1000);
+
+})();
+</script>
+

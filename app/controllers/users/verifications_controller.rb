@@ -10,9 +10,14 @@ class Users::VerificationsController < ApplicationController
     verification_code = params[:verification_code]
 
     if @user.verification_code_valid?(verification_code)
+      # Set pending home value if present before confirming account
+      @user.pending_home_value = params[:home_value] if params[:home_value].present?
       @user.confirm_account!
       sign_in(@user) # Log the user in
-      redirect_to new_application_path, notice: 'Your account has been successfully verified!'
+      # Redirect to application with home_value if present
+      redirect_params = { notice: 'Your account has been successfully verified!' }
+      redirect_params[:home_value] = params[:home_value] if params[:home_value].present?
+      redirect_to new_application_path(redirect_params)
     else
       if @user.verification_code_expired?
         flash.now[:alert] = 'Verification code has expired. Please request a new one.'

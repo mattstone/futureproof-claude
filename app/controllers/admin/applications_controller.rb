@@ -1,5 +1,5 @@
 class Admin::ApplicationsController < Admin::BaseController
-  before_action :set_application, only: [:show, :edit, :update, :destroy]
+  before_action :set_application, only: [:show, :edit, :update]
 
   def index
     @applications = Application.includes(:user).recent
@@ -7,6 +7,7 @@ class Admin::ApplicationsController < Admin::BaseController
       "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?", 
       "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
     ) if params[:search].present?
+    @applications = @applications.page(params[:page]).per(10)
   end
 
   def show
@@ -41,10 +42,6 @@ class Admin::ApplicationsController < Admin::BaseController
     end
   end
 
-  def destroy
-    @application.destroy
-    redirect_to admin_applications_path, notice: 'Application was successfully deleted.'
-  end
 
   private
 

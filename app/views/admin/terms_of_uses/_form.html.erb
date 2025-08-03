@@ -1,0 +1,175 @@
+<%= form_with model: [:admin, @terms_of_use], local: true, class: "admin-form" do |form| %>
+  <% if @terms_of_use.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@terms_of_use.errors.count, "error") %> prohibited this Terms of Use from being saved:</h4>
+      <ul>
+        <% @terms_of_use.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="admin-form-group">
+    <%= form.label :title, class: "admin-form-label" %>
+    <%= form.text_field :title, class: "admin-form-input", placeholder: "e.g., Terms of Use" %>
+  </div>
+
+  <div style="margin-bottom: 20px;"></div>
+
+  <div class="admin-form-group">
+    <% if @terms_of_use.persisted? %>
+      <label class="admin-form-label">Version</label>
+      <div class="admin-form-input" style="background: #f8f9fa; border: 1px solid #e9ecef; color: #6c757d;">
+        Version <%= @terms_of_use.version %>
+      </div>
+    <% else %>
+      <label class="admin-form-label">Version</label>
+      <div class="admin-form-input" style="background: #f8f9fa; border: 1px solid #e9ecef; color: #6c757d;">
+        Version <%= (TermsOfUse.maximum(:version) || 0) + 1 %> (new version)
+      </div>
+    <% end %>
+  </div>
+
+  <div style="margin-bottom: 20px;"></div>
+
+  <div class="admin-form-group">
+    <%= form.label :content, "Content (using simple markup)", class: "admin-form-label" %>
+    <div class="markup-help">
+      <p><strong>Simple Markup Guide:</strong></p>
+      <ul>
+        <li><code>## Heading</code> → Creates a main section with heading</li>
+        <li><code>### Sub-heading</code> → Creates a sub-section</li>
+        <li><code>- Bullet point</code> → Creates bulleted lists</li>
+        <li><code>**Bold text**</code> → Makes text bold</li>
+        <li><code>**Contact Info:**</code> → Special contact information block</li>
+      </ul>
+    </div>
+    
+    <%= form.text_area :content, 
+        class: "admin-form-textarea markup-editor", 
+        rows: 25,
+        placeholder: 'Use simple markup to format your content. See the guide above for examples.' %>
+  </div>
+
+  <div class="admin-form-actions" style="margin-top: 32px;">
+    <% if @terms_of_use.persisted? %>
+      <%= form.submit "Update Terms of Use", class: "admin-btn admin-btn-primary" %>
+    <% else %>
+      <%= form.submit "Create Version #{(TermsOfUse.maximum(:version) || 0) + 1}", class: "admin-btn admin-btn-primary" %>
+    <% end %>
+    <button type="button" id="preview-btn" class="admin-btn admin-btn-success">Preview Full Page</button>
+    <%= link_to "Cancel", admin_terms_of_uses_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+<% end %>
+
+<style>
+.markup-help {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.markup-help p {
+  margin: 0 0 10px 0;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.markup-help ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.markup-help li {
+  margin-bottom: 5px;
+  color: #0369a1;
+}
+
+.markup-help code {
+  background: #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: Monaco, monospace;
+  font-size: 13px;
+}
+
+.markup-editor {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  resize: vertical;
+  width: 100%;
+}
+
+.markup-editor:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background-color: white;
+}
+
+
+.preview-note {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  margin: 60px 0;
+}
+
+/* Preview content styling - match legal page styles */
+.markup-preview .legal-section {
+  margin-bottom: 30px;
+}
+
+.markup-preview .legal-section h2 {
+  color: #0891b2;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #0891b2;
+}
+
+.markup-preview .legal-section h3 {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 20px 0 10px 0;
+}
+
+.markup-preview .legal-section p {
+  color: #1e293b;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.markup-preview .legal-section ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.markup-preview .legal-section li {
+  color: #1e293b;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.markup-preview .contact-info {
+  background-color: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #0891b2;
+  margin: 12px 0;
+}
+
+.markup-preview .contact-info p {
+  margin: 0;
+  line-height: 1.5;
+}
+</style>
+

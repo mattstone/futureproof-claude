@@ -27,6 +27,10 @@
 .admin-brand {
   padding: 24px;
   border-bottom: 1px solid #334155;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-brand-link {
@@ -121,6 +125,9 @@
   padding: 24px 32px;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  height: 76px;
+  display: flex;
+  align-items: center;
 }
 
 .admin-header h1 {
@@ -279,6 +286,17 @@
   border-color: #b91c1c;
 }
 
+.admin-btn-success {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.admin-btn-success:hover {
+  background-color: #059669;
+  border-color: #059669;
+}
+
 .admin-btn-sm {
   padding: 8px 12px;
   font-size: 12px;
@@ -332,6 +350,180 @@
   color: white;
 }
 
+.admin-badge-created {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.admin-badge-user-details {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.admin-badge-property-details {
+  background-color: #06b6d4;
+  color: white;
+}
+
+.admin-badge-income-loan {
+  background-color: #0891b2;
+  color: white;
+}
+
+.admin-badge-submitted {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.admin-badge-processing {
+  background-color: #eab308;
+  color: white;
+}
+
+.admin-badge-accepted {
+  background-color: #10b981;
+  color: white;
+}
+
+.admin-badge-rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.admin-badge-pending {
+  background-color: #6b7280;
+  color: white;
+}
+
+/* Pagination */
+.admin-pagination {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.admin-pagination nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-pagination .page,
+.admin-pagination .prev,
+.admin-pagination .next,
+.admin-pagination .first,
+.admin-pagination .last,
+.admin-pagination .gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-pagination .page:hover,
+.admin-pagination .prev:hover,
+.admin-pagination .next:hover,
+.admin-pagination .first:hover,
+.admin-pagination .last:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.admin-pagination .current {
+  background-color: #0891b2;
+  border-color: #0891b2;
+  color: white;
+}
+
+.admin-pagination .current:hover {
+  background-color: #0e7490;
+  border-color: #0e7490;
+}
+
+.admin-pagination .gap {
+  border: none;
+  background: none;
+  color: #9ca3af;
+  cursor: default;
+}
+
+.admin-pagination .disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Form Enhancements */
+.admin-form-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  margin-top: 24px;
+}
+
+.admin-rich-editor {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+}
+
+.admin-rich-editor:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background-color: white;
+}
+
+.admin-form-help {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* Preview Container */
+.admin-preview-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  margin-top: 24px;
+}
+
+/* Active Row Highlighting */
+.active-row {
+  background-color: #f0f9ff !important;
+  border-left: 4px solid #3b82f6;
+}
+
+.active-row td {
+  padding-left: 12px; /* Compensate for border */
+}
+
+/* Status Badge Enhancements */
+.admin-badge-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.admin-badge-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .admin-sidebar {
@@ -349,6 +541,11 @@
   }
   
   .admin-form {
+    padding: 20px;
+  }
+  
+  .admin-form-container,
+  .admin-preview-container {
     padding: 20px;
   }
 }

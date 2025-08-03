@@ -4,6 +4,7 @@ class Admin::MortgagesController < Admin::BaseController
   def index
     @mortgages = Mortgage.all.order(:name)
     @mortgages = @mortgages.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+    @mortgages = @mortgages.page(params[:page]).per(10)
   end
 
   def show
