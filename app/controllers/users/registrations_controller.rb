@@ -75,6 +75,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
     current_terms = TermsOfUse.current
     resource.terms_version = current_terms&.version
     
+    # Store home value in session if provided
+    session[:pending_home_value] = params[:home_value] if params[:home_value].present?
+    
     if resource.save
       # Generate and send verification code instead of using Devise confirmation
       resource.generate_verification_code

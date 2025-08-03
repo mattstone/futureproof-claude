@@ -10,13 +10,19 @@ class Users::VerificationsController < ApplicationController
     verification_code = params[:verification_code]
 
     if @user.verification_code_valid?(verification_code)
-      # Set pending home value if present before confirming account
-      @user.pending_home_value = params[:home_value] if params[:home_value].present?
+      # Set pending home value from session or params before confirming account
+      home_value = session[:pending_home_value] || params[:home_value]
+      @user.pending_home_value = home_value if home_value.present?
+      
       @user.confirm_account!
       sign_in(@user) # Log the user in
+      
+      # Clear session value after use
+      session.delete(:pending_home_value)
+      
       # Redirect to application with home_value if present
       redirect_params = { notice: 'Your account has been successfully verified!' }
-      redirect_params[:home_value] = params[:home_value] if params[:home_value].present?
+      redirect_params[:home_value] = home_value if home_value.present?
       redirect_to new_application_path(redirect_params)
     else
       if @user.verification_code_expired?

@@ -3,19 +3,12 @@ class ApplicationsController < ApplicationController
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations]
 
   def new
-    # Check if user has an existing application in "created" status
-    existing_application = current_user.applications.status_created.first
+    # Get or create application
+    @application = current_user.applications.status_created.first || current_user.applications.build
     
-    if existing_application
-      # Redirect to edit the existing application
-      redirect_to edit_application_path(existing_application)
-      return
-    end
-    
-    # Create a new application if none exists
-    @application = current_user.applications.build
+    # Set defaults
     @application.ownership_status = :individual
-    @application.borrower_age = 60
+    @application.borrower_age = 60 if @application.borrower_age.to_i < 18
     
     # Pre-populate home value if passed from home page calculator
     if params[:home_value].present?
@@ -24,7 +17,11 @@ class ApplicationsController < ApplicationController
   end
 
   def create
-    @application = current_user.applications.build(application_params)
+    # Get existing created application or build new one
+    @application = current_user.applications.status_created.first || current_user.applications.build
+    
+    # Update with form data
+    @application.assign_attributes(application_params)
     @application.status = :property_details
     
     if @application.save

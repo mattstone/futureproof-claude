@@ -4,17 +4,10 @@ class Dashboard::ApplicationsController < ApplicationController
   layout 'dashboard'
 
   def new
-    # Check if user has an existing application in "created" status
-    existing_application = current_user.applications.status_created.first
+    # Get or create application
+    @application = current_user.applications.status_created.first || current_user.applications.build
     
-    if existing_application
-      # Redirect to edit the existing application
-      redirect_to edit_dashboard_application_path(existing_application)
-      return
-    end
-    
-    # Create a new application if none exists
-    @application = current_user.applications.build
+    # Set defaults
     @application.ownership_status = :individual
     
     # Pre-populate home value if passed from home page calculator
@@ -24,7 +17,11 @@ class Dashboard::ApplicationsController < ApplicationController
   end
 
   def create
-    @application = current_user.applications.build(application_params)
+    # Get existing created application or build new one
+    @application = current_user.applications.status_created.first || current_user.applications.build
+    
+    # Update with form data
+    @application.assign_attributes(application_params)
     @application.status = :property_details
     
     if @application.save
