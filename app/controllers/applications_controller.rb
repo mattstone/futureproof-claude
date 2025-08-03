@@ -7,42 +7,27 @@ class ApplicationsController < ApplicationController
     existing_application = current_user.applications.status_created.first
     
     if existing_application
-      # Use the existing application and update it
-      @application = existing_application
-      
-      # Pre-populate home value if passed from home page calculator
-      if params[:home_value].present?
-        @application.home_value = params[:home_value].to_i
-        # Save only the home value update without triggering validations
-        @application.update_column(:home_value, @application.home_value)
-      end
-      
-      # Set defaults for form display but don't save status change yet
-      @application.status = :property_details
-      @application.ownership_status = :individual
-      # Set a reasonable default age for the form
-      @application.borrower_age = 60 if @application.borrower_age.to_i < 18
-    else
-      # Create a new application if none exists
-      @application = current_user.applications.build
-      @application.status = :property_details
-      @application.ownership_status = :individual
-      @application.borrower_age = 60  # Set reasonable default
-      
-      # Pre-populate home value if passed from home page calculator
-      if params[:home_value].present?
-        @application.home_value = params[:home_value].to_i
-      end
+      # Redirect to edit the existing application
+      redirect_to edit_application_path(existing_application)
+      return
+    end
+    
+    # Create a new application if none exists
+    @application = current_user.applications.build
+    @application.ownership_status = :individual
+    @application.borrower_age = 60
+    
+    # Pre-populate home value if passed from home page calculator
+    if params[:home_value].present?
+      @application.home_value = params[:home_value].to_i
     end
   end
 
   def create
     @application = current_user.applications.build(application_params)
-    # Set status to property_details for new applications
     @application.status = :property_details
     
     if @application.save
-      # Don't advance status yet, just redirect to income and loan page
       redirect_to income_and_loan_application_path(@application), notice: 'Property details saved successfully!'
     else
       render :new, status: :unprocessable_entity
@@ -58,7 +43,11 @@ class ApplicationsController < ApplicationController
   end
 
   def update
-    if @application.update(application_params)
+    # Update status to property_details when updating property details
+    @application.assign_attributes(application_params)
+    @application.status = :property_details
+    
+    if @application.save
       redirect_to income_and_loan_application_path(@application), notice: 'Property details updated successfully!'
     else
       render :edit, status: :unprocessable_entity
@@ -67,20 +56,17 @@ class ApplicationsController < ApplicationController
 
   def income_and_loan
     # Show income and loan options form (step 3)
-    # Ensure we're in the right status for this step
-    @application.update(status: :income_and_loan_options) if @application.status_property_details?
+    # Status should already be property_details from previous step
   end
 
   def update_income_and_loan
-    # First update the status to income_and_loan_options if not already
-    @application.status = :income_and_loan_options unless @application.status_income_and_loan_options?
-    
     # Assign parameters and validate with context
     @application.assign_attributes(income_loan_params)
+    # Set status to income_and_loan_options when completing this step
+    @application.status = :income_and_loan_options
     
     if @application.valid?(:income_loan_update) && @application.save
-      # Advance to next step after saving income and loan details
-      @application.advance_to_next_step!
+      # Status is now income_and_loan_options after completing income and loan step
       redirect_to summary_application_path(@application), notice: 'Income and loan details saved successfully!'
     else
       render :income_and_loan, status: :unprocessable_entity

@@ -78,7 +78,7 @@ class Application < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :by_value_range, ->(min, max) { where(home_value: min..max) }
   scope :with_existing_mortgage, -> { where(has_existing_mortgage: true) }
-  scope :in_progress, -> { where(status: [:created, :user_details, :property_details, :income_and_loan_options]) }
+  scope :in_progress, -> { where(status: [:created, :property_details, :income_and_loan_options]) }
   scope :completed, -> { where(status: [:submitted, :processing, :accepted, :rejected]) }
   scope :pending_review, -> { where(status: [:submitted, :processing]) }
 
@@ -108,7 +108,7 @@ class Application < ApplicationRecord
     case status
     when 'created'
       'badge-secondary'
-    when 'user_details', 'property_details', 'income_and_loan_options'
+    when 'property_details', 'income_and_loan_options'
       'badge-warning'
     when 'submitted', 'processing'
       'badge-info'
@@ -122,14 +122,12 @@ class Application < ApplicationRecord
   end
 
   def can_be_edited?
-    status_created? || status_user_details? || status_property_details? || status_income_and_loan_options?
+    status_created? || status_property_details? || status_income_and_loan_options?
   end
 
   def next_step
     case status
     when 'created'
-      'user_details'
-    when 'user_details'
       'property_details'
     when 'property_details'
       'income_and_loan_options'
@@ -144,8 +142,6 @@ class Application < ApplicationRecord
     case status
     when 'created'
       0
-    when 'user_details'
-      25
     when 'property_details'
       50
     when 'income_and_loan_options'

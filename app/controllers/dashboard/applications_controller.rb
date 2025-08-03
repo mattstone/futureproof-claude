@@ -4,10 +4,17 @@ class Dashboard::ApplicationsController < ApplicationController
   layout 'dashboard'
 
   def new
+    # Check if user has an existing application in "created" status
+    existing_application = current_user.applications.status_created.first
+    
+    if existing_application
+      # Redirect to edit the existing application
+      redirect_to edit_dashboard_application_path(existing_application)
+      return
+    end
+    
+    # Create a new application if none exists
     @application = current_user.applications.build
-    # Set initial status to property_details since user_details is completed during registration
-    @application.status = :property_details
-    # Set default ownership_status to individual to ensure the form displays correctly
     @application.ownership_status = :individual
     
     # Pre-populate home value if passed from home page calculator
@@ -18,11 +25,9 @@ class Dashboard::ApplicationsController < ApplicationController
 
   def create
     @application = current_user.applications.build(application_params)
-    # Set status to property_details for new applications
     @application.status = :property_details
     
     if @application.save
-      # Don't advance status yet, just redirect to income and loan page
       redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details saved successfully!'
     else
       render :new, status: :unprocessable_entity
@@ -38,7 +43,11 @@ class Dashboard::ApplicationsController < ApplicationController
   end
 
   def update
-    if @application.update(application_params)
+    # Update status to property_details when updating property details
+    @application.assign_attributes(application_params)
+    @application.status = :property_details
+    
+    if @application.save
       redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details updated successfully!'
     else
       render :edit, status: :unprocessable_entity
@@ -47,20 +56,17 @@ class Dashboard::ApplicationsController < ApplicationController
 
   def income_and_loan
     # Show income and loan options form (step 3)
-    # Ensure we're in the right status for this step
-    @application.update(status: :income_and_loan_options) if @application.status_property_details?
+    # Status should already be property_details from previous step
   end
 
   def update_income_and_loan
-    # First update the status to income_and_loan_options if not already
-    @application.status = :income_and_loan_options unless @application.status_income_and_loan_options?
-    
     # Assign parameters and validate with context
     @application.assign_attributes(income_loan_params)
+    # Set status to income_and_loan_options when completing this step
+    @application.status = :income_and_loan_options
     
     if @application.valid?(:income_loan_update) && @application.save
-      # Advance to next step after saving income and loan details
-      @application.advance_to_next_step!
+      # Status is now income_and_loan_options after completing income and loan step
       redirect_to summary_dashboard_application_path(@application), notice: 'Income and loan details saved successfully!'
     else
       render :income_and_loan, status: :unprocessable_entity

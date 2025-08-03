@@ -1,5 +1,8 @@
 class Api::CalculationsController < ApplicationController
   skip_before_action :authenticate_user!
+  before_action :verify_request_origin
+  before_action :verify_csrf_token
+  before_action :rate_limit_check
 
   def mortgage_estimate
     # Get a random mortgage or create a default one for calculation
@@ -52,6 +55,66 @@ class Api::CalculationsController < ApplicationController
   end
 
   private
+
+  def verify_request_origin
+    # Allow requests from your domain and localhost for development
+    allowed_origins = [
+      Rails.application.routes.default_url_options[:host],
+      request.host,
+      'localhost',
+      '127.0.0.1'
+    ].compact.uniq
+
+    # Check referer header
+    referer = request.referer
+    origin = request.headers['Origin']
+    
+    # Verify the request comes from an allowed origin
+    valid_referer = referer && allowed_origins.any? { |domain| referer.include?(domain) }
+    valid_origin = origin && allowed_origins.any? { |domain| origin.include?(domain) }
+    
+    # Allow same-origin requests (when referer/origin match the current host)
+    same_origin = request.host && (
+      (referer && referer.include?(request.host)) ||
+      (origin && origin.include?(request.host))
+    )
+    
+    unless valid_referer || valid_origin || same_origin
+      Rails.logger.warn "API request blocked - Invalid origin. Referer: #{referer}, Origin: #{origin}, Host: #{request.host}"
+      render json: { error: 'Unauthorized request origin' }, status: :forbidden
+      return false
+    end
+  end
+
+  def verify_csrf_token
+    # Verify CSRF token for non-GET requests or when explicitly required
+    unless request.get?
+      unless verified_request?
+        Rails.logger.warn "API request blocked - Invalid CSRF token from #{request.remote_ip}"
+        render json: { error: 'Invalid security token' }, status: :forbidden
+        return false
+      end
+    end
+  end
+
+  def rate_limit_check
+    # Simple rate limiting based on IP address
+    cache_key = "api_rate_limit:#{request.remote_ip}"
+    request_count = Rails.cache.read(cache_key) || 0
+    
+    # Allow 1000 requests per hour per IP (accommodates slider interactions)
+    max_requests = 1000
+    time_window = 1.hour
+    
+    if request_count >= max_requests
+      Rails.logger.warn "API request blocked - Rate limit exceeded for IP: #{request.remote_ip}"
+      render json: { error: 'Rate limit exceeded. Please try again later.' }, status: :too_many_requests
+      return false
+    end
+    
+    # Increment counter
+    Rails.cache.write(cache_key, request_count + 1, expires_in: time_window)
+  end
 
   def number_to_currency(amount, options = {})
     ActionController::Base.helpers.number_to_currency(amount, options)

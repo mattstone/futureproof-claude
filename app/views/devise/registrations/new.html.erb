@@ -103,10 +103,6 @@
                 <button type="button" class="terms-link" data-action="click->terms-modal#open">
                   Terms of Use
                 </button>
-                <% current_terms = TermsOfUse.current %>
-                <% if current_terms %>
-                  <span class="terms-version">(Version <%= current_terms.version %>)</span>
-                <% end %>
               <% end %>
             </div>
 
