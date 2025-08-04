@@ -73,6 +73,7 @@ class Application < ApplicationRecord
 
   # Callbacks
   before_validation :assign_demo_address, on: :create
+  before_validation :set_default_existing_mortgage_amount
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -88,7 +89,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_existing_mortgage_amount
-    return "N/A" unless has_existing_mortgage? && existing_mortgage_amount.present?
+    return "N/A" unless has_existing_mortgage? && existing_mortgage_amount > 0
     ActionController::Base.helpers.number_to_currency(existing_mortgage_amount, precision: 0)
   end
 
@@ -204,12 +205,18 @@ class Application < ApplicationRecord
     ActionController::Base.helpers.number_to_currency(home_equity_preserved(growth_rate_override), precision: 0)
   end
 
-  # Loan value calculation (Principal * LVR)
+  # Loan value calculation ((Home Value - Existing Mortgage) * LVR)
   def loan_value
     return 0 unless mortgage.present? && home_value.present?
     
+    # Calculate net property value after existing mortgage
+    net_property_value = home_value - (existing_mortgage_amount || 0)
+    
+    # Ensure we don't have a negative loan value
+    return 0 if net_property_value <= 0
+    
     lvr_decimal = (mortgage.lvr || 80.0) / 100.0
-    home_value * lvr_decimal
+    net_property_value * lvr_decimal
   end
 
   def formatted_loan_value
@@ -303,9 +310,13 @@ class Application < ApplicationRecord
 
   private
 
+  def set_default_existing_mortgage_amount
+    self.existing_mortgage_amount ||= 0
+  end
+
   def mortgage_amount_required_if_has_mortgage
-    if has_existing_mortgage? && existing_mortgage_amount.blank?
-      errors.add(:existing_mortgage_amount, "is required when property has an existing mortgage")
+    if has_existing_mortgage? && (existing_mortgage_amount.nil? || existing_mortgage_amount <= 0)
+      errors.add(:existing_mortgage_amount, "must be greater than 0 when property has an existing mortgage")
     end
   end
 

@@ -73,6 +73,9 @@
                 <span class="summary-label">Loan Value:</span>
                 <span class="summary-value"><%= @application.formatted_loan_value %></span>
               </div>
+              <div class="summary-note">
+                <small class="text-muted">Based on net property value (home value minus existing mortgage) × <%= @application.mortgage&.lvr %>% LVR</small>
+              </div>
             </div>
           </div>
 

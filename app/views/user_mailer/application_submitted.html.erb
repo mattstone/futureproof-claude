@@ -72,6 +72,12 @@
                 <span style="font-weight: 600; color: #555;">Loan Value:</span>
                 <span style="color: #333;"><%= @application.formatted_loan_value %></span>
               </div>
+              <div style="padding: 8px 16px; margin-top: 8px; background-color: #f8fafc; border-radius: 4px;">
+                <small style="color: #64748b; font-size: 12px;">
+                  Calculated as: (Home Value - Existing Mortgage) × <%= @application.mortgage&.lvr %>% LVR
+                  <br>(<%= @application.formatted_home_value %> - <%= @application.formatted_existing_mortgage_amount %>) × <%= @application.mortgage&.lvr %>%
+                </small>
+              </div>
             </div>
 
             <!-- Property Summary -->

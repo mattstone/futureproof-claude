@@ -19,6 +19,7 @@ LVR (Loan to Value Ratio): <%= @application.mortgage&.lvr %>%
 Interest Rate: 7.45%
 Loan Term: <%= @application.loan_term %> years
 Loan Value: <%= @application.formatted_loan_value %>
+  (Calculated as: Home Value - Existing Mortgage × <%= @application.mortgage&.lvr %>% LVR)
 
 ===== PROPERTY SUMMARY =====
 Address: <%= @application.address %>

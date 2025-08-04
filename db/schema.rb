@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_101203) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_213804) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,7 +23,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_101203) do
     t.integer "ownership_status", default: 0, null: false
     t.integer "property_state", default: 0, null: false
     t.boolean "has_existing_mortgage", default: false, null: false
-    t.decimal "existing_mortgage_amount", precision: 12, scale: 2
+    t.decimal "existing_mortgage_amount", precision: 12, scale: 2, default: "0.0"
     t.integer "status", default: 0, null: false
     t.text "rejected_reason"
     t.integer "borrower_age", default: 0

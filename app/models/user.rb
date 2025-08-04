@@ -82,6 +82,7 @@ class User < ApplicationRecord
         ownership_status: :individual, # Default - to be updated by user
         property_state: :primary_residence, # Default - to be updated by user
         has_existing_mortgage: false, # Default - to be updated by user
+        existing_mortgage_amount: 0, # Default - will be updated if has_existing_mortgage is true
         growth_rate: 2.0, # Default growth rate
         borrower_age: 60 # Default age for form display
         # Note: address will be auto-assigned by the Application model callback

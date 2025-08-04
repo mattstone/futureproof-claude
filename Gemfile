@@ -72,6 +72,9 @@ group :development do
   
   # Preview emails in browser during development
   gem "letter_opener"
+  
+  # Pretty and colorful logging
+  gem "amazing_print"
 end
 
 group :test do
