@@ -1,0 +1,105 @@
+<% content_for :page_title, "Email Templates" %>
+
+<div class="admin-actions-bar">
+  <div></div>
+  
+  <div class="admin-actions">
+    <%= link_to "Create New Template", new_admin_email_template_path, class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<div class="admin-table-container">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Last Updated</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @email_templates.each do |template| %>
+        <tr class="<%= 'active-row' if template.is_active? %>">
+          <td>
+            <strong><%= template.name %></strong>
+            <% if template.description.present? %>
+              <br><small class="text-muted"><%= template.description %></small>
+            <% end %>
+          </td>
+          <td>
+            <span class="admin-badge admin-badge-info"><%= template.template_type.humanize %></span>
+          </td>
+          <td>
+            <div class="subject-preview" title="<%= template.subject %>">
+              <%= truncate(template.subject, length: 40) %>
+            </div>
+          </td>
+          <td>
+            <% if template.is_active? %>
+              <span class="admin-badge admin-badge-success">Active</span>
+            <% else %>
+              <span class="admin-badge admin-badge-secondary">Inactive</span>
+            <% end %>
+          </td>
+          <td>
+            <%= template.updated_at.strftime("%b %d, %Y") %>
+          </td>
+          <td class="admin-table-actions">
+            <%= link_to "View", admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+            <%= link_to "Edit", edit_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+            <%= link_to "Preview", preview_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-info", target: "_blank" %>
+            <% if template.is_active? %>
+              <%= link_to "Deactivate", 
+                  deactivate_admin_email_template_path(template), 
+                  method: :patch,
+                  class: "admin-btn admin-btn-sm admin-btn-warning",
+                  data: { 
+                    confirm: "Are you sure you want to deactivate this template?" 
+                  } %>
+            <% else %>
+              <%= link_to "Activate", 
+                  activate_admin_email_template_path(template), 
+                  method: :patch,
+                  class: "admin-btn admin-btn-sm admin-btn-success",
+                  data: { 
+                    confirm: "Are you sure you want to activate this template? This will deactivate the current active template of this type." 
+                  } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <% if @email_templates.empty? %>
+    <div class="admin-empty-state">
+      <h3>No Email Templates Found</h3>
+      <p>Get started by creating your first email template.</p>
+      <%= link_to "Create First Template", new_admin_email_template_path, class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<%= paginate @email_templates if respond_to?(:paginate) %>
+
+<style>
+.subject-preview {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-muted {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.active-row {
+  background-color: #f0f9ff;
+  border-left: 3px solid #0891b2;
+}
+</style>

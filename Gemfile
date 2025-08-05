@@ -77,6 +77,9 @@ group :development do
   gem "amazing_print"
 end
 
+# Phone number validation and formatting
+gem "phony"
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"

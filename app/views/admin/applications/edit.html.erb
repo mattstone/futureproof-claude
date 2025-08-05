@@ -10,44 +10,492 @@
   </div>
 </div>
 
-<%= form_with(model: [:admin, @application], local: true, class: "admin-form") do |form| %>
-  <h2>Edit Application #<%= @application.id %></h2>
-  
-  <div style="margin-bottom: 24px;"></div>
-  
-  <% if @application.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
-      <ul>
-        <% @application.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
+<div class="admin-two-column-layout">
+  <!-- Left Column - Application Edit Form -->
+  <div class="admin-left-column">
+    <%= form_with(model: [:admin, @application], local: true, class: "admin-form") do |form| %>
+      <h2>Edit Application #<%= @application.id %></h2>
+      
+      <div style="margin-bottom: 24px;"></div>
+      
+      <% if @application.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
+          <ul>
+            <% @application.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= form.label :user_id, "User" %>
+        <%= form.select :user_id, 
+            options_from_collection_for_select(@users, :id, :display_name, @application.user_id), 
+            { prompt: 'Select User' }, 
+            { required: true } %>
+      </div>
+
+      <div class="field">
+        <%= form.label :address %>
+        <%= form.text_area :address, rows: 3, required: true, placeholder: "Enter property address" %>
+      </div>
+
+      <div class="field">
+        <%= form.label :home_value, "Home Value ($)" %>
+        <%= form.number_field :home_value, required: true, min: 1, max: 50000000, 
+            placeholder: "e.g., 1500000", step: 1000 %>
+        <small style="color: #6b7280; font-size: 14px;">Enter amount without commas (e.g., 1500000 for $1.5M)</small>
+      </div>
+
+      <div class="field">
+        <%= form.label :status %>
+        <%= form.select :status, 
+            options_for_select([
+              ['Created', 'created'],
+              ['User Details', 'user_details'],
+              ['Property Details', 'property_details'],
+              ['Income and Loan Options', 'income_and_loan_options'],
+              ['Submitted', 'submitted'],
+              ['Processing', 'processing'],
+              ['Rejected', 'rejected'],
+              ['Accepted', 'accepted']
+            ], @application.status), 
+            { prompt: 'Select Status' }, 
+            { required: true } %>
+      </div>
+
+      <% if @application.status_rejected? %>
+        <div class="field">
+          <%= form.label :rejected_reason %>
+          <%= form.text_area :rejected_reason, rows: 3, placeholder: "Reason for rejection..." %>
+        </div>
+      <% end %>
+
+      <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
+        <%= form.submit "Update Application", class: "admin-btn admin-btn-primary" %>
+        <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Right Column - Messages and Communication -->
+  <div class="admin-right-column">
+    <!-- Send New Message Form -->
+    <div class="admin-form message-form-section">
+      <h3>Send Message to Customer</h3>
+      <p class="section-subtitle">Communicate with the customer about their application</p>
+      
+      <%= form_with(model: [:admin, @application, @new_message], 
+                    url: create_message_admin_application_path(@application), 
+                    local: true, class: "message-form") do |form| %>
+        
+        <% if @new_message.errors.any? %>
+          <div class="alert alert-danger">
+            <ul>
+              <% @new_message.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
         <% end %>
-      </ul>
+
+        <div class="field">
+          <%= form.label :subject %>
+          <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+        </div>
+
+        <div class="field">
+          <%= form.label :content, "Message" %>
+          <%= form.text_area :content, rows: 6, class: "markup-editor", 
+                             placeholder: "Type your message here...\n\n**Bold text**\n*Italic text*\n- Bullet points", 
+                             required: true %>
+          <small class="field-hint">
+            You can use markup: **bold**, *italic*, - bullet points
+          </small>
+        </div>
+
+        <!-- Field Helper Buttons -->
+        <div class="field-helpers">
+          <h4>Quick Insert:</h4>
+          <div class="helper-buttons">
+            <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
+            <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
+            <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
+            <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+          </div>
+        </div>
+
+        <div class="message-actions">
+          <%= form.submit "Save as Draft", name: "save_draft", class: "admin-btn admin-btn-secondary" %>
+          <%= form.submit "Send Message", name: "send_now", class: "admin-btn admin-btn-primary" %>
+        </div>
+      <% end %>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= form.label :user_id, "User" %>
-    <%= form.select :user_id, 
-        options_from_collection_for_select(@users, :id, :display_name, @application.user_id), 
-        { prompt: 'Select User' }, 
-        { required: true } %>
+    <!-- Message History -->
+    <div class="admin-form message-history-section">
+      <h3>Message History</h3>
+      <p class="section-subtitle">Previous messages with this customer</p>
+      
+      <% if @messages.any? %>
+        <div class="message-threads">
+          <% @messages.each do |message| %>
+            <div class="message-thread">
+              <div class="message-header">
+                <div class="message-info">
+                  <strong><%= message.sender_name %></strong>
+                  <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
+                  <time class="message-time"><%= message.formatted_created_at %></time>
+                </div>
+              </div>
+              
+              <div class="message-subject">
+                <strong><%= message.subject %></strong>
+              </div>
+              
+              <div class="message-content">
+                <%= message.content_html %>
+              </div>
+              
+              <% if message.replies.any? %>
+                <div class="message-replies">
+                  <h4>Replies:</h4>
+                  <% message.replies.each do |reply| %>
+                    <div class="message-reply">
+                      <div class="reply-header">
+                        <strong><%= reply.sender_name %></strong>
+                        <time><%= reply.formatted_created_at %></time>
+                      </div>
+                      <div class="reply-content">
+                        <%= reply.content_html %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+              
+              <% if message.draft? %>
+                <div class="message-actions">
+                  <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: message.id), 
+                              method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
+                              data: { confirm: "Send this message to the customer?" } %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <p>No messages yet. Use the form above to send your first message to the customer.</p>
+        </div>
+      <% end %>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= form.label :address %>
-    <%= form.text_area :address, rows: 3, required: true, placeholder: "Enter property address" %>
-  </div>
+<style>
+/* Two-Column Layout */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
 
-  <div class="field">
-    <%= form.label :home_value, "Home Value ($)" %>
-    <%= form.number_field :home_value, required: true, min: 1, max: 50000000, 
-        placeholder: "e.g., 1500000", step: 1000 %>
-    <small style="color: #6b7280; font-size: 14px;">Enter amount without commas (e.g., 1500000 for $1.5M)</small>
-  </div>
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
 
-  <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
-    <%= form.submit "Update Application", class: "admin-btn admin-btn-primary" %>
-    <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
-  </div>
-<% end %>
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* Message Form Styles */
+.message-form-section, .message-history-section {
+  margin-bottom: 32px;
+}
+
+.message-form-section h3, .message-history-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+}
+
+.section-subtitle {
+  margin: 0 0 20px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.message-form {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.field-helpers {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.field-helpers h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.helper-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.helper-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.helper-btn:hover {
+  background: #e5e7eb;
+}
+
+.message-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Message History Styles */
+.message-history-section {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.message-threads {
+  space: 16px;
+}
+
+.message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.message-thread:last-child {
+  margin-bottom: 0;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.message-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.message-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.message-status.status-draft {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.message-status.status-sent {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.message-status.status-read {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.message-status.status-replied {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.message-time {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.message-subject {
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.message-content {
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  border-left: 3px solid #0891b2;
+  font-size: 14px;
+}
+
+.message-replies {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.message-replies h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.message-reply {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.reply-content {
+  color: #374151;
+}
+
+.admin-btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 24px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+  
+  .message-history-section {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .message-header, .reply-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .message-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .helper-buttons {
+    flex-direction: column;
+  }
+  
+  .message-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+// JavaScript for field insertion
+window.insertField = function(placeholder) {
+  const contentTextarea = document.querySelector('.markup-editor');
+  if (contentTextarea) {
+    const start = contentTextarea.selectionStart;
+    const end = contentTextarea.selectionEnd;
+    const text = contentTextarea.value;
+    
+    contentTextarea.value = text.substring(0, start) + placeholder + text.substring(end);
+    contentTextarea.selectionStart = contentTextarea.selectionEnd = start + placeholder.length;
+    contentTextarea.focus();
+  }
+};
+
+// Auto-show/hide rejected reason field
+document.addEventListener('DOMContentLoaded', function() {
+  const statusSelect = document.querySelector('select[name="application[status]"]');
+  const rejectedReasonField = document.querySelector('textarea[name="application[rejected_reason]"]');
+  
+  if (statusSelect && rejectedReasonField) {
+    const rejectedReasonContainer = rejectedReasonField.closest('.field');
+    
+    function toggleRejectedReason() {
+      if (statusSelect.value === 'rejected') {
+        rejectedReasonContainer.style.display = 'block';
+        rejectedReasonField.required = true;
+      } else {
+        rejectedReasonContainer.style.display = 'none';
+        rejectedReasonField.required = false;
+      }
+    }
+    
+    statusSelect.addEventListener('change', toggleRejectedReason);
+    toggleRejectedReason(); // Initial check
+  }
+});
+</script>

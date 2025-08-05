@@ -1,0 +1,596 @@
+<div class="email-template-editor">
+  <!-- Left Column - Form -->
+  <div class="email-editor-form">
+    <%= form_with(model: [:admin, @email_template], local: true, html: { class: "admin-form", id: "email-template-form" }) do |form| %>
+      <% if @email_template.errors.any? %>
+        <div class="admin-form-errors">
+          <h4><%= pluralize(@email_template.errors.count, "error") %> prohibited this template from being saved:</h4>
+          <ul>
+            <% @email_template.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+  <div class="admin-form-group">
+    <%= form.label :name, class: "admin-form-label" %>
+    <%= form.text_field :name, class: "admin-form-input", placeholder: "Enter template name" %>
+  </div>
+
+  <div class="admin-form-group">
+    <%= form.label :template_type, "Template Type", class: "admin-form-label" %>
+    <%= form.select :template_type, 
+        options_for_select([
+          ['Email Verification', 'verification'],
+          ['Application Submitted', 'application_submitted'],
+          ['Security Notification', 'security_notification']
+        ], @email_template.template_type), 
+        { prompt: 'Select template type' }, 
+        { class: "admin-form-select", id: "template_type_select" } %>
+  </div>
+
+  <div class="admin-form-group">
+    <%= form.label :description, class: "admin-form-label" %>
+    <%= form.text_area :description, class: "admin-form-textarea", rows: 2, placeholder: "Brief description of when this template is used" %>
+  </div>
+
+  <div class="admin-form-group">
+    <%= form.label :subject, class: "admin-form-label" %>
+    <%= form.text_field :subject, class: "admin-form-input", placeholder: "Email subject line (supports field placeholders)" %>
+  </div>
+
+  <div class="admin-form-group">
+    <%= form.label :content, class: "admin-form-label" %>
+    <div class="content-editor-section">
+      <div class="editor-tabs">
+        <button type="button" id="html-tab" class="editor-tab active">HTML Editor</button>
+        <button type="button" id="markup-tab" class="editor-tab">Markup Editor</button>
+      </div>
+      
+      <div class="field-helper-section">
+        <button type="button" id="show-field-helper" class="admin-btn admin-btn-sm admin-btn-info">Show Available Fields</button>
+        <div id="field-helper-panel" style="display: none; margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;">
+          <h4 style="margin: 0 0 12px 0; color: #374151;">Available Field Placeholders:</h4>
+          <div id="field-helper-content">
+            <p class="text-muted">Select a template type to see available fields</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- HTML Editor -->
+      <div id="html-editor-section" class="editor-section">
+        <%= form.text_area :content, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email content (HTML format, supports field placeholders)", id: "html-content" %>
+      </div>
+      
+      <!-- Markup Editor -->
+      <div id="markup-editor-section" class="editor-section" style="display: none;">
+        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}", id: "markup-content" %>
+        <div class="markup-help">
+          <small class="text-muted">
+            <strong>Markup Guide:</strong><br>
+            <code>## Title</code> = Large heading<br>
+            <code>### Subtitle</code> = Smaller heading<br>
+            <code>**bold text**</code> = <strong>Bold</strong><br>
+            <code>*italic text*</code> = <em>Italic</em><br>
+            <code>- item</code> = Bullet point<br>
+            Line breaks create paragraphs
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-form-group">
+    <div class="admin-form-checkbox-group">
+      <%= form.check_box :is_active, class: "admin-form-checkbox" %>
+      <%= form.label :is_active, "Active (will be used for emails of this type)", class: "admin-form-checkbox-label" %>
+    </div>
+  </div>
+
+  <div class="admin-form-actions">
+    <div class="admin-form-actions-left">
+      <% if @email_template.persisted? %>
+        <%= link_to "Preview", preview_admin_email_template_path(@email_template), class: "admin-btn admin-btn-info", target: "_blank", id: "preview-btn" %>
+      <% end %>
+    </div>
+    <div class="admin-form-actions-right">
+      <%= link_to "Cancel", admin_email_templates_path, class: "admin-btn admin-btn-secondary" %>
+      <%= form.submit class: "admin-btn admin-btn-primary" %>
+    </div>
+  </div>
+    <% end %>
+  </div>
+  
+  <!-- Right Column - Live Preview -->
+  <div class="email-editor-preview">
+    <div class="preview-header">
+      <h3>Live Preview</h3>
+      <div class="preview-controls">
+        <button type="button" id="refresh-preview" class="admin-btn admin-btn-sm admin-btn-secondary">Refresh</button>
+        <button type="button" id="toggle-sample-data" class="admin-btn admin-btn-sm admin-btn-info">Toggle Sample Data</button>
+      </div>
+    </div>
+    
+    <div class="preview-content">
+      <div class="email-preview-frame">
+        <div class="email-subject-preview">
+          <strong>Subject:</strong> <span id="subject-preview">Preview will appear here...</span>
+        </div>
+        <hr>
+        <div id="email-content-preview" class="email-body-preview">
+          <p class="text-muted">Start typing in the editor to see preview...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const templateTypeSelect = document.getElementById('template_type_select');
+  const fieldHelperPanel = document.getElementById('field-helper-panel');
+  const fieldHelperContent = document.getElementById('field-helper-content');
+  const showFieldHelperBtn = document.getElementById('show-field-helper');
+  const htmlContent = document.getElementById('html-content');
+  const markupContent = document.getElementById('markup-content');
+  const subjectField = document.querySelector('#email_template_subject');
+  
+  let useSampleData = false;
+  let currentEditorMode = 'html';
+  
+  // Sample data for preview
+  const sampleData = {
+    'verification': {
+      user: { first_name: 'John', last_name: 'Smith', full_name: 'John Smith', email: 'john.smith@example.com' },
+      verification: { verification_code: '123456', formatted_expires_at: '11:30 PM' }
+    },
+    'application_submitted': {
+      user: { first_name: 'Sarah', last_name: 'Johnson', full_name: 'Sarah Johnson', email: 'sarah.johnson@example.com' },
+      application: { 
+        id: '12345', reference_number: '000123', address: '123 Main Street, Sydney NSW 2000',
+        formatted_home_value: '$1,500,000', formatted_loan_value: '$900,000', loan_term: '25'
+      },
+      mortgage: { name: 'Premium Equity Mortgage', lvr: '60', interest_rate: '7.45' }
+    },
+    'security_notification': {
+      user: { first_name: 'Michael', full_name: 'Michael Brown', email: 'michael.brown@example.com' },
+      security: { 
+        browser_info: 'Chrome on macOS', ip_address: '192.168.1.100', 
+        location: 'Sydney, Australia', sign_in_time: 'December 5, 2024 at 2:30 PM' 
+      }
+    }
+  };
+  
+  // Available fields for each template type
+  const availableFields = {
+    'verification': {
+      'user': ['first_name', 'last_name', 'full_name', 'email', 'mobile_number', 'country_of_residence'],
+      'verification': ['verification_code', 'expires_at', 'formatted_expires_at']
+    },
+    'application_submitted': {
+      'user': ['first_name', 'last_name', 'full_name', 'email', 'mobile_number'],
+      'application': ['id', 'reference_number', 'address', 'home_value', 'formatted_home_value', 'existing_mortgage_amount', 'formatted_existing_mortgage_amount', 'loan_value', 'formatted_loan_value', 'borrower_age', 'loan_term', 'growth_rate', 'formatted_growth_rate', 'future_property_value', 'formatted_future_property_value', 'home_equity_preserved', 'formatted_home_equity_preserved'],
+      'mortgage': ['name', 'lvr', 'interest_rate', 'mortgage_type_display']
+    },
+    'security_notification': {
+      'user': ['first_name', 'last_name', 'full_name', 'email'],
+      'security': ['browser_info', 'ip_address', 'location', 'sign_in_time']
+    }
+  };
+  
+  // Switch between HTML and Markup editors
+  function switchEditorMode(mode) {
+    const htmlSection = document.getElementById('html-editor-section');
+    const markupSection = document.getElementById('markup-editor-section');
+    const htmlTab = document.getElementById('html-tab');
+    const markupTab = document.getElementById('markup-tab');
+    
+    if (mode === 'html') {
+      htmlSection.style.display = 'block';
+      markupSection.style.display = 'none';
+      htmlTab.classList.add('active');
+      markupTab.classList.remove('active');
+      currentEditorMode = 'html';
+    } else {
+      htmlSection.style.display = 'none';
+      markupSection.style.display = 'block';
+      htmlTab.classList.remove('active');
+      markupTab.classList.add('active');
+      currentEditorMode = 'markup';
+    }
+    updatePreview();
+  }
+  
+  // Convert markup to HTML (similar to terms system)
+  function markupToHtml(text) {
+    if (!text) return '';
+    
+    let html = text;
+    
+    // Convert line breaks to paragraph breaks
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    
+    // Convert headers
+    html = html.replace(/<p>## (.+?)<\/p>/g, '<h2 style="color: #0891b2; font-size: 20px; margin: 24px 0 16px 0;">$1</h2>');
+    html = html.replace(/<p>### (.+?)<\/p>/g, '<h3 style="color: #374151; font-size: 16px; margin: 20px 0 12px 0;">$1</h3>');
+    
+    // Convert bold and italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Convert bullet points
+    html = html.replace(/<p>- (.+?)<\/p>/g, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 24px;">$1</ul>');
+    
+    // Clean up empty paragraphs
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>\s*<\/p>/g, '');
+    
+    return html;
+  }
+  
+  // Replace field placeholders with sample data
+  function replaceFieldPlaceholders(text, templateType) {
+    if (!useSampleData || !sampleData[templateType]) return text;
+    
+    const data = sampleData[templateType];
+    let result = text;
+    
+    // Replace placeholders
+    Object.keys(data).forEach(groupName => {
+      Object.keys(data[groupName]).forEach(field => {
+        const placeholder = new RegExp(`{{${groupName}\\.${field}}}`, 'gi');
+        result = result.replace(placeholder, data[groupName][field]);
+      });
+    });
+    
+    return result;
+  }
+  
+  // Update preview
+  function updatePreview() {
+    const templateType = templateTypeSelect.value;
+    let content = '';
+    let subject = subjectField ? subjectField.value : '';
+    
+    if (currentEditorMode === 'html') {
+      content = htmlContent.value;
+    } else {
+      content = markupToHtml(markupContent.value);
+    }
+    
+    // Replace field placeholders if sample data is enabled
+    if (useSampleData) {
+      subject = replaceFieldPlaceholders(subject, templateType);
+      content = replaceFieldPlaceholders(content, templateType);
+    }
+    
+    document.getElementById('subject-preview').textContent = subject || 'No subject entered';
+    document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
+  }
+  
+  function updateFieldHelper() {
+    const selectedType = templateTypeSelect.value;
+    const fields = availableFields[selectedType];
+    
+    if (!fields) {
+      fieldHelperContent.innerHTML = '<p class="text-muted">Select a template type to see available fields</p>';
+      return;
+    }
+    
+    let html = '<div class="field-groups">';
+    
+    Object.keys(fields).forEach(groupName => {
+      html += `<div class="field-group" style="margin-bottom: 16px;">`;
+      html += `<h5 style="margin: 0 0 8px 0; color: #0891b2; text-transform: capitalize;">${groupName} Fields:</h5>`;
+      html += '<div class="field-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">';
+      
+      fields[groupName].forEach(field => {
+        const placeholder = `{{${groupName}.${field}}}`;
+        html += `<span class="field-tag" onclick="insertField('${placeholder}')" style="
+          cursor: pointer;
+          background: #e0f2fe;
+          border: 1px solid #0891b2;
+          border-radius: 4px;
+          padding: 4px 8px;
+          font-size: 12px;
+          font-family: monospace;
+          color: #0891b2;
+        " title="Click to insert">${placeholder}</span>`;
+      });
+      
+      html += '</div></div>';
+    });
+    
+    html += '</div>';
+    html += '<p style="margin-top: 16px; font-size: 12px; color: #6b7280;"><strong>Tip:</strong> Click on any field to insert it at your cursor position in the content editor.</p>';
+    
+    fieldHelperContent.innerHTML = html;
+  }
+  
+  // Insert field at cursor position
+  window.insertField = function(placeholder) {
+    const activeTextarea = currentEditorMode === 'html' ? htmlContent : markupContent;
+    const start = activeTextarea.selectionStart;
+    const end = activeTextarea.selectionEnd;
+    const text = activeTextarea.value;
+    
+    activeTextarea.value = text.substring(0, start) + placeholder + text.substring(end);
+    activeTextarea.focus();
+    activeTextarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
+    updatePreview();
+  };
+  
+  // Event listeners
+  // Tab switching
+  document.getElementById('html-tab').addEventListener('click', function() {
+    switchEditorMode('html');
+  });
+  
+  document.getElementById('markup-tab').addEventListener('click', function() {
+    switchEditorMode('markup');
+  });
+  
+  showFieldHelperBtn.addEventListener('click', function() {
+    if (fieldHelperPanel.style.display === 'none') {
+      fieldHelperPanel.style.display = 'block';
+      showFieldHelperBtn.textContent = 'Hide Available Fields';
+      updateFieldHelper();
+    } else {
+      fieldHelperPanel.style.display = 'none';
+      showFieldHelperBtn.textContent = 'Show Available Fields';
+    }
+  });
+  
+  templateTypeSelect.addEventListener('change', function() {
+    if (fieldHelperPanel.style.display !== 'none') {
+      updateFieldHelper();
+    }
+    updatePreview();
+  });
+  
+  // Preview controls
+  document.getElementById('refresh-preview').addEventListener('click', updatePreview);
+  
+  document.getElementById('toggle-sample-data').addEventListener('click', function() {
+    useSampleData = !useSampleData;
+    this.textContent = useSampleData ? 'Hide Sample Data' : 'Show Sample Data';
+    this.classList.toggle('admin-btn-success', useSampleData);
+    updatePreview();
+  });
+  
+  // Auto-update preview on content changes
+  if (htmlContent) {
+    htmlContent.addEventListener('input', updatePreview);
+  }
+  if (markupContent) {
+    markupContent.addEventListener('input', updatePreview);
+  }
+  if (subjectField) {
+    subjectField.addEventListener('input', updatePreview);
+  }
+  
+  // Before form submission, sync markup content to HTML content if in markup mode
+  document.getElementById('email-template-form').addEventListener('submit', function() {
+    if (currentEditorMode === 'markup' && markupContent.value) {
+      htmlContent.value = markupToHtml(markupContent.value);
+    }
+  });
+  
+  // Initial setup
+  if (templateTypeSelect.value) {
+    updateFieldHelper();
+  }
+  updatePreview();
+});
+</script>
+
+<style>
+/* Two-column layout */
+.email-template-editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  min-height: 100vh;
+}
+
+.email-editor-form {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+}
+
+.email-editor-preview {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  position: sticky;
+  top: 24px;
+  height: fit-content;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.preview-header h3 {
+  margin: 0;
+  color: #0891b2;
+  font-size: 18px;
+}
+
+.preview-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.email-preview-frame {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 20px;
+  background: #fafafa;
+  font-family: Arial, sans-serif;
+}
+
+.email-subject-preview {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: white;
+  border-radius: 4px;
+  border-left: 4px solid #0891b2;
+}
+
+.email-body-preview {
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  min-height: 300px;
+  line-height: 1.6;
+}
+
+/* Editor tabs */
+.editor-tabs {
+  display: flex;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.editor-tab {
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.editor-tab:hover {
+  color: #374151;
+  background: #f9fafb;
+}
+
+.editor-tab.active {
+  color: #0891b2;
+  border-bottom-color: #0891b2;
+  background: #f0f9ff;
+}
+
+.editor-section {
+  position: relative;
+}
+
+.markup-editor {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  background: #fafafa;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.email-editor {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.markup-help {
+  margin-top: 8px;
+  padding: 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 4px;
+}
+
+.markup-help code {
+  background: #e0f2fe;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.field-helper-section {
+  margin-bottom: 16px;
+}
+
+.field-tag:hover {
+  background: #0891b2 !important;
+  color: white !important;
+}
+
+.text-muted {
+  color: #6b7280;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-form-actions-left,
+.admin-form-actions-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-btn-success {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.admin-btn-success:hover {
+  background: #047857;
+  border-color: #047857;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+  .email-template-editor {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .email-editor-preview {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .preview-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .editor-tabs {
+    flex-wrap: wrap;
+  }
+}
+</style>

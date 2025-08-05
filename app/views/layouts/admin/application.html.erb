@@ -44,6 +44,12 @@
           <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
             <span>🔒 Privacy Policies</span>
           <% end %>
+          <%= link_to admin_terms_and_conditions_path, class: "admin-nav-link #{'active' if controller_name == 'terms_and_conditions'}" do %>
+            <span>📋 Terms & Conditions</span>
+          <% end %>
+          <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
+            <span>📧 Email Templates</span>
+          <% end %>
         </nav>
         
         <div class="admin-user-info">

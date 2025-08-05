@@ -1,0 +1,12 @@
+<% content_for :page_title, "Edit Email Template" %>
+
+<div class="admin-content-header">
+  <div class="admin-content-actions">
+    <%= link_to "← Back to Email Templates", admin_email_templates_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "View Template", admin_email_template_path(@email_template), class: "admin-btn admin-btn-info" %>
+  </div>
+</div>
+
+<div class="admin-form-container">
+  <%= render 'form' %>
+</div>

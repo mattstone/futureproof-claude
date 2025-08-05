@@ -17,6 +17,7 @@ class User < ApplicationRecord
   validates :country_of_residence, presence: true
   validates :mobile_number, format: { with: /\A[0-9\s\-\(\)]+\z/, message: "must contain only numbers, spaces, hyphens, and parentheses" }, allow_blank: true
   validates :mobile_country_code, presence: true, if: :mobile_number?
+  validate :valid_mobile_phone_number
   validates :terms_accepted, acceptance: { message: "You must accept the Terms of Use to create an account" }
 
   # Scopes
@@ -39,6 +40,31 @@ class User < ApplicationRecord
   def full_mobile_number
     return nil unless mobile_country_code.present? && mobile_number.present?
     "#{mobile_country_code} #{mobile_number}"
+  end
+
+  def formatted_mobile_number
+    return nil unless valid_mobile_phone?
+    begin
+      # Combine country code and number for formatting
+      full_number = "#{mobile_country_code}#{mobile_number.gsub(/\D/, '')}"
+      Phony.format(full_number, format: :international)
+    rescue
+      full_mobile_number # Fallback to original format
+    end
+  end
+
+  def valid_mobile_phone?
+    return true if mobile_number.blank? # Allow blank numbers
+    return false unless mobile_country_code.present? && mobile_number.present?
+    
+    begin
+      # Clean the mobile number and combine with country code
+      clean_number = mobile_number.gsub(/\D/, '')
+      full_number = "#{mobile_country_code}#{clean_number}"
+      Phony.plausible?(full_number)
+    rescue
+      false
+    end
   end
 
   # Verification code methods
@@ -148,5 +174,15 @@ class User < ApplicationRecord
     current_terms = TermsOfUse.current
     return false if current_terms.blank?
     terms_version == current_terms.version
+  end
+
+  private
+
+  def valid_mobile_phone_number
+    return if mobile_number.blank? # Skip validation if mobile number is blank
+    
+    unless valid_mobile_phone?
+      errors.add(:mobile_number, "is not a valid phone number for the selected country")
+    end
   end
 end

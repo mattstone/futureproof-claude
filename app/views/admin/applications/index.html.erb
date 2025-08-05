@@ -20,6 +20,7 @@
         <th>Address</th>
         <th>Home Value</th>
         <th>Status</th>
+        <th>Messages</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -42,6 +43,23 @@
           </td>
           <td>
             <%= render 'status_badge', application: application %>
+          </td>
+          <td>
+            <div class="message-indicators">
+              <% if application.has_unread_customer_messages? %>
+                <span class="message-indicator unread" title="<%= application.unread_customer_messages_count %> unread customer messages">
+                  📨 <%= application.unread_customer_messages_count %>
+                </span>
+              <% elsif application.application_messages.exists? %>
+                <span class="message-indicator read" title="Messages exchanged">
+                  💬 <%= application.application_messages.count %>
+                </span>
+              <% else %>
+                <span class="message-indicator none" title="No messages">
+                  —
+                </span>
+              <% end %>
+            </div>
           </td>
           <td><%= application.created_at.strftime("%B %d, %Y") %></td>
           <td>
@@ -67,3 +85,56 @@
 <div class="admin-pagination">
   <%= paginate @applications %>
 </div>
+
+<style>
+.message-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message-indicator {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.message-indicator.unread {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  animation: pulse 2s infinite;
+}
+
+.message-indicator.read {
+  background: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.message-indicator.none {
+  color: #9ca3af;
+  background: transparent;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .admin-table table th:nth-child(5),
+  .admin-table table td:nth-child(5) {
+    display: none;
+  }
+}
+</style>

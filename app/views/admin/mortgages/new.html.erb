@@ -36,6 +36,12 @@
         { required: true } %>
   </div>
 
+  <div class="field">
+    <%= form.label :lvr, "LVR (%)" %>
+    <%= form.number_field :lvr, step: 0.01, min: 0, max: 100, required: true, placeholder: "e.g. 80.00", value: 80.00 %>
+    <small class="field-hint">Loan-to-Value Ratio as a percentage (0-100)</small>
+  </div>
+
   <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
     <%= form.submit "Create Mortgage", class: "admin-btn admin-btn-primary" %>
     <%= link_to "Cancel", admin_mortgages_path, class: "admin-btn admin-btn-secondary" %>

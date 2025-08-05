@@ -314,6 +314,7 @@ GEM
     pg (1.6.0-arm64-darwin)
     pg (1.6.0-x86_64-darwin)
     pg (1.6.0-x86_64-linux)
+    phony (2.22.3)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -524,6 +525,7 @@ DEPENDENCIES
   kaminari
   letter_opener
   pg (~> 1.1)
+  phony
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.2)

@@ -25,8 +25,13 @@
     <div class="detail-row">
       <strong>Type:</strong>
       <span class="admin-badge <%= @mortgage.mortgage_type_interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
-        <%= @mortgage.mortgage_type.humanize %>
+        <%= @mortgage.mortgage_type_display %>
       </span>
+    </div>
+    
+    <div class="detail-row">
+      <strong>LVR:</strong>
+      <%= @mortgage.lvr %>%
     </div>
     
     <div class="detail-row">
@@ -39,6 +44,58 @@
       <%= @mortgage.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
     </div>
   </div>
+</div>
+
+<!-- Change History Section -->
+<div class="admin-form change-history-section">
+  <h3>Change History</h3>
+  <p class="section-subtitle">Track all modifications made to this mortgage</p>
+  
+  <% if @audit_history.any? %>
+    <div class="change-history-list">
+      <% @audit_history.each do |version| %>
+        <div class="change-entry">
+          <div class="change-header">
+            <div class="change-info">
+              <strong><%= version.user.display_name %></strong>
+              <span class="change-action"><%= version.action_description %></span>
+              <time class="change-time"><%= version.formatted_created_at %></time>
+            </div>
+          </div>
+          
+          <% if version.change_details.present? %>
+            <div class="change-details">
+              <%= version.change_details %>
+            </div>
+          <% end %>
+          
+          <% if version.has_field_changes? %>
+            <div class="change-content">
+              <details class="change-diff">
+                <summary>View Changes</summary>
+                
+                <div class="field-changes">
+                  <% version.detailed_changes.each do |change| %>
+                    <div class="field-change">
+                      <strong><%= change[:field] %>:</strong>
+                      <div class="change-comparison">
+                        <div class="change-from">- <%= change[:from] %></div>
+                        <div class="change-to">+ <%= change[:to] %></div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </details>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>No change history available yet.</p>
+    </div>
+  <% end %>
 </div>
 
 <style>
@@ -61,5 +118,147 @@
 .detail-row strong {
   min-width: 120px;
   color: #374151;
+}
+
+/* Change History Styles */
+.change-history-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.change-history-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 20px;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.change-history-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.change-entry {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.change-entry:last-child {
+  border-bottom: none;
+}
+
+.change-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.change-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.change-action {
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.change-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.change-details {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.change-diff {
+  margin-top: 12px;
+}
+
+.change-diff summary {
+  cursor: pointer;
+  color: #0891b2;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.field-changes {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.field-change {
+  margin-bottom: 12px;
+}
+
+.field-change:last-child {
+  margin-bottom: 0;
+}
+
+.field-change strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.change-comparison {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.change-from {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+}
+
+.change-to {
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .change-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .change-info {
+    flex-wrap: wrap;
+  }
 }
 </style>

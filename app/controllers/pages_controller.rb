@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :privacy_policy, :terms_of_use, :apply]
+  skip_before_action :authenticate_user!, only: [:index, :privacy_policy, :terms_of_use, :terms_and_conditions, :apply]
   
   def index
     # Homepage
@@ -11,6 +11,10 @@ class PagesController < ApplicationController
 
   def terms_of_use
     @terms_of_use = TermsOfUse.current
+  end
+
+  def terms_and_conditions
+    @terms_and_conditions = TermsAndCondition.current
   end
 
   def apply

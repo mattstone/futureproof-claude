@@ -1,0 +1,72 @@
+<% content_for :page_title, "Terms and Conditions" %>
+
+<div class="admin-actions-bar">
+  <div></div>
+  
+  <div class="admin-actions">
+    <%= link_to "Create New Version", new_admin_terms_and_condition_path, class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<div class="admin-table-container">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th style="text-align: center;">Version</th>
+        <th>Last Updated</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @terms_and_conditions.each do |terms| %>
+        <tr class="<%= 'active-row' if terms.is_active? %>">
+          <td>
+            <strong><%= terms.title %></strong>
+          </td>
+          <td style="text-align: center;">
+            <span class="admin-badge admin-badge-info"><%= terms.version %></span>
+          </td>
+          <td>
+            <%= terms.formatted_last_updated %>
+          </td>
+          <td>
+            <% if terms.is_active? %>
+              <span class="admin-badge admin-badge-success">Active</span>
+            <% else %>
+              <span class="admin-badge admin-badge-secondary">Draft</span>
+            <% end %>
+          </td>
+          <td>
+            <%= terms.created_at.strftime("%b %d, %Y") %>
+          </td>
+          <td class="admin-table-actions">
+            <%= link_to "View", admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+            <%= link_to "Edit", edit_admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+            <% unless terms.is_active? %>
+              <%= link_to "Activate", 
+                  activate_admin_terms_and_condition_path(terms), 
+                  method: :patch,
+                  class: "admin-btn admin-btn-sm admin-btn-success",
+                  data: { 
+                    confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+                  } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <% if @terms_and_conditions.empty? %>
+    <div class="admin-empty-state">
+      <h3>No Terms and Conditions Found</h3>
+      <p>Get started by creating your first Terms and Conditions.</p>
+      <%= link_to "Create First Terms and Conditions", new_admin_terms_and_condition_path, class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<%= paginate @terms_and_conditions if respond_to?(:paginate) %>

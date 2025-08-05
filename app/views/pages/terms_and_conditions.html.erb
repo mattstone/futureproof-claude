@@ -1,0 +1,18 @@
+<%= render 'shared/header' %>
+
+<div class="legal-page">
+  <div class="legal-container">
+    <h1><%= @terms_and_conditions.title %></h1>
+    <p class="last-updated">Last updated: <%= @terms_and_conditions.formatted_last_updated %></p>
+
+    <div class="legal-content">
+      <%= raw @terms_and_conditions.rendered_content %>
+    </div>
+
+    <div class="legal-footer">
+      <%= link_to "← Back to Home", root_path, class: "back-link" %>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

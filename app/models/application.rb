@@ -1,6 +1,8 @@
 class Application < ApplicationRecord
   belongs_to :user
   belongs_to :mortgage, optional: true
+  has_many :application_versions, dependent: :destroy
+  has_many :application_messages, dependent: :destroy
 
   # Enums
   enum :ownership_status, {
@@ -74,6 +76,12 @@ class Application < ApplicationRecord
   # Callbacks
   before_validation :assign_demo_address, on: :create
   before_validation :set_default_existing_mortgage_amount
+  
+  # Track changes with audit functionality
+  attr_accessor :current_user
+  
+  after_create :log_creation
+  after_update :log_update
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -307,6 +315,34 @@ class Application < ApplicationRecord
     # Total paid = monthly income * 12 months * income payout term
     monthly_income * 12 * income_payout_term
   end
+  
+  # Messaging methods
+  def has_unread_customer_messages?
+    application_messages.customer_messages.unread.exists?
+  end
+  
+  def unread_customer_messages_count
+    application_messages.customer_messages.unread.count
+  end
+  
+  def latest_customer_message
+    application_messages.customer_messages.sent.order(:created_at).last
+  end
+  
+  def message_threads
+    application_messages.thread_messages.includes(:replies, :sender).order(:created_at)
+  end
+  
+  # Log when admin views application
+  def log_view_by(user)
+    return unless user
+    
+    application_versions.create!(
+      user: user,
+      action: 'viewed',
+      change_details: "Admin #{user.display_name} viewed application"
+    )
+  end
 
   private
 
@@ -367,5 +403,113 @@ class Application < ApplicationRecord
     ]
     
     self.address = sydney_addresses.sample
+  end
+  
+  def log_creation
+    return unless current_user
+    
+    application_versions.create!(
+      user: current_user,
+      action: 'created',
+      change_details: "Created new application for #{address} with home value #{formatted_home_value}",
+      new_status: status_before_type_cast,
+      new_address: address,
+      new_home_value: home_value,
+      new_existing_mortgage_amount: existing_mortgage_amount,
+      new_borrower_age: borrower_age,
+      new_ownership_status: ownership_status_before_type_cast
+    )
+  end
+  
+  def log_update
+    return unless current_user
+    
+    # Special handling for status changes
+    if saved_change_to_status?
+      old_status = saved_change_to_status[0]
+      new_status = saved_change_to_status[1]
+      application_versions.create!(
+        user: current_user,
+        action: 'status_changed',
+        change_details: "Changed application status from '#{status_label(old_status)}' to '#{status_label(new_status)}'",
+        previous_status: old_status,
+        new_status: new_status
+      )
+    elsif saved_changes.any?
+      # Log other field changes
+      application_versions.create!(
+        user: current_user,
+        action: 'updated',
+        change_details: build_change_summary,
+        previous_status: saved_change_to_status ? saved_change_to_status[0] : nil,
+        new_status: saved_change_to_status ? saved_change_to_status[1] : nil,
+        previous_address: saved_change_to_address ? saved_change_to_address[0] : nil,
+        new_address: saved_change_to_address ? saved_change_to_address[1] : nil,
+        previous_home_value: saved_change_to_home_value ? saved_change_to_home_value[0] : nil,
+        new_home_value: saved_change_to_home_value ? saved_change_to_home_value[1] : nil,
+        previous_existing_mortgage_amount: saved_change_to_existing_mortgage_amount ? saved_change_to_existing_mortgage_amount[0] : nil,
+        new_existing_mortgage_amount: saved_change_to_existing_mortgage_amount ? saved_change_to_existing_mortgage_amount[1] : nil,
+        previous_borrower_age: saved_change_to_borrower_age ? saved_change_to_borrower_age[0] : nil,
+        new_borrower_age: saved_change_to_borrower_age ? saved_change_to_borrower_age[1] : nil,
+        previous_ownership_status: saved_change_to_ownership_status ? saved_change_to_ownership_status[0] : nil,
+        new_ownership_status: saved_change_to_ownership_status ? saved_change_to_ownership_status[1] : nil
+      )
+    end
+  end
+  
+  def build_change_summary
+    changes_list = []
+    
+    if saved_change_to_address?
+      changes_list << "Address changed from '#{saved_change_to_address[0]}' to '#{saved_change_to_address[1]}'"
+    end
+    
+    if saved_change_to_home_value?
+      old_value = ActionController::Base.helpers.number_to_currency(saved_change_to_home_value[0], precision: 0)
+      new_value = ActionController::Base.helpers.number_to_currency(saved_change_to_home_value[1], precision: 0)
+      changes_list << "Home value changed from #{old_value} to #{new_value}"
+    end
+    
+    if saved_change_to_existing_mortgage_amount?
+      old_amount = ActionController::Base.helpers.number_to_currency(saved_change_to_existing_mortgage_amount[0], precision: 0)
+      new_amount = ActionController::Base.helpers.number_to_currency(saved_change_to_existing_mortgage_amount[1], precision: 0)
+      changes_list << "Existing mortgage amount changed from #{old_amount} to #{new_amount}"
+    end
+    
+    if saved_change_to_borrower_age?
+      changes_list << "Borrower age changed from #{saved_change_to_borrower_age[0]} to #{saved_change_to_borrower_age[1]}"
+    end
+    
+    if saved_change_to_ownership_status?
+      old_status = ownership_status_label(saved_change_to_ownership_status[0])
+      new_status = ownership_status_label(saved_change_to_ownership_status[1])
+      changes_list << "Ownership status changed from '#{old_status}' to '#{new_status}'"
+    end
+    
+    changes_list.join("; ")
+  end
+  
+  def status_label(status_value)
+    case status_value
+    when 0 then 'Created'
+    when 1 then 'User Details'
+    when 2 then 'Property Details' 
+    when 3 then 'Income and Loan Options'
+    when 4 then 'Submitted'
+    when 5 then 'Processing'
+    when 6 then 'Rejected'
+    when 7 then 'Accepted'
+    else status_value.to_s
+    end
+  end
+  
+  def ownership_status_label(ownership_value)
+    case ownership_value
+    when 0 then 'Individual'
+    when 1 then 'Joint'
+    when 2 then 'Company'
+    when 3 then 'Super Fund'
+    else ownership_value.to_s
+    end
   end
 end

@@ -1,0 +1,388 @@
+<% content_for :page_title, "Messages - Application ##{@application.id}" %>
+
+<div class="application-header">
+  <div class="header-content">
+    <h1>Messages</h1>
+    <p>Application #<%= @application.id %> - <%= @application.address %></p>
+  </div>
+  <div class="header-actions">
+    <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="messages-container">
+  <!-- Message Threads -->
+  <div class="message-threads-section">
+    <h2>Messages from Futureproof</h2>
+    
+    <% if @messages.any? %>
+      <div class="message-threads">
+        <% @messages.each do |message| %>
+          <div class="message-thread">
+            <div class="message-header">
+              <div class="message-info">
+                <strong><%= message.sender_name %></strong>
+                <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
+                <time class="message-time"><%= message.formatted_created_at %></time>
+              </div>
+            </div>
+            
+            <div class="message-subject">
+              <h3><%= message.subject %></h3>
+            </div>
+            
+            <div class="message-content">
+              <%= message.content_html %>
+            </div>
+            
+            <% if message.replies.any? %>
+              <div class="message-replies">
+                <h4>Your Replies:</h4>
+                <% message.replies.each do |reply| %>
+                  <div class="message-reply">
+                    <div class="reply-header">
+                      <strong><%= reply.sender_name %></strong>
+                      <time><%= reply.formatted_created_at %></time>
+                    </div>
+                    <div class="reply-content">
+                      <%= reply.content_html %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            
+            <!-- Reply Form -->
+            <div class="reply-form-section">
+              <h4>Reply to this message:</h4>
+              <%= form_with(model: [@application, @new_message], 
+                            url: reply_to_message_application_path(@application), 
+                            local: true, class: "reply-form") do |form| %>
+                
+                <%= form.hidden_field :parent_message_id, value: message.id %>
+                
+                <div class="field">
+                  <%= form.label :subject %>
+                  <%= form.text_field :subject, value: "Re: #{message.subject}", required: true %>
+                </div>
+
+                <div class="field">
+                  <%= form.label :content, "Your Reply" %>
+                  <%= form.text_area :content, rows: 4, class: "markup-editor", 
+                                     placeholder: "Type your reply here...\n\n**Bold text**\n*Italic text*\n- Bullet points", 
+                                     required: true %>
+                  <small class="field-hint">
+                    You can use markup: **bold**, *italic*, - bullet points
+                  </small>
+                </div>
+
+                <div class="form-actions">
+                  <%= form.submit "Send Reply", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-icon">📬</div>
+        <h3>No messages yet</h3>
+        <p>When Futureproof sends you messages about your application, they will appear here.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.header-content h1 {
+  margin: 0 0 4px 0;
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.messages-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.message-threads-section h2 {
+  margin: 0 0 24px 0;
+  color: #374151;
+  font-size: 20px;
+}
+
+.message-threads {
+  space: 24px;
+}
+
+.message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-thread:last-child {
+  margin-bottom: 0;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.message-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.message-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.message-status.status-sent {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.message-status.status-read {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.message-status.status-replied {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.message-time {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.message-subject h3 {
+  margin: 0 0 16px 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.message-content {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #0891b2;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.message-replies {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border: 1px solid #bae6fd;
+}
+
+.message-replies h4 {
+  margin: 0 0 16px 0;
+  color: #0369a1;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.message-reply {
+  background: white;
+  border: 1px solid #e0f2fe;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.message-reply:last-child {
+  margin-bottom: 0;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.reply-content {
+  color: #374151;
+  line-height: 1.5;
+}
+
+.reply-form-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.reply-form-section h4 {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.reply-form {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.field input, .field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+}
+
+.field input:focus, .field textarea:focus {
+  outline: none;
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #0891b2;
+  color: white;
+  border-color: #0891b2;
+}
+
+.btn-primary:hover {
+  background: #0e7490;
+  border-color: #0e7490;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  color: #374151;
+  text-decoration: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .application-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .message-header, .reply-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .message-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+</style>

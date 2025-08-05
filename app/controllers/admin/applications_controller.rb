@@ -1,8 +1,11 @@
 class Admin::ApplicationsController < Admin::BaseController
-  before_action :set_application, only: [:show, :edit, :update]
+  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message]
+  before_action :set_audit_history, only: [:show]
+  before_action :set_messages, only: [:show, :edit]
+  before_action :log_view, only: [:show]
 
   def index
-    @applications = Application.includes(:user).recent
+    @applications = Application.includes(:user, :application_messages).recent
     @applications = @applications.joins(:user).where(
       "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?", 
       "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
@@ -20,6 +23,7 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def create
     @application = Application.new(application_params)
+    @application.current_user = current_user # Track who created it
     
     if @application.save
       redirect_to admin_application_path(@application), notice: 'Application was successfully created.'
@@ -34,11 +38,46 @@ class Admin::ApplicationsController < Admin::BaseController
   end
 
   def update
+    @application.current_user = current_user # Track who updated it
     if @application.update(application_params)
       redirect_to admin_application_path(@application), notice: 'Application was successfully updated.'
     else
       @users = User.all.order(:first_name, :last_name)
+      @messages = @application.message_threads
       render :edit, status: :unprocessable_entity
+    end
+  end
+  
+  def create_message
+    @message = @application.application_messages.build(message_params)
+    @message.sender = current_user
+    @message.message_type = 'admin_to_customer'
+    @message.status = 'draft'
+    
+    if @message.save
+      if params[:send_now].present?
+        if @message.send_message!
+          redirect_to edit_admin_application_path(@application), notice: 'Message sent successfully!'
+        else
+          redirect_to edit_admin_application_path(@application), alert: 'Failed to send message.'
+        end
+      else
+        redirect_to edit_admin_application_path(@application), notice: 'Message saved as draft!'
+      end
+    else
+      @users = User.all.order(:first_name, :last_name)
+      @messages = @application.message_threads
+      render :edit, status: :unprocessable_entity
+    end
+  end
+  
+  def send_message
+    @message = @application.application_messages.find(params[:message_id])
+    
+    if @message.draft? && @message.send_message!
+      redirect_to admin_application_path(@application), notice: 'Message sent successfully!'
+    else
+      redirect_to admin_application_path(@application), alert: 'Failed to send message.'
     end
   end
 
@@ -47,6 +86,19 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def set_application
     @application = Application.find(params[:id])
+  end
+  
+  def set_audit_history
+    @audit_history = @application.application_versions.includes(:user).recent.limit(50)
+  end
+  
+  def set_messages
+    @messages = @application.message_threads
+    @new_message = @application.application_messages.build
+  end
+  
+  def log_view
+    @application.log_view_by(current_user)
   end
 
   def application_params
@@ -61,5 +113,9 @@ class Admin::ApplicationsController < Admin::BaseController
       :status,
       :rejected_reason
     )
+  end
+  
+  def message_params
+    params.require(:application_message).permit(:subject, :content, :parent_message_id)
   end
 end

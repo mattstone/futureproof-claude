@@ -101,7 +101,7 @@
               <%= f.label :terms_accepted, class: "checkbox-label" do %>
                 I accept the 
                 <button type="button" class="terms-link" data-action="click->terms-modal#open">
-                  Terms of Use
+                  Terms and Conditions
                 </button>
               <% end %>
             </div>
@@ -192,7 +192,7 @@
     <div class="modal-overlay" data-terms-modal-target="overlay" data-action="click->terms-modal#close">
       <div class="modal-content" data-action="click->terms-modal#stopPropagation">
         <div class="modal-header">
-          <h2 class="modal-title">Terms of Use</h2>
+          <h2 class="modal-title">Terms and Conditions</h2>
           <button type="button" class="modal-close" data-action="click->terms-modal#close">
             <span>&times;</span>
           </button>

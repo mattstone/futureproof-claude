@@ -85,7 +85,7 @@ export default class extends Controller {
     try {
       this.contentTarget.innerHTML = '<div class="loading-spinner">Loading terms...</div>'
       
-      const response = await fetch('/terms-of-use', {
+      const response = await fetch('/terms-and-conditions', {
         headers: {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Cache-Control': 'no-cache'
@@ -133,9 +133,9 @@ export default class extends Controller {
           } else {
             // Fallback: just show some basic terms text
             finalContent += `
-              <h2>Terms of Use</h2>
+              <h2>Terms and Conditions</h2>
               <p>By creating an account and using our services, you agree to our terms and conditions.</p>
-              <p>For the complete terms, please <a href="/terms-of-use" target="_blank">visit our full Terms of Use page</a>.</p>
+              <p>For the complete terms, please <a href="/terms-and-conditions" target="_blank">visit our full Terms and Conditions page</a>.</p>
             `
           }
           
@@ -147,10 +147,10 @@ export default class extends Controller {
     } catch (error) {
       this.contentTarget.innerHTML = `
         <div class="error-message">
-          <h3>Terms of Use</h3>
+          <h3>Terms and Conditions</h3>
           <p>By creating an account, you agree to our terms and conditions.</p>
           <p>Sorry, we couldn't load the full terms at this time.</p>
-          <p>Please <a href="/terms-of-use" target="_blank">click here to view them in a new tab</a>.</p>
+          <p>Please <a href="/terms-and-conditions" target="_blank">click here to view them in a new tab</a>.</p>
         </div>
       `
     }

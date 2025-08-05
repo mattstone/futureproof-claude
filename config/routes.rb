@@ -16,7 +16,12 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :users
     resources :mortgages
-    resources :applications
+    resources :applications do
+      member do
+        post :create_message
+        patch :send_message
+      end
+    end
     resources :terms_of_uses, except: [:destroy] do
       member do
         patch :activate
@@ -31,6 +36,22 @@ Rails.application.routes.draw do
       end
       collection do
         post :preview
+      end
+    end
+    resources :terms_and_conditions, except: [:destroy] do
+      member do
+        patch :activate
+      end
+      collection do
+        post :preview
+      end
+    end
+    resources :email_templates, except: [:destroy] do
+      member do
+        patch :activate
+        patch :deactivate
+        get :preview
+        post :test_email
       end
     end
     root "applications#index"
@@ -54,6 +75,7 @@ Rails.application.routes.draw do
   # Legal pages
   get "privacy-policy", to: "pages#privacy_policy"
   get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
+  get "terms-and-conditions", to: "pages#terms_and_conditions", as: :terms_and_conditions
   
   # Apply page
   get "apply", to: "pages#apply"
@@ -70,6 +92,8 @@ Rails.application.routes.draw do
       get :summary
       patch :submit
       get :congratulations
+      get :messages
+      post :reply_to_message
     end
   end
 

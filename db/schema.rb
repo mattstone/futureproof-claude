@@ -10,9 +10,50 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_213804) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "application_messages", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "sender_type", null: false
+    t.bigint "sender_id", null: false
+    t.string "message_type"
+    t.string "subject"
+    t.text "content"
+    t.string "status"
+    t.datetime "sent_at"
+    t.datetime "read_at"
+    t.bigint "parent_message_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_application_messages_on_application_id"
+    t.index ["parent_message_id"], name: "index_application_messages_on_parent_message_id"
+    t.index ["sender_type", "sender_id"], name: "index_application_messages_on_sender"
+  end
+
+  create_table "application_versions", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.integer "previous_status"
+    t.integer "new_status"
+    t.text "previous_address"
+    t.text "new_address"
+    t.bigint "previous_home_value"
+    t.bigint "new_home_value"
+    t.bigint "previous_existing_mortgage_amount"
+    t.bigint "new_existing_mortgage_amount"
+    t.integer "previous_borrower_age"
+    t.integer "new_borrower_age"
+    t.integer "previous_ownership_status"
+    t.integer "new_ownership_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_application_versions_on_application_id"
+    t.index ["user_id"], name: "index_application_versions_on_user_id"
+  end
 
   create_table "applications", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -36,6 +77,52 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_213804) do
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "email_template_versions", force: :cascade do |t|
+    t.bigint "email_template_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.string "previous_subject"
+    t.string "new_subject"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_template_id"], name: "index_email_template_versions_on_email_template_id"
+    t.index ["user_id"], name: "index_email_template_versions_on_user_id"
+  end
+
+  create_table "email_templates", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "subject", null: false
+    t.text "content", null: false
+    t.string "template_type", null: false
+    t.boolean "is_active", default: true, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["is_active"], name: "index_email_templates_on_is_active"
+    t.index ["name"], name: "index_email_templates_on_name", unique: true
+    t.index ["template_type"], name: "index_email_templates_on_template_type"
+  end
+
+  create_table "mortgage_versions", force: :cascade do |t|
+    t.bigint "mortgage_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.text "previous_name"
+    t.text "new_name"
+    t.integer "previous_mortgage_type"
+    t.integer "new_mortgage_type"
+    t.decimal "previous_lvr", precision: 5, scale: 2
+    t.decimal "new_lvr", precision: 5, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mortgage_id"], name: "index_mortgage_versions_on_mortgage_id"
+    t.index ["user_id"], name: "index_mortgage_versions_on_user_id"
   end
 
   create_table "mortgages", force: :cascade do |t|
@@ -67,6 +154,34 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_213804) do
     t.datetime "updated_at", null: false
     t.index ["privacy_policy_id"], name: "index_privacy_policy_versions_on_privacy_policy_id"
     t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
+  end
+
+  create_table "terms_and_condition_versions", force: :cascade do |t|
+    t.bigint "terms_and_condition_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["terms_and_condition_id"], name: "index_terms_and_condition_versions_on_terms_and_condition_id"
+    t.index ["user_id"], name: "index_terms_and_condition_versions_on_user_id"
+  end
+
+  create_table "terms_and_conditions", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "content", null: false
+    t.integer "version", null: false
+    t.datetime "last_updated", null: false
+    t.boolean "is_active", default: false, null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_terms_and_conditions_on_created_by_id"
+    t.index ["is_active"], name: "index_terms_and_conditions_on_is_active"
+    t.index ["last_updated"], name: "index_terms_and_conditions_on_last_updated"
+    t.index ["version"], name: "index_terms_and_conditions_on_version", unique: true
   end
 
   create_table "terms_of_use_versions", force: :cascade do |t|
@@ -128,10 +243,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_213804) do
     t.index ["terms_version"], name: "index_users_on_terms_version"
   end
 
+  add_foreign_key "application_messages", "application_messages", column: "parent_message_id"
+  add_foreign_key "application_messages", "applications"
+  add_foreign_key "application_versions", "applications"
+  add_foreign_key "application_versions", "users"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
+  add_foreign_key "email_template_versions", "email_templates"
+  add_foreign_key "email_template_versions", "users"
+  add_foreign_key "mortgage_versions", "mortgages"
+  add_foreign_key "mortgage_versions", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "terms_and_condition_versions", "terms_and_conditions"
+  add_foreign_key "terms_and_condition_versions", "users"
+  add_foreign_key "terms_and_conditions", "users", column: "created_by_id"
   add_foreign_key "terms_of_use_versions", "terms_of_uses"
   add_foreign_key "terms_of_use_versions", "users"
 end

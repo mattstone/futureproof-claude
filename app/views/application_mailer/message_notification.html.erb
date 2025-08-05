@@ -1,0 +1,77 @@
+<div style="text-align: center; margin-bottom: 32px;">
+  <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">📧 New Message from Futureproof</h1>
+</div>
+
+<div style="text-align: center; margin-bottom: 24px;">
+  <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear <%= @user.first_name %>,</p>
+  
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px auto; width: 60%;">
+  
+  <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px;">
+    You have received a new message from <%= @sender.display_name %> regarding your Equity Preservation Mortgage® application.
+  </p>
+</div>
+
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+  <tr>
+    <td align="center" style="padding: 0;">
+      <table role="presentation" style="background-color: #f0f9ff; border: 2px solid #0891b2; border-radius: 8px; padding: 24px; margin: 0 auto; max-width: 500px;">
+        <tr>
+          <td style="padding: 0;">
+            <h3 style="color: #0891b2; margin: 0 0 16px 0; font-size: 18px;">Message Details</h3>
+            
+            <div style="margin-bottom: 16px;">
+              <strong style="color: #374151;">Subject:</strong><br>
+              <span style="color: #6b7280;"><%= @message.subject %></span>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <strong style="color: #374151;">From:</strong><br>
+              <span style="color: #6b7280;"><%= @sender.display_name %> (Admin)</span>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <strong style="color: #374151;">Message:</strong><br>
+              <div style="background: white; padding: 16px; border-radius: 4px; margin-top: 8px; color: #374151;">
+                <%= @message.content_html %>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<div style="text-align: center; margin: 32px 0;">
+  <table role="presentation" style="margin: 0 auto;">
+    <tr>
+      <td style="padding: 0;">
+        <a href="<%= @application_link %>" 
+           style="background-color: #0891b2; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;">
+          View Application & Reply
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div style="text-align: center; margin: 32px 0;">
+  <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; max-width: 400px; margin: 0 auto;">
+    <h3 style="color: #d97706; margin: 0 0 12px 0; font-size: 16px;">Important</h3>
+    <p style="margin: 0; color: #92400e; font-size: 14px;">
+      Please log in to your account to view the full message and reply. This link will take you directly to your application.
+    </p>
+  </div>
+</div>
+
+<div style="text-align: center; margin: 32px 0;">
+  <div style="background-color: #e3f2fd; border-radius: 8px; padding: 20px; max-width: 300px; margin: 0 auto;">
+    <h3 style="color: #0891b2; margin: 0 0 12px 0; font-size: 16px;">Need Help?</h3>
+    <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">Questions about your application?</p>
+    <p style="margin: 0; color: #374151; font-size: 14px;">
+      <strong>Email:</strong> info@futureprooffinancial.co<br>
+      <strong>Phone:</strong> 1300 XXX XXX
+    </p>
+  </div>
+</div>

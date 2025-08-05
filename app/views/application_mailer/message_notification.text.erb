@@ -1,0 +1,29 @@
+NEW MESSAGE FROM FUTUREPROOF FINANCIAL
+
+Dear <%= @user.first_name %>,
+
+You have received a new message from <%= @sender.display_name %> regarding your reverse mortgage application.
+
+APPLICATION: #<%= @application.id %> - <%= @application.address %>
+
+SUBJECT: <%= @message.subject %>
+
+MESSAGE:
+<%= @message.content %>
+
+FROM: <%= @sender.display_name %> (Admin)
+
+---
+
+To view this message and reply, please visit:
+<%= @application_link %>
+
+Note: This secure link will expire in 24 hours. If the link has expired, you can log in to your account at <%= dashboard_url %> to view your messages.
+
+Need help? Contact us at info@futureprooffinancial.co
+
+---
+Futureproof Financial
+info@futureprooffinancial.co
+
+This email was sent to <%= @user.email %> regarding your reverse mortgage application.

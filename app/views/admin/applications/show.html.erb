@@ -10,51 +10,190 @@
   </div>
 </div>
 
-<div class="admin-form">
-  <div class="application-header">
-    <h2>Application #<%= @application.id %></h2>
-    <div class="application-status">
-      <%= render 'status_badge', application: @application %>
-    </div>
-  </div>
-  
-  <div class="application-details">
-    <div class="detail-row">
-      <strong>User:</strong>
-      <div>
-        <%= @application.user.display_name %>
-        <br>
-        <small style="color: #6b7280;"><%= @application.user.email %></small>
-        <br>
-        <%= link_to "View User", admin_user_path(@application.user), class: "admin-link" %>
+<div class="admin-two-column-layout">
+  <!-- Left Column - Application Details and Change History Only -->
+  <div class="admin-left-column">
+    <!-- Application Details Section -->
+    <div class="admin-form">
+      <div class="application-header">
+        <h2>Application #<%= @application.id %></h2>
+        <div class="application-status">
+          <%= render 'status_badge', application: @application %>
+        </div>
+      </div>
+      
+      <div class="application-details">
+        <div class="detail-row">
+          <strong>User:</strong>
+          <div>
+            <%= @application.user.display_name %>
+            <br>
+            <small style="color: #6b7280;"><%= @application.user.email %></small>
+            <br>
+            <%= link_to "View User", admin_user_path(@application.user), class: "admin-link" %>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Address:</strong>
+          <%= @application.address %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Home Value:</strong>
+          <span class="admin-badge admin-badge-user">
+            <%= @application.formatted_home_value %>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Created:</strong>
+          <%= @application.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Last Updated:</strong>
+          <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+        </div>
       </div>
     </div>
-    
-    <div class="detail-row">
-      <strong>Address:</strong>
-      <%= @application.address %>
+
+    <!-- Change History Section (Left Column Only) -->
+    <div class="admin-form change-history-section">
+      <h3>Application Change History</h3>
+      <p class="section-subtitle">Track all modifications and views of this application</p>
+      
+      <% if @audit_history.any? %>
+        <div class="change-history-list">
+          <% @audit_history.each do |version| %>
+            <div class="change-entry">
+              <div class="change-header">
+                <div class="change-info">
+                  <strong><%= version.user.display_name %></strong>
+                  <span class="change-action"><%= version.action_description %></span>
+                  <time class="change-time"><%= version.formatted_created_at %></time>
+                </div>
+              </div>
+              
+              <% if version.change_details.present? %>
+                <div class="change-details">
+                  <%= version.change_details %>
+                </div>
+              <% end %>
+              
+              <% if version.has_field_changes? %>
+                <div class="change-content">
+                  <details class="change-diff">
+                    <summary>View Changes</summary>
+                    
+                    <div class="field-changes">
+                      <% version.detailed_changes.each do |change| %>
+                        <div class="field-change">
+                          <strong><%= change[:field] %>:</strong>
+                          <div class="change-comparison">
+                            <div class="change-from">- <%= change[:from] %></div>
+                            <div class="change-to">+ <%= change[:to] %></div>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </details>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <p>No change history available yet.</p>
+        </div>
+      <% end %>
     </div>
-    
-    <div class="detail-row">
-      <strong>Home Value:</strong>
-      <span class="admin-badge admin-badge-user">
-        <%= @application.formatted_home_value %>
-      </span>
-    </div>
-    
-    <div class="detail-row">
-      <strong>Created:</strong>
-      <%= @application.created_at.strftime("%B %d, %Y at %I:%M %p") %>
-    </div>
-    
-    <div class="detail-row">
-      <strong>Last Updated:</strong>
-      <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+  </div>
+
+  <!-- Right Column - Customer Messages Only -->
+  <div class="admin-right-column">
+    <div class="admin-form messages-section">
+      <h3>Customer Messages & Communication</h3>
+      <p class="section-subtitle">All messages between admin and customer for this application</p>
+      
+      <% if @messages.any? %>
+        <div class="message-threads">
+          <% @messages.each do |message| %>
+            <div class="message-thread">
+              <div class="message-header">
+                <div class="message-info">
+                  <strong><%= message.sender_name %></strong>
+                  <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
+                  <time class="message-time"><%= message.formatted_created_at %></time>
+                </div>
+              </div>
+              
+              <div class="message-subject">
+                <strong><%= message.subject %></strong>
+              </div>
+              
+              <div class="message-content">
+                <%= message.content_html %>
+              </div>
+              
+              <% if message.replies.any? %>
+                <div class="message-replies">
+                  <h4>Replies:</h4>
+                  <% message.replies.each do |reply| %>
+                    <div class="message-reply">
+                      <div class="reply-header">
+                        <strong><%= reply.sender_name %></strong>
+                        <time><%= reply.formatted_created_at %></time>
+                      </div>
+                      <div class="reply-content">
+                        <%= reply.content_html %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+              
+              <% if message.draft? %>
+                <div class="message-actions">
+                  <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: message.id), 
+                              method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
+                              data: { confirm: "Send this message to the customer?" } %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <p>No messages yet. Go to <strong><%= link_to "Edit Application", edit_admin_application_path(@application), class: "admin-link" %></strong> to send messages to the customer.</p>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
 
 <style>
+/* Two-Column Layout CSS */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* Application Details Styles */
 .application-header {
   display: flex;
   justify-content: space-between;
@@ -92,5 +231,261 @@
   min-width: 120px;
   color: #374151;
   flex-shrink: 0;
+}
+
+/* Messages Section Styles */
+.messages-section, .change-history-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.messages-section h3, .change-history-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 20px;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.message-threads {
+  space: 24px;
+}
+
+.message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.message-thread:last-child {
+  margin-bottom: 0;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.message-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-status {
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.message-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.message-subject {
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.message-content {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border-left: 4px solid #0891b2;
+}
+
+.message-replies {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.message-replies h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.message-reply {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.reply-content {
+  color: #374151;
+  font-size: 14px;
+}
+
+.message-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Change History Styles */
+.change-history-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.change-entry {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.change-entry:last-child {
+  border-bottom: none;
+}
+
+.change-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.change-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.change-action {
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.change-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.change-details {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.change-diff {
+  margin-top: 12px;
+}
+
+.change-diff summary {
+  cursor: pointer;
+  color: #0891b2;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.field-changes {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.field-change {
+  margin-bottom: 12px;
+}
+
+.field-change:last-child {
+  margin-bottom: 0;
+}
+
+.field-change strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.change-comparison {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.change-from {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+}
+
+.change-to {
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .change-header, .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .change-info, .message-info {
+    flex-wrap: wrap;
+  }
 }
 </style>

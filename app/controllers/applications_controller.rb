@@ -1,6 +1,8 @@
 class ApplicationsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations]
+  before_action :authenticate_user!, except: [:messages]
+  before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
+  before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
+  before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message]
 
   def new
     # Get or create application
@@ -88,6 +90,42 @@ class ApplicationsController < ApplicationController
     # Show congratulations page after submission
   end
 
+  def messages
+    # Show messages page for customer
+    @messages = @application.message_threads
+    @new_message = @application.application_messages.build
+    
+    # Mark admin messages as read when customer views them
+    @application.application_messages.admin_messages.unread.update_all(
+      status: 'read', 
+      read_at: Time.current
+    )
+  end
+
+  def reply_to_message
+    # Customer replying to admin message
+    @message = @application.application_messages.build(reply_params)
+    @message.sender = current_user
+    @message.message_type = 'customer_to_admin'
+    @message.status = 'sent'
+    @message.sent_at = Time.current
+    
+    # If replying to a specific message, mark the parent as replied
+    if params[:parent_message_id].present?
+      parent_message = @application.application_messages.find(params[:parent_message_id])
+      parent_message.mark_as_replied!
+      @message.parent_message = parent_message
+    end
+    
+    if @message.save
+      redirect_to messages_application_path(@application), notice: 'Your reply has been sent!'
+    else
+      @messages = @application.message_threads
+      @new_message = @message
+      render :messages, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_application
@@ -117,5 +155,39 @@ class ApplicationsController < ApplicationController
       :mortgage_id,
       :growth_rate
     )
+  end
+
+  def reply_params
+    params.require(:application_message).permit(:subject, :content, :parent_message_id)
+  end
+  
+  def verify_secure_token
+    return unless params[:token].present?
+    
+    begin
+      # Decrypt and verify the secure token
+      payload = Rails.application.message_encryptor(:secure_tokens).decrypt_and_verify(params[:token])
+      
+      # Check if token has expired
+      if payload['expires_at'] < Time.current.to_i
+        redirect_to new_user_session_path, alert: 'This link has expired. Please log in to access your messages.'
+        return
+      end
+      
+      # Verify the application and user match
+      application = Application.find_by(id: payload['application_id'])
+      user = User.find_by(id: payload['user_id'])
+      
+      unless application && user && application.user == user
+        redirect_to new_user_session_path, alert: 'Invalid access link. Please log in to continue.'
+        return
+      end
+      
+      # Temporarily sign in the user for this request
+      sign_in(user, scope: :user)
+      
+    rescue ActiveSupport::MessageEncryptor::InvalidMessage, ActiveSupport::MessageVerifier::InvalidSignature
+      redirect_to new_user_session_path, alert: 'Invalid access link. Please log in to continue.'
+    end
   end
 end

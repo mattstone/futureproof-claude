@@ -1,5 +1,6 @@
 class Admin::MortgagesController < Admin::BaseController
   before_action :set_mortgage, only: [:show, :edit, :update, :destroy]
+  before_action :set_audit_history, only: [:show]
 
   def index
     @mortgages = Mortgage.all.order(:name)
@@ -16,6 +17,7 @@ class Admin::MortgagesController < Admin::BaseController
 
   def create
     @mortgage = Mortgage.new(mortgage_params)
+    @mortgage.current_user = current_user # Track who created it
     
     if @mortgage.save
       redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage was successfully created.'
@@ -28,6 +30,7 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def update
+    @mortgage.current_user = current_user # Track who updated it
     if @mortgage.update(mortgage_params)
       redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage was successfully updated.'
     else
@@ -46,7 +49,11 @@ class Admin::MortgagesController < Admin::BaseController
     @mortgage = Mortgage.find(params[:id])
   end
 
+  def set_audit_history
+    @audit_history = @mortgage.mortgage_versions.includes(:user).recent.limit(50)
+  end
+
   def mortgage_params
-    params.require(:mortgage).permit(:name, :mortgage_type)
+    params.require(:mortgage).permit(:name, :mortgage_type, :lvr)
   end
 end
