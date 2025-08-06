@@ -98,7 +98,10 @@ class Admin::EmailTemplatesController < ApplicationController
     
     respond_to do |format|
       format.html { 
-        render html: rendered[:content].html_safe, layout: 'layouts/mailer' 
+        # Set instance variables for mailer layout
+        @email_content = rendered[:content].html_safe
+        @email_title = rendered[:subject]
+        render template: 'admin/email_templates/preview', layout: 'mailer'
       }
       format.json { 
         render json: { 
@@ -107,6 +110,61 @@ class Admin::EmailTemplatesController < ApplicationController
         } 
       }
     end
+  end
+
+  def preview_ajax
+    # AJAX endpoint for live preview in the editor
+    template_type = params[:template_type]
+    content = params[:content]
+    subject = params[:subject]
+    use_sample_data = params[:use_sample_data] == 'true'
+    
+    return render json: { error: 'Missing parameters' }, status: :bad_request if content.blank?
+    
+    # Create a temporary template object for rendering
+    temp_template = EmailTemplate.new(
+      template_type: template_type || 'verification',
+      content: content,
+      subject: subject || 'Preview Subject'
+    )
+    
+    # Create sample data if requested
+    preview_data = {}
+    if use_sample_data
+      user = current_user
+      application = Application.joins(:user, :mortgage).first
+      mortgage = application&.mortgage || Mortgage.first
+      
+      case template_type
+      when 'verification'
+        preview_data = {
+          user: user,
+          verification_code: '123456',
+          expires_at: 15.minutes.from_now
+        }
+      when 'application_submitted'
+        preview_data = {
+          user: user,
+          application: application || create_sample_application(user, mortgage),
+          mortgage: mortgage
+        }
+      when 'security_notification'
+        preview_data = {
+          user: user,
+          browser_info: 'Chrome 120.0 on macOS',
+          ip_address: '192.168.1.1',
+          location: 'Sydney, Australia',
+          sign_in_time: Time.current
+        }
+      end
+    end
+    
+    rendered = temp_template.render_content(preview_data)
+    
+    render json: {
+      subject: rendered[:subject],
+      content: rendered[:content]
+    }
   end
 
   def test_email

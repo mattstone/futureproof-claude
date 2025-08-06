@@ -53,6 +53,9 @@ Rails.application.routes.draw do
         get :preview
         post :test_email
       end
+      collection do
+        post :preview_ajax
+      end
     end
     root "applications#index"
   end

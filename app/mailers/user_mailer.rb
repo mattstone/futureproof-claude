@@ -18,11 +18,15 @@ class UserMailer < ApplicationMailer
         expires_at: user.verification_code_expires_at
       })
       
+      # Set instance variables for layout
+      @email_content = rendered[:content].html_safe
+      @email_title = rendered[:subject]
+      
       mail(
         to: user.email,
         subject: rendered[:subject]
       ) do |format|
-        format.html { render html: rendered[:content].html_safe }
+        format.html { render inline: @email_content, layout: 'mailer' }
       end
     else
       # Fallback to original template
@@ -52,11 +56,15 @@ class UserMailer < ApplicationMailer
         sign_in_time: Time.current
       })
       
+      # Set instance variables for layout
+      @email_content = rendered[:content].html_safe
+      @email_title = rendered[:subject]
+      
       mail(
         to: user.email,
         subject: rendered[:subject]
       ) do |format|
-        format.html { render html: rendered[:content].html_safe }
+        format.html { render inline: @email_content, layout: 'mailer' }
       end
     else
       # Fallback to original template
@@ -80,11 +88,15 @@ class UserMailer < ApplicationMailer
         mortgage: @application.mortgage
       })
       
+      # Set instance variables for layout
+      @email_content = rendered[:content].html_safe
+      @email_title = rendered[:subject]
+      
       mail(
         to: @user.email,
         subject: rendered[:subject]
       ) do |format|
-        format.html { render html: rendered[:content].html_safe }
+        format.html { render inline: @email_content, layout: 'mailer' }
       end
     else
       # Fallback to original template

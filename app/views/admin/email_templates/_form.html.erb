@@ -261,14 +261,43 @@ document.addEventListener('DOMContentLoaded', function() {
       content = markupToHtml(markupContent.value);
     }
     
-    // Replace field placeholders if sample data is enabled
-    if (useSampleData) {
-      subject = replaceFieldPlaceholders(subject, templateType);
-      content = replaceFieldPlaceholders(content, templateType);
+    // If we have content and template type, make AJAX call for server-side rendering
+    if (content.trim() && templateType) {
+      const formData = new FormData();
+      formData.append('template_type', templateType);
+      formData.append('content', content);
+      formData.append('subject', subject);
+      formData.append('use_sample_data', useSampleData);
+      
+      fetch('<%= preview_ajax_admin_email_templates_path %>', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          console.error('Preview error:', data.error);
+          document.getElementById('subject-preview').textContent = subject || 'No subject entered';
+          document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
+        } else {
+          document.getElementById('subject-preview').textContent = data.subject || 'No subject entered';
+          document.getElementById('email-content-preview').innerHTML = data.content || '<p class="text-muted">No content entered</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Preview error:', error);
+        // Fallback to client-side preview
+        document.getElementById('subject-preview').textContent = subject || 'No subject entered';
+        document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
+      });
+    } else {
+      // Fallback to simple client-side preview
+      document.getElementById('subject-preview').textContent = subject || 'No subject entered';
+      document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
     }
-    
-    document.getElementById('subject-preview').textContent = subject || 'No subject entered';
-    document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
   }
   
   function updateFieldHelper() {
