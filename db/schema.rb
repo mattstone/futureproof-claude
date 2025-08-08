@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_220814) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "ai_agents", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "agent_type", null: false
+    t.text "description"
+    t.string "avatar_filename", null: false
+    t.boolean "is_active", default: true
+    t.string "role_title"
+    t.text "specialties"
+    t.string "greeting_style"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_type"], name: "index_ai_agents_on_agent_type"
+    t.index ["is_active"], name: "index_ai_agents_on_is_active"
+  end
 
   create_table "application_messages", force: :cascade do |t|
     t.bigint "application_id", null: false
@@ -27,6 +42,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
     t.bigint "parent_message_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "ai_agent_id"
+    t.index ["ai_agent_id"], name: "index_application_messages_on_ai_agent_id"
     t.index ["application_id"], name: "index_application_messages_on_application_id"
     t.index ["parent_message_id"], name: "index_application_messages_on_parent_message_id"
     t.index ["sender_type", "sender_id"], name: "index_application_messages_on_sender"
@@ -212,6 +229,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
     t.index ["version"], name: "index_terms_of_uses_on_version"
   end
 
+  create_table "user_versions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.string "previous_first_name"
+    t.string "new_first_name"
+    t.string "previous_last_name"
+    t.string "new_last_name"
+    t.string "previous_email"
+    t.string "new_email"
+    t.boolean "previous_admin"
+    t.boolean "new_admin"
+    t.string "previous_country_of_residence"
+    t.string "new_country_of_residence"
+    t.string "previous_mobile_number"
+    t.string "new_mobile_number"
+    t.string "previous_mobile_country_code"
+    t.string "new_mobile_country_code"
+    t.integer "previous_terms_version"
+    t.integer "new_terms_version"
+    t.datetime "previous_confirmed_at"
+    t.datetime "new_confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_user_versions_on_admin_user_id"
+    t.index ["user_id"], name: "index_user_versions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -243,6 +289,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
     t.index ["terms_version"], name: "index_users_on_terms_version"
   end
 
+  add_foreign_key "application_messages", "ai_agents"
   add_foreign_key "application_messages", "application_messages", column: "parent_message_id"
   add_foreign_key "application_messages", "applications"
   add_foreign_key "application_versions", "applications"
@@ -260,4 +307,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_05_092756) do
   add_foreign_key "terms_and_conditions", "users", column: "created_by_id"
   add_foreign_key "terms_of_use_versions", "terms_of_uses"
   add_foreign_key "terms_of_use_versions", "users"
+  add_foreign_key "user_versions", "users"
+  add_foreign_key "user_versions", "users", column: "admin_user_id"
 end

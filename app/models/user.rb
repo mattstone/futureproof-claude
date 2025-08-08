@@ -7,9 +7,17 @@ class User < ApplicationRecord
   # Associations
   has_many :applications, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
+  has_many :user_versions, dependent: :destroy
 
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value
+  
+  # Track changes with audit functionality
+  attr_accessor :current_admin_user
+  
+  # Callbacks for change tracking
+  after_create :log_creation
+  after_update :log_update
 
   # Validations
   validates :first_name, presence: true, length: { maximum: 50 }
@@ -175,8 +183,116 @@ class User < ApplicationRecord
     return false if current_terms.blank?
     terms_version == current_terms.version
   end
+  
+  # Log when admin views user profile
+  def log_view_by(admin_user)
+    return unless admin_user&.admin?
+    
+    user_versions.create!(
+      admin_user: admin_user,
+      action: 'viewed',
+      change_details: "Admin #{admin_user.display_name} viewed user profile"
+    )
+  end
 
   private
+  
+  def log_creation
+    return unless current_admin_user&.admin?
+    
+    user_versions.create!(
+      admin_user: current_admin_user,
+      action: 'created',
+      change_details: "Created user account for #{display_name}",
+      new_first_name: first_name,
+      new_last_name: last_name,
+      new_email: email,
+      new_admin: admin,
+      new_country_of_residence: country_of_residence,
+      new_mobile_number: mobile_number,
+      new_mobile_country_code: mobile_country_code,
+      new_terms_version: terms_version,
+      new_confirmed_at: confirmed_at
+    )
+  end
+  
+  def log_update
+    return unless current_admin_user&.admin?
+    return unless saved_changes.any?
+    
+    # Special handling for admin role changes
+    if saved_change_to_admin?
+      action = admin? ? 'admin_promoted' : 'admin_demoted'
+      change_details = admin? ? "Promoted #{display_name} to admin" : "Removed admin privileges from #{display_name}"
+    elsif saved_change_to_confirmed_at?
+      action = 'confirmed'
+      change_details = "Confirmed user account for #{display_name}"
+    else
+      action = 'updated'
+      change_details = build_change_summary
+    end
+    
+    user_versions.create!(
+      admin_user: current_admin_user,
+      action: action,
+      change_details: change_details,
+      previous_first_name: saved_change_to_first_name ? saved_change_to_first_name[0] : nil,
+      new_first_name: saved_change_to_first_name ? saved_change_to_first_name[1] : nil,
+      previous_last_name: saved_change_to_last_name ? saved_change_to_last_name[0] : nil,
+      new_last_name: saved_change_to_last_name ? saved_change_to_last_name[1] : nil,
+      previous_email: saved_change_to_email ? saved_change_to_email[0] : nil,
+      new_email: saved_change_to_email ? saved_change_to_email[1] : nil,
+      previous_admin: saved_change_to_admin ? saved_change_to_admin[0] : nil,
+      new_admin: saved_change_to_admin ? saved_change_to_admin[1] : nil,
+      previous_country_of_residence: saved_change_to_country_of_residence ? saved_change_to_country_of_residence[0] : nil,
+      new_country_of_residence: saved_change_to_country_of_residence ? saved_change_to_country_of_residence[1] : nil,
+      previous_mobile_number: saved_change_to_mobile_number ? saved_change_to_mobile_number[0] : nil,
+      new_mobile_number: saved_change_to_mobile_number ? saved_change_to_mobile_number[1] : nil,
+      previous_mobile_country_code: saved_change_to_mobile_country_code ? saved_change_to_mobile_country_code[0] : nil,
+      new_mobile_country_code: saved_change_to_mobile_country_code ? saved_change_to_mobile_country_code[1] : nil,
+      previous_terms_version: saved_change_to_terms_version ? saved_change_to_terms_version[0] : nil,
+      new_terms_version: saved_change_to_terms_version ? saved_change_to_terms_version[1] : nil,
+      previous_confirmed_at: saved_change_to_confirmed_at ? saved_change_to_confirmed_at[0] : nil,
+      new_confirmed_at: saved_change_to_confirmed_at ? saved_change_to_confirmed_at[1] : nil
+    )
+  end
+  
+  def build_change_summary
+    changes_list = []
+    
+    if saved_change_to_first_name?
+      changes_list << "First name changed from '#{saved_change_to_first_name[0]}' to '#{saved_change_to_first_name[1]}'"
+    end
+    
+    if saved_change_to_last_name?
+      changes_list << "Last name changed from '#{saved_change_to_last_name[0]}' to '#{saved_change_to_last_name[1]}'"
+    end
+    
+    if saved_change_to_email?
+      changes_list << "Email changed from '#{saved_change_to_email[0]}' to '#{saved_change_to_email[1]}'"
+    end
+    
+    if saved_change_to_country_of_residence?
+      changes_list << "Country changed from '#{saved_change_to_country_of_residence[0]}' to '#{saved_change_to_country_of_residence[1]}'"
+    end
+    
+    if saved_change_to_mobile_number?
+      old_mobile = format_mobile_change(saved_change_to_mobile_country_code ? saved_change_to_mobile_country_code[0] : mobile_country_code, saved_change_to_mobile_number[0])
+      new_mobile = format_mobile_change(mobile_country_code, saved_change_to_mobile_number[1])
+      changes_list << "Mobile number changed from '#{old_mobile}' to '#{new_mobile}'"
+    end
+    
+    if saved_change_to_terms_version?
+      changes_list << "Terms version changed from #{saved_change_to_terms_version[0]} to #{saved_change_to_terms_version[1]}"
+    end
+    
+    changes_list.join("; ")
+  end
+  
+  def format_mobile_change(country_code, number)
+    return number || '' unless country_code.present?
+    "#{country_code} #{number}"
+  end
 
   def valid_mobile_phone_number
     return if mobile_number.blank? # Skip validation if mobile number is blank

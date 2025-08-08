@@ -29,9 +29,14 @@ if Rails.env.development?
     end
 
     # Required methods for TaggedLogging compatibility
+    # CRITICAL: This method must handle both block and non-block cases
+    # to prevent LocalJumpError (no block given) when Rails calls tagged() without a block
     def tagged(*tags)
-      @original_formatter.tagged(*tags) if @original_formatter.respond_to?(:tagged)
-      yield
+      if @original_formatter.respond_to?(:tagged)
+        @original_formatter.tagged(*tags) { yield if block_given? }
+      elsif block_given?
+        yield
+      end
     end
 
     def push_tags(*tags)

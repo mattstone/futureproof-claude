@@ -1,6 +1,7 @@
 class ApplicationMessage < ApplicationRecord
   belongs_to :application
   belongs_to :sender, polymorphic: true
+  belongs_to :ai_agent, optional: true
   belongs_to :parent_message, class_name: 'ApplicationMessage', optional: true
   has_many :replies, class_name: 'ApplicationMessage', foreign_key: 'parent_message_id', dependent: :destroy
   
@@ -108,18 +109,47 @@ class ApplicationMessage < ApplicationRecord
     read_at&.strftime("%B %d, %Y at %I:%M %p")
   end
   
-  # Get sender display name
+  # Get sender display name - show AI agent if present, otherwise actual sender
   def sender_name
-    case sender
-    when User
-      if sender.admin?
-        "#{sender.display_name} (Admin)"
-      else
-        sender.display_name
-      end
+    if ai_agent.present? && from_admin?
+      ai_agent.display_name
     else
-      sender.try(:display_name) || sender.try(:name) || 'Unknown'
+      case sender
+      when User
+        if sender.admin?
+          "#{sender.display_name} (Admin)"
+        else
+          sender.display_name
+        end
+      else
+        sender.try(:display_name) || sender.try(:name) || 'Unknown'
+      end
     end
+  end
+  
+  # Get sender avatar - show AI agent avatar if present
+  def sender_avatar_path
+    if ai_agent.present? && from_admin?
+      ai_agent.avatar_path
+    else
+      nil # Could add user avatars later
+    end
+  end
+  
+  # Get sender role/title
+  def sender_role
+    if ai_agent.present? && from_admin?
+      ai_agent.role_description
+    elsif sender.is_a?(User) && sender.admin?
+      'Administrator'
+    else
+      'Customer'
+    end
+  end
+  
+  # Check if message appears to be from AI agent
+  def from_ai_agent?
+    ai_agent.present? && from_admin?
   end
   
   # Get count of unread customer messages for this application

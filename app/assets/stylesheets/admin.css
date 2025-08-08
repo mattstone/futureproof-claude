@@ -31,11 +31,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: white;
 }
 
 .admin-brand-link {
   text-decoration: none;
-  color: white;
+  color: #1e293b;
 }
 
 .admin-brand h2 {

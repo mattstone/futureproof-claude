@@ -6,11 +6,20 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def index
     @applications = Application.includes(:user, :application_messages).recent
+    
+    # Search filter
     @applications = @applications.joins(:user).where(
       "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?", 
       "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
     ) if params[:search].present?
+    
+    # Status filter
+    @applications = @applications.where(status: params[:status]) if params[:status].present?
+    
     @applications = @applications.page(params[:page]).per(10)
+    
+    # For the status filter dropdown
+    @status_options = Application.statuses.map { |key, value| [key.humanize, key] }
   end
 
   def show
@@ -95,6 +104,9 @@ class Admin::ApplicationsController < Admin::BaseController
   def set_messages
     @messages = @application.message_threads
     @new_message = @application.application_messages.build
+    @ai_agents = AiAgent.active.order(:name)
+    # Suggest default agent based on application context
+    @suggested_agent = AiAgent.suggest_for_application(@application)
   end
   
   def log_view
@@ -116,6 +128,6 @@ class Admin::ApplicationsController < Admin::BaseController
   end
   
   def message_params
-    params.require(:application_message).permit(:subject, :content, :parent_message_id)
+    params.require(:application_message).permit(:subject, :content, :parent_message_id, :ai_agent_id)
   end
 end

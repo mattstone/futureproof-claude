@@ -1,0 +1,678 @@
+<% content_for :page_title, "Back Office Dashboard" %>
+
+<!-- Key Metrics Cards -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon user-icon">👥</div>
+    <div class="metric-content">
+      <h3><%= number_with_delimiter(@total_users) %></h3>
+      <p>Total Users</p>
+      <span class="metric-change">+<%= @new_users_this_month %> this month</span>
+    </div>
+  </div>
+  
+  <div class="metric-card">
+    <div class="metric-icon active-icon">✅</div>
+    <div class="metric-content">
+      <h3><%= number_with_delimiter(@active_users) %></h3>
+      <p>Active Users</p>
+      <span class="metric-percentage"><%= (@total_users > 0 ? (@active_users.to_f / @total_users * 100).round(1) : 0) %>% of total</span>
+    </div>
+  </div>
+  
+  <div class="metric-card">
+    <div class="metric-icon app-icon">📋</div>
+    <div class="metric-content">
+      <h3><%= number_with_delimiter(@total_applications) %></h3>
+      <p>Total Applications</p>
+      <span class="metric-change">+<%= @new_applications_this_month %> this month</span>
+    </div>
+  </div>
+  
+  <div class="metric-card">
+    <div class="metric-icon success-icon">🎉</div>
+    <div class="metric-content">
+      <h3><%= number_with_delimiter(@accepted_applications) %></h3>
+      <p>Accepted Applications</p>
+      <span class="metric-percentage"><%= (@total_applications > 0 ? (@accepted_applications.to_f / @total_applications * 100).round(1) : 0) %>% acceptance rate</span>
+    </div>
+  </div>
+</div>
+
+<!-- Growth Charts -->
+<div class="dashboard-grid">
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Application Growth (Last 6 Months)</h3>
+    </div>
+    <div class="card-content">
+      <div class="growth-chart">
+        <% max_value = [@application_growth_data.values.max, 1].max %>
+        <% @application_growth_data.each do |month, count| %>
+          <div class="growth-bar">
+            <div class="growth-fill" style="height: <%= (count.to_f / max_value * 100).round(1) %>%"></div>
+            <div class="growth-label">
+              <span><%= month %></span>
+              <strong><%= count %></strong>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Conversion Rate (Last 6 Months)</h3>
+      <small style="color: #6b7280; font-weight: normal;">% of new users who submit applications</small>
+    </div>
+    <div class="card-content">
+      <div class="growth-chart conversion-chart">
+        <% max_value = [@conversion_growth_data.values.max, 100].max %>
+        <% @conversion_growth_data.each do |month, rate| %>
+          <div class="growth-bar">
+            <div class="growth-fill conversion-fill" style="height: <%= (rate.to_f / max_value * 100).round(1) %>%"></div>
+            <div class="growth-label">
+              <span><%= month %></span>
+              <strong><%= rate %>%</strong>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity and Quick Access -->
+<div class="dashboard-grid">
+  <!-- Recent Applications -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Recent Applications</h3>
+      <%= link_to "View All", admin_applications_path, class: "card-action-link" %>
+    </div>
+    <div class="card-content">
+      <% if @recent_applications.any? %>
+        <div class="recent-list">
+          <% @recent_applications.each do |application| %>
+            <div class="recent-item">
+              <div class="recent-info">
+                <strong><%= link_to application.user.display_name, admin_application_path(application) %></strong>
+                <p><%= application.display_address %></p>
+                <span class="recent-time"><%= time_ago_in_words(application.updated_at) %> ago</span>
+              </div>
+              <div class="recent-status">
+                <span class="status-badge status-<%= application.status %>"><%= application.status.humanize %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="no-data">No recent applications</p>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Recent Users -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Recent Users</h3>
+      <%= link_to "View All", admin_users_path, class: "card-action-link" %>
+    </div>
+    <div class="card-content">
+      <% if @recent_users.any? %>
+        <div class="recent-list">
+          <% @recent_users.each do |user| %>
+            <div class="recent-item">
+              <div class="recent-info">
+                <strong><%= link_to user.display_name, admin_user_path(user) %></strong>
+                <p><%= user.email %></p>
+                <span class="recent-time"><%= time_ago_in_words(user.created_at) %> ago</span>
+              </div>
+              <div class="recent-status">
+                <% if user.admin? %>
+                  <span class="status-badge status-admin">Admin</span>
+                <% elsif user.confirmed? %>
+                  <span class="status-badge status-active">Active</span>
+                <% else %>
+                  <span class="status-badge status-pending">Pending</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="no-data">No recent users</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Charts and Status Overview -->
+<div class="dashboard-grid">
+  <!-- Application Status Distribution -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Application Status Distribution</h3>
+    </div>
+    <div class="card-content">
+      <div class="status-chart">
+        <% @status_distribution.each do |status, count| %>
+          <div class="status-bar">
+            <div class="status-label">
+              <span><%= status %></span>
+              <strong><%= count %></strong>
+            </div>
+            <div class="status-progress">
+              <div class="status-fill" style="width: <%= @total_applications > 0 ? (count.to_f / @total_applications * 100).round(1) : 0 %>%"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- User Activity Summary -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>User Activity Summary</h3>
+    </div>
+    <div class="card-content">
+      <div class="activity-stats">
+        <div class="activity-stat">
+          <div class="stat-number"><%= @pending_users %></div>
+          <div class="stat-label">Pending Confirmation</div>
+        </div>
+        <div class="activity-stat">
+          <div class="stat-number"><%= @admin_users %></div>
+          <div class="stat-label">Admin Users</div>
+        </div>
+        <div class="activity-stat">
+          <div class="stat-number"><%= @submitted_applications %></div>
+          <div class="stat-label">Submitted Apps</div>
+        </div>
+        <div class="activity-stat">
+          <div class="stat-number"><%= @draft_applications %></div>
+          <div class="stat-label">Draft Apps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity Feed -->
+<div class="dashboard-card full-width">
+  <div class="card-header">
+    <h3>Recent Activity</h3>
+    <p class="activity-subtitle">Latest changes and actions across the system</p>
+  </div>
+  <div class="card-content">
+    <% 
+    # Combine and sort all activities
+    all_activities = []
+    
+    @recent_user_activity.each do |activity|
+      all_activities << {
+        type: 'user',
+        time: activity.created_at,
+        admin: activity.admin_user,
+        target: activity.user,
+        action: activity.action_description,
+        details: activity.change_details,
+        url: admin_user_path(activity.user)
+      }
+    end
+    
+    @recent_app_activity.each do |activity|
+      all_activities << {
+        type: 'application',
+        time: activity.created_at,
+        admin: activity.user,
+        target: activity.application.user,
+        action: activity.action_description,
+        details: activity.change_details,
+        url: admin_application_path(activity.application)
+      }
+    end
+    
+    all_activities = all_activities.sort_by { |a| a[:time] }.reverse.first(15)
+    %>
+    
+    <% if all_activities.any? %>
+      <div class="activity-feed">
+        <% all_activities.each do |activity| %>
+          <div class="activity-item">
+            <div class="activity-icon">
+              <% if activity[:type] == 'user' %>
+                👤
+              <% else %>
+                📋
+              <% end %>
+            </div>
+            <div class="activity-content">
+              <div class="activity-header">
+                <strong><%= activity[:admin].display_name %></strong>
+                <span><%= activity[:action] %></span>
+                <% if activity[:type] == 'user' %>
+                  for user <strong><%= link_to activity[:target].display_name, activity[:url] %></strong>
+                <% else %>
+                  for application by <strong><%= link_to activity[:target].display_name, activity[:url] %></strong>
+                <% end %>
+              </div>
+              <% if activity[:details].present? %>
+                <div class="activity-details"><%= activity[:details] %></div>
+              <% end %>
+              <div class="activity-time"><%= time_ago_in_words(activity[:time]) %> ago</div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="no-data">No recent activity</p>
+    <% end %>
+  </div>
+</div>
+
+<style>
+/* Dashboard Styles */
+
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.metric-icon {
+  font-size: 32px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f3f4f6;
+}
+
+.metric-content h3 {
+  margin: 0 0 4px 0;
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.metric-content p {
+  margin: 0 0 8px 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.metric-change {
+  color: #059669;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.metric-percentage {
+  color: #6366f1;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px 24px 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.card-action-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.card-action-link:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.card-content {
+  padding: 20px 24px 24px 24px;
+}
+
+/* Status Chart */
+.status-chart {
+  space-y: 12px;
+}
+
+.status-bar {
+  margin-bottom: 16px;
+}
+
+.status-label {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.status-label span {
+  color: #374151;
+  font-size: 14px;
+}
+
+.status-label strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.status-progress {
+  height: 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.status-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Activity Stats */
+.activity-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.activity-stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Recent Lists */
+.recent-list {
+  space-y: 12px;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.recent-item:last-child {
+  border-bottom: none;
+}
+
+.recent-info {
+  flex: 1;
+}
+
+.recent-info strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.recent-info strong a {
+  color: #6366f1;
+  text-decoration: none;
+}
+
+.recent-info strong a:hover {
+  text-decoration: underline;
+}
+
+.recent-info p {
+  margin: 2px 0 4px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.recent-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.recent-status {
+  margin-left: 16px;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-created { background-color: #f3f4f6; color: #374151; }
+.status-user_details { background-color: #dbeafe; color: #1e40af; }
+.status-property_details { background-color: #e0f2fe; color: #0369a1; }
+.status-income_and_loan_options { background-color: #f0f9ff; color: #0284c7; }
+.status-submitted { background-color: #fef3c7; color: #d97706; }
+.status-processing { background-color: #fed7aa; color: #ea580c; }
+.status-accepted { background-color: #dcfce7; color: #16a34a; }
+.status-rejected { background-color: #fee2e2; color: #dc2626; }
+.status-admin { background-color: #ede9fe; color: #7c3aed; }
+.status-active { background-color: #dcfce7; color: #16a34a; }
+.status-pending { background-color: #fef3c7; color: #d97706; }
+
+/* Growth Chart */
+.growth-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  height: 200px;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.growth-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.growth-fill {
+  width: 100%;
+  background: linear-gradient(0deg, #6366f1, #8b5cf6);
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  margin-top: auto;
+  margin-bottom: 8px;
+}
+
+.conversion-fill {
+  background: linear-gradient(0deg, #059669, #10b981);
+}
+
+.growth-label {
+  text-align: center;
+}
+
+.growth-label span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.growth-label strong {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.no-data {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 32px;
+}
+
+/* Activity Feed */
+.full-width {
+  grid-column: 1 / -1;
+  margin-bottom: 32px;
+}
+
+.activity-subtitle {
+  margin: 4px 0 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.activity-feed {
+  space-y: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-header {
+  color: #374151;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.activity-header strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.activity-header strong a {
+  color: #6366f1;
+  text-decoration: none;
+}
+
+.activity-header strong a:hover {
+  text-decoration: underline;
+}
+
+.activity-details {
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+.activity-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .activity-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .recent-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .recent-status {
+    margin-left: 0;
+  }
+  
+  .growth-chart {
+    height: 150px;
+  }
+}
+</style>

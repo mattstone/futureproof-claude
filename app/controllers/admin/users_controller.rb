@@ -1,14 +1,50 @@
 class Admin::UsersController < Admin::BaseController
   before_action :set_user, only: [:show, :edit, :update]
+  before_action :set_current_admin_user, only: [:create, :update]
 
   def index
     @users = User.all.order(:email)
+    
+    # Search filter
     @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
                          "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+    
+    # Role filter
+    case params[:role]
+    when 'admin'
+      @users = @users.where(admin: true)
+    when 'user'
+      @users = @users.where(admin: false)
+    end
+    
+    # Status filter
+    case params[:status]
+    when 'active'
+      @users = @users.where.not(confirmed_at: nil)
+    when 'inactive'
+      @users = @users.where(confirmed_at: nil)
+    end
+    
     @users = @users.page(params[:page]).per(10)
+    
+    # For the filter dropdowns
+    @role_options = [
+      ['Admin', 'admin'],
+      ['User', 'user']
+    ]
+    
+    @status_options = [
+      ['Active', 'active'],
+      ['Inactive', 'inactive']
+    ]
   end
 
   def show
+    # Log that admin viewed this user
+    @user.log_view_by(current_user)
+    
+    # Get change history for display
+    @user_versions = @user.user_versions.includes(:admin_user).recent.limit(20)
   end
 
   def new
@@ -17,6 +53,7 @@ class Admin::UsersController < Admin::BaseController
 
   def create
     @user = User.new(user_params)
+    @user.current_admin_user = current_user
     @user.skip_confirmation! if @user.valid?
     
     if @user.save
@@ -60,5 +97,9 @@ class Admin::UsersController < Admin::BaseController
     else
       {}
     end
+  end
+  
+  def set_current_admin_user
+    @user&.current_admin_user = current_user if @user
   end
 end

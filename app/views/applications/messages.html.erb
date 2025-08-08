@@ -20,8 +20,27 @@
         <% @messages.each do |message| %>
           <div class="message-thread">
             <div class="message-header">
-              <div class="message-info">
-                <strong><%= message.sender_name %></strong>
+              <div class="message-sender-info">
+                <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
+                  <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name} Avatar", class: "ai-agent-avatar" %>
+                <% else %>
+                  <div class="default-avatar">
+                    <i class="fas fa-robot"></i>
+                  </div>
+                <% end %>
+                
+                <div class="sender-details">
+                  <div class="sender-name">
+                    <strong><%= message.sender_name %></strong>
+                    <% if message.from_ai_agent? %>
+                      <span class="ai-assistant-badge">AI Assistant</span>
+                    <% end %>
+                  </div>
+                  <div class="sender-role"><%= message.sender_role %></div>
+                </div>
+              </div>
+              
+              <div class="message-meta">
                 <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
                 <time class="message-time"><%= message.formatted_created_at %></time>
               </div>

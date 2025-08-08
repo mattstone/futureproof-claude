@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Admin::EmailTemplatesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_email_template, only: [:show, :edit, :update, :activate, :deactivate, :preview]

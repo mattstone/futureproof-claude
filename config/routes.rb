@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    resources :dashboard, only: [:index]
     resources :users
     resources :mortgages
     resources :applications do
@@ -57,7 +58,7 @@ Rails.application.routes.draw do
         post :preview_ajax
       end
     end
-    root "applications#index"
+    root "dashboard#index"
   end
 
   # API routes

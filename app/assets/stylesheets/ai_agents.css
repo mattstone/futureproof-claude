@@ -1,0 +1,296 @@
+/* AI Agent Styling for Customer Service Messages */
+
+/* Agent Selection in Admin Forms */
+.ai-agent-selection {
+  margin-bottom: 20px;
+}
+
+.agent-preview {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #0891b2;
+}
+
+.agent-details {
+  flex: 1;
+}
+
+.agent-name {
+  color: #1e293b;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.agent-role {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.agent-specialties {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Message Display - Admin View */
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.message-sender {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sender-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #0891b2;
+}
+
+.admin-avatar, .customer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+}
+
+.admin-avatar {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.customer-avatar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.sender-info {
+  flex: 1;
+}
+
+.sender-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.sender-role {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.message-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.message-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-draft {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-sent {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-read {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-replied {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.message-time {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* Message Display - Customer View */
+.message-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-agent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #0891b2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.default-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sender-details {
+  flex: 1;
+}
+
+.sender-details .sender-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sender-details .sender-name strong {
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.ai-assistant-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sender-details .sender-role {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Message Threads Enhanced */
+.message-thread {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.message-thread:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.message-subject h3 {
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.message-content {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.message-content p {
+  margin-bottom: 12px;
+}
+
+.message-content ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.message-content li {
+  margin-bottom: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .message-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .message-sender,
+  .message-sender-info {
+    align-items: flex-start;
+  }
+  
+  .message-meta {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .ai-agent-avatar,
+  .default-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sender-details .sender-name {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

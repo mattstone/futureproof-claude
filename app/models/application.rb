@@ -101,6 +101,10 @@ class Application < ApplicationRecord
     ActionController::Base.helpers.number_to_currency(existing_mortgage_amount, precision: 0)
   end
 
+  def display_address
+    address.present? ? address : "Address not set"
+  end
+
   def ownership_status_display
     ownership_status.humanize
   end

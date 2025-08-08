@@ -4,6 +4,28 @@
   <div class="admin-search">
     <%= form_with(url: admin_users_path, method: :get, local: true, class: "search-form") do |form| %>
       <%= form.text_field :search, placeholder: "Search users...", value: params[:search] %>
+      <%= form.hidden_field :role, value: params[:role] %>
+      <%= form.hidden_field :status, value: params[:status] %>
+    <% end %>
+  </div>
+  
+  <div class="admin-filters">
+    <%= form_with(url: admin_users_path, method: :get, local: true, class: "filter-form") do |form| %>
+      <%= form.select :role, 
+            options_for_select([["All Roles", ""]] + @role_options, params[:role]),
+            {},
+            { 
+              class: "role-filter-select",
+              onchange: "this.form.submit();"
+            } %>
+      <%= form.select :status, 
+            options_for_select([["All Status", ""]] + @status_options, params[:status]),
+            {},
+            { 
+              class: "status-filter-select",
+              onchange: "this.form.submit();"
+            } %>
+      <%= form.hidden_field :search, value: params[:search] %>
     <% end %>
   </div>
   
@@ -52,7 +74,7 @@
               <span class="admin-badge admin-badge-admin">Pending</span>
             <% end %>
           </td>
-          <td>
+          <td class="actions-cell">
             <%= link_to "View", admin_user_path(user), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
             <%= link_to "Edit", edit_admin_user_path(user), class: "admin-btn admin-btn-sm admin-btn-primary" %>
           </td>
@@ -63,8 +85,13 @@
   
   <% if @users.empty? %>
     <div style="padding: 40px; text-align: center; color: #6b7280;">
-      <% if params[:search].present? %>
-        No users found matching "<%= params[:search] %>"
+      <% filters_applied = [params[:search], params[:role], params[:status]].any?(&:present?) %>
+      <% if filters_applied %>
+        <% filter_description = [] %>
+        <% filter_description << "\"#{params[:search]}\"" if params[:search].present? %>
+        <% filter_description << "role: #{params[:role].humanize}" if params[:role].present? %>
+        <% filter_description << "status: #{params[:status].humanize}" if params[:status].present? %>
+        No users found matching <%= filter_description.join(', ') %>
       <% else %>
         No users found.
       <% end %>
@@ -75,3 +102,91 @@
 <div class="admin-pagination">
   <%= paginate @users %>
 </div>
+
+<style>
+/* Filter styles */
+.admin-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-form {
+  margin: 0;
+  display: flex;
+  gap: 12px;
+}
+
+.role-filter-select,
+.status-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.role-filter-select:focus,
+.status-filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Actions cell - prevent button wrapping */
+.actions-cell {
+  white-space: nowrap;
+  width: 120px;
+}
+
+.actions-cell .admin-btn {
+  margin-right: 4px;
+}
+
+.actions-cell .admin-btn:last-child {
+  margin-right: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .admin-filters {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .filter-form {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .role-filter-select,
+  .status-filter-select {
+    min-width: 140px;
+  }
+  
+  .actions-cell {
+    width: auto;
+  }
+  
+  .admin-actions {
+    text-align: center;
+  }
+}
+</style>

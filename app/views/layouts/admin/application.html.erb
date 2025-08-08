@@ -29,6 +29,9 @@
         </div>
         
         <nav class="admin-nav">
+          <%= link_to admin_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard'}" do %>
+            <span>📊 Dashboard</span>
+          <% end %>
           <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
             <span>📋 Applications</span>
           <% end %>

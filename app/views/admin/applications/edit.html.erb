@@ -116,6 +116,30 @@
           </small>
         </div>
 
+        <!-- AI Agent Selection -->
+        <div class="field ai-agent-selection">
+          <%= form.label :ai_agent_id, "Send message as:" %>
+          <%= form.select :ai_agent_id, 
+              options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
+              { prompt: 'Select AI Agent...' },
+              { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+          
+          <div id="agent-preview" class="agent-preview" style="display: none;">
+            <div class="agent-info">
+              <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+              <div class="agent-details">
+                <strong class="agent-name"></strong>
+                <div class="agent-role"></div>
+                <div class="agent-specialties"></div>
+              </div>
+            </div>
+          </div>
+          
+          <small class="field-hint">
+            Customer will see this message as coming from the selected AI agent
+          </small>
+        </div>
+
         <!-- Field Helper Buttons -->
         <div class="field-helpers">
           <h4>Quick Insert:</h4>
@@ -134,6 +158,59 @@
       <% end %>
     </div>
 
+    <!-- JavaScript for Agent Preview -->
+    <script>
+      // Agent data for JavaScript
+      window.agentData = <%= raw @ai_agents.to_json(methods: [:display_name, :role_description, :avatar_path]) %>;
+      
+      function updateAgentPreview(select) {
+        const agentId = parseInt(select.value);
+        const preview = document.getElementById('agent-preview');
+        
+        if (!agentId) {
+          preview.style.display = 'none';
+          return;
+        }
+        
+        const agent = window.agentData.find(a => a.id === agentId);
+        if (!agent) {
+          preview.style.display = 'none';
+          return;
+        }
+        
+        // Update preview content
+        preview.querySelector('.agent-avatar').src = '<%= asset_path("") %>' + agent.avatar_path;
+        preview.querySelector('.agent-avatar').alt = agent.name + ' Avatar';
+        preview.querySelector('.agent-name').textContent = agent.display_name;
+        preview.querySelector('.agent-role').textContent = agent.role_description;
+        preview.querySelector('.agent-specialties').textContent = 'Specialties: ' + (agent.specialties || 'General assistance');
+        
+        preview.style.display = 'block';
+      }
+      
+      // Initialize preview if agent is pre-selected
+      document.addEventListener('DOMContentLoaded', function() {
+        const selectElement = document.querySelector('#application_message_ai_agent_id');
+        if (selectElement && selectElement.value) {
+          updateAgentPreview(selectElement);
+        }
+      });
+      
+      // Field insertion function for template variables
+      function insertField(fieldText) {
+        const textarea = document.querySelector('textarea[name="application_message[content]"]');
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const text = textarea.value;
+          
+          textarea.value = text.substring(0, start) + fieldText + text.substring(end);
+          textarea.focus();
+          textarea.setSelectionRange(start + fieldText.length, start + fieldText.length);
+        }
+      }
+    </script>
+
     <!-- Message History -->
     <div class="admin-form message-history-section">
       <h3>Message History</h3>
@@ -144,8 +221,31 @@
           <% @messages.each do |message| %>
             <div class="message-thread">
               <div class="message-header">
-                <div class="message-info">
-                  <strong><%= message.sender_name %></strong>
+                <div class="message-sender">
+                  <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
+                    <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name} Avatar", class: "sender-avatar" %>
+                  <% elsif message.from_admin? %>
+                    <div class="sender-avatar admin-avatar">
+                      <i class="fas fa-user-shield"></i>
+                    </div>
+                  <% else %>
+                    <div class="sender-avatar customer-avatar">
+                      <i class="fas fa-user"></i>
+                    </div>
+                  <% end %>
+                  
+                  <div class="sender-info">
+                    <div class="sender-name">
+                      <strong><%= message.sender_name %></strong>
+                      <% if message.from_ai_agent? %>
+                        <span class="ai-badge">AI</span>
+                      <% end %>
+                    </div>
+                    <div class="sender-role"><%= message.sender_role %></div>
+                  </div>
+                </div>
+                
+                <div class="message-meta">
                   <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
                   <time class="message-time"><%= message.formatted_created_at %></time>
                 </div>
