@@ -1,0 +1,165 @@
+<!-- Send New Message Form -->
+<div class="admin-form message-form-section">
+  <h3>Send Message to Customer</h3>
+  <p class="section-subtitle">Communicate with the customer about their application</p>
+  
+  <%= form_with(model: [:admin, @application, @new_message], 
+                url: create_message_admin_application_path(@application), 
+                local: true, class: "message-form") do |form| %>
+    
+    <%= hidden_field_tag :from_view, controller.action_name %>
+    
+    <% if @new_message.errors.any? %>
+      <div class="alert alert-danger">
+        <ul>
+          <% @new_message.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :subject %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+    </div>
+
+    <div class="field">
+      <%= form.label :content, "Message" %>
+      <%= form.text_area :content, rows: 6, class: "markup-editor", 
+                         placeholder: "Type your message here...\n\n**Bold text**\n*Italic text*\n- Bullet points", 
+                         required: true %>
+      <small class="field-hint">
+        You can use markup: **bold**, *italic*, - bullet points
+      </small>
+    </div>
+
+    <!-- AI Agent Selection -->
+    <div class="field ai-agent-selection">
+      <%= form.label :ai_agent_id, "Send message as:" %>
+      <%= form.select :ai_agent_id, 
+          options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
+          { prompt: 'Select AI Agent...' },
+          { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+      
+      <div id="agent-preview" class="agent-preview" style="display: none;">
+        <div class="agent-info">
+          <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <div class="agent-details">
+            <strong class="agent-name"></strong>
+            <div class="agent-role"></div>
+            <div class="agent-specialties"></div>
+          </div>
+        </div>
+      </div>
+      
+      <small class="field-hint">
+        Customer will see this message as coming from the selected AI agent
+      </small>
+    </div>
+
+    <!-- Field Helper Buttons -->
+    <div class="field-helpers">
+      <h4>Quick Insert:</h4>
+      <div class="helper-buttons">
+        <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
+        <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
+        <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
+        <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+      </div>
+    </div>
+
+    <div class="message-actions">
+      <%= form.submit "Save as Draft", name: "save_draft", class: "admin-btn admin-btn-secondary" %>
+      <%= form.submit "Send Message", name: "send_now", class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Message History -->
+<div class="admin-form message-history-section">
+  <h3>Message History</h3>
+  <p class="section-subtitle">Previous messages with this customer</p>
+  
+  <% if @messages.any? %>
+    <div class="message-threads">
+      <% @messages.each do |message| %>
+        <div class="message-thread">
+          <div class="message-header">
+            <div class="message-sender">
+              <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
+                <% begin %>
+                  <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name} Avatar", class: "sender-avatar" %>
+                <% rescue => e %>
+                  <div class="sender-avatar admin-avatar">
+                    <i class="fas fa-robot"></i>
+                  </div>
+                <% end %>
+              <% elsif message.from_admin? %>
+                <div class="sender-avatar admin-avatar">
+                  <i class="fas fa-user-shield"></i>
+                </div>
+              <% else %>
+                <div class="sender-avatar customer-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+              <% end %>
+              
+              <div class="sender-info">
+                <div class="sender-name">
+                  <strong><%= message.sender_name %></strong>
+                  <% if message.from_ai_agent? %>
+                    <span class="ai-badge">AI</span>
+                  <% end %>
+                </div>
+                <div class="sender-role"><%= message.sender_role %></div>
+              </div>
+            </div>
+            
+            <div class="message-meta">
+              <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
+              <time class="message-time"><%= message.formatted_created_at %></time>
+            </div>
+          </div>
+          
+          <div class="message-subject">
+            <strong><%= message.processed_subject %></strong>
+          </div>
+          
+          <div class="message-content">
+            <%= message.content_html %>
+          </div>
+          
+          <% if message.replies.any? %>
+            <div class="message-replies">
+              <h4>Replies:</h4>
+              <% message.replies.each do |reply| %>
+                <div class="message-reply">
+                  <div class="reply-header">
+                    <strong><%= reply.sender_name %></strong>
+                    <time><%= reply.formatted_created_at %></time>
+                  </div>
+                  <div class="reply-content">
+                    <%= reply.content_html %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <% if message.draft? %>
+            <div class="message-actions">
+              <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: message.id), 
+                          method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
+                          data: { confirm: "Send this message to the customer?" } %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>No messages yet. Use the form above to send your first message to the customer.</p>
+    </div>
+  <% end %>
+</div>

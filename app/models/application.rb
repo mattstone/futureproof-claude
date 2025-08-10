@@ -1,4 +1,6 @@
 class Application < ApplicationRecord
+  # include InputSanitization  # Temporarily disabled for testing
+  
   belongs_to :user
   belongs_to :mortgage, optional: true
   has_many :application_versions, dependent: :destroy

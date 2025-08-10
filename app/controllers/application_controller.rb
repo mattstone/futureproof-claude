@@ -2,6 +2,12 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
   
+  # CSRF protection - verify authenticity tokens on all requests
+  protect_from_forgery with: :exception, prepend: true
+  
+  # Security headers
+  before_action :set_security_headers
+  
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   
@@ -26,5 +32,22 @@ class ApplicationController < ActionController::Base
 
   def verification_controller?
     controller_name == 'verifications' && controller_path == 'users/verifications'
+  end
+  
+  def set_security_headers
+    # Prevent clickjacking attacks
+    response.headers['X-Frame-Options'] = 'DENY'
+    
+    # Prevent content type sniffing
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    
+    # Enable XSS filtering in browsers
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # Only allow HTTPS connections
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains' if request.ssl?
+    
+    # Prevent referrer leakage
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
   end
 end

@@ -31,6 +31,12 @@ gem "devise"
 # Google reCAPTCHA for spam protection
 gem "recaptcha"
 
+# Rate limiting and request throttling
+gem "rack-attack"
+
+# Security headers and hardening
+gem "secure_headers"
+
 # Pagination for admin dashboard
 gem "kaminari"
 

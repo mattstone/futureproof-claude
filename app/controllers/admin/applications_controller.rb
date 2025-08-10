@@ -63,20 +63,36 @@ class Admin::ApplicationsController < Admin::BaseController
     @message.message_type = 'admin_to_customer'
     @message.status = 'draft'
     
+    # Determine where to redirect based on where the form was submitted from
+    redirect_path = params[:from_view] == 'show' ? admin_application_path(@application) : edit_admin_application_path(@application)
+    
     if @message.save
       if params[:send_now].present?
         if @message.send_message!
-          redirect_to edit_admin_application_path(@application), notice: 'Message sent successfully!'
+          redirect_to redirect_path, notice: 'Message sent successfully!'
         else
-          redirect_to edit_admin_application_path(@application), alert: 'Failed to send message.'
+          redirect_to redirect_path, alert: 'Failed to send message.'
         end
       else
-        redirect_to edit_admin_application_path(@application), notice: 'Message saved as draft!'
+        redirect_to redirect_path, notice: 'Message saved as draft!'
       end
     else
-      @users = User.all.order(:first_name, :last_name)
-      @messages = @application.message_threads
-      render :edit, status: :unprocessable_entity
+      # Handle validation errors by reloading the appropriate view
+      if params[:from_view] == 'show'
+        @audit_history = @application.application_versions.includes(:user).recent.limit(50)
+        @messages = @application.message_threads
+        @new_message = @message # Keep the invalid message object for error display
+        @ai_agents = AiAgent.active.order(:name)
+        @suggested_agent = AiAgent.suggest_for_application(@application)
+        render :show, status: :unprocessable_entity
+      else
+        @users = User.all.order(:first_name, :last_name)
+        @messages = @application.message_threads
+        @new_message = @message # Keep the invalid message object for error display
+        @ai_agents = AiAgent.active.order(:name)
+        @suggested_agent = AiAgent.suggest_for_application(@application)
+        render :edit, status: :unprocessable_entity
+      end
     end
   end
   

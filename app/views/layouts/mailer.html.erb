@@ -142,7 +142,7 @@
           <!-- Email Content -->
           <tr>
             <td style="padding: 40px;">
-              <%= @email_content || yield %>
+              <%= (@email_content || yield).html_safe %>
             </td>
           </tr>
           

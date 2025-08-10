@@ -30,6 +30,15 @@ class AiAgent < ApplicationRecord
     "ai-agents/#{avatar_filename}"
   end
   
+  def asset_avatar_path
+    begin
+      ActionController::Base.helpers.asset_path("ai-agents/#{avatar_filename}")
+    rescue => e
+      # Return a fallback path if asset is not found
+      "/assets/ai-agents/#{avatar_filename}"
+    end
+  end
+  
   def display_name
     "#{name} AI Assistant"
   end

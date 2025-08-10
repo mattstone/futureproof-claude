@@ -8,27 +8,27 @@
       <%= form.hidden_field :status, value: params[:status] %>
     <% end %>
   </div>
-  
+
   <div class="admin-filters">
     <%= form_with(url: admin_users_path, method: :get, local: true, class: "filter-form") do |form| %>
-      <%= form.select :role, 
+      <%= form.select :role,
             options_for_select([["All Roles", ""]] + @role_options, params[:role]),
             {},
-            { 
+            {
               class: "role-filter-select",
               onchange: "this.form.submit();"
             } %>
-      <%= form.select :status, 
+      <%= form.select :status,
             options_for_select([["All Status", ""]] + @status_options, params[:status]),
             {},
-            { 
+            {
               class: "status-filter-select",
               onchange: "this.form.submit();"
             } %>
       <%= form.hidden_field :search, value: params[:search] %>
     <% end %>
   </div>
-  
+
   <div class="admin-actions">
     <%= link_to "Add New User", new_admin_user_path, class: "admin-btn admin-btn-primary" %>
   </div>
@@ -82,7 +82,7 @@
       <% end %>
     </tbody>
   </table>
-  
+
   <% if @users.empty? %>
     <div style="padding: 40px; text-align: center; color: #6b7280;">
       <% filters_applied = [params[:search], params[:role], params[:status]].any?(&:present?) %>
@@ -165,26 +165,26 @@
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .admin-filters {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .filter-form {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .role-filter-select,
   .status-filter-select {
     min-width: 140px;
   }
-  
+
   .actions-cell {
     width: auto;
   }
-  
+
   .admin-actions {
     text-align: center;
   }

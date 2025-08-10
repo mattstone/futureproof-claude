@@ -46,6 +46,32 @@
           </span>
         </div>
         
+        <% if @application.mortgage.present? %>
+          <div class="detail-row">
+            <strong>Mortgage Type:</strong>
+            <span class="admin-badge admin-badge-secondary">
+              <%= @application.mortgage.mortgage_type_display %>
+            </span>
+          </div>
+          
+          <div class="detail-row">
+            <strong>Monthly Income:</strong>
+            <span class="admin-badge admin-badge-success">
+              <%= @application.formatted_monthly_income_amount %>
+            </span>
+          </div>
+        <% else %>
+          <div class="detail-row">
+            <strong>Mortgage Type:</strong>
+            <span style="color: #6b7280; font-style: italic;">Not selected</span>
+          </div>
+          
+          <div class="detail-row">
+            <strong>Monthly Income:</strong>
+            <span style="color: #6b7280; font-style: italic;">Not calculated</span>
+          </div>
+        <% end %>
+        
         <div class="detail-row">
           <strong>Created:</strong>
           <%= @application.created_at.strftime("%B %d, %Y at %I:%M %p") %>
@@ -111,67 +137,13 @@
     </div>
   </div>
 
-  <!-- Right Column - Customer Messages Only -->
+  <!-- Right Column - Messages and Communication -->
   <div class="admin-right-column">
-    <div class="admin-form messages-section">
-      <h3>Customer Messages & Communication</h3>
-      <p class="section-subtitle">All messages between admin and customer for this application</p>
-      
-      <% if @messages.any? %>
-        <div class="message-threads">
-          <% @messages.each do |message| %>
-            <div class="message-thread">
-              <div class="message-header">
-                <div class="message-info">
-                  <strong><%= message.sender_name %></strong>
-                  <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
-                  <time class="message-time"><%= message.formatted_created_at %></time>
-                </div>
-              </div>
-              
-              <div class="message-subject">
-                <strong><%= message.subject %></strong>
-              </div>
-              
-              <div class="message-content">
-                <%= message.content_html %>
-              </div>
-              
-              <% if message.replies.any? %>
-                <div class="message-replies">
-                  <h4>Replies:</h4>
-                  <% message.replies.each do |reply| %>
-                    <div class="message-reply">
-                      <div class="reply-header">
-                        <strong><%= reply.sender_name %></strong>
-                        <time><%= reply.formatted_created_at %></time>
-                      </div>
-                      <div class="reply-content">
-                        <%= reply.content_html %>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-              <% end %>
-              
-              <% if message.draft? %>
-                <div class="message-actions">
-                  <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: message.id), 
-                              method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
-                              data: { confirm: "Send this message to the customer?" } %>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="empty-state">
-          <p>No messages yet. Go to <strong><%= link_to "Edit Application", edit_admin_application_path(@application), class: "admin-link" %></strong> to send messages to the customer.</p>
-        </div>
-      <% end %>
-    </div>
+    <%= render 'messaging_interface' %>
   </div>
 </div>
+
+<%= render 'messaging_assets' %>
 
 <style>
 /* Two-Column Layout CSS */
