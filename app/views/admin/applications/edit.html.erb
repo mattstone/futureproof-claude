@@ -11,73 +11,159 @@
 </div>
 
 <div class="admin-two-column-layout">
-  <!-- Left Column - Application Edit Form -->
+  <!-- Left Column - Application Information and Status Edit -->
   <div class="admin-left-column">
-    <%= form_with(model: [:admin, @application], local: true, class: "admin-form") do |form| %>
-      <h2>Edit Application #<%= @application.id %></h2>
-      
-      <div style="margin-bottom: 24px;"></div>
-      
-      <% if @application.errors.any? %>
-        <div class="alert alert-danger">
-          <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
-          <ul>
-            <% @application.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+    <!-- Application Details Section (Read-Only) -->
+    <div class="admin-form">
+      <div class="application-header">
+        <h2>Application #<%= @application.id %></h2>
+        <div class="application-status">
+          <%= render 'status_badge', application: @application %>
         </div>
-      <% end %>
-
-      <div class="field">
-        <%= form.label :user_id, "User" %>
-        <%= form.select :user_id, 
-            options_from_collection_for_select(@users, :id, :display_name, @application.user_id), 
-            { prompt: 'Select User' }, 
-            { required: true } %>
       </div>
-
-      <div class="field">
-        <%= form.label :address %>
-        <%= form.text_area :address, rows: 3, required: true, placeholder: "Enter property address" %>
+      
+      <div class="application-details">
+        <div class="detail-row">
+          <strong>User:</strong>
+          <div>
+            <%= @application.user.display_name %>
+            <br>
+            <small style="color: #6b7280;"><%= @application.user.email %></small>
+            <br>
+            <%= link_to "View User", admin_user_path(@application.user), class: "admin-link" %>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Address:</strong>
+          <%= @application.address %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Home Value:</strong>
+          <span class="admin-badge admin-badge-user">
+            <%= @application.formatted_home_value %>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Ownership Status:</strong>
+          <%= @application.ownership_status_display %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Property State:</strong>
+          <%= @application.property_state_display %>
+        </div>
+        
+        <% if @application.has_existing_mortgage? %>
+          <div class="detail-row">
+            <strong>Existing Mortgage:</strong>
+            <%= @application.formatted_existing_mortgage_amount %>
+          </div>
+        <% else %>
+          <div class="detail-row">
+            <strong>Existing Mortgage:</strong>
+            <span style="color: #6b7280; font-style: italic;">No existing mortgage</span>
+          </div>
+        <% end %>
+        
+        <% if @application.mortgage.present? %>
+          <div class="detail-row">
+            <strong>Mortgage Type:</strong>
+            <span class="admin-badge admin-badge-secondary">
+              <%= @application.mortgage.mortgage_type_display %>
+            </span>
+          </div>
+          
+          <div class="detail-row">
+            <strong>Monthly Income:</strong>
+            <span class="admin-badge admin-badge-success">
+              <%= @application.formatted_monthly_income_amount %>
+            </span>
+          </div>
+        <% else %>
+          <div class="detail-row">
+            <strong>Mortgage Type:</strong>
+            <span style="color: #6b7280; font-style: italic;">Not selected</span>
+          </div>
+          
+          <div class="detail-row">
+            <strong>Monthly Income:</strong>
+            <span style="color: #6b7280; font-style: italic;">Not calculated</span>
+          </div>
+        <% end %>
+        
+        <div class="detail-row">
+          <strong>Borrower Age:</strong>
+          <%= @application.borrower_age %> years
+        </div>
+        
+        <% if @application.borrower_names.present? %>
+          <div class="detail-row">
+            <strong>Borrower Names:</strong>
+            <%= @application.borrower_names %>
+          </div>
+        <% end %>
+        
+        <div class="detail-row">
+          <strong>Created:</strong>
+          <%= @application.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Last Updated:</strong>
+          <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+        </div>
       </div>
+    </div>
 
-      <div class="field">
-        <%= form.label :home_value, "Home Value ($)" %>
-        <%= form.number_field :home_value, required: true, min: 1, max: 50000000, 
-            placeholder: "e.g., 1500000", step: 1000 %>
-        <small style="color: #6b7280; font-size: 14px;">Enter amount without commas (e.g., 1500000 for $1.5M)</small>
-      </div>
+    <!-- Status Update Form Section -->
+    <div class="admin-form status-update-section">
+      <%= form_with(model: [:admin, @application], local: true, class: "status-form") do |form| %>
+        <h3>Update Application Status</h3>
+        <p class="section-subtitle">Only the application status can be modified by administrators</p>
+        
+        <% if @application.errors.any? %>
+          <div class="alert alert-danger">
+            <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
+            <ul>
+              <% @application.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
-      <div class="field">
-        <%= form.label :status %>
-        <%= form.select :status, 
-            options_for_select([
-              ['Created', 'created'],
-              ['User Details', 'user_details'],
-              ['Property Details', 'property_details'],
-              ['Income and Loan Options', 'income_and_loan_options'],
-              ['Submitted', 'submitted'],
-              ['Processing', 'processing'],
-              ['Rejected', 'rejected'],
-              ['Accepted', 'accepted']
-            ], @application.status), 
-            { prompt: 'Select Status' }, 
-            { required: true } %>
-      </div>
-
-      <% if @application.status_rejected? %>
         <div class="field">
-          <%= form.label :rejected_reason %>
-          <%= form.text_area :rejected_reason, rows: 3, placeholder: "Reason for rejection..." %>
+          <%= form.label :status, "Application Status" %>
+          <%= form.select :status, 
+              options_for_select([
+                ['Processing', 'processing'],
+                ['Rejected', 'rejected'],
+                ['Accepted', 'accepted']
+              ], @application.status), 
+              { prompt: 'Select Status' }, 
+              { required: true, class: 'status-select' } %>
+          <small style="color: #6b7280; font-size: 14px; display: block; margin-top: 4px;">
+            Only processing, rejected, and accepted statuses can be set by administrators
+          </small>
+        </div>
+
+        <div class="field rejected-reason-field" style="<%= 'display: none;' unless @application.status == 'rejected' %>">
+          <%= form.label :rejected_reason, "Reason for Rejection" %>
+          <%= form.text_area :rejected_reason, rows: 3, placeholder: "Please provide a detailed reason for rejection...", class: 'rejected-reason-textarea' %>
+          <small style="color: #6b7280; font-size: 14px; display: block; margin-top: 4px;">
+            Required when rejecting an application
+          </small>
+        </div>
+
+        <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
+          <%= form.submit "Update Status", class: "admin-btn admin-btn-primary" %>
+          <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
         </div>
       <% end %>
-
-      <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
-        <%= form.submit "Update Application", class: "admin-btn admin-btn-primary" %>
-        <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
-      </div>
-    <% end %>
+    </div>
   </div>
 
   <!-- Right Column - Messages and Communication -->
@@ -108,6 +194,102 @@
   height: fit-content;
 }
 
+/* Application Details Styles */
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.application-header h2 {
+  margin: 0;
+}
+
+.application-status {
+  flex-shrink: 0;
+}
+
+.application-details {
+  margin-top: 24px;
+}
+
+.detail-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 16px;
+  align-items: start;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row strong {
+  min-width: 140px;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+/* Status Update Section */
+.status-update-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.status-update-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.status-form .field {
+  margin-bottom: 20px;
+}
+
+.status-select, .rejected-reason-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.status-select:focus, .rejected-reason-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.rejected-reason-field {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.rejected-reason-field label {
+  color: #dc2626;
+  font-weight: 600;
+}
+
 /* Responsive Design */
 @media (max-width: 1400px) {
   .admin-two-column-layout {
@@ -126,16 +308,31 @@
     position: static;
   }
 }
+
+@media (max-width: 768px) {
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .detail-row strong {
+    min-width: auto;
+  }
+  
+  .status-update-section {
+    padding: 16px;
+  }
+}
 </style>
 
 <script>
 // Auto-show/hide rejected reason field
 document.addEventListener('DOMContentLoaded', function() {
-  const statusSelect = document.querySelector('select[name="application[status]"]');
-  const rejectedReasonField = document.querySelector('textarea[name="application[rejected_reason]"]');
+  const statusSelect = document.querySelector('.status-select');
+  const rejectedReasonField = document.querySelector('.rejected-reason-textarea');
   
   if (statusSelect && rejectedReasonField) {
-    const rejectedReasonContainer = rejectedReasonField.closest('.field');
+    const rejectedReasonContainer = document.querySelector('.rejected-reason-field');
     
     function toggleRejectedReason() {
       if (statusSelect.value === 'rejected') {
@@ -144,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         rejectedReasonContainer.style.display = 'none';
         rejectedReasonField.required = false;
+        rejectedReasonField.value = ''; // Clear the field when hidden
       }
     }
     

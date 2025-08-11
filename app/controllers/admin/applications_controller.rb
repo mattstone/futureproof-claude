@@ -43,16 +43,27 @@ class Admin::ApplicationsController < Admin::BaseController
   end
 
   def edit
-    @users = User.all.order(:first_name, :last_name)
+    # Messages variables are set by set_messages before_action
   end
 
   def update
     @application.current_user = current_user # Track who updated it
-    if @application.update(application_params)
-      redirect_to admin_application_path(@application), notice: 'Application was successfully updated.'
+    
+    params_to_update = application_params
+    
+    # Clear rejected_reason if changing from rejected status to a non-rejected status
+    if @application.status == 'rejected' && params_to_update[:status] && params_to_update[:status] != 'rejected'
+      params_to_update[:rejected_reason] = nil
+    end
+    
+    if @application.update(params_to_update)
+      redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.'
     else
-      @users = User.all.order(:first_name, :last_name)
+      # Set up variables for edit view on validation error
       @messages = @application.message_threads
+      @new_message = @application.application_messages.build
+      @ai_agents = AiAgent.active.order(:name)
+      @suggested_agent = AiAgent.suggest_for_application(@application)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -86,7 +97,6 @@ class Admin::ApplicationsController < Admin::BaseController
         @suggested_agent = AiAgent.suggest_for_application(@application)
         render :show, status: :unprocessable_entity
       else
-        @users = User.all.order(:first_name, :last_name)
         @messages = @application.message_threads
         @new_message = @message # Keep the invalid message object for error display
         @ai_agents = AiAgent.active.order(:name)
@@ -130,17 +140,24 @@ class Admin::ApplicationsController < Admin::BaseController
   end
 
   def application_params
-    params.require(:application).permit(
-      :user_id,
-      :address,
-      :home_value,
-      :ownership_status,
-      :property_state,
-      :has_existing_mortgage,
-      :existing_mortgage_amount,
-      :status,
-      :rejected_reason
-    )
+    # Only allow status and rejected_reason to be updated by admins
+    permitted_params = params.require(:application).permit(:status, :rejected_reason)
+    
+    # Validate that status is one of the allowed values
+    if permitted_params[:status].present?
+      allowed_statuses = %w[processing rejected accepted]
+      unless allowed_statuses.include?(permitted_params[:status])
+        # If invalid status, don't include it in permitted params
+        permitted_params.delete(:status)
+      end
+    end
+    
+    # Only include rejected_reason if status is 'rejected', otherwise remove it from params
+    if permitted_params[:status] != 'rejected'
+      permitted_params.delete(:rejected_reason)
+    end
+    
+    permitted_params
   end
 
   def message_params
