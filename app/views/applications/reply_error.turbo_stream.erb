@@ -1,0 +1,81 @@
+<%= turbo_stream.update "reply-form-#{params[:parent_message_id]}" do %>
+  <% if request.path.include?('dashboard') %>
+    <!-- Dashboard view error handling -->
+    <div class="reply-form-container" id="reply-form-<%= params[:parent_message_id] %>">
+      <%= form_with(
+        model: [@application, @message], 
+        url: reply_to_message_application_path(@application),
+        class: "reply-form",
+        data: { message_id: params[:parent_message_id] }
+      ) do |form| %>
+        
+        <%= form.hidden_field :parent_message_id, value: params[:parent_message_id] %>
+        
+        <% if @message.errors.any? %>
+          <div class="form-errors" style="background: #fef2f2; border: 1px solid #f87171; border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #991b1b;">
+            <ul style="margin: 0; padding-left: 20px;">
+              <% @message.errors.full_messages.each do |error| %>
+                <li><%= error %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <div class="form-group">
+          <%= form.label :subject, class: "form-label" %>
+          <%= form.text_field :subject, required: true, class: "form-input" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :content, "Your Reply", class: "form-label" %>
+          <%= form.text_area :content, rows: 4, required: true, class: "form-textarea", 
+                             placeholder: "Type your reply here..." %>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Send Reply", class: "btn btn-primary" %>
+          <button type="button" class="btn btn-secondary" onclick="hideReplyForm(<%= params[:parent_message_id] %>)">
+            Cancel
+          </button>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Messages page error handling -->
+    <div class="reply-form-section" id="reply-form-<%= params[:parent_message_id] %>">
+      <h4>Reply to this message:</h4>
+      <%= form_with(model: [@application, @message], 
+                    url: reply_to_message_application_path(@application), 
+                    class: "reply-form") do |form| %>
+        
+        <%= form.hidden_field :parent_message_id, value: params[:parent_message_id] %>
+        
+        <% if @message.errors.any? %>
+          <div class="form-errors" style="background: #fef2f2; border: 1px solid #f87171; border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #991b1b;">
+            <ul style="margin: 0; padding-left: 20px;">
+              <% @message.errors.full_messages.each do |error| %>
+                <li><%= error %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <div class="field">
+          <%= form.label :subject %>
+          <%= form.text_field :subject, required: true %>
+        </div>
+
+        <div class="field">
+          <%= form.label :content, "Your Reply" %>
+          <%= form.text_area :content, rows: 4, 
+                             placeholder: "Type your reply here...", 
+                             required: true %>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Send Reply", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

@@ -31,34 +31,48 @@
     <thead>
       <tr>
         <th>User</th>
-        <th>Address</th>
-        <th>Home Value</th>
+        <th>Property</th>
+        <th>Mortgage Type</th>
+        <th>Monthly Income</th>
         <th>Status</th>
         <th>Messages</th>
-        <th>Created</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <% @applications.each do |application| %>
         <tr>
-          <td>
+          <td class="user-cell">
             <div>
               <strong><%= application.user.display_name %></strong>
               <br>
-              <small style="color: #6b7280;"><%= application.user.email %></small>
+              <small><%= application.user.email %></small>
             </div>
           </td>
-          <td><%= application.address %></td>
-          <td>
-            <span class="admin-badge admin-badge-user">
-              <%= application.formatted_home_value %>
-            </span>
+          <td class="property-cell">
+            <div class="property-info">
+              <div class="address"><%= truncate(application.address, length: 40) %></div>
+              <small class="value"><%= application.formatted_home_value %></small>
+            </div>
           </td>
-          <td>
+          <td class="mortgage-cell">
+            <% if application.mortgage.present? %>
+              <span class="mortgage-type"><%= application.mortgage.name %></span>
+            <% else %>
+              <span class="no-mortgage">—</span>
+            <% end %>
+          </td>
+          <td class="income-cell">
+            <% if application.mortgage.present? && application.respond_to?(:monthly_income_amount) %>
+              <span class="monthly-income"><%= application.formatted_monthly_income_amount %></span>
+            <% else %>
+              <span class="no-income">—</span>
+            <% end %>
+          </td>
+          <td class="status-cell">
             <%= render 'status_badge', application: application %>
           </td>
-          <td>
+          <td class="messages-cell">
             <div class="message-indicators">
               <% if application.has_unread_customer_messages? %>
                 <span class="message-indicator unread" title="<%= application.unread_customer_messages_count %> unread customer messages">
@@ -75,7 +89,6 @@
               <% end %>
             </div>
           </td>
-          <td><%= application.created_at.strftime("%B %d, %Y") %></td>
           <td class="actions-cell">
             <%= link_to "View", admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
             <%= link_to "Edit", edit_admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
@@ -140,14 +153,83 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Compact table cells */
+.user-cell {
+  width: 15%;
+  min-width: 120px;
+}
+
+.user-cell small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.property-cell {
+  width: 20%;
+  min-width: 160px;
+}
+
+.property-info .address {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.property-info .value {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.mortgage-cell {
+  width: 15%;
+  min-width: 120px;
+}
+
+.mortgage-type {
+  font-weight: 500;
+  color: #059669;
+}
+
+.no-mortgage {
+  color: #9ca3af;
+}
+
+.income-cell {
+  width: 12%;
+  min-width: 100px;
+  text-align: right;
+}
+
+.monthly-income {
+  font-weight: 600;
+  color: #0891b2;
+}
+
+.no-income {
+  color: #9ca3af;
+}
+
+.status-cell {
+  width: 10%;
+  min-width: 80px;
+}
+
+.messages-cell {
+  width: 8%;
+  min-width: 60px;
+}
+
 /* Actions cell - prevent button wrapping */
 .actions-cell {
   white-space: nowrap;
-  width: 120px;
+  width: 10%;
+  min-width: 80px;
 }
 
 .actions-cell .admin-btn {
   margin-right: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
 }
 
 .actions-cell .admin-btn:last-child {
@@ -214,8 +296,10 @@
     width: 100%;
   }
   
-  .admin-table table th:nth-child(5),
-  .admin-table table td:nth-child(5) {
+  .admin-table table th:nth-child(4),
+  .admin-table table td:nth-child(4),
+  .admin-table table th:nth-child(6),
+  .admin-table table td:nth-child(6) {
     display: none;
   }
   

@@ -1,44 +1,69 @@
+<!-- Agent Header Section -->
 <div style="text-align: center; margin-bottom: 32px;">
-  <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">📧 New Message from Futureproof</h1>
+  <% if @message.from_ai_agent? && @message.ai_agent %>
+    <table role="presentation" style="margin: 0 auto; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; vertical-align: top; padding-right: 16px;">
+          <% begin %>
+            <img src="<%= image_url(@message.ai_agent.avatar_path) %>" 
+                 alt="<%= @message.ai_agent.name %>"
+                 style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6;" />
+          <% rescue %>
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; border: 3px solid #3b82f6;">
+              🤖
+            </div>
+          <% end %>
+        </td>
+        <td style="text-align: left; vertical-align: top;">
+          <h1 style="margin: 0 0 4px 0; color: #374151; font-size: 24px; font-weight: 600;">
+            <%= @message.ai_agent.name %>
+          </h1>
+          <p style="margin: 0 0 8px 0; color: #3b82f6; font-size: 16px; font-weight: 500;">
+            <%= @message.ai_agent.role_description %>
+          </p>
+          <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            Futureproof Financial Group
+          </p>
+        </td>
+      </tr>
+    </table>
+  <% else %>
+    <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">📧 New Message from Futureproof</h1>
+  <% end %>
 </div>
 
-<div style="text-align: center; margin-bottom: 24px;">
-  <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear <%= @user.first_name %>,</p>
+<!-- Greeting Section -->
+<div style="margin-bottom: 32px;">
+  <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear <%= @user.first_name %>,</p>
   
-  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px auto; width: 60%;">
-  
-  <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px;">
-    You have received a new message from <%= @sender.display_name %> regarding your Equity Preservation Mortgage® application.
+  <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
+    <% if @message.from_ai_agent? && @message.ai_agent %>
+      I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® application.
+    <% else %>
+      You have received a new message regarding your Equity Preservation Mortgage® application.
+    <% end %>
   </p>
 </div>
 
+<!-- Message Content Card -->
 <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
   <tr>
-    <td align="center" style="padding: 0;">
-      <table role="presentation" style="background-color: #f0f9ff; border: 2px solid #0891b2; border-radius: 8px; padding: 24px; margin: 0 auto; max-width: 500px;">
-        <tr>
-          <td style="padding: 0;">
-            <h3 style="color: #0891b2; margin: 0 0 16px 0; font-size: 18px;">Message Details</h3>
-            
-            <div style="margin-bottom: 16px;">
-              <strong style="color: #374151;">Subject:</strong><br>
-              <span style="color: #6b7280;"><%= @message.subject %></span>
-            </div>
-            
-            <div style="margin-bottom: 16px;">
-              <strong style="color: #374151;">From:</strong><br>
-              <span style="color: #6b7280;"><%= @sender.display_name %> (Admin)</span>
-            </div>
-            
-            <div style="margin-bottom: 16px;">
-              <strong style="color: #374151;">Message:</strong><br>
-              <div style="background: white; padding: 16px; border-radius: 4px; margin-top: 8px; color: #374151;">
-                <%= @message.content_html %>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </table>
+    <td style="padding: 0;">
+      <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        
+        <!-- Message Header -->
+        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid #e5e7eb;">
+          <h2 style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 600;">
+            <%= @message.processed_subject %>
+          </h2>
+        </div>
+        
+        <!-- Message Content -->
+        <div style="padding: 32px; color: #374151; line-height: 1.7; font-size: 16px;">
+          <%= @message.content_html %>
+        </div>
+        
+      </div>
     </td>
   </tr>
 </table>
@@ -56,14 +81,6 @@
   </table>
 </div>
 
-<div style="text-align: center; margin: 32px 0;">
-  <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; max-width: 400px; margin: 0 auto;">
-    <h3 style="color: #d97706; margin: 0 0 12px 0; font-size: 16px;">Important</h3>
-    <p style="margin: 0; color: #92400e; font-size: 14px;">
-      Please log in to your account to view the full message and reply. This link will take you directly to your application.
-    </p>
-  </div>
-</div>
 
 <div style="text-align: center; margin: 32px 0;">
   <div style="background-color: #e3f2fd; border-radius: 8px; padding: 20px; max-width: 300px; margin: 0 auto;">

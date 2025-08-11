@@ -336,7 +336,7 @@ class Application < ApplicationRecord
   end
   
   def message_threads
-    application_messages.thread_messages.includes(:replies, :sender).order(:created_at)
+    application_messages.thread_messages.includes(:replies, :sender).order(created_at: :desc)
   end
   
   # Log when admin views application

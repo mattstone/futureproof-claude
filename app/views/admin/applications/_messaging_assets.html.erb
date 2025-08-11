@@ -3,6 +3,28 @@
   // Agent data for JavaScript
   window.agentData = <%= raw @ai_agents.to_json(methods: [:display_name, :role_description, :avatar_path, :asset_avatar_path], except: [:created_at, :updated_at]) %>;
   
+  // Application data for template variable preview
+  window.applicationData = {
+    id: <%= @application.id %>,
+    referenceNumber: '<%= @application.id.to_s.rjust(6, '0') %>',
+    address: '<%= j(@application.address.to_s) %>',
+    homeValue: '<%= @application.home_value %>',
+    formattedHomeValue: '<%= j(@application.respond_to?(:formatted_home_value) ? @application.formatted_home_value.to_s : "$#{number_with_delimiter(@application.home_value)}") %>',
+    status: '<%= @application.status %>',
+    statusDisplay: '<%= @application.status.humanize %>',
+    borrowerAge: '<%= @application.borrower_age %>'
+  };
+  
+  // User data for template variable preview
+  window.applicationUserData = {
+    firstName: '<%= j(@application.user.first_name.to_s) %>',
+    lastName: '<%= j(@application.user.last_name.to_s) %>',
+    fullName: '<%= j(@application.user.display_name.to_s) %>',
+    email: '<%= j(@application.user.email.to_s) %>',
+    mobileNumber: '<%= j(@application.user.respond_to?(:full_mobile_number) ? @application.user.full_mobile_number.to_s : '') %>',
+    countryOfResidence: '<%= j(@application.user.country_of_residence.to_s) %>'
+  };
+  
   function updateAgentPreview(select) {
     const agentId = parseInt(select.value);
     const preview = document.getElementById('agent-preview');
@@ -49,6 +71,9 @@
     if (selectElement && selectElement.value) {
       updateAgentPreview(selectElement);
     }
+    
+    // Initialize live preview functionality
+    initializeLivePreview();
   });
   
   // Field insertion function for template variables
@@ -62,7 +87,301 @@
       textarea.value = text.substring(0, start) + fieldText + text.substring(end);
       textarea.focus();
       textarea.setSelectionRange(start + fieldText.length, start + fieldText.length);
+      
+      // Update preview
+      updatePreview();
     }
+  }
+  
+  // WYSIWYG Markup Functions
+  function applyMarkup(startTag, endTag) {
+    const textarea = document.querySelector('textarea[name="application_message[content]"]');
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    if (selectedText) {
+      // Text is selected - wrap it with markup
+      const replacement = startTag + selectedText + endTag;
+      textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+      
+      // Select the newly formatted text
+      textarea.focus();
+      textarea.setSelectionRange(start, start + replacement.length);
+      
+      // Update preview
+      updatePreview();
+    } else {
+      // No text selected - handle different cases
+      if (startTag === '- ' || startTag === '1. ') {
+        // For bullet points and numbered lists, add to beginning of line
+        const lineStart = textarea.value.lastIndexOf('\n', start) + 1;
+        const beforeLine = textarea.value.substring(0, lineStart);
+        const afterLine = textarea.value.substring(lineStart);
+        
+        textarea.value = beforeLine + startTag + afterLine;
+        textarea.focus();
+        textarea.setSelectionRange(lineStart + startTag.length, lineStart + startTag.length);
+        
+        // Update preview
+        updatePreview();
+      } else {
+        // For bold/italic, insert placeholder text
+        const placeholder = startTag === '**' ? 'bold text' : 'italic text';
+        const replacement = startTag + placeholder + endTag;
+        textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+        
+        // Select the placeholder text
+        textarea.focus();
+        textarea.setSelectionRange(start + startTag.length, start + startTag.length + placeholder.length);
+        
+        // Update preview
+        updatePreview();
+      }
+    }
+  }
+  
+  function insertLineBreak() {
+    const textarea = document.querySelector('textarea[name="application_message[content]"]');
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    textarea.value = textarea.value.substring(0, start) + '\n\n' + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + 2, start + 2);
+    
+    // Update preview
+    updatePreview();
+  }
+  
+  // Add keyboard shortcuts
+  document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="application_message[content]"]');
+    if (textarea) {
+      textarea.addEventListener('keydown', function(e) {
+        // Ctrl+B for bold
+        if (e.ctrlKey && e.key === 'b') {
+          e.preventDefault();
+          applyMarkup('**', '**');
+        }
+        // Ctrl+I for italic
+        if (e.ctrlKey && e.key === 'i') {
+          e.preventDefault();
+          applyMarkup('*', '*');
+        }
+        // Tab to indent (for nested lists)
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+          textarea.setSelectionRange(start + 2, start + 2);
+          
+          // Update preview
+          updatePreview();
+        }
+      });
+    }
+  });
+  
+  // Live Preview Functions
+  function initializeLivePreview() {
+    const subjectInput = document.querySelector('input[name="application_message[subject]"]');
+    const contentTextarea = document.querySelector('textarea[name="application_message[content]"]');
+    const agentSelect = document.querySelector('#application_message_ai_agent_id');
+    
+    // Add event listeners for real-time updates
+    if (subjectInput) {
+      subjectInput.addEventListener('input', updatePreview);
+    }
+    
+    if (contentTextarea) {
+      contentTextarea.addEventListener('input', updatePreview);
+    }
+    
+    if (agentSelect) {
+      // Update preview when agent selection changes
+      const originalHandler = agentSelect.onchange;
+      agentSelect.onchange = function(e) {
+        if (originalHandler) originalHandler.call(this, e);
+        updatePreviewAgent();
+      };
+    }
+    
+    // Initial preview update
+    updatePreview();
+    updatePreviewAgent();
+  }
+  
+  function updatePreview() {
+    const subjectInput = document.querySelector('input[name="application_message[subject]"]');
+    const contentTextarea = document.querySelector('textarea[name="application_message[content]"]');
+    const previewSubject = document.getElementById('preview-subject');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Update subject preview
+    if (subjectInput && previewSubject) {
+      const processedSubject = processTemplateVariables(subjectInput.value || 'Enter a subject above');
+      previewSubject.textContent = processedSubject;
+    }
+    
+    // Update content preview
+    if (contentTextarea && previewContent) {
+      const rawContent = contentTextarea.value || 'Type your message content above to see the preview...';
+      const processedContent = processTemplateVariables(rawContent);
+      const htmlContent = markupToHtml(processedContent);
+      previewContent.innerHTML = htmlContent;
+    }
+  }
+  
+  function updatePreviewAgent() {
+    const agentSelect = document.querySelector('#application_message_ai_agent_id');
+    const previewAgentHeader = document.getElementById('preview-agent-header');
+    const previewAgentAvatar = document.getElementById('preview-agent-avatar');
+    const previewAgentFallback = document.getElementById('preview-agent-fallback');
+    const previewAgentName = document.getElementById('preview-agent-name');
+    const previewAgentRole = document.getElementById('preview-agent-role');
+    const previewGreeting = document.getElementById('preview-greeting');
+    
+    if (!agentSelect || !window.agentData) return;
+    
+    const agentId = parseInt(agentSelect.value);
+    const agent = window.agentData.find(a => a.id === agentId);
+    
+    if (agent && previewAgentHeader) {
+      // Show agent header
+      previewAgentHeader.style.display = 'block';
+      
+      // Update agent info
+      if (previewAgentName) previewAgentName.textContent = agent.name;
+      if (previewAgentRole) previewAgentRole.textContent = agent.role_description;
+      
+      // Update avatar
+      if (agent.asset_avatar_path && previewAgentAvatar && previewAgentFallback) {
+        previewAgentAvatar.src = agent.asset_avatar_path;
+        previewAgentAvatar.alt = agent.name + ' Avatar';
+        previewAgentAvatar.style.display = 'block';
+        previewAgentFallback.style.display = 'none';
+        
+        // Handle image load errors
+        previewAgentAvatar.onerror = function() {
+          this.style.display = 'none';
+          previewAgentFallback.style.display = 'flex';
+          previewAgentFallback.textContent = agent.name.charAt(0).toUpperCase();
+        };
+      } else if (previewAgentFallback) {
+        if (previewAgentAvatar) previewAgentAvatar.style.display = 'none';
+        previewAgentFallback.style.display = 'flex';
+        previewAgentFallback.textContent = agent.name ? agent.name.charAt(0).toUpperCase() : '🤖';
+      }
+      
+      // Update greeting message
+      if (previewGreeting) {
+        previewGreeting.textContent = "I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® application.";
+      }
+      
+    } else if (previewAgentHeader) {
+      // Hide agent header when no agent selected
+      previewAgentHeader.style.display = 'none';
+      
+      // Update greeting to generic message
+      if (previewGreeting) {
+        previewGreeting.textContent = "You have received a new message regarding your Equity Preservation Mortgage® application.";
+      }
+    }
+  }
+  
+  // Template variable processing for preview (client-side approximation)
+  function processTemplateVariables(text) {
+    if (!text) return '';
+    
+    let processed = text;
+    
+    // Get application data from the page (we'll need to expose this)
+    const userData = window.applicationUserData || {};
+    const appData = window.applicationData || {};
+    
+    // Process user variables
+    processed = processed.replace(/\{\{user\.first_name\}\}/gi, userData.firstName || '[First Name]');
+    processed = processed.replace(/\{\{user\.last_name\}\}/gi, userData.lastName || '[Last Name]');
+    processed = processed.replace(/\{\{user\.full_name\}\}/gi, userData.fullName || '[Full Name]');
+    processed = processed.replace(/\{\{user\.email\}\}/gi, userData.email || '[Email]');
+    processed = processed.replace(/\{\{user\.mobile_number\}\}/gi, userData.mobileNumber || '[Mobile]');
+    processed = processed.replace(/\{\{user\.country_of_residence\}\}/gi, userData.countryOfResidence || '[Country]');
+    
+    // Process application variables
+    processed = processed.replace(/\{\{application\.id\}\}/gi, appData.id || '[ID]');
+    processed = processed.replace(/\{\{application\.reference_number\}\}/gi, appData.referenceNumber || '[Reference]');
+    processed = processed.replace(/\{\{application\.address\}\}/gi, appData.address || '[Property Address]');
+    processed = processed.replace(/\{\{application\.home_value\}\}/gi, appData.homeValue || '[Home Value]');
+    processed = processed.replace(/\{\{application\.formatted_home_value\}\}/gi, appData.formattedHomeValue || '[Formatted Home Value]');
+    processed = processed.replace(/\{\{application\.status\}\}/gi, appData.status || '[Status]');
+    processed = processed.replace(/\{\{application\.status_display\}\}/gi, appData.statusDisplay || '[Status Display]');
+    processed = processed.replace(/\{\{application\.borrower_age\}\}/gi, appData.borrowerAge || '[Age]');
+    
+    return processed;
+  }
+  
+  // Markup to HTML conversion for preview (client-side)
+  function markupToHtml(text) {
+    if (!text) return '<p>Type your message content above to see the preview...</p>';
+    
+    let html = text;
+    
+    // Convert **bold** to <strong>
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert *italic* to <em>
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Convert literal \\n to actual newlines
+    html = html.replace(/\\n/g, '\n');
+    
+    // Process bullet points
+    const lines = html.split('\n');
+    const processedLines = [];
+    let inList = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('- ')) {
+        if (!inList) {
+          processedLines.push('<ul>');
+          inList = true;
+        }
+        processedLines.push(`<li>${line.substring(2)}</li>`);
+      } else {
+        if (inList) {
+          processedLines.push('</ul>');
+          inList = false;
+        }
+        if (line) {
+          processedLines.push(line);
+        } else {
+          processedLines.push('<br>');
+        }
+      }
+    }
+    
+    if (inList) {
+      processedLines.push('</ul>');
+    }
+    
+    html = processedLines.join('\n');
+    
+    // Convert remaining line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraph if no block elements
+    if (!html.includes('<ul>') && !html.includes('<li>')) {
+      html = `<p>${html}</p>`;
+    }
+    
+    return html;
   }
 </script>
 
@@ -360,12 +679,176 @@
   font-size: 14px;
 }
 
+/* WYSIWYG Toolbar Styles */
+.wysiwyg-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 0;
+}
+
+.toolbar-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.toolbar-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.toolbar-btn:active {
+  background: #e5e7eb;
+  transform: translateY(1px);
+}
+
+.toolbar-btn strong,
+.toolbar-btn em {
+  font-style: normal;
+  font-weight: normal;
+}
+
+.toolbar-btn strong {
+  font-weight: bold;
+}
+
+.toolbar-btn em {
+  font-style: italic;
+}
+
+/* Adjust textarea to connect with toolbar */
+.wysiwyg-toolbar + .markup-editor {
+  border-radius: 0 0 6px 6px;
+  border-top: none;
+}
+
 /* Field Hints */
 .field-hint {
   color: #6b7280;
   font-size: 12px;
   margin-top: 4px;
   display: block;
+}
+
+/* Live Preview Styles */
+.live-preview-section {
+  margin: 24px 0;
+}
+
+.live-preview-label {
+  display: block;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.message-preview {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-sender {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#preview-avatar.sender-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.preview-sender .sender-info {
+  flex: 1;
+}
+
+.preview-sender .sender-name {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.preview-sender .sender-role {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.message-preview .message-subject {
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.message-preview .message-content {
+  padding: 16px;
+  background: #f9fafb;
+  border-left: 3px solid #0891b2;
+  margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.message-preview .message-content p {
+  margin: 0;
+}
+
+.message-preview .message-content strong {
+  font-weight: 600;
+  color: #374151;
+}
+
+.message-preview .message-content em {
+  font-style: italic;
+  color: #374151;
+}
+
+.message-preview .message-content ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.message-preview .message-content li {
+  margin-bottom: 4px;
+  color: #374151;
 }
 
 /* Responsive Design */

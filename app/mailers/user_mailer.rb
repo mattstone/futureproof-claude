@@ -53,7 +53,11 @@ class UserMailer < ApplicationMailer
         browser_info: browser_info.to_s,
         ip_address: ip_address,
         location: location,
-        sign_in_time: Time.current
+        sign_in_time: Time.current,
+        event_type: 'New Browser Sign-in',
+        device_type: extract_device_type(browser_info),
+        os_info: extract_os_info(browser_info),
+        risk_level: 'Low'
       })
       
       # Set instance variables for layout
@@ -104,6 +108,42 @@ class UserMailer < ApplicationMailer
         to: @user.email,
         subject: 'Your Equity Preservation Mortgage® Application Has Been Submitted'
       )
+    end
+  end
+
+  private
+
+  def extract_device_type(browser_info)
+    return 'Unknown' if browser_info.blank?
+    
+    browser_string = browser_info.to_s.downcase
+    
+    if browser_string.include?('mobile') || browser_string.include?('android') || browser_string.include?('iphone')
+      'Mobile Device'
+    elsif browser_string.include?('tablet') || browser_string.include?('ipad')
+      'Tablet'
+    else
+      'Desktop Computer'
+    end
+  end
+
+  def extract_os_info(browser_info)
+    return 'Unknown' if browser_info.blank?
+    
+    browser_string = browser_info.to_s.downcase
+    
+    if browser_string.include?('windows')
+      'Windows'
+    elsif browser_string.include?('mac') || browser_string.include?('macintosh')
+      'macOS'
+    elsif browser_string.include?('linux')
+      'Linux'
+    elsif browser_string.include?('android')
+      'Android'
+    elsif browser_string.include?('iphone') || browser_string.include?('ipad') || browser_string.include?('ios')
+      'iOS'
+    else
+      'Unknown'
     end
   end
 end

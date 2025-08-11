@@ -1,0 +1,64 @@
+<!-- Clear reply form and show success message -->
+<%= turbo_stream.update "reply-form-#{params[:parent_message_id]}" do %>
+  <div class="reply-success-message" style="background: #d1fae5; border: 1px solid #059669; border-radius: 6px; padding: 12px; color: #065f46; margin: 16px 0;">
+    <i class="fas fa-check-circle"></i> Your reply has been sent successfully!
+  </div>
+<% end %>
+
+<!-- Add new reply to the message thread if this is the dashboard view -->
+<% if request.path.include?('dashboard') %>
+  <%= turbo_stream.append "messages-#{@application.id}" do %>
+    <div class="message-thread" data-message-id="<%= @message.id %>">
+      <div class="message-header">
+        <div class="message-sender-info">
+          <div class="default-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="sender-details">
+            <div class="sender-name">
+              <strong>You</strong>
+            </div>
+            <div class="sender-role">Customer</div>
+          </div>
+        </div>
+        
+        <div class="message-meta">
+          <span class="message-status status-sent">
+            Sent
+          </span>
+          <time class="message-time">
+            <%= @message.created_at.strftime("%b %d, %Y at %I:%M %p") %>
+          </time>
+        </div>
+      </div>
+      
+      <div class="message-content">
+        <h5 class="message-subject"><%= @message.subject %></h5>
+        <div class="message-body">
+          <%= simple_format(@message.content) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <!-- For messages page, update the parent message's replies section -->
+  <% if @message.parent_message %>
+    <!-- Show the replies section if it was hidden -->
+    <%= turbo_stream.update "message-#{@message.parent_message.id}-replies" do %>
+      <div class="message-replies" id="message-<%= @message.parent_message.id %>-replies">
+        <h4>Your Replies:</h4>
+        <% @message.parent_message.replies.each do |reply| %>
+          <div class="message-reply">
+            <div class="reply-header">
+              <strong><%= reply.sender_name %></strong>
+              <time><%= reply.formatted_created_at %></time>
+            </div>
+            <div class="reply-content">
+              <%= reply.content_html %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

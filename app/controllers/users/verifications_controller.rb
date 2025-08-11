@@ -3,7 +3,12 @@ class Users::VerificationsController < ApplicationController
   before_action :redirect_if_confirmed, only: [:new, :create, :resend]
 
   def new
-    # Show verification form
+    # Generate and send verification code if user doesn't have a valid one
+    if @user.verification_code.blank? || @user.verification_code_expired?
+      @user.generate_verification_code
+      UserMailer.verification_code(@user).deliver_now
+      flash.now[:notice] = 'A verification code has been sent to your email address.'
+    end
   end
 
   def create

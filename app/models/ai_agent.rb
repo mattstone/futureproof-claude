@@ -3,7 +3,10 @@ class AiAgent < ApplicationRecord
   
   validates :name, presence: true, uniqueness: true
   validates :agent_type, presence: true, inclusion: { in: %w[applications backoffice investment] }
-  validates :avatar_filename, presence: true
+  validates :avatar_filename, presence: true, inclusion: { 
+    in: %w[Motoko.png Rie.png Yumi.png], 
+    message: "must be one of the available agent avatars: Motoko.png, Rie.png, Yumi.png" 
+  }
   
   scope :active, -> { where(is_active: true) }
   scope :by_type, ->(type) { where(agent_type: type) }

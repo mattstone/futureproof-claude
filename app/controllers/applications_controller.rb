@@ -117,12 +117,21 @@ class ApplicationsController < ApplicationController
       @message.parent_message = parent_message
     end
     
-    if @message.save
-      redirect_to messages_application_path(@application), notice: 'Your reply has been sent!'
-    else
-      @messages = @application.message_threads
-      @new_message = @message
-      render :messages, status: :unprocessable_entity
+    respond_to do |format|
+      if @message.save
+        format.html { redirect_to messages_application_path(@application), notice: 'Your reply has been sent!' }
+        format.turbo_stream { 
+          flash.now[:notice] = 'Your reply has been sent!'
+          render :reply_success 
+        }
+      else
+        format.html { 
+          @messages = @application.message_threads
+          @new_message = @message
+          render :messages, status: :unprocessable_entity
+        }
+        format.turbo_stream { render :reply_error }
+      end
     end
   end
 
@@ -166,7 +175,7 @@ class ApplicationsController < ApplicationController
     
     begin
       # Decrypt and verify the secure token
-      payload = Rails.application.message_encryptor(:secure_tokens).decrypt_and_verify(params[:token])
+      payload = SecureTokenEncryptor.decrypt_and_verify(params[:token])
       
       # Check if token has expired
       if payload['expires_at'] < Time.current.to_i
@@ -183,8 +192,16 @@ class ApplicationsController < ApplicationController
         return
       end
       
-      # Temporarily sign in the user for this request
-      sign_in(user, scope: :user)
+      # Store token info in session but don't auto-login
+      session[:pending_message_access] = {
+        user_id: user.id,
+        application_id: application.id,
+        token_verified: true,
+        expires_at: payload['expires_at']
+      }
+      
+      # Redirect to login with message about pending access
+      redirect_to new_user_session_path, notice: 'Please log in to access your message.'
       
     rescue ActiveSupport::MessageEncryptor::InvalidMessage, ActiveSupport::MessageVerifier::InvalidSignature
       redirect_to new_user_session_path, alert: 'Invalid access link. Please log in to continue.'

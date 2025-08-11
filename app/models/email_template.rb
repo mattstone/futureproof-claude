@@ -37,7 +37,7 @@ class EmailTemplate < ApplicationRecord
       },
       'security_notification' => {
         'user' => %w[first_name last_name full_name email],
-        'security' => %w[browser_info ip_address location sign_in_time]
+        'security' => %w[browser_info ip_address location sign_in_time event_type device_type os_info risk_level]
       }
     }
   end
@@ -156,6 +156,18 @@ class EmailTemplate < ApplicationRecord
       end
       if data[:sign_in_time]
         text.gsub!(/{{security\.sign_in_time}}/i, (data[:sign_in_time].strftime("%B %d, %Y at %I:%M %p") rescue data[:sign_in_time].to_s))
+      end
+      if data[:event_type]
+        text.gsub!(/{{security\.event_type}}/i, data[:event_type].to_s)
+      end
+      if data[:device_type]
+        text.gsub!(/{{security\.device_type}}/i, data[:device_type].to_s)
+      end
+      if data[:os_info]
+        text.gsub!(/{{security\.os_info}}/i, data[:os_info].to_s)
+      end
+      if data[:risk_level]
+        text.gsub!(/{{security\.risk_level}}/i, data[:risk_level].to_s)
       end
     end
     

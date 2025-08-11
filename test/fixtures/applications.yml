@@ -1,11 +1,34 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  user: one
-  address: MyString
-  home_value: 1
+mortgage_application:
+  user: john
+  address: 123 Main Street, Portland, OR 97201
+  home_value: 500000
+  status: property_details
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 65
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
 
-two:
-  user: two
-  address: MyString
-  home_value: 1
+second_application:
+  user: jane
+  address: 456 Oak Avenue, Seattle, WA 98101
+  home_value: 750000
+  status: property_details
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 70
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+submitted_application:
+  user: john
+  address: 789 Elm Street, San Francisco, CA 94102
+  home_value: 1200000
+  status: submitted
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 68
+  created_at: <%= 2.months.ago %>
+  updated_at: <%= 1.week.ago %>

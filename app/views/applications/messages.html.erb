@@ -55,7 +55,7 @@
             </div>
             
             <% if message.replies.any? %>
-              <div class="message-replies">
+              <div class="message-replies" id="message-<%= message.id %>-replies">
                 <h4>Your Replies:</h4>
                 <% message.replies.each do |reply| %>
                   <div class="message-reply">
@@ -69,14 +69,18 @@
                   </div>
                 <% end %>
               </div>
+            <% else %>
+              <div class="message-replies" id="message-<%= message.id %>-replies" style="display: none;">
+                <h4>Your Replies:</h4>
+              </div>
             <% end %>
             
             <!-- Reply Form -->
-            <div class="reply-form-section">
+            <div class="reply-form-section" id="reply-form-<%= message.id %>">
               <h4>Reply to this message:</h4>
               <%= form_with(model: [@application, @new_message], 
                             url: reply_to_message_application_path(@application), 
-                            local: true, class: "reply-form") do |form| %>
+                            class: "reply-form") do |form| %>
                 
                 <%= form.hidden_field :parent_message_id, value: message.id %>
                 
@@ -87,12 +91,9 @@
 
                 <div class="field">
                   <%= form.label :content, "Your Reply" %>
-                  <%= form.text_area :content, rows: 4, class: "markup-editor", 
-                                     placeholder: "Type your reply here...\n\n**Bold text**\n*Italic text*\n- Bullet points", 
+                  <%= form.text_area :content, rows: 4, 
+                                     placeholder: "Type your reply here...", 
                                      required: true %>
-                  <small class="field-hint">
-                    You can use markup: **bold**, *italic*, - bullet points
-                  </small>
                 </div>
 
                 <div class="form-actions">
@@ -169,6 +170,66 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.message-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3b82f6;
+}
+
+.default-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  border: 2px solid #3b82f6;
+}
+
+.sender-details {
+  flex: 1;
+}
+
+.sender-name {
+  margin-bottom: 4px;
+  color: #1f2937;
+  font-size: 16px;
+}
+
+.ai-assistant-badge {
+  background: #3b82f6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.sender-role {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .message-info {

@@ -2,7 +2,7 @@
 
 one:
   privacy_policy: one
-  user: one
+  user: admin_user
   action: MyString
   change_details: MyText
   previous_content: MyText
@@ -10,7 +10,7 @@ one:
 
 two:
   privacy_policy: two
-  user: two
+  user: admin_user
   action: MyString
   change_details: MyText
   previous_content: MyText

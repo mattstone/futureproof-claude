@@ -2,12 +2,12 @@
 
 one:
   terms_of_use: one
-  user: one
+  user: admin_user
   action: MyString
   change_details: MyText
 
 two:
   terms_of_use: two
-  user: two
+  user: admin_user
   action: MyString
   change_details: MyText

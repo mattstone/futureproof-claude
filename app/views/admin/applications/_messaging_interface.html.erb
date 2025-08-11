@@ -9,33 +9,8 @@
     
     <%= hidden_field_tag :from_view, controller.action_name %>
     
-    <% if @new_message.errors.any? %>
-      <div class="alert alert-danger">
-        <ul>
-          <% @new_message.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
-    <div class="field">
-      <%= form.label :subject %>
-      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
-    </div>
-
-    <div class="field">
-      <%= form.label :content, "Message" %>
-      <%= form.text_area :content, rows: 6, class: "markup-editor", 
-                         placeholder: "Type your message here...\n\n**Bold text**\n*Italic text*\n- Bullet points", 
-                         required: true %>
-      <small class="field-hint">
-        You can use markup: **bold**, *italic*, - bullet points
-      </small>
-    </div>
-
     <!-- AI Agent Selection -->
-    <div class="field ai-agent-selection">
+    <div class="field ai-agent-selection" style="margin-bottom: 24px;">
       <%= form.label :ai_agent_id, "Send message as:" %>
       <%= form.select :ai_agent_id, 
           options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
@@ -57,6 +32,21 @@
         Customer will see this message as coming from the selected AI agent
       </small>
     </div>
+    
+    <% if @new_message.errors.any? %>
+      <div class="alert alert-danger">
+        <ul>
+          <% @new_message.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :subject %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+    </div>
 
     <!-- Field Helper Buttons -->
     <div class="field-helpers">
@@ -66,6 +56,113 @@
         <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
         <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
         <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <%= form.label :content, "Message" %>
+      
+      <!-- WYSIWYG Toolbar -->
+      <div class="wysiwyg-toolbar">
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('**', '**')" title="Bold">
+          <strong>B</strong>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('*', '*')" title="Italic">
+          <em>I</em>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('- ', '')" title="Bullet Point">
+          •
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('1. ', '')" title="Numbered List">
+          1.
+        </button>
+        <button type="button" class="toolbar-btn" onclick="insertLineBreak()" title="Line Break">
+          ↩
+        </button>
+      </div>
+      
+      <%= form.text_area :content, rows: 8, class: "markup-editor", 
+                         placeholder: "Type your message here...\n\nSelect text and use the formatting buttons above, or type markup directly:\n**Bold text**\n*Italic text*\n- Bullet points", 
+                         required: true %>
+      <small class="field-hint">
+        Select text and use formatting buttons above, or type markup directly: **bold**, *italic*, - bullet points
+      </small>
+    </div>
+
+    <!-- Live Preview Section -->
+    <div class="field live-preview-section">
+      <label class="live-preview-label">Live Preview (Email Layout)</label>
+      <div id="message-preview" class="message-preview" style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        
+        <!-- Email Container Preview -->
+        <div style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; max-width: 600px; margin: 0 auto;">
+          
+          <!-- Company Header (Blue) -->
+          <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 24px; text-align: center;">
+            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">
+              Futureproof Financial Group
+            </h1>
+            <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+              Equity Preservation Mortgage ®
+            </p>
+          </div>
+          
+          <!-- Agent Header Section -->
+          <div id="preview-agent-header" style="text-align: center; padding: 32px 40px; display: none;">
+            <div style="display: inline-flex; align-items: center; gap: 16px;">
+              <img id="preview-agent-avatar" src="" alt="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6; display: none;" />
+              <div id="preview-agent-fallback" style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; border: 3px solid #3b82f6;">
+                🤖
+              </div>
+              <div style="text-align: left;">
+                <h1 id="preview-agent-name" style="margin: 0 0 4px 0; color: #374151; font-size: 24px; font-weight: 600;">
+                  Select an AI agent above
+                </h1>
+                <p id="preview-agent-role" style="margin: 0 0 8px 0; color: #3b82f6; font-size: 16px; font-weight: 500;">
+                  AI Assistant
+                </p>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                  Futureproof Financial Group
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Greeting Section -->
+          <div style="padding: 0 40px 32px 40px;">
+            <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear [Customer Name],</p>
+            <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
+              <span id="preview-greeting">I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® application.</span>
+            </p>
+          </div>
+          
+          <!-- Message Content Card -->
+          <div style="padding: 0 40px 40px 40px;">
+            <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
+              
+              <!-- Message Header -->
+              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid #e5e7eb;">
+                <h2 id="preview-subject" style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 600;">
+                  Enter a subject above
+                </h2>
+              </div>
+              
+              <!-- Message Content -->
+              <div id="preview-content" style="padding: 32px; color: #374151; line-height: 1.7; font-size: 16px;">
+                <p>Type your message content above to see the preview...</p>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Action Button -->
+          <div style="text-align: center; padding: 0 40px 40px 40px;">
+            <a href="#" style="background-color: #0891b2; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;">
+              View Application & Reply
+            </a>
+          </div>
+          
+        </div>
       </div>
     </div>
 
@@ -91,6 +188,7 @@
                 <% begin %>
                   <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name} Avatar", class: "sender-avatar" %>
                 <% rescue => e %>
+                  <!-- Avatar load failed: <%= e.message %> -->
                   <div class="sender-avatar admin-avatar">
                     <i class="fas fa-robot"></i>
                   </div>

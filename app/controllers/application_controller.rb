@@ -9,16 +9,45 @@ class ApplicationController < ActionController::Base
   before_action :set_security_headers
   
   before_action :authenticate_user!
+  before_action :ensure_email_verified!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :load_unread_message_count, if: :user_signed_in?
   
   # Skip authentication for verification pages since users aren't logged in yet
   skip_before_action :authenticate_user!, if: :verification_controller?
+  skip_before_action :ensure_email_verified!, if: :verification_or_devise_controller?
 
   private
 
+  def ensure_email_verified!
+    return unless user_signed_in?
+    return if current_user.confirmed?
+    
+    # Redirect unverified users to verification page with message
+    flash[:alert] = "Please verify your email address before accessing your account."
+    redirect_to new_users_verification_path(email: current_user.email)
+  end
+
   # Override Devise redirect after sign in
   def after_sign_in_path_for(resource)
-    if resource.admin?
+    # Check email verification first
+    unless resource.confirmed?
+      flash[:notice] = "Please verify your email address to access your account."
+      return new_users_verification_path(email: resource.email)
+    end
+    
+    # Check if user has pending message access from email link
+    if session[:pending_message_access] && 
+       session[:pending_message_access]['user_id'] == resource.id &&
+       session[:pending_message_access]['token_verified'] &&
+       session[:pending_message_access]['expires_at'] > Time.current.to_i
+      
+      # Clear the session data
+      session.delete(:pending_message_access)
+      
+      # Redirect to dashboard where they can see their messages
+      dashboard_path
+    elsif resource.admin?
       admin_root_path
     else
       dashboard_path
@@ -32,6 +61,18 @@ class ApplicationController < ActionController::Base
 
   def verification_controller?
     controller_name == 'verifications' && controller_path == 'users/verifications'
+  end
+
+  def verification_or_devise_controller?
+    verification_controller? || devise_controller?
+  end
+  
+  def load_unread_message_count
+    return unless user_signed_in?
+    
+    @unread_message_count = current_user.applications.joins(:application_messages)
+      .where(application_messages: { message_type: 'admin_to_customer', status: 'sent' })
+      .count('application_messages.id')
   end
   
   def set_security_headers

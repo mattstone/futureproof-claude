@@ -66,16 +66,17 @@ class ApplicationMessage < ApplicationRecord
   def send_message!
     return false unless draft?
     
-    update!(status: 'sent', sent_at: Time.current)
-    
     # Send email notification if it's from admin to customer
     if from_admin?
       ApplicationMailer.message_notification(self).deliver_now
     end
     
+    # Only mark as sent if email sending succeeded
+    update!(status: 'sent', sent_at: Time.current)
     true
   rescue => e
     Rails.logger.error "Failed to send message #{id}: #{e.message}"
+    # Keep status as draft if sending failed
     false
   end
   

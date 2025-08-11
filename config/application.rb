@@ -35,7 +35,8 @@ module Futureproof
       key: '_futureproof_session',
       secure: Rails.env.production?,
       httponly: true,
-      expire_after: 4.hours,
+      expire_after: 24.hours,
       same_site: :strict
+    
   end
 end
