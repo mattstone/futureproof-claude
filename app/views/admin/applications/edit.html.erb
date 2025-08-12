@@ -99,10 +99,19 @@
           <%= @application.borrower_age %> years
         </div>
         
-        <% if @application.borrower_names.present? %>
+        <% if @application.has_borrower_names? %>
           <div class="detail-row">
             <strong>Borrower Names:</strong>
-            <%= @application.borrower_names %>
+            <div style="white-space: pre-line;"><%= @application.formatted_borrower_names %></div>
+          </div>
+        <% end %>
+        
+        <% if @application.status_rejected? && @application.rejected_reason.present? %>
+          <div class="detail-row">
+            <strong>Rejection Reason:</strong>
+            <div class="rejection-reason">
+              <%= simple_format(@application.rejected_reason) %>
+            </div>
           </div>
         <% end %>
         
@@ -288,6 +297,25 @@
 .rejected-reason-field label {
   color: #dc2626;
   font-weight: 600;
+}
+
+/* Rejection Reason Display */
+.rejection-reason {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rejection-reason p {
+  margin: 0;
+}
+
+.rejection-reason p + p {
+  margin-top: 8px;
 }
 
 /* Responsive Design */

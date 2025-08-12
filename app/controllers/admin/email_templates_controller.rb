@@ -1,9 +1,7 @@
 require 'ostruct'
 
-class Admin::EmailTemplatesController < ApplicationController
-  before_action :authenticate_user!
+class Admin::EmailTemplatesController < Admin::BaseController
   before_action :set_email_template, only: [:show, :edit, :update, :activate, :deactivate, :preview]
-  layout 'admin/application'
 
   def index
     @email_templates = EmailTemplate.order(:template_type, :name).page(params[:page]).per(10)
@@ -16,6 +14,10 @@ class Admin::EmailTemplatesController < ApplicationController
                                     .page(params[:page])
                                     .per(10)
     @available_fields = EmailTemplate.available_fields[@email_template.template_type] || {}
+    
+    # Generate preview data for the show page
+    @preview_data = generate_preview_data_for_show
+    @rendered_preview = @email_template.render_content(@preview_data)
   end
 
   def new
@@ -216,5 +218,36 @@ class Admin::EmailTemplatesController < ApplicationController
       formatted_future_property_value: '$1,200,000',
       formatted_home_equity_preserved: '$840,000'
     )
+  end
+  
+  def generate_preview_data_for_show
+    user = current_user
+    application = Application.joins(:user, :mortgage).first
+    mortgage = application&.mortgage || Mortgage.first
+    
+    case @email_template.template_type
+    when 'verification'
+      {
+        user: user,
+        verification_code: '123456',
+        expires_at: 15.minutes.from_now
+      }
+    when 'application_submitted'
+      {
+        user: user,
+        application: application || create_sample_application(user, mortgage),
+        mortgage: mortgage
+      }
+    when 'security_notification'
+      {
+        user: user,
+        browser_info: 'Chrome 120.0 on macOS',
+        ip_address: '192.168.1.1',
+        location: 'Sydney, Australia',
+        sign_in_time: Time.current
+      }
+    else
+      { user: user }
+    end
   end
 end

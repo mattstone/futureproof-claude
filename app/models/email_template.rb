@@ -88,6 +88,7 @@ class EmailTemplate < ApplicationRecord
   
   # Render template with data substitution
   def render_content(data = {})
+    data ||= {}
     rendered_content = content.dup
     rendered_subject = subject.dup
     

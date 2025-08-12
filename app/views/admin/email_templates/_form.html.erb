@@ -49,9 +49,11 @@
       </div>
       
       <div class="field-helper-section">
-        <button type="button" id="show-field-helper" class="admin-btn admin-btn-sm admin-btn-info">Show Available Fields</button>
-        <div id="field-helper-panel" style="display: none; margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;">
-          <h4 style="margin: 0 0 12px 0; color: #374151;">Available Field Placeholders:</h4>
+        <div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="margin: 0; color: #374151;">Available Field Placeholders</h4>
+            <button type="button" id="toggle-field-helper" class="admin-btn admin-btn-sm admin-btn-secondary">Hide Fields</button>
+          </div>
           <div id="field-helper-content">
             <p class="text-muted">Select a template type to see available fields</p>
           </div>
@@ -131,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const templateTypeSelect = document.getElementById('template_type_select');
   const fieldHelperPanel = document.getElementById('field-helper-panel');
   const fieldHelperContent = document.getElementById('field-helper-content');
-  const showFieldHelperBtn = document.getElementById('show-field-helper');
+  const toggleFieldHelperBtn = document.getElementById('toggle-field-helper');
   const htmlContent = document.getElementById('html-content');
   const markupContent = document.getElementById('markup-content');
   const subjectField = document.querySelector('#email_template_subject');
@@ -269,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
       formData.append('subject', subject);
       formData.append('use_sample_data', useSampleData);
       
-      fetch('<%= preview_ajax_admin_email_templates_path %>', {
+      fetch('/admin/email_templates/preview_ajax', {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -362,19 +364,20 @@ document.addEventListener('DOMContentLoaded', function() {
     switchEditorMode('markup');
   });
   
-  showFieldHelperBtn.addEventListener('click', function() {
-    if (fieldHelperPanel.style.display === 'none') {
-      fieldHelperPanel.style.display = 'block';
-      showFieldHelperBtn.textContent = 'Hide Available Fields';
+  toggleFieldHelperBtn.addEventListener('click', function() {
+    const content = document.getElementById('field-helper-content');
+    if (content.style.display === 'none') {
+      content.style.display = 'block';
+      toggleFieldHelperBtn.textContent = 'Hide Fields';
       updateFieldHelper();
     } else {
-      fieldHelperPanel.style.display = 'none';
-      showFieldHelperBtn.textContent = 'Show Available Fields';
+      content.style.display = 'none';
+      toggleFieldHelperBtn.textContent = 'Show Fields';
     }
   });
   
   templateTypeSelect.addEventListener('change', function() {
-    if (fieldHelperPanel.style.display !== 'none') {
+    if (document.getElementById('field-helper-content').style.display !== 'none') {
       updateFieldHelper();
     }
     updatePreview();

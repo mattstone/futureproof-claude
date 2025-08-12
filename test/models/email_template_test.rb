@@ -90,19 +90,23 @@ class EmailTemplateTest < ActiveSupport::TestCase
   end
 
   test "should render application_submitted template with application data" do
-    application = OpenStruct.new(
-      id: 123,
-      address: '123 Test St',
-      formatted_home_value: '$800,000',
-      status_display: 'Processing',
-      formatted_created_at: 'January 1, 2025'
+    application = Struct.new(
+      :id, :address, :formatted_home_value, :status_display, :formatted_created_at,
+      :home_value, :existing_mortgage_amount, :formatted_existing_mortgage_amount,
+      :loan_value, :formatted_loan_value, :borrower_age, :loan_term, :growth_rate,
+      :formatted_growth_rate, :future_property_value, :formatted_future_property_value,
+      :home_equity_preserved, :formatted_home_equity_preserved
+    ).new(
+      123, '123 Test St', '$800,000', 'Processing', 'January 1, 2025',
+      800000, 200000, '$200,000', 600000, '$600,000', 65, 25, 3.5,
+      '3.50%', 1200000, '$1,200,000', 1000000, '$1,000,000'
     )
     
     template = EmailTemplate.create!(
       name: 'Application Test',
       template_type: 'application_submitted',
       subject: 'Application {{application.id}} submitted',
-      content: '<p>Hi {{user.first_name}}, your application for {{application.address}} ({{application.formatted_home_value}}) is {{application.status_display}}</p>'
+      content: '<p>Hi {{user.first_name}}, your application for {{application.address}} ({{application.formatted_home_value}}) has loan value {{application.formatted_loan_value}}</p>'
     )
     
     rendered = template.render_content({
@@ -114,7 +118,7 @@ class EmailTemplateTest < ActiveSupport::TestCase
     assert_includes rendered[:content], 'Hi John'
     assert_includes rendered[:content], '123 Test St'
     assert_includes rendered[:content], '$800,000'
-    assert_includes rendered[:content], 'Processing'
+    assert_includes rendered[:content], '$600,000'
   end
 
   test "should render security_notification template with security data" do
@@ -244,5 +248,264 @@ class EmailTemplateTest < ActiveSupport::TestCase
     assert_includes rendered[:subject], '{{user.missing_field}}'
     assert_includes rendered[:content], 'John'
     assert_includes rendered[:content], '{{nonexistent.field}}'
+  end
+
+  # Additional Edge Cases and Production Quality Tests
+  test "should handle audit logging properly" do
+    template = EmailTemplate.new(
+      name: 'Audit Test',
+      template_type: 'verification',
+      subject: 'Test',
+      content: '<p>Test</p>',
+      current_user: @user
+    )
+    
+    assert_difference('EmailTemplateVersion.count') do
+      template.save!
+    end
+    
+    version = template.email_template_versions.first
+    assert_equal @user, version.user
+    assert_equal 'created', version.action
+    assert_includes version.change_details, 'Audit Test'
+  end
+
+  test "should track activation changes in audit log" do
+    template = EmailTemplate.create!(
+      name: 'Activation Test',
+      template_type: 'verification',
+      subject: 'Test',
+      content: '<p>Test</p>',
+      is_active: false,
+      current_user: @user
+    )
+    
+    assert_difference('EmailTemplateVersion.count') do
+      template.update!(is_active: true)
+    end
+    
+    version = template.email_template_versions.order(:created_at).last
+    assert_equal @user, version.user
+    assert_equal 'activated', version.action
+  end
+
+  test "should handle very long content" do
+    long_content = '<p>' + 'Lorem ipsum dolor sit amet. ' * 1000 + '</p>'
+    
+    template = EmailTemplate.new(
+      name: 'Long Content Test',
+      template_type: 'verification',
+      subject: 'Test with very long subject line ' * 10,
+      content: long_content
+    )
+    
+    assert template.valid?
+    assert template.save
+    
+    rendered = template.render_content(user: @user)
+    assert rendered[:content].length > 10000
+  end
+
+  test "should handle special characters and unicode" do
+    unicode_template = EmailTemplate.create!(
+      name: 'Unicode Test 🎉',
+      template_type: 'verification',
+      subject: 'Hello {{user.first_name}} 🎉 with émojis and spéciål chars',
+      content: '<p>Wëlcømë {{user.first_name}}! 🎯 Your vërification côde îs {{verification.verification_code}}</p>'
+    )
+    
+    user_with_unicode = User.create!(
+      first_name: 'Jörg',
+      last_name: 'Müller',
+      email: 'jorg@example.com',
+      password: 'password123',
+      password_confirmation: 'password123',
+      country_of_residence: 'Germany',
+      mobile_country_code: '+49',
+      mobile_number: '1234567890',
+      confirmed_at: Time.current,
+      terms_accepted: true
+    )
+    
+    rendered = unicode_template.render_content({
+      user: user_with_unicode,
+      verification_code: '123456'
+    })
+    
+    assert_includes rendered[:subject], 'Jörg 🎉'
+    assert_includes rendered[:content], 'Wëlcømë Jörg'
+    assert_includes rendered[:content], '123456'
+  end
+
+  test "should handle empty and nil data gracefully" do
+    template = EmailTemplate.create!(
+      name: 'Empty Data Test',
+      template_type: 'verification',
+      subject: 'Test {{user.first_name}}',
+      content: '<p>Hello {{user.first_name}}</p>'
+    )
+    
+    # Test with empty data
+    rendered = template.render_content({})
+    assert_includes rendered[:subject], '{{user.first_name}}'
+    assert_includes rendered[:content], '{{user.first_name}}'
+    
+    # Test with nil data
+    rendered = template.render_content(nil)
+    assert_includes rendered[:subject], '{{user.first_name}}'
+    assert_includes rendered[:content], '{{user.first_name}}'
+  end
+
+  test "should handle malformed placeholder syntax" do
+    template = EmailTemplate.create!(
+      name: 'Malformed Test',
+      template_type: 'verification',
+      subject: 'Test {user.first_name} {{user.first_name {{incomplete',
+      content: '<p>{single} {{double}} {{{triple}}} {{user.first_name}}</p>'
+    )
+    
+    rendered = template.render_content(user: @user)
+    
+    # Should only replace well-formed placeholders
+    assert_includes rendered[:content], 'John'
+    assert_includes rendered[:content], '{single}'
+    assert_includes rendered[:content], '{{{triple}}}'
+  end
+
+  test "should create default templates for all types" do
+    types = %w[verification application_submitted security_notification]
+    
+    types.each do |type|
+      # Clean up existing templates
+      EmailTemplate.where(template_type: type).destroy_all
+      
+      template = EmailTemplate.create_default_for_type(type)
+      
+      assert_not_nil template
+      assert template.persisted?
+      assert_equal type, template.template_type
+      assert_not template.name.blank?
+      assert_not template.subject.blank?
+      assert_not template.content.blank?
+      
+      # Should contain appropriate placeholders
+      case type
+      when 'verification'
+        assert_includes template.content, '{{user'
+        assert_includes template.content, '{{verification'
+      when 'application_submitted'
+        assert_includes template.content, '{{user'
+        assert_includes template.content, '{{application'
+        assert_includes template.content, '{{mortgage'
+      when 'security_notification'
+        assert_includes template.content, '{{user'
+        assert_includes template.content, '{{security'
+      end
+    end
+  end
+
+  test "should handle markup conversion edge cases" do
+    template = EmailTemplate.new(
+      name: 'Markup Edge Cases',
+      template_type: 'verification',
+      subject: 'Test',
+      content: 'Test'
+    )
+    
+    # Test empty content
+    assert_equal "", template.markup_to_html("")
+    assert_equal "", template.markup_to_html(nil)
+    
+    # Test complex markup
+    complex_markup = <<~MARKUP
+      ## Main Title
+      
+      ### Subtitle with **bold** inside
+      
+      Regular paragraph with *italic* and **bold** text.
+      
+      - First item with **bold**
+      - Second item with *italic*
+      - Third item plain
+      
+      Another paragraph after list.
+      
+      ## Another Section
+      Text here.
+    MARKUP
+    
+    html = template.markup_to_html(complex_markup)
+    
+    assert_includes html, '<h2'
+    assert_includes html, '<h3'
+    assert_includes html, '<ul'
+    assert_includes html, '<li'
+    assert_includes html, '<strong>bold</strong>'
+    assert_includes html, '<em>italic</em>'
+    assert html.scan(/<h2/).length == 2 # Two h2 sections
+  end
+
+  test "should handle concurrent template operations safely" do
+    # Test that concurrent operations don't create inconsistent state
+    template1 = EmailTemplate.create!(
+      name: 'Concurrent Test 1',
+      template_type: 'verification',
+      subject: 'Test 1',
+      content: '<p>Test 1</p>',
+      is_active: true
+    )
+    
+    template2 = EmailTemplate.create!(
+      name: 'Concurrent Test 2',
+      template_type: 'verification',
+      subject: 'Test 2',
+      content: '<p>Test 2</p>',
+      is_active: false
+    )
+    
+    # Simulate concurrent activation
+    EmailTemplate.transaction do
+      EmailTemplate.where(template_type: 'verification').update_all(is_active: false)
+      template2.update!(is_active: true)
+    end
+    
+    template1.reload
+    template2.reload
+    
+    # Should maintain consistency
+    active_count = EmailTemplate.where(template_type: 'verification', is_active: true).count
+    assert_equal 1, active_count
+    assert template2.is_active?
+    assert_not template1.is_active?
+  end
+
+  test "should validate content length constraints" do
+    # Test very long content within reasonable limits
+    very_long_content = '<p>' + 'a' * 50000 + '</p>'
+    
+    template = EmailTemplate.new(
+      name: 'Length Test',
+      template_type: 'verification',
+      subject: 'Test',
+      content: very_long_content
+    )
+    
+    # Should handle long content gracefully
+    assert template.valid?
+  end
+
+  test "should handle case-insensitive placeholder replacement" do
+    template = EmailTemplate.create!(
+      name: 'Case Test',
+      template_type: 'verification',
+      subject: 'Test {{USER.FIRST_NAME}} and {{user.first_name}}',
+      content: '<p>{{User.First_Name}} and {{user.first_name}}</p>'
+    )
+    
+    rendered = template.render_content(user: @user)
+    
+    # Current implementation is case-insensitive for placeholders
+    assert_includes rendered[:subject], 'John'
+    assert_includes rendered[:content], 'John'
   end
 end

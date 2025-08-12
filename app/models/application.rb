@@ -1,6 +1,6 @@
 class Application < ApplicationRecord
   # include InputSanitization  # Temporarily disabled for testing
-  
+
   belongs_to :user
   belongs_to :mortgage, optional: true
   has_many :application_versions, dependent: :destroy
@@ -33,42 +33,42 @@ class Application < ApplicationRecord
 
   # Validations
   validates :address, presence: true, length: { maximum: 255 }
-  validates :home_value, presence: true, numericality: { 
-    greater_than: 0, 
+  validates :home_value, presence: true, numericality: {
+    greater_than: 0,
     less_than_or_equal_to: 50_000_000,
-    only_integer: true 
+    only_integer: true
   }
   validates :user, presence: true
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
-  validates :existing_mortgage_amount, numericality: { 
+  validates :existing_mortgage_amount, numericality: {
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000
   }, allow_blank: true
   validates :rejected_reason, presence: true, if: :status_rejected?
-  validates :borrower_age, presence: true, numericality: { 
-    greater_than_or_equal_to: 18, 
+  validates :borrower_age, presence: true, numericality: {
+    greater_than_or_equal_to: 18,
     less_than_or_equal_to: 85,
-    only_integer: true 
+    only_integer: true
   }, if: -> { ownership_status_individual? && !status_created? }
   validates :borrower_names, presence: true, if: -> { ownership_status_joint? && !status_created? }
   validates :company_name, presence: true, if: -> { ownership_status_company? && !status_created? }
   validates :super_fund_name, presence: true, if: -> { ownership_status_super? && !status_created? }
-  validates :loan_term, presence: true, numericality: { 
-    greater_than_or_equal_to: 10, 
+  validates :loan_term, presence: true, numericality: {
+    greater_than_or_equal_to: 10,
     less_than_or_equal_to: 30,
-    only_integer: true 
+    only_integer: true
   }, on: :income_loan_update
-  validates :income_payout_term, presence: true, numericality: { 
-    greater_than_or_equal_to: 10, 
+  validates :income_payout_term, presence: true, numericality: {
+    greater_than_or_equal_to: 10,
     less_than_or_equal_to: 30,
-    only_integer: true 
+    only_integer: true
   }, on: :income_loan_update
   validates :mortgage, presence: true, on: :income_loan_update
-  validates :growth_rate, presence: true, numericality: { 
-    greater_than: 0, 
-    less_than_or_equal_to: 20 
+  validates :growth_rate, presence: true, numericality: {
+    greater_than: 0,
+    less_than_or_equal_to: 20
   }
 
   # Custom validations
@@ -78,10 +78,10 @@ class Application < ApplicationRecord
   # Callbacks
   before_validation :assign_demo_address, on: :create
   before_validation :set_default_existing_mortgage_amount
-  
+
   # Track changes with audit functionality
   attr_accessor :current_user
-  
+
   after_create :log_creation
   after_update :log_update
 
@@ -117,6 +117,25 @@ class Application < ApplicationRecord
 
   def status_display
     status.humanize
+  end
+
+  def formatted_borrower_names
+    return nil unless borrower_names.present?
+
+    begin
+      names_data = JSON.parse(borrower_names)
+      if names_data.is_a?(Array)
+        names_data.map { |item| "#{item['name']} (Age: #{item['age']})" }.join("\n")
+      else
+        borrower_names # Return raw if not expected format
+      end
+    rescue JSON::ParserError
+      borrower_names # Return raw if JSON is invalid
+    end
+  end
+
+  def has_borrower_names?
+    borrower_names.present? && borrower_names != "" && borrower_names != "null"
   end
 
   def status_badge_class
@@ -178,7 +197,7 @@ class Application < ApplicationRecord
     rate = growth_rate_override || growth_rate || 2.0
     term = loan_term || 30
     current_value = home_value || 0
-    
+
     # Simple interest calculation: Future Value = Present Value * (1 + rate * time)
     current_value * (1 + (rate / 100.0) * term)
   end
@@ -202,9 +221,9 @@ class Application < ApplicationRecord
   # Equity preservation calculations
   def home_equity_preserved(growth_rate_override = nil)
     return 0 unless mortgage.present?
-    
+
     future_value = future_property_value(growth_rate_override)
-    
+
     if mortgage.mortgage_type_principal_and_interest?
       # For Principal & Interest: equity preserved is the full future property value
       future_value
@@ -222,13 +241,13 @@ class Application < ApplicationRecord
   # Loan value calculation ((Home Value - Existing Mortgage) * LVR)
   def loan_value
     return 0 unless mortgage.present? && home_value.present?
-    
+
     # Calculate net property value after existing mortgage
     net_property_value = home_value - (existing_mortgage_amount || 0)
-    
+
     # Ensure we don't have a negative loan value
     return 0 if net_property_value <= 0
-    
+
     lvr_decimal = (mortgage.lvr || 80.0) / 100.0
     net_property_value * lvr_decimal
   end
@@ -240,11 +259,11 @@ class Application < ApplicationRecord
   # Payment Summary calculations
   def interest_paid_on_behalf
     return 0 unless loan_term.present?
-    
+
     principal = loan_value
     rate = 7.45 / 100.0  # 7.45% as decimal
     term = loan_term
-    
+
     # Simple interest calculation: Principal * Rate * Time
     principal * rate * term
   end
@@ -255,7 +274,7 @@ class Application < ApplicationRecord
 
   def loan_principal_paid_on_behalf
     return 0 unless mortgage.present?
-    
+
     if mortgage.mortgage_type_principal_and_interest?
       loan_value
     else
@@ -269,7 +288,7 @@ class Application < ApplicationRecord
 
   def repayment_due_at_end_of_loan
     return 0 unless mortgage.present?
-    
+
     if mortgage.mortgage_type_principal_and_interest?
       0  # No repayment due at end for principal & interest
     else
@@ -292,7 +311,7 @@ class Application < ApplicationRecord
 
   def monthly_income_amount
     return 0 unless mortgage.present?
-    
+
     mortgage.calculate_monthly_income(
       home_value || 0,
       loan_term || 30,
@@ -310,39 +329,39 @@ class Application < ApplicationRecord
 
   def monthly_income_total_paid
     return 0 unless mortgage.present? && income_payout_term.present?
-    
+
     # Calculate monthly income using the mortgage's calculate_monthly_income method
     monthly_income = mortgage.calculate_monthly_income(
       home_value || 0,
       loan_term || 30,
       income_payout_term || 30
     )
-    
+
     # Total paid = monthly income * 12 months * income payout term
     monthly_income * 12 * income_payout_term
   end
-  
+
   # Messaging methods
   def has_unread_customer_messages?
     application_messages.customer_messages.unread.exists?
   end
-  
+
   def unread_customer_messages_count
     application_messages.customer_messages.unread.count
   end
-  
+
   def latest_customer_message
     application_messages.customer_messages.sent.order(:created_at).last
   end
-  
+
   def message_threads
     application_messages.thread_messages.includes(:replies, :sender).order(created_at: :desc)
   end
-  
+
   # Log when admin views application
   def log_view_by(user)
     return unless user
-    
+
     application_versions.create!(
       user: user,
       action: 'viewed',
@@ -364,7 +383,7 @@ class Application < ApplicationRecord
 
   def borrower_names_format_if_joint
     return unless ownership_status_joint? && borrower_names.present?
-    
+
     # Check if it's valid JSON format for multiple names/ages
     begin
       names_data = JSON.parse(borrower_names)
@@ -378,11 +397,11 @@ class Application < ApplicationRecord
 
   def assign_demo_address
     return if address.present? && address != "Placeholder - to be updated by user"
-    
+
     # Random Sydney addresses for demonstration purposes
     sydney_addresses = [
       "15 Circular Quay West, Sydney NSW 2000",
-      "42 Kent Street, Sydney NSW 2000", 
+      "42 Kent Street, Sydney NSW 2000",
       "128 George Street, The Rocks NSW 2000",
       "73 Miller Street, North Sydney NSW 2060",
       "91 Pittwater Road, Manly NSW 2095",
@@ -407,13 +426,13 @@ class Application < ApplicationRecord
       "567 Elizabeth Street, Surry Hills NSW 2010",
       "89 King Street, Sydney NSW 2000"
     ]
-    
+
     self.address = sydney_addresses.sample
   end
-  
+
   def log_creation
     return unless current_user
-    
+
     application_versions.create!(
       user: current_user,
       action: 'created',
@@ -426,10 +445,10 @@ class Application < ApplicationRecord
       new_ownership_status: ownership_status_before_type_cast
     )
   end
-  
+
   def log_update
     return unless current_user
-    
+
     # Special handling for status changes
     if saved_change_to_status?
       old_status = saved_change_to_status[0]
@@ -462,44 +481,44 @@ class Application < ApplicationRecord
       )
     end
   end
-  
+
   def build_change_summary
     changes_list = []
-    
+
     if saved_change_to_address?
       changes_list << "Address changed from '#{saved_change_to_address[0]}' to '#{saved_change_to_address[1]}'"
     end
-    
+
     if saved_change_to_home_value?
       old_value = ActionController::Base.helpers.number_to_currency(saved_change_to_home_value[0], precision: 0)
       new_value = ActionController::Base.helpers.number_to_currency(saved_change_to_home_value[1], precision: 0)
       changes_list << "Home value changed from #{old_value} to #{new_value}"
     end
-    
+
     if saved_change_to_existing_mortgage_amount?
       old_amount = ActionController::Base.helpers.number_to_currency(saved_change_to_existing_mortgage_amount[0], precision: 0)
       new_amount = ActionController::Base.helpers.number_to_currency(saved_change_to_existing_mortgage_amount[1], precision: 0)
       changes_list << "Existing mortgage amount changed from #{old_amount} to #{new_amount}"
     end
-    
+
     if saved_change_to_borrower_age?
       changes_list << "Borrower age changed from #{saved_change_to_borrower_age[0]} to #{saved_change_to_borrower_age[1]}"
     end
-    
+
     if saved_change_to_ownership_status?
       old_status = ownership_status_label(saved_change_to_ownership_status[0])
       new_status = ownership_status_label(saved_change_to_ownership_status[1])
       changes_list << "Ownership status changed from '#{old_status}' to '#{new_status}'"
     end
-    
+
     changes_list.join("; ")
   end
-  
+
   def status_label(status_value)
     case status_value
     when 0 then 'Created'
     when 1 then 'User Details'
-    when 2 then 'Property Details' 
+    when 2 then 'Property Details'
     when 3 then 'Income and Loan Options'
     when 4 then 'Submitted'
     when 5 then 'Processing'
@@ -508,7 +527,7 @@ class Application < ApplicationRecord
     else status_value.to_s
     end
   end
-  
+
   def ownership_status_label(ownership_value)
     case ownership_value
     when 0 then 'Individual'

@@ -46,6 +46,28 @@
           </span>
         </div>
         
+        <div class="detail-row">
+          <strong>Ownership Status:</strong>
+          <%= @application.ownership_status_display %>
+        </div>
+        
+        <div class="detail-row">
+          <strong>Property State:</strong>
+          <%= @application.property_state_display %>
+        </div>
+        
+        <% if @application.has_existing_mortgage? %>
+          <div class="detail-row">
+            <strong>Existing Mortgage:</strong>
+            <%= @application.formatted_existing_mortgage_amount %>
+          </div>
+        <% else %>
+          <div class="detail-row">
+            <strong>Existing Mortgage:</strong>
+            <span style="color: #6b7280; font-style: italic;">No existing mortgage</span>
+          </div>
+        <% end %>
+        
         <% if @application.mortgage.present? %>
           <div class="detail-row">
             <strong>Mortgage Type:</strong>
@@ -69,6 +91,27 @@
           <div class="detail-row">
             <strong>Monthly Income:</strong>
             <span style="color: #6b7280; font-style: italic;">Not calculated</span>
+          </div>
+        <% end %>
+        
+        <div class="detail-row">
+          <strong>Borrower Age:</strong>
+          <%= @application.borrower_age %> years
+        </div>
+        
+        <% if @application.has_borrower_names? %>
+          <div class="detail-row">
+            <strong>Borrower Names:</strong>
+            <div style="white-space: pre-line;"><%= @application.formatted_borrower_names %></div>
+          </div>
+        <% end %>
+        
+        <% if @application.status_rejected? && @application.rejected_reason.present? %>
+          <div class="detail-row">
+            <strong>Rejection Reason:</strong>
+            <div class="rejection-reason">
+              <%= simple_format(@application.rejected_reason) %>
+            </div>
           </div>
         <% end %>
         
@@ -428,6 +471,25 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+}
+
+/* Rejection Reason Display */
+.rejection-reason {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rejection-reason p {
+  margin: 0;
+}
+
+.rejection-reason p + p {
+  margin-top: 8px;
 }
 
 /* Responsive Design */

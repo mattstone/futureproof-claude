@@ -17,13 +17,31 @@
           { prompt: 'Select AI Agent...' },
           { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
       
-      <div id="agent-preview" class="agent-preview" style="display: none;">
+      <div id="agent-preview" class="agent-preview" style="<%= @suggested_agent ? 'display: block;' : 'display: none;' %>">
         <div class="agent-info">
-          <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <% if @suggested_agent %>
+            <% begin %>
+              <%= image_tag @suggested_agent.asset_avatar_path, 
+                  alt: "#{@suggested_agent.name} Avatar", 
+                  class: "agent-avatar", 
+                  style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+            <% rescue => e %>
+              <div class="agent-avatar agent-avatar-fallback" 
+                   style="width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+                <%= @suggested_agent.name.first.upcase %>
+              </div>
+            <% end %>
+          <% else %>
+            <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <% end %>
           <div class="agent-details">
-            <strong class="agent-name"></strong>
-            <div class="agent-role"></div>
-            <div class="agent-specialties"></div>
+            <strong class="agent-name"><%= @suggested_agent&.display_name %></strong>
+            <div class="agent-role"><%= @suggested_agent&.role_description %></div>
+            <div class="agent-specialties">
+              <% if @suggested_agent %>
+                Specialties: <%= @suggested_agent.specialties || 'General assistance' %>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>

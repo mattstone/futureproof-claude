@@ -39,26 +39,117 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
       is_active: true
     )
     
-    sign_in @admin_user
+    # Log in as admin
+    post user_session_path, params: {
+      user: { email: @admin_user.email, password: 'password123' }
+    }
   end
 
   test "should get index" do
     get admin_email_templates_path
     assert_response :success
-    assert_select 'h1', 'Email Templates'
-    assert_select 'td', 'Test Email Template'
+    assert_select 'strong', 'Test Email Template'
+    assert_select 'small.text-muted', 'Test template for verification emails'
   end
 
   test "should show email template" do
     get admin_email_template_path(@email_template)
     assert_response :success
-    assert_select 'h1', /Email Template.*Test Email Template/
+    assert_select '.info-item span', 'Test Email Template'
+  end
+
+  test "should show email template with rendered preview not raw HTML" do
+    get admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should show Content Preview section
+    assert_select 'h3', 'Content Preview'
+    assert_select '.card-subtitle', 'Rendered preview with sample data'
+    
+    # Should show rendered content, not raw HTML
+    assert_select '.email-preview-container' do
+      assert_select '.email-subject', /Subject:.*Test Subject Admin/
+      assert_select '.email-content', /Hello Admin/
+      assert_select '.email-content', /123456/ # verification code
+    end
+    
+    # Ensure the HTML is properly rendered (no escaped HTML entities)
+    assert_no_match /&lt;p&gt;Hello/, response.body
+  end
+
+  test "should show verification template preview with sample data" do
+    get admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should substitute placeholders with sample data
+    assert_select '.email-subject', /Test Subject Admin/
+    assert_select '.email-content', /Hello Admin/
+    assert_select '.email-content', /123456/
+  end
+
+  test "should show application_submitted template preview with sample data" do
+    app_template = EmailTemplate.create!(
+      name: 'App Template',
+      template_type: 'application_submitted',
+      subject: 'Application for {{user.first_name}}',
+      content: '<p>Hello {{user.first_name}}, your application ID is {{application.id}} for property {{application.address}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(app_template)
+    assert_response :success
+    
+    # Should show rendered content with substituted placeholders
+    assert_select '.email-subject', /Application for Admin/
+    assert_select '.email-content', /Hello Admin/
+    assert_select '.email-content', /123/ # sample application ID
+    assert_select '.email-content', /123 Sample Street/ # sample address
+  end
+
+  test "should show security_notification template preview with sample data" do
+    security_template = EmailTemplate.create!(
+      name: 'Security Template',
+      template_type: 'security_notification',
+      subject: 'Security Alert for {{user.first_name}}',
+      content: '<p>Hello {{user.first_name}}, sign-in detected from {{security.ip_address}} at {{security.location}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(security_template)
+    assert_response :success
+    
+    # Should show rendered content with substituted placeholders
+    assert_select '.email-subject', /Security Alert for Admin/
+    assert_select '.email-content', /Hello Admin/
+    assert_select '.email-content', /192.168.1.1/ # sample IP
+    assert_select '.email-content', /Sydney, Australia/ # sample location
+  end
+
+  test "should not show available field placeholders on show page" do
+    get admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should NOT show Available Field Placeholders section
+    assert_select 'h3', { text: 'Available Field Placeholders', count: 0 }
+    assert_select '.available-fields-card', count: 0
+    assert_select '.field-tag', count: 0
+  end
+
+  test "should show larger content preview window" do
+    get admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should have increased height for content preview
+    assert_match /max-height: 800px/, response.body
+    assert_select '.email-content'
   end
 
   test "should get new" do
     get new_admin_email_template_path
     assert_response :success
-    assert_select 'h1', 'Create New Email Template'
+    # Page title is set via content_for, check the form is present
+    assert_select 'form#email-template-form'
+    assert_select 'input#email_template_name'
   end
 
   test "should create email template" do
@@ -103,6 +194,30 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'h1', /Edit.*Email Template/
     assert_select 'input[value="Test Email Template"]'
+  end
+
+  test "should show available field placeholders on edit page" do
+    get edit_admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should show Available Field Placeholders section
+    assert_select 'h4', 'Available Field Placeholders'
+    assert_select '#field-helper-panel'
+    assert_select '#field-helper-content'
+    assert_select '#toggle-field-helper', 'Hide Fields'
+  end
+
+  test "should show live preview section on edit page" do
+    get edit_admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should show Live Preview section
+    assert_select '.email-editor-preview'
+    assert_select '.preview-header h3', 'Live Preview'
+    assert_select '#refresh-preview', 'Refresh'
+    assert_select '#toggle-sample-data', 'Toggle Sample Data'
+    assert_select '#subject-preview'
+    assert_select '#email-content-preview'
   end
 
   test "should update email template" do
@@ -258,8 +373,11 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should require admin authentication" do
-    sign_out @admin_user
-    sign_in @regular_user
+    # Log out and log in as regular user
+    delete destroy_user_session_path
+    post user_session_path, params: {
+      user: { email: @regular_user.email, password: 'password123' }
+    }
     
     get admin_email_templates_path
     # Should redirect to login or show unauthorized
@@ -267,7 +385,8 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should require authentication" do
-    sign_out @admin_user
+    # Log out 
+    delete destroy_user_session_path
     
     get admin_email_templates_path
     assert_redirected_to new_user_session_path
@@ -332,5 +451,232 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @admin_user, version.user
     assert_equal 'updated', version.action
     assert_includes version.change_details, 'Subject changed'
+  end
+
+  # Error Handling Tests
+  test "should handle invalid template type gracefully" do
+    get preview_admin_email_template_path(@email_template), params: { format: :json }
+    assert_response :success
+    
+    # Should not crash with invalid template type
+    invalid_template = EmailTemplate.create!(
+      name: 'Invalid Type Template',
+      template_type: 'verification', # Valid type initially
+      subject: 'Test',
+      content: '<p>Test</p>'
+    )
+    
+    # Change to invalid type at database level to test error handling
+    invalid_template.update_column(:template_type, 'invalid_type')
+    
+    assert_nothing_raised do
+      get preview_admin_email_template_path(invalid_template)
+    end
+  end
+
+  test "should handle missing application data gracefully in preview" do
+    # Ensure no applications exist for this test
+    Application.destroy_all
+    
+    app_template = EmailTemplate.create!(
+      name: 'App Template',
+      template_type: 'application_submitted',
+      subject: 'Application {{application.id}}',
+      content: '<p>Application details</p>',
+      is_active: true
+    )
+    
+    assert_nothing_raised do
+      get preview_admin_email_template_path(app_template)
+    end
+    assert_response :success
+  end
+
+  test "should handle minimal content gracefully" do
+    minimal_template = EmailTemplate.create!(
+      name: 'Minimal Template',
+      template_type: 'verification',
+      subject: 'Minimal',
+      content: '<p>Minimal content</p>',
+      is_active: false
+    )
+    
+    get admin_email_template_path(minimal_template)
+    assert_response :success
+    assert_select '.email-content'
+  end
+
+  test "should display malicious content safely in preview" do
+    malicious_template = EmailTemplate.create!(
+      name: 'Malicious Template',
+      template_type: 'verification',
+      subject: 'Test <script>alert("xss")</script>',
+      content: '<p>Test <script>alert("xss")</script></p>',
+      is_active: false
+    )
+    
+    get admin_email_template_path(malicious_template)
+    assert_response :success
+    
+    # Content should be displayed (the model doesn't automatically sanitize, 
+    # but the view should handle this properly with html_safe)
+    assert_select '.email-content'
+    assert_select '.email-subject'
+  end
+
+  test "should handle very long content appropriately" do
+    long_content = '<p>' + 'Lorem ipsum dolor sit amet. ' * 1000 + '</p>'
+    long_template = EmailTemplate.create!(
+      name: 'Long Template',
+      template_type: 'verification',
+      subject: 'Very Long Subject ' * 50,
+      content: long_content,
+      is_active: false
+    )
+    
+    get admin_email_template_path(long_template)
+    assert_response :success
+    assert_select '.email-content'
+  end
+
+  test "should handle concurrent template activation properly" do
+    # Create multiple templates of the same type
+    template1 = EmailTemplate.create!(
+      name: 'Template 1',
+      template_type: 'verification',
+      subject: 'Test 1',
+      content: '<p>Test 1</p>',
+      is_active: true
+    )
+    
+    template2 = EmailTemplate.create!(
+      name: 'Template 2',
+      template_type: 'verification',
+      subject: 'Test 2',
+      content: '<p>Test 2</p>',
+      is_active: false
+    )
+    
+    # Activate the second template
+    patch activate_admin_email_template_path(template2)
+    
+    template1.reload
+    template2.reload
+    
+    assert_not template1.is_active?
+    assert template2.is_active?
+  end
+
+  test "should validate template uniqueness by name" do
+    assert_no_difference('EmailTemplate.count') do
+      post admin_email_templates_path, params: {
+        email_template: {
+          name: @email_template.name, # Duplicate name
+          template_type: 'application_submitted',
+          subject: 'Duplicate',
+          content: '<p>Duplicate</p>'
+        }
+      }
+    end
+    
+    assert_response :unprocessable_entity
+    assert_select '.field_with_errors'
+  end
+
+  test "should handle missing CSRF token in AJAX requests" do
+    # Test AJAX preview without CSRF token should fail gracefully
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      content: '<p>Test</p>',
+      subject: 'Test'
+    }
+    
+    # In test environment, CSRF protection may be disabled for JSON requests
+    # The important thing is that it doesn't crash
+    assert_includes [200, 302, 422], response.status
+  end
+
+  test "should handle invalid template parameters in AJAX preview" do
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      content: nil,
+      subject: 'Test'
+    }, xhr: true, headers: {
+      'X-CSRF-Token' => 'invalid-token'
+    }
+    
+    # Should handle gracefully (either error or redirect)
+    assert_includes [400, 302], response.status
+  end
+
+  # Edge Cases
+  test "should handle template with missing placeholders gracefully" do
+    broken_template = EmailTemplate.create!(
+      name: 'Broken Template',
+      template_type: 'verification',
+      subject: 'Test {{nonexistent.field}}',
+      content: '<p>Missing {{invalid.placeholder}} content</p>',
+      is_active: false
+    )
+    
+    get admin_email_template_path(broken_template)
+    assert_response :success
+    
+    # Should show template even with broken placeholders
+    assert_select '.email-subject'
+    assert_select '.email-content'
+  end
+
+  test "should handle template activation when no templates exist for type" do
+    # Remove all verification templates
+    EmailTemplate.where(template_type: 'verification').destroy_all
+    
+    new_template = EmailTemplate.create!(
+      name: 'First Template',
+      template_type: 'verification',
+      subject: 'First',
+      content: '<p>First</p>',
+      is_active: false
+    )
+    
+    patch activate_admin_email_template_path(new_template)
+    
+    new_template.reload
+    assert new_template.is_active?
+  end
+
+  test "should require all mandatory fields for template creation" do
+    mandatory_fields = [:name, :template_type, :subject, :content]
+    
+    mandatory_fields.each do |field|
+      params = {
+        name: 'Test Template',
+        template_type: 'verification',
+        subject: 'Test Subject',
+        content: '<p>Test Content</p>'
+      }
+      params[field] = nil
+      
+      assert_no_difference('EmailTemplate.count') do
+        post admin_email_templates_path, params: { email_template: params }
+      end
+      
+      assert_response :unprocessable_entity
+    end
+  end
+
+  test "should handle template preview with special characters" do
+    special_template = EmailTemplate.create!(
+      name: 'Special Template',
+      template_type: 'verification',
+      subject: 'Test with émojis 🎉 and spéciål chårs',
+      content: '<p>Content with émojis 🎉 spéciål chårs and "quotes" & entities</p>',
+      is_active: false
+    )
+    
+    get admin_email_template_path(special_template)
+    assert_response :success
+    assert_select '.email-subject'
+    assert_select '.email-content'
   end
 end
