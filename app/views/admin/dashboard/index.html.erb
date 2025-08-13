@@ -33,8 +33,53 @@
     <div class="metric-icon success-icon">🎉</div>
     <div class="metric-content">
       <h3><%= number_with_delimiter(@accepted_applications) %></h3>
-      <p>Accepted Applications</p>
+      <p>Contracts</p>
       <span class="metric-percentage"><%= (@total_applications > 0 ? (@accepted_applications.to_f / @total_applications * 100).round(1) : 0) %>% acceptance rate</span>
+    </div>
+  </div>
+</div>
+
+<!-- Funds Under Management Charts -->
+<div class="dashboard-grid">
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Funds Under Management - Monthly</h3>
+      <small style="color: #6b7280; font-weight: normal;">New contract property values per month</small>
+    </div>
+    <div class="card-content">
+      <div class="growth-chart fum-chart">
+        <% max_value = [@monthly_fum_data.values.max, 1].max %>
+        <% @monthly_fum_data.each do |month, amount| %>
+          <div class="growth-bar">
+            <div class="growth-fill fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
+            <div class="growth-label">
+              <span><%= month %></span>
+              <strong><%= number_to_currency(amount, precision: 0) %></strong>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Funds Under Management - Cumulative</h3>
+      <small style="color: #6b7280; font-weight: normal;">Total property values under contract</small>
+    </div>
+    <div class="card-content">
+      <div class="growth-chart cumulative-fum-chart">
+        <% max_value = [@cumulative_fum_data.values.max, 1].max %>
+        <% @cumulative_fum_data.each do |month, amount| %>
+          <div class="growth-bar">
+            <div class="growth-fill cumulative-fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
+            <div class="growth-label">
+              <span><%= month %></span>
+              <strong><%= number_to_currency(amount, precision: 0) %></strong>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
@@ -545,6 +590,14 @@
 
 .conversion-fill {
   background: linear-gradient(0deg, #059669, #10b981);
+}
+
+.fum-fill {
+  background: linear-gradient(0deg, #dc2626, #f87171);
+}
+
+.cumulative-fum-fill {
+  background: linear-gradient(0deg, #7c3aed, #a78bfa);
 }
 
 .growth-label {

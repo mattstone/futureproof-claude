@@ -52,6 +52,10 @@ class Admin::DashboardController < Admin::BaseController
     # Growth data for the last 6 months
     @application_growth_data = generate_growth_data(Application, 6)
     @conversion_growth_data = generate_conversion_data(6)
+    
+    # Funds Under Management data
+    @monthly_fum_data = generate_monthly_fum_data(6)
+    @cumulative_fum_data = generate_cumulative_fum_data(6)
   end
 
   private
@@ -86,6 +90,41 @@ class Admin::DashboardController < Admin::BaseController
       # Calculate conversion rate as percentage
       conversion_rate = users_created > 0 ? ((submitted_apps.to_f / users_created) * 100).round(1) : 0
       data[month_name] = conversion_rate
+    end
+    data.reverse_each.to_h
+  end
+
+  def generate_monthly_fum_data(months)
+    data = {}
+    months.times do |i|
+      month_start = i.months.ago.beginning_of_month
+      month_end = i.months.ago.end_of_month
+      month_name = month_start.strftime('%b %Y')
+      
+      # Get contracts that were created in this month
+      monthly_fum = Contract.joins(:application)
+                           .where(contracts: { created_at: month_start..month_end })
+                           .where(applications: { home_value: 0.. })
+                           .sum('applications.home_value')
+      
+      data[month_name] = monthly_fum
+    end
+    data.reverse_each.to_h
+  end
+
+  def generate_cumulative_fum_data(months)
+    data = {}
+    months.times do |i|
+      month_end = i.months.ago.end_of_month
+      month_name = month_end.strftime('%b %Y')
+      
+      # Get all active contracts up to this month
+      cumulative_fum = Contract.joins(:application)
+                              .where('contracts.created_at <= ?', month_end)
+                              .where(applications: { home_value: 0.. })
+                              .sum('applications.home_value')
+      
+      data[month_name] = cumulative_fum
     end
     data.reverse_each.to_h
   end
