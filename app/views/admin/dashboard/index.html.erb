@@ -203,7 +203,7 @@
     <div class="card-content">
       <div class="status-chart">
         <% @status_distribution.each do |status, count| %>
-          <div class="status-bar">
+          <div class="status-bar" data-status="<%= status %>">
             <div class="status-label">
               <span><%= status %></span>
               <strong><%= count %></strong>
@@ -437,8 +437,8 @@
 
 .status-label {
   display: flex;
-  justify-content: between;
   align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
 }
 
@@ -464,6 +464,14 @@
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+.status-bar[data-status="Accepted"] .status-fill {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.status-bar[data-status="Rejected"] .status-fill {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
 }
 
 /* Activity Stats */

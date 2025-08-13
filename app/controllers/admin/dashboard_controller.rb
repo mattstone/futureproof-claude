@@ -27,7 +27,7 @@ class Admin::DashboardController < Admin::BaseController
                                            .limit(10)
     
     # Status distribution for chart
-    @status_distribution = Application.group(:status).count.transform_keys do |status|
+    raw_status_distribution = Application.group(:status).count.transform_keys do |status|
       case status
       when 'created' then 'Created'
       when 'user_details' then 'User Details'
@@ -39,6 +39,13 @@ class Admin::DashboardController < Admin::BaseController
       when 'rejected' then 'Rejected'
       else status.humanize
       end
+    end
+    
+    # Order status distribution in specified order
+    status_order = ['Created', 'User Details', 'Property Details', 'Income & Loan', 'Submitted', 'Processing', 'Rejected', 'Accepted']
+    @status_distribution = {}
+    status_order.each do |status|
+      @status_distribution[status] = raw_status_distribution[status] || 0
     end
     
     # Recent applications for quick access
