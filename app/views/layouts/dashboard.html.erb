@@ -400,12 +400,23 @@
         <!-- Left Sidebar -->
         <aside class="dashboard-sidebar">
           <ul class="sidebar-nav">
-            <li><%= link_to "Dashboard", dashboard_path, class: (request.path == dashboard_path && params[:section] != 'applications') ? "active" : "" %></li>
+            <li><%= link_to "Dashboard", dashboard_path, class: (request.path == dashboard_path && params[:section] != 'applications' && params[:section] != 'contracts') ? "active" : "" %></li>
             <li>
               <%= link_to dashboard_path(section: 'applications'), class: (request.path == dashboard_path && params[:section] == 'applications') ? "active" : "", style: "display: flex; align-items: center; gap: 8px;" do %>
                 <span>Applications</span>
                 <% if @unread_message_count && @unread_message_count > 0 %>
                   <span class="unread-badge"><%= @unread_message_count > 99 ? "99+" : @unread_message_count %></span>
+                <% end %>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to dashboard_path(section: 'contracts'), class: (request.path == dashboard_path && params[:section] == 'contracts') ? "active" : "", style: "display: flex; align-items: center; gap: 8px;" do %>
+                <span>Contracts</span>
+                <% if defined?(@contracts_with_unread) && @contracts_with_unread&.any? %>
+                  <% unread_count = @contracts_with_unread.joins(:contract_messages).where(contract_messages: { status: 'sent', message_type: 'admin_to_customer' }).count %>
+                  <% if unread_count > 0 %>
+                    <span class="unread-badge"><%= unread_count > 99 ? "99+" : unread_count %></span>
+                  <% end %>
                 <% end %>
               <% end %>
             </li>

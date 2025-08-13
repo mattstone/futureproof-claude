@@ -35,6 +35,9 @@
           <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
             <span>📋 Applications</span>
           <% end %>
+          <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}" do %>
+            <span>📄 Contracts</span>
+          <% end %>
           <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
             <span>👥 Users</span>
           <% end %>

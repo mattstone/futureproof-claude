@@ -95,6 +95,9 @@ class ApplicationsController < ApplicationController
     @messages = @application.message_threads
     @new_message = @application.application_messages.build
     
+    # If a specific message ID is provided (from email link), highlight it
+    @highlight_message_id = params[:message_id]&.to_i
+    
     # Mark admin messages as read when customer views them
     @application.application_messages.admin_messages.unread.update_all(
       status: 'read', 
@@ -183,24 +186,23 @@ class ApplicationsController < ApplicationController
         return
       end
       
-      # Verify the application and user match
+      # Verify the application and user match, and that the token is for the requested application
       application = Application.find_by(id: payload['application_id'])
       user = User.find_by(id: payload['user_id'])
+      requested_application_id = params[:id].to_i
       
-      unless application && user && application.user == user
+      unless application && user && application.user == user && application.id == requested_application_id
         redirect_to new_user_session_path, alert: 'Invalid access link. Please log in to continue.'
         return
       end
       
-      # Store token info in session but don't auto-login
-      session[:pending_message_access] = {
-        user_id: user.id,
-        application_id: application.id,
-        token_verified: true,
-        expires_at: payload['expires_at']
-      }
+      # Store the intended redirect path in Rails cache (session gets reset on login)
+      # Redirect to dashboard with application expanded instead of messages page
+      intended_path = "#{dashboard_path}?section=applications&application_id=#{application.id}"
       
-      # Redirect to login with message about pending access
+      cache_key = "user_#{user.id}_pending_redirect"
+      Rails.cache.write(cache_key, intended_path, expires_in: 10.minutes)
+      
       redirect_to new_user_session_path, notice: 'Please log in to access your message.'
       
     rescue ActiveSupport::MessageEncryptor::InvalidMessage, ActiveSupport::MessageVerifier::InvalidSignature

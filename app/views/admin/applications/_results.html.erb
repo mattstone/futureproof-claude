@@ -1,0 +1,92 @@
+<%= turbo_frame_tag "applications_results" do %>
+  <div class="admin-table">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Property</th>
+          <th>Mortgage Type</th>
+          <th>Monthly Income</th>
+          <th>Status</th>
+          <th>Messages</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="applications-table-body">
+        <% @applications.each do |application| %>
+          <tr id="application-row-<%= application.id %>">
+            <td class="user-cell">
+              <div>
+                <strong><%= application.user.display_name %></strong>
+                <br>
+                <small><%= application.user.email %></small>
+              </div>
+            </td>
+            <td class="property-cell">
+              <div class="property-info">
+                <div class="address"><%= truncate(application.address, length: 40) %></div>
+                <small class="value"><%= application.formatted_home_value %></small>
+              </div>
+            </td>
+            <td class="mortgage-cell">
+              <% if application.mortgage.present? %>
+                <span class="mortgage-type"><%= application.mortgage.name %></span>
+              <% else %>
+                <span class="no-mortgage">—</span>
+              <% end %>
+            </td>
+            <td class="income-cell">
+              <% if application.mortgage.present? && application.respond_to?(:monthly_income_amount) %>
+                <span class="monthly-income"><%= application.formatted_monthly_income_amount %></span>
+              <% else %>
+                <span class="no-income">—</span>
+              <% end %>
+            </td>
+            <td class="status-cell">
+              <%= render 'status_badge', application: application %>
+            </td>
+            <td class="messages-cell">
+              <div class="message-indicators">
+                <% if application.has_unread_customer_messages? %>
+                  <span class="message-indicator unread" title="<%= application.unread_customer_messages_count %> unread customer messages">
+                    📨 <%= application.unread_customer_messages_count %>
+                  </span>
+                <% elsif application.application_messages.exists? %>
+                  <span class="message-indicator read" title="Messages exchanged">
+                    💬 <%= application.application_messages.count %>
+                  </span>
+                <% else %>
+                  <span class="message-indicator none" title="No messages">
+                    —
+                  </span>
+                <% end %>
+              </div>
+            </td>
+            <td class="actions-cell">
+              <%= link_to "View", admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-secondary", data: { turbo_frame: "_top" } %>
+              <%= link_to "Edit", edit_admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-primary", data: { turbo_frame: "_top" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @applications.empty? %>
+      <div style="padding: 40px; text-align: center; color: #6b7280;">
+        <% if params[:search].present? && params[:status].present? %>
+          No applications found matching "<%= params[:search] %>" with status "<%= params[:status].humanize %>"
+        <% elsif params[:search].present? %>
+          No applications found matching "<%= params[:search] %>"
+        <% elsif params[:status].present? %>
+          No applications found with status "<%= params[:status].humanize %>"
+        <% else %>
+          No applications found.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="admin-pagination">
+    <%= paginate @applications, window: 2 %>
+  </div>
+<% end %>

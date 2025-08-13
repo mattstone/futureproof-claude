@@ -3,6 +3,7 @@ class Application < ApplicationRecord
 
   belongs_to :user
   belongs_to :mortgage, optional: true
+  has_one :contract, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
 
@@ -84,6 +85,7 @@ class Application < ApplicationRecord
 
   after_create :log_creation
   after_update :log_update
+  after_update :create_contract_if_accepted
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -157,6 +159,7 @@ class Application < ApplicationRecord
 
   def can_be_edited?
     status_created? || status_property_details? || status_income_and_loan_options?
+    # Note: Accepted applications cannot be edited as they have active contracts
   end
 
   def next_step
@@ -216,6 +219,10 @@ class Application < ApplicationRecord
 
   def formatted_growth_rate
     "#{growth_rate || 2.0}%"
+  end
+  
+  def contract_display_name
+    "#{user.display_name} - #{address[0..50]}"
   end
 
   # Equity preservation calculations
@@ -480,6 +487,27 @@ class Application < ApplicationRecord
         new_ownership_status: saved_change_to_ownership_status ? saved_change_to_ownership_status[1] : nil
       )
     end
+  end
+  
+  def create_contract_if_accepted
+    # Only create contract if status changed to accepted and no contract exists yet
+    return unless saved_change_to_status?
+    return unless status_accepted?
+    return if contract.present?
+    
+    # Create contract with default dates
+    # Note: start_date and end_date should be set later by admin, not automatically
+    Contract.create!(
+      application: self,
+      start_date: Date.current, # Temporary placeholder
+      end_date: Date.current + 5.years, # Temporary placeholder
+      status: :awaiting_funding
+    )
+    
+    Rails.logger.info "Contract automatically created for accepted application #{id}"
+  rescue => e
+    Rails.logger.error "Failed to create contract for application #{id}: #{e.message}"
+    raise e
   end
 
   def build_change_summary

@@ -15,11 +15,11 @@ Email: <%= @user.email %>
 
 ===== LOAN SUMMARY =====
 Mortgage Type: <%= @application.mortgage&.name %>
-LVR (Loan to Value Ratio): <%= @application.mortgage&.lvr %>%
+LVR (Loan to Value Ratio): <%= @application.mortgage&.formatted_lvr %>
 Interest Rate: 7.45%
 Loan Term: <%= @application.loan_term %> years
 Loan Value: <%= @application.formatted_loan_value %>
-  (Calculated as: Home Value - Existing Mortgage × <%= @application.mortgage&.lvr %>% LVR)
+  (Calculated as: Home Value - Existing Mortgage × <%= @application.mortgage&.formatted_lvr %> LVR)
 
 ===== PROPERTY SUMMARY =====
 Address: <%= @application.address %>

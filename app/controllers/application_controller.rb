@@ -36,18 +36,16 @@ class ApplicationController < ActionController::Base
       return new_users_verification_path(email: resource.email)
     end
     
-    # Check if user has pending message access from email link
-    if session[:pending_message_access] && 
-       session[:pending_message_access]['user_id'] == resource.id &&
-       session[:pending_message_access]['token_verified'] &&
-       session[:pending_message_access]['expires_at'] > Time.current.to_i
-      
-      # Clear the session data
-      session.delete(:pending_message_access)
-      
-      # Redirect to dashboard where they can see their messages
-      dashboard_path
-    elsif resource.admin?
+    # Use stored location from cache if available (from email links)
+    cache_key = "user_#{resource.id}_pending_redirect"
+    stored_path = Rails.cache.read(cache_key)
+    if stored_path.present?
+      Rails.cache.delete(cache_key)
+      return stored_path
+    end
+    
+    # Default redirects based on user type
+    if resource.admin?
       admin_root_path
     else
       dashboard_path

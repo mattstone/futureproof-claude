@@ -97,43 +97,43 @@ class EmailTemplate < ApplicationRecord
       # User fields
       if data[:user]
         user = data[:user]
-        text.gsub!(/{{user\.first_name}}/i, user.first_name.to_s)
-        text.gsub!(/{{user\.last_name}}/i, user.last_name.to_s)
-        text.gsub!(/{{user\.full_name}}/i, user.full_name.to_s)
-        text.gsub!(/{{user\.email}}/i, user.email.to_s)
-        text.gsub!(/{{user\.mobile_number}}/i, user.full_mobile_number.to_s)
-        text.gsub!(/{{user\.country_of_residence}}/i, user.country_of_residence.to_s)
+        text.gsub!(/{{user\.first_name}}/i, safe_field_value(user, :first_name))
+        text.gsub!(/{{user\.last_name}}/i, safe_field_value(user, :last_name))
+        text.gsub!(/{{user\.full_name}}/i, safe_field_value(user, :full_name))
+        text.gsub!(/{{user\.email}}/i, safe_field_value(user, :email))
+        text.gsub!(/{{user\.mobile_number}}/i, safe_field_value(user, :full_mobile_number))
+        text.gsub!(/{{user\.country_of_residence}}/i, safe_field_value(user, :country_of_residence))
       end
       
       # Application fields
       if data[:application]
         app = data[:application]
-        text.gsub!(/{{application\.id}}/i, app.id.to_s)
-        text.gsub!(/{{application\.reference_number}}/i, app.id.to_s.rjust(6, '0'))
-        text.gsub!(/{{application\.address}}/i, app.address.to_s)
-        text.gsub!(/{{application\.home_value}}/i, app.home_value.to_s)
-        text.gsub!(/{{application\.formatted_home_value}}/i, app.formatted_home_value.to_s)
-        text.gsub!(/{{application\.existing_mortgage_amount}}/i, app.existing_mortgage_amount.to_s)
-        text.gsub!(/{{application\.formatted_existing_mortgage_amount}}/i, app.formatted_existing_mortgage_amount.to_s)
-        text.gsub!(/{{application\.loan_value}}/i, app.loan_value.to_s)
-        text.gsub!(/{{application\.formatted_loan_value}}/i, app.formatted_loan_value.to_s)
-        text.gsub!(/{{application\.borrower_age}}/i, app.borrower_age.to_s)
-        text.gsub!(/{{application\.loan_term}}/i, app.loan_term.to_s)
-        text.gsub!(/{{application\.growth_rate}}/i, app.growth_rate.to_s)
-        text.gsub!(/{{application\.formatted_growth_rate}}/i, app.formatted_growth_rate.to_s)
-        text.gsub!(/{{application\.future_property_value}}/i, app.formatted_future_property_value.to_s)
-        text.gsub!(/{{application\.formatted_future_property_value}}/i, app.formatted_future_property_value.to_s)
-        text.gsub!(/{{application\.home_equity_preserved}}/i, app.formatted_home_equity_preserved.to_s)
-        text.gsub!(/{{application\.formatted_home_equity_preserved}}/i, app.formatted_home_equity_preserved.to_s)
+        text.gsub!(/{{application\.id}}/i, safe_field_value(app, :id))
+        text.gsub!(/{{application\.reference_number}}/i, safe_field_value(app, :id).rjust(6, '0'))
+        text.gsub!(/{{application\.address}}/i, safe_field_value(app, :address))
+        text.gsub!(/{{application\.home_value}}/i, safe_field_value(app, :home_value))
+        text.gsub!(/{{application\.formatted_home_value}}/i, safe_field_value(app, :formatted_home_value))
+        text.gsub!(/{{application\.existing_mortgage_amount}}/i, safe_field_value(app, :existing_mortgage_amount))
+        text.gsub!(/{{application\.formatted_existing_mortgage_amount}}/i, safe_field_value(app, :formatted_existing_mortgage_amount))
+        text.gsub!(/{{application\.loan_value}}/i, safe_field_value(app, :loan_value))
+        text.gsub!(/{{application\.formatted_loan_value}}/i, safe_field_value(app, :formatted_loan_value))
+        text.gsub!(/{{application\.borrower_age}}/i, safe_field_value(app, :borrower_age))
+        text.gsub!(/{{application\.loan_term}}/i, safe_field_value(app, :loan_term))
+        text.gsub!(/{{application\.growth_rate}}/i, safe_field_value(app, :growth_rate))
+        text.gsub!(/{{application\.formatted_growth_rate}}/i, safe_field_value(app, :formatted_growth_rate))
+        text.gsub!(/{{application\.future_property_value}}/i, safe_field_value(app, :formatted_future_property_value))
+        text.gsub!(/{{application\.formatted_future_property_value}}/i, safe_field_value(app, :formatted_future_property_value))
+        text.gsub!(/{{application\.home_equity_preserved}}/i, safe_field_value(app, :formatted_home_equity_preserved))
+        text.gsub!(/{{application\.formatted_home_equity_preserved}}/i, safe_field_value(app, :formatted_home_equity_preserved))
       end
       
       # Mortgage fields
       if data[:mortgage]
         mortgage = data[:mortgage]
-        text.gsub!(/{{mortgage\.name}}/i, mortgage.name.to_s)
-        text.gsub!(/{{mortgage\.lvr}}/i, mortgage.lvr.to_s)
+        text.gsub!(/{{mortgage\.name}}/i, safe_field_value(mortgage, :name))
+        text.gsub!(/{{mortgage\.lvr}}/i, safe_field_value(mortgage, :lvr))
         text.gsub!(/{{mortgage\.interest_rate}}/i, '7.45') # Static for now
-        text.gsub!(/{{mortgage\.mortgage_type_display}}/i, mortgage.mortgage_type_display.to_s)
+        text.gsub!(/{{mortgage\.mortgage_type_display}}/i, safe_field_value(mortgage, :mortgage_type_display))
       end
       
       # Verification fields
@@ -452,6 +452,20 @@ class EmailTemplate < ApplicationRecord
   end
   
   private
+  
+  def safe_field_value(object, method_name)
+    return '' unless object
+    
+    if object.respond_to?(method_name)
+      value = object.send(method_name)
+      value.to_s
+    else
+      ''
+    end
+  rescue => e
+    Rails.logger.warn "EmailTemplate: Error accessing #{method_name} on #{object.class}: #{e.message}"
+    ''
+  end
   
   # Format inline markup like **bold** and *italic*
   def format_inline_markup(text)

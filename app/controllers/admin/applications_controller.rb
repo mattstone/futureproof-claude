@@ -5,21 +5,54 @@ class Admin::ApplicationsController < Admin::BaseController
   before_action :log_view, only: [:show]
 
   def index
-    @applications = Application.includes(:user, :application_messages).recent
+    # Exclude accepted applications from admin index (they are managed separately)
+    @applications = Application.includes(:user, :application_messages).where.not(status: :accepted).recent
 
-    # Search filter
-    @applications = @applications.joins(:user).where(
-      "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-      "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
-    ) if params[:search].present?
+    # Search filter (ensure accepted applications are excluded even in search results)
+    if params[:search].present?
+      @applications = @applications.joins(:user).where(
+        "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
+      )
+    end
 
-    # Status filter
-    @applications = @applications.where(status: params[:status]) if params[:status].present?
+    # Status filter (only allow filtering by non-accepted statuses)
+    if params[:status].present? && params[:status] != 'accepted'
+      @applications = @applications.where(status: params[:status])
+    end
 
     @applications = @applications.page(params[:page]).per(10)
 
-    # For the status filter dropdown
-    @status_options = Application.statuses.map { |key, value| [key.humanize, key] }
+    # For the status filter dropdown (exclude accepted from options)
+    @status_options = Application.statuses.except('accepted').map { |key, value| [key.humanize, key] }
+
+    respond_to do |format|
+      format.html # Full page render
+      format.turbo_stream # Turbo Frame partial render
+    end
+  end
+
+  def search
+    # Same logic as index but for POST requests via Turbo Stream
+    @applications = Application.includes(:user, :application_messages).where.not(status: :accepted).recent
+
+    if params[:search].present?
+      @applications = @applications.joins(:user).where(
+        "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
+      )
+    end
+
+    if params[:status].present? && params[:status] != 'accepted'
+      @applications = @applications.where(status: params[:status])
+    end
+
+    @applications = @applications.page(params[:page]).per(10)
+    @status_options = Application.statuses.except('accepted').map { |key, value| [key.humanize, key] }
+
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("applications_results", partial: "results") }
+    end
   end
 
   def show
@@ -50,21 +83,33 @@ class Admin::ApplicationsController < Admin::BaseController
     @application.current_user = current_user # Track who updated it
     
     params_to_update = application_params
+    old_status = @application.status
     
     # Clear rejected_reason if changing from rejected status to a non-rejected status
     if @application.status == 'rejected' && params_to_update[:status] && params_to_update[:status] != 'rejected'
       params_to_update[:rejected_reason] = nil
     end
     
-    if @application.update(params_to_update)
-      redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.'
-    else
-      # Set up variables for edit view on validation error
-      @messages = @application.message_threads
-      @new_message = @application.application_messages.build
-      @ai_agents = AiAgent.active.order(:name)
-      @suggested_agent = AiAgent.suggest_for_application(@application)
-      render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      if @application.update(params_to_update)
+        # Check if status changed to accepted for Hotwire removal
+        status_changed_to_accepted = old_status != 'accepted' && @application.status == 'accepted'
+        
+        format.html { redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.' }
+        format.turbo_stream { 
+          flash.now[:notice] = 'Application status was successfully updated.'
+          @status_changed_to_accepted = status_changed_to_accepted
+          render :status_updated
+        }
+      else
+        # Set up variables for edit view on validation error
+        @messages = @application.message_threads
+        @new_message = @application.application_messages.build
+        @ai_agents = AiAgent.active.order(:name)
+        @suggested_agent = AiAgent.suggest_for_application(@application)
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :status_update_error }
+      end
     end
   end
 
@@ -77,31 +122,49 @@ class Admin::ApplicationsController < Admin::BaseController
     # Determine where to redirect based on where the form was submitted from
     redirect_path = params[:from_view] == 'show' ? admin_application_path(@application) : edit_admin_application_path(@application)
 
-    if @message.save
-      if params[:send_now].present?
-        if @message.send_message!
-          redirect_to redirect_path, notice: 'Message sent successfully!'
+    respond_to do |format|
+      if @message.save
+        if params[:send_now].present?
+          if @message.send_message!
+            format.html { redirect_to redirect_path, notice: 'Message sent successfully!' }
+            format.turbo_stream { 
+              flash.now[:notice] = 'Message sent successfully!'
+              set_turbo_stream_variables
+              render :message_sent 
+            }
+          else
+            format.html { redirect_to redirect_path, alert: 'Failed to send message.' }
+            format.turbo_stream { 
+              flash.now[:alert] = 'Failed to send message.'
+              render :message_error 
+            }
+          end
         else
-          redirect_to redirect_path, alert: 'Failed to send message.'
+          format.html { redirect_to redirect_path, notice: 'Message saved as draft!' }
+          format.turbo_stream { 
+            flash.now[:notice] = 'Message saved as draft!'
+            set_turbo_stream_variables
+            render :message_draft_saved 
+          }
         end
       else
-        redirect_to redirect_path, notice: 'Message saved as draft!'
-      end
-    else
-      # Handle validation errors by reloading the appropriate view
-      if params[:from_view] == 'show'
-        @audit_history = @application.application_versions.includes(:user).recent.limit(50)
-        @messages = @application.message_threads
-        @new_message = @message # Keep the invalid message object for error display
-        @ai_agents = AiAgent.active.order(:name)
-        @suggested_agent = AiAgent.suggest_for_application(@application)
-        render :show, status: :unprocessable_entity
-      else
-        @messages = @application.message_threads
-        @new_message = @message # Keep the invalid message object for error display
-        @ai_agents = AiAgent.active.order(:name)
-        @suggested_agent = AiAgent.suggest_for_application(@application)
-        render :edit, status: :unprocessable_entity
+        # Handle validation errors by reloading the appropriate view
+        if params[:from_view] == 'show'
+          @audit_history = @application.application_versions.includes(:user).recent.limit(50)
+          @messages = @application.message_threads
+          @new_message = @message # Keep the invalid message object for error display
+          @ai_agents = AiAgent.active.order(:name)
+          @suggested_agent = AiAgent.suggest_for_application(@application)
+          format.html { render :show, status: :unprocessable_entity }
+          format.turbo_stream { render :message_validation_error }
+        else
+          @messages = @application.message_threads
+          @new_message = @message # Keep the invalid message object for error display
+          @ai_agents = AiAgent.active.order(:name)
+          @suggested_agent = AiAgent.suggest_for_application(@application)
+          format.html { render :edit, status: :unprocessable_entity }
+          format.turbo_stream { render :message_validation_error }
+        end
       end
     end
   end
@@ -109,10 +172,21 @@ class Admin::ApplicationsController < Admin::BaseController
   def send_message
     @message = @application.application_messages.find(params[:message_id])
 
-    if @message.draft? && @message.send_message!
-      redirect_to admin_application_path(@application), notice: 'Message sent successfully!'
-    else
-      redirect_to admin_application_path(@application), alert: 'Failed to send message.'
+    respond_to do |format|
+      if @message.draft? && @message.send_message!
+        format.html { redirect_to admin_application_path(@application), notice: 'Message sent successfully!' }
+        format.turbo_stream { 
+          flash.now[:notice] = 'Message sent successfully!'
+          set_turbo_stream_variables
+          render :message_sent 
+        }
+      else
+        format.html { redirect_to admin_application_path(@application), alert: 'Failed to send message.' }
+        format.turbo_stream { 
+          flash.now[:alert] = 'Failed to send message.'
+          render :message_error 
+        }
+      end
     end
   end
 
@@ -137,6 +211,11 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def log_view
     @application.log_view_by(current_user)
+  end
+
+  def set_turbo_stream_variables
+    @ai_agents = AiAgent.active.order(:name)
+    @suggested_agent = AiAgent.suggest_for_application(@application)
   end
 
   def application_params

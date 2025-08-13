@@ -1,121 +1,42 @@
 <% content_for :page_title, "Applications" %>
 
+<!-- Flash messages container for Turbo Stream updates -->
+<div id="flash-messages"></div>
+
 <div class="admin-actions-bar">
   <div class="admin-search">
-    <%= form_with(url: admin_applications_path, method: :get, local: true, class: "search-form") do |form| %>
-      <%= form.text_field :search, placeholder: "Search applications...", value: params[:search] %>
+    <%= form_with(url: search_admin_applications_path, method: :post, local: false, class: "search-form", 
+                  data: { turbo_stream: true }) do |form| %>
+      <%= form.text_field :search, placeholder: "Search applications...", value: params[:search], 
+                         oninput: "this.form.requestSubmit();" %>
       <%= form.hidden_field :status, value: params[:status] %>
     <% end %>
   </div>
   
   <div class="admin-filter">
-    <%= form_with(url: admin_applications_path, method: :get, local: true, class: "filter-form") do |form| %>
+    <%= form_with(url: search_admin_applications_path, method: :post, local: false, class: "filter-form",
+                  data: { turbo_stream: true }) do |form| %>
       <%= form.select :status, 
             options_for_select([["All Statuses", ""]] + @status_options.map { |name, value| [name, value] }, params[:status]),
             {},
             { 
               class: "status-filter-select",
-              onchange: "this.form.submit();"
+              onchange: "this.form.requestSubmit();"
             } %>
       <%= form.hidden_field :search, value: params[:search] %>
     <% end %>
   </div>
   
   <div class="admin-actions">
-    <!-- Applications are created by users only, not by admins -->
+    <div class="applications-summary">
+      Total Applications: <span id="applications-count" class="count-badge">
+        <%= @applications.total_count || Application.where.not(status: :accepted).count %>
+      </span>
+    </div>
   </div>
 </div>
 
-<div class="admin-table">
-  <table>
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Property</th>
-        <th>Mortgage Type</th>
-        <th>Monthly Income</th>
-        <th>Status</th>
-        <th>Messages</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @applications.each do |application| %>
-        <tr>
-          <td class="user-cell">
-            <div>
-              <strong><%= application.user.display_name %></strong>
-              <br>
-              <small><%= application.user.email %></small>
-            </div>
-          </td>
-          <td class="property-cell">
-            <div class="property-info">
-              <div class="address"><%= truncate(application.address, length: 40) %></div>
-              <small class="value"><%= application.formatted_home_value %></small>
-            </div>
-          </td>
-          <td class="mortgage-cell">
-            <% if application.mortgage.present? %>
-              <span class="mortgage-type"><%= application.mortgage.name %></span>
-            <% else %>
-              <span class="no-mortgage">—</span>
-            <% end %>
-          </td>
-          <td class="income-cell">
-            <% if application.mortgage.present? && application.respond_to?(:monthly_income_amount) %>
-              <span class="monthly-income"><%= application.formatted_monthly_income_amount %></span>
-            <% else %>
-              <span class="no-income">—</span>
-            <% end %>
-          </td>
-          <td class="status-cell">
-            <%= render 'status_badge', application: application %>
-          </td>
-          <td class="messages-cell">
-            <div class="message-indicators">
-              <% if application.has_unread_customer_messages? %>
-                <span class="message-indicator unread" title="<%= application.unread_customer_messages_count %> unread customer messages">
-                  📨 <%= application.unread_customer_messages_count %>
-                </span>
-              <% elsif application.application_messages.exists? %>
-                <span class="message-indicator read" title="Messages exchanged">
-                  💬 <%= application.application_messages.count %>
-                </span>
-              <% else %>
-                <span class="message-indicator none" title="No messages">
-                  —
-                </span>
-              <% end %>
-            </div>
-          </td>
-          <td class="actions-cell">
-            <%= link_to "View", admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-            <%= link_to "Edit", edit_admin_application_path(application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  
-  <% if @applications.empty? %>
-    <div style="padding: 40px; text-align: center; color: #6b7280;">
-      <% if params[:search].present? && params[:status].present? %>
-        No applications found matching "<%= params[:search] %>" with status "<%= params[:status].humanize %>"
-      <% elsif params[:search].present? %>
-        No applications found matching "<%= params[:search] %>"
-      <% elsif params[:status].present? %>
-        No applications found with status "<%= params[:status].humanize %>"
-      <% else %>
-        No applications found.
-      <% end %>
-    </div>
-  <% end %>
-</div>
-
-<div class="admin-pagination">
-  <%= paginate @applications %>
-</div>
+<%= render 'results' %>
 
 <style>
 /* Filter styles */

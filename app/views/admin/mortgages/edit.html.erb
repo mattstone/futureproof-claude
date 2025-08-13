@@ -42,8 +42,8 @@
 
   <div class="field">
     <%= form.label :lvr, "LVR (%)" %>
-    <%= form.number_field :lvr, step: 0.01, min: 0, max: 100, required: true, placeholder: "e.g. 80.00" %>
-    <small class="field-hint">Loan-to-Value Ratio as a percentage (0-100)</small>
+    <%= form.number_field :lvr, step: 0.1, min: 1, max: 100, required: true, placeholder: "e.g. 80.0" %>
+    <small class="field-hint">Loan-to-Value Ratio as a percentage (1-100) in increments of 0.1</small>
   </div>
 
   <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">

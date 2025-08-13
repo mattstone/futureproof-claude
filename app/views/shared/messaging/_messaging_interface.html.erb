@@ -1,11 +1,65 @@
+<%
+  # Determine the resource type and set variables accordingly
+  if defined?(@application) && @application
+    resource = @application
+    resource_type = 'application'
+    resource_name = 'application'
+    messages = @messages || resource.message_threads
+    new_message = @new_message || resource.application_messages.build
+    create_message_path = create_message_admin_application_path(resource)
+    send_message_path_proc = ->(message) { send_message_admin_application_path(resource, message_id: message.id) }
+    context_name = 'application'
+    context_status = resource.status_display
+    quick_insert_fields = [
+      ['Customer Name', '{{user.first_name}}'],
+      ['Property Address', '{{application.address}}'],
+      ['Home Value', '{{application.formatted_home_value}}'],
+      ['Application Status', '{{application.status_display}}']
+    ]
+    greeting_context = 'application'
+  elsif defined?(@contract) && @contract
+    resource = @contract
+    resource_type = 'contract'
+    resource_name = 'contract'
+    messages = @messages || resource.message_threads
+    new_message = @new_message || resource.contract_messages.build
+    create_message_path = create_message_admin_contract_path(resource)
+    send_message_path_proc = ->(message) { send_message_admin_contract_path(resource, message_id: message.id) }
+    context_name = 'contract'
+    context_status = resource.status.humanize
+    quick_insert_fields = [
+      ['Customer Name', '{{user.first_name}}'],
+      ['Contract Status', '{{contract.status_display}}'],
+      ['Start Date', '{{contract.start_date}}'],
+      ['End Date', '{{contract.end_date}}'],
+      ['Property Address', '{{application.address}}'],
+      ['Home Value', '{{application.formatted_home_value}}']
+    ]
+    greeting_context = 'contract'
+  else
+    raise "Invalid resource: Expected @application or @contract to be defined"
+  end
+%>
+
+<!-- Flash Messages Container -->
+<div id="flash-messages"></div>
+
 <!-- Send New Message Form -->
 <div class="admin-form message-form-section">
-  <h3>Send Message to Customer</h3>
-  <p class="section-subtitle">Communicate with the customer about their application</p>
+  <h3>Send Message to Customer 
+    <span id="message-count" class="count-badge">
+      <span class="message-count"><%= resource.respond_to?(:application_messages) ? resource.application_messages.sent.count : resource.contract_messages.sent.count %></span>
+    </span>
+    <span id="draft-count" class="count-badge draft">
+      <span class="draft-count"><%= resource.respond_to?(:application_messages) ? resource.application_messages.drafts.count : resource.contract_messages.drafts.count %></span> drafts
+    </span>
+  </h3>
+  <p class="section-subtitle">Communicate with the customer about their <%= context_name %></p>
   
-  <%= form_with(model: [:admin, @application, @new_message], 
-                url: create_message_admin_application_path(@application), 
-                local: true, class: "message-form") do |form| %>
+  <div id="message-form">
+    <%= form_with(model: [:admin, resource, new_message], 
+                  url: create_message_path, 
+                  local: true, class: "message-form", data: { turbo: true }) do |form| %>
     
     <%= hidden_field_tag :from_view, controller.action_name %>
     
@@ -51,10 +105,10 @@
       </small>
     </div>
     
-    <% if @new_message.errors.any? %>
+    <% if new_message.errors.any? %>
       <div class="alert alert-danger">
         <ul>
-          <% @new_message.errors.full_messages.each do |message| %>
+          <% new_message.errors.full_messages.each do |message| %>
             <li><%= message %></li>
           <% end %>
         </ul>
@@ -70,10 +124,9 @@
     <div class="field-helpers">
       <h4>Quick Insert:</h4>
       <div class="helper-buttons">
-        <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
-        <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
-        <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
-        <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+        <% quick_insert_fields.each do |label, field| %>
+          <button type="button" onclick="insertField('<%= field %>')" class="helper-btn"><%= label %></button>
+        <% end %>
       </div>
     </div>
 
@@ -156,7 +209,7 @@
           <div style="padding: 0 40px 32px 40px;">
             <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear [Customer Name],</p>
             <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
-              <span id="preview-greeting">I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® application.</span>
+              <span id="preview-greeting">I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® <%= greeting_context %>.</span>
             </p>
           </div>
           
@@ -182,7 +235,7 @@
           <!-- Action Button (Preview Only) -->
           <div style="text-align: center; padding: 0 40px 40px 40px;">
             <div style="background-color: #0891b2; color: white; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block; position: relative; opacity: 0.7;">
-              View Application & Reply
+              View <%= context_name.humanize %> & Reply
               <div style="position: absolute; top: -8px; right: -8px; background-color: #f59e0b; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                 👁️
               </div>
@@ -211,6 +264,7 @@
       </div>
     </div>
   <% end %>
+  </div>
 </div>
 
 <!-- Message History -->
@@ -218,9 +272,9 @@
   <h3>Message History</h3>
   <p class="section-subtitle">Previous messages with this customer</p>
   
-  <% if @messages.any? %>
-    <div class="message-threads">
-      <% @messages.each do |message| %>
+  <% if messages.any? %>
+    <div id="message-threads" class="message-threads">
+      <% messages.each do |message| %>
         <div class="message-thread">
           <div class="message-header">
             <div class="message-sender">
@@ -287,9 +341,9 @@
           
           <% if message.draft? %>
             <div class="message-actions">
-              <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: message.id), 
+              <%= link_to "Send Message", send_message_path_proc.call(message), 
                           method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
-                          data: { confirm: "Send this message to the customer?" } %>
+                          data: { confirm: "Send this message to the customer?", turbo_method: :patch } %>
             </div>
           <% end %>
         </div>
@@ -301,59 +355,3 @@
     </div>
   <% end %>
 </div>
-
-<style>
-/* Message Actions Container */
-.message-actions-container {
-  background-color: #f9fafb;
-  border: 2px solid #3b82f6;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 24px;
-}
-
-.actions-header {
-  color: #1e40af;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.actions-description {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.actions-buttons {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.draft-btn {
-  flex: 1;
-}
-
-.send-btn {
-  flex: 2;
-  font-size: 16px;
-  padding: 12px 24px;
-  font-weight: 600;
-}
-
-.actions-tip {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-@media (max-width: 768px) {
-  .actions-buttons {
-    flex-direction: column;
-  }
-  
-  .draft-btn, .send-btn {
-    flex: none;
-  }
-}
-</style>

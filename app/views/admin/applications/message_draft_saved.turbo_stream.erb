@@ -1,0 +1,180 @@
+<!-- Clear the message form -->
+<%= turbo_stream.update "message-form" do %>
+  <%= form_with(model: [:admin, @application, @application.application_messages.build], 
+                url: create_message_admin_application_path(@application), 
+                local: true, class: "message-form", data: { turbo: true }) do |form| %>
+    
+    <%= hidden_field_tag :from_view, controller.action_name %>
+    
+    <!-- AI Agent Selection -->
+    <div class="field ai-agent-selection" style="margin-bottom: 24px;">
+      <%= form.label :ai_agent_id, "Send message as:" %>
+      <%= form.select :ai_agent_id, 
+          options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
+          { prompt: 'Select AI Agent...' },
+          { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+      
+      <div id="agent-preview" class="agent-preview" style="<%= @suggested_agent ? 'display: block;' : 'display: none;' %>">
+        <div class="agent-info">
+          <% if @suggested_agent %>
+            <% begin %>
+              <%= image_tag @suggested_agent.asset_avatar_path, 
+                  alt: "#{@suggested_agent.name} Avatar", 
+                  class: "agent-avatar", 
+                  style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+            <% rescue => e %>
+              <div class="agent-avatar agent-avatar-fallback" 
+                   style="width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+                <%= @suggested_agent.name.first.upcase %>
+              </div>
+            <% end %>
+          <% else %>
+            <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <% end %>
+          <div class="agent-details">
+            <strong class="agent-name"><%= @suggested_agent&.display_name %></strong>
+            <div class="agent-role"><%= @suggested_agent&.role_description %></div>
+            <div class="agent-specialties">
+              <% if @suggested_agent %>
+                Specialties: <%= @suggested_agent.specialties || 'General assistance' %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <small class="field-hint">
+        Customer will see this message as coming from the selected AI agent
+      </small>
+    </div>
+
+    <div class="field">
+      <%= form.label :subject %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+    </div>
+
+    <!-- Field Helper Buttons -->
+    <div class="field-helpers">
+      <h4>Quick Insert:</h4>
+      <div class="helper-buttons">
+        <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
+        <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
+        <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
+        <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <%= form.label :content, "Message" %>
+      
+      <!-- WYSIWYG Toolbar -->
+      <div class="wysiwyg-toolbar">
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('**', '**')" title="Bold">
+          <strong>B</strong>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('*', '*')" title="Italic">
+          <em>I</em>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('- ', '')" title="Bullet Point">
+          •
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('1. ', '')" title="Numbered List">
+          1.
+        </button>
+        <button type="button" class="toolbar-btn" onclick="insertLineBreak()" title="Line Break">
+          ↩
+        </button>
+      </div>
+      
+      <%= form.text_area :content, rows: 8, class: "markup-editor", 
+                         placeholder: "Type your message here...", 
+                         required: true %>
+      <small class="field-hint">
+        Select text and use formatting buttons above, or type markup directly: **bold**, *italic*, - bullet points
+      </small>
+    </div>
+
+    <!-- Message Actions -->
+    <div class="message-actions-container">
+      <div class="actions-header">📤 Ready to send your message?</div>
+      <div class="actions-description">Choose how you want to handle this message:</div>
+      
+      <div class="actions-buttons">
+        <%= form.submit "Save as Draft", name: "save_draft", class: "admin-btn admin-btn-secondary draft-btn" %>
+        <%= form.submit "Send Message Now", name: "send_now", class: "admin-btn admin-btn-primary send-btn" %>
+      </div>
+      
+      <div class="actions-tip">
+        💡 <strong>Tip:</strong> Save as draft to review later, or send now to deliver immediately to the customer.
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<!-- Add the new draft message to the top of the message history -->
+<%= turbo_stream.prepend "message-threads" do %>
+  <div class="message-thread" id="message-<%= @message.id %>">
+    <div class="message-header">
+      <div class="message-sender">
+        <% if @message.from_ai_agent? && @message.sender_avatar_path.present? %>
+          <% begin %>
+            <%= image_tag @message.sender_avatar_path, alt: "#{@message.sender_name} Avatar", class: "sender-avatar" %>
+          <% rescue => e %>
+            <div class="sender-avatar admin-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="sender-avatar admin-avatar">
+            <i class="fas fa-user-shield"></i>
+          </div>
+        <% end %>
+        
+        <div class="sender-info">
+          <div class="sender-name">
+            <strong><%= @message.sender_name %></strong>
+            <% if @message.from_ai_agent? %>
+              <span class="ai-badge">AI</span>
+            <% end %>
+          </div>
+          <div class="sender-role"><%= @message.sender_role %></div>
+        </div>
+      </div>
+      
+      <div class="message-meta">
+        <span class="message-status status-<%= @message.status %>"><%= @message.status.humanize %></span>
+        <time class="message-time"><%= @message.formatted_created_at %></time>
+      </div>
+    </div>
+    
+    <div class="message-subject">
+      <strong><%= @message.processed_subject %></strong>
+    </div>
+    
+    <div class="message-content">
+      <%= @message.content_html %>
+    </div>
+    
+    <% if @message.draft? %>
+      <div class="message-actions">
+        <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: @message.id), 
+                    method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
+                    data: { confirm: "Send this message to the customer?", turbo_method: :patch } %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Update draft message counts -->
+<%= turbo_stream.update "draft-count" do %>
+  <span class="draft-count"><%= @application.application_messages.drafts.count %></span>
+<% end %>
+
+<!-- Show success flash message -->
+<%= turbo_stream.update "flash-messages" do %>
+  <div class="alert alert-success alert-dismissible">
+    <i class="fas fa-save"></i>
+    <%= flash[:notice] %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="this.parentElement.remove()"></button>
+  </div>
+<% end %>

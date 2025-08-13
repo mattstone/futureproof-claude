@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_220814) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_12_210448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -94,6 +94,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_220814) do
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "contract_messages", force: :cascade do |t|
+    t.bigint "contract_id", null: false
+    t.string "sender_type", null: false
+    t.bigint "sender_id", null: false
+    t.string "message_type"
+    t.string "subject"
+    t.text "content"
+    t.string "status"
+    t.datetime "sent_at"
+    t.datetime "read_at"
+    t.bigint "parent_message_id"
+    t.bigint "ai_agent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ai_agent_id"], name: "index_contract_messages_on_ai_agent_id"
+    t.index ["contract_id"], name: "index_contract_messages_on_contract_id"
+    t.index ["parent_message_id"], name: "index_contract_messages_on_parent_message_id"
+    t.index ["sender_type", "sender_id"], name: "index_contract_messages_on_sender"
+  end
+
+  create_table "contracts", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.integer "status", default: 0, null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_contracts_on_application_id", unique: true
   end
 
   create_table "email_template_versions", force: :cascade do |t|
@@ -296,6 +326,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_220814) do
   add_foreign_key "application_versions", "users"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
+  add_foreign_key "contract_messages", "ai_agents"
+  add_foreign_key "contract_messages", "contract_messages", column: "parent_message_id"
+  add_foreign_key "contract_messages", "contracts"
+  add_foreign_key "contracts", "applications"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
   add_foreign_key "mortgage_versions", "mortgages"

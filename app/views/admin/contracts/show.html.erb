@@ -1,0 +1,325 @@
+<% content_for :page_title, "Contract ##{@contract.id}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Contracts", admin_contracts_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "Edit Contract", edit_admin_contract_path(@contract), class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Delete Contract", admin_contract_path(@contract), method: :delete,
+        data: { confirm: "Are you sure? This will permanently delete the contract." },
+        class: "admin-btn admin-btn-danger" %>
+  </div>
+</div>
+
+<div class="admin-two-column-layout">
+  <!-- Left Column - Contract Information -->
+  <div class="admin-left-column">
+    <!-- Contract Information -->
+    <div class="admin-card">
+      <h3>Contract Information</h3>
+      
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Contract ID</label>
+          <div class="admin-field-value">#<%= @contract.id %></div>
+        </div>
+        
+        <div class="admin-field">
+          <label>Status</label>
+          <div class="admin-field-value">
+            <span class="status-badge status-<%= @contract.status.gsub('_', '-') %>">
+              <%= @contract.status.humanize %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Start Date</label>
+          <div class="admin-field-value"><%= @contract.start_date.strftime("%B %d, %Y") %></div>
+        </div>
+        
+        <div class="admin-field">
+          <label>End Date</label>
+          <div class="admin-field-value"><%= @contract.end_date.strftime("%B %d, %Y") %></div>
+        </div>
+      </div>
+
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Duration</label>
+          <div class="admin-field-value">
+            <%= distance_of_time_in_words(@contract.start_date, @contract.end_date) %>
+          </div>
+        </div>
+        
+        <div class="admin-field">
+          <label>Created</label>
+          <div class="admin-field-value">
+            <%= @contract.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+            <small>(<%= time_ago_in_words(@contract.created_at) %> ago)</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="admin-card">
+      <h3>Customer Information</h3>
+      
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Name</label>
+          <div class="admin-field-value">
+            <strong><%= @contract.application.user.display_name %></strong>
+          </div>
+        </div>
+        
+        <div class="admin-field">
+          <label>Email</label>
+          <div class="admin-field-value"><%= @contract.application.user.email %></div>
+        </div>
+      </div>
+
+      <div class="admin-field">
+        <label>Mobile</label>
+        <div class="admin-field-value">
+          <%= @contract.application.user.full_mobile_number || 'Not provided' %>
+        </div>
+      </div>
+
+      <div class="admin-field">
+        <label>Country of Residence</label>
+        <div class="admin-field-value">
+          <%= @contract.application.user.country_of_residence || 'Not provided' %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Information -->
+    <div class="admin-card">
+      <h3>Application Information</h3>
+      
+      <div class="admin-field">
+        <label>Application ID</label>
+        <div class="admin-field-value">
+          <%= link_to "##{@contract.application.id}", admin_application_path(@contract.application), 
+              class: "admin-link" %>
+        </div>
+      </div>
+
+      <div class="admin-field">
+        <label>Property Address</label>
+        <div class="admin-field-value"><%= @contract.application.address %></div>
+      </div>
+
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Home Value</label>
+          <div class="admin-field-value">
+            <strong><%= @contract.application.formatted_home_value %></strong>
+          </div>
+        </div>
+        
+        <div class="admin-field">
+          <label>Ownership Status</label>
+          <div class="admin-field-value">
+            <%= @contract.application.ownership_status_display %>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-field-group">
+        <div class="admin-field">
+          <label>Property State</label>
+          <div class="admin-field-value">
+            <%= @contract.application.property_state_display %>
+          </div>
+        </div>
+        
+        <div class="admin-field">
+          <label>Borrower Age</label>
+          <div class="admin-field-value">
+            <%= @contract.application.borrower_age %> years
+          </div>
+        </div>
+      </div>
+
+      <% if @contract.application.has_existing_mortgage? %>
+        <div class="admin-field">
+          <label>Existing Mortgage Amount</label>
+          <div class="admin-field-value">
+            <%= @contract.application.formatted_existing_mortgage_amount %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="admin-field">
+        <label>Application Status</label>
+        <div class="admin-field-value">
+          <span class="status-badge status-<%= @contract.application.status %>">
+            <%= @contract.application.status_display %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column - Messages and Communication -->
+  <div class="admin-right-column">
+    <%= render 'shared/messaging/messaging_interface' %>
+  </div>
+</div>
+
+<%= render 'shared/messaging/messaging_assets' %>
+
+<style>
+/* Two-Column Layout CSS */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.admin-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.admin-card h3 {
+  margin: 0 0 20px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+.admin-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-field {
+  margin-bottom: 16px;
+}
+
+.admin-field:last-child {
+  margin-bottom: 0;
+}
+
+.admin-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.admin-field-value {
+  font-size: 16px;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.admin-field-value strong {
+  font-weight: 600;
+}
+
+.admin-field-value small {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-awaiting-funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting-investment {
+  background-color: #fde68a;
+  color: #92400e;
+}
+
+.status-ok {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-in-holiday {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-in-arrears {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-accepted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-field-group {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

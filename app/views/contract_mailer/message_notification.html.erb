@@ -1,0 +1,93 @@
+<!-- Agent Header Section -->
+<div style="text-align: center; margin-bottom: 32px;">
+  <% if @message.from_ai_agent? && @message.ai_agent %>
+    <table role="presentation" style="margin: 0 auto; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; vertical-align: top; padding-right: 16px;">
+          <% begin %>
+            <img src="<%= image_url(@message.ai_agent.avatar_path) %>" 
+                 alt="<%= @message.ai_agent.name %>"
+                 style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6;" />
+          <% rescue %>
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; border: 3px solid #3b82f6;">
+              🤖
+            </div>
+          <% end %>
+        </td>
+        <td style="text-align: left; vertical-align: top;">
+          <h1 style="margin: 0 0 4px 0; color: #374151; font-size: 24px; font-weight: 600;">
+            <%= @message.ai_agent.name %>
+          </h1>
+          <p style="margin: 0 0 8px 0; color: #3b82f6; font-size: 16px; font-weight: 500;">
+            <%= @message.ai_agent.role_description %>
+          </p>
+          <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            Futureproof Financial Group
+          </p>
+        </td>
+      </tr>
+    </table>
+  <% else %>
+    <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">📧 New Message from Futureproof</h1>
+  <% end %>
+</div>
+
+<!-- Greeting Section -->
+<div style="margin-bottom: 32px;">
+  <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear <%= @user.first_name %>,</p>
+  
+  <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
+    <% if @message.from_ai_agent? && @message.ai_agent %>
+      I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® contract.
+    <% else %>
+      You have received a new message regarding your Equity Preservation Mortgage® contract.
+    <% end %>
+  </p>
+</div>
+
+<!-- Message Content Card -->
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+  <tr>
+    <td style="padding: 0;">
+      <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        
+        <!-- Message Header -->
+        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid #e5e7eb;">
+          <h2 style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 600;">
+            <%= @message.processed_subject %>
+          </h2>
+        </div>
+        
+        <!-- Message Content -->
+        <div style="padding: 32px; color: #374151; line-height: 1.7; font-size: 16px;">
+          <%= @message.content_html %>
+        </div>
+        
+      </div>
+    </td>
+  </tr>
+</table>
+
+<div style="text-align: center; margin: 32px 0;">
+  <table role="presentation" style="margin: 0 auto;">
+    <tr>
+      <td style="padding: 0;">
+        <a href="<%= @contract_link %>" 
+           style="background-color: #0891b2; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;">
+          View Contract & Reply
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div style="text-align: center; margin: 32px 0;">
+  <div style="background-color: #e3f2fd; border-radius: 8px; padding: 20px; max-width: 300px; margin: 0 auto;">
+    <h3 style="color: #0891b2; margin: 0 0 12px 0; font-size: 16px;">Need Help?</h3>
+    <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">Questions about your contract?</p>
+    <p style="margin: 0; color: #374151; font-size: 14px;">
+      <strong>Email:</strong> info@futureprooffinancial.co<br>
+      <strong>Phone:</strong> 1300 XXX XXX
+    </p>
+  </div>
+</div>

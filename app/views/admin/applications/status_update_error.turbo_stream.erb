@@ -1,0 +1,47 @@
+<!-- Display validation errors -->
+<%= turbo_stream.update "application-form-errors" do %>
+  <div class="alert alert-danger" role="alert">
+    <h6>Please correct the following errors:</h6>
+    <ul class="mb-0">
+      <% @application.errors.full_messages.each do |error| %>
+        <li><%= error %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<!-- Update form to show validation state -->
+<%= turbo_stream.update "application-status-form" do %>
+  <%= form_with model: [:admin, @application], local: false, class: "needs-validation", id: "application-status-form" do |form| %>
+    <div class="mb-3">
+      <%= form.label :status, class: "form-label" %>
+      <%= form.select :status, options_for_select(Application.statuses.map { |key, value| [key.humanize, key] }, @application.status), 
+                      { prompt: "Select status" }, 
+                      { class: "form-select #{'is-invalid' if @application.errors[:status].any?}" } %>
+      <% if @application.errors[:status].any? %>
+        <div class="invalid-feedback">
+          <%= @application.errors[:status].first %>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @application.status == 'rejected' || params.dig(:application, :status) == 'rejected' %>
+      <div class="mb-3">
+        <%= form.label :rejected_reason, class: "form-label" %>
+        <%= form.text_area :rejected_reason, 
+                          class: "form-control #{'is-invalid' if @application.errors[:rejected_reason].any?}", 
+                          rows: 3, 
+                          placeholder: "Please provide a reason for rejection..." %>
+        <% if @application.errors[:rejected_reason].any? %>
+          <div class="invalid-feedback">
+            <%= @application.errors[:rejected_reason].first %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <div class="d-grid">
+      <%= form.submit "Update Status", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

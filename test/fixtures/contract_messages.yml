@@ -1,0 +1,20 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+admin_to_customer_message:
+  contract: basic_contract
+  sender: admin_user (User)
+  message_type: "admin_to_customer"
+  subject: "Contract Status Update"
+  content: "Your contract status has been updated."
+  status: "sent"
+  sent_at: <%= 1.day.ago %>
+  ai_agent: customer_success_manager
+
+customer_to_admin_message:
+  contract: basic_contract
+  sender: user_one (User)
+  message_type: "customer_to_admin"
+  subject: "Question about contract"
+  content: "I have a question about my contract."
+  status: "sent"
+  sent_at: <%= 2.hours.ago %>

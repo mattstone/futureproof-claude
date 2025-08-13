@@ -1,0 +1,154 @@
+<% content_for :page_title, "Contracts" %>
+
+<!-- Flash messages container for Turbo Stream updates -->
+<div id="flash-messages"></div>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <%= form_with(url: search_admin_contracts_path, method: :post, local: false, class: "search-form",
+                  data: { turbo_stream: true }) do |form| %>
+      <%= form.text_field :search, placeholder: "Search contracts...", value: params[:search], 
+                         oninput: "this.form.requestSubmit();" %>
+      <%= form.hidden_field :status, value: params[:status] %>
+    <% end %>
+  </div>
+  
+  <div class="admin-filter">
+    <%= form_with(url: search_admin_contracts_path, method: :post, local: false, class: "filter-form",
+                  data: { turbo_stream: true }) do |form| %>
+      <%= form.select :status, 
+            options_for_select([["All Statuses", ""]] + @status_options.map { |name, value| [name, value] }, params[:status]),
+            {},
+            { 
+              class: "status-filter-select",
+              onchange: "this.form.requestSubmit();"
+            } %>
+      <%= form.hidden_field :search, value: params[:search] %>
+    <% end %>
+  </div>
+  
+  <div class="admin-actions">
+    <div class="contracts-summary">
+      Total Contracts: <span id="contracts-count" class="count-badge">
+        <%= @contracts.total_count || Contract.count %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<%= render 'results' %>
+
+<style>
+/* Filter styles */
+.admin-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-filter {
+  display: flex;
+  align-items: center;
+}
+
+.filter-form {
+  margin: 0;
+}
+
+.status-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.status-filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Actions cell - prevent button wrapping */
+.admin-actions {
+  white-space: nowrap;
+  width: 10%;
+  min-width: 80px;
+}
+
+.admin-actions .admin-btn {
+  margin-right: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.admin-actions .admin-btn:last-child {
+  margin-right: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .admin-filter {
+    justify-content: center;
+  }
+  
+  .status-filter-select {
+    width: 100%;
+  }
+  
+  .admin-actions {
+    width: auto;
+  }
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-awaiting-funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting-investment {
+  background-color: #fde68a;
+  color: #92400e;
+}
+
+.status-ok {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-in-holiday {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-in-arrears {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+</style>

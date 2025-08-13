@@ -59,7 +59,7 @@
               </div>
               <div class="summary-item">
                 <span class="summary-label">LVR (Loan to Value Ratio):</span>
-                <span class="summary-value"><%= @application.mortgage&.lvr %>%</span>
+                <span class="summary-value"><%= @application.mortgage&.formatted_lvr %></span>
               </div>
               <div class="summary-item">
                 <span class="summary-label">Interest Rate:</span>
@@ -74,7 +74,7 @@
                 <span class="summary-value"><%= @application.formatted_loan_value %></span>
               </div>
               <div class="summary-note">
-                <small class="text-muted">Based on net property value (home value minus existing mortgage) × <%= @application.mortgage&.lvr %>% LVR</small>
+                <small class="text-muted">Based on net property value (home value minus existing mortgage) × <%= @application.mortgage&.formatted_lvr %> LVR</small>
               </div>
             </div>
           </div>

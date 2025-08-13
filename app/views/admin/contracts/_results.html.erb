@@ -1,0 +1,94 @@
+<%= turbo_frame_tag "contracts_results" do %>
+  <div class="admin-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Contract ID</th>
+          <th>Customer</th>
+          <th>Property Address</th>
+          <th>Status</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Home Value</th>
+          <th>Created</th>
+          <th>Messages</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="contracts-table-body">
+        <% @contracts.each do |contract| %>
+          <tr id="contract-row-<%= contract.id %>">
+            <td><strong>#<%= contract.id %></strong></td>
+            <td>
+              <div>
+                <strong><%= contract.application.user.display_name %></strong>
+                <br>
+                <small><%= contract.application.user.email %></small>
+              </div>
+            </td>
+            <td>
+              <%= contract.application.address %>
+            </td>
+            <td>
+              <span class="status-badge status-<%= contract.status.gsub('_', '-') %>">
+                <%= contract.status.humanize %>
+              </span>
+            </td>
+            <td><%= contract.start_date.strftime("%b %d, %Y") %></td>
+            <td><%= contract.end_date.strftime("%b %d, %Y") %></td>
+            <td><%= contract.application.formatted_home_value %></td>
+            <td>
+              <%= contract.created_at.strftime("%b %d, %Y") %>
+              <br>
+              <small><%= time_ago_in_words(contract.created_at) %> ago</small>
+            </td>
+            <td class="messages-cell">
+              <div class="message-indicators">
+                <% if contract.has_unread_customer_messages? %>
+                  <span class="message-indicator unread" title="<%= contract.unread_customer_messages_count %> unread customer messages">
+                    📨 <%= contract.unread_customer_messages_count %>
+                  </span>
+                <% elsif contract.contract_messages.exists? %>
+                  <span class="message-indicator read" title="Messages exchanged">
+                    💬 <%= contract.contract_messages.count %>
+                  </span>
+                <% else %>
+                  <span class="message-indicator none" title="No messages">
+                    —
+                  </span>
+                <% end %>
+              </div>
+            </td>
+            <td>
+              <div class="admin-actions">
+                <%= link_to "View", admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary", data: { turbo_frame: "_top" } %>
+                <%= link_to "Edit", edit_admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-primary", data: { turbo_frame: "_top" } %>
+                <%= link_to "Delete", admin_contract_path(contract), method: :delete,
+                    data: { confirm: "Are you sure? This will permanently delete the contract.", turbo_frame: "_top" },
+                    class: "admin-btn admin-btn-sm admin-btn-danger" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @contracts.empty? %>
+      <div style="padding: 40px; text-align: center; color: #6b7280;">
+        <% if params[:search].present? && params[:status].present? %>
+          No contracts found matching "<%= params[:search] %>" with status "<%= params[:status].humanize %>"
+        <% elsif params[:search].present? %>
+          No contracts found matching "<%= params[:search] %>"
+        <% elsif params[:status].present? %>
+          No contracts found with status "<%= params[:status].humanize %>"
+        <% else %>
+          No contracts found.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="admin-pagination">
+    <%= paginate @contracts, window: 2 %>
+  </div>
+<% end %>

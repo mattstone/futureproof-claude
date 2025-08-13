@@ -18,7 +18,7 @@
     <% if @messages.any? %>
       <div class="message-threads">
         <% @messages.each do |message| %>
-          <div class="message-thread">
+          <div class="message-thread <%= 'highlighted' if @highlight_message_id == message.id %>" id="message-<%= message.id %>">
             <div class="message-header">
               <div class="message-sender-info">
                 <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
@@ -163,6 +163,27 @@
 
 .message-thread:last-child {
   margin-bottom: 0;
+}
+
+.message-thread.highlighted {
+  border: 2px solid #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    background: #eff6ff;
+    border-color: #3b82f6;
+  }
+  50% {
+    background: #dbeafe;
+    border-color: #1d4ed8;
+  }
+  100% {
+    background: white;
+    border-color: #3b82f6;
+  }
 }
 
 .message-header {
@@ -466,3 +487,21 @@
   }
 }
 </style>
+
+<% if @highlight_message_id %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Scroll to the highlighted message
+  const highlightedMessage = document.getElementById('message-<%= @highlight_message_id %>');
+  if (highlightedMessage) {
+    // Small delay to ensure the page is fully rendered
+    setTimeout(function() {
+      highlightedMessage.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }, 300);
+  }
+});
+</script>
+<% end %>

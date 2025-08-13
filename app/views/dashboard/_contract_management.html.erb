@@ -1,0 +1,345 @@
+<!-- Enhanced Contract Management Component -->
+<div class="contract-management-container">
+  <% @contracts.each do |contract| %>
+    <div class="application-card enhanced" id="contract-<%= contract.id %>">
+      
+      <!-- Contract Header -->
+      <div class="application-card-header">
+        <div class="application-info">
+          <h3 class="application-title">
+            Contract #<%= contract.id.to_s.rjust(6, '0') %>
+          </h3>
+          <div class="application-meta">
+            <span class="status-badge <%= contract.status == 'ok' ? 'status-approved' : 'status-pending' %>">
+              <%= contract.status.humanize %>
+            </span>
+            <span class="application-date">
+              Started <%= contract.start_date&.strftime("%B %d, %Y") || "Date not set" %>
+            </span>
+          </div>
+        </div>
+        
+        <div class="application-actions-header">
+          <button class="btn btn-outline-primary btn-sm" onclick="toggleContractDetails('<%= contract.id %>')">
+            <i class="fas fa-eye"></i> View
+          </button>
+          <% if contract.contract_messages.any? %>
+            <button class="btn btn-primary btn-sm" onclick="toggleContractMessages('<%= contract.id %>')">
+              <i class="fas fa-comments"></i> Messages 
+              <span class="message-count"><%= contract.contract_messages.admin_messages.unread.count %></span>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Contract Summary -->
+      <div class="application-summary">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <i class="fas fa-home summary-icon"></i>
+            <div class="summary-content">
+              <span class="summary-value"><%= truncate(contract.application.address, length: 40) %></span>
+              <span class="summary-subvalue"><%= contract.application.formatted_home_value %></span>
+            </div>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-calendar summary-icon"></i>
+            <div class="summary-content">
+              <span class="summary-value">
+                <% if contract.start_date && contract.end_date %>
+                  <%= ((contract.end_date - contract.start_date) / 1.year).round %> year term
+                <% else %>
+                  Term not set
+                <% end %>
+              </span>
+              <span class="summary-subvalue">
+                <% if contract.end_date %>
+                  Expires <%= contract.end_date.strftime("%B %Y") %>
+                <% end %>
+              </span>
+            </div>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-chart-line summary-icon"></i>
+            <div class="summary-content">
+              <% if contract.application.mortgage.present? %>
+                <span class="summary-value"><%= contract.application.mortgage.name %></span>
+              <% else %>
+                <span class="summary-value no-data">Not specified</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expandable Contract Details -->
+      <div class="application-details-section" id="details-<%= contract.id %>" style="display: none;">
+        <h4 class="section-title">
+          <i class="fas fa-info-circle"></i>
+          Contract Details
+        </h4>
+        
+        <div class="details-grid">
+          <div class="detail-group">
+            <h5>Contract Information</h5>
+            <div class="detail-items">
+              <div class="detail-item">
+                <span class="detail-label">Contract Status:</span>
+                <span class="detail-value"><%= contract.status.humanize %></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Start Date:</span>
+                <span class="detail-value">
+                  <%= contract.start_date&.strftime("%B %d, %Y") || "Not set" %>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">End Date:</span>
+                <span class="detail-value">
+                  <%= contract.end_date&.strftime("%B %d, %Y") || "Not set" %>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Application Reference:</span>
+                <span class="detail-value">
+                  Application #<%= contract.application.id.to_s.rjust(6, '0') %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <h5>Property Information</h5>
+            <div class="detail-items">
+              <div class="detail-item">
+                <span class="detail-label">Full Address:</span>
+                <span class="detail-value"><%= contract.application.address %></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Property Value:</span>
+                <span class="detail-value"><%= contract.application.formatted_home_value %></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Ownership Type:</span>
+                <span class="detail-value"><%= contract.application.ownership_status_display %></span>
+              </div>
+              <% if contract.application.mortgage.present? %>
+                <div class="detail-item">
+                  <span class="detail-label">Mortgage Product:</span>
+                  <span class="detail-value"><%= contract.application.mortgage.name %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Section -->
+      <div class="application-messages-section" id="messages-<%= contract.id %>" style="display: none;">
+        <div class="messages-header">
+          <h4 class="section-title">
+            <i class="fas fa-comments"></i>
+            Messages & Communication
+          </h4>
+          <div class="messages-actions">
+            <button class="btn btn-sm btn-outline-secondary" onclick="markAllContractAsRead(<%= contract.id %>)">
+              <i class="fas fa-check-double"></i> Mark All Read
+            </button>
+          </div>
+        </div>
+
+        <div class="messages-container">
+          <% messages = contract.message_threads %>
+          <% if messages.any? %>
+            <div class="message-threads">
+              <% messages.each do |message| %>
+                <div class="message-thread" data-message-id="<%= message.id %>">
+                  <div class="message-header">
+                    <div class="message-sender-info">
+                      <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
+                        <div class="agent-avatar">
+                          <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name}", class: "avatar-img" %>
+                        </div>
+                      <% else %>
+                        <div class="default-avatar">
+                          <i class="fas fa-robot"></i>
+                        </div>
+                      <% end %>
+                      
+                      <div class="sender-details">
+                        <div class="sender-name">
+                          <strong><%= message.sender_name %></strong>
+                          <% if message.from_ai_agent? %>
+                            <span class="ai-badge">AI Assistant</span>
+                          <% end %>
+                        </div>
+                        <div class="sender-role"><%= message.sender_role %></div>
+                      </div>
+                    </div>
+                    
+                    <div class="message-meta">
+                      <span class="message-status status-<%= message.status %>">
+                        <%= message.status.humanize %>
+                      </span>
+                      <time class="message-time">
+                        <%= message.formatted_created_at %>
+                      </time>
+                    </div>
+                  </div>
+                  
+                  <div class="message-content">
+                    <h5 class="message-subject"><%= message.processed_subject %></h5>
+                    <div class="message-body">
+                      <%= message.content_html %>
+                    </div>
+                  </div>
+                  
+                  <!-- Replies -->
+                  <% if message.replies.any? %>
+                    <div class="message-replies">
+                      <h6>Your Replies:</h6>
+                      <% message.replies.each do |reply| %>
+                        <div class="message-reply">
+                          <div class="reply-header">
+                            <strong>You</strong>
+                            <time><%= reply.formatted_created_at %></time>
+                          </div>
+                          <div class="reply-content">
+                            <%= reply.content_html %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  
+                  <!-- Reply Form -->
+                  <div class="reply-form-container" style="display: none;" id="reply-form-<%= message.id %>">
+                    <%= form_with(
+                      model: [contract, ContractMessage.new], 
+                      url: reply_to_message_contract_path(contract),
+                      class: "reply-form",
+                      data: { message_id: message.id }
+                    ) do |form| %>
+                      
+                      <%= form.hidden_field :parent_message_id, value: message.id %>
+                      
+                      <div class="form-group">
+                        <%= form.label :subject, class: "form-label" %>
+                        <%= form.text_field :subject, value: "Re: #{message.subject}", required: true, class: "form-input" %>
+                      </div>
+
+                      <div class="form-group">
+                        <%= form.label :content, "Your Reply", class: "form-label" %>
+                        <%= form.text_area :content, rows: 4, required: true, class: "form-textarea", 
+                                           placeholder: "Type your reply here..." %>
+                      </div>
+
+                      <div class="form-actions">
+                        <%= form.submit "Send Reply", class: "btn btn-primary" %>
+                        <button type="button" class="btn btn-secondary" onclick="hideContractReplyForm(<%= message.id %>)">
+                          Cancel
+                        </button>
+                      </div>
+                    <% end %>
+                  </div>
+                  
+                  <div class="message-actions">
+                    <button class="btn btn-sm btn-primary" onclick="showContractReplyForm(<%= message.id %>)">
+                      <i class="fas fa-reply"></i> Reply
+                    </button>
+                    <% unless message.read? %>
+                      <button class="btn btn-sm btn-outline-secondary" onclick="markContractAsRead(<%= message.id %>)">
+                        <i class="fas fa-check"></i> Mark as Read
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="empty-messages-state">
+              <div class="empty-icon">📬</div>
+              <h5>No messages yet</h5>
+              <p>When Futureproof sends you messages about this contract, they will appear here.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+  <% end %>
+</div>
+
+<style>
+/* Contract-specific status styles */
+.status-badge.status-approved {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Inherit all other styles from application management */
+.contract-management-container .application-card.enhanced {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.contract-management-container .application-card.enhanced:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+</style>
+
+<script>
+function toggleContractDetails(contractId) {
+  const detailsSection = document.getElementById(`details-${contractId}`);
+  const messagesSection = document.getElementById(`messages-${contractId}`);
+  
+  if (detailsSection.style.display === 'none') {
+    detailsSection.style.display = 'block';
+    messagesSection.style.display = 'none';
+  } else {
+    detailsSection.style.display = 'none';
+  }
+}
+
+function toggleContractMessages(contractId) {
+  const detailsSection = document.getElementById(`details-${contractId}`);
+  const messagesSection = document.getElementById(`messages-${contractId}`);
+  
+  if (messagesSection.style.display === 'none') {
+    messagesSection.style.display = 'block';
+    detailsSection.style.display = 'none';
+    
+    // Mark messages as read when viewing
+    markAllContractAsRead(contractId);
+  } else {
+    messagesSection.style.display = 'none';
+  }
+}
+
+function showContractReplyForm(messageId) {
+  document.getElementById(`reply-form-${messageId}`).style.display = 'block';
+}
+
+function hideContractReplyForm(messageId) {
+  document.getElementById(`reply-form-${messageId}`).style.display = 'none';
+}
+
+function markContractAsRead(messageId) {
+  // Implementation would make an AJAX call to mark message as read
+  console.log(`Marking contract message ${messageId} as read`);
+}
+
+function markAllContractAsRead(contractId) {
+  // Implementation would make an AJAX call to mark all messages as read
+  console.log(`Marking all messages for contract ${contractId} as read`);
+}
+</script>

@@ -8,7 +8,11 @@ class Mortgage < ApplicationRecord
 
   validates :name, presence: true
   validates :mortgage_type, presence: true
-  validates :lvr, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 100 }
+  validates :lvr, presence: true, numericality: { 
+    greater_than_or_equal_to: 1, 
+    less_than_or_equal_to: 100 
+  }
+  validate :lvr_in_valid_increments
   
   # Track changes with audit functionality
   attr_accessor :current_user
@@ -63,7 +67,37 @@ class Mortgage < ApplicationRecord
     end
   end
   
+  # Format LVR for display - hide decimal point if it's a whole number
+  def formatted_lvr
+    return '' unless lvr.present?
+    
+    if lvr % 1 == 0
+      "#{lvr.to_i}%"
+    else
+      "#{lvr}%"
+    end
+  end
+  
   private
+  
+  def format_lvr_value(lvr_value)
+    return '' unless lvr_value.present?
+    
+    if lvr_value % 1 == 0
+      "#{lvr_value.to_i}%"
+    else
+      "#{lvr_value}%"
+    end
+  end
+  
+  def lvr_in_valid_increments
+    return unless lvr.present?
+    
+    # Check if LVR is in increments of 0.1
+    unless (lvr * 10) % 1 == 0
+      errors.add(:lvr, "must be in increments of 0.1 (e.g., 80.1, 80.2, etc.)")
+    end
+  end
   
   def log_creation
     return unless current_user
@@ -118,7 +152,9 @@ class Mortgage < ApplicationRecord
     end
     
     if saved_change_to_lvr?
-      changes_list << "LVR changed from #{saved_change_to_lvr[0]}% to #{saved_change_to_lvr[1]}%"
+      old_lvr = format_lvr_value(saved_change_to_lvr[0])
+      new_lvr = format_lvr_value(saved_change_to_lvr[1])
+      changes_list << "LVR changed from #{old_lvr} to #{new_lvr}"
     end
     
     changes_list.join("; ")

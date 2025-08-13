@@ -1,0 +1,800 @@
+<%
+  # Determine the resource type and set JavaScript data accordingly
+  if defined?(@application) && @application
+    resource = @application
+    resource_type = 'application'
+    javascript_data = {
+      id: resource.id,
+      address: resource.address,
+      status: resource.status,
+      statusDisplay: resource.status_display,
+      formattedHomeValue: resource.formatted_home_value,
+      user: {
+        firstName: resource.user.first_name,
+        lastName: resource.user.last_name,
+        email: resource.user.email
+      }
+    }
+  elsif defined?(@contract) && @contract
+    resource = @contract
+    resource_type = 'contract'
+    javascript_data = {
+      id: resource.id,
+      status: resource.status,
+      statusDisplay: resource.status.humanize,
+      startDate: resource.start_date.strftime("%B %d, %Y"),
+      endDate: resource.end_date.strftime("%B %d, %Y"),
+      application: {
+        address: resource.application.address,
+        formattedHomeValue: resource.application.formatted_home_value
+      },
+      user: {
+        firstName: resource.application.user.first_name,
+        lastName: resource.application.user.last_name,
+        email: resource.application.user.email
+      }
+    }
+  else
+    raise "Invalid resource: Expected @application or @contract to be defined"
+  end
+%>
+
+<script>
+// Data for template variable processing
+window.<%= resource_type %>Data = <%= javascript_data.to_json.html_safe %>;
+
+// AI Agent data for dynamic preview updates
+window.aiAgentData = <%= @ai_agents.map { |agent| 
+  {
+    id: agent.id, 
+    name: agent.name,
+    displayName: agent.display_name,
+    roleDescription: agent.role_description,
+    avatarPath: (agent.asset_avatar_path rescue nil),
+    specialties: agent.specialties
+  }
+}.to_json.html_safe %>;
+
+// Template variable processing function
+function processTemplateVariables(text, resourceData = window.<%= resource_type %>Data) {
+  let processed = text;
+  
+  // User variables
+  if (resourceData.user) {
+    processed = processed.replace(/\{\{user\.first_name\}\}/gi, resourceData.user.firstName || '[First Name]');
+    processed = processed.replace(/\{\{user\.last_name\}\}/gi, resourceData.user.lastName || '[Last Name]');
+    processed = processed.replace(/\{\{user\.email\}\}/gi, resourceData.user.email || '[Email]');
+  }
+  
+  <% if resource_type == 'application' %>
+  // Application-specific variables
+  processed = processed.replace(/\{\{application\.id\}\}/gi, resourceData.id || '[ID]');
+  processed = processed.replace(/\{\{application\.address\}\}/gi, resourceData.address || '[Address]');
+  processed = processed.replace(/\{\{application\.status_display\}\}/gi, resourceData.statusDisplay || '[Status]');
+  processed = processed.replace(/\{\{application\.formatted_home_value\}\}/gi, resourceData.formattedHomeValue || '[Home Value]');
+  <% elsif resource_type == 'contract' %>
+  // Contract-specific variables
+  processed = processed.replace(/\{\{contract\.id\}\}/gi, resourceData.id || '[ID]');
+  processed = processed.replace(/\{\{contract\.status_display\}\}/gi, resourceData.statusDisplay || '[Status]');
+  processed = processed.replace(/\{\{contract\.start_date\}\}/gi, resourceData.startDate || '[Start Date]');
+  processed = processed.replace(/\{\{contract\.end_date\}\}/gi, resourceData.endDate || '[End Date]');
+  
+  // Application variables (through contract)
+  if (resourceData.application) {
+    processed = processed.replace(/\{\{application\.address\}\}/gi, resourceData.application.address || '[Address]');
+    processed = processed.replace(/\{\{application\.formatted_home_value\}\}/gi, resourceData.application.formattedHomeValue || '[Home Value]');
+  }
+  <% end %>
+  
+  return processed;
+}
+
+// Markup to HTML conversion
+function markupToHtml(text) {
+  let html = text;
+  
+  // Bold text
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Italic text
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+  // Bullet points
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  
+  // Numbered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+  
+  return html;
+}
+
+// Update preview when content changes
+function updatePreview() {
+  const subjectInput = document.querySelector('#<%= resource_type %>_message_subject');
+  const contentInput = document.querySelector('#<%= resource_type %>_message_content');
+  
+  if (!subjectInput || !contentInput) return;
+  
+  const subject = subjectInput.value;
+  const content = contentInput.value;
+  
+  // Process template variables
+  const processedSubject = processTemplateVariables(subject);
+  const processedContent = processTemplateVariables(content);
+  
+  // Convert markup to HTML
+  const contentHtml = markupToHtml(processedContent);
+  
+  // Update preview
+  const previewSubject = document.getElementById('preview-subject');
+  const previewContent = document.getElementById('preview-content');
+  
+  if (previewSubject) {
+    previewSubject.textContent = processedSubject || 'Enter a subject above';
+  }
+  
+  if (previewContent) {
+    if (contentHtml.trim()) {
+      previewContent.innerHTML = contentHtml;
+    } else {
+      previewContent.innerHTML = '<p>Type your message content above to see the preview...</p>';
+    }
+  }
+}
+
+// Update agent preview
+function updateAgentPreview(selectElement) {
+  const agentId = parseInt(selectElement.value);
+  const agent = window.aiAgentData.find(a => a.id === agentId);
+  
+  const preview = document.getElementById('agent-preview');
+  if (!preview) return;
+  
+  if (!agent) {
+    preview.style.display = 'none';
+    updateEmailAgentPreview(null);
+    return;
+  }
+  
+  preview.style.display = 'block';
+  
+  // Update agent info in selection area
+  const agentName = preview.querySelector('.agent-name');
+  const agentRole = preview.querySelector('.agent-role');
+  const agentSpecialties = preview.querySelector('.agent-specialties');
+  const agentAvatar = preview.querySelector('.agent-avatar');
+  
+  if (agentName) agentName.textContent = agent.displayName || agent.name;
+  if (agentRole) agentRole.textContent = agent.roleDescription;
+  if (agentSpecialties) agentSpecialties.textContent = `Specialties: ${agent.specialties || 'General assistance'}`;
+  
+  // Update avatar
+  if (agentAvatar && agent.avatarPath) {
+    if (agentAvatar.tagName === 'IMG') {
+      agentAvatar.src = agent.avatarPath;
+      agentAvatar.alt = `${agent.name} Avatar`;
+    }
+  }
+  
+  // Update email preview
+  updateEmailAgentPreview(agent);
+}
+
+// Update agent in email preview
+function updateEmailAgentPreview(agent) {
+  const previewAgentHeader = document.getElementById('preview-agent-header');
+  const previewAgentName = document.getElementById('preview-agent-name');
+  const previewAgentRole = document.getElementById('preview-agent-role');
+  const previewAgentAvatar = document.getElementById('preview-agent-avatar');
+  const previewAgentFallback = document.getElementById('preview-agent-fallback');
+  
+  if (!previewAgentHeader) return;
+  
+  if (!agent) {
+    previewAgentHeader.style.display = 'none';
+    return;
+  }
+  
+  previewAgentHeader.style.display = 'block';
+  
+  if (previewAgentName) previewAgentName.textContent = agent.displayName || agent.name;
+  if (previewAgentRole) previewAgentRole.textContent = agent.roleDescription;
+  
+  // Handle avatar
+  if (agent.avatarPath && previewAgentAvatar && previewAgentFallback) {
+    previewAgentAvatar.src = agent.avatarPath;
+    previewAgentAvatar.style.display = 'block';
+    previewAgentFallback.style.display = 'none';
+  } else if (previewAgentFallback) {
+    if (previewAgentAvatar) previewAgentAvatar.style.display = 'none';
+    previewAgentFallback.style.display = 'flex';
+    previewAgentFallback.textContent = agent.name ? agent.name.charAt(0).toUpperCase() : '🤖';
+  }
+}
+
+// Field insertion helpers
+function insertField(fieldValue) {
+  const contentInput = document.querySelector('#<%= resource_type %>_message_content');
+  if (!contentInput) return;
+  
+  const start = contentInput.selectionStart;
+  const end = contentInput.selectionEnd;
+  const text = contentInput.value;
+  
+  contentInput.value = text.substring(0, start) + fieldValue + text.substring(end);
+  contentInput.focus();
+  contentInput.setSelectionRange(start + fieldValue.length, start + fieldValue.length);
+  
+  updatePreview();
+}
+
+// Markup application helpers
+function applyMarkup(openTag, closeTag) {
+  const contentInput = document.querySelector('#<%= resource_type %>_message_content');
+  if (!contentInput) return;
+  
+  const start = contentInput.selectionStart;
+  const end = contentInput.selectionEnd;
+  const selectedText = contentInput.value.substring(start, end);
+  const text = contentInput.value;
+  
+  if (selectedText) {
+    const replacement = openTag + selectedText + closeTag;
+    contentInput.value = text.substring(0, start) + replacement + text.substring(end);
+    contentInput.focus();
+    contentInput.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+  } else {
+    const insertion = openTag + closeTag;
+    contentInput.value = text.substring(0, start) + insertion + text.substring(end);
+    contentInput.focus();
+    contentInput.setSelectionRange(start + openTag.length, start + openTag.length);
+  }
+  
+  updatePreview();
+}
+
+function insertLineBreak() {
+  const contentInput = document.querySelector('#<%= resource_type %>_message_content');
+  if (!contentInput) return;
+  
+  const start = contentInput.selectionStart;
+  const end = contentInput.selectionEnd;
+  const text = contentInput.value;
+  
+  contentInput.value = text.substring(0, start) + '\n' + text.substring(end);
+  contentInput.focus();
+  contentInput.setSelectionRange(start + 1, start + 1);
+  
+  updatePreview();
+}
+
+// Initialize form functionality
+function initializeForm() {
+  // Set up event listeners
+  const subjectInput = document.querySelector('#<%= resource_type %>_message_subject');
+  const contentInput = document.querySelector('#<%= resource_type %>_message_content');
+  const agentSelect = document.querySelector('#<%= resource_type %>_message_ai_agent_id');
+  
+  if (subjectInput) {
+    subjectInput.addEventListener('input', updatePreview);
+  }
+  
+  if (contentInput) {
+    contentInput.addEventListener('input', updatePreview);
+  }
+  
+  if (agentSelect && agentSelect.value) {
+    updateAgentPreview(agentSelect);
+  }
+  
+  // Initial preview update
+  updatePreview();
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeForm);
+
+// Reinitialize when Turbo Stream updates the form
+document.addEventListener('turbo:stream-connected', function(event) {
+  // Small delay to ensure DOM is updated
+  setTimeout(initializeForm, 50);
+});
+
+// Also listen for turbo:morph events (in case using morphing)
+document.addEventListener('turbo:morph', function(event) {
+  setTimeout(initializeForm, 50);
+});
+
+// Listen for any turbo:render event
+document.addEventListener('turbo:render', function(event) {
+  setTimeout(initializeForm, 50);
+});
+</script>
+
+<style>
+/* Message Actions Container */
+.message-actions-container {
+  background-color: #f9fafb;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.actions-header {
+  color: #1e40af;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.actions-description {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.actions-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.draft-btn {
+  flex: 1;
+}
+
+.send-btn {
+  flex: 2;
+  font-size: 16px;
+  padding: 12px 24px;
+  font-weight: 600;
+}
+
+.actions-tip {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Messaging Interface Styles */
+.message-form-section, .message-history-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.message-form-section h3, .message-history-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* AI Agent Selection */
+.ai-agent-selection {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.agent-preview {
+  margin-top: 12px;
+  padding: 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agent-details .agent-name {
+  display: block;
+  color: #374151;
+  font-size: 14px;
+}
+
+.agent-details .agent-role {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.agent-details .agent-specialties {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* Field Helpers */
+.field-helpers {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.field-helpers h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.helper-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.helper-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.helper-btn:hover {
+  background: #2563eb;
+}
+
+/* WYSIWYG Toolbar */
+.wysiwyg-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px 6px 0 0;
+}
+
+.toolbar-btn {
+  background: white;
+  border: 1px solid #d1d5db;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.markup-editor {
+  border-radius: 0 0 6px 6px;
+  border-top: none;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Deja Vu Sans Mono", "Liberation Mono", "Roboto Mono", "Courier New", monospace;
+}
+
+/* Live Preview */
+.live-preview-section {
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.live-preview-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+/* Message History */
+.message-threads {
+  space: 24px;
+}
+
+.message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.message-thread:last-child {
+  margin-bottom: 0;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.message-sender {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sender-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+}
+
+.admin-avatar {
+  background: #3b82f6;
+}
+
+.customer-avatar {
+  background: #10b981;
+}
+
+.sender-info .sender-name {
+  font-size: 14px;
+  color: #374151;
+}
+
+.ai-badge {
+  background: #8b5cf6;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.sender-info .sender-role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.message-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-sent {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.message-time {
+  color: #9ca3af;
+}
+
+.message-subject {
+  margin-bottom: 12px;
+  color: #374151;
+  font-size: 16px;
+}
+
+.message-content {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border-left: 4px solid #0891b2;
+  line-height: 1.6;
+}
+
+.message-replies {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.message-replies h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.message-reply {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.reply-content {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.message-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.field-hint {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .actions-buttons {
+    flex-direction: column;
+  }
+  
+  .draft-btn, .send-btn {
+    flex: none;
+  }
+  
+  .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .helper-buttons {
+    flex-direction: column;
+  }
+  
+  .helper-btn {
+    width: 100%;
+  }
+}
+
+/* Count badges */
+.count-badge {
+  display: inline-block;
+  background: #3b82f6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.count-badge.draft {
+  background: #f59e0b;
+}
+
+/* Flash messages styling */
+#flash-messages {
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.alert-success {
+  background: #d1fae5;
+  border: 1px solid #059669;
+  color: #065f46;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #991b1b;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Field error styling */
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.error {
+  border-color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+}
+
+/* Real-time message animation */
+.message-thread {
+  transition: all 0.3s ease-in-out;
+}
+
+.message-thread.new-message {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+}
+
+/* Pulse animation for new messages */
+@keyframes pulse-new {
+  0% {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+  }
+  50% {
+    background-color: #dbeafe;
+    border-left-color: #1d4ed8;
+  }
+  100% {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+  }
+}
+
+.message-thread.new-message {
+  animation: pulse-new 2s ease-in-out 3;
+}
+</style>

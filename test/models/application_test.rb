@@ -1,26 +1,10 @@
 require "test_helper"
 
 class ApplicationTest < ActiveSupport::TestCase
-  # Disable fixtures for this test to avoid conflicts
-  fixtures :none
+  fixtures :users, :applications, :contracts
   
-  def teardown
-    Application.delete_all
-    User.delete_all
-  end
   def setup
-    # Use a unique email for each test run
-    @user = User.create!(
-      email: "test#{rand(100000)}@example.com",
-      password: 'password123',
-      password_confirmation: 'password123',
-      first_name: 'Test',
-      last_name: 'User',
-      admin: false,
-      country_of_residence: 'AU',
-      confirmed_at: Time.current,
-      terms_version: 1
-    )
+    @user = users(:john)
     
     @application = Application.new(
       user: @user,
@@ -186,5 +170,120 @@ class ApplicationTest < ActiveSupport::TestCase
     
     @application.growth_rate = nil
     assert_equal '2.0%', @application.formatted_growth_rate  # Default value
+  end
+  
+  test "should have one contract relationship" do
+    app = applications(:submitted_application)
+    contract = contracts(:active_contract)
+    
+    assert_equal contract, app.contract
+    assert_equal app, contract.application
+  end
+  
+  test "should destroy contract when application is destroyed" do
+    app = applications(:submitted_application)
+    contract_id = app.contract.id
+    
+    app.destroy
+    
+    assert_nil Contract.find_by(id: contract_id)
+  end
+  
+  test "should not allow editing when status is accepted" do
+    # Application with accepted status should not be editable
+    app = applications(:submitted_application)
+    app.status = :accepted
+    app.save!
+    
+    assert_not app.can_be_edited?
+  end
+  
+  test "should allow editing for editable statuses" do
+    # Test all editable statuses
+    app = applications(:submitted_application)
+    
+    [:created, :property_details, :income_and_loan_options].each do |status|
+      app.status = status
+      app.save!
+      assert app.can_be_edited?, "Application with #{status} status should be editable"
+    end
+  end
+  
+  test "should not allow editing for non-editable statuses" do
+    # Test non-editable statuses
+    app = applications(:submitted_application)
+    
+    [:submitted, :processing, :accepted].each do |status|
+      app.status = status
+      app.save!
+      assert_not app.can_be_edited?, "Application with #{status} status should not be editable"
+    end
+    
+    # Test rejected status separately (requires rejected_reason)
+    app.status = :rejected
+    app.rejected_reason = "Test rejection reason"
+    app.save!
+    assert_not app.can_be_edited?, "Application with rejected status should not be editable"
+  end
+  
+  test "should automatically create contract when status changed to accepted" do
+    app = applications(:mortgage_application) # Use app without existing contract
+    assert_nil app.contract
+    
+    # Change status to accepted
+    app.status = :accepted
+    app.save!
+    
+    # Contract should be created automatically
+    app.reload
+    assert_not_nil app.contract
+    assert app.contract.status_awaiting_funding?
+    assert_equal Date.current, app.contract.start_date
+    assert_equal Date.current + 5.years, app.contract.end_date
+  end
+  
+  test "should not create duplicate contract when already exists" do
+    app = applications(:submitted_application) # This app already has a contract from fixtures
+    original_contract = app.contract
+    
+    # Change status to accepted
+    app.status = :accepted
+    app.save!
+    
+    # Should not create a new contract
+    app.reload
+    assert_equal original_contract, app.contract
+  end
+  
+  test "should not create contract when status change is not to accepted" do
+    app = applications(:mortgage_application)
+    assert_nil app.contract
+    
+    # Change status to something other than accepted
+    app.status = :processing
+    app.save!
+    
+    # Contract should not be created
+    app.reload
+    assert_nil app.contract
+  end
+  
+  test "should not create contract when status was already accepted" do
+    app = applications(:mortgage_application)
+    app.status = :accepted
+    app.save!
+    
+    # Verify contract was created
+    app.reload
+    original_contract = app.contract
+    assert_not_nil original_contract
+    
+    # Change some other field (not status)
+    app.address = "New Address"
+    app.save!
+    
+    # Should not create another contract
+    app.reload
+    assert_equal original_contract, app.contract
   end
 end

@@ -18,6 +18,7 @@
       <tr>
         <th>Name</th>
         <th>Type</th>
+        <th>LVR</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -31,6 +32,7 @@
               <%= mortgage.mortgage_type.humanize %>
             </span>
           </td>
+          <td><strong><%= mortgage.formatted_lvr %></strong></td>
           <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
           <td>
             <%= link_to "View", admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-secondary" %>

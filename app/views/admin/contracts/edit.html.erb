@@ -1,0 +1,77 @@
+<% content_for :page_title, "Edit Contract ##{@contract.id}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Contract", admin_contract_path(@contract), class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Contract", admin_contract_path(@contract), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "All Contracts", admin_contracts_path, class: "admin-btn admin-btn-outline" %>
+  </div>
+</div>
+
+<div class="admin-two-column-layout">
+  <!-- Left Column - Contract Edit Form -->
+  <div class="admin-left-column">
+    <div class="admin-form-container">
+      <%= render 'form', contract: @contract, applications: @applications %>
+    </div>
+  </div>
+
+  <!-- Right Column - Messages and Communication -->
+  <div class="admin-right-column">
+    <%= render 'shared/messaging/messaging_interface' %>
+  </div>
+</div>
+
+<%= render 'shared/messaging/messaging_assets' %>
+
+<style>
+/* Two-Column Layout CSS */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.admin-form-container {
+  max-width: none;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+  
+  .admin-form-container {
+    max-width: 800px;
+  }
+}
+</style>

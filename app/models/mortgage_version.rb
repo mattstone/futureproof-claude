@@ -68,8 +68,8 @@ class MortgageVersion < ApplicationRecord
     if has_lvr_changes?
       changes << {
         field: 'LVR',
-        from: "#{previous_lvr}%",
-        to: "#{new_lvr}%"
+        from: format_lvr_for_display(previous_lvr),
+        to: format_lvr_for_display(new_lvr)
       }
     end
     
@@ -77,6 +77,16 @@ class MortgageVersion < ApplicationRecord
   end
   
   private
+  
+  def format_lvr_for_display(lvr_value)
+    return '' unless lvr_value.present?
+    
+    if lvr_value % 1 == 0
+      "#{lvr_value.to_i}%"
+    else
+      "#{lvr_value}%"
+    end
+  end
   
   def mortgage_type_label(type_value)
     case type_value

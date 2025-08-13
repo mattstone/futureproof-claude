@@ -1,0 +1,35 @@
+<!-- Display flash notice -->
+<%= turbo_stream.prepend "flash-messages" do %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= flash.now[:notice] %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
+<!-- Update the application status badge -->
+<%= turbo_stream.update "application-status-badge" do %>
+  <span class="badge <%= @application.status_badge_class %>">
+    <%= @application.status_display %>
+  </span>
+<% end %>
+
+<!-- If status changed to accepted, remove the application from admin interface -->
+<% if @status_changed_to_accepted %>
+  <%= turbo_stream.remove "application-row-#{@application.id}" %>
+  
+  <!-- Update the applications count if we're on the index page -->
+  <%= turbo_stream.update "applications-count" do %>
+    <span class="count-badge">
+      <%= Application.where.not(status: :accepted).count %>
+    </span>
+  <% end %>
+  
+  <!-- Show notification that application moved to contracts -->
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      ✅ Application accepted! Contract automatically created and moved to contracts interface. 
+      <a href="<%= admin_contracts_path %>" class="alert-link">View contracts</a>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+<% end %>

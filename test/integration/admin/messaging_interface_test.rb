@@ -105,6 +105,9 @@ class Admin::MessagingInterfaceTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle missing AI agent gracefully" do
+    # Delete messages that reference AI agents first
+    ApplicationMessage.destroy_all
+    ContractMessage.destroy_all
     AiAgent.destroy_all
     
     get edit_admin_application_path(@application)
@@ -139,5 +142,97 @@ class Admin::MessagingInterfaceTest < ActionDispatch::IntegrationTest
     # Should have descriptive text for buttons
     assert_match /Save as draft to review later/, response.body
     assert_match /send now to deliver immediately/, response.body
+  end
+
+  test "should display AI agent selection interface on initial load" do
+    get edit_admin_application_path(@application)
+    assert_response :success
+    
+    # Should have AI agent selection dropdown
+    assert_select 'select#application_message_ai_agent_id[required]'
+    assert_select 'select#application_message_ai_agent_id option', text: 'Select AI Agent...'
+    assert_select 'select#application_message_ai_agent_id option', text: @ai_agent.display_name
+    
+    # Should have agent preview div
+    assert_select 'div#agent-preview.agent-preview'
+    assert_select 'div#agent-preview .agent-info'
+    assert_select 'div#agent-preview .agent-details'
+    assert_select 'div#agent-preview .agent-name'
+    assert_select 'div#agent-preview .agent-role'
+    assert_select 'div#agent-preview .agent-specialties'
+    
+    # Should have onchange handler for agent selection
+    assert_select 'select[onchange="updateAgentPreview(this)"]'
+  end
+
+  test "should maintain AI agent interface after sending message via Turbo Stream" do
+    get edit_admin_application_path(@application)
+    assert_response :success
+    
+    # Send a message via Turbo Stream (which should maintain the interface)
+    post create_message_admin_application_path(@application), params: {
+      application_message: {
+        ai_agent_id: @ai_agent.id,
+        subject: "Test Subject",
+        content: "Test content"
+      },
+      send_now: "Send Message Now"
+    }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    
+    assert_response :success
+    assert_match /turbo-stream/, response.content_type
+    
+    # Verify the response contains the AI agent selection interface
+    assert_match /ai-agent-selection/, response.body
+    assert_match /agent-preview/, response.body
+    assert_match /updateAgentPreview/, response.body
+    
+    # Should contain the initialization script
+    assert_match /updatePreview\(\)/, response.body
+    assert_match /addEventListener\('input'/, response.body
+    
+    # Should have the agent dropdown with proper structure
+    assert_match /application_message_ai_agent_id/, response.body
+    assert_match /Select AI Agent\.\.\./, response.body
+  end
+
+  test "should include JavaScript initialization for messaging interface" do
+    get edit_admin_application_path(@application)
+    assert_response :success
+    
+    # Should include the messaging assets with JavaScript functions
+    assert_match /function updateAgentPreview/, response.body
+    assert_match /function updatePreview/, response.body
+    assert_match /function initializeForm/, response.body
+    
+    # Should have event listeners setup
+    assert_match /addEventListener\('DOMContentLoaded'/, response.body
+    assert_match /addEventListener\('turbo:stream-connected'/, response.body
+    
+    # Should have agent data available to JavaScript
+    assert_match /window\.aiAgentData/, response.body
+    assert_match /window\.applicationData/, response.body
+  end
+
+  test "should handle live preview functionality" do
+    get edit_admin_application_path(@application)
+    assert_response :success
+    
+    # Should have live preview section
+    assert_select '.live-preview-section'
+    assert_select '#message-preview'
+    assert_select '#preview-subject'
+    assert_select '#preview-content'
+    assert_select '#preview-agent-header'
+    assert_select '#preview-agent-name'
+    assert_select '#preview-agent-role'
+    
+    # Should have template variable processing functions
+    assert_match /function processTemplateVariables/, response.body
+    assert_match /function markupToHtml/, response.body
+    
+    # Should have email preview with agent information
+    assert_match /preview-agent-avatar/, response.body
+    assert_match /preview-agent-fallback/, response.body
   end
 end

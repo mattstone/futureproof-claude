@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+customer_success_manager:
+  name: "Customer Success Manager"
+  agent_type: "applications"
+  description: "Specialized in contract management and customer support"
+  avatar_filename: "Motoko.png"
+  role_title: "Customer Success Manager"
+  specialties: "Contract management, customer support"
+  greeting_style: "professional"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+funding_specialist:
+  name: "Funding Specialist"
+  agent_type: "backoffice"
+  description: "Expert in contract funding and financial analysis"
+  avatar_filename: "Rie.png"
+  role_title: "Funding Specialist"
+  specialties: "Contract funding, financial analysis"
+  greeting_style: "analytical"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+support_specialist:
+  name: "Support Specialist"
+  agent_type: "investment"
+  description: "Provides technical support and account assistance"
+  avatar_filename: "Yumi.png"
+  role_title: "Support Specialist"
+  specialties: "Technical support, account assistance"
+  greeting_style: "helpful"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>

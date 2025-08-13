@@ -17,7 +17,7 @@
     <div class="admin-form">
       <div class="application-header">
         <h2>Application #<%= @application.id %></h2>
-        <div class="application-status">
+        <div class="application-status" id="application-status-badge">
           <%= render 'status_badge', application: @application %>
         </div>
       </div>
@@ -127,9 +127,13 @@
       </div>
     </div>
 
+    <!-- Flash messages container for Turbo Stream updates -->
+    <div id="flash-messages"></div>
+    
     <!-- Status Update Form Section -->
     <div class="admin-form status-update-section">
-      <%= form_with(model: [:admin, @application], local: true, class: "status-form") do |form| %>
+      <div id="application-form-errors"></div>
+      <%= form_with(model: [:admin, @application], local: false, class: "status-form", id: "application-status-form") do |form| %>
         <h3>Update Application Status</h3>
         <p class="section-subtitle">Only the application status can be modified by administrators</p>
         
@@ -177,11 +181,11 @@
 
   <!-- Right Column - Messages and Communication -->
   <div class="admin-right-column">
-    <%= render 'messaging_interface' %>
+    <%= render 'shared/messaging/messaging_interface' %>
   </div>
 </div>
 
-<%= render 'messaging_assets' %>
+<%= render 'shared/messaging/messaging_assets' %>
 
 <style>
 /* Two-Column Layout */

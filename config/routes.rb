@@ -18,6 +18,18 @@ Rails.application.routes.draw do
     resources :users
     resources :mortgages
     resources :applications do
+      collection do
+        post :search
+      end
+      member do
+        post :create_message
+        patch :send_message
+      end
+    end
+    resources :contracts do
+      collection do
+        post :search
+      end
       member do
         post :create_message
         patch :send_message
@@ -96,6 +108,14 @@ Rails.application.routes.draw do
       get :summary
       patch :submit
       get :congratulations
+      get :messages
+      post :reply_to_message
+    end
+  end
+
+  # Contract routes
+  resources :contracts, only: [:show] do
+    member do
       get :messages
       post :reply_to_message
     end

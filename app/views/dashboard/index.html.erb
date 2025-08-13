@@ -5,6 +5,12 @@
         <h1 class="application-title">My Applications</h1>
       </div>
     </div>
+  <% elsif @section == 'contracts' %>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 class="application-title">My Contracts</h1>
+      </div>
+    </div>
   <% else %>
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -32,6 +38,23 @@
           <p>You haven't submitted any applications yet.</p>
           <div class="empty-state-actions">
             <%= link_to "Start New Application", "/start-application", class: "btn btn-primary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% elsif @section == 'contracts' %>
+    <!-- Contracts Section -->
+    <% if @contracts&.any? %>
+      <div class="summary-section">
+        <%= render 'contract_management' %>
+      </div>
+    <% else %>
+      <div class="summary-section">
+        <h3 class="summary-section-title">No Contracts Yet</h3>
+        <div class="empty-state">
+          <p>You don't have any active contracts yet. Contracts will appear here once your applications are approved.</p>
+          <div class="empty-state-actions">
+            <%= link_to "View Applications", dashboard_path(section: 'applications'), class: "btn btn-primary" %>
           </div>
         </div>
       </div>

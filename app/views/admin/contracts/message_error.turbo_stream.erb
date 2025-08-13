@@ -1,0 +1,8 @@
+<!-- Show error flash message -->
+<%= turbo_stream.update "flash-messages" do %>
+  <div class="alert alert-danger alert-dismissible">
+    <i class="fas fa-exclamation-triangle"></i>
+    <%= flash[:alert] %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="this.parentElement.remove()"></button>
+  </div>
+<% end %>

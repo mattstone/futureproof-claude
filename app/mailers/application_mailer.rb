@@ -9,7 +9,8 @@ class ApplicationMailer < ActionMailer::Base
     @sender = application_message.sender
     
     # Generate the secure link for customer to access their application messages
-    @application_link = messages_application_url(@application, token: generate_secure_token)
+    # Include the message ID to highlight the specific message
+    @application_link = messages_application_url(@application, token: generate_secure_token, message_id: @message.id)
     
     # Determine the from address and name based on the sender
     from_address = "info@futureprooffinancial.co"
