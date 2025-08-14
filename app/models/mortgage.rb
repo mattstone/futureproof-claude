@@ -1,5 +1,7 @@
 class Mortgage < ApplicationRecord
   has_many :mortgage_versions, dependent: :destroy
+  has_many :mortgage_funder_pools, dependent: :destroy
+  has_many :funder_pools, through: :mortgage_funder_pools
   
   enum :mortgage_type, {
     interest_only: 0,
@@ -13,6 +15,7 @@ class Mortgage < ApplicationRecord
     less_than_or_equal_to: 100 
   }
   validate :lvr_in_valid_increments
+  validate :must_have_at_least_one_active_funder_pool, on: :update
   
   # Track changes with audit functionality
   attr_accessor :current_user
@@ -97,6 +100,12 @@ class Mortgage < ApplicationRecord
     unless (lvr * 10) % 1 == 0
       errors.add(:lvr, "must be in increments of 0.1 (e.g., 80.1, 80.2, etc.)")
     end
+  end
+  
+  def must_have_at_least_one_active_funder_pool
+    return if mortgage_funder_pools.where(active: true).exists?
+    
+    errors.add(:funder_pools, "must have at least one active funder pool")
   end
   
   def log_creation

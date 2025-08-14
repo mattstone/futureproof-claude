@@ -41,9 +41,6 @@
           <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
             <span>👥 Users</span>
           <% end %>
-          <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
-            <span>🏠 Mortgages</span>
-          <% end %>
           <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
             <span>📄 Terms of Use</span>
           <% end %>
@@ -55,6 +52,12 @@
           <% end %>
           <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
             <span>📧 Email Templates</span>
+          <% end %>
+          <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
+            <span>🏠 Mortgages</span>
+          <% end %>
+          <%= link_to admin_funders_path, class: "admin-nav-link #{'active' if controller_name == 'funders'}" do %>
+            <span>💰 Funders</span>
           <% end %>
         </nav>
         

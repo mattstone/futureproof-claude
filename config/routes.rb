@@ -14,9 +14,31 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    resources :funders do
+      collection do
+        post :search
+      end
+      resources :funder_pools, except: [:index]
+    end
+    
+    # Direct access to all funder pools
+    resources :funder_pools, only: [:index]
     resources :dashboard, only: [:index]
     resources :users
-    resources :mortgages
+    resources :mortgages do
+      resources :funder_pools, controller: 'mortgage_funder_pools', except: [:index, :show] do
+        member do
+          patch :toggle_active
+        end
+      end
+    end
+    
+    # Direct access to mortgage funder pools
+    resources :mortgage_funder_pools, only: [:destroy] do
+      member do
+        patch :toggle_active
+      end
+    end
     resources :applications do
       collection do
         post :search

@@ -1,0 +1,149 @@
+<% content_for :page_title, "Edit #{@funder.name}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <h1>Edit Funder</h1>
+    <p class="page-subtitle">Update <%= @funder.name %></p>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Funder", admin_funder_path(@funder), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to Funders", admin_funders_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<!-- Edit Funder Form -->
+<div class="admin-card">
+  <h3>Funder Details</h3>
+  
+  <%= form_with model: [:admin, @funder], local: true, class: "admin-form" do |form| %>
+    <% if @funder.errors.any? %>
+      <div class="form-errors">
+        <h4><%= pluralize(@funder.errors.count, "error") %> prohibited this funder from being saved:</h4>
+        <ul>
+          <% @funder.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <%= form.label :name, class: "form-label" %>
+        <%= form.text_field :name, class: "form-input", placeholder: "Enter funder name" %>
+        <% if @funder.errors[:name].any? %>
+          <div class="field-error"><%= @funder.errors[:name].first %></div>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :country, class: "form-label" %>
+        <%= form.text_field :country, class: "form-input", placeholder: "Enter country" %>
+        <% if @funder.errors[:country].any? %>
+          <div class="field-error"><%= @funder.errors[:country].first %></div>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :currency, class: "form-label" %>
+        <%= form.select :currency, 
+            options_for_select([
+              ['Australian Dollar (AUD)', 'AUD'], 
+              ['US Dollar (USD)', 'USD'], 
+              ['British Pound (GBP)', 'GBP']
+            ], @funder.currency), 
+            {}, 
+            { class: "form-select" } %>
+        <% if @funder.errors[:currency].any? %>
+          <div class="field-error"><%= @funder.errors[:currency].first %></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Update Funder", class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_funder_path(@funder), class: "admin-btn admin-btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.form-grid {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-input,
+.form-select {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  background: white;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.form-errors {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.form-errors h4 {
+  color: #dc2626;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-errors ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.form-errors li {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+</style>

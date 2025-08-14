@@ -1,0 +1,104 @@
+<div id="funders-results">
+  <% if @funders.any? %>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-cell">Name</th>
+            <th class="country-cell">Country</th>
+            <th class="currency-cell">Currency</th>
+            <th class="pools-cell">Pools</th>
+            <th class="capital-cell">Capital</th>
+            <th class="allocated-cell">Allocated</th>
+            <th class="created-cell">Created</th>
+            <th class="actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @funders.each do |funder| %>
+            <tr>
+              <td class="name-cell">
+                <strong><%= funder.name %></strong>
+              </td>
+              <td class="country-cell">
+                <span class="country-name"><%= funder.country %></span>
+              </td>
+              <td class="currency-cell">
+                <span class="currency-badge currency-<%= funder.currency.downcase %>">
+                  <%= funder.currency_symbol %> <%= funder.currency %>
+                </span>
+              </td>
+              <td class="pools-cell">
+                <div class="pools-summary">
+                  <span class="pools-count"><%= funder.pools_count %></span>
+                  <% if funder.pools_count > 0 %>
+                    <small class="pools-label">pool<%= 's' if funder.pools_count != 1 %></small>
+                  <% else %>
+                    <small class="pools-label">no pools</small>
+                  <% end %>
+                </div>
+              </td>
+              <td class="capital-cell">
+                <% if funder.total_capital > 0 %>
+                  <span class="capital-amount"><%= funder.formatted_total_capital %></span>
+                <% else %>
+                  <span class="no-capital">—</span>
+                <% end %>
+              </td>
+              <td class="allocated-cell">
+                <% if funder.total_allocated > 0 %>
+                  <div class="allocation-summary">
+                    <span class="allocated-amount"><%= funder.formatted_total_allocated %></span>
+                    <% if funder.total_capital > 0 %>
+                      <div class="mini-allocation-bar">
+                        <div class="mini-allocation-progress" style="width: <%= funder.capital_allocation_percentage %>%"></div>
+                        <span class="mini-allocation-text"><%= funder.capital_allocation_percentage %>%</span>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <span class="no-allocation">—</span>
+                <% end %>
+              </td>
+              <td class="created-cell">
+                <time><%= funder.created_at.strftime("%b %d, %Y") %></time>
+              </td>
+              <td class="actions-cell">
+                <div class="admin-actions">
+                  <%= link_to "View", admin_funder_path(funder), class: "admin-btn admin-btn-sm admin-btn-secondary", data: { turbo_frame: "_top" } %>
+                  <%= link_to "Edit", edit_admin_funder_path(funder), class: "admin-btn admin-btn-sm admin-btn-primary", data: { turbo_frame: "_top" } %>
+                  <%= link_to "Delete", admin_funder_path(funder), method: :delete, 
+                      data: { confirm: "Are you sure you want to delete this funder?", turbo_frame: "_top" }, 
+                      class: "admin-btn admin-btn-sm admin-btn-danger" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+      <!-- Pagination -->
+      <%= paginate @funders if respond_to?(:paginate) %>
+    </div>
+    
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <h3>No funders found</h3>
+        <p>
+          <% if params[:search].present? || params[:country].present? || params[:currency].present? %>
+            No funders match your current filters. Try adjusting your search terms or clear the filters.
+          <% else %>
+            Get started by creating your first funder.
+          <% end %>
+        </p>
+        <div class="empty-state-actions">
+          <%= link_to "Create New Funder", new_admin_funder_path, class: "admin-btn admin-btn-primary" %>
+          <% if params[:search].present? || params[:country].present? || params[:currency].present? %>
+            <%= link_to "Clear Filters", admin_funders_path, class: "admin-btn admin-btn-secondary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

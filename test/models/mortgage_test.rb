@@ -170,4 +170,57 @@ class MortgageTest < ActiveSupport::TestCase
     assert_includes summary, "LVR changed from 80% to 75.5%"
     assert_not_includes summary, "80.0%"
   end
+
+  # FunderPool association tests
+  test "should have funder pool associations through join table" do
+    mortgage = mortgages(:basic_mortgage)
+    funder_pool = funder_pools(:primary_pool)
+    
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: funder_pool, active: true)
+    
+    assert_includes mortgage.funder_pools, funder_pool
+    assert_includes funder_pool.mortgages, mortgage
+  end
+
+  test "should require at least one active funder pool on update" do
+    mortgage = mortgages(:basic_mortgage)
+    funder_pool = funder_pools(:primary_pool)
+    
+    # Create a mortgage with an active funder pool
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: funder_pool, active: true)
+    
+    # Should be valid with active funder pool
+    assert mortgage.valid?
+    
+    # Deactivate the only funder pool
+    mortgage.mortgage_funder_pools.first.update!(active: false)
+    
+    # Now the mortgage should be invalid on update
+    mortgage.name = "Updated Name"
+    assert_not mortgage.valid?
+    assert_includes mortgage.errors[:funder_pools], "must have at least one active funder pool"
+  end
+
+  test "should be valid with multiple funder pools if at least one is active" do
+    mortgage = mortgages(:basic_mortgage)
+    pool1 = funder_pools(:primary_pool)
+    pool2 = funder_pools(:secondary_pool)
+    
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: pool1, active: false)
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: pool2, active: true)
+    
+    mortgage.name = "Updated Name"
+    assert mortgage.valid?
+  end
+
+  test "validation should not run on new mortgages without funder pools" do
+    mortgage = Mortgage.new(
+      name: "New Mortgage",
+      mortgage_type: :interest_only,
+      lvr: 80.0
+    )
+    
+    # Should be valid even without funder pools (validation is on update only)
+    assert mortgage.valid?
+  end
 end

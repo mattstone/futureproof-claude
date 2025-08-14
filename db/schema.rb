@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_225329) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_094815) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -172,6 +172,41 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_225329) do
     t.index ["is_active"], name: "index_email_templates_on_is_active"
     t.index ["name"], name: "index_email_templates_on_name", unique: true
     t.index ["template_type"], name: "index_email_templates_on_template_type"
+  end
+
+  create_table "funder_pools", force: :cascade do |t|
+    t.bigint "funder_id", null: false
+    t.string "name", null: false
+    t.decimal "amount", precision: 15, scale: 2, default: "0.0", null: false
+    t.decimal "allocated", precision: 15, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["funder_id", "name"], name: "index_funder_pools_on_funder_id_and_name", unique: true
+    t.index ["funder_id"], name: "index_funder_pools_on_funder_id"
+    t.index ["name"], name: "index_funder_pools_on_name"
+  end
+
+  create_table "funders", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "country", default: "Australia", null: false
+    t.string "currency", default: "AUD", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country"], name: "index_funders_on_country"
+    t.index ["currency"], name: "index_funders_on_currency"
+    t.index ["name"], name: "index_funders_on_name"
+  end
+
+  create_table "mortgage_funder_pools", force: :cascade do |t|
+    t.bigint "mortgage_id", null: false
+    t.bigint "funder_pool_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "active", default: true, null: false
+    t.index ["active"], name: "index_mortgage_funder_pools_on_active"
+    t.index ["funder_pool_id"], name: "index_mortgage_funder_pools_on_funder_pool_id"
+    t.index ["mortgage_id", "funder_pool_id"], name: "index_mortgage_funder_pools_on_mortgage_and_pool", unique: true
+    t.index ["mortgage_id"], name: "index_mortgage_funder_pools_on_mortgage_id"
   end
 
   create_table "mortgage_versions", force: :cascade do |t|
@@ -353,6 +388,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_225329) do
   add_foreign_key "contracts", "applications"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
+  add_foreign_key "funder_pools", "funders"
+  add_foreign_key "mortgage_funder_pools", "funder_pools"
+  add_foreign_key "mortgage_funder_pools", "mortgages"
   add_foreign_key "mortgage_versions", "mortgages"
   add_foreign_key "mortgage_versions", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"

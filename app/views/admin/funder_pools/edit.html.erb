@@ -1,0 +1,166 @@
+<% content_for :page_title, "Edit #{@funder_pool.name}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <h1>Edit Funder Pool</h1>
+    <p class="page-subtitle">Update <%= @funder_pool.name %> for <%= @funder.name %></p>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Pool", admin_funder_funder_pool_path(@funder, @funder_pool), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to #{@funder.name}", admin_funder_path(@funder), class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<!-- Edit Funder Pool Form -->
+<div class="admin-card">
+  <h3>Pool Details</h3>
+  
+  <%= form_with model: [:admin, @funder, @funder_pool], local: true, class: "admin-form" do |form| %>
+    <% if @funder_pool.errors.any? %>
+      <div class="form-errors">
+        <h4><%= pluralize(@funder_pool.errors.count, "error") %> prohibited this pool from being saved:</h4>
+        <ul>
+          <% @funder_pool.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <%= form.label :name, class: "form-label" %>
+        <%= form.text_field :name, class: "form-input", placeholder: "Enter pool name" %>
+        <% if @funder_pool.errors[:name].any? %>
+          <div class="field-error"><%= @funder_pool.errors[:name].first %></div>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :amount, "Total Amount", class: "form-label" %>
+        <%= form.number_field :amount, step: 0.01, min: 0, class: "form-input", placeholder: "0.00" %>
+        <small class="form-help">Total amount available in this pool</small>
+        <% if @funder_pool.errors[:amount].any? %>
+          <div class="field-error"><%= @funder_pool.errors[:amount].first %></div>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :allocated, "Allocated Amount", class: "form-label" %>
+        <%= form.number_field :allocated, step: 0.01, min: 0, class: "form-input", placeholder: "0.00" %>
+        <small class="form-help">Amount currently allocated from this pool</small>
+        <% if @funder_pool.errors[:allocated].any? %>
+          <div class="field-error"><%= @funder_pool.errors[:allocated].first %></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Update Pool", class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_funder_funder_pool_path(@funder, @funder_pool), class: "admin-btn admin-btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.form-grid {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-input {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-help {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.form-errors {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.form-errors h4 {
+  color: #dc2626;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-errors ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.form-errors li {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.checkbox-label {
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  cursor: pointer;
+}
+</style>

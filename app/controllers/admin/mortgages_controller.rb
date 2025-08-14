@@ -9,6 +9,8 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def show
+    # Eager load funder pools for display
+    @mortgage = @mortgage.class.includes(mortgage_funder_pools: { funder_pool: :funder }).find(@mortgage.id)
   end
 
   def new
@@ -27,6 +29,8 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def edit
+    # Eager load funder pools for display
+    @mortgage = @mortgage.class.includes(mortgage_funder_pools: { funder_pool: :funder }).find(@mortgage.id)
   end
 
   def update

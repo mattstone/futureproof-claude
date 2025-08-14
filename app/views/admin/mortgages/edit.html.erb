@@ -51,3 +51,254 @@
     <%= link_to "Cancel", admin_mortgage_path(@mortgage), class: "admin-btn admin-btn-secondary" %>
   </div>
 <% end %>
+
+<!-- Funder Pools Section -->
+<div class="admin-form funder-pools-section">
+  <h3>Funder Pools</h3>
+  <p class="section-subtitle">Manage funder pool associations for this mortgage</p>
+  
+  <% if @mortgage.mortgage_funder_pools.any? %>
+    <div class="funder-pools-list">
+      <% @mortgage.mortgage_funder_pools.includes(funder_pool: :funder).each do |association| %>
+        <div class="pool-card <%= 'inactive-card' unless association.active? %>">
+          <div class="pool-header">
+            <div class="pool-info">
+              <h4><%= association.funder_pool.name %></h4>
+              <p class="pool-funder">
+                <%= link_to association.funder_pool.funder.name, admin_funder_path(association.funder_pool.funder), class: "admin-link" %>
+              </p>
+            </div>
+            <div class="pool-status">
+              <span class="status-badge <%= association.status_badge_class %>">
+                <%= association.status_display %>
+              </span>
+            </div>
+          </div>
+          
+          <div class="pool-amounts">
+            <div class="amount-item">
+              <span class="amount-label">Total</span>
+              <span class="amount-value total"><%= association.funder_pool.formatted_amount %></span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">Allocated</span>
+              <span class="amount-value allocated"><%= association.funder_pool.formatted_allocated %></span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">Available</span>
+              <span class="amount-value available"><%= association.funder_pool.formatted_available %></span>
+            </div>
+          </div>
+          
+          <div class="pool-actions">
+            <%= button_to toggle_active_admin_mortgage_funder_pool_path(@mortgage, association), 
+                method: :patch,
+                data: { confirm: association.active? ? "Deactivate this pool?" : "Activate this pool?" },
+                class: "admin-btn admin-btn-sm #{association.active? ? 'admin-btn-warning' : 'admin-btn-success'}" do %>
+              <%= association.active? ? "Deactivate" : "Activate" %>
+            <% end %>
+            <%= button_to "Remove", admin_mortgage_funder_pool_path(@mortgage, association), 
+                method: :delete,
+                data: { confirm: "Remove this pool?" },
+                class: "admin-btn admin-btn-sm admin-btn-danger" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="section-actions">
+      <%= link_to "Add Funder Pool", new_admin_mortgage_funder_pool_path(@mortgage), class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h4>No funder pools assigned</h4>
+      <p>This mortgage doesn't have any funder pools yet. Add at least one to activate this mortgage.</p>
+      <div class="empty-state-actions">
+        <%= link_to "Add First Funder Pool", new_admin_mortgage_funder_pool_path(@mortgage), class: "admin-btn admin-btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+/* Funder Pools Section */
+.funder-pools-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.funder-pools-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.pool-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.inactive-card {
+  opacity: 0.6;
+  background-color: #f9fafb;
+}
+
+.pool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.pool-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pool-funder {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.pool-status {
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.pool-amounts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.amount-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.amount-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.amount-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.amount-value.total {
+  color: #059669;
+}
+
+.amount-value.allocated {
+  color: #dc2626;
+}
+
+.amount-value.available {
+  color: #0891b2;
+}
+
+.pool-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.section-actions {
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.empty-state h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+}
+
+.empty-state-actions {
+  margin-top: 16px;
+}
+
+.admin-link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .pool-amounts {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .amount-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .pool-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .admin-btn-sm {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+</style>
