@@ -128,7 +128,9 @@
     </div>
 
     <!-- Change History Section -->
-    <%= render 'shared/change_history', versions: @application_versions %>
+    <div style="margin-top: 32px;">
+      <%= render 'shared/change_history', versions: @application_versions %>
+    </div>
   </div>
 
   <!-- Right Column - Messages and Communication -->
