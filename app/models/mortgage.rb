@@ -81,6 +81,28 @@ class Mortgage < ApplicationRecord
     end
   end
   
+  # Calculate total allocated capital from active funder pools
+  def total_allocated_capital
+    mortgage_funder_pools.joins(:funder_pool).where(active: true).sum('funder_pools.allocated')
+  end
+  
+  # Calculate total available capital from active funder pools
+  def total_available_capital
+    mortgage_funder_pools.joins(:funder_pool).where(active: true).sum('funder_pools.amount - funder_pools.allocated')
+  end
+  
+  # Format allocated capital for display
+  def formatted_allocated_capital
+    return "$0" if total_allocated_capital.zero?
+    ActionController::Base.helpers.number_to_currency(total_allocated_capital, precision: (total_allocated_capital % 1 == 0 ? 0 : 2))
+  end
+  
+  # Format available capital for display
+  def formatted_available_capital
+    return "$0" if total_available_capital.zero?
+    ActionController::Base.helpers.number_to_currency(total_available_capital, precision: (total_available_capital % 1 == 0 ? 0 : 2))
+  end
+  
   private
   
   def format_lvr_value(lvr_value)

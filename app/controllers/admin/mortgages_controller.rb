@@ -3,7 +3,7 @@ class Admin::MortgagesController < Admin::BaseController
   before_action :set_audit_history, only: [:show]
 
   def index
-    @mortgages = Mortgage.all.order(:name)
+    @mortgages = Mortgage.includes(mortgage_funder_pools: :funder_pool).all.order(:name)
     @mortgages = @mortgages.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
     @mortgages = @mortgages.page(params[:page]).per(10)
   end

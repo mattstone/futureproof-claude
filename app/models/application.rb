@@ -495,16 +495,39 @@ class Application < ApplicationRecord
     return unless status_accepted?
     return if contract.present?
     
-    # Create contract with default dates
-    # Note: start_date and end_date should be set later by admin, not automatically
-    Contract.create!(
+    # Find the first available funder pool that can handle the home value
+    available_pool = nil
+    if mortgage.present?
+      # Look for funder pools associated with this mortgage that have available capital
+      available_pool = mortgage.funder_pools.joins(:mortgage_funder_pools)
+                              .where(mortgage_funder_pools: { active: true })
+                              .where("funder_pools.amount - funder_pools.allocated >= ?", home_value)
+                              .order(:created_at)
+                              .first
+    end
+    
+    # If no mortgage-specific pool available, find any available pool
+    available_pool ||= FunderPool.find_available_for_allocation(home_value)
+    
+    if available_pool.nil?
+      Rails.logger.error "No funder pool with sufficient capital (#{home_value}) found for application #{id}"
+      raise StandardError, "No funder pool available with sufficient capital for this contract"
+    end
+    
+    # Create contract with funder pool allocation
+    contract = Contract.create!(
       application: self,
+      funder_pool: available_pool,
+      allocated_amount: home_value,
       start_date: Date.current, # Temporary placeholder
       end_date: Date.current + 5.years, # Temporary placeholder
       status: :awaiting_funding
     )
     
-    Rails.logger.info "Contract automatically created for accepted application #{id}"
+    # Allocate the capital from the funder pool
+    available_pool.allocate_capital!(home_value)
+    
+    Rails.logger.info "Contract created for application #{id} with funder pool #{available_pool.id} allocated #{home_value}"
   rescue => e
     Rails.logger.error "Failed to create contract for application #{id}: #{e.message}"
     raise e

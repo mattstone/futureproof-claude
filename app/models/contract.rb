@@ -1,5 +1,6 @@
 class Contract < ApplicationRecord
   belongs_to :application
+  belongs_to :funder_pool, optional: true
   has_many :contract_messages, dependent: :destroy
   has_many :contract_versions, dependent: :destroy
   
@@ -28,6 +29,15 @@ class Contract < ApplicationRecord
   # Display methods
   def status_display
     status.humanize
+  end
+  
+  def formatted_allocated_amount
+    return "$0" unless allocated_amount.present?
+    ActionController::Base.helpers.number_to_currency(allocated_amount, precision: (allocated_amount % 1 == 0 ? 0 : 2))
+  end
+  
+  def display_name
+    "#{application.user.display_name} - #{application.address[0..50]}"
   end
 
   # Messaging methods

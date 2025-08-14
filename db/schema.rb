@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_14_094815) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -142,7 +142,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_094815) do
     t.date "end_date", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "funder_pool_id"
+    t.decimal "allocated_amount", precision: 15, scale: 2
     t.index ["application_id"], name: "index_contracts_on_application_id", unique: true
+    t.index ["funder_pool_id"], name: "index_contracts_on_funder_pool_id"
   end
 
   create_table "email_template_versions", force: :cascade do |t|
@@ -386,6 +389,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_094815) do
   add_foreign_key "contract_versions", "contracts"
   add_foreign_key "contract_versions", "users", column: "admin_user_id"
   add_foreign_key "contracts", "applications"
+  add_foreign_key "contracts", "funder_pools"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
   add_foreign_key "funder_pools", "funders"

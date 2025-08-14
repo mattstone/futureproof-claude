@@ -1,11 +1,7 @@
 <% content_for :page_title, @funder_pool.display_name %>
 
 <div class="admin-actions-bar">
-  <div>
-    <h1><%= @funder_pool.name %></h1>
-    <p class="page-subtitle"><%= @funder.name %> • Available: <%= @funder_pool.formatted_available %></p>
-  </div>
-  
+  <div></div>
   <div class="admin-actions">
     <%= link_to "Edit Pool", edit_admin_funder_funder_pool_path(@funder, @funder_pool), class: "admin-btn admin-btn-primary" %>
     <%= link_to "Delete", admin_funder_funder_pool_path(@funder, @funder_pool), method: :delete, 
@@ -17,109 +13,204 @@
 
 <!-- Pool Details -->
 <div class="admin-card">
-  <h3>Pool Information</h3>
+  <h3>Pool Summary</h3>
   
-  <div class="detail-grid">
-    <div class="detail-item">
-      <label>Pool Name</label>
-      <div class="detail-value"><%= @funder_pool.name %></div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Funder</label>
-      <div class="detail-value">
-        <%= link_to @funder.name, admin_funder_path(@funder), class: "admin-link" %>
+  <div class="pool-summary-grid">
+    <!-- Financial Overview -->
+    <div class="summary-section financial-overview">
+      <h4>Financial Overview</h4>
+      <div class="financial-stats">
+        <div class="stat-row">
+          <span class="stat-label">Total Amount</span>
+          <span class="stat-value amount-total"><%= @funder_pool.formatted_amount %></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Allocated</span>
+          <span class="stat-value amount-allocated"><%= @funder_pool.formatted_allocated %></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Available</span>
+          <span class="stat-value amount-available"><%= @funder_pool.formatted_available %></span>
+        </div>
       </div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Total Amount</label>
-      <div class="detail-value amount-total"><%= @funder_pool.formatted_amount %></div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Allocated Amount</label>
-      <div class="detail-value amount-allocated"><%= @funder_pool.formatted_allocated %></div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Available Amount</label>
-      <div class="detail-value amount-available"><%= @funder_pool.formatted_available %></div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Allocation Percentage</label>
-      <div class="detail-value">
+      
+      <div class="allocation-visualization">
         <div class="allocation-bar">
           <div class="allocation-progress" style="width: <%= @funder_pool.allocation_percentage %>%"></div>
-          <span class="allocation-text"><%= @funder_pool.allocation_percentage %>%</span>
+        </div>
+        <div class="allocation-details">
+          <span class="allocation-percentage"><%= @funder_pool.allocation_percentage %>% allocated</span>
+          <span class="contracts-count"><%= @funder_pool.contracts.count %> contract<%= 's' if @funder_pool.contracts.count != 1 %></span>
         </div>
       </div>
     </div>
     
-    <div class="detail-item">
-      <label>Created</label>
-      <div class="detail-value"><%= @funder_pool.created_at.strftime("%B %d, %Y at %I:%M %p") %></div>
-    </div>
-    
-    <div class="detail-item">
-      <label>Last Updated</label>
-      <div class="detail-value"><%= @funder_pool.updated_at.strftime("%B %d, %Y at %I:%M %p") %></div>
+    <!-- Pool Details -->
+    <div class="summary-section pool-details">
+      <h4>Pool Details</h4>
+      <div class="detail-list">
+        <div class="detail-row">
+          <span class="detail-label">Funder</span>
+          <span class="detail-value">
+            <%= link_to @funder.name, admin_funder_path(@funder), class: "admin-link" %>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created</span>
+          <span class="detail-value"><%= @funder_pool.created_at.strftime("%B %d, %Y") %></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Last Updated</span>
+          <span class="detail-value"><%= @funder_pool.updated_at.strftime("%B %d, %Y") %></span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Allocated Contracts -->
+<div class="admin-card">
+  <div class="card-header">
+    <h3>Allocated Contracts</h3>
+    <div class="contract-summary">
+      <span class="contract-count"><%= @funder_pool.contracts.count %> contract<%= 's' if @funder_pool.contracts.count != 1 %></span>
+      <span class="contract-total">Total: <%= ActionController::Base.helpers.number_to_currency(@funder_pool.contracts.sum(:allocated_amount) || 0, precision: 0) %></span>
+    </div>
+  </div>
+  
+  <% if @funder_pool.contracts.any? %>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Property Address</th>
+            <th>Allocated Amount</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @funder_pool.contracts.includes(application: :user).order(:created_at).each do |contract| %>
+            <tr>
+              <td>
+                <strong><%= contract.application.user.display_name %></strong>
+              </td>
+              <td>
+                <div class="address-cell">
+                  <%= contract.application.address.truncate(60) %>
+                </div>
+              </td>
+              <td class="amount-cell">
+                <span class="contract-amount"><%= contract.formatted_allocated_amount %></span>
+              </td>
+              <td class="status-cell">
+                <span class="status-badge status-<%= contract.status %>">
+                  <%= contract.status_display %>
+                </span>
+              </td>
+              <td>
+                <%= contract.start_date.strftime("%b %d, %Y") if contract.start_date %>
+              </td>
+              <td class="actions-cell">
+                <div class="admin-actions">
+                  <%= link_to "View Contract", admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+                  <%= link_to "View Application", admin_application_path(contract.application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <h4>No contracts allocated yet</h4>
+        <p>When applications with mortgages are accepted, contracts will be automatically allocated to available funder pools.</p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
 <style>
-.detail-grid {
+/* Pool Summary Layout */
+.pool-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-bottom: 24px;
 }
 
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.summary-section {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
 }
 
-.detail-item label {
+.summary-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
   font-weight: 600;
   color: #374151;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
 }
 
-.detail-value {
-  font-size: 16px;
-  color: #1f2937;
+/* Financial Overview */
+.financial-stats {
+  margin-bottom: 20px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .amount-total {
   color: #059669;
-  font-weight: 600;
-  font-size: 18px;
 }
 
 .amount-allocated {
   color: #dc2626;
-  font-weight: 600;
-  font-size: 18px;
 }
 
 .amount-available {
   color: #0891b2;
-  font-weight: 600;
-  font-size: 18px;
+}
+
+/* Allocation Visualization */
+.allocation-visualization {
+  margin-top: 16px;
 }
 
 .allocation-bar {
   position: relative;
   background: #e5e7eb;
   border-radius: 8px;
-  height: 24px;
+  height: 20px;
   overflow: hidden;
+  margin-bottom: 8px;
 }
 
 .allocation-progress {
@@ -129,15 +220,61 @@
   transition: width 0.3s ease;
 }
 
-.allocation-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.allocation-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 12px;
+}
+
+.allocation-percentage {
+  color: #dc2626;
   font-weight: 600;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.contracts-count {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Pool Details */
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.admin-link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
 }
 
 .page-subtitle {
@@ -146,9 +283,167 @@
   margin: 0;
 }
 
+/* Card header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h3 {
+  margin: 0;
+}
+
+.contract-summary {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.contract-count {
+  color: #0891b2;
+  font-weight: 600;
+}
+
+.contract-total {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Contract table styles */
+.address-cell {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.amount-cell {
+  text-align: right;
+  font-weight: 600;
+}
+
+.contract-amount {
+  color: #dc2626;
+  font-size: 15px;
+}
+
+.status-cell {
+  text-align: center;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-awaiting_funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting_investment {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-in_holiday {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.status-in_arrears {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Empty state for contracts */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.empty-state-content h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.empty-state-content p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
-  .detail-grid {
+  .pool-summary-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .financial-stats {
+    margin-bottom: 16px;
+  }
+  
+  .stat-row {
+    padding: 10px 0;
+  }
+  
+  .stat-value {
+    font-size: 15px;
+  }
+  
+  .allocation-details {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  
+  .contract-summary {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    text-align: right;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .summary-section {
+    padding: 16px;
   }
 }
 </style>

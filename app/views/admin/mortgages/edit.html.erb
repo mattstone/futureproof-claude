@@ -11,8 +11,6 @@
 </div>
 
 <%= form_with(model: [:admin, @mortgage], local: true, class: "admin-form") do |form| %>
-  <h2>Edit Mortgage: <%= @mortgage.name.truncate(50) %></h2>
-  
   <% if @mortgage.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(@mortgage.errors.count, "error") %> prohibited this mortgage from being saved:</h4>

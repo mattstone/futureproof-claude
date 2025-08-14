@@ -227,7 +227,19 @@ class ApplicationTest < ActiveSupport::TestCase
   end
   
   test "should automatically create contract when status changed to accepted" do
+    # Clear existing funder pools and create one with sufficient capital
+    FunderPool.destroy_all
+    funder = Funder.create!(name: "Test Funder", country: "Australia", currency: "AUD")
+    FunderPool.create!(
+      funder: funder,
+      name: "Test Pool",
+      amount: 2_000_000,
+      allocated: 0
+    )
+    
     app = applications(:mortgage_application) # Use app without existing contract
+    app.contract&.destroy # Remove any existing contract
+    app.reload
     assert_nil app.contract
     
     # Change status to accepted
@@ -256,7 +268,17 @@ class ApplicationTest < ActiveSupport::TestCase
   end
   
   test "should not create contract when status change is not to accepted" do
-    app = applications(:mortgage_application)
+    # Create fresh application to ensure no existing contract
+    app = Application.create!(
+      user: @user,
+      address: '123 Test Street, Sydney NSW 2000',
+      home_value: 500_000,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :submitted,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
     assert_nil app.contract
     
     # Change status to something other than accepted
@@ -269,6 +291,16 @@ class ApplicationTest < ActiveSupport::TestCase
   end
   
   test "should not create contract when status was already accepted" do
+    # Clear existing funder pools and create one with sufficient capital
+    FunderPool.destroy_all
+    funder = Funder.create!(name: "Test Funder", country: "Australia", currency: "AUD")
+    FunderPool.create!(
+      funder: funder,
+      name: "Test Pool",
+      amount: 2_000_000,
+      allocated: 0
+    )
+    
     app = applications(:mortgage_application)
     app.status = :accepted
     app.save!
@@ -285,5 +317,179 @@ class ApplicationTest < ActiveSupport::TestCase
     # Should not create another contract
     app.reload
     assert_equal original_contract, app.contract
+  end
+  
+  # Capital Allocation Tests
+  test "should allocate capital from available funder pool when application accepted" do
+    # Clear existing funder pools to ensure clean test
+    FunderPool.destroy_all
+    # Create a funder pool with sufficient capital
+    funder = Funder.create!(name: "Test Funder", country: "Australia", currency: "AUD")
+    funder_pool = FunderPool.create!(
+      funder: funder,
+      name: "Test Pool",
+      amount: 2_000_000,
+      allocated: 0
+    )
+    
+    # Create application with mortgage
+    mortgage = Mortgage.create!(name: "Test Mortgage", mortgage_type: :interest_only, lvr: 80.0)
+    application = Application.create!(
+      user: @user,
+      address: '123 Test Street, Sydney NSW 2000',
+      home_value: 1_000_000,
+      mortgage: mortgage,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :submitted,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    # Associate mortgage with funder pool
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: funder_pool, active: true)
+    
+    # Accept the application
+    application.update!(status: :accepted)
+    
+    # Should create contract with funder pool allocation
+    application.reload
+    assert application.contract.present?
+    assert_equal funder_pool, application.contract.funder_pool
+    assert_equal 1_000_000, application.contract.allocated_amount
+    
+    # Should update funder pool allocated amount
+    funder_pool.reload
+    assert_equal 1_000_000, funder_pool.allocated
+  end
+  
+  test "should find any available funder pool when no mortgage-specific pool available" do
+    # Clear existing funder pools to ensure clean test
+    FunderPool.destroy_all
+    # Create a funder pool with sufficient capital
+    funder = Funder.create!(name: "General Funder", country: "Australia", currency: "AUD")
+    funder_pool = FunderPool.create!(
+      funder: funder,
+      name: "General Pool",
+      amount: 2_000_000,
+      allocated: 0
+    )
+    
+    # Create application without mortgage association
+    application = Application.create!(
+      user: @user,
+      address: '123 Test Street, Sydney NSW 2000',
+      home_value: 800_000,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :submitted,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    # Accept the application
+    application.update!(status: :accepted)
+    
+    # Should create contract with available funder pool
+    application.reload
+    assert application.contract.present?
+    assert_equal funder_pool, application.contract.funder_pool
+    assert_equal 800_000, application.contract.allocated_amount
+    
+    # Should update funder pool allocated amount
+    funder_pool.reload
+    assert_equal 800_000, funder_pool.allocated
+  end
+  
+  test "should raise error when no funder pool has sufficient capital" do
+    # Clear existing funder pools to ensure clean test
+    FunderPool.destroy_all
+    # Create a funder pool with insufficient capital
+    funder = Funder.create!(name: "Small Funder", country: "Australia", currency: "AUD")
+    funder_pool = FunderPool.create!(
+      funder: funder,
+      name: "Small Pool",
+      amount: 500_000,
+      allocated: 0
+    )
+    
+    # Create application requiring more capital than available
+    application = Application.create!(
+      user: @user,
+      address: '123 Test Street, Sydney NSW 2000',
+      home_value: 1_000_000,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :submitted,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    # Should raise error when trying to accept application
+    assert_raises(StandardError, "No funder pool available with sufficient capital for this contract") do
+      application.update!(status: :accepted)
+    end
+    
+    # Should not create contract
+    application.reload
+    assert_nil application.contract
+    
+    # Should not update funder pool
+    funder_pool.reload
+    assert_equal 0, funder_pool.allocated
+  end
+  
+  test "should prefer mortgage-specific funder pool over general pools" do
+    # Clear existing funder pools to ensure clean test
+    FunderPool.destroy_all
+    # Create a general funder pool
+    general_funder = Funder.create!(name: "General Funder", country: "Australia", currency: "AUD")
+    general_pool = FunderPool.create!(
+      funder: general_funder,
+      name: "General Pool",
+      amount: 2_000_000,
+      allocated: 0
+    )
+    
+    # Create a mortgage-specific funder pool
+    specific_funder = Funder.create!(name: "Specific Funder", country: "Australia", currency: "AUD")
+    specific_pool = FunderPool.create!(
+      funder: specific_funder,
+      name: "Specific Pool",
+      amount: 1_500_000,
+      allocated: 0
+    )
+    
+    # Create mortgage and associate with specific pool
+    mortgage = Mortgage.create!(name: "Test Mortgage", mortgage_type: :interest_only, lvr: 80.0)
+    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: specific_pool, active: true)
+    
+    # Create application with mortgage
+    application = Application.create!(
+      user: @user,
+      address: '123 Test Street, Sydney NSW 2000',
+      home_value: 1_000_000,
+      mortgage: mortgage,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :submitted,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    # Accept the application
+    application.update!(status: :accepted)
+    
+    # Should allocate from mortgage-specific pool, not general pool
+    application.reload
+    assert_equal specific_pool, application.contract.funder_pool
+    
+    # Specific pool should be updated
+    specific_pool.reload
+    assert_equal 1_000_000, specific_pool.allocated
+    
+    # General pool should remain unchanged
+    general_pool.reload
+    assert_equal 0, general_pool.allocated
   end
 end

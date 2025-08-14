@@ -19,6 +19,8 @@
         <th>Name</th>
         <th>Type</th>
         <th>LVR</th>
+        <th>Allocated</th>
+        <th>Available</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -33,6 +35,16 @@
             </span>
           </td>
           <td><strong><%= mortgage.formatted_lvr %></strong></td>
+          <td>
+            <span class="capital-amount allocated">
+              <%= mortgage.formatted_allocated_capital %>
+            </span>
+          </td>
+          <td>
+            <span class="capital-amount available">
+              <%= mortgage.formatted_available_capital %>
+            </span>
+          </td>
           <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
           <td>
             <%= link_to "View", admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
@@ -60,3 +72,30 @@
 <div class="admin-pagination">
   <%= paginate @mortgages %>
 </div>
+
+<style>
+.capital-amount {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.capital-amount.allocated {
+  color: #dc2626;
+}
+
+.capital-amount.available {
+  color: #059669;
+}
+
+/* Ensure table columns are properly sized */
+.admin-table th:nth-child(4),
+.admin-table th:nth-child(5) {
+  width: 110px;
+  text-align: right;
+}
+
+.admin-table td:nth-child(4),
+.admin-table td:nth-child(5) {
+  text-align: right;
+}
+</style>

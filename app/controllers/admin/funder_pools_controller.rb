@@ -23,6 +23,8 @@ class Admin::FunderPoolsController < Admin::BaseController
   end
 
   def show
+    # Eager load contracts with their applications and users for performance
+    @funder_pool = @funder.funder_pools.includes(contracts: { application: :user }).find(params[:id])
   end
 
   def new

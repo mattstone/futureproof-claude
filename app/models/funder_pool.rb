@@ -2,6 +2,7 @@ class FunderPool < ApplicationRecord
   belongs_to :funder
   has_many :mortgage_funder_pools, dependent: :destroy
   has_many :mortgages, through: :mortgage_funder_pools
+  has_many :contracts, dependent: :nullify
   
   # Validations
   validates :name, presence: true, length: { maximum: 255 }
@@ -15,6 +16,7 @@ class FunderPool < ApplicationRecord
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
   scope :by_name, ->(name) { where("name ILIKE ?", "%#{name}%") }
+  scope :with_available_capital, ->(amount) { where("amount - allocated >= ?", amount) }
   
   # Methods
   def available_amount
@@ -40,6 +42,18 @@ class FunderPool < ApplicationRecord
   
   def display_name
     "#{name} (#{funder.name})"
+  end
+  
+  # Class method to find first available pool for a given amount
+  def self.find_available_for_allocation(amount)
+    with_available_capital(amount).order(:created_at).first
+  end
+  
+  # Allocate capital to this pool
+  def allocate_capital!(amount)
+    raise StandardError, "Insufficient capital available" if available_amount < amount
+    
+    update!(allocated: allocated + amount)
   end
   
   private
