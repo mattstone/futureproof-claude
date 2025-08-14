@@ -1,0 +1,78 @@
+# User Version fixtures for testing change history
+
+john_update:
+  user: john
+  admin_user: admin_user
+  action: updated
+  change_details: "Updated user information"
+  previous_first_name: "John"
+  new_first_name: "Johnny"
+  previous_email: "john@example.com"
+  new_email: "john.doe@example.com"
+  created_at: <%= 1.day.ago %>
+
+john_view:
+  user: john
+  admin_user: admin_user
+  action: viewed
+  change_details: "Admin Admin User viewed user profile"
+  created_at: <%= 2.hours.ago %>
+
+jane_promotion:
+  user: jane
+  admin_user: admin_user
+  action: admin_promoted
+  change_details: "Promoted Jane Smith to admin"
+  previous_admin: false
+  new_admin: true
+  created_at: <%= 3.days.ago %>
+
+jane_email_update:
+  user: jane
+  admin_user: admin_user
+  action: updated
+  change_details: "Email changed from 'jane.old@example.com' to 'jane@example.com'"
+  previous_email: "jane.old@example.com"
+  new_email: "jane@example.com"
+  created_at: <%= 1.week.ago %>
+
+john_creation:
+  user: john
+  admin_user: admin_user
+  action: created
+  change_details: "Created user account for John Doe"
+  new_first_name: "John"
+  new_last_name: "Doe"
+  new_email: "john@example.com"
+  new_admin: false
+  new_country_of_residence: "Australia"
+  created_at: <%= 1.month.ago %>
+
+jane_confirmation:
+  user: jane
+  admin_user: admin_user
+  action: confirmed
+  change_details: "Confirmed user account for Jane Smith"
+  previous_confirmed_at: 
+  new_confirmed_at: <%= 2.weeks.ago %>
+  created_at: <%= 2.weeks.ago %>
+
+john_mobile_update:
+  user: john
+  admin_user: admin_user
+  action: updated
+  change_details: "Mobile number changed from '+61 0400000000' to '+61 0411111111'"
+  previous_mobile_country_code: "+61"
+  previous_mobile_number: "0400000000"
+  new_mobile_country_code: "+61"
+  new_mobile_number: "0411111111"
+  created_at: <%= 5.days.ago %>
+
+jane_terms_update:
+  user: jane
+  admin_user: admin_user
+  action: updated
+  change_details: "Terms version changed from 1 to 2"
+  previous_terms_version: 1
+  new_terms_version: 2
+  created_at: <%= 2.days.ago %>

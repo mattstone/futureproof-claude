@@ -54,7 +54,7 @@ class Admin::UsersController < Admin::BaseController
   def create
     @user = User.new(user_params)
     @user.current_admin_user = current_user
-    @user.skip_confirmation! if @user.valid?
+    @user.confirmed_at = Time.current if @user.valid?
     
     if @user.save
       redirect_to admin_user_path(@user), notice: 'User was successfully created.'
@@ -88,7 +88,7 @@ class Admin::UsersController < Admin::BaseController
   end
 
   def user_params
-    params.require(:user).permit(:email, :first_name, :last_name, :country_of_residence, :admin, :password, :password_confirmation)
+    params.require(:user).permit(:email, :first_name, :last_name, :country_of_residence, :admin, :password, :password_confirmation, :terms_accepted)
   end
 
   def password_params

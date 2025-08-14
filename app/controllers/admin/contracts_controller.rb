@@ -2,16 +2,29 @@ class Admin::ContractsController < Admin::BaseController
   before_action :set_contract, only: [:show, :edit, :update, :destroy, :send_message, :create_message]
   before_action :set_messages, only: [:show, :edit]
   before_action :set_ai_agents, only: [:show, :edit, :create_message]
+  before_action :set_current_admin_user, only: [:create, :update]
 
   def index
     @contracts = Contract.includes(application: :user, contract_messages: []).order(created_at: :desc)
 
     # Search filter
     if params[:search].present?
-      @contracts = @contracts.joins(application: :user).where(
-        "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
-      )
+      search_term = params[:search].to_s.strip
+      
+      # Check if search term is numeric (potential contract ID or application ID)
+      if search_term.match?(/^\d+$/)
+        # Search by contract ID, application ID, or other fields
+        @contracts = @contracts.joins(application: :user).where(
+          "contracts.id = ? OR applications.id = ? OR applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          search_term.to_i, search_term.to_i, "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
+        )
+      else
+        # Search by text fields only
+        @contracts = @contracts.joins(application: :user).where(
+          "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
+        )
+      end
     end
 
     # Status filter
@@ -33,10 +46,22 @@ class Admin::ContractsController < Admin::BaseController
     @contracts = Contract.includes(application: :user, contract_messages: []).order(created_at: :desc)
 
     if params[:search].present?
-      @contracts = @contracts.joins(application: :user).where(
-        "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-        "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%"
-      )
+      search_term = params[:search].to_s.strip
+      
+      # Check if search term is numeric (potential contract ID or application ID)
+      if search_term.match?(/^\d+$/)
+        # Search by contract ID, application ID, or other fields
+        @contracts = @contracts.joins(application: :user).where(
+          "contracts.id = ? OR applications.id = ? OR applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          search_term.to_i, search_term.to_i, "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
+        )
+      else
+        # Search by text fields only
+        @contracts = @contracts.joins(application: :user).where(
+          "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
+        )
+      end
     end
 
     @contracts = @contracts.where(status: params[:status]) if params[:status].present?
@@ -49,6 +74,11 @@ class Admin::ContractsController < Admin::BaseController
   end
 
   def show
+    # Get change history for display
+    @contract_versions = @contract.contract_versions.includes(:admin_user).recent.limit(20)
+    
+    # Log that admin viewed this contract (after loading versions)
+    @contract.log_view_by(current_user)
   end
 
   def new
@@ -59,6 +89,7 @@ class Admin::ContractsController < Admin::BaseController
 
   def create
     @contract = Contract.new(contract_params)
+    @contract.current_admin_user = current_user
 
     begin
       if @contract.save
@@ -85,6 +116,8 @@ class Admin::ContractsController < Admin::BaseController
   end
 
   def update
+    @contract.current_admin_user = current_user
+    
     if @contract.update(contract_params)
       redirect_to admin_contract_path(@contract), notice: 'Contract was successfully updated.'
     else
@@ -93,6 +126,11 @@ class Admin::ContractsController < Admin::BaseController
         @contract.application_id, 
         Contract.where.not(id: @contract.id).select(:application_id)
       ).includes(:user).order('users.first_name', 'users.last_name')
+      
+      # Set variables needed for messaging interface
+      set_messages
+      set_ai_agents
+      
       render :edit, status: :unprocessable_entity
     end
   end
@@ -236,5 +274,9 @@ class Admin::ContractsController < Admin::BaseController
 
   def message_params
     params.require(:contract_message).permit(:subject, :content, :parent_message_id, :ai_agent_id)
+  end
+  
+  def set_current_admin_user
+    @contract&.current_admin_user = current_user if @contract
   end
 end

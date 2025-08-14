@@ -609,6 +609,224 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_includes [400, 302], response.status
   end
 
+  test "should handle AJAX preview with missing applications and mortgages" do
+    # Ensure no applications or mortgages exist
+    Application.destroy_all
+    Mortgage.destroy_all rescue nil
+    
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'application_submitted',
+      subject: 'Test Application {{application.id}}',
+      content: '<p>Address: {{application.address}} Value: {{application.formatted_home_value}} Mortgage: {{mortgage.name}}</p>',
+      use_sample_data: 'true'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Should use sample data when no real data exists
+    assert_includes json_response['subject'], 'Test Application 123'
+    assert_includes json_response['content'], 'Address: 123 Sample Street'
+    assert_includes json_response['content'], 'Value: $800,000'
+    assert_includes json_response['content'], 'Mortgage: Premium Equity Preservation Mortgage®'
+  end
+
+  test "should handle AJAX preview with malformed content gracefully" do
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      subject: 'Test {{invalid.placeholder and broken {{incomplete',
+      content: '<p>{{missing.field}} and {{user.first_name}}</p>',
+      use_sample_data: 'true'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Should handle broken placeholders gracefully
+    assert_includes json_response['subject'], '{{invalid.placeholder'
+    assert_includes json_response['content'], '{{missing.field}}'
+    assert_includes json_response['content'], 'Admin' # user.first_name should be replaced
+  end
+
+  test "should handle AJAX preview for all template types" do
+    ['verification', 'application_submitted', 'security_notification'].each do |template_type|
+      post preview_ajax_admin_email_templates_path, params: {
+        template_type: template_type,
+        subject: "Test #{template_type}",
+        content: '<p>Test content for preview</p>',
+        use_sample_data: 'true'
+      }, xhr: true
+      
+      assert_response :success, "Failed for template_type: #{template_type}"
+      
+      json_response = JSON.parse(response.body)
+      assert_includes json_response.keys, 'subject'
+      assert_includes json_response.keys, 'content'
+      assert_equal "Test #{template_type}", json_response['subject']
+    end
+  end
+
+  test "should create sample mortgage when none exists" do
+    # Test the private method via controller action
+    Mortgage.destroy_all rescue nil
+    
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'application_submitted',
+      subject: 'Mortgage Test',
+      content: '<p>Mortgage: {{mortgage.name}} LVR: {{mortgage.lvr}}%</p>',
+      use_sample_data: 'true'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    assert_includes json_response['content'], 'Premium Equity Preservation Mortgage®'
+    assert_includes json_response['content'], 'LVR: 60%'
+  end
+
+  test "should handle AJAX preview with very long content" do
+    long_content = '<p>' + 'Lorem ipsum dolor sit amet. ' * 500 + '</p>'
+    
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      subject: 'Long Content Test',
+      content: long_content,
+      use_sample_data: 'false'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    assert json_response['content'].length > 5000
+  end
+
+  test "should handle AJAX preview with special characters and unicode" do
+    unicode_content = '<p>Wëlcømë {{user.first_name}}! 🎯 Spéciål chärs test</p>'
+    
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      subject: 'Unicøde test 🎉 {{user.first_name}}',
+      content: unicode_content,
+      use_sample_data: 'true'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    assert_includes json_response['subject'], 'Unicøde test 🎉 Admin'
+    assert_includes json_response['content'], 'Wëlcømë Admin! 🎯'
+  end
+
+  test "should handle AJAX preview without sample data enabled" do
+    post preview_ajax_admin_email_templates_path, params: {
+      template_type: 'verification',
+      subject: 'Plain test {{user.first_name}}',
+      content: '<p>Plain content {{user.first_name}}</p>',
+      use_sample_data: 'false'
+    }, xhr: true
+    
+    assert_response :success
+    
+    json_response = JSON.parse(response.body)
+    
+    # Without sample data, placeholders should remain unreplaced
+    assert_includes json_response['subject'], '{{user.first_name}}'
+    assert_includes json_response['content'], '{{user.first_name}}'
+  end
+
+  test "should preview template show page even with missing data" do
+    # Clear all data to test fallback
+    Application.destroy_all
+    Mortgage.destroy_all rescue nil
+    
+    app_template = EmailTemplate.create!(
+      name: 'Fallback Test Template',
+      template_type: 'application_submitted',
+      subject: 'App {{application.id}} Status {{application.status_display}}',
+      content: '<p>Address: {{application.address}} Mortgage: {{mortgage.name}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(app_template)
+    assert_response :success
+    
+    # Should show preview with sample data
+    assert_select '.email-subject', /App 123/
+    assert_select '.email-content', /Address: 123 Sample Street/
+    assert_select '.email-content', /Mortgage: Premium Equity Preservation Mortgage/
+  end
+
+  test "should handle concurrent AJAX preview requests" do
+    # Simulate multiple concurrent requests
+    threads = []
+    results = []
+    
+    3.times do |i|
+      threads << Thread.new do
+        post preview_ajax_admin_email_templates_path, params: {
+          template_type: 'verification',
+          subject: "Concurrent Test #{i}",
+          content: "<p>Content #{i} {{user.first_name}}</p>",
+          use_sample_data: 'true'
+        }, xhr: true
+        
+        results << {
+          status: response.status,
+          body: response.body
+        }
+      end
+    end
+    
+    threads.each(&:join)
+    
+    # All requests should succeed
+    results.each do |result|
+      assert_equal 200, result[:status]
+      json_response = JSON.parse(result[:body])
+      assert_includes json_response.keys, 'subject'
+      assert_includes json_response.keys, 'content'
+    end
+  end
+
+  test "should display live preview correctly on edit page" do
+    get edit_admin_email_template_path(@email_template)
+    assert_response :success
+    
+    # Should contain preview elements
+    assert_select '#subject-preview'
+    assert_select '#email-content-preview'
+    assert_select '#refresh-preview'
+    assert_select '#toggle-sample-data'
+    
+    # Should contain Stimulus controller for live preview
+    assert_select '[data-controller="email-template-editor"]'
+    assert_match /email_template_editor_controller/, response.body
+    
+    # Should contain preview functionality elements
+    assert_select '.email-template-editor'
+    assert_select '.email-editor-preview'
+    
+    # Should have proper CSP nonce
+    assert_match /nonce=".*?"/, response.body
+  end
+
+  test "should handle edit form submission with live preview data" do
+    patch admin_email_template_path(@email_template), params: {
+      email_template: {
+        name: 'Updated with Preview',
+        subject: 'Updated {{user.first_name}}',
+        content: '<p>Updated content {{user.first_name}}</p>'
+      }
+    }
+    
+    assert_redirected_to admin_email_templates_path
+    @email_template.reload
+    assert_equal 'Updated with Preview', @email_template.name
+    assert_includes @email_template.subject, '{{user.first_name}}'
+  end
+
   # Edge Cases
   test "should handle template with missing placeholders gracefully" do
     broken_template = EmailTemplate.create!(
@@ -678,5 +896,127 @@ class Admin::EmailTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select '.email-subject'
     assert_select '.email-content'
+  end
+
+  test "should substitute application status_display and formatted_created_at in preview" do
+    app_template = EmailTemplate.create!(
+      name: 'Status Template',
+      template_type: 'application_submitted',
+      subject: 'Application Status: {{application.status_display}}',
+      content: '<p>Your application status is {{application.status_display}} and was created on {{application.formatted_created_at}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(app_template)
+    assert_response :success
+    
+    # Should substitute status_display with 'Submitted'
+    assert_select '.email-subject', /Application Status: Submitted/
+    assert_select '.email-content', /status is Submitted/
+    
+    # Should substitute formatted_created_at with proper date format
+    assert_select '.email-content' do |elements|
+      content = elements.text
+      # Should contain a formatted date like "January 10, 2024 at 02:30 PM"
+      assert_match /\w+ \d{1,2}, \d{4} at \d{1,2}:\d{2} \w{2}/, content
+    end
+  end
+
+  test "should substitute all application date fields in preview" do
+    date_template = EmailTemplate.create!(
+      name: 'Date Template',
+      template_type: 'application_submitted',
+      subject: 'Application Dates',
+      content: '
+        <p>Created: {{application.formatted_created_at}}</p>
+        <p>Updated: {{application.formatted_updated_at}}</p>
+        <p>Submitted: {{application.formatted_submitted_at}}</p>
+        <p>Status: {{application.status}}</p>
+        <p>Status Display: {{application.status_display}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(date_template)
+    assert_response :success
+    
+    # All date fields should be formatted properly
+    response_body = response.body
+    assert_match /Created: \w+ \d{1,2}, \d{4} at \d{1,2}:\d{2} \w{2}/, response_body
+    assert_match /Updated: \w+ \d{1,2}, \d{4} at \d{1,2}:\d{2} \w{2}/, response_body
+    assert_match /Submitted: \w+ \d{1,2}, \d{4} at \d{1,2}:\d{2} \w{2}/, response_body
+    assert_match /Status: submitted/, response_body
+    assert_match /Status Display: Submitted/, response_body
+  end
+
+  test "should handle template variables case insensitively" do
+    case_template = EmailTemplate.create!(
+      name: 'Case Template',
+      template_type: 'application_submitted',
+      subject: 'Mixed Case Test',
+      content: '
+        <p>Lower: {{application.status_display}}</p>
+        <p>Upper: {{APPLICATION.STATUS_DISPLAY}}</p>
+        <p>Mixed: {{Application.Status_Display}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(case_template)
+    assert_response :success
+    
+    # All variations should be replaced
+    response_body = response.body
+    # Count how many times "Submitted" appears (should be 3)
+    submitted_count = response_body.scan(/Submitted/).length
+    assert_equal 3, submitted_count
+  end
+
+  test "should preview with sample application data even when no real applications exist" do
+    # Ensure no real applications exist
+    Application.destroy_all
+    
+    sample_template = EmailTemplate.create!(
+      name: 'Sample Template',
+      template_type: 'application_submitted',
+      subject: 'Sample Application {{application.id}}',
+      content: '
+        <p>ID: {{application.id}}</p>
+        <p>Address: {{application.address}}</p>
+        <p>Value: {{application.formatted_home_value}}</p>
+        <p>Status: {{application.status_display}}</p>
+        <p>Created: {{application.formatted_created_at}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(sample_template)
+    assert_response :success
+    
+    # Should use sample data from create_sample_application method
+    assert_select '.email-subject', /Sample Application 123/
+    assert_select '.email-content', /ID: 123/
+    assert_select '.email-content', /Address: 123 Sample Street/
+    assert_select '.email-content', /Value: \$800,000/
+    assert_select '.email-content', /Status: Submitted/
+    assert_select '.email-content' do |elements|
+      content = elements.text
+      # Should contain formatted date
+      assert_match /Created: \w+ \d{1,2}, \d{4} at \d{1,2}:\d{2} \w{2}/, content
+    end
+  end
+
+  test "should handle missing fields gracefully in sample data" do
+    missing_field_template = EmailTemplate.create!(
+      name: 'Missing Field Template',
+      template_type: 'application_submitted',
+      subject: 'Test {{application.nonexistent_field}}',
+      content: '<p>Missing: {{application.missing_field}}</p><p>Existing: {{application.status_display}}</p>',
+      is_active: true
+    )
+    
+    get admin_email_template_path(missing_field_template)
+    assert_response :success
+    
+    # Missing fields should be replaced with empty string, existing fields should work
+    assert_select '.email-content', /Missing: /  # Empty replacement
+    assert_select '.email-content', /Existing: Submitted/  # Actual value
   end
 end

@@ -32,7 +32,7 @@ class EmailTemplate < ApplicationRecord
       },
       'application_submitted' => {
         'user' => %w[first_name last_name full_name email mobile_number],
-        'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved],
+        'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at],
         'mortgage' => %w[name lvr interest_rate mortgage_type_display]
       },
       'security_notification' => {
@@ -125,6 +125,14 @@ class EmailTemplate < ApplicationRecord
         text.gsub!(/{{application\.formatted_future_property_value}}/i, safe_field_value(app, :formatted_future_property_value))
         text.gsub!(/{{application\.home_equity_preserved}}/i, safe_field_value(app, :formatted_home_equity_preserved))
         text.gsub!(/{{application\.formatted_home_equity_preserved}}/i, safe_field_value(app, :formatted_home_equity_preserved))
+        text.gsub!(/{{application\.status}}/i, safe_field_value(app, :status))
+        text.gsub!(/{{application\.status_display}}/i, safe_field_value(app, :status_display))
+        text.gsub!(/{{application\.created_at}}/i, safe_field_value(app, :created_at))
+        text.gsub!(/{{application\.updated_at}}/i, safe_field_value(app, :updated_at))
+        text.gsub!(/{{application\.submitted_at}}/i, safe_field_value(app, :submitted_at))
+        text.gsub!(/{{application\.formatted_created_at}}/i, safe_field_value(app, :formatted_created_at))
+        text.gsub!(/{{application\.formatted_updated_at}}/i, safe_field_value(app, :formatted_updated_at))
+        text.gsub!(/{{application\.formatted_submitted_at}}/i, safe_field_value(app, :formatted_submitted_at))
       end
       
       # Mortgage fields
@@ -145,31 +153,32 @@ class EmailTemplate < ApplicationRecord
         text.gsub!(/{{verification\.formatted_expires_at}}/i, (data[:expires_at].strftime("%I:%M %p") rescue data[:expires_at].to_s))
       end
       
-      # Security fields
-      if data[:browser_info]
-        text.gsub!(/{{security\.browser_info}}/i, data[:browser_info].to_s)
-      end
-      if data[:ip_address]
-        text.gsub!(/{{security\.ip_address}}/i, data[:ip_address].to_s)
-      end
-      if data[:location]
-        text.gsub!(/{{security\.location}}/i, data[:location].to_s)
-      end
-      if data[:sign_in_time]
-        text.gsub!(/{{security\.sign_in_time}}/i, (data[:sign_in_time].strftime("%B %d, %Y at %I:%M %p") rescue data[:sign_in_time].to_s))
-      end
-      if data[:event_type]
-        text.gsub!(/{{security\.event_type}}/i, data[:event_type].to_s)
-      end
-      if data[:device_type]
-        text.gsub!(/{{security\.device_type}}/i, data[:device_type].to_s)
-      end
-      if data[:os_info]
-        text.gsub!(/{{security\.os_info}}/i, data[:os_info].to_s)
-      end
-      if data[:risk_level]
-        text.gsub!(/{{security\.risk_level}}/i, data[:risk_level].to_s)
-      end
+      # Security fields - always replace these fields with appropriate fallbacks
+      browser_info = data[:browser_info].present? ? data[:browser_info].to_s : 'Unknown Browser'
+      text.gsub!(/{{security\.browser_info}}/i, browser_info)
+      
+      ip_address = data[:ip_address].present? ? data[:ip_address].to_s : 'Unknown IP'
+      text.gsub!(/{{security\.ip_address}}/i, ip_address)
+      
+      location_value = data[:location].present? ? data[:location].to_s : 'Unknown Location'
+      text.gsub!(/{{security\.location}}/i, location_value)
+      
+      sign_in_time = data[:sign_in_time].present? ? 
+                     (data[:sign_in_time].strftime("%B %d, %Y at %I:%M %p") rescue data[:sign_in_time].to_s) : 
+                     Time.current.strftime("%B %d, %Y at %I:%M %p")
+      text.gsub!(/{{security\.sign_in_time}}/i, sign_in_time)
+      
+      event_type = data[:event_type].present? ? data[:event_type].to_s : 'Sign-in Activity'
+      text.gsub!(/{{security\.event_type}}/i, event_type)
+      
+      device_type = data[:device_type].present? ? data[:device_type].to_s : 'Unknown Device'
+      text.gsub!(/{{security\.device_type}}/i, device_type)
+      
+      os_info = data[:os_info].present? ? data[:os_info].to_s : 'Unknown OS'
+      text.gsub!(/{{security\.os_info}}/i, os_info)
+      
+      risk_level = data[:risk_level].present? ? data[:risk_level].to_s : 'Unknown'
+      text.gsub!(/{{security\.risk_level}}/i, risk_level)
     end
     
     {

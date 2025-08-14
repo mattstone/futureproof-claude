@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+mortgage_application_creation:
+  application: mortgage_application
+  user: admin_user
+  action: created
+  change_details: "Created new application for 123 Main Street, Portland, OR 97201 with home value $500,000"
+  new_status: 2
+  new_address: "123 Main Street, Portland, OR 97201"
+  new_home_value: 500000
+  new_borrower_age: 65
+  new_ownership_status: 0
+  created_at: <%= 1.month.ago %>
+
+submitted_application_status_change:
+  application: submitted_application
+  user: admin_user
+  action: status_changed
+  change_details: "Changed application status from 'Property Details' to 'Submitted'"
+  previous_status: 2
+  new_status: 4
+  created_at: <%= 2.weeks.ago %>
+
+mortgage_application_view:
+  application: mortgage_application
+  user: admin_user
+  action: viewed
+  change_details: "Admin Admin User viewed application"
+  created_at: <%= 1.day.ago %>

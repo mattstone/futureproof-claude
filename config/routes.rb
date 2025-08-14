@@ -110,6 +110,7 @@ Rails.application.routes.draw do
       get :congratulations
       get :messages
       post :reply_to_message
+      patch :mark_all_messages_as_read
     end
   end
 
@@ -118,6 +119,20 @@ Rails.application.routes.draw do
     member do
       get :messages
       post :reply_to_message
+      patch :mark_all_messages_as_read
+    end
+  end
+
+  # Message routes
+  resources :application_messages, only: [] do
+    member do
+      patch :mark_as_read
+    end
+  end
+
+  resources :contract_messages, only: [] do
+    member do
+      patch :mark_as_read
     end
   end
 

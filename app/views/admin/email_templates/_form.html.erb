@@ -1,7 +1,7 @@
-<div class="email-template-editor">
+<div class="email-template-editor" data-controller="email-template-editor">
   <!-- Left Column - Form -->
   <div class="email-editor-form">
-    <%= form_with(model: [:admin, @email_template], local: true, html: { class: "admin-form", id: "email-template-form" }) do |form| %>
+    <%= form_with(model: [:admin, @email_template], local: true, html: { class: "admin-form", id: "email-template-form", "data-action": "submit->email-template-editor#formSubmit" }) do |form| %>
       <% if @email_template.errors.any? %>
         <div class="admin-form-errors">
           <h4><%= pluralize(@email_template.errors.count, "error") %> prohibited this template from being saved:</h4>
@@ -27,7 +27,9 @@
           ['Security Notification', 'security_notification']
         ], @email_template.template_type), 
         { prompt: 'Select template type' }, 
-        { class: "admin-form-select", id: "template_type_select" } %>
+        { class: "admin-form-select", id: "template_type_select", 
+          "data-email-template-editor-target": "templateType",
+          "data-action": "change->email-template-editor#templateTypeChanged" } %>
   </div>
 
   <div class="admin-form-group">
@@ -37,37 +39,53 @@
 
   <div class="admin-form-group">
     <%= form.label :subject, class: "admin-form-label" %>
-    <%= form.text_field :subject, class: "admin-form-input", placeholder: "Email subject line (supports field placeholders)" %>
+    <%= form.text_field :subject, class: "admin-form-input", placeholder: "Email subject line (supports field placeholders)", 
+        id: "email_template_subject",
+        "data-email-template-editor-target": "subject",
+        "data-action": "input->email-template-editor#subjectChanged" %>
   </div>
 
   <div class="admin-form-group">
     <%= form.label :content, class: "admin-form-label" %>
     <div class="content-editor-section">
       <div class="editor-tabs">
-        <button type="button" id="html-tab" class="editor-tab active">HTML Editor</button>
-        <button type="button" id="markup-tab" class="editor-tab">Markup Editor</button>
+        <button type="button" id="html-tab" class="editor-tab active" 
+                data-email-template-editor-target="htmlTab"
+                data-action="click->email-template-editor#switchToHtml">HTML Editor</button>
+        <button type="button" id="markup-tab" class="editor-tab"
+                data-email-template-editor-target="markupTab" 
+                data-action="click->email-template-editor#switchToMarkup">Markup Editor</button>
       </div>
       
       <div class="field-helper-section">
-        <div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;">
+        <div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;"
+             data-email-template-editor-target="fieldHelper">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h4 style="margin: 0; color: #374151;">Available Field Placeholders</h4>
-            <button type="button" id="toggle-field-helper" class="admin-btn admin-btn-sm admin-btn-secondary">Hide Fields</button>
+            <button type="button" id="toggle-field-helper" class="admin-btn admin-btn-sm admin-btn-secondary"
+                    data-email-template-editor-target="toggleFieldHelper"
+                    data-action="click->email-template-editor#toggleFieldHelper">Hide Fields</button>
           </div>
-          <div id="field-helper-content">
+          <div id="field-helper-content" data-email-template-editor-target="fieldHelperContent">
             <p class="text-muted">Select a template type to see available fields</p>
           </div>
         </div>
       </div>
       
       <!-- HTML Editor -->
-      <div id="html-editor-section" class="editor-section">
-        <%= form.text_area :content, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email content (HTML format, supports field placeholders)", id: "html-content" %>
+      <div id="html-editor-section" class="editor-section" data-email-template-editor-target="htmlSection">
+        <%= form.text_area :content, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email content (HTML format, supports field placeholders)", 
+            id: "html-content", 
+            "data-email-template-editor-target": "htmlContent",
+            "data-action": "input->email-template-editor#contentChanged" %>
       </div>
       
       <!-- Markup Editor -->
-      <div id="markup-editor-section" class="editor-section" style="display: none;">
-        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}", id: "markup-content" %>
+      <div id="markup-editor-section" class="editor-section" style="display: none;" data-email-template-editor-target="markupSection">
+        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}", 
+            id: "markup-content",
+            "data-email-template-editor-target": "markupContent",
+            "data-action": "input->email-template-editor#contentChanged" %>
         <div class="markup-help">
           <small class="text-muted">
             <strong>Markup Guide:</strong><br>
@@ -109,18 +127,22 @@
     <div class="preview-header">
       <h3>Live Preview</h3>
       <div class="preview-controls">
-        <button type="button" id="refresh-preview" class="admin-btn admin-btn-sm admin-btn-secondary">Refresh</button>
-        <button type="button" id="toggle-sample-data" class="admin-btn admin-btn-sm admin-btn-info">Toggle Sample Data</button>
+        <button type="button" id="refresh-preview" class="admin-btn admin-btn-sm admin-btn-secondary"
+                data-email-template-editor-target="refreshBtn"
+                data-action="click->email-template-editor#refreshPreview">Refresh</button>
+        <button type="button" id="toggle-sample-data" class="admin-btn admin-btn-sm admin-btn-info"
+                data-email-template-editor-target="toggleSampleBtn"
+                data-action="click->email-template-editor#toggleSampleData">Toggle Sample Data</button>
       </div>
     </div>
     
     <div class="preview-content">
       <div class="email-preview-frame">
         <div class="email-subject-preview">
-          <strong>Subject:</strong> <span id="subject-preview">Preview will appear here...</span>
+          <strong>Subject:</strong> <span id="subject-preview" data-email-template-editor-target="subjectPreview">Preview will appear here...</span>
         </div>
         <hr>
-        <div id="email-content-preview" class="email-body-preview">
+        <div id="email-content-preview" class="email-body-preview" data-email-template-editor-target="contentPreview">
           <p class="text-muted">Start typing in the editor to see preview...</p>
         </div>
       </div>
@@ -128,296 +150,6 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const templateTypeSelect = document.getElementById('template_type_select');
-  const fieldHelperPanel = document.getElementById('field-helper-panel');
-  const fieldHelperContent = document.getElementById('field-helper-content');
-  const toggleFieldHelperBtn = document.getElementById('toggle-field-helper');
-  const htmlContent = document.getElementById('html-content');
-  const markupContent = document.getElementById('markup-content');
-  const subjectField = document.querySelector('#email_template_subject');
-  
-  let useSampleData = false;
-  let currentEditorMode = 'html';
-  
-  // Sample data for preview
-  const sampleData = {
-    'verification': {
-      user: { first_name: 'John', last_name: 'Smith', full_name: 'John Smith', email: 'john.smith@example.com' },
-      verification: { verification_code: '123456', formatted_expires_at: '11:30 PM' }
-    },
-    'application_submitted': {
-      user: { first_name: 'Sarah', last_name: 'Johnson', full_name: 'Sarah Johnson', email: 'sarah.johnson@example.com' },
-      application: { 
-        id: '12345', reference_number: '000123', address: '123 Main Street, Sydney NSW 2000',
-        formatted_home_value: '$1,500,000', formatted_loan_value: '$900,000', loan_term: '25'
-      },
-      mortgage: { name: 'Premium Equity Mortgage', lvr: '60', interest_rate: '7.45' }
-    },
-    'security_notification': {
-      user: { first_name: 'Michael', full_name: 'Michael Brown', email: 'michael.brown@example.com' },
-      security: { 
-        browser_info: 'Chrome on macOS', ip_address: '192.168.1.100', 
-        location: 'Sydney, Australia', sign_in_time: 'December 5, 2024 at 2:30 PM' 
-      }
-    }
-  };
-  
-  // Available fields for each template type
-  const availableFields = {
-    'verification': {
-      'user': ['first_name', 'last_name', 'full_name', 'email', 'mobile_number', 'country_of_residence'],
-      'verification': ['verification_code', 'expires_at', 'formatted_expires_at']
-    },
-    'application_submitted': {
-      'user': ['first_name', 'last_name', 'full_name', 'email', 'mobile_number'],
-      'application': ['id', 'reference_number', 'address', 'home_value', 'formatted_home_value', 'existing_mortgage_amount', 'formatted_existing_mortgage_amount', 'loan_value', 'formatted_loan_value', 'borrower_age', 'loan_term', 'growth_rate', 'formatted_growth_rate', 'future_property_value', 'formatted_future_property_value', 'home_equity_preserved', 'formatted_home_equity_preserved'],
-      'mortgage': ['name', 'lvr', 'interest_rate', 'mortgage_type_display']
-    },
-    'security_notification': {
-      'user': ['first_name', 'last_name', 'full_name', 'email'],
-      'security': ['browser_info', 'ip_address', 'location', 'sign_in_time']
-    }
-  };
-  
-  // Switch between HTML and Markup editors
-  function switchEditorMode(mode) {
-    const htmlSection = document.getElementById('html-editor-section');
-    const markupSection = document.getElementById('markup-editor-section');
-    const htmlTab = document.getElementById('html-tab');
-    const markupTab = document.getElementById('markup-tab');
-    
-    if (mode === 'html') {
-      htmlSection.style.display = 'block';
-      markupSection.style.display = 'none';
-      htmlTab.classList.add('active');
-      markupTab.classList.remove('active');
-      currentEditorMode = 'html';
-    } else {
-      htmlSection.style.display = 'none';
-      markupSection.style.display = 'block';
-      htmlTab.classList.remove('active');
-      markupTab.classList.add('active');
-      currentEditorMode = 'markup';
-    }
-    updatePreview();
-  }
-  
-  // Convert markup to HTML (similar to terms system)
-  function markupToHtml(text) {
-    if (!text) return '';
-    
-    let html = text;
-    
-    // Convert line breaks to paragraph breaks
-    html = html.replace(/\n\n+/g, '</p><p>');
-    html = '<p>' + html + '</p>';
-    
-    // Convert headers
-    html = html.replace(/<p>## (.+?)<\/p>/g, '<h2 style="color: #0891b2; font-size: 20px; margin: 24px 0 16px 0;">$1</h2>');
-    html = html.replace(/<p>### (.+?)<\/p>/g, '<h3 style="color: #374151; font-size: 16px; margin: 20px 0 12px 0;">$1</h3>');
-    
-    // Convert bold and italic
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Convert bullet points
-    html = html.replace(/<p>- (.+?)<\/p>/g, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 24px;">$1</ul>');
-    
-    // Clean up empty paragraphs
-    html = html.replace(/<p><\/p>/g, '');
-    html = html.replace(/<p>\s*<\/p>/g, '');
-    
-    return html;
-  }
-  
-  // Replace field placeholders with sample data
-  function replaceFieldPlaceholders(text, templateType) {
-    if (!useSampleData || !sampleData[templateType]) return text;
-    
-    const data = sampleData[templateType];
-    let result = text;
-    
-    // Replace placeholders
-    Object.keys(data).forEach(groupName => {
-      Object.keys(data[groupName]).forEach(field => {
-        const placeholder = new RegExp(`{{${groupName}\\.${field}}}`, 'gi');
-        result = result.replace(placeholder, data[groupName][field]);
-      });
-    });
-    
-    return result;
-  }
-  
-  // Update preview
-  function updatePreview() {
-    const templateType = templateTypeSelect.value;
-    let content = '';
-    let subject = subjectField ? subjectField.value : '';
-    
-    if (currentEditorMode === 'html') {
-      content = htmlContent.value;
-    } else {
-      content = markupToHtml(markupContent.value);
-    }
-    
-    // If we have content and template type, make AJAX call for server-side rendering
-    if (content.trim() && templateType) {
-      const formData = new FormData();
-      formData.append('template_type', templateType);
-      formData.append('content', content);
-      formData.append('subject', subject);
-      formData.append('use_sample_data', useSampleData);
-      
-      fetch('/admin/email_templates/preview_ajax', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          console.error('Preview error:', data.error);
-          document.getElementById('subject-preview').textContent = subject || 'No subject entered';
-          document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
-        } else {
-          document.getElementById('subject-preview').textContent = data.subject || 'No subject entered';
-          document.getElementById('email-content-preview').innerHTML = data.content || '<p class="text-muted">No content entered</p>';
-        }
-      })
-      .catch(error => {
-        console.error('Preview error:', error);
-        // Fallback to client-side preview
-        document.getElementById('subject-preview').textContent = subject || 'No subject entered';
-        document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
-      });
-    } else {
-      // Fallback to simple client-side preview
-      document.getElementById('subject-preview').textContent = subject || 'No subject entered';
-      document.getElementById('email-content-preview').innerHTML = content || '<p class="text-muted">No content entered</p>';
-    }
-  }
-  
-  function updateFieldHelper() {
-    const selectedType = templateTypeSelect.value;
-    const fields = availableFields[selectedType];
-    
-    if (!fields) {
-      fieldHelperContent.innerHTML = '<p class="text-muted">Select a template type to see available fields</p>';
-      return;
-    }
-    
-    let html = '<div class="field-groups">';
-    
-    Object.keys(fields).forEach(groupName => {
-      html += `<div class="field-group" style="margin-bottom: 16px;">`;
-      html += `<h5 style="margin: 0 0 8px 0; color: #0891b2; text-transform: capitalize;">${groupName} Fields:</h5>`;
-      html += '<div class="field-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">';
-      
-      fields[groupName].forEach(field => {
-        const placeholder = `{{${groupName}.${field}}}`;
-        html += `<span class="field-tag" onclick="insertField('${placeholder}')" style="
-          cursor: pointer;
-          background: #e0f2fe;
-          border: 1px solid #0891b2;
-          border-radius: 4px;
-          padding: 4px 8px;
-          font-size: 12px;
-          font-family: monospace;
-          color: #0891b2;
-        " title="Click to insert">${placeholder}</span>`;
-      });
-      
-      html += '</div></div>';
-    });
-    
-    html += '</div>';
-    html += '<p style="margin-top: 16px; font-size: 12px; color: #6b7280;"><strong>Tip:</strong> Click on any field to insert it at your cursor position in the content editor.</p>';
-    
-    fieldHelperContent.innerHTML = html;
-  }
-  
-  // Insert field at cursor position
-  window.insertField = function(placeholder) {
-    const activeTextarea = currentEditorMode === 'html' ? htmlContent : markupContent;
-    const start = activeTextarea.selectionStart;
-    const end = activeTextarea.selectionEnd;
-    const text = activeTextarea.value;
-    
-    activeTextarea.value = text.substring(0, start) + placeholder + text.substring(end);
-    activeTextarea.focus();
-    activeTextarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
-    updatePreview();
-  };
-  
-  // Event listeners
-  // Tab switching
-  document.getElementById('html-tab').addEventListener('click', function() {
-    switchEditorMode('html');
-  });
-  
-  document.getElementById('markup-tab').addEventListener('click', function() {
-    switchEditorMode('markup');
-  });
-  
-  toggleFieldHelperBtn.addEventListener('click', function() {
-    const content = document.getElementById('field-helper-content');
-    if (content.style.display === 'none') {
-      content.style.display = 'block';
-      toggleFieldHelperBtn.textContent = 'Hide Fields';
-      updateFieldHelper();
-    } else {
-      content.style.display = 'none';
-      toggleFieldHelperBtn.textContent = 'Show Fields';
-    }
-  });
-  
-  templateTypeSelect.addEventListener('change', function() {
-    if (document.getElementById('field-helper-content').style.display !== 'none') {
-      updateFieldHelper();
-    }
-    updatePreview();
-  });
-  
-  // Preview controls
-  document.getElementById('refresh-preview').addEventListener('click', updatePreview);
-  
-  document.getElementById('toggle-sample-data').addEventListener('click', function() {
-    useSampleData = !useSampleData;
-    this.textContent = useSampleData ? 'Hide Sample Data' : 'Show Sample Data';
-    this.classList.toggle('admin-btn-success', useSampleData);
-    updatePreview();
-  });
-  
-  // Auto-update preview on content changes
-  if (htmlContent) {
-    htmlContent.addEventListener('input', updatePreview);
-  }
-  if (markupContent) {
-    markupContent.addEventListener('input', updatePreview);
-  }
-  if (subjectField) {
-    subjectField.addEventListener('input', updatePreview);
-  }
-  
-  // Before form submission, sync markup content to HTML content if in markup mode
-  document.getElementById('email-template-form').addEventListener('submit', function() {
-    if (currentEditorMode === 'markup' && markupContent.value) {
-      htmlContent.value = markupToHtml(markupContent.value);
-    }
-  });
-  
-  // Initial setup
-  if (templateTypeSelect.value) {
-    updateFieldHelper();
-  }
-  updatePreview();
-});
-</script>
 
 <style>
 /* Two-column layout */

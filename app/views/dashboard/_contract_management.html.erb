@@ -1,7 +1,10 @@
 <!-- Enhanced Contract Management Component -->
 <div class="contract-management-container">
   <% @contracts.each do |contract| %>
-    <div class="application-card enhanced" id="contract-<%= contract.id %>">
+    <div class="application-card enhanced" id="contract-<%= contract.id %>"
+         data-controller="contract-messages"
+         data-contract-messages-contract-id-value="<%= contract.id %>"
+         data-contract-id="<%= contract.id %>">
       
       <!-- Contract Header -->
       <div class="application-card-header">
@@ -20,11 +23,15 @@
         </div>
         
         <div class="application-actions-header">
-          <button class="btn btn-outline-primary btn-sm" onclick="toggleContractDetails('<%= contract.id %>')">
+          <button class="btn btn-outline-primary btn-sm" 
+                  data-action="click->contract-messages#toggleDetails"
+                  data-contract-id="<%= contract.id %>">
             <i class="fas fa-eye"></i> View
           </button>
           <% if contract.contract_messages.any? %>
-            <button class="btn btn-primary btn-sm" onclick="toggleContractMessages('<%= contract.id %>')">
+            <button class="btn btn-primary btn-sm" 
+                    data-action="click->contract-messages#toggleMessages"
+                    data-contract-id="<%= contract.id %>">
               <i class="fas fa-comments"></i> Messages 
               <span class="message-count"><%= contract.contract_messages.admin_messages.unread.count %></span>
             </button>
@@ -142,7 +149,9 @@
             Messages & Communication
           </h4>
           <div class="messages-actions">
-            <button class="btn btn-sm btn-outline-secondary" onclick="markAllContractAsRead(<%= contract.id %>)">
+            <button class="btn btn-sm btn-outline-secondary" 
+                    data-action="click->contract-messages#markAllAsRead"
+                    data-contract-id="<%= contract.id %>">
               <i class="fas fa-check-double"></i> Mark All Read
             </button>
           </div>
@@ -236,7 +245,9 @@
 
                       <div class="form-actions">
                         <%= form.submit "Send Reply", class: "btn btn-primary" %>
-                        <button type="button" class="btn btn-secondary" onclick="hideContractReplyForm(<%= message.id %>)">
+                        <button type="button" class="btn btn-secondary" 
+                                data-action="click->contract-messages#hideReplyForm"
+                                data-message-id="<%= message.id %>">
                           Cancel
                         </button>
                       </div>
@@ -244,11 +255,15 @@
                   </div>
                   
                   <div class="message-actions">
-                    <button class="btn btn-sm btn-primary" onclick="showContractReplyForm(<%= message.id %>)">
+                    <button class="btn btn-sm btn-primary" 
+                            data-action="click->contract-messages#showReplyForm"
+                            data-message-id="<%= message.id %>">
                       <i class="fas fa-reply"></i> Reply
                     </button>
                     <% unless message.read? %>
-                      <button class="btn btn-sm btn-outline-secondary" onclick="markContractAsRead(<%= message.id %>)">
+                      <button class="btn btn-sm btn-outline-secondary" 
+                              data-action="click->contract-messages#markAsRead"
+                              data-message-id="<%= message.id %>">
                         <i class="fas fa-check"></i> Mark as Read
                       </button>
                     <% end %>
@@ -271,18 +286,13 @@
 </div>
 
 <style>
-/* Contract-specific status styles */
-.status-badge.status-approved {
-  background: #d1fae5;
-  color: #059669;
+/* Enhanced Contract Management Styles */
+.contract-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
-.status-badge.status-pending {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-/* Inherit all other styles from application management */
 .contract-management-container .application-card.enhanced {
   background: white;
   border-radius: 12px;
@@ -295,51 +305,597 @@
 .contract-management-container .application-card.enhanced:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
+
+.contract-management-container .application-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.contract-management-container .application-info h3 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.contract-management-container .application-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.contract-management-container .application-actions-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.contract-management-container .message-count {
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.contract-management-container .application-summary {
+  padding: 20px 24px;
+}
+
+.contract-management-container .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.contract-management-container .summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.contract-management-container .summary-item.message-item {
+  grid-column: 1 / -1;
+}
+
+.contract-management-container .summary-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contract-management-container .summary-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.contract-management-container .summary-label {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.contract-management-container .summary-value {
+  display: block;
+  color: #1e293b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.contract-management-container .summary-subvalue {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.contract-management-container .summary-value.no-data {
+  color: #9ca3af;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.contract-management-container .summary-value.income-amount {
+  color: #059669;
+  font-weight: 700;
+}
+
+.contract-management-container .summary-date {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.contract-management-container .latest-message-preview {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.contract-management-container .message-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #1e40af;
+}
+
+.contract-management-container .preview-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.contract-management-container .preview-date {
+  color: #6b7280;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.contract-management-container .message-preview-content strong {
+  display: block;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.contract-management-container .message-preview-content p {
+  color: #4b5563;
+  font-size: 14px;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.contract-management-container .message-from {
+  color: #6b7280;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.contract-management-container .application-details-section,
+.contract-management-container .application-messages-section {
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.contract-management-container .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.contract-management-container .details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.contract-management-container .detail-group h5 {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.contract-management-container .detail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contract-management-container .detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.contract-management-container .detail-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 140px;
+}
+
+.contract-management-container .detail-value {
+  color: #1f2937;
+  font-size: 13px;
+  text-align: right;
+  flex: 1;
+}
+
+.contract-management-container .messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.contract-management-container .message-threads {
+  space: 20px;
+}
+
+.contract-management-container .message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.contract-management-container .message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.contract-management-container .message-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contract-management-container .agent-avatar img,
+.contract-management-container .default-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3b82f6;
+}
+
+.contract-management-container .default-avatar {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.contract-management-container .sender-name {
+  color: #1f2937;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.contract-management-container .ai-badge {
+  background: #3b82f6;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.contract-management-container .sender-role {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.contract-management-container .message-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.contract-management-container .message-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.contract-management-container .message-status.status-sent {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.contract-management-container .message-status.status-read {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.contract-management-container .message-content {
+  margin-bottom: 16px;
+}
+
+.contract-management-container .message-subject {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.contract-management-container .message-body {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 4px solid #3b82f6;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.contract-management-container .message-replies {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.contract-management-container .message-replies h6 {
+  color: #0369a1;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.contract-management-container .message-reply {
+  background: white;
+  border: 1px solid #e0f2fe;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.contract-management-container .reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.contract-management-container .reply-content {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.contract-management-container .message-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.contract-management-container .reply-form-container {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.contract-management-container .form-group {
+  margin-bottom: 16px;
+}
+
+.contract-management-container .form-label {
+  display: block;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.contract-management-container .form-input,
+.contract-management-container .form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.contract-management-container .form-input:focus,
+.contract-management-container .form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.contract-management-container .form-hint {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.contract-management-container .form-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.contract-management-container .empty-messages-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.contract-management-container .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.contract-management-container .empty-messages-state h5 {
+  color: #374151;
+  font-size: 18px;
+  margin: 0 0 8px 0;
+}
+
+.contract-management-container .empty-messages-state p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Contract-specific status styles */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.status-approved {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Button styles for contracts section */
+.contract-management-container .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.contract-management-container .btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.contract-management-container .btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.contract-management-container .btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.contract-management-container .btn-outline-primary {
+  background-color: transparent;
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.contract-management-container .btn-outline-primary:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.contract-management-container .btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  border-color: #6b7280;
+}
+
+.contract-management-container .btn-secondary:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
+}
+
+.contract-management-container .btn-outline-secondary {
+  background-color: transparent;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.contract-management-container .btn-outline-secondary:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .contract-management-container .application-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .contract-management-container .application-actions-header {
+    justify-content: stretch;
+  }
+  
+  .contract-management-container .application-actions-header .btn {
+    flex: 1;
+  }
+  
+  .contract-management-container .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contract-management-container .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contract-management-container .message-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .contract-management-container .messages-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .contract-management-container .form-actions {
+    flex-direction: column;
+  }
+}
 </style>
 
-<script>
-function toggleContractDetails(contractId) {
-  const detailsSection = document.getElementById(`details-${contractId}`);
-  const messagesSection = document.getElementById(`messages-${contractId}`);
-  
-  if (detailsSection.style.display === 'none') {
-    detailsSection.style.display = 'block';
-    messagesSection.style.display = 'none';
-  } else {
-    detailsSection.style.display = 'none';
-  }
-}
-
-function toggleContractMessages(contractId) {
-  const detailsSection = document.getElementById(`details-${contractId}`);
-  const messagesSection = document.getElementById(`messages-${contractId}`);
-  
-  if (messagesSection.style.display === 'none') {
-    messagesSection.style.display = 'block';
-    detailsSection.style.display = 'none';
-    
-    // Mark messages as read when viewing
-    markAllContractAsRead(contractId);
-  } else {
-    messagesSection.style.display = 'none';
-  }
-}
-
-function showContractReplyForm(messageId) {
-  document.getElementById(`reply-form-${messageId}`).style.display = 'block';
-}
-
-function hideContractReplyForm(messageId) {
-  document.getElementById(`reply-form-${messageId}`).style.display = 'none';
-}
-
-function markContractAsRead(messageId) {
-  // Implementation would make an AJAX call to mark message as read
-  console.log(`Marking contract message ${messageId} as read`);
-}
-
-function markAllContractAsRead(contractId) {
-  // Implementation would make an AJAX call to mark all messages as read
-  console.log(`Marking all messages for contract ${contractId} as read`);
-}
-</script>

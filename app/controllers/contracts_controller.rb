@@ -2,7 +2,7 @@ class ContractsController < ApplicationController
   before_action :authenticate_user!, except: [:messages]
   before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
   before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
-  before_action :set_contract, only: [:show, :reply_to_message]
+  before_action :set_contract, only: [:show, :reply_to_message, :mark_all_messages_as_read]
   before_action :set_contract, only: [:messages], unless: -> { params[:token].present? }
 
   def show
@@ -54,6 +54,29 @@ class ContractsController < ApplicationController
         }
         format.turbo_stream { render :reply_error }
       end
+    end
+  end
+
+  def mark_all_messages_as_read
+    if @contract.application.user == current_user
+      # Mark all admin messages as read for this contract
+      @contract.contract_messages
+               .where(message_type: 'admin_to_customer', status: 'sent')
+               .update_all(status: 'read')
+      
+      # Get updated total unread count across all contracts for this user
+      unread_count = Contract.joins(:application, :contract_messages)
+        .where(applications: { user_id: current_user.id })
+        .where(contract_messages: { message_type: 'admin_to_customer', status: 'sent' })
+        .count('contract_messages.id')
+
+      render json: { 
+        success: true, 
+        unread_count: unread_count,
+        message: 'All contract messages marked as read' 
+      }
+    else
+      render json: { success: false, error: 'Unauthorized' }, status: :forbidden
     end
   end
 

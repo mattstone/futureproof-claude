@@ -2,7 +2,7 @@ class ApplicationsController < ApplicationController
   before_action :authenticate_user!, except: [:messages]
   before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
   before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
-  before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message]
+  before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message, :mark_all_messages_as_read]
 
   def new
     # Get or create application
@@ -135,6 +135,28 @@ class ApplicationsController < ApplicationController
         }
         format.turbo_stream { render :reply_error }
       end
+    end
+  end
+
+  def mark_all_messages_as_read
+    if @application.user == current_user
+      # Mark all admin messages as read for this application
+      @application.application_messages
+                  .where(message_type: 'admin_to_customer', status: 'sent')
+                  .update_all(status: 'read')
+      
+      # Get updated total unread count across all applications
+      unread_count = current_user.applications.joins(:application_messages)
+        .where(application_messages: { message_type: 'admin_to_customer', status: 'sent' })
+        .count('application_messages.id')
+
+      render json: { 
+        success: true, 
+        unread_count: unread_count,
+        message: 'All messages marked as read' 
+      }
+    else
+      render json: { success: false, error: 'Unauthorized' }, status: :forbidden
     end
   end
 

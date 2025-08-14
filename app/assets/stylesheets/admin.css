@@ -1,5 +1,31 @@
 /* Admin Panel Styles */
 
+/* Admin Cards - Reusable card component */
+.admin-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.admin-card h3 {
+  margin: 0 0 20px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+/* Ensure consistent spacing for change history sections */
+.admin-card .section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
 .admin-body {
   margin: 0;
   padding: 0;

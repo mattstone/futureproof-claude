@@ -2,6 +2,9 @@ class ApplicationVersion < ApplicationRecord
   belongs_to :application
   belongs_to :user
   
+  # Alias for consistency with shared change history interface
+  alias_method :admin_user, :user
+  
   validates :action, presence: true, inclusion: { in: %w[created updated viewed status_changed] }
   
   scope :recent, -> { order(created_at: :desc) }

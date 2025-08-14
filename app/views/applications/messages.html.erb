@@ -10,7 +10,9 @@
   </div>
 </div>
 
-<div class="messages-container">
+<div class="messages-container" 
+     data-controller="application-messages" 
+     <% if @highlight_message_id %>data-application-messages-highlight-message-id-value="<%= @highlight_message_id %>"<% end %>>
   <!-- Message Threads -->
   <div class="message-threads-section">
     <h2>Messages from Futureproof</h2>
@@ -488,20 +490,3 @@
 }
 </style>
 
-<% if @highlight_message_id %>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Scroll to the highlighted message
-  const highlightedMessage = document.getElementById('message-<%= @highlight_message_id %>');
-  if (highlightedMessage) {
-    // Small delay to ensure the page is fully rendered
-    setTimeout(function() {
-      highlightedMessage.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    }, 300);
-  }
-});
-</script>
-<% end %>

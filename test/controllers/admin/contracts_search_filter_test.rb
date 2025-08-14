@@ -363,6 +363,259 @@ class Admin::ContractsSearchFilterTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # ===== CONTRACT AND APPLICATION ID SEARCH TESTS =====
+
+  test "should search contracts by exact contract ID" do
+    contract_id = @searchable_contract_1.id
+    get admin_contracts_path, params: { search: contract_id.to_s }
+    assert_response :success
+    
+    # Should find the specific contract by ID
+    assert_match @searchable_contract_1.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+    assert_no_match @holiday_contract.application.address, response.body
+    assert_no_match @complete_contract.application.address, response.body
+  end
+
+  test "should search contracts by application ID" do
+    application_id = @searchable_contract_2.application.id
+    get admin_contracts_path, params: { search: application_id.to_s }
+    assert_response :success
+    
+    # Should find the contract for the specific application ID
+    assert_match @searchable_contract_2.application.address, response.body
+    
+    # Should not find contracts for other applications
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+    assert_no_match @holiday_contract.application.address, response.body
+    assert_no_match @complete_contract.application.address, response.body
+  end
+
+  test "should search contracts by contract ID using POST turbo stream" do
+    contract_id = @different_contract.id
+    post search_admin_contracts_path, params: { search: contract_id.to_s },
+         headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    
+    assert_response :success
+    assert_match "turbo-stream", response.headers["Content-Type"]
+    assert_includes response.body, '<turbo-stream action="replace" target="contracts_results">'
+    
+    # Should find the specific contract by ID
+    assert_match @different_contract.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @searchable_contract_2.application.address, response.body
+  end
+
+  test "should handle non-existent contract ID" do
+    non_existent_id = Contract.maximum(:id).to_i + 999999
+    get admin_contracts_path, params: { search: non_existent_id.to_s }
+    assert_response :success
+    
+    # Should not find any contracts
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+    assert_no_match @holiday_contract.application.address, response.body
+    assert_no_match @complete_contract.application.address, response.body
+  end
+
+  test "should handle non-existent application ID" do
+    non_existent_app_id = Application.maximum(:id).to_i + 999999
+    get admin_contracts_path, params: { search: non_existent_app_id.to_s }
+    assert_response :success
+    
+    # Should not find any contracts
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+  end
+
+  test "should handle contract ID with leading zeros" do
+    contract_id = @holiday_contract.id
+    search_term = "000#{contract_id}"
+    get admin_contracts_path, params: { search: search_term }
+    assert_response :success
+    
+    # Should find the contract (leading zeros stripped)
+    assert_match @holiday_contract.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @searchable_contract_2.application.address, response.body
+  end
+
+  test "should combine contract ID search with status filter" do
+    contract_id = @searchable_contract_1.id
+    get admin_contracts_path, params: { search: contract_id.to_s, status: 'awaiting_funding' }
+    assert_response :success
+    
+    # Should find the specific contract if it matches both ID and status
+    assert_match @searchable_contract_1.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+  end
+
+  test "should not find contract when ID search doesn't match status filter" do
+    # Search for ok status contract but filter by awaiting_funding status
+    contract_id = @searchable_contract_2.id # This has 'ok' status
+    get admin_contracts_path, params: { search: contract_id.to_s, status: 'awaiting_funding' }
+    assert_response :success
+    
+    # Should not find the contract because status doesn't match
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+  end
+
+  test "should combine application ID search with status filter" do
+    application_id = @complete_contract.application.id
+    get admin_contracts_path, params: { search: application_id.to_s, status: 'complete' }
+    assert_response :success
+    
+    # Should find the contract if application ID matches and status matches
+    assert_match @complete_contract.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_1.application.address, response.body
+    assert_no_match @searchable_contract_2.application.address, response.body
+  end
+
+  test "should preserve parameters when searching by contract ID" do
+    contract_id = @searchable_contract_1.id
+    get admin_contracts_path, params: { search: contract_id.to_s, status: 'awaiting_funding' }
+    assert_response :success
+    
+    # Check that both search and status parameters are preserved in forms
+    assert_select "input[name=\"search\"][value=\"#{contract_id}\"]"
+    assert_select 'select[name="status"] option[selected="selected"][value="awaiting_funding"]'
+  end
+
+  test "should preserve parameters when searching by application ID" do
+    application_id = @searchable_contract_2.application.id
+    get admin_contracts_path, params: { search: application_id.to_s, status: 'ok' }
+    assert_response :success
+    
+    # Check that both search and status parameters are preserved in forms
+    assert_select "input[name=\"search\"][value=\"#{application_id}\"]"
+    assert_select 'select[name="status"] option[selected="selected"][value="ok"]'
+  end
+
+  test "should distinguish numeric search from text search" do
+    # Create a user with a numeric name to test edge cases
+    numeric_user = users(:admin_user)
+    numeric_user.update!(first_name: '54321', last_name: 'NumericName')
+    
+    numeric_app = Application.create!(
+      user: numeric_user,
+      address: '222 Numeric Contract Avenue, Test City, TC 22222',
+      home_value: 550000,
+      status: :accepted,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      borrower_age: 45
+    )
+    
+    numeric_contract = Contract.create!(
+      application: numeric_app,
+      status: :ok,
+      start_date: Date.current,
+      end_date: Date.current + 3.years
+    )
+
+    # Search for the actual numeric first name (should find by name, not ID)
+    get admin_contracts_path, params: { search: '54321' }
+    assert_response :success
+    
+    # Should find the contract with numeric name
+    assert_match numeric_contract.application.address, response.body
+    
+    # Should also find contract/application with ID 54321 if they exist
+    contract_with_id_54321 = Contract.find_by(id: 54321)
+    if contract_with_id_54321
+      assert_match contract_with_id_54321.application.address, response.body
+    end
+    
+    app_with_id_54321 = Application.find_by(id: 54321)
+    if app_with_id_54321 && app_with_id_54321.contract.present?
+      assert_match app_with_id_54321.address, response.body
+    end
+  end
+
+  test "should handle whitespace in ID search" do
+    contract_id = @searchable_contract_1.id
+    get admin_contracts_path, params: { search: "  #{contract_id}  " }
+    assert_response :success
+    
+    # Should find the contract (whitespace stripped)
+    assert_match @searchable_contract_1.application.address, response.body
+    
+    # Should not find other contracts
+    assert_no_match @searchable_contract_2.application.address, response.body
+    assert_no_match @different_contract.application.address, response.body
+  end
+
+  test "should update placeholder text to indicate ID search capability" do
+    get admin_contracts_path
+    assert_response :success
+    
+    # Check that the placeholder text mentions both contract ID and application ID search
+    assert_select 'input[name="search"][placeholder*="contract ID"]'
+    assert_select 'input[name="search"][placeholder*="application ID"]'
+    assert_select 'input[name="search"][placeholder="Search by contract ID, application ID, address, name, or email..."]'
+  end
+
+  test "should find contract when searching by numeric string that could be both ID and name" do
+    # Test the dual search functionality when numeric term could match both ID and name
+    contract_id = @searchable_contract_1.id.to_s
+    
+    # Also create a user whose name matches the contract ID to test both paths
+    test_user = User.create!(
+      first_name: contract_id,
+      last_name: 'TestUser',
+      email: "numeric_test_#{contract_id}@example.com",
+      password: 'password123',
+      password_confirmation: 'password123',
+      country_of_residence: 'Australia',
+      mobile_country_code: '+61',
+      mobile_number: '400000000',
+      confirmed_at: Time.current,
+      terms_accepted: true
+    )
+    
+    test_app = Application.create!(
+      user: test_user,
+      address: '333 Dual Match Street, Test City, TC 33333',
+      home_value: 700000,
+      status: :accepted,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      borrower_age: 50
+    )
+    
+    test_contract = Contract.create!(
+      application: test_app,
+      status: :ok,
+      start_date: Date.current,
+      end_date: Date.current + 5.years
+    )
+    
+    # Search using the numeric term
+    get admin_contracts_path, params: { search: contract_id }
+    assert_response :success
+    
+    # Should find both the contract with matching ID and the contract with user having matching name
+    assert_match @searchable_contract_1.application.address, response.body
+    assert_match test_contract.application.address, response.body
+  end
+
   private
 
   def sign_in(user)

@@ -1,7 +1,10 @@
 <!-- Enhanced Application Management Component -->
 <div class="application-management-container">
   <% @submitted_applications.each do |application| %>
-    <div class="application-card enhanced" id="application-<%= application.id %>">
+    <div class="application-card enhanced" id="application-<%= application.id %>"
+         data-controller="application-messages"
+         data-application-messages-application-id-value="<%= application.id %>"
+         data-application-id="<%= application.id %>">
       
       <!-- Application Header -->
       <div class="application-card-header">
@@ -20,11 +23,15 @@
         </div>
         
         <div class="application-actions-header">
-          <button class="btn btn-outline-primary btn-sm" onclick="toggleApplicationDetails('<%= application.id %>')">
+          <button class="btn btn-outline-primary btn-sm" 
+                  data-action="click->application-messages#toggleDetails"
+                  data-application-id="<%= application.id %>">
             <i class="fas fa-eye"></i> View
           </button>
           <% if application.application_messages.any? %>
-            <button class="btn btn-primary btn-sm" onclick="toggleApplicationMessages('<%= application.id %>')">
+            <button class="btn btn-primary btn-sm" 
+                    data-action="click->application-messages#toggleMessages"
+                    data-application-id="<%= application.id %>">
               <i class="fas fa-comments"></i> Messages 
               <span class="message-count"><%= application.application_messages.admin_messages.unread.count %></span>
             </button>
@@ -149,7 +156,9 @@
             Messages & Communication
           </h4>
           <div class="messages-actions">
-            <button class="btn btn-sm btn-outline-secondary" onclick="markAllAsRead(<%= application.id %>)">
+            <button class="btn btn-sm btn-outline-secondary" 
+                    data-action="click->application-messages#markAllAsRead"
+                    data-application-id="<%= application.id %>">
               <i class="fas fa-check-double"></i> Mark All Read
             </button>
           </div>
@@ -243,7 +252,9 @@
 
                       <div class="form-actions">
                         <%= form.submit "Send Reply", class: "btn btn-primary" %>
-                        <button type="button" class="btn btn-secondary" onclick="hideReplyForm(<%= message.id %>)">
+                        <button type="button" class="btn btn-secondary" 
+                                data-action="click->application-messages#hideReplyForm"
+                                data-message-id="<%= message.id %>">
                           Cancel
                         </button>
                       </div>
@@ -251,11 +262,15 @@
                   </div>
                   
                   <div class="message-actions">
-                    <button class="btn btn-sm btn-primary" onclick="showReplyForm(<%= message.id %>)">
+                    <button class="btn btn-sm btn-primary" 
+                            data-action="click->application-messages#showReplyForm"
+                            data-message-id="<%= message.id %>">
                       <i class="fas fa-reply"></i> Reply
                     </button>
                     <% unless message.read? %>
-                      <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead(<%= message.id %>)">
+                      <button class="btn btn-sm btn-outline-secondary" 
+                              data-action="click->application-messages#markAsRead"
+                              data-message-id="<%= message.id %>">
                         <i class="fas fa-check"></i> Mark as Read
                       </button>
                     <% end %>
@@ -807,49 +822,3 @@
 }
 </style>
 
-<script>
-function toggleApplicationDetails(applicationId) {
-  const detailsSection = document.getElementById(`details-${applicationId}`);
-  const messagesSection = document.getElementById(`messages-${applicationId}`);
-  
-  if (detailsSection.style.display === 'none') {
-    detailsSection.style.display = 'block';
-    messagesSection.style.display = 'none';
-  } else {
-    detailsSection.style.display = 'none';
-  }
-}
-
-function toggleApplicationMessages(applicationId) {
-  const detailsSection = document.getElementById(`details-${applicationId}`);
-  const messagesSection = document.getElementById(`messages-${applicationId}`);
-  
-  if (messagesSection.style.display === 'none') {
-    messagesSection.style.display = 'block';
-    detailsSection.style.display = 'none';
-    
-    // Mark messages as read when viewing
-    markAllAsRead(applicationId);
-  } else {
-    messagesSection.style.display = 'none';
-  }
-}
-
-function showReplyForm(messageId) {
-  document.getElementById(`reply-form-${messageId}`).style.display = 'block';
-}
-
-function hideReplyForm(messageId) {
-  document.getElementById(`reply-form-${messageId}`).style.display = 'none';
-}
-
-function markAsRead(messageId) {
-  // Implementation would make an AJAX call to mark message as read
-  console.log(`Marking message ${messageId} as read`);
-}
-
-function markAllAsRead(applicationId) {
-  // Implementation would make an AJAX call to mark all messages as read
-  console.log(`Marking all messages for application ${applicationId} as read`);
-}
-</script>

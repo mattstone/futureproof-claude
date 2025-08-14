@@ -250,6 +250,165 @@ class Admin::ApplicationsSearchFilterTest < ActionDispatch::IntegrationTest
     # (depends on if there are rejected applications in fixtures)
   end
 
+  # ===== APPLICATION ID SEARCH TESTS =====
+
+  test "should search applications by exact application ID" do
+    application_id = @john_main_street.id
+    get admin_applications_path, params: { search: application_id.to_s }
+    assert_response :success
+    
+    # Should find the specific application by ID
+    assert_match @john_main_street.address, response.body
+    
+    # Should not find other applications  
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+    assert_no_match @accepted_app.address, response.body
+  end
+
+  test "should search applications by application ID using POST turbo stream" do
+    application_id = @jane_oak_avenue.id
+    post search_admin_applications_path, params: { search: application_id.to_s },
+         headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    
+    assert_response :success
+    assert_match "turbo-stream", response.headers["Content-Type"]
+    assert_includes response.body, '<turbo-stream action="replace" target="applications_results">'
+    
+    # Should find the specific application by ID
+    assert_match @jane_oak_avenue.address, response.body
+    
+    # Should not find other applications
+    assert_no_match @john_main_street.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+  end
+
+  test "should not find accepted application even when searching by its ID" do
+    accepted_id = @accepted_app.id
+    get admin_applications_path, params: { search: accepted_id.to_s }
+    assert_response :success
+    
+    # Should not find the accepted application even when searching by its ID
+    assert_no_match @accepted_app.address, response.body
+    
+    # Should not find any other applications either (since ID is specific)
+    assert_no_match @john_main_street.address, response.body
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+  end
+
+  test "should handle non-existent application ID" do
+    non_existent_id = Application.maximum(:id).to_i + 999999
+    get admin_applications_path, params: { search: non_existent_id.to_s }
+    assert_response :success
+    
+    # Should not find any applications
+    assert_no_match @john_main_street.address, response.body
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+    assert_no_match @accepted_app.address, response.body
+  end
+
+  test "should handle application ID with leading zeros" do
+    application_id = @john_main_street.id
+    search_term = "000#{application_id}"
+    get admin_applications_path, params: { search: search_term }
+    assert_response :success
+    
+    # Should find the application (leading zeros stripped)
+    assert_match @john_main_street.address, response.body
+    
+    # Should not find other applications
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+  end
+
+  test "should combine application ID search with status filter" do
+    application_id = @john_elm_street.id
+    get admin_applications_path, params: { search: application_id.to_s, status: 'submitted' }
+    assert_response :success
+    
+    # Should find the specific application if it matches both ID and status
+    assert_match @john_elm_street.address, response.body
+    
+    # Should not find other applications
+    assert_no_match @john_main_street.address, response.body
+    assert_no_match @jane_oak_avenue.address, response.body
+  end
+
+  test "should not find application when ID search doesn't match status filter" do
+    # Search for property_details application but filter by submitted status
+    application_id = @john_main_street.id # This has property_details status
+    get admin_applications_path, params: { search: application_id.to_s, status: 'submitted' }
+    assert_response :success
+    
+    # Should not find the application because status doesn't match
+    assert_no_match @john_main_street.address, response.body
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+  end
+
+  test "should preserve parameters when searching by application ID" do
+    application_id = @john_main_street.id
+    get admin_applications_path, params: { search: application_id.to_s, status: 'property_details' }
+    assert_response :success
+    
+    # Check that both search and status parameters are preserved in forms
+    assert_select "input[name=\"search\"][value=\"#{application_id}\"]"
+    assert_select 'select[name="status"] option[selected="selected"][value="property_details"]'
+  end
+
+  test "should distinguish numeric search from text search" do
+    # Create a user with a numeric name to test edge cases
+    numeric_user = users(:admin_user)
+    numeric_user.update!(first_name: '12345', last_name: 'NumericName')
+    
+    numeric_app = Application.create!(
+      user: numeric_user,
+      address: '111 Numeric Street, Test City, TC 11111',
+      home_value: 500000,
+      status: :property_details,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      borrower_age: 65
+    )
+
+    # Search for the actual numeric first name (should find by name, not ID)
+    get admin_applications_path, params: { search: '12345' }
+    assert_response :success
+    
+    # Should find the application with numeric name
+    assert_match numeric_app.address, response.body
+    
+    # Should also find application with ID 12345 if it exists
+    app_with_id_12345 = Application.find_by(id: 12345)
+    if app_with_id_12345 && app_with_id_12345.status != 'accepted'
+      assert_match app_with_id_12345.address, response.body
+    end
+  end
+
+  test "should handle whitespace in application ID search" do
+    application_id = @john_main_street.id
+    get admin_applications_path, params: { search: "  #{application_id}  " }
+    assert_response :success
+    
+    # Should find the application (whitespace stripped)
+    assert_match @john_main_street.address, response.body
+    
+    # Should not find other applications
+    assert_no_match @jane_oak_avenue.address, response.body
+    assert_no_match @john_elm_street.address, response.body
+  end
+
+  test "should update placeholder text to indicate ID search capability" do
+    get admin_applications_path
+    assert_response :success
+    
+    # Check that the placeholder text mentions ID search
+    assert_select 'input[name="search"][placeholder*="ID"]'
+    assert_select 'input[name="search"][placeholder="Search by ID, address, name, or email..."]'
+  end
+
   private
 
   def sign_in(user)

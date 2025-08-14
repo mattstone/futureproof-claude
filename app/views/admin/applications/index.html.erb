@@ -7,7 +7,7 @@
   <div class="admin-search">
     <%= form_with(url: search_admin_applications_path, method: :post, local: false, class: "search-form", 
                   data: { turbo_stream: true }) do |form| %>
-      <%= form.text_field :search, placeholder: "Search applications...", value: params[:search], 
+      <%= form.text_field :search, placeholder: "Search by ID, address, name, or email...", value: params[:search], 
                          oninput: "this.form.requestSubmit();" %>
       <%= form.hidden_field :status, value: params[:status] %>
     <% end %>

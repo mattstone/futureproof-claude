@@ -508,4 +508,176 @@ class EmailTemplateTest < ActiveSupport::TestCase
     assert_includes rendered[:subject], 'John'
     assert_includes rendered[:content], 'John'
   end
+
+  test "should render application template with all status and date fields" do
+    created_at = 2.days.ago
+    updated_at = 1.day.ago
+    submitted_at = 1.day.ago
+    
+    application = OpenStruct.new(
+      id: 456,
+      address: '456 Test Ave, Sydney NSW 2000',
+      formatted_home_value: '$950,000',
+      status: 'submitted',
+      status_display: 'Submitted',
+      created_at: created_at,
+      updated_at: updated_at,
+      submitted_at: submitted_at,
+      formatted_created_at: created_at.strftime('%B %d, %Y at %I:%M %p'),
+      formatted_updated_at: updated_at.strftime('%B %d, %Y at %I:%M %p'),
+      formatted_submitted_at: submitted_at.strftime('%B %d, %Y at %I:%M %p'),
+      home_value: 950000,
+      existing_mortgage_amount: 250000,
+      formatted_existing_mortgage_amount: '$250,000',
+      loan_value: 700000,
+      formatted_loan_value: '$700,000',
+      borrower_age: 68,
+      loan_term: 20,
+      growth_rate: 4.0,
+      formatted_growth_rate: '4.00%',
+      future_property_value: 1400000,
+      formatted_future_property_value: '$1,400,000',
+      home_equity_preserved: 1150000,
+      formatted_home_equity_preserved: '$1,150,000'
+    )
+    
+    template = EmailTemplate.create!(
+      name: 'Complete Application Test',
+      template_type: 'application_submitted',
+      subject: 'Application {{application.id}} - Status: {{application.status_display}}',
+      content: '
+        <div>
+          <p>Application ID: {{application.id}}</p>
+          <p>Property: {{application.address}}</p>
+          <p>Value: {{application.formatted_home_value}}</p>
+          <p>Raw Status: {{application.status}}</p>
+          <p>Display Status: {{application.status_display}}</p>
+          <p>Created: {{application.formatted_created_at}}</p>
+          <p>Updated: {{application.formatted_updated_at}}</p>
+          <p>Submitted: {{application.formatted_submitted_at}}</p>
+          <p>Loan Value: {{application.formatted_loan_value}}</p>
+          <p>Future Value: {{application.formatted_future_property_value}}</p>
+          <p>Equity Preserved: {{application.formatted_home_equity_preserved}}</p>
+        </div>'
+    )
+    
+    rendered = template.render_content({
+      user: @user,
+      application: application
+    })
+    
+    # Test subject
+    assert_equal 'Application 456 - Status: Submitted', rendered[:subject]
+    
+    # Test all application fields are properly replaced
+    content = rendered[:content]
+    assert_includes content, 'Application ID: 456'
+    assert_includes content, 'Property: 456 Test Ave'
+    assert_includes content, 'Value: $950,000'
+    assert_includes content, 'Raw Status: submitted'
+    assert_includes content, 'Display Status: Submitted'
+    assert_includes content, 'Created: ' + created_at.strftime('%B %d, %Y at %I:%M %p')
+    assert_includes content, 'Updated: ' + updated_at.strftime('%B %d, %Y at %I:%M %p')
+    assert_includes content, 'Submitted: ' + submitted_at.strftime('%B %d, %Y at %I:%M %p')
+    assert_includes content, 'Loan Value: $700,000'
+    assert_includes content, 'Future Value: $1,400,000'
+    assert_includes content, 'Equity Preserved: $1,150,000'
+  end
+
+  test "should handle all available application fields as documented" do
+    # Test that all fields listed in available_fields are handled
+    available_app_fields = EmailTemplate.available_fields['application_submitted']['application']
+    
+    application = OpenStruct.new
+    available_app_fields.each do |field|
+      case field
+      when 'id' then application.id = 789
+      when 'reference_number' then application.id = 789 # reference_number is derived from id
+      when 'address' then application.address = 'Test Address'
+      when 'home_value' then application.home_value = 1000000
+      when 'formatted_home_value' then application.formatted_home_value = '$1,000,000'
+      when 'status' then application.status = 'processing'
+      when 'status_display' then application.status_display = 'Processing'
+      when 'created_at' then application.created_at = Time.current
+      when 'updated_at' then application.updated_at = Time.current
+      when 'submitted_at' then application.submitted_at = Time.current
+      when 'formatted_created_at' then application.formatted_created_at = 'January 1, 2025 at 12:00 PM'
+      when 'formatted_updated_at' then application.formatted_updated_at = 'January 1, 2025 at 01:00 PM'
+      when 'formatted_submitted_at' then application.formatted_submitted_at = 'January 1, 2025 at 02:00 PM'
+      else
+        # Set a default value for other fields
+        application.send("#{field}=", 'test_value') rescue nil
+      end
+    end
+    
+    # Create template with all application fields
+    field_placeholders = available_app_fields.map { |field| "{{application.#{field}}}" }.join(' ')
+    
+    template = EmailTemplate.create!(
+      name: 'All Fields Test',
+      template_type: 'application_submitted',
+      subject: 'All Application Fields Test',
+      content: "<p>#{field_placeholders}</p>"
+    )
+    
+    rendered = template.render_content({
+      user: @user,
+      application: application
+    })
+    
+    # Should not contain any unreplaced placeholders for documented fields
+    content = rendered[:content]
+    available_app_fields.each do |field|
+      # Skip reference_number as it's derived from id
+      next if field == 'reference_number'
+      
+      placeholder = "{{application.#{field}}}"
+      assert_not_includes content, placeholder, "Field #{field} was not replaced properly"
+    end
+    
+    # Should contain some actual replaced values
+    assert_includes content, '789' # id
+    assert_includes content, 'Test Address'
+    assert_includes content, '$1,000,000'
+    assert_includes content, 'Processing'
+    assert_includes content, 'January 1, 2025'
+  end
+
+  test "should gracefully handle missing application fields" do
+    # Application with only basic fields
+    minimal_application = OpenStruct.new(
+      id: 999,
+      address: 'Minimal Address'
+    )
+    
+    template = EmailTemplate.create!(
+      name: 'Missing Fields Test',
+      template_type: 'application_submitted', 
+      subject: 'Test Missing Fields',
+      content: '
+        <p>ID: {{application.id}}</p>
+        <p>Address: {{application.address}}</p>
+        <p>Status: {{application.status_display}}</p>
+        <p>Created: {{application.formatted_created_at}}</p>
+        <p>Missing: {{application.nonexistent_field}}</p>'
+    )
+    
+    rendered = template.render_content({
+      user: @user,
+      application: minimal_application
+    })
+    
+    content = rendered[:content]
+    
+    # Present fields should be replaced
+    assert_includes content, 'ID: 999'
+    assert_includes content, 'Address: Minimal Address'
+    
+    # Missing fields should be replaced with empty string (handled by safe_field_value)
+    assert_includes content, 'Status: '
+    assert_includes content, 'Created: '
+    
+    # Completely unknown fields should remain as placeholders
+    assert_includes content, '{{application.nonexistent_field}}'
+  end
 end

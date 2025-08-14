@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_12_210448) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_225329) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -114,6 +114,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_210448) do
     t.index ["contract_id"], name: "index_contract_messages_on_contract_id"
     t.index ["parent_message_id"], name: "index_contract_messages_on_parent_message_id"
     t.index ["sender_type", "sender_id"], name: "index_contract_messages_on_sender"
+  end
+
+  create_table "contract_versions", force: :cascade do |t|
+    t.bigint "contract_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.string "previous_status"
+    t.string "new_status"
+    t.datetime "previous_start_date"
+    t.datetime "new_start_date"
+    t.datetime "previous_end_date"
+    t.datetime "new_end_date"
+    t.integer "previous_application_id"
+    t.integer "new_application_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_contract_versions_on_admin_user_id"
+    t.index ["contract_id"], name: "index_contract_versions_on_contract_id"
   end
 
   create_table "contracts", force: :cascade do |t|
@@ -329,6 +348,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_210448) do
   add_foreign_key "contract_messages", "ai_agents"
   add_foreign_key "contract_messages", "contract_messages", column: "parent_message_id"
   add_foreign_key "contract_messages", "contracts"
+  add_foreign_key "contract_versions", "contracts"
+  add_foreign_key "contract_versions", "users", column: "admin_user_id"
   add_foreign_key "contracts", "applications"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"

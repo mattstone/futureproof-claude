@@ -20,10 +20,14 @@ class DashboardController < ApplicationController
       @contracts = Contract.joins(:application)
                           .where(applications: { user_id: current_user.id })
                           .includes(contract_messages: [:sender, :replies], application: [:user])
-      @contracts_with_unread = @contracts.joins(:contract_messages)
-                                       .where(contract_messages: { status: 'sent', message_type: 'admin_to_customer' })
-                                       .distinct
     end
+    
+    # Always load contracts with unread messages for navigation badge
+    @contracts_with_unread = Contract.joins(:application)
+                                    .where(applications: { user_id: current_user.id })
+                                    .joins(:contract_messages)
+                                    .where(contract_messages: { status: 'sent', message_type: 'admin_to_customer' })
+                                    .distinct
   end
 
   def start_application

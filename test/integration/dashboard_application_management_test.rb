@@ -60,10 +60,10 @@ class DashboardApplicationManagementTest < ActionDispatch::IntegrationTest
     get dashboard_index_path
     
     assert_response :success
-    assert_select "button[onclick*='toggleApplicationDetails']", text: /View Details/
+    assert_select "button[data-action*='application-messages#toggleDetails']", text: /View/
     assert_select "#details-#{@application.id}"
     assert_select '.detail-group h5', text: 'Property Information'
-    assert_select '.detail-group h5', text: 'Application Information'
+    assert_select '.detail-group h5', text: 'Additional Information'
   end
 
   test "messages button shows unread message count" do
@@ -81,7 +81,7 @@ class DashboardApplicationManagementTest < ActionDispatch::IntegrationTest
     get dashboard_index_path
     
     assert_response :success
-    assert_select "button[onclick*='toggleApplicationMessages']"
+    assert_select "button[data-action*='application-messages#toggleMessages']"
     assert_select '.message-count'
   end
 
@@ -142,7 +142,7 @@ class DashboardApplicationManagementTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select '.application-card.enhanced'
     assert_no_selector '.latest-message-preview'
-    assert_no_selector "button[onclick*='toggleApplicationMessages']"
+    assert_no_selector "button[data-action*='application-messages#toggleMessages']"
   end
 
   test "application details section shows complete property information" do
@@ -219,21 +219,22 @@ class DashboardApplicationManagementTest < ActionDispatch::IntegrationTest
     assert_match /@media \(max-width: 768px\)/, response.body
   end
 
-  test "javascript functions are included in response" do
+  test "stimulus controller attributes are included in response" do
     get dashboard_index_path
     
     assert_response :success
-    assert_match /toggleApplicationDetails/, response.body
-    assert_match /toggleApplicationMessages/, response.body
-    assert_match /showReplyForm/, response.body
-    assert_match /hideReplyForm/, response.body
+    assert_select "[data-controller='application-messages']"
+    assert_select "[data-action*='application-messages#toggleDetails']"
+    assert_select "[data-action*='application-messages#toggleMessages']"
+    assert_select "[data-action*='application-messages#showReplyForm']"
+    assert_select "[data-action*='application-messages#hideReplyForm']"
   end
 
   test "message actions are present for appropriate messages" do
     get dashboard_index_path
     
     assert_response :success
-    assert_select "button[onclick*='showReplyForm(#{@message.id})']", text: /Reply/
+    assert_select "button[data-action*='application-messages#showReplyForm'][data-message-id='#{@message.id}']", text: /Reply/
   end
 
   test "mark as read button shown for unread messages" do
@@ -242,7 +243,7 @@ class DashboardApplicationManagementTest < ActionDispatch::IntegrationTest
     get dashboard_index_path
     
     assert_response :success
-    assert_select "button[onclick*='markAsRead(#{@message.id})']", text: /Mark as Read/
+    assert_select "button[data-action*='application-messages#markAsRead'][data-message-id='#{@message.id}']", text: /Mark as Read/
   end
 
   test "handles multiple applications correctly" do

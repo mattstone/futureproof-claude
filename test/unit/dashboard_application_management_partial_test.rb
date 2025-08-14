@@ -119,7 +119,7 @@ class DashboardApplicationManagementPartialTest < ActionView::TestCase
   test "renders message actions" do
     render partial: 'dashboard/application_management'
     
-    assert_select "button[onclick*='showReplyForm(#{@message.id})']", text: /Reply/
+    assert_select "button[data-action*='application-messages#showReplyForm'][data-message-id='#{@message.id}']", text: /Reply/
   end
 
   test "renders mark as read button for unread messages" do
@@ -127,7 +127,7 @@ class DashboardApplicationManagementPartialTest < ActionView::TestCase
     
     render partial: 'dashboard/application_management'
     
-    assert_select "button[onclick*='markAsRead(#{@message.id})']", text: /Mark as Read/
+    assert_select "button[data-action*='application-messages#markAsRead'][data-message-id='#{@message.id}']", text: /Mark as Read/
   end
 
   test "does not render mark as read button for read messages" do
@@ -135,7 +135,7 @@ class DashboardApplicationManagementPartialTest < ActionView::TestCase
     
     render partial: 'dashboard/application_management'
     
-    assert_no_selector "button[onclick*='markAsRead(#{@message.id})']"
+    assert_no_selector "button[data-action*='application-messages#markAsRead'][data-message-id='#{@message.id}']"
   end
 
   test "renders empty state when no messages exist" do
@@ -181,15 +181,15 @@ class DashboardApplicationManagementPartialTest < ActionView::TestCase
     assert_select '.reply-form-container'
   end
 
-  test "includes JavaScript functions" do
+  test "includes Stimulus controller attributes" do
     render partial: 'dashboard/application_management'
     
-    assert_match /function toggleApplicationDetails/, rendered
-    assert_match /function toggleApplicationMessages/, rendered
-    assert_match /function showReplyForm/, rendered
-    assert_match /function hideReplyForm/, rendered
-    assert_match /function markAsRead/, rendered
-    assert_match /function markAllAsRead/, rendered
+    assert_select "[data-controller='application-messages']"
+    assert_select "[data-action*='application-messages#toggleDetails']"
+    assert_select "[data-action*='application-messages#toggleMessages']"
+    assert_select "[data-action*='application-messages#showReplyForm']"
+    assert_select "[data-action*='application-messages#hideReplyForm']"
+    assert_select "[data-action*='application-messages#markAsRead']"
   end
 
   test "renders CSS styles inline" do
@@ -233,14 +233,14 @@ class DashboardApplicationManagementPartialTest < ActionView::TestCase
     render partial: 'dashboard/application_management'
     
     assert_select '.message-count'
-    assert_select "button[onclick*='toggleApplicationMessages']", text: /Messages/
+    assert_select "button[data-action*='application-messages#toggleMessages']", text: /Messages/
   end
 
-  test "renders toggle buttons with correct onclick functions" do
+  test "renders toggle buttons with correct Stimulus actions" do
     render partial: 'dashboard/application_management'
     
-    assert_select "button[onclick='toggleApplicationDetails(#{@application.id})']"
-    assert_select "button[onclick='toggleApplicationMessages(#{@application.id})']"
+    assert_select "button[data-action*='application-messages#toggleDetails'][data-application-id='#{@application.id}']"
+    assert_select "button[data-action*='application-messages#toggleMessages'][data-application-id='#{@application.id}']"
   end
 
   test "form includes CSRF protection" do

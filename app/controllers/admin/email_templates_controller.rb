@@ -68,10 +68,6 @@ class Admin::EmailTemplatesController < Admin::BaseController
     # Create test data for preview
     user = current_user
     
-    # Find a sample application if available
-    application = Application.joins(:user, :mortgage).first
-    mortgage = application&.mortgage || Mortgage.first
-    
     # Create sample data based on template type
     case @email_template.template_type
     when 'verification'
@@ -81,10 +77,17 @@ class Admin::EmailTemplatesController < Admin::BaseController
         expires_at: 15.minutes.from_now
       }
     when 'application_submitted'
+      # Find a sample application if available
+      application = Application.joins(:user, :mortgage).first rescue nil
+      mortgage = application&.mortgage || Mortgage.first rescue nil
+      
+      # Always create sample application to ensure preview works
+      sample_application = create_sample_application(user, mortgage)
+      
       preview_data = {
         user: user,
-        application: application || create_sample_application(user, mortgage),
-        mortgage: mortgage
+        application: application || sample_application,
+        mortgage: mortgage || create_sample_mortgage
       }
     when 'security_notification'
       preview_data = {
@@ -136,8 +139,6 @@ class Admin::EmailTemplatesController < Admin::BaseController
     preview_data = {}
     if use_sample_data
       user = current_user
-      application = Application.joins(:user, :mortgage).first
-      mortgage = application&.mortgage || Mortgage.first
       
       case template_type
       when 'verification'
@@ -147,10 +148,17 @@ class Admin::EmailTemplatesController < Admin::BaseController
           expires_at: 15.minutes.from_now
         }
       when 'application_submitted'
+        # Try to get real data first, fall back to sample data
+        application = Application.joins(:user, :mortgage).first
+        mortgage = application&.mortgage || Mortgage.first
+        
+        # Always create sample application to ensure preview works
+        sample_application = create_sample_application(user, mortgage)
+        
         preview_data = {
           user: user,
-          application: application || create_sample_application(user, mortgage),
-          mortgage: mortgage
+          application: application || sample_application,
+          mortgage: mortgage || create_sample_mortgage
         }
       when 'security_notification'
         preview_data = {
@@ -204,26 +212,46 @@ class Admin::EmailTemplatesController < Admin::BaseController
     OpenStruct.new(
       id: 123,
       user: user,
-      mortgage: mortgage,
+      mortgage: mortgage || create_sample_mortgage,
       address: '123 Sample Street, Melbourne VIC 3000',
       home_value: 800000,
       existing_mortgage_amount: 200000,
       loan_term: 15,
       borrower_age: 65,
       growth_rate: 3.5,
+      status: 'submitted',
+      created_at: 2.days.ago,
+      updated_at: 1.day.ago,
+      submitted_at: 1.day.ago,
       formatted_home_value: '$800,000',
       formatted_existing_mortgage_amount: '$200,000',
       formatted_loan_value: '$360,000',
       formatted_growth_rate: '3.50%',
       formatted_future_property_value: '$1,200,000',
-      formatted_home_equity_preserved: '$840,000'
+      formatted_home_equity_preserved: '$840,000',
+      status_display: 'Submitted',
+      formatted_created_at: 2.days.ago.strftime('%B %d, %Y at %I:%M %p'),
+      formatted_updated_at: 1.day.ago.strftime('%B %d, %Y at %I:%M %p'),
+      formatted_submitted_at: 1.day.ago.strftime('%B %d, %Y at %I:%M %p'),
+      loan_value: 360000,
+      future_property_value: 1200000,
+      home_equity_preserved: 840000
+    )
+  end
+  
+  def create_sample_mortgage
+    # Create a sample mortgage for preview purposes
+    OpenStruct.new(
+      id: 1,
+      name: 'Premium Equity Preservation Mortgage®',
+      lvr: '60',
+      interest_rate: '7.45',
+      mortgage_type_display: 'Equity Preservation'
     )
   end
   
   def generate_preview_data_for_show
     user = current_user
-    application = Application.joins(:user, :mortgage).first
-    mortgage = application&.mortgage || Mortgage.first
     
     case @email_template.template_type
     when 'verification'
@@ -233,10 +261,17 @@ class Admin::EmailTemplatesController < Admin::BaseController
         expires_at: 15.minutes.from_now
       }
     when 'application_submitted'
+      # Try to get real data first, fall back to sample data
+      application = Application.joins(:user, :mortgage).first rescue nil
+      mortgage = application&.mortgage || Mortgage.first rescue nil
+      
+      # Always create sample application to ensure preview works
+      sample_application = create_sample_application(user, mortgage)
+      
       {
         user: user,
-        application: application || create_sample_application(user, mortgage),
-        mortgage: mortgage
+        application: application || sample_application,
+        mortgage: mortgage || create_sample_mortgage
       }
     when 'security_notification'
       {
