@@ -105,7 +105,7 @@ class Dashboard::ApplicationsController < ApplicationController
       :rejected_reason,
       :borrower_age,
       :borrower_names,
-      :company_name,
+      :lender_name,
       :super_fund_name
     )
   end

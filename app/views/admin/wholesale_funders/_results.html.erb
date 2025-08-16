@@ -1,0 +1,108 @@
+<div id="wholesale-funders-results">
+  <% if @wholesale_funders.any? %>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-cell">Name</th>
+            <th class="country-cell">Country</th>
+            <th class="currency-cell">Currency</th>
+            <th class="pools-cell">Pools</th>
+            <th class="capital-cell">Capital</th>
+            <th class="allocated-cell">Allocated</th>
+            <th class="lenders-cell">Lenders</th>
+            <th class="actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @wholesale_funders.each do |wholesale_funder| %>
+            <tr>
+              <td class="name-cell">
+                <strong><%= wholesale_funder.name %></strong>
+              </td>
+              <td class="country-cell">
+                <span class="country-name"><%= wholesale_funder.country %></span>
+              </td>
+              <td class="currency-cell">
+                <span class="currency-badge currency-<%= wholesale_funder.currency.downcase %>">
+                  <%= wholesale_funder.currency_symbol %> <%= wholesale_funder.currency %>
+                </span>
+              </td>
+              <td class="pools-cell">
+                <div class="pools-summary">
+                  <span class="pools-count"><%= wholesale_funder.pools_count %></span>
+                  <% if wholesale_funder.pools_count > 0 %>
+                    <small class="pools-label">pool<%= 's' if wholesale_funder.pools_count != 1 %></small>
+                  <% else %>
+                    <small class="pools-label">no pools</small>
+                  <% end %>
+                </div>
+              </td>
+              <td class="capital-cell">
+                <% if wholesale_funder.total_capital > 0 %>
+                  <span class="capital-amount"><%= wholesale_funder.formatted_total_capital %></span>
+                <% else %>
+                  <span class="no-capital">—</span>
+                <% end %>
+              </td>
+              <td class="allocated-cell">
+                <% if wholesale_funder.total_allocated > 0 %>
+                  <div class="allocation-summary">
+                    <span class="allocated-amount"><%= wholesale_funder.formatted_total_allocated %></span>
+                    <% if wholesale_funder.total_capital > 0 %>
+                      <div class="mini-allocation-bar">
+                        <div class="mini-allocation-progress" style="width: <%= wholesale_funder.capital_allocation_percentage %>%"></div>
+                        <span class="mini-allocation-text"><%= wholesale_funder.capital_allocation_percentage %>%</span>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <span class="no-allocation">—</span>
+                <% end %>
+              </td>
+              <td class="lenders-cell">
+                <div class="lenders-summary">
+                  <span class="lenders-count"><%= wholesale_funder.active_lenders_count %></span>
+                  <% if wholesale_funder.active_lenders_count > 0 %>
+                    <small class="lenders-label">active</small>
+                  <% else %>
+                    <small class="lenders-label">no lenders</small>
+                  <% end %>
+                </div>
+              </td>
+              <td class="actions-cell">
+                <div class="admin-actions">
+                  <%= link_to "View", admin_wholesale_funder_path(wholesale_funder), class: "admin-btn admin-btn-sm admin-btn-secondary", data: { turbo_frame: "_top" } %>
+                  <%= link_to "Edit", edit_admin_wholesale_funder_path(wholesale_funder), class: "admin-btn admin-btn-sm admin-btn-primary", data: { turbo_frame: "_top" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+      <!-- Pagination -->
+      <%= paginate @wholesale_funders if respond_to?(:paginate) %>
+    </div>
+    
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <h3>No wholesale funders found</h3>
+        <p>
+          <% if params[:search].present? || params[:country].present? || params[:currency].present? %>
+            No wholesale funders match your current filters. Try adjusting your search terms or clear the filters.
+          <% else %>
+            Get started by creating your first wholesale funder.
+          <% end %>
+        </p>
+        <div class="empty-state-actions">
+          <%= link_to "Create New Wholesale Funder", new_admin_wholesale_funder_path, class: "admin-btn admin-btn-primary" %>
+          <% if params[:search].present? || params[:country].present? || params[:currency].present? %>
+            <%= link_to "Clear Filters", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

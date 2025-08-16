@@ -198,4 +198,258 @@ class FunderPoolTest < ActiveSupport::TestCase
     
     assert_includes @funder_pool.mortgages, mortgage
   end
+
+  # Rate field tests
+  test "should require benchmark_rate" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.new(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      margin_rate: 2.50
+    )
+    pool.benchmark_rate = nil
+    assert_not pool.valid?
+    assert_includes pool.errors[:benchmark_rate], "can't be blank"
+  end
+
+  test "should require margin_rate" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.new(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool", 
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 4.00
+    )
+    pool.margin_rate = nil
+    assert_not pool.valid?
+    assert_includes pool.errors[:margin_rate], "can't be blank"
+  end
+
+  test "should validate benchmark_rate is between 0 and 100" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.new(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      margin_rate: 2.50
+    )
+    
+    # Test negative rate
+    pool.benchmark_rate = -1.0
+    assert_not pool.valid?
+    assert_includes pool.errors[:benchmark_rate], "must be greater than or equal to 0"
+    
+    # Test rate over 100
+    pool.benchmark_rate = 101.0
+    assert_not pool.valid?
+    assert_includes pool.errors[:benchmark_rate], "must be less than or equal to 100"
+    
+    # Test valid rates
+    pool.benchmark_rate = 0.0
+    pool.valid?
+    assert_not_includes pool.errors[:benchmark_rate], "must be greater than or equal to 0"
+    
+    pool.benchmark_rate = 100.0
+    pool.valid?
+    assert_not_includes pool.errors[:benchmark_rate], "must be less than or equal to 100"
+    
+    pool.benchmark_rate = 4.25
+    assert pool.valid?
+  end
+
+  test "should validate margin_rate is between 0 and 100" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.new(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 4.00
+    )
+    
+    # Test negative rate
+    pool.margin_rate = -1.0
+    assert_not pool.valid?
+    assert_includes pool.errors[:margin_rate], "must be greater than or equal to 0"
+    
+    # Test rate over 100
+    pool.margin_rate = 101.0
+    assert_not pool.valid?
+    assert_includes pool.errors[:margin_rate], "must be less than or equal to 100"
+    
+    # Test valid rates
+    pool.margin_rate = 0.0
+    pool.valid?
+    assert_not_includes pool.errors[:margin_rate], "must be greater than or equal to 0"
+    
+    pool.margin_rate = 100.0
+    pool.valid?
+    assert_not_includes pool.errors[:margin_rate], "must be less than or equal to 100"
+    
+    pool.margin_rate = 2.75
+    assert pool.valid?
+  end
+
+  test "should set default benchmark_rate on create for AUD currency" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF AUD", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool AUD",
+      amount: 100000.00,
+      allocated: 0.00
+    )
+    
+    assert_equal 4.00, pool.benchmark_rate
+    assert_equal 0.00, pool.margin_rate
+  end
+
+  test "should set default benchmark_rate on create for USD currency" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF USD", country: "United States", currency: "USD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool USD",
+      amount: 100000.00,
+      allocated: 0.00
+    )
+    
+    assert_equal 4.00, pool.benchmark_rate
+    assert_equal 0.00, pool.margin_rate
+  end
+
+  test "should set default benchmark_rate on create for GBP currency" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF GBP", country: "United Kingdom", currency: "GBP")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool GBP",
+      amount: 100000.00,
+      allocated: 0.00
+    )
+    
+    assert_equal 4.00, pool.benchmark_rate
+    assert_equal 0.00, pool.margin_rate
+  end
+
+  test "should not override explicitly set rates on create" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool Custom Rates",
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 5.25,
+      margin_rate: 1.75
+    )
+    
+    assert_equal 5.25, pool.benchmark_rate
+    assert_equal 1.75, pool.margin_rate
+  end
+
+  test "currency method should return wholesale_funder currency" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00
+    )
+    
+    assert_equal "AUD", pool.currency
+  end
+
+  test "benchmark_rate_name should return correct benchmark for each currency" do
+    # Test AUD - BBSW
+    aud_funder = WholesaleFunder.create!(name: "AUD WF", country: "Australia", currency: "AUD")
+    aud_pool = FunderPool.create!(wholesale_funder: aud_funder, name: "AUD Pool", amount: 100000, allocated: 0)
+    assert_equal "BBSW", aud_pool.benchmark_rate_name
+    
+    # Test USD - SOFR
+    usd_funder = WholesaleFunder.create!(name: "USD WF", country: "United States", currency: "USD")
+    usd_pool = FunderPool.create!(wholesale_funder: usd_funder, name: "USD Pool", amount: 100000, allocated: 0)
+    assert_equal "SOFR", usd_pool.benchmark_rate_name
+    
+    # Test GBP - SONIA
+    gbp_funder = WholesaleFunder.create!(name: "GBP WF", country: "United Kingdom", currency: "GBP")
+    gbp_pool = FunderPool.create!(wholesale_funder: gbp_funder, name: "GBP Pool", amount: 100000, allocated: 0)
+    assert_equal "SONIA", gbp_pool.benchmark_rate_name
+  end
+
+  test "total_rate should calculate sum of benchmark and margin rates" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 4.25,
+      margin_rate: 2.75
+    )
+    
+    assert_equal 7.00, pool.total_rate
+  end
+
+  test "total_rate should handle nil rates gracefully" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.new(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00
+    )
+    
+    pool.benchmark_rate = nil
+    pool.margin_rate = nil
+    assert_equal 0, pool.total_rate
+    
+    pool.benchmark_rate = 4.25
+    pool.margin_rate = nil
+    assert_equal 4.25, pool.total_rate
+    
+    pool.benchmark_rate = nil
+    pool.margin_rate = 2.75
+    assert_equal 2.75, pool.total_rate
+  end
+
+  test "formatted rate methods should return correct format" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 4.25,
+      margin_rate: 2.75
+    )
+    
+    assert_equal "4.25%", pool.formatted_benchmark_rate
+    assert_equal "2.75%", pool.formatted_margin_rate
+    assert_equal "7.0%", pool.formatted_total_rate
+  end
+
+  test "should track rate changes with PaperTrail" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000.00,
+      allocated: 0.00,
+      benchmark_rate: 4.00,
+      margin_rate: 2.00
+    )
+    
+    initial_versions = pool.versions.count
+    
+    pool.update!(benchmark_rate: 4.50, margin_rate: 2.25)
+    
+    assert_equal initial_versions + 1, pool.versions.count
+    
+    latest_version = pool.versions.last
+    changes = YAML.load(latest_version.object_changes)
+    
+    assert_equal [4.0, 4.5], changes["benchmark_rate"]
+    assert_equal [2.0, 2.25], changes["margin_rate"]
+  end
 end

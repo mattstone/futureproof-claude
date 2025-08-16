@@ -5,7 +5,7 @@ class Admin::ContractsController < Admin::BaseController
   before_action :set_current_admin_user, only: [:create, :update]
 
   def index
-    @contracts = Contract.includes(application: :user, contract_messages: []).order(created_at: :desc)
+    @contracts = scoped_contracts.includes(application: :user, contract_messages: []).order(created_at: :desc)
 
     # Search filter
     if params[:search].present?
@@ -43,7 +43,7 @@ class Admin::ContractsController < Admin::BaseController
 
   def search
     # Same logic as index but for POST requests via Turbo Stream
-    @contracts = Contract.includes(application: :user, contract_messages: []).order(created_at: :desc)
+    @contracts = scoped_contracts.includes(application: :user, contract_messages: []).order(created_at: :desc)
 
     if params[:search].present?
       search_term = params[:search].to_s.strip
@@ -83,8 +83,8 @@ class Admin::ContractsController < Admin::BaseController
 
   def new
     @contract = Contract.new
-    @applications = Application.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                              .includes(:user).order('users.first_name', 'users.last_name')
+    @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
+                                      .includes(:user).order('users.first_name', 'users.last_name')
   end
 
   def create
@@ -95,20 +95,20 @@ class Admin::ContractsController < Admin::BaseController
       if @contract.save
         redirect_to admin_contract_path(@contract), notice: 'Contract was successfully created.'
       else
-        @applications = Application.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                                  .includes(:user).order('users.first_name', 'users.last_name')
+        @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
+                                          .includes(:user).order('users.first_name', 'users.last_name')
         render :new, status: :unprocessable_entity
       end
     rescue ActiveRecord::RecordNotUnique
       @contract.errors.add(:application_id, 'already has a contract')
-      @applications = Application.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                                .includes(:user).order('users.first_name', 'users.last_name')
+      @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
+                                        .includes(:user).order('users.first_name', 'users.last_name')
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @applications = Application.where(status: :accepted).where(
+    @applications = scoped_applications.where(status: :accepted).where(
       'applications.id = ? OR applications.id NOT IN (?)', 
       @contract.application_id, 
       Contract.where.not(id: @contract.id).select(:application_id)
@@ -121,7 +121,7 @@ class Admin::ContractsController < Admin::BaseController
     if @contract.update(contract_params)
       redirect_to admin_contract_path(@contract), notice: 'Contract was successfully updated.'
     else
-      @applications = Application.where(status: :accepted).where(
+      @applications = scoped_applications.where(status: :accepted).where(
         'applications.id = ? OR applications.id NOT IN (?)', 
         @contract.application_id, 
         Contract.where.not(id: @contract.id).select(:application_id)
@@ -183,7 +183,7 @@ class Admin::ContractsController < Admin::BaseController
       else
         # Re-render the appropriate view with errors
         if params[:from_view] == 'edit'
-          @applications = Application.where(status: :accepted).where(
+          @applications = scoped_applications.where(status: :accepted).where(
             'applications.id = ? OR applications.id NOT IN (?)', 
             @contract.application_id, 
             Contract.where.not(id: @contract.id).select(:application_id)
@@ -229,7 +229,7 @@ class Admin::ContractsController < Admin::BaseController
   private
 
   def set_contract
-    @contract = Contract.find(params[:id])
+    @contract = scoped_contracts.find(params[:id])
   end
 
   def set_messages

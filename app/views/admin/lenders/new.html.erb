@@ -1,0 +1,27 @@
+<% content_for :page_title, "New Lender" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <h1>New Lender</h1>
+    <p class="page-subtitle">Create a new lender record</p>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "Back to Companies", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<!-- New Lender Form -->
+<div class="admin-card">
+  <h3>Lender Details</h3>
+  
+  <%= render 'form', lender: @lender %>
+</div>
+
+<style>
+.page-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+</style>

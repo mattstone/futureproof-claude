@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_16_085326) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -177,39 +177,125 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
     t.index ["template_type"], name: "index_email_templates_on_template_type"
   end
 
+  create_table "funder_pool_versions", force: :cascade do |t|
+    t.bigint "funder_pool_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action", null: false
+    t.text "change_details"
+    t.string "previous_name"
+    t.string "new_name"
+    t.decimal "previous_amount", precision: 15, scale: 2
+    t.decimal "new_amount", precision: 15, scale: 2
+    t.decimal "previous_allocated", precision: 15, scale: 2
+    t.decimal "new_allocated", precision: 15, scale: 2
+    t.decimal "previous_benchmark_rate", precision: 5, scale: 2
+    t.decimal "new_benchmark_rate", precision: 5, scale: 2
+    t.decimal "previous_margin_rate", precision: 5, scale: 2
+    t.decimal "new_margin_rate", precision: 5, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_funder_pool_versions_on_action"
+    t.index ["funder_pool_id", "created_at"], name: "index_funder_pool_versions_on_funder_pool_id_and_created_at"
+    t.index ["funder_pool_id"], name: "index_funder_pool_versions_on_funder_pool_id"
+    t.index ["user_id"], name: "index_funder_pool_versions_on_user_id"
+  end
+
   create_table "funder_pools", force: :cascade do |t|
-    t.bigint "funder_id", null: false
+    t.bigint "wholesale_funder_id", null: false
     t.string "name", null: false
     t.decimal "amount", precision: 15, scale: 2, default: "0.0", null: false
     t.decimal "allocated", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["funder_id", "name"], name: "index_funder_pools_on_funder_id_and_name", unique: true
-    t.index ["funder_id"], name: "index_funder_pools_on_funder_id"
+    t.decimal "benchmark_rate", precision: 5, scale: 2, default: "4.0"
+    t.decimal "margin_rate", precision: 5, scale: 2, default: "0.0"
     t.index ["name"], name: "index_funder_pools_on_name"
+    t.index ["wholesale_funder_id", "name"], name: "index_funder_pools_on_wholesale_funder_id_and_name", unique: true
+    t.index ["wholesale_funder_id"], name: "index_funder_pools_on_wholesale_funder_id"
   end
 
-  create_table "funders", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "country", default: "Australia", null: false
-    t.string "currency", default: "AUD", null: false
+  create_table "lender_funder_pool_versions", force: :cascade do |t|
+    t.bigint "lender_funder_pool_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.boolean "previous_active"
+    t.boolean "new_active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["country"], name: "index_funders_on_country"
-    t.index ["currency"], name: "index_funders_on_currency"
-    t.index ["name"], name: "index_funders_on_name"
+    t.index ["lender_funder_pool_id"], name: "index_lender_funder_pool_versions_on_lender_funder_pool_id"
+    t.index ["user_id"], name: "index_lender_funder_pool_versions_on_user_id"
   end
 
-  create_table "mortgage_funder_pools", force: :cascade do |t|
-    t.bigint "mortgage_id", null: false
+  create_table "lender_funder_pools", force: :cascade do |t|
+    t.bigint "lender_id", null: false
     t.bigint "funder_pool_id", null: false
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["funder_pool_id"], name: "index_lender_funder_pools_on_funder_pool_id"
+    t.index ["lender_id", "funder_pool_id"], name: "index_lender_funder_pools_uniqueness", unique: true
+    t.index ["lender_id"], name: "index_lender_funder_pools_on_lender_id"
+  end
+
+  create_table "lender_versions", force: :cascade do |t|
+    t.bigint "lender_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action", null: false
+    t.text "change_details"
+    t.string "previous_name"
+    t.string "new_name"
+    t.integer "previous_lender_type"
+    t.integer "new_lender_type"
+    t.string "previous_contact_email"
+    t.string "new_contact_email"
+    t.string "previous_country"
+    t.string "new_country"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_lender_versions_on_action"
+    t.index ["lender_id", "created_at"], name: "index_lender_versions_on_lender_id_and_created_at"
+    t.index ["lender_id"], name: "index_lender_versions_on_lender_id"
+    t.index ["user_id"], name: "index_lender_versions_on_user_id"
+  end
+
+  create_table "lender_wholesale_funder_versions", force: :cascade do |t|
+    t.bigint "lender_wholesale_funder_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.boolean "previous_active"
+    t.boolean "new_active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lender_wholesale_funder_id"], name: "idx_on_lender_wholesale_funder_id_1651cbe225"
+    t.index ["user_id"], name: "index_lender_wholesale_funder_versions_on_user_id"
+  end
+
+  create_table "lender_wholesale_funders", force: :cascade do |t|
+    t.bigint "lender_id", null: false
+    t.bigint "wholesale_funder_id", null: false
     t.boolean "active", default: true, null: false
-    t.index ["active"], name: "index_mortgage_funder_pools_on_active"
-    t.index ["funder_pool_id"], name: "index_mortgage_funder_pools_on_funder_pool_id"
-    t.index ["mortgage_id", "funder_pool_id"], name: "index_mortgage_funder_pools_on_mortgage_and_pool", unique: true
-    t.index ["mortgage_id"], name: "index_mortgage_funder_pools_on_mortgage_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lender_id", "wholesale_funder_id"], name: "index_lender_wholesale_funders_uniqueness", unique: true
+    t.index ["lender_id"], name: "index_lender_wholesale_funders_on_lender_id"
+    t.index ["wholesale_funder_id"], name: "index_lender_wholesale_funders_on_wholesale_funder_id"
+  end
+
+  create_table "lenders", force: :cascade do |t|
+    t.integer "lender_type", null: false
+    t.string "name", null: false
+    t.text "address"
+    t.string "postcode"
+    t.string "country", default: "Australia", null: false
+    t.string "contact_email", null: false
+    t.string "contact_telephone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "contact_telephone_country_code", default: "+61"
+    t.index ["lender_type"], name: "index_lenders_on_lender_type"
+    t.index ["name"], name: "index_lenders_on_name"
   end
 
   create_table "mortgage_versions", force: :cascade do |t|
@@ -235,6 +321,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
+    t.bigint "lender_id"
+    t.index ["lender_id"], name: "index_mortgages_on_lender_id"
   end
 
   create_table "privacy_policies", force: :cascade do |t|
@@ -370,10 +458,53 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
     t.string "mobile_number"
     t.boolean "terms_accepted", default: false, null: false
     t.integer "terms_version"
+    t.bigint "lender_id", null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
-    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["email", "lender_id"], name: "index_users_on_email_and_lender_id", unique: true
+    t.index ["lender_id"], name: "index_users_on_lender_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["terms_version"], name: "index_users_on_terms_version"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "whodunnit"
+    t.datetime "created_at"
+    t.bigint "item_id", null: false
+    t.string "item_type", null: false
+    t.string "event", null: false
+    t.text "object"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+  end
+
+  create_table "wholesale_funder_versions", force: :cascade do |t|
+    t.bigint "wholesale_funder_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action", null: false
+    t.text "change_details"
+    t.string "previous_name"
+    t.string "new_name"
+    t.string "previous_country"
+    t.string "new_country"
+    t.string "previous_currency"
+    t.string "new_currency"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_wholesale_funder_versions_on_action"
+    t.index ["user_id"], name: "index_wholesale_funder_versions_on_user_id"
+    t.index ["wholesale_funder_id", "created_at"], name: "idx_on_wholesale_funder_id_created_at_9a95a5b8cc"
+    t.index ["wholesale_funder_id"], name: "index_wholesale_funder_versions_on_wholesale_funder_id"
+  end
+
+  create_table "wholesale_funders", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "country", default: "Australia", null: false
+    t.string "currency", default: "AUD", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country"], name: "index_wholesale_funders_on_country"
+    t.index ["currency"], name: "index_wholesale_funders_on_currency"
+    t.index ["name"], name: "index_wholesale_funders_on_name"
   end
 
   add_foreign_key "application_messages", "ai_agents"
@@ -392,11 +523,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
   add_foreign_key "contracts", "funder_pools"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
-  add_foreign_key "funder_pools", "funders"
-  add_foreign_key "mortgage_funder_pools", "funder_pools"
-  add_foreign_key "mortgage_funder_pools", "mortgages"
+  add_foreign_key "funder_pool_versions", "funder_pools"
+  add_foreign_key "funder_pool_versions", "users"
+  add_foreign_key "funder_pools", "wholesale_funders"
+  add_foreign_key "lender_funder_pool_versions", "lender_funder_pools"
+  add_foreign_key "lender_funder_pool_versions", "users"
+  add_foreign_key "lender_funder_pools", "funder_pools"
+  add_foreign_key "lender_funder_pools", "lenders"
+  add_foreign_key "lender_versions", "lenders"
+  add_foreign_key "lender_versions", "users"
+  add_foreign_key "lender_wholesale_funder_versions", "lender_wholesale_funders"
+  add_foreign_key "lender_wholesale_funder_versions", "users"
+  add_foreign_key "lender_wholesale_funders", "lenders"
+  add_foreign_key "lender_wholesale_funders", "wholesale_funders"
   add_foreign_key "mortgage_versions", "mortgages"
   add_foreign_key "mortgage_versions", "users"
+  add_foreign_key "mortgages", "lenders"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
   add_foreign_key "terms_and_condition_versions", "terms_and_conditions"
@@ -406,4 +548,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_224847) do
   add_foreign_key "terms_of_use_versions", "users"
   add_foreign_key "user_versions", "users"
   add_foreign_key "user_versions", "users", column: "admin_user_id"
+  add_foreign_key "users", "lenders"
+  add_foreign_key "wholesale_funder_versions", "users"
+  add_foreign_key "wholesale_funder_versions", "wholesale_funders"
 end

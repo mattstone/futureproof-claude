@@ -1,6 +1,7 @@
 require 'ostruct'
 
 class Admin::EmailTemplatesController < Admin::BaseController
+  before_action :ensure_futureproof_admin
   before_action :set_email_template, only: [:show, :edit, :update, :activate, :deactivate, :preview]
 
   def index

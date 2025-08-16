@@ -94,8 +94,8 @@ class FPCalculator
     # "total_income":"300000" "roi":"375" "pcnt_hol":"23.5"
     # "insurance_pa":"0.34" "holiday_enter":"1" "holiday_exit":"1.45"
     # "repay_amount_factor":"1.24" "repay_start_factor":"1.37"
-    # "funder_profit_share":"2280770" "surplus":"4372649"
-    # "interest_deficit":"232007" "funder_earned":"1984092"
+    # "wholesale_funder_profit_share":"2280770" "surplus":"4372649"
+    # "interest_deficit":"232007" "wholesale_funder_earned":"1984092"
     # "cum_interest_paid":"2374661" principal:1500000>
     result
   end
@@ -137,7 +137,7 @@ end
 
 
 
-# loan_duration	annuity_duration	loan_type	annual_income	total_income	roi	pcnt_hol	insurance_pa	holiday_enter	holiday_exit	repay_amount_factor	repay_start_factor	funder_profit_share	surplus	interest_deficit	funder_earned	cum_interest_paid
+# loan_duration	annuity_duration	loan_type	annual_income	total_income	roi	pcnt_hol	insurance_pa	holiday_enter	holiday_exit	repay_amount_factor	repay_start_factor	wholesale_funder_profit_share	surplus	interest_deficit	wholesale_funder_earned	cum_interest_paid
 # 30	10	Interest only	30000	300000	375	23.5	0.34	1	1.45	1.24	1.37	2280770	4372649	232007	1984092	2374661
 # 30	10	Principal+Interest	26299	262986	340	25	0.66	0.91	1.66	0.8	1	1850462	3464505	271794	1959781	2345564
 # 30	15	Interest only	27365	410468	286	25	0.67	1	1.46	0.5	1.3	1296811	2185267	376520	1763205	2110293

@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
-# Script to allocate existing contracts to available funder pools
+# Script to allocate existing contracts to available wholesale_funder pools
 # Run with: rails runner lib/scripts/allocate_existing_contracts.rb
 
-puts "🔄 Allocating Existing Contracts to Funder Pools"
+puts "🔄 Allocating Existing Contracts to WholesaleFunder Pools"
 puts "=" * 60
 
 # Check if we have any unallocated contracts
-unallocated_contracts = Contract.where(funder_pool_id: nil)
+unallocated_contracts = Contract.where(wholesale_funder_pool_id: nil)
 total_contracts = unallocated_contracts.count
 
 if total_contracts.zero?
-  puts "✅ No unallocated contracts found. All contracts already have funder pool allocations."
+  puts "✅ No unallocated contracts found. All contracts already have wholesale_funder pool allocations."
   exit
 end
 
@@ -21,15 +21,15 @@ total_needed = unallocated_contracts.joins(:application).sum('applications.home_
 formatted_total = ActionController::Base.helpers.number_to_currency(total_needed, precision: 0)
 puts "💰 Total capital needed: #{formatted_total}"
 
-# Check available funder pools
-available_pools = FunderPool.all.order(:created_at)
+# Check available wholesale_funder pools
+available_pools = WholesaleFunderPool.all.order(:created_at)
 if available_pools.empty?
-  puts "❌ ERROR: No funder pools available for allocation!"
-  puts "   Please create at least one funder pool before running this script."
+  puts "❌ ERROR: No wholesale_funder pools available for allocation!"
+  puts "   Please create at least one wholesale_funder pool before running this script."
   exit 1
 end
 
-puts "\n📋 Available Funder Pools:"
+puts "\n📋 Available WholesaleFunder Pools:"
 available_pools.each do |pool|
   puts "  • #{pool.display_name}"
   puts "    Total: #{pool.formatted_amount} | Available: #{pool.formatted_available}"
@@ -63,16 +63,16 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
     puts "   Property: #{application.address.truncate(50)}"
     puts "   Amount: #{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}"
     
-    # Find available funder pool with sufficient capacity
+    # Find available wholesale_funder pool with sufficient capacity
     available_pool = nil
     
     # First try to find mortgage-specific pool if application has a mortgage
     if application.mortgage.present?
       puts "   🔍 Looking for mortgage-specific pools..."
-      available_pool = application.mortgage.funder_pools
-                                 .joins(:mortgage_funder_pools)
-                                 .where(mortgage_funder_pools: { active: true })
-                                 .where("funder_pools.amount - funder_pools.allocated >= ?", home_value)
+      available_pool = application.mortgage.wholesale_funder_pools
+                                 .joins(:mortgage_wholesale_funder_pools)
+                                 .where(mortgage_wholesale_funder_pools: { active: true })
+                                 .where("wholesale_funder_pools.amount - wholesale_funder_pools.allocated >= ?", home_value)
                                  .order(:created_at)
                                  .first
       
@@ -84,7 +84,7 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
     # If no mortgage-specific pool found, use any available pool
     if available_pool.nil?
       puts "   🔍 Looking for any available pool..."
-      available_pool = FunderPool.where("amount - allocated >= ?", home_value)
+      available_pool = WholesaleFunderPool.where("amount - allocated >= ?", home_value)
                                  .order(:created_at)
                                  .first
       
@@ -102,13 +102,13 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
     
     # Perform the allocation
     Contract.transaction do
-      # Update contract with funder pool and allocated amount
+      # Update contract with wholesale_funder pool and allocated amount
       contract.update!(
-        funder_pool: available_pool,
+        wholesale_funder_pool: available_pool,
         allocated_amount: home_value
       )
       
-      # Update funder pool allocated amount
+      # Update wholesale_funder pool allocated amount
       available_pool.update!(
         allocated: available_pool.allocated + home_value
       )
@@ -146,9 +146,9 @@ if allocation_errors.any?
   end
 end
 
-# Show updated funder pool status
-puts "\n📋 Updated Funder Pool Status:"
-FunderPool.all.each do |pool|
+# Show updated wholesale_funder pool status
+puts "\n📋 Updated WholesaleFunder Pool Status:"
+WholesaleFunderPool.all.each do |pool|
   pool.reload
   puts "  • #{pool.display_name}"
   puts "    Total: #{pool.formatted_amount} | Allocated: #{pool.formatted_allocated} | Available: #{pool.formatted_available}"
@@ -156,10 +156,10 @@ FunderPool.all.each do |pool|
 end
 
 if allocated_count == total_contracts
-  puts "\n🎉 All contracts successfully allocated to funder pools!"
+  puts "\n🎉 All contracts successfully allocated to wholesale_funder pools!"
 else
   puts "\n⚠️  #{total_contracts - allocated_count} contracts could not be allocated."
-  puts "   Please review the errors above and ensure sufficient funder pool capacity."
+  puts "   Please review the errors above and ensure sufficient wholesale_funder pool capacity."
 end
 
 puts "=" * 60

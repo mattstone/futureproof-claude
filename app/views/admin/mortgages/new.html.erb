@@ -42,6 +42,15 @@
     <small class="field-hint">Loan-to-Value Ratio as a percentage (1-100) in increments of 0.1</small>
   </div>
 
+  <div class="field">
+    <%= form.label :lender_id, "Lender" %>
+    <%= form.select :lender_id, 
+        options_from_collection_for_select(Lender.all, :id, :name, @mortgage.lender_id), 
+        { prompt: 'Select Lender (Optional)' }, 
+        { } %>
+    <small class="field-hint">Assign a lender to this mortgage (optional)</small>
+  </div>
+
   <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
     <%= form.submit "Create Mortgage", class: "admin-btn admin-btn-primary" %>
     <%= link_to "Cancel", admin_mortgages_path, class: "admin-btn admin-btn-secondary" %>

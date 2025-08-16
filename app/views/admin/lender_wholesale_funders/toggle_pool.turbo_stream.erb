@@ -1,0 +1,29 @@
+<% if @success %>
+  <%= turbo_stream.replace dom_id(@funder_pool, :pool_toggle) do %>
+    <div class="pool-toggle" id="<%= dom_id(@funder_pool, :pool_toggle) %>">
+      <%= button_to toggle_pool_admin_lender_wholesale_funders_path(@lender), 
+          params: { funder_pool_id: @funder_pool.id },
+          method: :post,
+          remote: true,
+          class: "pool-toggle-btn #{@relationship&.active? ? 'active' : 'inactive'}",
+          data: { 
+            turbo_confirm: "Are you sure you want to #{@relationship&.active? ? 'deactivate' : 'activate'} #{@funder_pool.name}?"
+          } do %>
+        <%= @relationship&.active? ? 'Active' : 'Inactive' %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-success" id="temp-notice">
+      <%= @message %>
+    </div>
+  <% end %>
+<% else %>
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-error">
+      <%= @message %>
+    </div>
+  <% end %>
+<% end %>
+

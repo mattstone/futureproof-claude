@@ -3,10 +3,12 @@ class User < ApplicationRecord
   
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # Note: removed :validatable to implement custom scoped email validation
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :timeoutable
+         :recoverable, :rememberable, :timeoutable
 
   # Associations
+  belongs_to :lender
   has_many :applications, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
@@ -22,6 +24,15 @@ class User < ApplicationRecord
   after_update :log_update
 
   # Validations
+  # Custom email validation (replacing Devise :validatable)
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, uniqueness: { scope: :lender_id, message: "is already taken for this lender" }
+  validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
+  
+  # Lender scoping validation
+  validates :lender, presence: true
+  
+  # Existing validations
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :country_of_residence, presence: true
@@ -33,6 +44,30 @@ class User < ApplicationRecord
   # Scopes
   scope :admins, -> { where(admin: true) }
   scope :regular_users, -> { where(admin: false) }
+
+  # Devise authentication override for lender-scoped users
+  def self.find_for_authentication(warden_conditions)
+    conditions = warden_conditions.dup
+    if (email = conditions.delete(:email))
+      lender_id = conditions.delete(:lender_id)
+      
+      # If lender_id is provided, use it for scoped lookup
+      if lender_id.present?
+        where(conditions.to_h).where(email: email, lender_id: lender_id).first
+      else
+        # Fallback: find user by email only (for Futureproof lender or single lender scenarios)
+        # In production, you might want to default to Futureproof lender
+        futureproof_lender = Lender.lender_type_futureproof.first
+        if futureproof_lender
+          where(conditions.to_h).where(email: email, lender_id: futureproof_lender.id).first
+        else
+          where(conditions.to_h).where(email: email).first
+        end
+      end
+    elsif conditions.has_key?(:email)
+      where(conditions.to_h).first
+    end
+  end
 
   # Methods
   def full_name
@@ -198,6 +233,11 @@ class User < ApplicationRecord
   end
 
   private
+  
+  # Password validation helper (replacing Devise :validatable)
+  def password_required?
+    !persisted? || !password.nil? || !password_confirmation.nil?
+  end
   
   def log_creation
     return unless current_admin_user&.admin?

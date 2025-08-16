@@ -1,0 +1,189 @@
+<% content_for :page_title, "Add Funder Pool to #{@lender.name}" %>
+
+<div class="admin-actions-bar">
+  <div></div>
+  <div class="admin-actions">
+    <%= link_to "Back to Lender", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Add Funder Pool Access</h3>
+  <p class="form-description">
+    Select funder pools from your wholesale funder relationships that <strong><%= @lender.name %></strong> can use for lending.
+  </p>
+
+  <%= form_with model: [@lender, @lender_funder_pool], url: admin_lender_funder_pools_path(@lender), local: true do |form| %>
+    <% if @lender_funder_pool.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@lender_funder_pool.errors.count, "error") %> prohibited this from being saved:</h4>
+        <ul>
+          <% @lender_funder_pool.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :funder_pool_id, "Funder Pool", class: "form-label" %>
+      <%= form.select :funder_pool_id, 
+                      options_for_select(@available_funder_pools.map { |fp| ["#{fp.name} (#{fp.wholesale_funder.name}) - #{fp.formatted_available} available", fp.id] }),
+                      { prompt: "Select a funder pool..." },
+                      { class: "form-control", required: true } %>
+      <div class="form-help">
+        Only pools from wholesale funders you have active relationships with are shown.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :active, class: "form-label" %>
+      <div class="checkbox-group">
+        <%= form.check_box :active, { checked: true }, class: "form-checkbox" %>
+        <%= form.label :active, "Pool access is active", class: "checkbox-label" %>
+      </div>
+      <div class="form-help">
+        Active pool access allows this lender to use funds from this pool.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Add Funder Pool", class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<% if @available_funder_pools.any? %>
+  <div class="admin-card">
+    <h4>Available Funder Pools</h4>
+    <div class="funder-pools-preview">
+      <% @available_funder_pools.group_by(&:wholesale_funder).each do |wholesale_funder, pools| %>
+        <div class="wholesale-funder-group">
+          <h5><%= wholesale_funder.name %></h5>
+          <div class="pools-grid">
+            <% pools.each do |pool| %>
+              <div class="pool-preview-card">
+                <h6><%= pool.name %></h6>
+                <div class="pool-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Total:</span>
+                    <span class="detail-value"><%= pool.formatted_amount %></span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Available:</span>
+                    <span class="detail-value <%= 'text-success' if pool.available_amount > 0 %>">
+                      <%= pool.formatted_available %>
+                    </span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Allocation:</span>
+                    <span class="detail-value"><%= pool.allocation_percentage %>%</span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="admin-card">
+    <div class="empty-state">
+      <h4>No Available Funder Pools</h4>
+      <% if @lender.active_wholesale_funders.any? %>
+        <p>All available funder pools from your wholesale funder relationships are already added to this lender.</p>
+      <% else %>
+        <p>This lender needs active wholesale funder relationships before pools can be added.</p>
+        <%= link_to "Add Wholesale Funder", new_admin_lender_wholesale_funder_path(@lender), 
+                    class: "admin-btn admin-btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<style>
+.form-description {
+  color: #6b7280;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.funder-pools-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wholesale-funder-group h5 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.pools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.pool-preview-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.pool-preview-card h6 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.pool-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pool-details .detail-row {
+  padding: 2px 0;
+  border-bottom: none;
+}
+
+.pool-details .detail-label {
+  font-size: 12px;
+  width: 35%;
+}
+
+.pool-details .detail-value {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.text-success {
+  color: #16a34a;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-checkbox {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-label {
+  margin: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+</style>

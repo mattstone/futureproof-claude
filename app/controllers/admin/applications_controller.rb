@@ -5,8 +5,8 @@ class Admin::ApplicationsController < Admin::BaseController
   before_action :log_view, only: [:show]
 
   def index
-    # Exclude accepted applications from admin index (they are managed separately)
-    @applications = Application.includes(:user, :application_messages).where.not(status: :accepted).recent
+    # Exclude accepted applications from admin index (they are managed separately) and apply lender scoping
+    @applications = scoped_applications.includes(:user, :application_messages).where.not(status: :accepted).recent
 
     # Search filter (ensure accepted applications are excluded even in search results)
     if params[:search].present?
@@ -46,7 +46,7 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def search
     # Same logic as index but for POST requests via Turbo Stream
-    @applications = Application.includes(:user, :application_messages).where.not(status: :accepted).recent
+    @applications = scoped_applications.includes(:user, :application_messages).where.not(status: :accepted).recent
 
     if params[:search].present?
       search_term = params[:search].to_s.strip
@@ -84,7 +84,7 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def new
     @application = Application.new
-    @users = User.all.order(:first_name, :last_name)
+    @users = scoped_users.order(:first_name, :last_name)
   end
 
   def create
@@ -94,7 +94,7 @@ class Admin::ApplicationsController < Admin::BaseController
     if @application.save
       redirect_to admin_application_path(@application), notice: 'Application was successfully created.'
     else
-      @users = User.all.order(:first_name, :last_name)
+      @users = scoped_users.order(:first_name, :last_name)
       render :new, status: :unprocessable_entity
     end
   end
@@ -218,7 +218,7 @@ class Admin::ApplicationsController < Admin::BaseController
   private
 
   def set_application
-    @application = Application.find(params[:id])
+    @application = scoped_applications.find(params[:id])
   end
 
   def set_application_versions

@@ -1,0 +1,866 @@
+<% content_for :page_title, "Manage Wholesale Funders for #{@lender.name}" %>
+
+<!-- Flash messages container -->
+<div id="flash-messages">
+  <% if notice %>
+    <div class="alert alert-success" id="temp-notice">
+      <%= notice %>
+    </div>
+  <% end %>
+</div>
+
+<div class="wholesale-funders-interface">
+  <!-- Instructions -->
+  <div class="interface-instructions">
+    <div class="instructions-header">
+      <div class="instructions-content">
+        <h3>Select Wholesale Funders & Manage Pools</h3>
+        <p>
+          Tap on wholesale funder cards to select or deselect them. Once selected, 
+          you can activate or deactivate specific funder pools by clicking the toggle buttons.
+        </p>
+      </div>
+      <div class="instructions-actions">
+        <%= link_to "Back to Lender", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Relationships Summary -->
+  <% if @existing_relationships.any? %>
+    <div class="current-relationships-summary">
+      <h4>Current Relationships</h4>
+      <div class="relationship-pills">
+        <% @existing_relationships.each do |relationship| %>
+          <div class="relationship-pill <%= relationship.active? ? 'active' : 'inactive' %>">
+            <span class="relationship-name"><%= relationship.wholesale_funder.name %></span>
+            <span class="relationship-status">
+              <%= relationship.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Wholesale Funders Cards -->
+  <div class="wholesale-funders-grid" id="wholesale-funders-grid">
+    <!-- Display existing relationships first (already connected) -->
+    <% @existing_relationships.each do |relationship| %>
+      <div class="wholesale-funder-card existing-relationship"
+           data-wholesale-funder-id="<%= relationship.wholesale_funder.id %>"
+           data-lender-id="<%= @lender.id %>">
+        
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="card-title">
+            <h4><%= relationship.wholesale_funder.name %></h4>
+            <div class="selection-indicator selected">
+              <span class="selection-icon">✓</span>
+            </div>
+          </div>
+          <div class="card-status" data-status="existing">
+            <span class="status-text">Currently Connected</span>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="card-details">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Country</span>
+              <span class="detail-value"><%= relationship.wholesale_funder.country %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Currency</span>
+              <span class="detail-value currency-badge currency-<%= relationship.wholesale_funder.currency.downcase %>">
+                <%= relationship.wholesale_funder.currency_symbol %> <%= relationship.wholesale_funder.currency %>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span class="detail-value">
+                <span class="status-badge <%= relationship.active? ? 'status-active' : 'status-inactive' %>">
+                  <%= relationship.status_display %>
+                </span>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Capital</span>
+              <span class="detail-value"><%= relationship.wholesale_funder.formatted_total_capital %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Funder Pools (visible for existing relationships) -->
+        <div class="funder-pools-section">
+          <div class="pools-header">
+            <h5>Funder Pools</h5>
+            <p class="pools-instruction">Click to activate/deactivate individual pools</p>
+          </div>
+          
+          <div class="pools-list">
+            <% relationship.wholesale_funder.funder_pools.each do |pool| %>
+              <% existing_pool_relationship = @existing_pool_relationships.find { |rel| rel.funder_pool_id == pool.id } %>
+              <div class="pool-item"
+                   data-pool-id="<%= pool.id %>"
+                   data-pool-active="<%= existing_pool_relationship&.active? || false %>">
+                
+                <div class="pool-info">
+                  <div class="pool-name"><%= pool.name %></div>
+                  <div class="pool-details">
+                    <span class="pool-amount"><%= pool.formatted_amount %></span>
+                    <span class="pool-allocated">(<%= pool.formatted_allocated %> allocated)</span>
+                    <span class="pool-rate"><%= pool.formatted_total_rate %></span>
+                  </div>
+                </div>
+                
+                <div class="pool-toggle" id="<%= dom_id(pool, :pool_toggle) %>">
+                  <%= button_to toggle_pool_admin_lender_wholesale_funders_path(@lender), 
+                      params: { funder_pool_id: pool.id },
+                      method: :post,
+                      remote: true,
+                      class: "pool-toggle-btn #{existing_pool_relationship&.active? ? 'active' : 'inactive'}",
+                      data: { 
+                        turbo_confirm: "Are you sure you want to #{existing_pool_relationship&.active? ? 'deactivate' : 'activate'} #{pool.name}?"
+                      } do %>
+                    <%= existing_pool_relationship&.active? ? 'Active' : 'Inactive' %>
+                  <% end %>
+                </div>
+                
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Available wholesale funders (not yet connected) -->
+    <% @available_wholesale_funders.each do |wholesale_funder| %>
+      <div class="wholesale-funder-card" 
+           data-wholesale-funder-id="<%= wholesale_funder.id %>"
+           data-lender-id="<%= @lender.id %>">
+        
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="card-title">
+            <h4><%= wholesale_funder.name %></h4>
+            <div class="selection-indicator">
+              <span class="selection-icon">✓</span>
+            </div>
+          </div>
+          <div class="card-status" data-status="unselected">
+            <span class="status-text">Click to Select</span>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="card-details">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Country</span>
+              <span class="detail-value"><%= wholesale_funder.country %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Currency</span>
+              <span class="detail-value currency-badge currency-<%= wholesale_funder.currency.downcase %>">
+                <%= wholesale_funder.currency_symbol %> <%= wholesale_funder.currency %>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Pools</span>
+              <span class="detail-value"><%= wholesale_funder.pools_count %> pools</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Capital</span>
+              <span class="detail-value"><%= wholesale_funder.formatted_total_capital %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Funder Pools (hidden initially) -->
+        <div class="funder-pools-section" style="display: none;">
+          <div class="pools-header">
+            <h5>Funder Pools</h5>
+            <p class="pools-instruction">Click to activate/deactivate individual pools</p>
+          </div>
+          
+          <div class="pools-list">
+            <% wholesale_funder.funder_pools.each do |pool| %>
+              <% existing_pool_relationship = @existing_pool_relationships.find { |rel| rel.funder_pool_id == pool.id } %>
+              <div class="pool-item" 
+                   data-pool-id="<%= pool.id %>"
+                   data-pool-active="<%= existing_pool_relationship&.active? || false %>">
+                
+                <div class="pool-info">
+                  <div class="pool-name"><%= pool.name %></div>
+                  <div class="pool-details">
+                    <span class="pool-amount"><%= pool.formatted_amount %></span>
+                    <span class="pool-allocated">(<%= pool.formatted_allocated %> allocated)</span>
+                    <span class="pool-rate"><%= pool.formatted_total_rate %></span>
+                  </div>
+                </div>
+                
+                <div class="pool-toggle" id="<%= dom_id(pool, :pool_toggle) %>">
+                  <%= button_to toggle_pool_admin_lender_wholesale_funders_path(@lender), 
+                      params: { funder_pool_id: pool.id },
+                      method: :post,
+                      remote: true,
+                      class: "pool-toggle-btn #{existing_pool_relationship&.active? ? 'active' : 'inactive'}",
+                      data: { 
+                        turbo_confirm: "Are you sure you want to #{existing_pool_relationship&.active? ? 'deactivate' : 'activate'} #{pool.name}?"
+                      } do %>
+                    <%= existing_pool_relationship&.active? ? 'Active' : 'Inactive' %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Empty State -->
+  <% if @available_wholesale_funders.empty? && @existing_relationships.empty? %>
+    <div class="empty-state">
+      <h4>No Wholesale Funders Available</h4>
+      <p>All wholesale funders already have relationships with this lender, or none exist yet.</p>
+      <%= link_to "Manage Wholesale Funders", admin_wholesale_funders_path, class: "admin-btn admin-btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+/* Interface Layout */
+.wholesale-funders-interface {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.interface-instructions {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.instructions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.instructions-content {
+  flex: 1;
+}
+
+.interface-instructions h3 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.interface-instructions p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.instructions-actions {
+  flex-shrink: 0;
+}
+
+/* Pool Toggle Form Styling */
+.pool-toggle-form {
+  display: inline-block;
+  margin: 0;
+}
+
+/* Current Relationships Summary */
+.current-relationships-summary {
+  margin-bottom: 24px;
+}
+
+.current-relationships-summary h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.relationship-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.relationship-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.relationship-pill.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.relationship-pill.inactive {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Wholesale Funders Grid */
+.wholesale-funders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+/* Wholesale Funder Cards */
+.wholesale-funder-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.wholesale-funder-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.wholesale-funder-card.selected {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.wholesale-funder-card.existing-relationship {
+  border-color: #7c3aed;
+  cursor: default;
+}
+
+.wholesale-funder-card.existing-relationship .funder-pools-section {
+  display: block !important;
+}
+
+/* Card Header */
+.card-header {
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-title h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.selection-indicator {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.selection-indicator.selected,
+.wholesale-funder-card.selected .selection-indicator {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.selection-icon {
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.selection-indicator.selected .selection-icon,
+.wholesale-funder-card.selected .selection-indicator .selection-icon {
+  opacity: 1;
+}
+
+.card-status span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.wholesale-funder-card.selected .card-status span {
+  color: #059669;
+}
+
+/* Card Details */
+.card-details {
+  padding: 20px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: right;
+}
+
+/* Currency Badges */
+.currency-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.currency-aud {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.currency-usd {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.currency-gbp {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-inactive {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Funder Pools Section */
+.funder-pools-section {
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.pools-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pools-header h5 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pools-instruction {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.pools-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.pool-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.pool-item:hover {
+  background: #f3f4f6;
+}
+
+.pool-item:last-child {
+  border-bottom: none;
+}
+
+.pool-info {
+  flex: 1;
+}
+
+.pool-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.pool-details {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.pool-amount {
+  font-weight: 600;
+  color: #059669;
+}
+
+.pool-allocated {
+  color: #dc2626;
+}
+
+.pool-rate {
+  font-weight: 500;
+  color: #7c3aed;
+}
+
+/* Pool Toggle Button */
+.pool-toggle {
+  margin-left: 12px;
+}
+
+.pool-toggle-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+}
+
+.pool-toggle-btn.active {
+  background: #10b981 !important;
+  color: white !important;
+}
+
+.pool-toggle-btn.active .toggle-text {
+  color: white !important;
+}
+
+.pool-toggle-btn.inactive {
+  background: #6b7280 !important;
+  color: white !important;
+}
+
+.pool-toggle-btn.inactive .toggle-text {
+  color: white !important;
+}
+
+.pool-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+}
+
+.empty-state p {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+}
+
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-success {
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .wholesale-funders-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .relationship-pills {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pool-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .pool-toggle {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const interface = new WholesaleFunderInterface();
+  interface.init();
+  
+});
+
+class WholesaleFunderInterface {
+  constructor() {
+    this.selectedFunders = new Set();
+    this.loadingStates = new Map();
+  }
+
+  init() {
+    this.bindCardEvents();
+    this.bindPoolEvents();
+    this.bindRemovalEvents();
+    this.hideTemporaryNotices();
+  }
+
+  hideTemporaryNotices() {
+    const notice = document.getElementById('temp-notice');
+    if (notice) {
+      setTimeout(() => {
+        notice.style.display = 'none';
+      }, 3000);
+    }
+  }
+
+  bindCardEvents() {
+    const cards = document.querySelectorAll('.wholesale-funder-card:not(.existing-relationship)');
+    
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        // Don't trigger on pool button clicks
+        if (e.target.closest('.pool-toggle-btn') || e.target.closest('.pool-item')) {
+          return;
+        }
+        
+        this.toggleFunderSelection(card);
+      });
+    });
+  }
+
+  bindPoolEvents() {
+    // Pool toggle buttons now use Turbo Stream - no custom JavaScript needed
+    // Just prevent button clicks from bubbling to card click handlers
+    const poolButtons = document.querySelectorAll('.pool-toggle-btn');
+    
+    poolButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+  }
+
+  bindRemovalEvents() {
+    // Remove relationship functionality disabled - relationships persist until loans are paid back
+  }
+
+  async toggleFunderSelection(card) {
+    const funderId = card.dataset.wholesaleFunderId;
+    const lenderId = card.dataset.lenderId;
+    const isSelected = card.classList.contains('selected');
+    const funderName = card.querySelector('h4').textContent.trim();
+
+    if (this.loadingStates.get(funderId)) return;
+
+    // Show confirmation prompt when selecting a new wholesale funder
+    if (!isSelected) {
+      if (!confirm(`Are you sure you want to add a relationship with ${funderName}? This relationship will persist until any loans are fully paid back.`)) {
+        return;
+      }
+    }
+
+    this.loadingStates.set(funderId, true);
+
+    try {
+      if (isSelected) {
+        // Note: Removal functionality disabled - relationships persist until loans are paid back
+        this.showError('Cannot remove wholesale funder relationships once established.');
+      } else {
+        const response = await this.addWholesaleFunderRelationship(lenderId, funderId);
+        if (response.success) {
+          this.selectCard(card);
+          this.showPools(card, response.pools);
+        }
+      }
+    } catch (error) {
+      this.showError('Failed to update relationship. Please try again.');
+    } finally {
+      this.loadingStates.set(funderId, false);
+    }
+  }
+
+  // Pool toggle now handled by Turbo Stream - method removed
+
+
+  // API Methods
+  async addWholesaleFunderRelationship(lenderId, wholesaleFunderId) {
+    const response = await fetch(`/admin/lenders/${lenderId}/wholesale_funders/add_wholesale_funder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        wholesale_funder_id: wholesaleFunderId
+      })
+    });
+    
+    return await response.json();
+  }
+
+
+  // togglePool method removed - now handled by Turbo Stream
+
+  // UI Update Methods
+  selectCard(card) {
+    card.classList.add('selected');
+    const statusText = card.querySelector('.card-status .status-text');
+    statusText.textContent = 'Selected';
+  }
+
+  deselectCard(card) {
+    card.classList.remove('selected');
+    const statusText = card.querySelector('.card-status .status-text');
+    statusText.textContent = 'Click to Select';
+  }
+
+  showPools(card, pools) {
+    const poolsSection = card.querySelector('.funder-pools-section');
+    poolsSection.style.display = 'block';
+    
+    // Update pool data with server response
+    pools.forEach(pool => {
+      const poolItem = poolsSection.querySelector(`[data-pool-id="${pool.id}"]`);
+      if (poolItem) {
+        const button = poolItem.querySelector('.pool-toggle-btn');
+        this.updatePoolButton(button, pool.active);
+      }
+    });
+  }
+
+  hidePools(card) {
+    const poolsSection = card.querySelector('.funder-pools-section');
+    poolsSection.style.display = 'none';
+  }
+
+  // updatePoolButton method removed - now handled by Turbo Stream
+
+  showSuccess(message) {
+    this.showFlashMessage(message, 'success');
+  }
+
+  showError(message) {
+    this.showFlashMessage(message, 'error');
+  }
+
+  showFlashMessage(message, type) {
+    const flashContainer = document.getElementById('flash-messages');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.textContent = message;
+    
+    // Remove any existing alerts
+    const existingAlerts = flashContainer.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    flashContainer.appendChild(alertDiv);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      if (alertDiv.parentNode) {
+        alertDiv.remove();
+      }
+    }, 5000);
+    
+    // Scroll to top to show the message
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+</script>

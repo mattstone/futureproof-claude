@@ -3,7 +3,18 @@
 
 puts "Creating test applications..."
 
-# Ensure we have an admin user
+# Ensure we have the futureproof lender and admin user
+futureproof_lender = Lender.find_by(lender_type: :futureproof) || Lender.create!(
+  name: 'Futureproof Financial Pty Ltd',
+  lender_type: :futureproof,
+  address: 'Wework Barangaroo, Sydney',
+  postcode: '2000',
+  country: 'Australia',
+  contact_email: 'info@futureprooffinancial.co',
+  contact_telephone: '0432212713',
+  contact_telephone_country_code: '+61'
+)
+
 admin_user = User.find_by(admin: true)
 unless admin_user
   admin_user = User.create!(
@@ -17,7 +28,8 @@ unless admin_user
     mobile_country_code: '+61',
     mobile_number: '400000000',
     confirmed_at: Time.current,
-    terms_accepted: true
+    terms_accepted: true,
+    lender: futureproof_lender
   )
 end
 
@@ -79,7 +91,7 @@ puts "Using #{mortgages.count} mortgages for applications"
   address = addresses[i]
   home_value = property_values.sample
   status = statuses[i]
-  ownership_status = [:individual, :joint, :company, :super].sample
+  ownership_status = [:individual, :joint, :lender, :super].sample
   property_state = [:primary_residence, :investment, :holiday].sample
   
   # Determine if property has existing mortgage (about 60% do)
@@ -91,7 +103,7 @@ puts "Using #{mortgages.count} mortgages for applications"
   
   # Set required fields based on ownership status
   borrower_names = nil
-  company_name = nil
+  lender_name = nil
   super_fund_name = nil
   
   case ownership_status
@@ -101,8 +113,8 @@ puts "Using #{mortgages.count} mortgages for applications"
       { name: "#{first_name} #{last_name}", age: rand(35..65) },
       { name: "#{['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan'].sample} #{last_name}", age: rand(35..65) }
     ].to_json
-  when :company
-    company_name = "#{last_name} Holdings Pty Ltd"
+  when :lender
+    lender_name = "#{last_name} Holdings Pty Ltd"
   when :super
     super_fund_name = "#{last_name} Family Super Fund"
   end
@@ -134,7 +146,7 @@ puts "Using #{mortgages.count} mortgages for applications"
       existing_mortgage_amount: existing_mortgage_amount,
       borrower_age: borrower_age,
       borrower_names: borrower_names,
-      company_name: company_name,
+      company_name: lender_name,
       super_fund_name: super_fund_name,
       loan_term: loan_term,
       income_payout_term: income_payout_term,

@@ -63,7 +63,7 @@ class TermsOfUse < ApplicationRecord
 
       - Use the site in any way that violates applicable laws or regulations
       - Transmit or procure sending of any advertising or promotional material without our consent
-      - Impersonate or attempt to impersonate our company, employees, or other users
+      - Impersonate or attempt to impersonate our lender, employees, or other users
       - Engage in any activity that interferes with or disrupts the site
 
       ### Account Security
@@ -75,9 +75,9 @@ class TermsOfUse < ApplicationRecord
       If you have any questions about these Terms of Use, please contact us at:
 
       **Contact Info:**
-      Company: Futureproof Financial Group Limited
+      Lender: Futureproof Financial Group Limited
       Email: legal@futureprooffinancial.app
-      Address: [Company Address]
+      Address: [Lender Address]
     MARKUP
     
     create!(
@@ -158,10 +158,10 @@ class TermsOfUse < ApplicationRecord
           in_contact = true
           
         # Handle contact info lines
-        elsif in_contact && line.match(/^(Company|Email|Address): (.+)$/)
+        elsif in_contact && line.match(/^(Lender|Email|Address): (.+)$/)
           field = $1
           value = $2.strip
-          if field == "Company"
+          if field == "Lender"
             html_parts << "      <strong>#{sanitize_text(value)}</strong><br>"
           else
             html_parts << "      #{sanitize_text(field)}: #{sanitize_text(value)}<br>"

@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+futureproof:
+  lender_type: 0  # futureproof
+  name: "Futureproof Financial Pty Ltd"
+  address: "Wework Barangaroo, Sydney"
+  postcode: "2000"
+  country: "Australia"
+  contact_email: "info@futureprooffinancial.co"
+  contact_telephone: "0432212713"
+  contact_telephone_country_code: "+61"
+
+broker:
+  lender_type: 1  # lender
+  name: "Test Broker Lender"
+  address: "123 Test Street, Melbourne"
+  postcode: "3000"
+  country: "Australia"
+  contact_email: "contact@testbroker.com.au"
+  contact_telephone: "0398765432"
+  contact_telephone_country_code: "+61"
+
+international_lender:
+  lender_type: 1  # lender
+  name: "Global Lender Ltd"
+  address: "456 International Blvd, London"
+  postcode: "SW1A 1AA"
+  country: "United Kingdom"
+  contact_email: "info@globallender.co.uk"
+  contact_telephone: "02071234567"
+  contact_telephone_country_code: "+44"

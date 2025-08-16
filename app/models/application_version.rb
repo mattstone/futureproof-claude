@@ -140,7 +140,7 @@ class ApplicationVersion < ApplicationRecord
     case ownership_value
     when 0 then 'Individual'
     when 1 then 'Joint'
-    when 2 then 'Company'
+    when 2 then 'Lender'
     when 3 then 'Super Fund'
     else ownership_value.to_s
     end

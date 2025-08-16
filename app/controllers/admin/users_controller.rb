@@ -3,11 +3,16 @@ class Admin::UsersController < Admin::BaseController
   before_action :set_current_admin_user, only: [:create, :update]
 
   def index
-    @users = User.all.order(:email)
+    @users = scoped_users.includes(:lender).order(:email)
     
     # Search filter
     @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
                          "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+    
+    # Lender filter (only show to Futureproof admins)
+    if futureproof_admin? && params[:lender_id].present?
+      @users = @users.where(lender_id: params[:lender_id])
+    end
     
     # Role filter
     case params[:role]
@@ -37,6 +42,11 @@ class Admin::UsersController < Admin::BaseController
       ['Active', 'active'],
       ['Inactive', 'inactive']
     ]
+    
+    # Lender filter options (only for Futureproof admins)
+    if futureproof_admin?
+      @lender_options = Lender.order(:name).pluck(:name, :id)
+    end
   end
 
   def show
@@ -55,6 +65,15 @@ class Admin::UsersController < Admin::BaseController
     @user = User.new(user_params)
     @user.current_admin_user = current_user
     @user.confirmed_at = Time.current if @user.valid?
+    
+    # Assign lender based on admin type
+    if lender_admin?
+      @user.lender = admin_lender
+    elsif futureproof_admin? && params[:user][:lender_id].present?
+      @user.lender_id = params[:user][:lender_id]
+    else
+      @user.lender = Lender.lender_type_futureproof.first
+    end
     
     if @user.save
       redirect_to admin_user_path(@user), notice: 'User was successfully created.'
@@ -84,7 +103,7 @@ class Admin::UsersController < Admin::BaseController
   private
 
   def set_user
-    @user = User.find(params[:id])
+    @user = scoped_users.find(params[:id])
   end
 
   def user_params

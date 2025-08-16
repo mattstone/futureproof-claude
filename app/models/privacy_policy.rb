@@ -103,9 +103,9 @@ class PrivacyPolicy < ApplicationRecord
       ## 9. Contact Us
 
       **Contact Info:**
-      Company: Futureproof Financial Group Limited
+      Lender: Futureproof Financial Group Limited
       Email: privacy@futureprooffinancial.app
-      Address: [Company Address]
+      Address: [Lender Address]
     MARKUP
     
     create!(
@@ -186,10 +186,10 @@ class PrivacyPolicy < ApplicationRecord
           in_contact = true
           
         # Handle contact info lines
-        elsif in_contact && line.match(/^(Company|Email|Address): (.+)$/)
+        elsif in_contact && line.match(/^(Lender|Email|Address): (.+)$/)
           field = $1
           value = $2.strip
-          if field == "Company"
+          if field == "Lender"
             html_parts << "      <strong>#{sanitize_text(value)}</strong><br>"
           else
             html_parts << "      #{sanitize_text(field)}: #{sanitize_text(value)}<br>"

@@ -1,17 +1,32 @@
 class FunderPool < ApplicationRecord
-  belongs_to :funder
-  has_many :mortgage_funder_pools, dependent: :destroy
-  has_many :mortgages, through: :mortgage_funder_pools
+  include ChangeTracking
+  
+  # Change tracking configuration
+  version_association :funder_pool_versions
+  track_changes :name, :amount, :allocated, :benchmark_rate, :margin_rate
+  
+  belongs_to :wholesale_funder
   has_many :contracts, dependent: :nullify
+  
+  # Lender relationships
+  has_many :lender_funder_pools, dependent: :destroy
+  has_many :lenders, through: :lender_funder_pools
+  has_many :active_lenders, -> { where(lender_funder_pools: { active: true }) },
+           through: :lender_funder_pools, source: :lender
   
   # Validations
   validates :name, presence: true, length: { maximum: 255 }
-  validates :name, uniqueness: { scope: :funder_id, message: "already exists for this funder" }
+  validates :name, uniqueness: { scope: :wholesale_funder_id, message: "already exists for this wholesale funder" }
   validates :amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :allocated, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :benchmark_rate, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :margin_rate, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   
-  # Custom validation
+  # Custom validations
   validate :allocated_cannot_exceed_amount
+  
+  # Callbacks
+  before_validation :set_default_benchmark_rate, on: :create
   
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -41,7 +56,37 @@ class FunderPool < ApplicationRecord
   end
   
   def display_name
-    "#{name} (#{funder.name})"
+    "#{name} (#{wholesale_funder.name})"
+  end
+  
+  # Rate-related methods
+  def currency
+    wholesale_funder.currency
+  end
+  
+  def benchmark_rate_name
+    case currency
+    when 'AUD' then 'BBSW'
+    when 'USD' then 'SOFR'
+    when 'GBP' then 'SONIA'
+    else 'Benchmark'
+    end
+  end
+  
+  def total_rate
+    (benchmark_rate || 0) + (margin_rate || 0)
+  end
+  
+  def formatted_benchmark_rate
+    "#{benchmark_rate}%"
+  end
+  
+  def formatted_margin_rate
+    "#{margin_rate}%"
+  end
+  
+  def formatted_total_rate
+    "#{total_rate}%"
   end
   
   # Class method to find first available pool for a given amount
@@ -62,5 +107,14 @@ class FunderPool < ApplicationRecord
     if allocated && amount && allocated > amount
       errors.add(:allocated, "cannot exceed the total amount")
     end
+  end
+  
+  def set_default_benchmark_rate
+    return unless wholesale_funder.present?
+    
+    # Set benchmark rate to 4% for all currencies by default
+    # The benchmark_rate_name method will show the appropriate benchmark name
+    self.benchmark_rate = 4.00 if benchmark_rate.blank?
+    self.margin_rate = 0.00 if margin_rate.blank?
   end
 end

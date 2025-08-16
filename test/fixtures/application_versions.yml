@@ -2,7 +2,7 @@
 
 mortgage_application_creation:
   application: mortgage_application
-  user: admin_user
+  user: futureproof_admin
   action: created
   change_details: "Created new application for 123 Main Street, Portland, OR 97201 with home value $500,000"
   new_status: 2
@@ -14,7 +14,7 @@ mortgage_application_creation:
 
 submitted_application_status_change:
   application: submitted_application
-  user: admin_user
+  user: futureproof_admin
   action: status_changed
   change_details: "Changed application status from 'Property Details' to 'Submitted'"
   previous_status: 2
@@ -23,7 +23,7 @@ submitted_application_status_change:
 
 mortgage_application_view:
   application: mortgage_application
-  user: admin_user
+  user: futureproof_admin
   action: viewed
-  change_details: "Admin Admin User viewed application"
+  change_details: "Futureproof Admin viewed application"
   created_at: <%= 1.day.ago %>

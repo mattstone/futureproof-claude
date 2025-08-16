@@ -1,6 +1,6 @@
 class Contract < ApplicationRecord
   belongs_to :application
-  belongs_to :funder_pool, optional: true
+  belongs_to :wholesale_funder_pool, optional: true
   has_many :contract_messages, dependent: :destroy
   has_many :contract_versions, dependent: :destroy
   

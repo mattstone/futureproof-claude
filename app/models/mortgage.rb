@@ -1,7 +1,6 @@
 class Mortgage < ApplicationRecord
   has_many :mortgage_versions, dependent: :destroy
-  has_many :mortgage_funder_pools, dependent: :destroy
-  has_many :funder_pools, through: :mortgage_funder_pools
+  belongs_to :lender, optional: true
   
   enum :mortgage_type, {
     interest_only: 0,
@@ -15,7 +14,6 @@ class Mortgage < ApplicationRecord
     less_than_or_equal_to: 100 
   }
   validate :lvr_in_valid_increments
-  validate :must_have_at_least_one_active_funder_pool, on: :update
   
   # Track changes with audit functionality
   attr_accessor :current_user
@@ -81,26 +79,9 @@ class Mortgage < ApplicationRecord
     end
   end
   
-  # Calculate total allocated capital from active funder pools
-  def total_allocated_capital
-    mortgage_funder_pools.joins(:funder_pool).where(active: true).sum('funder_pools.allocated')
-  end
-  
-  # Calculate total available capital from active funder pools
-  def total_available_capital
-    mortgage_funder_pools.joins(:funder_pool).where(active: true).sum('funder_pools.amount - funder_pools.allocated')
-  end
-  
-  # Format allocated capital for display
-  def formatted_allocated_capital
-    return "$0" if total_allocated_capital.zero?
-    ActionController::Base.helpers.number_to_currency(total_allocated_capital, precision: (total_allocated_capital % 1 == 0 ? 0 : 2))
-  end
-  
-  # Format available capital for display
-  def formatted_available_capital
-    return "$0" if total_available_capital.zero?
-    ActionController::Base.helpers.number_to_currency(total_available_capital, precision: (total_available_capital % 1 == 0 ? 0 : 2))
+  # Get lender name for display
+  def lender_name
+    lender&.name || 'No Lender Assigned'
   end
   
   private
@@ -124,11 +105,6 @@ class Mortgage < ApplicationRecord
     end
   end
   
-  def must_have_at_least_one_active_funder_pool
-    return if mortgage_funder_pools.where(active: true).exists?
-    
-    errors.add(:funder_pools, "must have at least one active funder pool")
-  end
   
   def log_creation
     return unless current_user

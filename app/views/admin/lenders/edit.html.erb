@@ -1,0 +1,28 @@
+<% content_for :page_title, "Edit #{@lender.name}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <h1>Edit Lender</h1>
+    <p class="page-subtitle">Update lender information</p>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Lender", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to Companies", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+</div>
+
+<!-- Edit Lender Form -->
+<div class="admin-card">
+  <h3>Lender Details</h3>
+  
+  <%= render 'form', lender: @lender %>
+</div>
+
+<style>
+.page-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+</style>

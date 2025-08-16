@@ -1,41 +1,44 @@
 class Admin::FunderPoolsController < Admin::BaseController
-  before_action :set_funder, except: [:index]
+  before_action :ensure_futureproof_admin
+  before_action :set_wholesale_funder, except: [:index]
   before_action :set_funder_pool, only: [:show, :edit, :update, :destroy]
 
   def index
-    @funder_pools = FunderPool.includes(:funder).recent.page(params[:page]).per(20)
+    @funder_pools = FunderPool.includes(:wholesale_funder).recent.page(params[:page]).per(20)
     
     # Search filter
     if params[:search].present?
       search_term = params[:search].to_s.strip
       @funder_pools = @funder_pools.where(
-        "funder_pools.name ILIKE ? OR funders.name ILIKE ?",
+        "funder_pools.name ILIKE ? OR wholesale_funders.name ILIKE ?",
         "%#{search_term}%", "%#{search_term}%"
-      ).joins(:funder)
+      ).joins(:wholesale_funder)
     end
     
-    # Funder filter
-    if params[:funder_id].present?
-      @funder_pools = @funder_pools.where(funder_id: params[:funder_id])
+    # Wholesale Funder filter
+    if params[:wholesale_funder_id].present?
+      @funder_pools = @funder_pools.where(wholesale_funder_id: params[:wholesale_funder_id])
     end
     
-    @funders_for_filter = Funder.order(:name)
+    @wholesale_funders_for_filter = WholesaleFunder.order(:name)
   end
 
   def show
     # Eager load contracts with their applications and users for performance
-    @funder_pool = @funder.funder_pools.includes(contracts: { application: :user }).find(params[:id])
+    @funder_pool = @wholesale_funder.funder_pools.includes(contracts: { application: :user }).find(params[:id])
+    @funder_pool.log_view_by(current_user) if current_user
   end
 
   def new
-    @funder_pool = @funder.funder_pools.build
+    @funder_pool = @wholesale_funder.funder_pools.build
   end
 
   def create
-    @funder_pool = @funder.funder_pools.build(funder_pool_params)
+    @funder_pool = @wholesale_funder.funder_pools.build(funder_pool_params)
+    @funder_pool.current_user = current_user
 
     if @funder_pool.save
-      redirect_to admin_funder_path(@funder), notice: 'Funder pool was successfully created.'
+      redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: 'Funder pool was successfully created.'
     else
       render :new, status: :unprocessable_entity
     end
@@ -45,8 +48,9 @@ class Admin::FunderPoolsController < Admin::BaseController
   end
 
   def update
+    @funder_pool.current_user = current_user
     if @funder_pool.update(funder_pool_params)
-      redirect_to admin_funder_funder_pool_path(@funder, @funder_pool), notice: 'Funder pool was successfully updated.'
+      redirect_to admin_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), notice: 'Funder pool was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -54,21 +58,21 @@ class Admin::FunderPoolsController < Admin::BaseController
 
   def destroy
     @funder_pool.destroy
-    redirect_to admin_funder_path(@funder), notice: 'Funder pool was successfully deleted.'
+    redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: 'Funder pool was successfully deleted.'
   end
   
 
   private
 
-  def set_funder
-    @funder = Funder.find(params[:funder_id])
+  def set_wholesale_funder
+    @wholesale_funder = WholesaleFunder.find(params[:wholesale_funder_id])
   end
 
   def set_funder_pool
-    @funder_pool = @funder.funder_pools.find(params[:id])
+    @funder_pool = @wholesale_funder.funder_pools.find(params[:id])
   end
 
   def funder_pool_params
-    params.require(:funder_pool).permit(:name, :amount, :allocated)
+    params.require(:funder_pool).permit(:name, :amount, :allocated, :benchmark_rate, :margin_rate)
   end
 end

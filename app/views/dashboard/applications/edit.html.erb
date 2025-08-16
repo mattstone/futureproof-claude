@@ -76,7 +76,7 @@
               options_for_select([
                 ['Individual', 'individual'],
                 ['Joint Ownership', 'joint'],
-                ['Company', 'company'],
+                ['Lender', 'lender'],
                 ['Superannuation Fund', 'super']
               ], @application.ownership_status),
               {},
@@ -162,14 +162,14 @@
         <%= f.hidden_field :borrower_names, data: { "application-form-target": "borrowerNamesHidden" } %>
       </div>
 
-      <!-- Company ownership: Show company name -->
+      <!-- Lender ownership: Show lender name -->
       <div class="form-group" 
-           data-application-form-target="companyFields"
-           style="display: <%= @application.ownership_status_company? ? 'block' : 'none' %>;">
-        <%= f.label :company_name, "Company Name", class: "form-label" %>
-        <%= f.text_field :company_name, 
+           data-application-form-target="lenderFields"
+           style="display: <%= @application.ownership_status_lender? ? 'block' : 'none' %>;">
+        <%= f.label :lender_name, "Lender Name", class: "form-label" %>
+        <%= f.text_field :lender_name, 
             class: "form-input", 
-            placeholder: "Enter the company name" %>
+            placeholder: "Enter the lender name" %>
       </div>
 
       <!-- Superannuation ownership: Show super fund name -->

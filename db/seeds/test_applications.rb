@@ -3,7 +3,18 @@
 
 puts "Creating test applications..."
 
-# First, ensure we have mortgages and a regular user to create applications
+# First, ensure we have the futureproof lender and admin user
+futureproof_lender = Lender.find_by(lender_type: :futureproof) || Lender.create!(
+  name: 'Futureproof Financial Pty Ltd',
+  lender_type: :futureproof,
+  address: 'Wework Barangaroo, Sydney',
+  postcode: '2000',
+  country: 'Australia',
+  contact_email: 'info@futureprooffinancial.co',
+  contact_telephone: '0432212713',
+  contact_telephone_country_code: '+61'
+)
+
 admin_user = User.find_by(admin: true)
 unless admin_user
   admin_user = User.create!(
@@ -17,7 +28,8 @@ unless admin_user
     mobile_country_code: '+61',
     mobile_number: '400000000',
     confirmed_at: Time.current,
-    terms_accepted: true
+    terms_accepted: true,
+    lender: futureproof_lender
   )
 end
 
@@ -92,6 +104,7 @@ test_users = test_users_data.map do |user_data|
     u.mobile_number = "4#{rand(10000000..99999999)}"
     u.confirmed_at = Time.current
     u.terms_accepted = true
+    u.lender = futureproof_lender
   end
   user_ages[user.id] = user_data[:age]
   user
@@ -151,7 +164,7 @@ property_values = [
 ]
 
 # Different ownership statuses and property states
-ownership_statuses = [:individual, :joint, :company, :super]
+ownership_statuses = [:individual, :joint, :lender, :super]
 property_states = [:primary_residence, :investment, :holiday]
 
 # Application statuses with varying distribution
@@ -192,8 +205,8 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     nil
   end
   
-  # Company names for company ownership
-  company_name = if ownership_status == :company
+  # Lender names for lender ownership
+  lender_name = if ownership_status == :lender
     ["#{user.last_name} Holdings Pty Ltd", "#{user.first_name} Investment Co", "#{user.last_name} Property Group", "#{user.first_name} Enterprises"].sample
   else
     nil
@@ -237,7 +250,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     existing_mortgage_amount: existing_mortgage_amount,
     borrower_age: ownership_status == :individual ? user_ages[user.id] : nil,
     borrower_names: borrower_names,
-    company_name: company_name,
+    company_name: lender_name,
     super_fund_name: super_fund_name,
     loan_term: loan_term,
     income_payout_term: income_payout_term,

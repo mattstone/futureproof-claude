@@ -1,13 +1,29 @@
 class Users::SessionsController < Devise::SessionsController
   include BrowserFingerprintHelper
 
-  # Override create to track sign-ins from unknown browsers
+  # Override create to track sign-ins from unknown browsers and handle lender scoping
   def create
     super do |resource|
       if resource.persisted?
         track_browser_sign_in(resource)
       end
     end
+  end
+
+  protected
+
+  # Override the authentication method to include lender_id
+  def auth_options
+    options = super
+    
+    # Add lender_id to authentication conditions if provided
+    if params[:lender_id].present?
+      options[:lender_id] = params[:lender_id]
+    elsif params[:user] && params[:user][:lender_id].present?
+      options[:lender_id] = params[:user][:lender_id]
+    end
+    
+    options
   end
 
   private

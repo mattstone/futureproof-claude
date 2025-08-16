@@ -163,6 +163,100 @@ class Admin::FunderPoolsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".allocation-bar"
   end
 
+  # Rate field tests
+  test "should create funder pool with benchmark and margin rates" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    
+    assert_difference("FunderPool.count") do
+      post admin_wholesale_funder_funder_pools_url(wholesale_funder), params: { 
+        funder_pool: { 
+          name: "Rate Test Pool", 
+          amount: 100000.00, 
+          allocated: 0.00,
+          benchmark_rate: 4.25,
+          margin_rate: 2.50
+        } 
+      }
+    end
+
+    assert_response :redirect
+    
+    new_pool = FunderPool.last
+    assert_equal 4.25, new_pool.benchmark_rate
+    assert_equal 2.50, new_pool.margin_rate
+    assert_equal 6.75, new_pool.total_rate
+  end
+
+  test "should set default rates on creation" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    
+    assert_difference("FunderPool.count") do
+      post admin_wholesale_funder_funder_pools_url(wholesale_funder), params: { 
+        funder_pool: { 
+          name: "Default Rate Pool", 
+          amount: 100000.00, 
+          allocated: 0.00
+        } 
+      }
+    end
+
+    new_pool = FunderPool.last
+    assert_equal 4.00, new_pool.benchmark_rate
+    assert_equal 0.00, new_pool.margin_rate
+  end
+
+  test "should validate rate ranges" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    
+    assert_no_difference("FunderPool.count") do
+      post admin_wholesale_funder_funder_pools_url(wholesale_funder), params: { 
+        funder_pool: { 
+          name: "Invalid Rate Pool", 
+          amount: 100000.00, 
+          allocated: 0.00,
+          benchmark_rate: -1.0, # Invalid
+          margin_rate: 101.0     # Invalid
+        } 
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".form-errors"
+  end
+
+  test "should show rates on funder pool show page" do
+    wholesale_funder = WholesaleFunder.create!(name: "Test WF", country: "Australia", currency: "AUD")
+    funder_pool = FunderPool.create!(
+      wholesale_funder: wholesale_funder,
+      name: "Test Pool",
+      amount: 100000,
+      allocated: 0,
+      benchmark_rate: 4.25,
+      margin_rate: 2.75
+    )
+    
+    get admin_wholesale_funder_funder_pool_url(wholesale_funder, funder_pool)
+    assert_response :success
+    assert_includes response.body, "4.25%"
+    assert_includes response.body, "2.75%"
+    assert_includes response.body, "7.0%" # Total rate
+    assert_includes response.body, "BBSW Rate" # AUD benchmark name
+  end
+
+  test "should display currency-specific benchmark names" do
+    # Test USD - SOFR
+    usd_funder = WholesaleFunder.create!(name: "USD WF", country: "United States", currency: "USD")
+    get new_admin_wholesale_funder_funder_pool_url(usd_funder)
+    assert_response :success
+    assert_includes response.body, "SOFR Rate"
+    
+    # Test GBP - SONIA
+    gbp_funder = WholesaleFunder.create!(name: "GBP WF", country: "United Kingdom", currency: "GBP")
+    get new_admin_wholesale_funder_funder_pool_url(gbp_funder)
+    assert_response :success
+    assert_includes response.body, "SONIA Rate"
+  end
+
   private
 
   def sign_in(user)

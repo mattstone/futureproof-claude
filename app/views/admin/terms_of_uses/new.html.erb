@@ -171,13 +171,13 @@
       } else if (trimmedLine.startsWith('**Contact Info:**')) {
         if (inList) { html += '</ul>'; inList = false; }
         html += '<div class="contact-info"><p><strong>Contact Information:</strong><br>';
-      } else if (trimmedLine && !trimmedLine.startsWith('Company:') && !trimmedLine.startsWith('Email:') && !trimmedLine.startsWith('Address:')) {
+      } else if (trimmedLine && !trimmedLine.startsWith('Lender:') && !trimmedLine.startsWith('Email:') && !trimmedLine.startsWith('Address:')) {
         if (inList) { html += '</ul>'; inList = false; }
         if (trimmedLine) {
           const processedLine = trimmedLine.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
           html += `<p>${processedLine}</p>`;
         }
-      } else if (trimmedLine.startsWith('Company:') || trimmedLine.startsWith('Email:') || trimmedLine.startsWith('Address:')) {
+      } else if (trimmedLine.startsWith('Lender:') || trimmedLine.startsWith('Email:') || trimmedLine.startsWith('Address:')) {
         html += `${trimmedLine}<br>`;
       }
     });

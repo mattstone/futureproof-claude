@@ -11,7 +11,7 @@ class Application < ApplicationRecord
   enum :ownership_status, {
     individual: 0,
     joint: 1,
-    company: 2,
+    lender: 2,
     super: 3
   }, prefix: true
 
@@ -54,7 +54,7 @@ class Application < ApplicationRecord
     only_integer: true
   }, if: -> { ownership_status_individual? && !status_created? }
   validates :borrower_names, presence: true, if: -> { ownership_status_joint? && !status_created? }
-  validates :company_name, presence: true, if: -> { ownership_status_company? && !status_created? }
+  validates :company_name, presence: true, if: -> { ownership_status_lender? && !status_created? }
   validates :super_fund_name, presence: true, if: -> { ownership_status_super? && !status_created? }
   validates :loan_term, presence: true, numericality: {
     greater_than_or_equal_to: 10,
@@ -495,7 +495,7 @@ class Application < ApplicationRecord
     return unless status_accepted?
     return if contract.present?
     
-    # Find the first available funder pool that can handle the home value
+    # Find the first available wholesale_funder pool that can handle the home value
     available_pool = nil
     if mortgage.present?
       # Look for funder pools associated with this mortgage that have available capital
@@ -510,24 +510,24 @@ class Application < ApplicationRecord
     available_pool ||= FunderPool.find_available_for_allocation(home_value)
     
     if available_pool.nil?
-      Rails.logger.error "No funder pool with sufficient capital (#{home_value}) found for application #{id}"
-      raise StandardError, "No funder pool available with sufficient capital for this contract"
+      Rails.logger.error "No wholesale_funder pool with sufficient capital (#{home_value}) found for application #{id}"
+      raise StandardError, "No wholesale_funder pool available with sufficient capital for this contract"
     end
     
-    # Create contract with funder pool allocation
+    # Create contract with wholesale_funder pool allocation
     contract = Contract.create!(
       application: self,
-      funder_pool: available_pool,
+      wholesale_funder_pool: available_pool,
       allocated_amount: home_value,
       start_date: Date.current, # Temporary placeholder
       end_date: Date.current + 5.years, # Temporary placeholder
       status: :awaiting_funding
     )
     
-    # Allocate the capital from the funder pool
+    # Allocate the capital from the wholesale_funder pool
     available_pool.allocate_capital!(home_value)
     
-    Rails.logger.info "Contract created for application #{id} with funder pool #{available_pool.id} allocated #{home_value}"
+    Rails.logger.info "Contract created for application #{id} with wholesale_funder pool #{available_pool.id} allocated #{home_value}"
   rescue => e
     Rails.logger.error "Failed to create contract for application #{id}: #{e.message}"
     raise e
@@ -583,7 +583,7 @@ class Application < ApplicationRecord
     case ownership_value
     when 0 then 'Individual'
     when 1 then 'Joint'
-    when 2 then 'Company'
+    when 2 then 'Lender'
     when 3 then 'Super Fund'
     else ownership_value.to_s
     end

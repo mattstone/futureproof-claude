@@ -39,6 +39,115 @@
   </div>
 </div>
 
+<!-- WholesaleFunder Pool Metrics -->
+<div class="metrics-grid">
+  <div class="metric-card pool-capacity">
+    <div class="metric-icon pool-icon">🏦</div>
+    <div class="metric-content">
+      <h3><%= number_to_currency(@total_pool_capacity, precision: 0) %></h3>
+      <p>Total Pool Capacity</p>
+      <span class="metric-change"><%= @total_pools %> active pool<%= 's' if @total_pools != 1 %></span>
+    </div>
+  </div>
+  
+  <div class="metric-card pool-allocated">
+    <div class="metric-icon allocated-icon">💰</div>
+    <div class="metric-content">
+      <h3><%= number_to_currency(@total_allocated, precision: 0) %></h3>
+      <p>Allocated Capital</p>
+      <span class="metric-percentage"><%= @pool_utilization %>% utilization</span>
+    </div>
+  </div>
+  
+  <div class="metric-card pool-available">
+    <div class="metric-icon available-icon">💵</div>
+    <div class="metric-content">
+      <h3><%= number_to_currency(@total_available, precision: 0) %></h3>
+      <p>Available Capital</p>
+      <span class="metric-change"><%= @active_contracts %> active contract<%= 's' if @active_contracts != 1 %></span>
+    </div>
+  </div>
+  
+  <div class="metric-card pool-utilization">
+    <div class="metric-icon utilization-icon">📊</div>
+    <div class="metric-content">
+      <h3><%= @pool_utilization %>%</h3>
+      <p>Pool Utilization</p>
+      <span class="metric-percentage">
+        <% if @pool_utilization >= 80 %>
+          <span style="color: #dc2626;">High utilization</span>
+        <% elsif @pool_utilization >= 50 %>
+          <span style="color: #d97706;">Medium utilization</span>
+        <% else %>
+          <span style="color: #059669;">Low utilization</span>
+        <% end %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- WholesaleFunder Pool Charts -->
+<div class="dashboard-grid">
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Capital Allocation Overview</h3>
+      <small style="color: #6b7280; font-weight: normal;">Total allocated vs available capital</small>
+    </div>
+    <div class="card-content">
+      <div class="capital-allocation-chart">
+        <div class="allocation-overview">
+          <div class="allocation-segment allocated-segment" style="width: <%= @pool_utilization %>%">
+            <span class="segment-label">Allocated: <%= number_to_currency(@total_allocated, precision: 0) %></span>
+          </div>
+          <div class="allocation-segment available-segment" style="width: <%= 100 - @pool_utilization %>%">
+            <span class="segment-label">Available: <%= number_to_currency(@total_available, precision: 0) %></span>
+          </div>
+        </div>
+        <div class="allocation-legend">
+          <div class="legend-item">
+            <div class="legend-color allocated-color"></div>
+            <span>Allocated Capital (<%= @pool_utilization %>%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color available-color"></div>
+            <span>Available Capital (<%= (100 - @pool_utilization).round(1) %>%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Pool Utilization by WholesaleFunder</h3>
+      <small style="color: #6b7280; font-weight: normal;">Individual pool allocation status</small>
+    </div>
+    <div class="card-content">
+      <div class="pool-utilization-chart">
+        <% if @pool_allocation_data.any? %>
+          <% @pool_allocation_data.each do |pool| %>
+            <div class="pool-bar">
+              <div class="pool-info">
+                <span class="pool-name"><%= pool[:name].truncate(25) %></span>
+                <span class="pool-stats">
+                  <%= number_to_currency(pool[:allocated], precision: 0) %> / 
+                  <%= number_to_currency(pool[:total], precision: 0) %>
+                </span>
+              </div>
+              <div class="pool-progress">
+                <div class="pool-fill" style="width: <%= pool[:utilization] %>%"></div>
+                <span class="pool-percentage"><%= pool[:utilization] %>%</span>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="no-data">No wholesale_funder pools configured</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Funds Under Management Charts -->
 <div class="dashboard-grid">
   <div class="dashboard-card">
@@ -708,6 +817,176 @@
   font-size: 12px;
 }
 
+/* WholesaleFunder Pool Chart Styles */
+.capital-allocation-chart {
+  margin-bottom: 20px;
+}
+
+.allocation-overview {
+  display: flex;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.allocation-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 80px;
+  transition: all 0.3s ease;
+}
+
+.allocated-segment {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+.available-segment {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.segment-label {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: 0 8px;
+}
+
+.allocation-legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.allocated-color {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+.available-color {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.pool-utilization-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pool-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.pool-bar:last-child {
+  border-bottom: none;
+}
+
+.pool-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.pool-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pool-stats {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.pool-progress {
+  position: relative;
+  background: #f3f4f6;
+  border-radius: 8px;
+  height: 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.pool-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border-radius: 8px;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.pool-percentage {
+  position: absolute;
+  right: 8px;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 1;
+}
+
+/* Pool-specific metric card icons */
+.pool-icon {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.allocated-icon {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.available-icon {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.utilization-icon {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+/* Pool metric cards specific styling */
+.metric-card.pool-capacity {
+  border-left: 4px solid #3b82f6;
+}
+
+.metric-card.pool-allocated {
+  border-left: 4px solid #dc2626;
+}
+
+.metric-card.pool-available {
+  border-left: 4px solid #059669;
+}
+
+.metric-card.pool-utilization {
+  border-left: 4px solid #7c3aed;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .metrics-grid {
@@ -734,6 +1013,36 @@
   
   .growth-chart {
     height: 150px;
+  }
+  
+  .allocation-overview {
+    height: 50px;
+  }
+  
+  .segment-label {
+    font-size: 12px;
+    padding: 0 4px;
+  }
+  
+  .allocation-legend {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .pool-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .pool-progress {
+    height: 20px;
+  }
+  
+  .pool-percentage {
+    right: 4px;
+    font-size: 11px;
   }
 }
 </style>

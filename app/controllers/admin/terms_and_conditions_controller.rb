@@ -1,7 +1,6 @@
-class Admin::TermsAndConditionsController < ApplicationController
-  before_action :authenticate_user!
+class Admin::TermsAndConditionsController < Admin::BaseController
+  before_action :ensure_futureproof_admin
   before_action :set_terms_and_condition, only: [:show, :edit, :update, :activate]
-  layout 'admin/application'
 
   def index
     @terms_and_conditions = TermsAndCondition.order(version: :desc).page(params[:page]).per(10)
@@ -49,8 +48,8 @@ class Admin::TermsAndConditionsController < ApplicationController
         ## Contact Information
 
         **Contact Info:**
-        Company: Your Company Name
-        Email: contact@yourcompany.com
+        Lender: Your Lender Name
+        Email: contact@yourlender.com
         Address: Your Address
       MARKUP
     end

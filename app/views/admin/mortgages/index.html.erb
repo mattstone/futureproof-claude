@@ -19,8 +19,7 @@
         <th>Name</th>
         <th>Type</th>
         <th>LVR</th>
-        <th>Allocated</th>
-        <th>Available</th>
+        <th>Lender</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -36,14 +35,14 @@
           </td>
           <td><strong><%= mortgage.formatted_lvr %></strong></td>
           <td>
-            <span class="capital-amount allocated">
-              <%= mortgage.formatted_allocated_capital %>
-            </span>
-          </td>
-          <td>
-            <span class="capital-amount available">
-              <%= mortgage.formatted_available_capital %>
-            </span>
+            <% if mortgage.lender %>
+              <%= link_to mortgage.lender.name, admin_lender_path(mortgage.lender), class: "admin-link" %>
+              <span class="lender-type-badge <%= mortgage.lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
+                <%= mortgage.lender.lender_type.humanize %>
+              </span>
+            <% else %>
+              <span class="no-lender">No lender assigned</span>
+            <% end %>
           </td>
           <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
           <td>
@@ -74,28 +73,50 @@
 </div>
 
 <style>
-.capital-amount {
+/* Lender styling */
+.lender-type-badge {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
   font-weight: 600;
-  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+  display: inline-block;
 }
 
-.capital-amount.allocated {
+.lender-futureproof {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.lender-external {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.no-lender {
   color: #dc2626;
+  font-style: italic;
+  font-size: 13px;
 }
 
-.capital-amount.available {
-  color: #059669;
+.admin-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
 }
 
 /* Ensure table columns are properly sized */
-.admin-table th:nth-child(4),
-.admin-table th:nth-child(5) {
-  width: 110px;
-  text-align: right;
+.admin-table th:nth-child(4) {
+  width: 180px;
 }
 
-.admin-table td:nth-child(4),
-.admin-table td:nth-child(5) {
-  text-align: right;
+.admin-table td:nth-child(4) {
+  max-width: 180px;
 }
 </style>

@@ -171,56 +171,87 @@ class MortgageTest < ActiveSupport::TestCase
     assert_not_includes summary, "80.0%"
   end
 
-  # FunderPool association tests
-  test "should have funder pool associations through join table" do
-    mortgage = mortgages(:basic_mortgage)
-    funder_pool = funder_pools(:primary_pool)
-    
-    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: funder_pool, active: true)
-    
-    assert_includes mortgage.funder_pools, funder_pool
-    assert_includes funder_pool.mortgages, mortgage
-  end
-
-  test "should require at least one active funder pool on update" do
-    mortgage = mortgages(:basic_mortgage)
-    funder_pool = funder_pools(:primary_pool)
-    
-    # Create a mortgage with an active funder pool
-    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: funder_pool, active: true)
-    
-    # Should be valid with active funder pool
-    assert mortgage.valid?
-    
-    # Deactivate the only funder pool
-    mortgage.mortgage_funder_pools.first.update!(active: false)
-    
-    # Now the mortgage should be invalid on update
-    mortgage.name = "Updated Name"
-    assert_not mortgage.valid?
-    assert_includes mortgage.errors[:funder_pools], "must have at least one active funder pool"
-  end
-
-  test "should be valid with multiple funder pools if at least one is active" do
-    mortgage = mortgages(:basic_mortgage)
-    pool1 = funder_pools(:primary_pool)
-    pool2 = funder_pools(:secondary_pool)
-    
-    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: pool1, active: false)
-    MortgageFunderPool.create!(mortgage: mortgage, funder_pool: pool2, active: true)
-    
-    mortgage.name = "Updated Name"
-    assert mortgage.valid?
-  end
-
-  test "validation should not run on new mortgages without funder pools" do
-    mortgage = Mortgage.new(
-      name: "New Mortgage",
-      mortgage_type: :interest_only,
-      lvr: 80.0
+  # Lender association tests
+  test "should belong to lender optionally" do
+    lender = Lender.create!(
+      name: "Test Lender",
+      lender_type: :lender,
+      contact_email: "test@lender.com",
+      country: "Australia"
     )
     
-    # Should be valid even without funder pools (validation is on update only)
+    mortgage = Mortgage.new(
+      name: "Test Mortgage",
+      mortgage_type: :interest_only,
+      lvr: 80.0,
+      lender: lender
+    )
+    
     assert mortgage.valid?
+    assert_equal lender, mortgage.lender
+  end
+
+  test "should be valid without a lender" do
+    mortgage = Mortgage.new(
+      name: "Test Mortgage",
+      mortgage_type: :interest_only,
+      lvr: 80.0,
+      lender: nil
+    )
+    
+    assert mortgage.valid?
+  end
+
+  test "lender_name should return lender name or default message" do
+    lender = Lender.create!(
+      name: "Test Lender",
+      lender_type: :lender,
+      contact_email: "test@lender.com",
+      country: "Australia"
+    )
+    
+    # With lender
+    mortgage_with_lender = Mortgage.new(lender: lender)
+    assert_equal "Test Lender", mortgage_with_lender.lender_name
+    
+    # Without lender
+    mortgage_without_lender = Mortgage.new(lender: nil)
+    assert_equal "No Lender Assigned", mortgage_without_lender.lender_name
+  end
+
+  test "should be able to assign and reassign lenders" do
+    lender1 = Lender.create!(
+      name: "Lender One",
+      lender_type: :lender,
+      contact_email: "one@lender.com",
+      country: "Australia"
+    )
+    
+    lender2 = Lender.create!(
+      name: "Lender Two",
+      lender_type: :futureproof,
+      contact_email: "two@lender.com",
+      country: "Australia"
+    )
+    
+    mortgage = Mortgage.new(
+      name: "Test Mortgage",
+      mortgage_type: :interest_only,
+      lvr: 80.0,
+      lender: lender1
+    )
+    
+    assert mortgage.valid?
+    assert_equal lender1, mortgage.lender
+    
+    # Reassign lender
+    mortgage.lender = lender2
+    assert mortgage.valid?
+    assert_equal lender2, mortgage.lender
+    
+    # Remove lender
+    mortgage.lender = nil
+    assert mortgage.valid?
+    assert_nil mortgage.lender
   end
 end

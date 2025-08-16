@@ -1,7 +1,6 @@
-class Admin::PrivacyPoliciesController < ApplicationController
-  before_action :authenticate_user!
+class Admin::PrivacyPoliciesController < Admin::BaseController
+  before_action :ensure_futureproof_admin
   before_action :set_privacy_policy, only: [:show, :edit, :update, :activate]
-  layout 'admin/application'
 
   def index
     @privacy_policies = PrivacyPolicy.order(version: :desc).page(params[:page]).per(10)
@@ -49,8 +48,8 @@ class Admin::PrivacyPoliciesController < ApplicationController
         ## Contact Information
 
         **Contact Info:**
-        Company: Your Company Name
-        Email: privacy@yourcompany.com
+        Lender: Your Lender Name
+        Email: privacy@yourlender.com
         Address: Your Address
       MARKUP
     end

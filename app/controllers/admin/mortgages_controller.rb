@@ -1,16 +1,17 @@
 class Admin::MortgagesController < Admin::BaseController
+  before_action :ensure_futureproof_admin
   before_action :set_mortgage, only: [:show, :edit, :update, :destroy]
   before_action :set_audit_history, only: [:show]
 
   def index
-    @mortgages = Mortgage.includes(mortgage_funder_pools: :funder_pool).all.order(:name)
+    @mortgages = Mortgage.includes(:lender).all.order(:name)
     @mortgages = @mortgages.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
     @mortgages = @mortgages.page(params[:page]).per(10)
   end
 
   def show
-    # Eager load funder pools for display
-    @mortgage = @mortgage.class.includes(mortgage_funder_pools: { funder_pool: :funder }).find(@mortgage.id)
+    # Eager load lender for display
+    @mortgage = @mortgage.class.includes(:lender).find(@mortgage.id)
   end
 
   def new
@@ -29,8 +30,8 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def edit
-    # Eager load funder pools for display
-    @mortgage = @mortgage.class.includes(mortgage_funder_pools: { funder_pool: :funder }).find(@mortgage.id)
+    # Eager load lender for display
+    @mortgage = @mortgage.class.includes(:lender).find(@mortgage.id)
   end
 
   def update
@@ -58,6 +59,6 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def mortgage_params
-    params.require(:mortgage).permit(:name, :mortgage_type, :lvr)
+    params.require(:mortgage).permit(:name, :mortgage_type, :lvr, :lender_id)
   end
 end

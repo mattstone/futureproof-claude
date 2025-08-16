@@ -14,7 +14,27 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
-    resources :funders do
+    resources :lenders do
+      member do
+        get :available_wholesale_funders
+      end
+      resources :wholesale_funders, controller: 'lender_wholesale_funders', except: [:index, :show] do
+        member do
+          patch :toggle_active
+        end
+        collection do
+          post :add_wholesale_funder
+          delete :remove_wholesale_funder
+          post :toggle_pool
+        end
+      end
+      resources :funder_pools, controller: 'lender_funder_pools', except: [:index, :show] do
+        member do
+          patch :toggle_active
+        end
+      end
+    end
+    resources :wholesale_funders do
       collection do
         post :search
       end
@@ -25,20 +45,7 @@ Rails.application.routes.draw do
     resources :funder_pools, only: [:index]
     resources :dashboard, only: [:index]
     resources :users
-    resources :mortgages do
-      resources :funder_pools, controller: 'mortgage_funder_pools', except: [:index, :show] do
-        member do
-          patch :toggle_active
-        end
-      end
-    end
-    
-    # Direct access to mortgage funder pools
-    resources :mortgage_funder_pools, only: [:destroy] do
-      member do
-        patch :toggle_active
-      end
-    end
+    resources :mortgages
     resources :applications do
       collection do
         post :search

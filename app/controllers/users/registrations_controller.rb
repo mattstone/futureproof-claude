@@ -38,7 +38,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
   end
 
-  # Override the create method to handle reCAPTCHA and avoid routing issues
+  # Override the create method to handle reCAPTCHA and lender assignment
   def create
     Rails.logger.debug "reCAPTCHA verification starting..."
     Rails.logger.debug "Site key: #{ENV['RECAPTCHA_SITE_KEY']}"
@@ -70,6 +70,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
     
     # Build the user resource
     build_resource(sign_up_params)
+    
+    # Set the lender - default to Futureproof lender if not specified
+    resource.lender = determine_user_lender
     
     # Set the terms version the user agreed to
     current_terms = TermsOfUse.current
@@ -120,6 +123,18 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # Also add users_path for completeness
   def users_path(options = {})
     user_registration_path(options)
+  end
+
+  # Determine which lender the user should belong to
+  def determine_user_lender
+    # Check if lender_id is provided in params
+    if params[:lender_id].present?
+      lender = Lender.find_by(id: params[:lender_id])
+      return lender if lender
+    end
+    
+    # Default to Futureproof lender
+    Lender.lender_type_futureproof.first || Lender.first
   end
 
   # Strong parameters for user registration

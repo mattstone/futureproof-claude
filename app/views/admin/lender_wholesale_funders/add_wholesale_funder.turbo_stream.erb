@@ -1,0 +1,137 @@
+<% if @success %>
+  <!-- Hide the wholesale funder selection interface -->
+  <%= turbo_stream.update "wholesale-funder-selection" do %>
+    <div class="wholesale-funder-selection" style="display: none;">
+      <div class="selection-header">
+        <h5>Available Wholesale Funders</h5>
+        <button type="button" id="close-wholesale-funder-selection" class="close-btn">×</button>
+      </div>
+      <div id="available-wholesale-funders" class="wholesale-funders-list">
+        <!-- Loaded via AJAX -->
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Update the existing relationships (left column) -->
+  <%= turbo_stream.replace "existing-relationships" do %>
+    <div id="existing-relationships">
+      <div class="relationship-list">
+        <% @lender.lender_wholesale_funders.includes(:wholesale_funder).each do |relationship| %>
+          <div class="relationship-card" data-wholesale-funder-id="<%= relationship.wholesale_funder.id %>">
+            <div class="relationship-header">
+              <h5><%= relationship.wholesale_funder.name %></h5>
+              <div class="relationship-actions">
+                <span class="status-badge <%= relationship.status_badge_class %>">
+                  <%= relationship.status_display %>
+                </span>
+                <%= link_to "Toggle", toggle_active_admin_lender_wholesale_funder_path(relationship),
+                            method: :patch, class: "admin-btn admin-btn-sm" %>
+                <%= link_to "Remove", admin_lender_wholesale_funder_path(relationship),
+                            method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                            data: { confirm: "Are you sure?" } %>
+              </div>
+            </div>
+            <div class="relationship-details">
+              <div class="detail-row">
+                <span class="detail-label">Country</span>
+                <span class="detail-value"><%= relationship.wholesale_funder.country %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Currency</span>
+                <span class="detail-value"><%= relationship.wholesale_funder.currency_display %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Created</span>
+                <span class="detail-value"><%= relationship.created_at.strftime("%b %d, %Y") %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Update the funder pools (right column) -->
+  <%= turbo_stream.replace "right-column-content" do %>
+    <% if @lender.lender_funder_pools.any? %>
+      <div class="pool-list">
+        <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
+          <% pool = pool_relationship.funder_pool %>
+          <div class="pool-card">
+            <div class="pool-header">
+              <h5><%= pool.name %></h5>
+              <div class="pool-actions">
+                <span class="status-badge <%= pool_relationship.status_badge_class %>">
+                  <%= pool_relationship.status_display %>
+                </span>
+                <%= link_to "Toggle", toggle_active_admin_lender_funder_pool_path(pool_relationship),
+                            method: :patch, class: "admin-btn admin-btn-sm" %>
+                <%= link_to "Remove", admin_lender_funder_pool_path(pool_relationship),
+                            method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                            data: { confirm: "Are you sure?" } %>
+              </div>
+            </div>
+            <div class="pool-details">
+              <div class="detail-row">
+                <span class="detail-label">Wholesale Funder</span>
+                <span class="detail-value"><%= pool.wholesale_funder.name %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value"><%= pool.formatted_amount %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Available</span>
+                <span class="detail-value"><%= pool.formatted_available %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Added</span>
+                <span class="detail-value"><%= pool_relationship.created_at.strftime("%b %d, %Y") %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <% if @lender.active_wholesale_funders.any? %>
+          <p>No funder pools selected yet.</p>
+          <%= link_to "Add First Funder Pool", new_admin_lender_funder_pool_path(@lender),
+                      class: "admin-btn admin-btn-primary admin-btn-sm" %>
+        <% else %>
+          <p>Add wholesale funder relationships first to access their funder pools.</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Reset the add button text -->
+  <%= turbo_stream.update "toggle-wholesale-funder-selection" do %>
+    Add Wholesale Funder
+  <% end %>
+
+  <!-- Show success message -->
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-success" id="temp-notice">
+      <%= @message %>
+    </div>
+  <% end %>
+
+<% else %>
+  <!-- Show error message -->
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-error">
+      <%= @message %>
+    </div>
+  <% end %>
+<% end %>
+
+<script>
+  // Auto-hide flash messages after 3 seconds
+  setTimeout(() => {
+    const notice = document.getElementById('temp-notice');
+    if (notice) {
+      notice.style.display = 'none';
+    }
+  }, 3000);
+</script>

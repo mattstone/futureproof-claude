@@ -1,21 +1,21 @@
-<% content_for :page_title, "New Funder Pool for #{@funder.name}" %>
+<% content_for :page_title, "New WholesaleFunder Pool for #{@wholesale_funder.name}" %>
 
 <div class="admin-actions-bar">
   <div>
-    <h1>New Funder Pool</h1>
-    <p class="page-subtitle">Create a new pool for <%= @funder.name %></p>
+    <h1>New WholesaleFunder Pool</h1>
+    <p class="page-subtitle">Create a new pool for <%= @wholesale_funder.name %></p>
   </div>
   
   <div class="admin-actions">
-    <%= link_to "Back to #{@funder.name}", admin_funder_path(@funder), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to #{@wholesale_funder.name}", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
   </div>
 </div>
 
-<!-- New Funder Pool Form -->
+<!-- New WholesaleFunder Pool Form -->
 <div class="admin-card">
   <h3>Pool Details</h3>
   
-  <%= form_with model: [:admin, @funder, @funder_pool], local: true, class: "admin-form" do |form| %>
+  <%= form_with model: [:admin, @wholesale_funder, @funder_pool], local: true, class: "admin-form" do |form| %>
     <% if @funder_pool.errors.any? %>
       <div class="form-errors">
         <h4><%= pluralize(@funder_pool.errors.count, "error") %> prohibited this pool from being saved:</h4>
@@ -53,11 +53,29 @@
           <div class="field-error"><%= @funder_pool.errors[:allocated].first %></div>
         <% end %>
       </div>
+      
+      <div class="form-group">
+        <%= form.label :benchmark_rate, "#{@wholesale_funder.currency == 'AUD' ? 'BBSW' : @wholesale_funder.currency == 'USD' ? 'SOFR' : @wholesale_funder.currency == 'GBP' ? 'SONIA' : 'Benchmark'} Rate (%)", class: "form-label" %>
+        <%= form.number_field :benchmark_rate, step: 0.01, min: 0, max: 100, class: "form-input", placeholder: "4.00" %>
+        <small class="form-help">Benchmark interest rate (defaults to 4.00%)</small>
+        <% if @funder_pool.errors[:benchmark_rate].any? %>
+          <div class="field-error"><%= @funder_pool.errors[:benchmark_rate].first %></div>
+        <% end %>
+      </div>
+      
+      <div class="form-group">
+        <%= form.label :margin_rate, "Margin Rate (%)", class: "form-label" %>
+        <%= form.number_field :margin_rate, step: 0.01, min: 0, max: 100, class: "form-input", placeholder: "0.00" %>
+        <small class="form-help">Additional margin added to the benchmark rate</small>
+        <% if @funder_pool.errors[:margin_rate].any? %>
+          <div class="field-error"><%= @funder_pool.errors[:margin_rate].first %></div>
+        <% end %>
+      </div>
     </div>
 
     <div class="form-actions">
       <%= form.submit "Create Pool", class: "admin-btn admin-btn-primary" %>
-      <%= link_to "Cancel", admin_funder_path(@funder), class: "admin-btn admin-btn-secondary" %>
+      <%= link_to "Cancel", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
     </div>
   <% end %>
 </div>
