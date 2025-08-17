@@ -43,6 +43,9 @@ gem "kaminari"
 # Change tracking and versioning
 gem "paper_trail"
 
+# Exception notification for production error emails
+gem "exception_notification"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

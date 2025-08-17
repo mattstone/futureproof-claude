@@ -126,12 +126,14 @@
     Add Wholesale Funder
   <% end %>
 
-  <!-- Show success message -->
-  <%= turbo_stream.prepend "flash-messages" do %>
-    <div class="alert alert-success" id="temp-notice">
-      <%= @message %>
-    </div>
-  <% end %>
+  <!-- Success message will be shown by JavaScript notification or existing page flash -->
+  <script>
+    console.log('<%= @message %>');
+    // Optionally show a temporary success indicator
+    if (window.showTemporarySuccess) {
+      window.showTemporarySuccess('<%= @message %>');
+    }
+  </script>
 
 <% else %>
   <!-- Show error message -->

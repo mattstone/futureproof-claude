@@ -17,6 +17,9 @@ export default class extends Controller {
   connect() {
     // Initialize the interface state
     this.hideSelection()
+    
+    // Set up global success notification function
+    window.showTemporarySuccess = this.showTemporarySuccess.bind(this)
   }
   
   toggleSelection() {
@@ -161,6 +164,32 @@ export default class extends Controller {
         card.style.opacity = ''
         card.style.pointerEvents = ''
       }
+    }
+  }
+  
+  showTemporarySuccess(message) {
+    // Show a temporary success notification without duplicating flash messages
+    const flashContainer = document.getElementById('flash-messages')
+    if (flashContainer) {
+      // Remove any existing temporary notices
+      const existingNotices = flashContainer.querySelectorAll('#temp-success-notice')
+      existingNotices.forEach(notice => notice.remove())
+      
+      // Create new temporary notice
+      const notice = document.createElement('div')
+      notice.className = 'alert alert-success'
+      notice.id = 'temp-success-notice'
+      notice.textContent = message
+      
+      // Add to container
+      flashContainer.appendChild(notice)
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        if (notice.parentNode) {
+          notice.remove()
+        }
+      }, 3000)
     }
   }
   

@@ -176,6 +176,9 @@ GEM
     et-orbi (1.3.0)
       tzinfo
     event_stream_parser (1.0.0)
+    exception_notification (5.0.1)
+      actionmailer (>= 7.1, < 9)
+      activesupport (>= 7.1, < 9)
     faraday (2.13.4)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -533,6 +536,7 @@ DEPENDENCIES
   csv
   debug
   devise
+  exception_notification
   importmap-rails
   jbuilder
   kamal

@@ -122,6 +122,18 @@ Rails.application.routes.draw do
         post :preview_ajax
       end
     end
+    
+    # Error notification testing (production only, futureproof admins only)
+    if Rails.env.production?
+      resource :error_test, only: [:show] do
+        collection do
+          post :test_error
+          post :test_database_error
+          post :test_view_error
+        end
+      end
+    end
+    
     root "dashboard#index"
   end
 

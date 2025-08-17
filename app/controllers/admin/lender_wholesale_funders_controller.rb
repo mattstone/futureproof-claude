@@ -33,11 +33,27 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
     else
       @lender = @lender_wholesale_funder.lender
       wholesale_funder_name = @lender_wholesale_funder.wholesale_funder.name
+      wholesale_funder = @lender_wholesale_funder.wholesale_funder
       @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
+      
+      # Count associated funder pools that will be removed
+      associated_pools = @lender.lender_funder_pools.joins(:funder_pool)
+                               .where(funder_pools: { wholesale_funder: wholesale_funder })
+      pools_count = associated_pools.count
+      
+      # Remove all associated funder pool relationships first
+      associated_pools.each do |pool_relationship|
+        pool_relationship.current_user = current_user if pool_relationship.respond_to?(:current_user=)
+      end
+      associated_pools.destroy_all
       
       if @lender_wholesale_funder.destroy
         @success = true
-        @message = "#{wholesale_funder_name} removed successfully"
+        if pools_count > 0
+          @message = "#{wholesale_funder_name} removed successfully (#{pools_count} associated funder pool#{pools_count == 1 ? '' : 's'} also removed)"
+        else
+          @message = "#{wholesale_funder_name} removed successfully"
+        end
       else
         @success = false
         @message = "Failed to remove #{wholesale_funder_name}"

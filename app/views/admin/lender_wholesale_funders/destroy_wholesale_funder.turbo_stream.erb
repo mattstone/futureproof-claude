@@ -48,7 +48,7 @@
   <% end %>
 
   <!-- Update the funder pools (right column) -->
-  <%= turbo_stream.replace "right-column-content" do %>
+  <%= turbo_stream.replace "pool-list-content" do %>
     <% if @lender.lender_funder_pools.any? %>
       <div class="pool-list">
         <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
@@ -103,12 +103,14 @@
     <% end %>
   <% end %>
 
-  <!-- Show success message -->
-  <%= turbo_stream.prepend "flash-messages" do %>
-    <div class="alert alert-success" id="temp-notice">
-      <%= @message %>
-    </div>
-  <% end %>
+  <!-- Success message will be shown by JavaScript notification -->
+  <script>
+    console.log('<%= @message %>');
+    // Show a temporary success indicator
+    if (window.showTemporarySuccess) {
+      window.showTemporarySuccess('<%= @message %>');
+    }
+  </script>
 
 <% else %>
   <!-- Show error message -->

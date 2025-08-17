@@ -53,21 +53,30 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # Enable email delivery for error notifications and other mailers
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.perform_caching = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # This should be updated to match your production domain
+  config.action_mailer.default_url_options = { 
+    host: ENV.fetch("RAILS_HOST", "futureprooffinancial.co"), 
+    protocol: "https" 
+  }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Configure SMTP for email delivery
+  # SMTP credentials should be set via rails credentials:edit or environment variables
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    user_name: Rails.application.credentials.dig(:smtp, :user_name) || ENV['SMTP_USERNAME'],
+    password: Rails.application.credentials.dig(:smtp, :password) || ENV['SMTP_PASSWORD'],
+    address: Rails.application.credentials.dig(:smtp, :address) || ENV['SMTP_ADDRESS'] || "smtp.gmail.com",
+    port: Rails.application.credentials.dig(:smtp, :port) || ENV['SMTP_PORT']&.to_i || 587,
+    authentication: :plain,
+    enable_starttls_auto: true,
+    domain: 'futureprooffinancial.co'
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

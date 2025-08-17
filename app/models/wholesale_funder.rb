@@ -82,7 +82,7 @@ class WholesaleFunder < ApplicationRecord
   end
 
   def formatted_total_capital
-    "$#{total_capital.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    "$#{total_capital.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
 
   def formatted_total_allocated
