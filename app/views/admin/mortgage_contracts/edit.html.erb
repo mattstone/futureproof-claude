@@ -1,0 +1,81 @@
+<% content_for :page_title, "Edit Mortgage Contract" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Contracts", admin_mortgage_contracts_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "View Contract", admin_mortgage_contract_path(@mortgage_contract), class: "admin-btn admin-btn-info" %>
+  </div>
+</div>
+
+<div class="full-width-container">
+  <% if @mortgage_contract.persisted? && @mortgage_contract.published? %>
+    <h2>Create New Version</h2>
+    
+    <div class="version-info">
+      <p><strong>Editing Published Contract:</strong> Since this contract is already published, editing will create a new draft version (Version <%= (MortgageContract.maximum(:version) || 0) + 1 %>).</p>
+      <p>The original published version will remain unchanged until the new version is published.</p>
+    </div>
+  <% else %>
+    <h2>Edit Contract <span class="version-label">Version <%= @mortgage_contract.version %></span></h2>
+    
+    <% if @mortgage_contract.draft? %>
+      <div class="draft-info">
+        <p><strong>Editing Draft:</strong> This contract is currently a draft. You can freely edit it before publishing.</p>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= render 'form' %>
+</div>
+
+<style>
+.full-width-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.version-info {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.version-info p {
+  margin: 0 0 8px 0;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.version-info p:last-child {
+  margin-bottom: 0;
+}
+
+.draft-info {
+  background: #f0f9ff;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.draft-info p {
+  margin: 0;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.version-label {
+  background: #e5e7eb;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+</style>

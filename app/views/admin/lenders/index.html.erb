@@ -22,8 +22,8 @@
         <th>Name</th>
         <th>Type</th>
         <th>Country</th>
-        <th>Contact Email</th>
-        <th>Contact Phone</th>
+        <th>Wholesale Funders</th>
+        <th>Fund Pools</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -50,16 +50,22 @@
             </div>
           </td>
           <td>
-            <div class="contact-email">
-              <%= mail_to lender.contact_email, lender.contact_email, class: "email-link" %>
+            <div class="wholesale-funders-info">
+              <span class="count-badge"><%= lender.wholesale_funders_count %></span>
+              <% if lender.wholesale_funders_count > 0 %>
+                <span class="info-label">funders</span>
+              <% else %>
+                <span class="text-muted">No funders</span>
+              <% end %>
             </div>
           </td>
           <td>
-            <div class="contact-phone">
-              <% if lender.contact_telephone.present? %>
-                <%= lender.contact_telephone_country_code %> <%= lender.contact_telephone %>
+            <div class="fund-pools-info">
+              <% if lender.total_fund_pool_amount > 0 %>
+                <span class="fund-amount"><%= lender.formatted_total_fund_pool_amount %></span>
+                <span class="info-label">(<%= lender.funder_pools.count %> pools)</span>
               <% else %>
-                <span class="text-muted">—</span>
+                <span class="text-muted">No pools</span>
               <% end %>
             </div>
           </td>
@@ -139,22 +145,28 @@
   font-size: 16px;
 }
 
-.contact-email {
+.wholesale-funders-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
 }
 
-.email-link {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.email-link:hover {
-  text-decoration: underline;
-}
-
-.contact-phone {
+.fund-pools-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 14px;
-  color: #374151;
+}
+
+.fund-amount {
+  font-weight: 600;
+  color: #059669;
+}
+
+.info-label {
+  color: #6b7280;
+  font-size: 12px;
 }
 
 .text-muted {

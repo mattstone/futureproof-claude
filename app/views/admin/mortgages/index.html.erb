@@ -19,7 +19,7 @@
         <th>Name</th>
         <th>Type</th>
         <th>LVR</th>
-        <th>Lender</th>
+        <th>Lenders</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -35,13 +35,24 @@
           </td>
           <td><strong><%= mortgage.formatted_lvr %></strong></td>
           <td>
-            <% if mortgage.lender %>
-              <%= link_to mortgage.lender.name, admin_lender_path(mortgage.lender), class: "admin-link" %>
-              <span class="lender-type-badge <%= mortgage.lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
-                <%= mortgage.lender.lender_type.humanize %>
-              </span>
+            <% if mortgage.active_lenders.any? %>
+              <div class="lenders-list">
+                <% mortgage.active_lenders.first(2).each do |lender| %>
+                  <div class="lender-item">
+                    <%= link_to lender.name, admin_lender_path(lender), class: "admin-link" %>
+                    <span class="lender-type-badge <%= lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
+                      <%= lender.lender_type.humanize %>
+                    </span>
+                  </div>
+                <% end %>
+                <% if mortgage.active_lenders.count > 2 %>
+                  <div class="more-lenders">
+                    +<%= mortgage.active_lenders.count - 2 %> more
+                  </div>
+                <% end %>
+              </div>
             <% else %>
-              <span class="no-lender">No lender assigned</span>
+              <span class="no-lender">No lenders assigned</span>
             <% end %>
           </td>
           <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
@@ -111,12 +122,32 @@
   text-decoration: underline;
 }
 
+/* Lenders List */
+.lenders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lender-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.more-lenders {
+  font-size: 11px;
+  color: #6b7280;
+  font-style: italic;
+}
+
 /* Ensure table columns are properly sized */
 .admin-table th:nth-child(4) {
-  width: 180px;
+  width: 200px;
 }
 
 .admin-table td:nth-child(4) {
-  max-width: 180px;
+  max-width: 200px;
 }
 </style>

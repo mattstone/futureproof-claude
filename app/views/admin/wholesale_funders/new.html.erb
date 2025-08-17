@@ -1,19 +1,19 @@
-<% content_for :page_title, "New Wholesale WholesaleFunder" %>
+<% content_for :page_title, "New Wholesale Funder" %>
 
 <div class="admin-actions-bar">
   <div>
-    <h1>New Wholesale WholesaleFunder</h1>
+    <h1>New Wholesale Funder</h1>
     <p class="page-subtitle">Create a new wholesale funding source</p>
   </div>
   
   <div class="admin-actions">
-    <%= link_to "Back to Wholesale WholesaleFunders", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to Wholesale Funders", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
   </div>
 </div>
 
 <!-- New WholesaleFunder Form -->
 <div class="admin-card">
-  <h3>Wholesale WholesaleFunder Details</h3>
+  <h3>Wholesale Funder Details</h3>
   
   <%= form_with model: [:admin, @wholesale_funder], local: true, class: "admin-form" do |form| %>
     <% if @wholesale_funder.errors.any? %>
@@ -61,7 +61,7 @@
     </div>
 
     <div class="form-actions">
-      <%= form.submit "Create Wholesale WholesaleFunder", class: "admin-btn admin-btn-primary" %>
+      <%= form.submit "Create Wholesale Funder", class: "admin-btn admin-btn-primary" %>
       <%= link_to "Cancel", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
     </div>
   <% end %>

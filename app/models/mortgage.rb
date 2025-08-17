@@ -1,6 +1,11 @@
 class Mortgage < ApplicationRecord
   has_many :mortgage_versions, dependent: :destroy
-  belongs_to :lender, optional: true
+  
+  # Lender relationships (many-to-many)
+  has_many :mortgage_lenders, dependent: :destroy
+  has_many :lenders, through: :mortgage_lenders
+  has_many :active_lenders, -> { where(mortgage_lenders: { active: true }) }, 
+           through: :mortgage_lenders, source: :lender
   
   enum :mortgage_type, {
     interest_only: 0,
@@ -79,9 +84,18 @@ class Mortgage < ApplicationRecord
     end
   end
   
-  # Get lender name for display
+  # Get lender names for display
+  def lender_names
+    if active_lenders.any?
+      active_lenders.pluck(:name).join(', ')
+    else
+      'No Lenders Assigned'
+    end
+  end
+  
+  # Keep backward compatibility for single lender name
   def lender_name
-    lender&.name || 'No Lender Assigned'
+    lender_names
   end
   
   private

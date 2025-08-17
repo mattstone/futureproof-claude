@@ -1,0 +1,7 @@
+<% if flash[:alert] %>
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-danger" data-controller="auto-dismiss" data-auto-dismiss-delay-value="5000">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+<% end %>

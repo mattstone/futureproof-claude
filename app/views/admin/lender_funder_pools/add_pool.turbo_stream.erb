@@ -1,0 +1,223 @@
+<% if @success %>
+  <!-- Update the existing pools list to include the new pool -->
+  <%= turbo_stream.update "pool-list-content" do %>
+    <% if @lender.lender_funder_pools.any? %>
+      <div class="pool-list">
+        <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
+          <% pool = pool_relationship.funder_pool %>
+          <div class="pool-card">
+            <div class="pool-header">
+              <h5><%= pool.name %></h5>
+              <div class="pool-actions">
+                <span class="status-badge <%= pool_relationship.status_badge_class %>">
+                  <%= pool_relationship.status_display %>
+                </span>
+                <%= button_to "Toggle", toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
+                              method: :patch, class: "admin-btn admin-btn-sm",
+                              remote: true, form: { style: "display: inline;" } %>
+                <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
+                              method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                              remote: true, data: { confirm: "Are you sure?" },
+                              form: { style: "display: inline;" } %>
+              </div>
+            </div>
+            <div class="pool-details">
+              <div class="detail-row">
+                <span class="detail-label">Wholesale Funder</span>
+                <span class="detail-value"><%= pool.wholesale_funder.name %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value"><%= pool.formatted_amount %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Available</span>
+                <span class="detail-value"><%= pool.formatted_available %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Added</span>
+                <span class="detail-value"><%= pool_relationship.created_at.strftime("%b %d, %Y") %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <% if @lender.active_wholesale_funders.any? %>
+          <% available_pools = FunderPool.joins(:wholesale_funder)
+                                         .joins("INNER JOIN lender_wholesale_funders ON lender_wholesale_funders.wholesale_funder_id = wholesale_funders.id")
+                                         .where(lender_wholesale_funders: { lender_id: @lender.id, active: true })
+                                         .includes(:wholesale_funder)
+                                         .order('wholesale_funders.name, funder_pools.name') %>
+          
+          <% if available_pools.any? %>
+            <div class="empty-state-with-options">
+              <h4>Available Funder Pools</h4>
+              <p>Select from the pools available through your wholesale funder relationships:</p>
+              
+              <div class="available-pools-preview">
+                <% available_pools.each do |pool| %>
+                  <div class="pool-preview-card">
+                    <div class="pool-preview-info">
+                      <h5><%= pool.name %></h5>
+                      <p class="pool-wholesale-funder">from <%= pool.wholesale_funder.name %></p>
+                      <div class="pool-preview-details">
+                        <span class="detail-amount">Total: <%= pool.formatted_amount %></span>
+                        <span class="detail-available">Available: <%= pool.formatted_available %></span>
+                      </div>
+                    </div>
+                    <div class="pool-preview-actions">
+                      <%= form_with url: add_pool_admin_lender_funder_pools_path(@lender), 
+                          method: :post, 
+                          remote: true,
+                          local: false,
+                          class: "pool-add-form" do |f| %>
+                        <%= f.hidden_field :funder_pool_id, value: pool.id %>
+                        <%= f.submit "Add Pool", class: "admin-btn admin-btn-primary admin-btn-sm" %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <p>No funder pools available from your current wholesale funders.</p>
+            <p>Contact your wholesale funders to set up funder pools.</p>
+          <% end %>
+        <% else %>
+          <p>Add wholesale funder relationships first to access their funder pools.</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Update the pool list with new data -->
+  <%= turbo_stream.update "pool-list-content" do %>
+    <% if @lender.lender_funder_pools.any? %>
+      <div class="pool-list">
+        <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
+          <% pool = pool_relationship.funder_pool %>
+          <div class="pool-card">
+            <div class="pool-header">
+              <h5><%= pool.name %></h5>
+              <div class="pool-actions">
+                <span class="status-badge <%= pool_relationship.status_badge_class %>">
+                  <%= pool_relationship.status_display %>
+                </span>
+                <%= button_to "Toggle", toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
+                              method: :patch, class: "admin-btn admin-btn-sm",
+                              remote: true, form: { style: "display: inline;" } %>
+                <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
+                              method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                              remote: true, data: { confirm: "Are you sure?" },
+                              form: { style: "display: inline;" } %>
+              </div>
+            </div>
+            <div class="pool-details">
+              <div class="detail-row">
+                <span class="detail-label">Wholesale Funder</span>
+                <span class="detail-value"><%= pool.wholesale_funder.name %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value"><%= pool.formatted_amount %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Available</span>
+                <span class="detail-value"><%= pool.formatted_available %></span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Added</span>
+                <span class="detail-value"><%= pool_relationship.created_at.strftime("%b %d, %Y") %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <% if @lender.active_wholesale_funders.any? %>
+          <% available_pools = FunderPool.joins(:wholesale_funder)
+                                       .joins("INNER JOIN lender_wholesale_funders ON lender_wholesale_funders.wholesale_funder_id = wholesale_funders.id")
+                                       .where(lender_wholesale_funders: { lender_id: @lender.id, active: true })
+                                       .includes(:wholesale_funder)
+                                       .order('wholesale_funders.name, funder_pools.name') %>
+          
+          <% if available_pools.any? %>
+            <div class="empty-state-with-options">
+              <h4>Available Funder Pools</h4>
+              <p>Select from the pools available through your wholesale funder relationships:</p>
+              
+              <div class="available-pools-preview">
+                <% available_pools.each do |pool| %>
+                  <div class="pool-preview-card">
+                    <div class="pool-preview-info">
+                      <h5><%= pool.name %></h5>
+                      <p class="pool-wholesale-funder">from <%= pool.wholesale_funder.name %></p>
+                      <div class="pool-preview-details">
+                        <span class="detail-amount">Total: <%= pool.formatted_amount %></span>
+                        <span class="detail-available">Available: <%= pool.formatted_available %></span>
+                      </div>
+                    </div>
+                    <div class="pool-preview-actions">
+                      <%= form_with url: add_pool_admin_lender_funder_pools_path(@lender), 
+                          method: :post, 
+                          remote: true,
+                          local: false,
+                          class: "pool-add-form" do |f| %>
+                        <%= f.hidden_field :funder_pool_id, value: pool.id %>
+                        <%= f.submit "Add Pool", class: "admin-btn admin-btn-primary admin-btn-sm" %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <p>No funder pools available from your current wholesale funders.</p>
+            <p>Contact your wholesale funders to set up funder pools.</p>
+          <% end %>
+        <% else %>
+          <p>Add wholesale funder relationships first to access their funder pools.</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Trigger the stimulus controller to hide selection and show updated list -->
+  <%= turbo_stream.after "pool-list-content" do %>
+    <script>
+      // Find the funder pool selector stimulus controller and hide the selection
+      const controller = document.querySelector('[data-controller*="funder-pool-selector"]');
+      if (controller && controller.stimulusController) {
+        controller.stimulusController.hideSelection();
+      } else {
+        // Fallback: manually trigger the close action
+        const addButton = document.querySelector('[data-funder-pool-selector-target="addButton"]');
+        const selectionInterface = document.querySelector('[data-funder-pool-selector-target="selectionInterface"]');
+        const existingPools = document.querySelector('[data-funder-pool-selector-target="existingPools"]');
+        
+        if (addButton) addButton.textContent = 'Add Funder Pool';
+        if (selectionInterface) selectionInterface.style.display = 'none';
+        if (existingPools) existingPools.style.display = 'block';
+      }
+    </script>
+  <% end %>
+
+  <!-- Show success message -->
+  <%= turbo_stream.update "flash-messages" do %>
+    <div class="alert alert-success" id="temp-notice">
+      <%= @message %>
+    </div>
+  <% end %>
+
+<% else %>
+  <!-- Show error message -->
+  <%= turbo_stream.update "flash-messages" do %>
+    <div class="alert alert-error" id="temp-notice">
+      <%= @message %>
+    </div>
+  <% end %>
+<% end %>
+

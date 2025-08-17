@@ -12,16 +12,23 @@ class LenderFunderPoolVersion < ApplicationRecord
   scope :views_only, -> { where(action: 'viewed') }
   
   def action_description
+    pool_name = lender_funder_pool&.funder_pool&.name || 'funder pool'
+    wholesale_funder_name = lender_funder_pool&.funder_pool&.wholesale_funder&.name || 'wholesale funder'
+    
     case action
     when 'created'
-      'added funder pool relationship'
+      "added funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
     when 'updated'
-      'updated funder pool relationship'
+      "updated funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
     when 'viewed'
-      'viewed funder pool relationship'
+      "viewed funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
     else
       action
     end
+  end
+  
+  def formatted_created_at
+    created_at.strftime("%B %d, %Y at %I:%M %p")
   end
   
   def has_field_changes?

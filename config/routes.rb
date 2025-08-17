@@ -29,6 +29,10 @@ Rails.application.routes.draw do
         end
       end
       resources :funder_pools, controller: 'lender_funder_pools', except: [:index, :show] do
+        collection do
+          get :available_pools
+          post :add_pool
+        end
         member do
           patch :toggle_active
         end
@@ -45,7 +49,17 @@ Rails.application.routes.draw do
     resources :funder_pools, only: [:index]
     resources :dashboard, only: [:index]
     resources :users
-    resources :mortgages
+    resources :mortgages do
+      resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do
+        collection do
+          get :available_lenders
+          post :add_lender
+        end
+        member do
+          patch :toggle_active
+        end
+      end
+    end
     resources :applications do
       collection do
         post :search
@@ -83,6 +97,15 @@ Rails.application.routes.draw do
     resources :terms_and_conditions, except: [:destroy] do
       member do
         patch :activate
+      end
+      collection do
+        post :preview
+      end
+    end
+    resources :mortgage_contracts do
+      member do
+        patch :activate
+        patch :publish
       end
       collection do
         post :preview

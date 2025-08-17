@@ -26,7 +26,8 @@ class LenderFunderPool < ApplicationRecord
   end
   
   def toggle_active!
-    update!(active: !active)
+    self.active = !active
+    save!
   end
   
   def wholesale_funder

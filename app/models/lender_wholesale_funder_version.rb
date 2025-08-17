@@ -12,16 +12,22 @@ class LenderWholesaleFunderVersion < ApplicationRecord
   scope :views_only, -> { where(action: 'viewed') }
   
   def action_description
+    wholesale_funder_name = lender_wholesale_funder&.wholesale_funder&.name || 'wholesale funder'
+    
     case action
     when 'created'
-      'added wholesale funder relationship'
+      "added wholesale funder relationship with #{wholesale_funder_name}"
     when 'updated' 
-      'updated wholesale funder relationship'
+      "updated wholesale funder relationship with #{wholesale_funder_name}"
     when 'viewed'
-      'viewed wholesale funder relationship'
+      "viewed wholesale funder relationship with #{wholesale_funder_name}"
     else
       action
     end
+  end
+  
+  def formatted_created_at
+    created_at.strftime("%B %d, %Y at %I:%M %p")
   end
   
   def has_field_changes?

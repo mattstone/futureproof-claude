@@ -1,0 +1,62 @@
+<%= turbo_stream.update "lender-list-content" do %>
+  <% if @mortgage.mortgage_lenders.any? %>
+    <% @mortgage.mortgage_lenders.includes(:lender).each do |relationship| %>
+      <div class="lender-relationship-card">
+        <div class="lender-info">
+          <h5><%= relationship.lender.name %></h5>
+          <div class="lender-meta">
+            <span class="lender-type-badge <%= relationship.lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
+              <%= relationship.lender.lender_type.humanize %>
+            </span>
+            <span class="status-badge <%= relationship.active? ? 'status-active' : 'status-inactive' %>">
+              <%= relationship.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </div>
+          <p class="lender-email"><%= relationship.lender.contact_email %></p>
+          <p class="relationship-created">Added <%= relationship.created_at.strftime("%B %d, %Y") %></p>
+        </div>
+        <div class="lender-actions">
+          <%= button_to "Toggle", admin_mortgage_lender_path(@mortgage, relationship), 
+              method: :patch, 
+              remote: true, 
+              params: { _method: :patch, authenticity_token: form_authenticity_token },
+              data: { 
+                confirm: "Are you sure you want to #{relationship.active? ? 'deactivate' : 'activate'} this lender relationship?"
+              },
+              class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+          <%= button_to "Remove", admin_mortgage_lender_path(@mortgage, relationship), 
+              method: :delete, 
+              remote: true,
+              params: { authenticity_token: form_authenticity_token },
+              data: { 
+                confirm: "Are you sure you want to remove this lender relationship? This action cannot be undone."
+              },
+              class: "admin-btn admin-btn-sm admin-btn-danger" %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-relationships">
+      <div class="empty-icon">🏦</div>
+      <h5>No Lender Relationships</h5>
+      <p>This mortgage is not yet associated with any lenders.</p>
+      <p class="empty-hint">Use the "Add New Relationship" section to get started.</p>
+    </div>
+  <% end %>
+<% end %>
+
+<% if flash[:notice] %>
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-success" data-controller="auto-dismiss" data-auto-dismiss-delay-value="5000">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+<% end %>
+
+<% if flash[:alert] %>
+  <%= turbo_stream.prepend "flash-messages" do %>
+    <div class="alert alert-danger" data-controller="auto-dismiss" data-auto-dismiss-delay-value="5000">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+<% end %>

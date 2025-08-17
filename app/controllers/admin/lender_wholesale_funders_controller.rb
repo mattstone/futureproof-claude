@@ -26,16 +26,62 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
   end
   
   def destroy
-    lender = @lender_wholesale_funder.lender
-    @lender_wholesale_funder.destroy
-    redirect_to admin_lender_path(lender), notice: 'Wholesale funder relationship was successfully removed.'
+    unless @lender_wholesale_funder
+      @success = false
+      @message = "Wholesale funder relationship not found"
+      @lender = Lender.find(params[:lender_id])
+    else
+      @lender = @lender_wholesale_funder.lender
+      wholesale_funder_name = @lender_wholesale_funder.wholesale_funder.name
+      @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
+      
+      if @lender_wholesale_funder.destroy
+        @success = true
+        @message = "#{wholesale_funder_name} removed successfully"
+      else
+        @success = false
+        @message = "Failed to remove #{wholesale_funder_name}"
+      end
+    end
+    
+    respond_to do |format|
+      format.turbo_stream { render "destroy_wholesale_funder" }
+      format.html { 
+        if @success
+          redirect_to admin_lender_path(@lender), notice: @message 
+        else
+          redirect_to admin_lender_path(@lender), alert: @message
+        end
+      }
+    end
   end
   
   def toggle_active
-    @lender_wholesale_funder.toggle_active!
-    status = @lender_wholesale_funder.active? ? 'activated' : 'deactivated'
-    redirect_to admin_lender_path(@lender_wholesale_funder.lender), 
-                notice: "Wholesale funder relationship was successfully #{status}."
+    unless @lender_wholesale_funder
+      @success = false
+      @message = "Wholesale funder relationship not found"
+      @lender = Lender.find(params[:lender_id])
+    else
+      @lender = @lender_wholesale_funder.lender
+      @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
+      @lender_wholesale_funder.toggle_active!
+      @lender_wholesale_funder.reload
+      
+      status = @lender_wholesale_funder.active? ? 'activated' : 'deactivated'
+      @success = true
+      @message = "#{@lender_wholesale_funder.wholesale_funder.name} was successfully #{status}"
+    end
+    
+    respond_to do |format|
+      format.turbo_stream { render "toggle_wholesale_funder" }
+      format.html { 
+        if @success
+          redirect_to admin_lender_path(@lender), notice: @message 
+        else
+          redirect_to admin_lender_path(@lender), alert: @message
+        end
+      }
+    end
   end
 
   # AJAX endpoint to add wholesale funder relationship
@@ -56,6 +102,7 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       
       respond_to do |format|
         format.turbo_stream { render "add_wholesale_funder" }
+        format.html { redirect_to admin_lender_path(@lender), notice: @message }
         format.json { 
           render json: { 
             success: true, 
@@ -79,6 +126,7 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       
       respond_to do |format|
         format.turbo_stream { render "add_wholesale_funder" }
+        format.html { redirect_to admin_lender_path(@lender), alert: @message }
         format.json { 
           render json: { 
             success: false, 
@@ -164,6 +212,9 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
   
   def set_lender_wholesale_funder
     @lender_wholesale_funder = LenderWholesaleFunder.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    # Let the action handle the missing record error
+    @lender_wholesale_funder = nil
   end
   
   def lender_wholesale_funder_params

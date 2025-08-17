@@ -3,11 +3,13 @@ class Admin::LendersController < Admin::BaseController
   before_action :set_lender, only: [:show, :edit, :update, :destroy]
 
   def index
-    @lenders = Lender.all.order(:lender_type, :name)
+    @lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools)
+                     .order(:lender_type, :name)
   end
 
   def show
     @lender.log_view_by(current_user) if current_user
+    @all_versions = collect_all_lender_versions
   end
 
   # AJAX endpoint to get available wholesale funders for selection
@@ -74,6 +76,29 @@ class Admin::LendersController < Admin::BaseController
 
   def set_lender
     @lender = Lender.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to admin_lenders_path, alert: "Lender not found"
+  end
+
+  def collect_all_lender_versions
+    # Collect all version records related to this lender
+    versions = []
+    
+    # Lender's own version history
+    versions += @lender.lender_versions.includes(:user)
+    
+    # Wholesale funder relationship versions
+    versions += LenderWholesaleFunderVersion.joins(:lender_wholesale_funder)
+                                           .where(lender_wholesale_funders: { lender_id: @lender.id })
+                                           .includes(:user, lender_wholesale_funder: :wholesale_funder)
+    
+    # Funder pool relationship versions
+    versions += LenderFunderPoolVersion.joins(:lender_funder_pool)
+                                      .where(lender_funder_pools: { lender_id: @lender.id })
+                                      .includes(:user, lender_funder_pool: { funder_pool: :wholesale_funder })
+    
+    # Sort by created_at descending
+    versions.sort_by(&:created_at).reverse
   end
 
   def lender_params

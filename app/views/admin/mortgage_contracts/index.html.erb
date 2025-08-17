@@ -1,0 +1,210 @@
+<% content_for :page_title, "Mortgage Contracts" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <nav class="contract-tabs">
+      <a href="#published" class="tab-link active" onclick="showTab('published', this)">Published Contracts</a>
+      <a href="#drafts" class="tab-link" onclick="showTab('drafts', this)">Draft Contracts</a>
+    </nav>
+  </div>
+  
+  <div class="admin-actions">
+    <%= link_to "Create New Contract", new_admin_mortgage_contract_path, class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<!-- Published Contracts Tab -->
+<div id="published-tab" class="tab-content active">
+  <div class="admin-table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th style="text-align: center;">Version</th>
+          <th>Last Updated</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @published_contracts.each do |contract| %>
+          <tr class="<%= 'active-row' if contract.is_active? %>">
+            <td>
+              <strong><%= contract.title %></strong>
+            </td>
+            <td style="text-align: center;">
+              <span class="admin-badge admin-badge-info"><%= contract.version %></span>
+            </td>
+            <td>
+              <%= contract.formatted_last_updated %>
+            </td>
+            <td>
+              <span class="admin-badge admin-badge-<%= contract.status_color %>"><%= contract.status %></span>
+            </td>
+            <td>
+              <%= contract.created_at.strftime("%b %d, %Y") %>
+            </td>
+            <td class="admin-table-actions">
+              <%= link_to "View", admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit (New Version)", edit_admin_mortgage_contract_path(contract, create_new_version: true), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <% unless contract.is_active? %>
+                <%= link_to "Activate", 
+                    activate_admin_mortgage_contract_path(contract), 
+                    method: :patch,
+                    class: "admin-btn admin-btn-sm admin-btn-success",
+                    data: { 
+                      confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+                    } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @published_contracts.empty? %>
+      <div class="admin-empty-state">
+        <h3>No Published Contracts Found</h3>
+        <p>Published contracts will appear here once you publish draft contracts.</p>
+      </div>
+    <% end %>
+  </div>
+  
+  <%= paginate @published_contracts, param_name: :published_page if respond_to?(:paginate) %>
+</div>
+
+<!-- Draft Contracts Tab -->
+<div id="drafts-tab" class="tab-content">
+  <div class="admin-table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th style="text-align: center;">Version</th>
+          <th>Last Updated</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @draft_contracts.each do |contract| %>
+          <tr>
+            <td>
+              <strong><%= contract.title %></strong>
+            </td>
+            <td style="text-align: center;">
+              <span class="admin-badge admin-badge-info"><%= contract.version %></span>
+            </td>
+            <td>
+              <%= contract.formatted_last_updated %>
+            </td>
+            <td>
+              <span class="admin-badge admin-badge-<%= contract.status_color %>"><%= contract.status %></span>
+            </td>
+            <td>
+              <%= contract.created_at.strftime("%b %d, %Y") %>
+            </td>
+            <td class="admin-table-actions">
+              <%= link_to "View", admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit", edit_admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <%= link_to "Publish", 
+                  publish_admin_mortgage_contract_path(contract), 
+                  method: :patch,
+                  class: "admin-btn admin-btn-sm admin-btn-info",
+                  data: { 
+                    confirm: "Are you sure you want to publish this contract? Published contracts cannot be directly edited." 
+                  } %>
+              <%= link_to "Delete", 
+                  admin_mortgage_contract_path(contract), 
+                  method: :delete,
+                  class: "admin-btn admin-btn-sm admin-btn-danger",
+                  data: { 
+                    confirm: "Are you sure you want to delete this contract? This action cannot be undone." 
+                  } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @draft_contracts.empty? %>
+      <div class="admin-empty-state">
+        <h3>No Draft Contracts Found</h3>
+        <p>Get started by creating your first Mortgage Contract.</p>
+        <%= link_to "Create First Contract", new_admin_mortgage_contract_path, class: "admin-btn admin-btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+  
+  <%= paginate @draft_contracts, param_name: :draft_page if respond_to?(:paginate) %>
+</div>
+
+<style>
+.contract-tabs {
+  display: flex;
+  gap: 1px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tab-link {
+  padding: 12px 24px;
+  background: #f8f9fa;
+  color: #6b7280;
+  text-decoration: none;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-link:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.tab-link.active {
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  border-color: #d1d5db;
+}
+
+.tab-content {
+  display: none;
+  margin-top: 24px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.active-row {
+  background-color: #f0fdf4;
+}
+
+.active-row:hover {
+  background-color: #dcfce7;
+}
+</style>
+
+<script>
+function showTab(tabName, element) {
+  // Hide all tab contents
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Remove active class from all tab links
+  document.querySelectorAll('.tab-link').forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  // Show selected tab content
+  document.getElementById(tabName + '-tab').classList.add('active');
+  
+  // Add active class to clicked tab link
+  element.classList.add('active');
+}
+</script>

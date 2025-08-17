@@ -1,12 +1,17 @@
 <% if @success %>
   <!-- Hide the wholesale funder selection interface -->
-  <%= turbo_stream.update "wholesale-funder-selection" do %>
-    <div class="wholesale-funder-selection" style="display: none;">
+  <%= turbo_stream.update "wholesale-funder-selection-container" do %>
+    <div data-wholesale-funder-selector-target="selectionInterface" 
+         class="wholesale-funder-selection" style="display: none;">
       <div class="selection-header">
         <h5>Available Wholesale Funders</h5>
-        <button type="button" id="close-wholesale-funder-selection" class="close-btn">×</button>
+        <button type="button" 
+                data-wholesale-funder-selector-target="closeButton"
+                data-action="click->wholesale-funder-selector#closeSelection"
+                class="close-btn">×</button>
       </div>
-      <div id="available-wholesale-funders" class="wholesale-funders-list">
+      <div data-wholesale-funder-selector-target="availableFundersContainer" 
+           class="wholesale-funders-list">
         <!-- Loaded via AJAX -->
       </div>
     </div>
@@ -14,40 +19,49 @@
 
   <!-- Update the existing relationships (left column) -->
   <%= turbo_stream.replace "existing-relationships" do %>
-    <div id="existing-relationships">
-      <div class="relationship-list">
-        <% @lender.lender_wholesale_funders.includes(:wholesale_funder).each do |relationship| %>
-          <div class="relationship-card" data-wholesale-funder-id="<%= relationship.wholesale_funder.id %>">
-            <div class="relationship-header">
-              <h5><%= relationship.wholesale_funder.name %></h5>
-              <div class="relationship-actions">
-                <span class="status-badge <%= relationship.status_badge_class %>">
-                  <%= relationship.status_display %>
-                </span>
-                <%= link_to "Toggle", toggle_active_admin_lender_wholesale_funder_path(relationship),
-                            method: :patch, class: "admin-btn admin-btn-sm" %>
-                <%= link_to "Remove", admin_lender_wholesale_funder_path(relationship),
-                            method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
-                            data: { confirm: "Are you sure?" } %>
+    <div data-wholesale-funder-selector-target="existingRelationships" id="existing-relationships">
+      <% if @lender.lender_wholesale_funders.any? %>
+        <div class="relationship-list">
+          <% @lender.lender_wholesale_funders.includes(:wholesale_funder).each do |relationship| %>
+            <div class="relationship-card" data-wholesale-funder-id="<%= relationship.wholesale_funder.id %>">
+              <div class="relationship-header">
+                <h5><%= relationship.wholesale_funder.name %></h5>
+                <div class="relationship-actions">
+                  <span class="status-badge <%= relationship.status_badge_class %>">
+                    <%= relationship.status_display %>
+                  </span>
+                  <%= button_to "Toggle", toggle_active_admin_lender_wholesale_funder_path(@lender, relationship),
+                                method: :patch, class: "admin-btn admin-btn-sm",
+                                remote: true, form: { style: "display: inline;" } %>
+                  <%= button_to "Remove", admin_lender_wholesale_funder_path(@lender, relationship),
+                                method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                                remote: true, data: { confirm: "Are you sure you want to remove #{relationship.wholesale_funder.name}?" },
+                                form: { style: "display: inline;" } %>
+                </div>
+              </div>
+              <div class="relationship-details">
+                <div class="detail-row">
+                  <span class="detail-label">Country</span>
+                  <span class="detail-value"><%= relationship.wholesale_funder.country %></span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Currency</span>
+                  <span class="detail-value"><%= relationship.wholesale_funder.currency_display %></span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Created</span>
+                  <span class="detail-value"><%= relationship.created_at.strftime("%b %d, %Y") %></span>
+                </div>
               </div>
             </div>
-            <div class="relationship-details">
-              <div class="detail-row">
-                <span class="detail-label">Country</span>
-                <span class="detail-value"><%= relationship.wholesale_funder.country %></span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Currency</span>
-                <span class="detail-value"><%= relationship.wholesale_funder.currency_display %></span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Created</span>
-                <span class="detail-value"><%= relationship.created_at.strftime("%b %d, %Y") %></span>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <p>No wholesale funder relationships established.</p>
+          <p>Use the "Add Wholesale Funder" button above to create your first relationship.</p>
+        </div>
+      <% end %>
     </div>
   <% end %>
 
@@ -64,11 +78,13 @@
                 <span class="status-badge <%= pool_relationship.status_badge_class %>">
                   <%= pool_relationship.status_display %>
                 </span>
-                <%= link_to "Toggle", toggle_active_admin_lender_funder_pool_path(pool_relationship),
-                            method: :patch, class: "admin-btn admin-btn-sm" %>
-                <%= link_to "Remove", admin_lender_funder_pool_path(pool_relationship),
-                            method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
-                            data: { confirm: "Are you sure?" } %>
+                <%= button_to "Toggle", toggle_active_admin_lender_funder_pool_path(pool_relationship),
+                              method: :patch, class: "admin-btn admin-btn-sm",
+                              remote: true, form: { style: "display: inline;" } %>
+                <%= button_to "Remove", admin_lender_funder_pool_path(pool_relationship),
+                              method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                              remote: true, data: { confirm: "Are you sure?" },
+                              form: { style: "display: inline;" } %>
               </div>
             </div>
             <div class="pool-details">
@@ -126,12 +142,3 @@
   <% end %>
 <% end %>
 
-<script>
-  // Auto-hide flash messages after 3 seconds
-  setTimeout(() => {
-    const notice = document.getElementById('temp-notice');
-    if (notice) {
-      notice.style.display = 'none';
-    }
-  }, 3000);
-</script>

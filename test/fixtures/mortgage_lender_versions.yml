@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  mortgage_lender: one
+  user: one
+  action: MyString
+  change_details: MyText
+  previous_active: false
+  new_active: false
+
+two:
+  mortgage_lender: two
+  user: two
+  action: MyString
+  change_details: MyText
+  previous_active: false
+  new_active: false

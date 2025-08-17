@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_16_085326) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -298,6 +298,62 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_16_085326) do
     t.index ["name"], name: "index_lenders_on_name"
   end
 
+  create_table "mortgage_contract_versions", force: :cascade do |t|
+    t.bigint "mortgage_contract_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mortgage_contract_id"], name: "index_mortgage_contract_versions_on_mortgage_contract_id"
+    t.index ["user_id"], name: "index_mortgage_contract_versions_on_user_id"
+  end
+
+  create_table "mortgage_contracts", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "content", null: false
+    t.integer "version", null: false
+    t.datetime "last_updated", null: false
+    t.boolean "is_active", default: false, null: false
+    t.boolean "is_draft", default: true, null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_mortgage_contracts_on_created_by_id"
+    t.index ["is_active"], name: "index_mortgage_contracts_on_is_active"
+    t.index ["is_draft"], name: "index_mortgage_contracts_on_is_draft"
+    t.index ["last_updated"], name: "index_mortgage_contracts_on_last_updated"
+    t.index ["version"], name: "index_mortgage_contracts_on_version", unique: true
+  end
+
+  create_table "mortgage_lender_versions", force: :cascade do |t|
+    t.bigint "mortgage_lender_id", null: false
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.text "change_details"
+    t.boolean "previous_active"
+    t.boolean "new_active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mortgage_lender_id"], name: "index_mortgage_lender_versions_on_mortgage_lender_id"
+    t.index ["user_id"], name: "index_mortgage_lender_versions_on_user_id"
+  end
+
+  create_table "mortgage_lenders", force: :cascade do |t|
+    t.bigint "mortgage_id", null: false
+    t.bigint "lender_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_mortgage_lenders_on_active"
+    t.index ["lender_id", "mortgage_id"], name: "index_mortgage_lenders_on_lender_id_and_mortgage_id"
+    t.index ["lender_id"], name: "index_mortgage_lenders_on_lender_id"
+    t.index ["mortgage_id", "lender_id"], name: "index_mortgage_lenders_on_mortgage_id_and_lender_id", unique: true
+    t.index ["mortgage_id"], name: "index_mortgage_lenders_on_mortgage_id"
+  end
+
   create_table "mortgage_versions", force: :cascade do |t|
     t.bigint "mortgage_id", null: false
     t.bigint "user_id", null: false
@@ -321,8 +377,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_16_085326) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
-    t.bigint "lender_id"
-    t.index ["lender_id"], name: "index_mortgages_on_lender_id"
   end
 
   create_table "privacy_policies", force: :cascade do |t|
@@ -536,9 +590,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_16_085326) do
   add_foreign_key "lender_wholesale_funder_versions", "users"
   add_foreign_key "lender_wholesale_funders", "lenders"
   add_foreign_key "lender_wholesale_funders", "wholesale_funders"
+  add_foreign_key "mortgage_contract_versions", "mortgage_contracts"
+  add_foreign_key "mortgage_contract_versions", "users"
+  add_foreign_key "mortgage_contracts", "users", column: "created_by_id"
+  add_foreign_key "mortgage_lender_versions", "mortgage_lenders"
+  add_foreign_key "mortgage_lender_versions", "users"
+  add_foreign_key "mortgage_lenders", "lenders"
+  add_foreign_key "mortgage_lenders", "mortgages"
   add_foreign_key "mortgage_versions", "mortgages"
   add_foreign_key "mortgage_versions", "users"
-  add_foreign_key "mortgages", "lenders"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
   add_foreign_key "terms_and_condition_versions", "terms_and_conditions"

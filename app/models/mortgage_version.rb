@@ -2,6 +2,9 @@ class MortgageVersion < ApplicationRecord
   belongs_to :mortgage
   belongs_to :user
   
+  # Alias for consistency with shared change history interface
+  alias_method :admin_user, :user
+  
   validates :action, presence: true, inclusion: { in: %w[created updated activated deactivated] }
   
   scope :recent, -> { order(created_at: :desc) }

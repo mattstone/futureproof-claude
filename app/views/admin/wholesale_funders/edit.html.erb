@@ -2,19 +2,19 @@
 
 <div class="admin-actions-bar">
   <div>
-    <h1>Edit Wholesale WholesaleFunder</h1>
+    <h1>Edit Wholesale Funder</h1>
     <p class="page-subtitle">Update <%= @wholesale_funder.name %></p>
   </div>
   
   <div class="admin-actions">
-    <%= link_to "View Wholesale WholesaleFunder", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
-    <%= link_to "Back to Wholesale WholesaleFunders", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "View Wholesale Funder", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Back to Wholesale Funders", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
   </div>
 </div>
 
 <!-- Edit WholesaleFunder Form -->
 <div class="admin-card">
-  <h3>Wholesale WholesaleFunder Details</h3>
+  <h3>Wholesale Funder Details</h3>
   
   <%= form_with model: [:admin, @wholesale_funder], local: true, class: "admin-form" do |form| %>
     <% if @wholesale_funder.errors.any? %>
@@ -62,7 +62,7 @@
     </div>
 
     <div class="form-actions">
-      <%= form.submit "Update Wholesale WholesaleFunder", class: "admin-btn admin-btn-primary" %>
+      <%= form.submit "Update Wholesale Funder", class: "admin-btn admin-btn-primary" %>
       <%= link_to "Cancel", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
     </div>
   <% end %>

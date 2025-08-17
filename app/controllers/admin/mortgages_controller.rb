@@ -4,14 +4,15 @@ class Admin::MortgagesController < Admin::BaseController
   before_action :set_audit_history, only: [:show]
 
   def index
-    @mortgages = Mortgage.includes(:lender).all.order(:name)
+    @mortgages = Mortgage.includes(:active_lenders).all.order(:name)
     @mortgages = @mortgages.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
     @mortgages = @mortgages.page(params[:page]).per(10)
   end
 
   def show
-    # Eager load lender for display
-    @mortgage = @mortgage.class.includes(:lender).find(@mortgage.id)
+    # Eager load lenders and audit history for display
+    @mortgage = @mortgage.class.includes(:active_lenders, :mortgage_lenders).find(@mortgage.id)
+    collect_all_mortgage_versions
   end
 
   def new
@@ -30,8 +31,8 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def edit
-    # Eager load lender for display
-    @mortgage = @mortgage.class.includes(:lender).find(@mortgage.id)
+    # Eager load lenders for display
+    @mortgage = @mortgage.class.includes(:active_lenders, :mortgage_lenders).find(@mortgage.id)
   end
 
   def update
@@ -57,8 +58,22 @@ class Admin::MortgagesController < Admin::BaseController
   def set_audit_history
     @audit_history = @mortgage.mortgage_versions.includes(:user).recent.limit(50)
   end
+  
+  def collect_all_mortgage_versions
+    # Collect all changes: mortgage changes and lender relationship changes
+    mortgage_changes = @mortgage.mortgage_versions.includes(:user)
+    lender_changes = MortgageLenderVersion.joins(:mortgage_lender)
+                                         .where(mortgage_lenders: { mortgage_id: @mortgage.id })
+                                         .includes(:user, mortgage_lender: [:lender])
+    
+    # Combine and sort by creation time
+    @all_versions = (mortgage_changes + lender_changes)
+                      .sort_by(&:created_at)
+                      .reverse
+                      .first(50)
+  end
 
   def mortgage_params
-    params.require(:mortgage).permit(:name, :mortgage_type, :lvr, :lender_id)
+    params.require(:mortgage).permit(:name, :mortgage_type, :lvr)
   end
 end

@@ -1,0 +1,51 @@
+<!-- Update the existing pools list to reflect the status change -->
+<%= turbo_stream.update "pool-list-content" do %>
+  <div class="pool-list">
+    <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
+      <% pool = pool_relationship.funder_pool %>
+      <div class="pool-card">
+        <div class="pool-header">
+          <h5><%= pool.name %></h5>
+          <div class="pool-actions">
+            <span class="status-badge <%= pool_relationship.status_badge_class %>">
+              <%= pool_relationship.status_display %>
+            </span>
+            <%= button_to "Toggle", toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
+                          method: :patch, class: "admin-btn admin-btn-sm",
+                          remote: true, form: { style: "display: inline;" } %>
+            <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
+                          method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
+                          remote: true, data: { confirm: "Are you sure?" },
+                          form: { style: "display: inline;" } %>
+          </div>
+        </div>
+        <div class="pool-details">
+          <div class="detail-row">
+            <span class="detail-label">Wholesale Funder</span>
+            <span class="detail-value"><%= pool.wholesale_funder.name %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Total Amount</span>
+            <span class="detail-value"><%= pool.formatted_amount %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Available</span>
+            <span class="detail-value"><%= pool.formatted_available %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Added</span>
+            <span class="detail-value"><%= pool_relationship.created_at.strftime("%b %d, %Y") %></span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Show success message -->
+<%= turbo_stream.update "flash-messages" do %>
+  <div class="alert alert-success" id="temp-notice">
+    <% status = @lender_funder_pool.active? ? 'activated' : 'deactivated' %>
+    Funder pool was successfully <%= status %> for this lender.
+  </div>
+<% end %>
