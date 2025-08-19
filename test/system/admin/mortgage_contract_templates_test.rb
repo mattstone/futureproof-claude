@@ -50,7 +50,7 @@ class Admin::MortgageContractTemplatesTest < ApplicationSystemTestCase
       lvr: 80.0
     )
     
-    # Create mortgage-lender relationship
+    # Create mortgage-lender
     @mortgage.mortgage_lenders.create!(lender: @lender, active: true)
     
     sign_in @admin

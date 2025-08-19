@@ -81,7 +81,7 @@ class ChangeHistoryFixTest
   def test_mortgage_lender_version_methods
     puts "\nPhase 2: Testing MortgageLenderVersion methods..."
     
-    # Create a mortgage lender relationship to generate a version
+    # Create a mortgage lender to generate a version
     mortgage_lender = MortgageLender.create!(
       mortgage: @test_mortgage,
       lender: @test_lender,

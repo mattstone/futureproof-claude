@@ -22,7 +22,7 @@ end
 
 # Test 2: MortgageLenderVersion (was causing the error)
 puts "\nTesting MortgageLenderVersion methods..."
-mortgage_lender_version = MortgageLenderVersion.new(action: 'created', change_details: 'Test lender relationship created')
+mortgage_lender_version = MortgageLenderVersion.new(action: 'created', change_details: 'Test lender created')
 begin
   puts "  ✅ action_description: '#{mortgage_lender_version.action_description}'"
   puts "  ✅ formatted_created_at: '#{mortgage_lender_version.formatted_created_at}'"

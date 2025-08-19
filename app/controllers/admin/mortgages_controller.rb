@@ -61,7 +61,7 @@ class Admin::MortgagesController < Admin::BaseController
   end
   
   def collect_all_mortgage_versions
-    # Collect all changes: mortgage changes and lender relationship changes
+    # Collect all changes: mortgage changes and lender changes
     mortgage_changes = @mortgage.mortgage_versions.includes(:user)
     lender_changes = MortgageLenderVersion.joins(:mortgage_lender)
                                          .where(mortgage_lenders: { mortgage_id: @mortgage.id })

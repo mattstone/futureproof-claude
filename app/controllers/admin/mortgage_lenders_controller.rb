@@ -108,7 +108,7 @@ class Admin::MortgageLendersController < Admin::BaseController
   def set_mortgage_lender
     @mortgage_lender = @mortgage.mortgage_lenders.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    flash[:alert] = "Lender relationship not found."
+    flash[:alert] = "Lender not found."
     respond_to do |format|
       format.turbo_stream { render 'error' }
       format.html { redirect_to admin_mortgage_path(@mortgage) }

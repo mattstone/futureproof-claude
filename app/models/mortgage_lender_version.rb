@@ -13,11 +13,11 @@ class MortgageLenderVersion < ApplicationRecord
   def action_description
     case action
     when 'created'
-      "added lender relationship"
+      "added lender"
     when 'updated'
-      "updated lender relationship"
+      "updated lender"
     when 'destroyed'
-      "removed lender relationship"
+      "removed lender"
     else
       change_details || action
     end

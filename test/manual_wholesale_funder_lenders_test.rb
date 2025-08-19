@@ -84,8 +84,8 @@ begin
     puts "✗ active_lenders_count should be 0, got #{wf.active_lenders_count}"
   end
 
-  # Test 3: Add lender relationships
-  puts "\nTest 3: Adding lender relationships..."
+  # Test 3: Add lenders
+  puts "\nTest 3: Adding lenders..."
   
   # First create lender-wholesale funder relationships (required for pool access)
   lwf1 = LenderWholesaleFunder.create!(

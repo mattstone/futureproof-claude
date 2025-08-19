@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Mortgage Two-Column Layout Functional Verification
-# This script verifies the new lender relationships layout and change history integration
+# This script verifies the new lenders layout and change history integration
 
 require_relative '../config/environment'
 
@@ -16,7 +16,7 @@ class MortgageTwoColumnLayoutVerification
   def run_verification
     puts "\n🏠 MORTGAGE TWO-COLUMN LAYOUT VERIFICATION"
     puts "=" * 50
-    puts "Testing new lender relationships layout and change history integration..."
+    puts "Testing new lenders layout and change history integration..."
     puts
 
     begin
@@ -97,10 +97,10 @@ class MortgageTwoColumnLayoutVerification
       layout_checks = [
         ['Two-column layout container', 'lender-two-column-layout'],
         ['Left column (existing relationships)', 'Existing Relationships'],
-        ['Right column (add new)', 'Add New Relationship'],
+        ['Right column (add new)', 'Add New Lender'],
         ['Change history section', 'shared/change_history'],
         ['Empty relationships styling', 'empty-relationships'],
-        ['Lender relationship cards', 'lender-relationship-card']
+        ['Lender cards', 'lender-relationship-card']
       ]
       
       layout_checks.each do |name, selector|
@@ -122,7 +122,7 @@ class MortgageTwoColumnLayoutVerification
   def verify_change_history_integration
     puts "\nPhase 3: Verifying change history integration..."
     
-    # Create a mortgage lender relationship to generate change history
+    # Create a mortgage lender to generate change history
     relationship = MortgageLender.create!(
       mortgage: @test_mortgage,
       lender: @test_lenders.first,
@@ -134,7 +134,7 @@ class MortgageTwoColumnLayoutVerification
     lender_versions = MortgageLenderVersion.where(mortgage_lender: relationship)
     
     puts "  ✓ Mortgage versions count: #{versions.count}"
-    puts "  ✓ Lender relationship versions count: #{lender_versions.count}"
+    puts "  ✓ Lender versions count: #{lender_versions.count}"
     
     # Test that versions have the required alias method
     if lender_versions.any?
@@ -172,7 +172,7 @@ class MortgageTwoColumnLayoutVerification
     active_relationships = @test_mortgage.active_lenders.count
     
     if total_relationships == @test_lenders.count
-      puts "  ✓ All lender relationships created (#{total_relationships})"
+      puts "  ✓ All lenders created (#{total_relationships})"
     else
       @verification_passed = false
       @errors << "Expected #{@test_lenders.count} relationships, got #{total_relationships}"
