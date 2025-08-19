@@ -23,7 +23,27 @@ class LenderWholesaleFunder < ApplicationRecord
   end
   
   def toggle_active!
+    was_active = active?
     self.active = !active
+    
+    # If deactivating, cascade to all related funder pools
+    if was_active && !active?
+      deactivate_related_funder_pools!
+    end
+    
     save!
+  end
+  
+  # Deactivate all funder pools related to this wholesale funder for this lender
+  def deactivate_related_funder_pools!
+    related_pool_relationships = lender.lender_funder_pools
+                                      .joins(:funder_pool)
+                                      .where(funder_pools: { wholesale_funder: wholesale_funder })
+                                      .where(active: true)
+    
+    related_pool_relationships.each do |pool_relationship|
+      pool_relationship.current_user = current_user if pool_relationship.respond_to?(:current_user=)
+      pool_relationship.update!(active: false)
+    end
   end
 end

@@ -80,12 +80,33 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
     else
       @lender = @lender_wholesale_funder.lender
       @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
+      
+      # Check if deactivating and count related pools
+      was_active = @lender_wholesale_funder.active?
+      related_pools_count = 0
+      
+      if was_active
+        related_pools_count = @lender.lender_funder_pools
+                                    .joins(:funder_pool)
+                                    .where(funder_pools: { wholesale_funder: @lender_wholesale_funder.wholesale_funder })
+                                    .where(active: true)
+                                    .count
+      end
+      
       @lender_wholesale_funder.toggle_active!
       @lender_wholesale_funder.reload
       
       status = @lender_wholesale_funder.active? ? 'activated' : 'deactivated'
       @success = true
-      @message = "#{@lender_wholesale_funder.wholesale_funder.name} was successfully #{status}"
+      
+      base_message = "#{@lender_wholesale_funder.wholesale_funder.name} was successfully #{status}"
+      
+      # Add cascading information if we deactivated and had related pools
+      if !@lender_wholesale_funder.active? && related_pools_count > 0
+        @message = "#{base_message}. #{related_pools_count} related funder pool#{related_pools_count == 1 ? '' : 's'} #{related_pools_count == 1 ? 'was' : 'were'} also deactivated."
+      else
+        @message = base_message
+      end
     end
     
     respond_to do |format|

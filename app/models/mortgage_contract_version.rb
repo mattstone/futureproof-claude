@@ -26,4 +26,17 @@ class MortgageContractVersion < ApplicationRecord
   def contract_version
     mortgage_contract&.version || 'Unknown'
   end
+
+  # Check if this version has detailed field changes to display
+  def has_field_changes?
+    # Check if we have any detailed changes data
+    respond_to?(:detailed_changes) && detailed_changes.present?
+  end
+
+  # Provide detailed changes if available (placeholder for future implementation)
+  def detailed_changes
+    # For now, return empty array - this can be enhanced later
+    # to show actual field-by-field changes if needed
+    []
+  end
 end

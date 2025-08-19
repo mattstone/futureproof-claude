@@ -6,6 +6,7 @@ class Admin::MortgagesController < Admin::BaseController
   def index
     @mortgages = Mortgage.includes(:active_lenders).all.order(:name)
     @mortgages = @mortgages.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+    @mortgages = @mortgages.where(status: params[:status]) if params[:status].present?
     @mortgages = @mortgages.page(params[:page]).per(10)
   end
 
@@ -74,6 +75,6 @@ class Admin::MortgagesController < Admin::BaseController
   end
 
   def mortgage_params
-    params.require(:mortgage).permit(:name, :mortgage_type, :lvr)
+    params.require(:mortgage).permit(:name, :mortgage_type, :lvr, :status)
   end
 end

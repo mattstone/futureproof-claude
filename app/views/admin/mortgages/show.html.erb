@@ -7,47 +7,113 @@
   
   <div class="admin-actions">
     <%= link_to "Edit Mortgage", edit_admin_mortgage_path(@mortgage), class: "admin-btn admin-btn-primary" %>
-    <%= link_to "Delete Mortgage", admin_mortgage_path(@mortgage), method: :delete, 
-        data: { confirm: "Are you sure you want to delete this mortgage?" }, 
-        class: "admin-btn admin-btn-danger" %>
   </div>
 </div>
 
-<div class="admin-form">
-  <h2><%= @mortgage.name %></h2>
-  
-  <div class="mortgage-details">
-    <div class="detail-row">
-      <strong>Name:</strong>
-      <%= @mortgage.name %>
-    </div>
-    
-    <div class="detail-row">
-      <strong>Type:</strong>
+<div class="mortgage-overview">
+  <div class="overview-header">
+    <h2><%= @mortgage.name %></h2>
+    <div class="mortgage-type-badge">
       <span class="admin-badge <%= @mortgage.mortgage_type_interest_only? ? 'admin-badge-admin' : 'admin-badge-user' %>">
         <%= @mortgage.mortgage_type_display %>
       </span>
     </div>
-    
+  </div>
+  
+  <div class="mortgage-details">
     <div class="detail-row">
-      <strong>LVR:</strong>
-      <%= @mortgage.formatted_lvr %>
+      <div class="detail-label">Loan-to-Value Ratio:</div>
+      <div class="detail-value primary"><%= @mortgage.formatted_lvr %></div>
     </div>
     
     <div class="detail-row">
-      <strong>Created:</strong>
-      <%= @mortgage.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+      <div class="detail-label">Active Lenders:</div>
+      <div class="detail-value"><%= @mortgage.active_lenders.count %> lender<%= @mortgage.active_lenders.count == 1 ? '' : 's' %></div>
     </div>
     
     <div class="detail-row">
-      <strong>Lenders:</strong>
-      <span><%= @mortgage.active_lenders.count %> active lender<%= @mortgage.active_lenders.count == 1 ? '' : 's' %></span>
+      <div class="detail-label">Contracts:</div>
+      <div class="detail-value"><%= @mortgage.mortgage_contracts.count %> contract<%= @mortgage.mortgage_contracts.count == 1 ? '' : 's' %></div>
     </div>
     
     <div class="detail-row">
-      <strong>Last Updated:</strong>
-      <%= @mortgage.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+      <div class="detail-label">Created:</div>
+      <div class="detail-value">
+        <%= @mortgage.created_at.strftime("%B %d, %Y") %> 
+        <span class="detail-meta">at <%= @mortgage.created_at.strftime("%I:%M %p") %></span>
+      </div>
     </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Last Updated:</div>
+      <div class="detail-value">
+        <%= @mortgage.updated_at.strftime("%B %d, %Y") %> 
+        <span class="detail-meta">at <%= @mortgage.updated_at.strftime("%I:%M %p") %></span>
+      </div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Lender Names:</div>
+      <div class="detail-value"><%= @mortgage.lender_names %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mortgage Contracts Section -->
+<div class="mortgage-contracts-section">
+  <div class="contracts-header-with-actions">
+    <div></div>
+    <h3>Mortgage Contracts</h3>
+    <div class="contracts-actions-right">
+      <% if @mortgage.mortgage_contracts.any? %>
+        <%= link_to "View All Contracts", admin_mortgage_mortgage_contracts_path(@mortgage), class: "admin-btn admin-btn-secondary" %>
+      <% end %>
+      <%= link_to "New Contract", new_admin_mortgage_mortgage_contract_path(@mortgage), class: "admin-btn admin-btn-primary" %>
+    </div>
+  </div>
+  
+  <div class="contracts-summary">
+    <% if @mortgage.mortgage_contracts.any? %>
+      <div class="contracts-grid">
+        <% @mortgage.mortgage_contracts.order(:version).limit(3).each do |contract| %>
+          <div class="contract-card">
+            <div class="contract-info">
+              <h5><%= contract.title %></h5>
+              <div class="contract-meta">
+                <span class="version-badge">v<%= contract.version %></span>
+                <span class="status-badge status-<%= contract.status_color %>">
+                  <%= contract.status %>
+                </span>
+              </div>
+              <p class="contract-updated">Updated <%= contract.formatted_last_updated %></p>
+            </div>
+            <div class="contract-actions">
+              <%= link_to "View", admin_mortgage_mortgage_contract_path(@mortgage, contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <% if contract.draft? %>
+                <%= link_to "Edit", edit_admin_mortgage_mortgage_contract_path(@mortgage, contract), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @mortgage.mortgage_contracts.count > 3 %>
+          <div class="contract-card contract-more">
+            <div class="more-info">
+              <div class="more-icon">📄</div>
+              <h5><%= @mortgage.mortgage_contracts.count - 3 %> more contract<%= @mortgage.mortgage_contracts.count - 3 == 1 ? '' : 's' %></h5>
+              <p>View all contracts to see the complete history</p>
+            </div>
+            <%= link_to "View All", admin_mortgage_mortgage_contracts_path(@mortgage), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-contracts">
+        <div class="empty-icon">📄</div>
+        <h5>No Contracts Yet</h5>
+        <p>Create the first contract document for this mortgage using the "New Contract" button above.</p>
+      </div>
+    <% end %>
   </div>
 </div>
 
@@ -152,25 +218,117 @@
 </div>
 
 <style>
-.mortgage-details {
-  margin-top: 24px;
+/* Mortgage Overview */
+.mortgage-overview {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.detail-row {
-  padding: 12px 0;
-  border-bottom: 1px solid #e5e7eb;
+.overview-header {
   display: flex;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.overview-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.mortgage-type-badge {
+  display: flex;
   align-items: center;
 }
 
-.detail-row:last-child {
-  border-bottom: none;
+.mortgage-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 40px;
+  margin-top: 8px;
 }
 
-.detail-row strong {
-  min-width: 120px;
+.detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 28px;
+}
+
+.detail-label {
+  font-size: 14px;
+  font-weight: 600;
   color: #374151;
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  flex: 1;
+}
+
+.detail-value.primary {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0891b2;
+}
+
+.detail-meta {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Admin Actions */
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-actions form {
+  margin: 0;
+}
+
+.admin-actions .admin-btn {
+  border: none;
+  cursor: pointer;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .overview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .mortgage-details {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: auto;
+  }
+  
+  .detail-label {
+    min-width: auto;
+  }
 }
 
 /* Lender styling */
@@ -197,6 +355,192 @@
 .no-lender {
   color: #dc2626;
   font-style: italic;
+}
+
+/* Mortgage Contracts Section */
+.mortgage-contracts-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.contracts-header-with-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 24px 0;
+}
+
+.contracts-header-with-actions h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 20px;
+  text-align: center;
+  flex: 1;
+}
+
+.contracts-actions-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.contracts-summary {
+  margin-top: 16px;
+}
+
+.contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  max-width: 100%;
+}
+
+.contract-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px;
+  background: white;
+  transition: all 0.2s ease;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.contract-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.contract-info {
+  flex: 1;
+}
+
+.contract-info h5 {
+  margin: 0 0 6px 0;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.contract-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.version-badge {
+  background-color: #f3f4f6;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.contract-updated {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.contract-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.contract-more {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #f9fafb;
+  border-style: dashed;
+  min-height: 140px;
+}
+
+.more-info {
+  margin-bottom: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.more-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.more-info h5 {
+  margin: 0 0 3px 0;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.more-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.empty-contracts {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.empty-contracts .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-contracts h5 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-contracts p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
 }
 
 /* Lender Relationships Section */
@@ -576,6 +920,13 @@
   border-radius: 8px;
 }
 
+/* Tablet responsive */
+@media (max-width: 1024px) {
+  .contracts-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .change-header {
@@ -604,6 +955,25 @@
   }
   
   .lender-column {
+    min-height: auto;
+  }
+  
+  .contracts-header-with-actions {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .contracts-header-with-actions h3 {
+    text-align: center;
+  }
+  
+  .contracts-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .contract-card {
     min-height: auto;
   }
 }

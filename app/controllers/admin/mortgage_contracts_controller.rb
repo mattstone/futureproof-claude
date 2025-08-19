@@ -1,10 +1,11 @@
 class Admin::MortgageContractsController < Admin::BaseController
   before_action :ensure_futureproof_admin
+  before_action :set_mortgage
   before_action :set_mortgage_contract, only: [:show, :edit, :update, :activate, :publish, :destroy]
 
   def index
-    @published_contracts = MortgageContract.published.order(version: :desc).page(params[:published_page]).per(10)
-    @draft_contracts = MortgageContract.drafts.order(version: :desc).page(params[:draft_page]).per(10)
+    @published_contracts = @mortgage.mortgage_contracts.published.order(version: :desc).page(params[:published_page]).per(10)
+    @draft_contracts = @mortgage.mortgage_contracts.drafts.order(version: :desc).page(params[:draft_page]).per(10)
   end
 
   def show
@@ -16,9 +17,9 @@ class Admin::MortgageContractsController < Admin::BaseController
   end
 
   def new
-    @mortgage_contract = MortgageContract.new
-    # Copy content from the latest existing contract
-    latest_contract = MortgageContract.latest
+    @mortgage_contract = @mortgage.mortgage_contracts.build
+    # Copy content from the latest existing contract for this mortgage
+    latest_contract = @mortgage.mortgage_contracts.latest
     if latest_contract
       @mortgage_contract.title = latest_contract.title
       @mortgage_contract.content = latest_contract.content
@@ -55,14 +56,14 @@ class Admin::MortgageContractsController < Admin::BaseController
   end
 
   def create
-    @mortgage_contract = MortgageContract.new(mortgage_contract_params)
+    @mortgage_contract = @mortgage.mortgage_contracts.build(mortgage_contract_params)
     @mortgage_contract.is_active = false # New versions start as inactive
     @mortgage_contract.is_draft = true # New versions start as draft
     @mortgage_contract.current_user = current_user # Track who created it
     @mortgage_contract.created_by = current_user
     
     if @mortgage_contract.save
-      redirect_to admin_mortgage_contracts_path, notice: 'Mortgage Contract created successfully.'
+      redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage Contract created successfully.'
     else
       render :new, status: :unprocessable_entity
     end
@@ -72,8 +73,8 @@ class Admin::MortgageContractsController < Admin::BaseController
     # If this is a published contract and user is trying to edit content,
     # create a new draft version instead
     if @mortgage_contract.published? && params[:create_new_version]
-      latest_version = MortgageContract.latest
-      @mortgage_contract = MortgageContract.new(
+      latest_version = @mortgage.mortgage_contracts.latest
+      @mortgage_contract = @mortgage.mortgage_contracts.build(
         title: latest_version.title,
         content: latest_version.content,
         is_draft: true,
@@ -91,13 +92,13 @@ class Admin::MortgageContractsController < Admin::BaseController
       new_version = @mortgage_contract.create_new_version_if_published
       if new_version
         new_version.update!(mortgage_contract_params)
-        redirect_to admin_mortgage_contracts_path, notice: 'New draft version created successfully.'
+        redirect_to admin_mortgage_path(@mortgage), notice: 'New draft version created successfully.'
         return
       end
     end
     
     if @mortgage_contract.update(mortgage_contract_params)
-      redirect_to admin_mortgage_contracts_path, notice: 'Mortgage Contract updated successfully.'
+      redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage Contract updated successfully.'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -106,22 +107,22 @@ class Admin::MortgageContractsController < Admin::BaseController
   def publish
     @mortgage_contract.current_user = current_user # Track who published it
     if @mortgage_contract.update!(is_draft: false)
-      redirect_to admin_mortgage_contracts_path, notice: 'Mortgage Contract published successfully.'
+      redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage Contract published successfully.'
     else
-      redirect_to admin_mortgage_contracts_path, alert: 'Failed to publish contract.'
+      redirect_to admin_mortgage_path(@mortgage), alert: 'Failed to publish contract.'
     end
   end
 
   def activate
     @mortgage_contract.current_user = current_user # Track who activated it
     @mortgage_contract.update!(is_active: true, is_draft: false)
-    redirect_to admin_mortgage_contracts_path, notice: 'Mortgage Contract activated successfully.'
+    redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage Contract activated successfully.'
   end
 
   def destroy
     @mortgage_contract.current_user = current_user
     @mortgage_contract.destroy!
-    redirect_to admin_mortgage_contracts_path, notice: 'Mortgage Contract deleted successfully.'
+    redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage Contract deleted successfully.'
   end
 
   def preview
@@ -132,8 +133,12 @@ class Admin::MortgageContractsController < Admin::BaseController
 
   private
 
+  def set_mortgage
+    @mortgage = Mortgage.find(params[:mortgage_id])
+  end
+
   def set_mortgage_contract
-    @mortgage_contract = MortgageContract.find(params[:id])
+    @mortgage_contract = @mortgage.mortgage_contracts.find(params[:id])
   end
 
   def mortgage_contract_params

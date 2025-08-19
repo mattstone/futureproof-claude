@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, @mortgage_contract], local: true, class: "admin-form" do |form| %>
+<%= form_with model: [:admin, @mortgage, @mortgage_contract], local: true, class: "admin-form" do |form| %>
   <% if @mortgage_contract.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(@mortgage_contract.errors.count, "error") %> prohibited this Mortgage Contract from being saved:</h4>
@@ -67,7 +67,7 @@
       <%= form.submit "Create Contract (Draft)", class: "admin-btn admin-btn-primary" %>
     <% end %>
     <button type="button" id="preview-btn" class="admin-btn admin-btn-success">Preview Contract</button>
-    <%= link_to "Cancel", admin_mortgage_contracts_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "Cancel", admin_mortgage_mortgage_contracts_path(@mortgage), class: "admin-btn admin-btn-secondary" %>
   </div>
 <% end %>
 
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
       previewWindow.document.write('<html><body><h3>Loading preview...</h3></body></html>');
       
       // Submit to preview endpoint
-      fetch('<%= preview_admin_mortgage_contracts_path %>', {
+      fetch('<%= preview_admin_mortgage_mortgage_contracts_path(@mortgage) %>', {
         method: 'POST',
         body: formData,
         headers: {

@@ -1,6 +1,12 @@
 class MortgageContract < ApplicationRecord
+  belongs_to :mortgage, optional: true
   has_many :mortgage_contract_versions, dependent: :destroy
   belongs_to :created_by, class_name: 'User', optional: true
+  
+  # User relationships for contracts
+  belongs_to :primary_user, class_name: 'User', optional: true
+  has_many :mortgage_contract_users, dependent: :destroy
+  has_many :additional_users, through: :mortgage_contract_users, source: :user
   
   validates :title, presence: true
   validates :content, presence: true
@@ -31,19 +37,29 @@ class MortgageContract < ApplicationRecord
   
   def self.create_default
     default_content = <<~MARKUP
-      ## 1. Loan Agreement Details
+      ## 1. Agreement Parties
       
       This Equity Preservation Mortgage Agreement ("Agreement") is entered into between:
       
-      **Lender:** Futureproof Financial Group Limited
-      **Borrower:** [Borrower Name]
+      **The Customer (Borrower):**
+      {{primary_user_full_name}}
+      {{primary_user_address}}
+      
+      **The Lender:**
+      {{lender_name}}
+      {{lender_address}}
+      
+      ## 2. Loan Agreement Details
+      
+      This is a paperless mortgage contract agreement between the Customer and the Lender for the following loan:
+      
       **Property:** [Property Address]
       **Loan Amount:** [Loan Amount]
       **Loan-to-Value Ratio:** [LVR]%
       
-      ## 2. Equity Preservation Features
+      ## 3. Equity Preservation Features
       
-      ### 2.1 Equity Protection
+      ### 3.1 Equity Protection
       
       This mortgage includes equity preservation features designed to protect your home's value:
       
@@ -51,57 +67,57 @@ class MortgageContract < ApplicationRecord
       - **Equity Sharing:** You maintain full ownership and benefit from any property value increases
       - **No Negative Equity:** You will never owe more than your property is worth
       
-      ### 2.2 Interest Rate Structure
+      ### 3.2 Interest Rate Structure
       
       - **Initial Rate:** [Interest Rate]% per annum
       - **Rate Type:** [Fixed/Variable]
       - **Rate Review:** [Review Terms]
       
-      ## 3. Repayment Terms
+      ## 4. Repayment Terms
       
-      ### 3.1 Monthly Payments
+      ### 4.1 Monthly Payments
       
       - **Payment Amount:** $[Monthly Payment]
       - **Payment Date:** [Day] of each month
       - **Payment Method:** Direct debit from nominated account
       
-      ### 3.2 Early Repayment
+      ### 4.2 Early Repayment
       
       You may repay this loan early without penalty, subject to:
       - 30 days written notice
       - Settlement of outstanding balance
       - Discharge of security
       
-      ## 4. Security and Insurance
+      ## 5. Security and Insurance
       
-      ### 4.1 Property Security
+      ### 5.1 Property Security
       
       This loan is secured by a first mortgage over the property described above.
       
-      ### 4.2 Insurance Requirements
+      ### 5.2 Insurance Requirements
       
       You must maintain:
       - Building insurance for full replacement value
       - Public liability insurance
       - Mortgage protection insurance (optional but recommended)
       
-      ## 5. Default and Enforcement
+      ## 6. Default and Enforcement
       
-      ### 5.1 Events of Default
+      ### 6.1 Events of Default
       
       Default occurs if you:
       - Fail to make required payments
       - Breach any covenant in this agreement
       - Become insolvent or bankrupt
       
-      ### 5.2 Remedies
+      ### 6.2 Remedies
       
       Upon default, we may:
       - Demand immediate repayment
       - Exercise powers of sale
       - Appoint a receiver
       
-      ## 6. Fees and Charges
+      ## 7. Fees and Charges
       
       ### 6.1 Establishment Fees
       
@@ -142,11 +158,25 @@ class MortgageContract < ApplicationRecord
       
       This agreement constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, and agreements.
       
+      ## 9. Agreement Execution
+      
+      By entering into this agreement, both parties acknowledge that they have read, understood, and agree to be bound by all terms and conditions contained herein.
+      
+      **The Customer:**
+      Name: {{primary_user_full_name}}
+      Address: {{primary_user_address}}
+      Signature: _________________________ Date: _____________
+      
+      **The Lender:**
+      Name: {{lender_name}}
+      Address: {{lender_address}}
+      Signature: _________________________ Date: _____________
+      
       **Contact Information:**
-      Lender: Futureproof Financial Group Limited
+      Lender: {{lender_name}}
       Email: legal@futureprooffinancial.app
       Phone: 1300 XXX XXX
-      Address: [Lender Address]
+      Address: {{lender_address}}
     MARKUP
     
     create!(
@@ -186,9 +216,96 @@ class MortgageContract < ApplicationRecord
   end
   
   # Convert markup to HTML for display
-  def rendered_content
+  def rendered_content(substitutions = {})
     return "" if content.blank?
-    markup_to_html(content)
+    substituted_content = substitute_placeholders(content, substitutions)
+    markup_to_html(substituted_content)
+  end
+  
+  # Convert markup to HTML with placeholder substitution for preview
+  def rendered_preview_content
+    sample_substitutions = {
+      'primary_user_full_name' => 'John Smith',
+      'primary_user_address' => '123 Main Street, Melbourne VIC 3000',
+      'lender_name' => 'Futureproof Financial Group',
+      'lender_address' => '456 Collins Street, Melbourne VIC 3000'
+    }
+    rendered_content(sample_substitutions)
+  end
+  
+  # Substitute placeholders in content
+  def substitute_placeholders(text, substitutions = {})
+    return text if text.blank?
+    
+    # Default substitutions from associated records
+    default_substitutions = {}
+    
+    # Primary user substitutions
+    if primary_user.present?
+      default_substitutions['primary_user_full_name'] = primary_user.full_name
+      default_substitutions['primary_user_address'] = primary_user.address || 'Address not provided'
+    end
+    
+    # Lender substitutions from mortgage's lenders
+    if mortgage&.active_lenders&.any?
+      primary_lender = mortgage.active_lenders.first
+      default_substitutions['lender_name'] = primary_lender.name
+      default_substitutions['lender_address'] = primary_lender.address || 'Address not provided'
+      default_substitutions['lender_contact_email'] = primary_lender.contact_email || 'Contact email not provided'
+    end
+    
+    # Mortgage substitutions
+    if mortgage.present?
+      default_substitutions['mortgage_lvr'] = mortgage.lvr&.to_s || 'Not specified'
+    end
+    
+    # Application substitutions (from primary user's application if available)
+    if primary_user&.applications&.any?
+      application = primary_user.applications.order(:created_at).last
+      if application.present?
+        default_substitutions['application_address'] = application.address || 'Property address not provided'
+        default_substitutions['application_home_value'] = application.home_value&.to_s || 'Not specified'
+        default_substitutions['application_loan_term'] = application.loan_term&.to_s || 'Not specified'
+        default_substitutions['application_income_payout_term'] = application.income_payout_term&.to_s || 'Not specified'
+        default_substitutions['application_growth_rate'] = application.growth_rate&.to_s || 'Not specified'
+        
+        # Calculate monthly income using the application's method
+        if application.mortgage.present?
+          monthly_income = application.monthly_income_amount
+          default_substitutions['application_monthly_income'] = ActionController::Base.helpers.number_with_delimiter(monthly_income.round(0))
+        else
+          default_substitutions['application_monthly_income'] = 'To be calculated'
+        end
+      end
+    end
+    
+    # Contract date substitutions
+    start_date = created_at || Time.current
+    default_substitutions['contract_start_date'] = start_date.strftime('%B %d, %Y')
+    
+    # Calculate end date from start date + income payout term
+    if primary_user&.applications&.any?
+      application = primary_user.applications.order(:created_at).last
+      if application&.income_payout_term.present?
+        end_date = start_date + application.income_payout_term.years
+        default_substitutions['contract_end_date'] = end_date.strftime('%B %d, %Y')
+      else
+        default_substitutions['contract_end_date'] = 'To be determined'
+      end
+    else
+      default_substitutions['contract_end_date'] = 'To be determined'
+    end
+    
+    # Merge with provided substitutions (provided ones take precedence)
+    all_substitutions = default_substitutions.merge(substitutions)
+    
+    # Replace placeholders in format {{placeholder_name}}
+    result = text.dup
+    all_substitutions.each do |key, value|
+      result.gsub!("{{#{key}}}", value.to_s)
+    end
+    
+    result
   end
   
   # Create a new version when updating published contracts

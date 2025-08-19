@@ -2,24 +2,24 @@
 
 <div class="admin-actions-bar">
   <div>
-    <%= link_to "← Back to Contracts", admin_mortgage_contracts_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "← Back to Mortgage", admin_mortgage_path(@mortgage), class: "admin-btn admin-btn-secondary" %>
   </div>
   
   <div class="admin-actions">
     <% if @mortgage_contract.draft? %>
-      <%= link_to "Edit Contract", edit_admin_mortgage_contract_path(@mortgage_contract), class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Edit Contract", edit_admin_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), class: "admin-btn admin-btn-primary" %>
       <%= link_to "Publish Contract", 
-          publish_admin_mortgage_contract_path(@mortgage_contract), 
+          publish_admin_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), 
           method: :patch,
           class: "admin-btn admin-btn-info",
           data: { 
             confirm: "Are you sure you want to publish this contract? Published contracts cannot be directly edited." 
           } %>
     <% else %>
-      <%= link_to "Edit (New Version)", edit_admin_mortgage_contract_path(@mortgage_contract, create_new_version: true), class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Edit (New Version)", edit_admin_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract, create_new_version: true), class: "admin-btn admin-btn-primary" %>
       <% unless @mortgage_contract.is_active? %>
         <%= link_to "Activate Contract", 
-            activate_admin_mortgage_contract_path(@mortgage_contract), 
+            activate_admin_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), 
             method: :patch,
             class: "admin-btn admin-btn-success",
             data: { 

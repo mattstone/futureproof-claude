@@ -25,41 +25,134 @@
 </p>
 
 <!-- Sign-in Details -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc; border-radius: 8px; margin: 24px 0;">
+<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc; border: 2px solid #e5e7eb; border-radius: 8px; margin: 24px 0;">
   <tr>
-    <td style="padding: 20px;">
-      <h3 style="margin: 0 0 16px 0; color: #374151; font-size: 18px; font-weight: 600;">Sign-in Details:</h3>
+    <td style="padding: 32px;">
+      <h3 style="margin: 0 0 24px 0; color: #374151; font-size: 18px; font-weight: 600;">Sign-in Details:</h3>
       
-      <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px; width: 30%;">Time:</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @sign_in_time.strftime("%B %d, %Y at %I:%M %p %Z") %></td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Browser:</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['browser'] || 'Unknown Browser' %></td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Platform:</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['platform'] || 'Unknown Platform' %></td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">Language:</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @browser_info['language'] || 'Unknown' %></td>
-        </tr>
-        <% if @ip_address %>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 14px;">IP Address:</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @ip_address %></td>
-        </tr>
-        <% end %>
-        <% if @location %>
-        <tr>
-          <td style="padding: 8px 0; font-weight: 600; color: #6b7280; font-size: 14px;">Location:</td>
-          <td style="padding: 8px 0; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @location %></td>
-        </tr>
-        <% end %>
-      </table>
+      <div style="background-color: #ffffff; border-radius: 6px; padding: 20px; border: 1px solid #e5e7eb;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px; width: 35%;">Time:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;"><%= @sign_in_time.strftime("%B %d, %Y at %I:%M %p %Z") %></td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px;">Browser:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;">
+              <%
+                browser_name = @browser_info['browser'] || 'Unknown Browser'
+                formatted_browser = case browser_name.to_s.downcase
+                when /chrome/
+                  'Google Chrome'
+                when /firefox/
+                  'Mozilla Firefox'
+                when /safari/
+                  'Safari'
+                when /edge/
+                  'Microsoft Edge'
+                when /opera/
+                  'Opera'
+                when /internet explorer|msie/
+                  'Internet Explorer'
+                else
+                  browser_name.to_s.titleize
+                end
+              %>
+              <%= formatted_browser %>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px;">Operating System:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;">
+              <%
+                platform_name = @browser_info['platform'] || 'Unknown Operating System'
+                formatted_platform = case platform_name.to_s.downcase
+                when /mac|macintosh|darwin/
+                  'macOS'
+                when /windows|win32|win64/
+                  'Windows'
+                when /linux/
+                  'Linux'
+                when /android/
+                  'Android'
+                when /iphone|ipad|ios/
+                  'iOS'
+                when /unix/
+                  'Unix'
+                else
+                  platform_name.to_s.titleize
+                end
+              %>
+              <%= formatted_platform %>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px;">Language:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;">
+              <%
+                language_code = @browser_info['language'] || 'Unknown Language'
+                formatted_language = case language_code.to_s.downcase
+                when 'en', 'en-us', 'en-gb', 'en-au', 'en-ca'
+                  'English'
+                when 'es', 'es-es', 'es-mx'
+                  'Spanish'
+                when 'fr', 'fr-fr', 'fr-ca'
+                  'French'
+                when 'de', 'de-de'
+                  'German'
+                when 'it', 'it-it'
+                  'Italian'
+                when 'pt', 'pt-br', 'pt-pt'
+                  'Portuguese'
+                when 'zh', 'zh-cn', 'zh-tw'
+                  'Chinese'
+                when 'ja', 'ja-jp'
+                  'Japanese'
+                when 'ko', 'ko-kr'
+                  'Korean'
+                when 'ru', 'ru-ru'
+                  'Russian'
+                when 'ar', 'ar-sa'
+                  'Arabic'
+                when 'hi', 'hi-in'
+                  'Hindi'
+                else
+                  language_code.to_s.upcase
+                end
+              %>
+              <%= formatted_language %>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px;">Device Type:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;">
+              <%
+                browser_string = @browser_info.to_s.downcase
+                device_type = if browser_string.include?('mobile') || browser_string.include?('android') || browser_string.include?('iphone')
+                  'Mobile Device'
+                elsif browser_string.include?('tablet') || browser_string.include?('ipad')
+                  'Tablet'
+                else
+                  'Desktop Computer'
+                end
+              %>
+              <%= device_type %>
+            </td>
+          </tr>
+          <% if @ip_address %>
+          <tr>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px;">IP Address:</td>
+            <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px; font-family: 'Courier New', monospace;"><%= @ip_address %></td>
+          </tr>
+          <% end %>
+          <% if @location %>
+          <tr>
+            <td style="padding: 16px 20px; font-weight: 600; color: #6b7280; font-size: 14px;">Location:</td>
+            <td style="padding: 16px 20px; color: #374151; font-size: 14px;"><%= @location %></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
     </td>
   </tr>
 </table>

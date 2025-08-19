@@ -15,33 +15,13 @@ class MortgageLender < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
   
-  # Audit trail methods
-  def action_description
-    lender_name = lender&.name || 'lender'
-    mortgage_name = mortgage&.name || 'mortgage'
-    
-    case action
-    when 'created'
-      if active?
-        "added lender relationship with #{lender_name} to mortgage #{mortgage_name}"
-      else
-        "added inactive lender relationship with #{lender_name} to mortgage #{mortgage_name}"
-      end
-    when 'updated'
-      if saved_change_to_active?
-        if active?
-          "activated lender relationship with #{lender_name} for mortgage #{mortgage_name}"
-        else
-          "deactivated lender relationship with #{lender_name} for mortgage #{mortgage_name}"
-        end
-      else
-        "updated lender relationship with #{lender_name} for mortgage #{mortgage_name}"
-      end
-    when 'destroyed'
-      "removed lender relationship with #{lender_name} from mortgage #{mortgage_name}"
-    else
-      "#{action} lender relationship with #{lender_name} for mortgage #{mortgage_name}"
-    end
+  # Utility methods
+  def status_display
+    active? ? 'Active' : 'Inactive'
+  end
+  
+  def status_badge_class
+    active? ? 'status-active' : 'status-inactive'
   end
   
   def formatted_created_at

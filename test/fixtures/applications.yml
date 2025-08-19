@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 mortgage_application:
-  user: user_one
+  user: regular_user
   address: 123 Main Street, Portland, OR 97201
   home_value: 500000
   status: property_details
@@ -12,7 +12,7 @@ mortgage_application:
   updated_at: <%= 1.week.ago %>
 
 second_application:
-  user: user_two
+  user: admin_user
   address: 456 Oak Avenue, Seattle, WA 98101
   home_value: 750000
   status: property_details
@@ -23,7 +23,7 @@ second_application:
   updated_at: <%= 1.week.ago %>
 
 submitted_application:
-  user: user_one
+  user: regular_user
   address: 789 Elm Street, San Francisco, CA 94102
   home_value: 1200000
   status: submitted

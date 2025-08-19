@@ -182,12 +182,12 @@
                 <div class="relationship-header">
                   <h5><%= relationship.wholesale_funder.name %></h5>
                   <div class="relationship-actions">
-                    <span class="status-badge <%= relationship.status_badge_class %>">
-                      <%= relationship.status_display %>
-                    </span>
-                    <%= button_to "Toggle", toggle_active_admin_lender_wholesale_funder_path(@lender, relationship),
-                                  method: :patch, class: "admin-btn admin-btn-sm",
-                                  remote: true, form: { style: "display: inline;" } %>
+                    <%= button_to relationship.status_display, toggle_active_admin_lender_wholesale_funder_path(@lender, relationship),
+                                  method: :patch, remote: true, class: "status-badge clickable-status-badge #{relationship.status_badge_class}",
+                                  role: "button", tabindex: "0", 
+                                  data: { confirm: "Are you sure you want to change the status of this wholesale funder relationship?" },
+                                  'aria-label': "Toggle wholesale funder status (currently #{relationship.status_display})",
+                                  form: { style: "display: inline;" } %>
                     <%= button_to "Remove", admin_lender_wholesale_funder_path(@lender, relationship),
                                   method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
                                   remote: true, data: { confirm: "Are you sure you want to remove #{relationship.wholesale_funder.name}?" },
@@ -257,18 +257,18 @@
         <div id="pool-list-content">
           <% if @lender.lender_funder_pools.any? %>
             <div class="pool-list">
-            <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).each do |pool_relationship| %>
+            <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).order(active: :desc).each do |pool_relationship| %>
               <% pool = pool_relationship.funder_pool %>
               <div class="pool-card">
                 <div class="pool-header">
                   <h5><%= pool.name %></h5>
                   <div class="pool-actions">
-                    <span class="status-badge <%= pool_relationship.status_badge_class %>">
-                      <%= pool_relationship.status_display %>
-                    </span>
-                    <%= button_to "Toggle", toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
-                                  method: :patch, class: "admin-btn admin-btn-sm",
-                                  remote: true, form: { style: "display: inline;" } %>
+                    <%= button_to pool_relationship.status_display, toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
+                                  method: :patch, remote: true, class: "status-badge clickable-status-badge #{pool_relationship.status_badge_class}",
+                                  role: "button", tabindex: "0",
+                                  data: { confirm: "Are you sure you want to change the status of this funder pool relationship?" },
+                                  'aria-label': "Toggle funder pool status (currently #{pool_relationship.status_display})",
+                                  form: { style: "display: inline;" } %>
                     <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
                                   method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
                                   remote: true, data: { confirm: "Are you sure?" },
@@ -581,6 +581,50 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.clickable-status-badge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  user-select: none;
+  border: 2px solid transparent;
+  background: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.clickable-status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+}
+
+.clickable-status-badge:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.clickable-status-badge:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clickable-status-badge.status-active:hover {
+  background-color: #bbf7d0;
+  border-color: #059669;
+  color: #065f46;
+}
+
+.clickable-status-badge.status-inactive:hover {
+  background-color: #fca5a5;
+  border-color: #dc2626;
+  color: #7f1d1d;
 }
 
 .status-active {

@@ -2,40 +2,115 @@
 
 <div class="admin-actions-bar">
   <div>
-    <%= link_to "← Back to Contracts", admin_mortgage_contracts_path, class: "admin-btn admin-btn-secondary" %>
+    <%= link_to "← Back to Mortgage", admin_mortgage_path(@mortgage), class: "admin-btn admin-btn-secondary" %>
   </div>
   
   <div class="admin-actions">
-    <%= link_to "View Contract", admin_mortgage_contract_path(@mortgage_contract), class: "admin-btn admin-btn-info" %>
+    <% if @mortgage_contract.persisted? %>
+      <%= link_to "View Contract", admin_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), class: "admin-btn admin-btn-info" %>
+    <% end %>
   </div>
 </div>
 
-<div class="full-width-container">
-  <% if @mortgage_contract.persisted? && @mortgage_contract.published? %>
-    <h2>Create New Version</h2>
-    
-    <div class="version-info">
-      <p><strong>Editing Published Contract:</strong> Since this contract is already published, editing will create a new draft version (Version <%= (MortgageContract.maximum(:version) || 0) + 1 %>).</p>
-      <p>The original published version will remain unchanged until the new version is published.</p>
-    </div>
-  <% else %>
-    <h2>Edit Contract <span class="version-label">Version <%= @mortgage_contract.version %></span></h2>
-    
-    <% if @mortgage_contract.draft? %>
-      <div class="draft-info">
-        <p><strong>Editing Draft:</strong> This contract is currently a draft. You can freely edit it before publishing.</p>
-      </div>
-    <% end %>
-  <% end %>
+<div class="contract-editor-layout">
+  <div class="contract-form-column">
+    <div class="admin-form-container">
+      <% if @mortgage_contract.persisted? && @mortgage_contract.published? %>
+        <h2>Create New Version</h2>
+        
+        <div class="version-info">
+          <p><strong>Editing Published Contract:</strong> Since this contract is already published, editing will create a new draft version (Version <%= (MortgageContract.maximum(:version) || 0) + 1 %>).</p>
+          <p>The original published version will remain unchanged until the new version is published.</p>
+        </div>
+      <% else %>
+        <h2>Edit Contract <span class="version-label">Version <%= @mortgage_contract.version %></span></h2>
+        
+        <% if @mortgage_contract.draft? %>
+          <div class="draft-info">
+            <p><strong>Editing Draft:</strong> This contract is currently a draft. You can freely edit it before publishing.</p>
+          </div>
+        <% end %>
+      <% end %>
 
-  <%= render 'form' %>
+      <%= render 'form' %>
+    </div>
+  </div>
+  
+  <div class="contract-preview-column">
+    <div class="preview-container">
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <p>See your changes in real-time</p>
+      </div>
+      <div class="markup-preview" id="markup-preview-standalone">
+        <p class="preview-note">Contract preview will appear here as you type...</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-.full-width-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+.contract-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.contract-form-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.contract-preview-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.preview-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-header {
+  background: #f9fafb;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+#markup-preview-standalone {
+  border: none;
+  border-radius: 0;
+  padding: 24px;
+  background: white;
+  min-height: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Disable animations for instant preview updates */
+#markup-preview-standalone .legal-section {
+  animation: none !important;
+  animation-delay: 0s !important;
 }
 
 .version-info {
@@ -78,4 +153,345 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+.preview-note {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  margin: 60px 0;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+  .contract-editor-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .contract-editor-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .contract-preview-column {
+    position: static;
+  }
+  
+  #markup-preview-standalone {
+    min-height: 400px;
+    max-height: 500px;
+  }
+}
 </style>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Check if preview is already initialized on the textarea element
+  function isAlreadyInitialized(textarea) {
+    return textarea && textarea.hasAttribute('data-preview-initialized');
+  }
+  
+  function initializeMortgageContractPreview() {
+    const textarea = document.querySelector('.markup-editor');
+    const preview = document.getElementById('markup-preview-standalone');
+    const previewBtn = document.getElementById('preview-btn');
+    const form = document.querySelector('.admin-form');
+    
+    if (!textarea || !preview) {
+      return false;
+    }
+    
+    if (isAlreadyInitialized(textarea)) {
+      return true;
+    }
+    
+    textarea.setAttribute('data-preview-initialized', 'true');
+  
+  // Function to convert mortgage contract markup to HTML with placeholder substitution
+  function markupToHtml(text) {
+    if (!text.trim()) {
+      return '<p class="preview-note">Contract preview will appear here as you type...</p>';
+    }
+    
+    // Substitute placeholders with sample data for preview
+    const sampleSubstitutions = {
+      'primary_user_full_name': 'John Smith',
+      'primary_user_address': '123 Main Street, Melbourne VIC 3000',
+      'lender_name': 'Futureproof Financial Group',
+      'lender_address': '456 Collins Street, Melbourne VIC 3000'
+    };
+    
+    // Apply substitutions
+    let substitutedText = text;
+    Object.keys(sampleSubstitutions).forEach(key => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      substitutedText = substitutedText.replace(regex, sampleSubstitutions[key]);
+    });
+    
+    // Split into sections first
+    const sections = substitutedText.split(/^## /).filter(s => s.trim());
+    let htmlParts = [];
+    
+    sections.forEach(sectionText => {
+      const sectionLines = sectionText.split('\n');
+      const title = sectionLines[0]?.trim();
+      const contentLines = sectionLines.slice(1) || [];
+      
+      htmlParts.push('<section class="legal-section">');
+      
+      // Add section title
+      if (title && title.length > 0) {
+        htmlParts.push(`  <h2>${sanitizeText(title)}</h2>`);
+      }
+      
+      // Process content lines
+      let inList = false;
+      let inContact = false;
+      let inDetails = false;
+      
+      contentLines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        
+        // Handle subsections
+        if (line.match(/^### (.+)$/)) {
+          // Close any open structures
+          if (inList) {
+            htmlParts.push('  </ul>');
+            inList = false;
+          }
+          if (inDetails) {
+            htmlParts.push('  </div>');
+            inDetails = false;
+          }
+          
+          const subtitle = line.replace(/^### /, '').trim();
+          htmlParts.push(`  <h3>${sanitizeText(subtitle)}</h3>`);
+          
+        // Handle bullet points
+        } else if (line.match(/^- (.+)$/)) {
+          if (!inList) {
+            htmlParts.push('  <ul>');
+            inList = true;
+          }
+          const item = line.replace(/^- /, '').trim();
+          htmlParts.push(`    <li>${sanitizeText(item).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</li>`);
+          
+        // Handle loan details pattern
+        } else if (line.match(/^\*\*(.+):\*\* (.+)$/)) {
+          if (!inDetails) {
+            htmlParts.push('  <div class="loan-details">');
+            inDetails = true;
+          }
+          const field = line.match(/^\*\*(.+):\*\*/)[1].trim();
+          const value = line.replace(/^\*\*(.+):\*\* /, '').trim();
+          htmlParts.push('    <div class="detail-row">');
+          htmlParts.push(`      <strong>${sanitizeText(field)}:</strong>`);
+          htmlParts.push(`      <span>${sanitizeText(value)}</span>`);
+          htmlParts.push('    </div>');
+          
+        // Handle contact info pattern  
+        } else if (line.match(/^(Lender|Email|Phone|Address): (.+)$/)) {
+          if (!inContact) {
+            if (inDetails) {
+              htmlParts.push('  </div>');
+              inDetails = false;
+            }
+            htmlParts.push('  <div class="contact-info">');
+            inContact = true;
+          }
+          const parts = line.split(': ');
+          const field = parts[0];
+          const value = parts.slice(1).join(': ').trim();
+          if (field === 'Lender') {
+            htmlParts.push(`    <p><strong>${sanitizeText(value)}</strong></p>`);
+          } else {
+            htmlParts.push(`    <p>${sanitizeText(field)}: ${sanitizeText(value)}</p>`);
+          }
+          
+        // Handle regular paragraphs
+        } else {
+          // Close any open structures
+          if (inList) {
+            htmlParts.push('  </ul>');
+            inList = false;
+          }
+          if (inDetails) {
+            htmlParts.push('  </div>');
+            inDetails = false;
+          }
+          if (inContact) {
+            htmlParts.push('  </div>');
+            inContact = false;
+          }
+          
+          // Process **bold** text
+          const processedLine = line.replace(/\*\*(.+?)\*\*/g, (match, p1) => `<strong>${sanitizeText(p1)}</strong>`);
+          htmlParts.push(`  <p>${processedLine}</p>`);
+        }
+      });
+      
+      // Close any open structures
+      if (inList) {
+        htmlParts.push('  </ul>');
+      }
+      if (inDetails) {
+        htmlParts.push('  </div>');
+      }
+      if (inContact) {
+        htmlParts.push('  </div>');
+      }
+      
+      htmlParts.push('</section>');
+    });
+    
+    return htmlParts.join('\n');
+  }
+  
+  function sanitizeText(text) {
+    if (!text) return '';
+    // Allow only safe characters, preserve special symbols
+    return text.toString().replace(/[<>"]/g, '').trim();
+  }
+  
+  // Instant update function for user input
+  function updatePreviewInstant() {
+    const htmlContent = markupToHtml(textarea.value);
+    preview.innerHTML = htmlContent;
+  }
+  
+  // Delayed update function for initial load
+  function updatePreviewDelayed() {
+    setTimeout(() => {
+      const htmlContent = markupToHtml(textarea.value);
+      preview.innerHTML = htmlContent;
+    }, 200);
+  }
+  
+  // Set up event listeners with instant updates
+  textarea.addEventListener('input', updatePreviewInstant);
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = this.selectionStart;
+      const end = this.selectionEnd;
+      this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+      this.selectionStart = this.selectionEnd = start + 2;
+      updatePreviewInstant();
+    }
+  });
+  
+  // Initial preview update with delay
+  updatePreviewDelayed();
+  
+  // Full page preview functionality
+  if (previewBtn && form) {
+    previewBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const tempForm = document.createElement('form');
+      tempForm.method = 'POST';
+      tempForm.action = form.action.replace(/\/\d+$/, '') + '/preview';
+      tempForm.target = '_blank';
+      tempForm.style.display = 'none';
+      
+      const csrfToken = document.querySelector('meta[name="csrf-token"]') || 
+                       document.querySelector('input[name="authenticity_token"]');
+      
+      if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'authenticity_token';
+        csrfInput.value = csrfToken.getAttribute ? csrfToken.getAttribute('content') : csrfToken.value;
+        tempForm.appendChild(csrfInput);
+      }
+      
+      const titleInput = form.querySelector('input[name*="[title]"]');
+      const contentInput = form.querySelector('textarea[name*="[content]"]');
+      
+      if (titleInput && titleInput.value) {
+        const titleField = document.createElement('input');
+        titleField.type = 'hidden';
+        titleField.name = 'mortgage_contract[title]';
+        titleField.value = titleInput.value;
+        tempForm.appendChild(titleField);
+      }
+      
+      if (contentInput && contentInput.value) {
+        const contentField = document.createElement('input');
+        contentField.type = 'hidden';
+        contentField.name = 'mortgage_contract[content]';
+        contentField.value = contentInput.value;
+        tempForm.appendChild(contentField);
+      }
+      
+      document.body.appendChild(tempForm);
+      tempForm.submit();
+      document.body.removeChild(tempForm);
+    });
+  }
+  
+    return true;
+  }
+
+  // Use MutationObserver to detect when form elements are added to the DOM
+  function observeForFormElements() {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(function(node) {
+            if (node.nodeType === 1) { // Element node
+              if (node.querySelector && (node.querySelector('.markup-editor') || node.classList.contains('markup-editor'))) {
+                if (initializeMortgageContractPreview()) {
+                  observer.disconnect();
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    // Stop observing after 10 seconds to prevent memory leaks
+    setTimeout(() => {
+      observer.disconnect();
+    }, 10000);
+  }
+
+  // Multiple initialization strategies
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!initializeMortgageContractPreview()) {
+      observeForFormElements();
+    }
+  });
+
+  window.addEventListener('load', function() {
+    if (!initializeMortgageContractPreview()) {
+      observeForFormElements();
+    }
+  });
+
+  // Delayed attempts
+  setTimeout(() => {
+    initializeMortgageContractPreview();
+  }, 100);
+
+  setTimeout(() => {
+    initializeMortgageContractPreview();
+  }, 500);
+
+  setTimeout(() => {
+    initializeMortgageContractPreview();
+  }, 1000);
+
+})();
+</script>

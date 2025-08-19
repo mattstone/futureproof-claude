@@ -26,8 +26,26 @@ class LenderFunderPool < ApplicationRecord
   end
   
   def toggle_active!
+    # If trying to activate, check if wholesale funder is active
+    if !active? && !can_activate?
+      raise ActivationBlockedError.new(
+        "Cannot activate funder pool: The wholesale funder '#{wholesale_funder.name}' is not active for this lender. Please activate the wholesale funder relationship first."
+      )
+    end
+    
     self.active = !active
     save!
+  end
+  
+  def can_activate?
+    return true if active? # Already active, can always deactivate
+    
+    # Check if wholesale funder relationship is active for this lender
+    lender.lender_wholesale_funders
+          .active
+          .joins(:wholesale_funder)
+          .where(wholesale_funders: { id: wholesale_funder.id })
+          .exists?
   end
   
   def wholesale_funder
@@ -38,6 +56,8 @@ class LenderFunderPool < ApplicationRecord
   
   def lender_must_have_wholesale_funder_relationship
     return unless lender && funder_pool
+    # Only validate on creation or when activating
+    return if persisted? && !active?
     
     unless lender.lender_wholesale_funders.active.joins(:wholesale_funder).where(wholesale_funders: { id: funder_pool.wholesale_funder_id }).exists?
       errors.add(:funder_pool, "can only be selected if lender has an active relationship with the wholesale funder")

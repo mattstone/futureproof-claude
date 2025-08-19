@@ -9,7 +9,7 @@
   </div>
   
   <div class="admin-actions">
-    <%= link_to "Create New Contract", new_admin_mortgage_contract_path, class: "admin-btn admin-btn-primary" %>
+    <%= link_to "Create New Contract", new_admin_mortgage_mortgage_contract_path(@mortgage), class: "admin-btn admin-btn-primary" %>
   </div>
 </div>
 
@@ -46,11 +46,11 @@
               <%= contract.created_at.strftime("%b %d, %Y") %>
             </td>
             <td class="admin-table-actions">
-              <%= link_to "View", admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-              <%= link_to "Edit (New Version)", edit_admin_mortgage_contract_path(contract, create_new_version: true), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <%= link_to "View", admin_mortgage_mortgage_contract_path(@mortgage, contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit (New Version)", edit_admin_mortgage_mortgage_contract_path(@mortgage, contract, create_new_version: true), class: "admin-btn admin-btn-sm admin-btn-primary" %>
               <% unless contract.is_active? %>
                 <%= link_to "Activate", 
-                    activate_admin_mortgage_contract_path(contract), 
+                    activate_admin_mortgage_mortgage_contract_path(@mortgage, contract), 
                     method: :patch,
                     class: "admin-btn admin-btn-sm admin-btn-success",
                     data: { 
@@ -107,17 +107,17 @@
               <%= contract.created_at.strftime("%b %d, %Y") %>
             </td>
             <td class="admin-table-actions">
-              <%= link_to "View", admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-              <%= link_to "Edit", edit_admin_mortgage_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <%= link_to "View", admin_mortgage_mortgage_contract_path(@mortgage, contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit", edit_admin_mortgage_mortgage_contract_path(@mortgage, contract), class: "admin-btn admin-btn-sm admin-btn-primary" %>
               <%= link_to "Publish", 
-                  publish_admin_mortgage_contract_path(contract), 
+                  publish_admin_mortgage_mortgage_contract_path(@mortgage, contract), 
                   method: :patch,
                   class: "admin-btn admin-btn-sm admin-btn-info",
                   data: { 
                     confirm: "Are you sure you want to publish this contract? Published contracts cannot be directly edited." 
                   } %>
               <%= link_to "Delete", 
-                  admin_mortgage_contract_path(contract), 
+                  admin_mortgage_mortgage_contract_path(@mortgage, contract), 
                   method: :delete,
                   class: "admin-btn admin-btn-sm admin-btn-danger",
                   data: { 
@@ -133,7 +133,7 @@
       <div class="admin-empty-state">
         <h3>No Draft Contracts Found</h3>
         <p>Get started by creating your first Mortgage Contract.</p>
-        <%= link_to "Create First Contract", new_admin_mortgage_contract_path, class: "admin-btn admin-btn-primary" %>
+        <%= link_to "Create First Contract", new_admin_mortgage_mortgage_contract_path(@mortgage), class: "admin-btn admin-btn-primary" %>
       </div>
     <% end %>
   </div>

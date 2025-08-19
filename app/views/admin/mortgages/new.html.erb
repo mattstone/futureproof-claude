@@ -22,7 +22,7 @@
 
   <div class="field">
     <%= form.label :name %>
-    <%= form.text_area :name, rows: 3, required: true, placeholder: "Enter mortgage name or description" %>
+    <%= form.text_field :name, required: true, placeholder: "Enter mortgage name" %>
   </div>
 
   <div class="field">
@@ -43,12 +43,16 @@
   </div>
 
   <div class="field">
-    <%= form.label :lender_id, "Lender" %>
-    <%= form.select :lender_id, 
-        options_from_collection_for_select(Lender.all, :id, :name, @mortgage.lender_id), 
-        { prompt: 'Select Lender (Optional)' }, 
-        { } %>
-    <small class="field-hint">Assign a lender to this mortgage (optional)</small>
+    <%= form.label :status %>
+    <%= form.select :status, 
+        options_for_select([
+          ['Draft', 'draft'],
+          ['Active', 'active'],
+          ['Inactive', 'inactive']
+        ], @mortgage.status || 'draft'), 
+        {}, 
+        { required: true } %>
+    <small class="field-hint">Current status of the mortgage</small>
   </div>
 
   <div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">

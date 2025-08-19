@@ -1,9 +1,27 @@
 <% content_for :page_title, "Mortgages" %>
 
 <div class="admin-actions-bar">
-  <div class="admin-search">
-    <%= form_with(url: admin_mortgages_path, method: :get, local: true, class: "search-form") do |form| %>
-      <%= form.text_field :search, placeholder: "Search mortgages...", value: params[:search] %>
+  <div class="admin-filters">
+    <%= form_with(url: admin_mortgages_path, method: :get, local: true, class: "filters-form") do |form| %>
+      <div class="filter-group">
+        <%= form.text_field :search, placeholder: "Search mortgages...", value: params[:search], class: "filter-input" %>
+      </div>
+      <div class="filter-group">
+        <%= form.select :status, 
+            options_for_select([
+              ['All Statuses', ''],
+              ['Draft', 'draft'],
+              ['Active', 'active'], 
+              ['Inactive', 'inactive']
+            ], params[:status]),
+            {}, 
+            { class: "filter-select", onchange: "this.form.submit();" } %>
+      </div>
+      <% if params[:search].present? || params[:status].present? %>
+        <div class="filter-group">
+          <%= link_to "Clear Filters", admin_mortgages_path, class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+        </div>
+      <% end %>
     <% end %>
   </div>
   
@@ -20,7 +38,7 @@
         <th>Type</th>
         <th>LVR</th>
         <th>Lenders</th>
-        <th>Created</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -36,26 +54,18 @@
           <td><strong><%= mortgage.formatted_lvr %></strong></td>
           <td>
             <% if mortgage.active_lenders.any? %>
-              <div class="lenders-list">
-                <% mortgage.active_lenders.first(2).each do |lender| %>
-                  <div class="lender-item">
-                    <%= link_to lender.name, admin_lender_path(lender), class: "admin-link" %>
-                    <span class="lender-type-badge <%= lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
-                      <%= lender.lender_type.humanize %>
-                    </span>
-                  </div>
-                <% end %>
-                <% if mortgage.active_lenders.count > 2 %>
-                  <div class="more-lenders">
-                    +<%= mortgage.active_lenders.count - 2 %> more
-                  </div>
-                <% end %>
-              </div>
+              <span class="lender-count">
+                <%= mortgage.active_lenders.count %> lender<%= mortgage.active_lenders.count == 1 ? '' : 's' %>
+              </span>
             <% else %>
-              <span class="no-lender">No lenders assigned</span>
+              <span class="no-lender">No lenders</span>
             <% end %>
           </td>
-          <td><%= mortgage.created_at.strftime("%B %d, %Y") %></td>
+          <td>
+            <span class="status-badge status-<%= mortgage.status %>">
+              <%= mortgage.status.humanize %>
+            </span>
+          </td>
           <td>
             <%= link_to "View", admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
             <%= link_to "Edit", edit_admin_mortgage_path(mortgage), class: "admin-btn admin-btn-sm admin-btn-primary" %>
@@ -84,70 +94,92 @@
 </div>
 
 <style>
-/* Lender styling */
-.lender-type-badge {
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 10px;
+/* Filter styling */
+.admin-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.filters-form {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+}
+
+.filter-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 240px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  min-width: 140px;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Status badge styling */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-left: 6px;
   display: inline-block;
 }
 
-.lender-futureproof {
-  background-color: #dbeafe;
-  color: #1e40af;
+.status-draft {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
-.lender-external {
-  background-color: #f3e8ff;
-  color: #7c3aed;
+.status-active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Lender styling */
+.lender-count {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
 }
 
 .no-lender {
   color: #dc2626;
   font-style: italic;
   font-size: 13px;
-}
-
-.admin-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.admin-link:hover {
-  text-decoration: underline;
-}
-
-/* Lenders List */
-.lenders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.lender-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-}
-
-.more-lenders {
-  font-size: 11px;
-  color: #6b7280;
-  font-style: italic;
-}
-
-/* Ensure table columns are properly sized */
-.admin-table th:nth-child(4) {
-  width: 200px;
-}
-
-.admin-table td:nth-child(4) {
-  max-width: 200px;
 }
 </style>

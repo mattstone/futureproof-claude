@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -298,6 +298,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
     t.index ["name"], name: "index_lenders_on_name"
   end
 
+  create_table "mortgage_contract_users", force: :cascade do |t|
+    t.bigint "mortgage_contract_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mortgage_contract_id", "user_id"], name: "index_mortgage_contract_users_unique", unique: true
+    t.index ["mortgage_contract_id"], name: "index_mortgage_contract_users_on_mortgage_contract_id"
+    t.index ["user_id"], name: "index_mortgage_contract_users_on_user_id"
+  end
+
   create_table "mortgage_contract_versions", force: :cascade do |t|
     t.bigint "mortgage_contract_id", null: false
     t.bigint "user_id", null: false
@@ -321,10 +331,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
     t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "mortgage_id"
+    t.bigint "primary_user_id"
     t.index ["created_by_id"], name: "index_mortgage_contracts_on_created_by_id"
     t.index ["is_active"], name: "index_mortgage_contracts_on_is_active"
     t.index ["is_draft"], name: "index_mortgage_contracts_on_is_draft"
     t.index ["last_updated"], name: "index_mortgage_contracts_on_last_updated"
+    t.index ["mortgage_id"], name: "index_mortgage_contracts_on_mortgage_id"
+    t.index ["primary_user_id"], name: "index_mortgage_contracts_on_primary_user_id"
     t.index ["version"], name: "index_mortgage_contracts_on_version", unique: true
   end
 
@@ -377,6 +391,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "lvr", precision: 5, scale: 2, default: "80.0"
+    t.integer "status", default: 0, null: false
+    t.index ["status"], name: "index_mortgages_on_status"
   end
 
   create_table "privacy_policies", force: :cascade do |t|
@@ -513,6 +529,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
     t.boolean "terms_accepted", default: false, null: false
     t.integer "terms_version"
     t.bigint "lender_id", null: false
+    t.text "address"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email", "lender_id"], name: "index_users_on_email_and_lender_id", unique: true
     t.index ["lender_id"], name: "index_users_on_lender_id"
@@ -590,9 +607,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_015904) do
   add_foreign_key "lender_wholesale_funder_versions", "users"
   add_foreign_key "lender_wholesale_funders", "lenders"
   add_foreign_key "lender_wholesale_funders", "wholesale_funders"
+  add_foreign_key "mortgage_contract_users", "mortgage_contracts"
+  add_foreign_key "mortgage_contract_users", "users"
   add_foreign_key "mortgage_contract_versions", "mortgage_contracts"
   add_foreign_key "mortgage_contract_versions", "users"
+  add_foreign_key "mortgage_contracts", "mortgages"
   add_foreign_key "mortgage_contracts", "users", column: "created_by_id"
+  add_foreign_key "mortgage_contracts", "users", column: "primary_user_id"
   add_foreign_key "mortgage_lender_versions", "mortgage_lenders"
   add_foreign_key "mortgage_lender_versions", "users"
   add_foreign_key "mortgage_lenders", "lenders"

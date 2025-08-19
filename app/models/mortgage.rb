@@ -1,5 +1,6 @@
 class Mortgage < ApplicationRecord
   has_many :mortgage_versions, dependent: :destroy
+  has_many :mortgage_contracts, dependent: :destroy
   
   # Lender relationships (many-to-many)
   has_many :mortgage_lenders, dependent: :destroy
@@ -10,6 +11,12 @@ class Mortgage < ApplicationRecord
   enum :mortgage_type, {
     interest_only: 0,
     principal_and_interest: 1
+  }, prefix: true
+
+  enum :status, {
+    draft: 0,
+    active: 1,
+    inactive: 2
   }, prefix: true
 
   validates :name, presence: true

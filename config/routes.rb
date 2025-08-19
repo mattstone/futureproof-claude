@@ -59,6 +59,15 @@ Rails.application.routes.draw do
           patch :toggle_active
         end
       end
+      resources :mortgage_contracts do
+        member do
+          patch :activate
+          patch :publish
+        end
+        collection do
+          post :preview
+        end
+      end
     end
     resources :applications do
       collection do
@@ -97,15 +106,6 @@ Rails.application.routes.draw do
     resources :terms_and_conditions, except: [:destroy] do
       member do
         patch :activate
-      end
-      collection do
-        post :preview
-      end
-    end
-    resources :mortgage_contracts do
-      member do
-        patch :activate
-        patch :publish
       end
       collection do
         post :preview

@@ -12,7 +12,7 @@ admin_to_customer_message:
 
 customer_to_admin_message:
   contract: basic_contract
-  sender: user_one (User)
+  sender: regular_user (User)
   message_type: "customer_to_admin"
   subject: "Question about contract"
   content: "I have a question about my contract."

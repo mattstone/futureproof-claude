@@ -146,4 +146,82 @@ class UserMailer < ApplicationMailer
       'Unknown'
     end
   end
+
+  def format_browser_name(browser)
+    return 'Unknown Browser' if browser.blank?
+    
+    # Clean up common browser names
+    case browser.to_s.downcase
+    when /chrome/
+      'Google Chrome'
+    when /firefox/
+      'Mozilla Firefox'
+    when /safari/
+      'Safari'
+    when /edge/
+      'Microsoft Edge'
+    when /opera/
+      'Opera'
+    when /internet explorer|msie/
+      'Internet Explorer'
+    else
+      browser.to_s.titleize
+    end
+  end
+
+  def format_platform_name(platform)
+    return 'Unknown Operating System' if platform.blank?
+    
+    # Clean up platform names
+    case platform.to_s.downcase
+    when /mac|macintosh|darwin/
+      'macOS'
+    when /windows|win32|win64/
+      'Windows'
+    when /linux/
+      'Linux'
+    when /android/
+      'Android'
+    when /iphone|ipad|ios/
+      'iOS'
+    when /unix/
+      'Unix'
+    else
+      platform.to_s.titleize
+    end
+  end
+
+  def format_language(language)
+    return 'Unknown Language' if language.blank?
+    
+    # Convert language codes to readable names
+    case language.to_s.downcase
+    when 'en', 'en-us', 'en-gb', 'en-au', 'en-ca'
+      'English'
+    when 'es', 'es-es', 'es-mx'
+      'Spanish'
+    when 'fr', 'fr-fr', 'fr-ca'
+      'French'
+    when 'de', 'de-de'
+      'German'
+    when 'it', 'it-it'
+      'Italian'
+    when 'pt', 'pt-br', 'pt-pt'
+      'Portuguese'
+    when 'zh', 'zh-cn', 'zh-tw'
+      'Chinese'
+    when 'ja', 'ja-jp'
+      'Japanese'
+    when 'ko', 'ko-kr'
+      'Korean'
+    when 'ru', 'ru-ru'
+      'Russian'
+    when 'ar', 'ar-sa'
+      'Arabic'
+    when 'hi', 'hi-in'
+      'Hindi'
+    else
+      language.to_s.upcase
+    end
+  end
 end

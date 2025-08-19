@@ -12,6 +12,12 @@ class User < ApplicationRecord
   has_many :applications, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
+  
+  # Mortgage contract relationships
+  has_many :created_mortgage_contracts, class_name: 'MortgageContract', foreign_key: 'created_by_id', dependent: :nullify
+  has_many :primary_mortgage_contracts, class_name: 'MortgageContract', foreign_key: 'primary_user_id', dependent: :nullify
+  has_many :mortgage_contract_users, dependent: :destroy
+  has_many :additional_mortgage_contracts, through: :mortgage_contract_users, source: :mortgage_contract
 
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value

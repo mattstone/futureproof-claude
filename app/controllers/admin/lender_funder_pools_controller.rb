@@ -45,13 +45,28 @@ class Admin::LenderFunderPoolsController < Admin::BaseController
   def toggle_active
     @lender = @lender_funder_pool.lender
     @lender_funder_pool.current_user = current_user if @lender_funder_pool.respond_to?(:current_user=)
-    @lender_funder_pool.toggle_active!
+    
+    begin
+      @lender_funder_pool.toggle_active!
+      @success = true
+      status = @lender_funder_pool.active? ? 'activated' : 'deactivated'
+      @message = "#{@lender_funder_pool.funder_pool.name} was successfully #{status} for this lender."
+    rescue ActivationBlockedError => e
+      @success = false
+      @message = e.message
+    rescue => e
+      @success = false
+      @message = "Failed to update funder pool status: #{e.message}"
+    end
     
     respond_to do |format|
       format.turbo_stream { render "toggle_active" }
       format.html do
-        status = @lender_funder_pool.active? ? 'activated' : 'deactivated'
-        redirect_to admin_lender_path(@lender), notice: "Funder pool was successfully #{status} for this lender."
+        if @success
+          redirect_to admin_lender_path(@lender), notice: @message
+        else
+          redirect_to admin_lender_path(@lender), alert: @message
+        end
       end
     end
   end

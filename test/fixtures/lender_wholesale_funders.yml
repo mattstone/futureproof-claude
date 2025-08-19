@@ -1,11 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  lender: one
+  lender: futureproof
   wholesale_funder: one
   active: false
 
 two:
-  lender: two
+  lender: broker
   wholesale_funder: two
   active: false
