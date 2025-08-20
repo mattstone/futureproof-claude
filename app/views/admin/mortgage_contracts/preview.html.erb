@@ -4,178 +4,21 @@
   <title><%= @mortgage_contract.title %> - Preview</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      line-height: 1.6;
-      color: #1f2937;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      background-color: #f9fafb;
-    }
-    
-    .preview-header {
-      background: #1f2937;
-      color: white;
-      padding: 20px;
-      border-radius: 8px 8px 0 0;
-      margin-bottom: 0;
-    }
-    
-    .preview-header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    
-    .preview-meta {
-      background: #374151;
-      color: #d1d5db;
-      padding: 12px 20px;
-      border-radius: 0 0 8px 8px;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-    
-    .contract-content {
-      background: white;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Contract content styling */
-    .legal-section {
-      margin-bottom: 32px;
-    }
-    
-    .legal-section h2 {
-      color: #0891b2;
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0 0 16px 0;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #0891b2;
-    }
-    
-    .legal-section h3 {
-      color: #1e293b;
-      font-size: 18px;
-      font-weight: 600;
-      margin: 24px 0 12px 0;
-    }
-    
-    .legal-section p {
-      color: #1e293b;
-      line-height: 1.7;
-      margin: 0 0 16px 0;
-    }
-    
-    .legal-section ul {
-      margin: 16px 0;
-      padding-left: 24px;
-    }
-    
-    .legal-section li {
-      color: #1e293b;
-      line-height: 1.6;
-      margin-bottom: 8px;
-    }
-    
-    .loan-details {
-      background-color: #fef3c7;
-      padding: 20px;
-      border-radius: 8px;
-      border-left: 4px solid #f59e0b;
-      margin: 20px 0;
-    }
-    
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 8px 0;
-      border-bottom: 1px solid #fde68a;
-    }
-    
-    .detail-row:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-    
-    .detail-row strong {
-      color: #92400e;
-      font-weight: 600;
-    }
-    
-    .detail-row span {
-      color: #78350f;
-      font-weight: 500;
-    }
-    
-    .contact-info {
-      background-color: #f8fafc;
-      padding: 20px;
-      border-radius: 8px;
-      border-left: 4px solid #0891b2;
-      margin: 20px 0;
-    }
-    
-    .contact-info p {
-      margin: 0 0 8px 0;
-      line-height: 1.5;
-      color: #475569;
-    }
-    
-    .contact-info p:last-child {
-      margin-bottom: 0;
-    }
-    
-    .preview-footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      background: #f3f4f6;
-      border-radius: 8px;
-      color: #6b7280;
-      font-size: 14px;
-    }
-    
-    @media print {
-      body {
-        background-color: white;
-        padding: 20px;
-      }
-      
-      .preview-header,
-      .preview-meta,
-      .preview-footer {
-        display: none;
-      }
-      
-      .contract-content {
-        box-shadow: none;
-        padding: 0;
-      }
-    }
-  </style>
 </head>
-<body>
-  <div class="preview-header">
+<body class="admin-contract-preview-page">
+  <div class="admin-contract-preview-header">
     <h1><%= @mortgage_contract.title %></h1>
   </div>
   
-  <div class="preview-meta">
+  <div class="admin-contract-preview-meta">
     <strong>PREVIEW</strong> - Last Updated: <%= @mortgage_contract.formatted_last_updated %>
   </div>
   
-  <div class="contract-content">
+  <div class="admin-contract-content">
     <%= @mortgage_contract.rendered_content.html_safe %>
   </div>
   
-  <div class="preview-footer">
+  <div class="admin-contract-preview-footer">
     <p><strong>This is a preview</strong> - Close this window to return to editing</p>
     <p>Use your browser's print function to print this contract</p>
   </div>

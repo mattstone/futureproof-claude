@@ -94,27 +94,9 @@
 
 
   <!-- Reset the funder pool selector interface -->
-  <%= turbo_stream.after "pool-list-content" do %>
-    <script>
-      // Use an immediately invoked function to avoid variable conflicts
-      (function() {
-        // Find the funder pool selector stimulus controller and hide the selection
-        const poolController = document.querySelector('[data-controller*="funder-pool-selector"]');
-        if (poolController && poolController.stimulusController) {
-          poolController.stimulusController.hideSelection();
-        } else {
-          // Fallback: manually trigger the close action
-          const poolAddButton = document.querySelector('[data-funder-pool-selector-target="addButton"]');
-          const poolSelectionInterface = document.querySelector('[data-funder-pool-selector-target="selectionInterface"]');
-          const poolExistingPools = document.querySelector('[data-funder-pool-selector-target="existingPools"]');
-          
-          if (poolAddButton) poolAddButton.textContent = 'Add Funder Pool';
-          if (poolSelectionInterface) poolSelectionInterface.style.display = 'none';
-          if (poolExistingPools) poolExistingPools.style.display = 'block';
-        }
-      })();
-    </script>
-  <% end %>
+  <%= turbo_stream.invoke "funder-pool-selector", 
+      method: :hideSelection,
+      selector: '[data-controller*="funder-pool-selector"]' %>
 
   <!-- Show success message -->
   <%= turbo_stream.update "flash-messages" do %>

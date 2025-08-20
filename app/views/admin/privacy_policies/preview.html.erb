@@ -5,47 +5,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <%= stylesheet_link_tag :app %>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-    
-    .preview-header {
-      background: #1e293b;
-      color: white;
-      padding: 15px 20px;
-      margin: -20px -20px 20px -20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .preview-title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-    
-    .preview-note {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-    
-    .preview-content {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-  </style>
 </head>
-<body>
-  <div class="preview-header">
-    <h1 class="preview-title">Preview: <%= @privacy_policy.title %></h1>
-    <span class="preview-note">This is how it will appear on the public website</span>
+<body class="admin-preview-page">
+  <div class="admin-preview-header">
+    <h1 class="admin-preview-title">Preview: <%= @privacy_policy.title %></h1>
+    <span class="admin-preview-note">This is how it will appear on the public website</span>
   </div>
 
-  <div class="preview-content">
+  <div class="admin-preview-content">
     <div class="legal-page">
       <div class="legal-container">
         <h1><%= @privacy_policy.title %></h1>

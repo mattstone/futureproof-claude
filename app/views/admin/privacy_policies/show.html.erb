@@ -10,7 +10,7 @@
         <span class="admin-badge admin-badge-secondary">Draft</span>
       <% end %>
     </p>
-    <div style="margin-top: 16px;"></div>
+    <div class="admin-spacer-16"></div>
   </div>
   <div class="admin-content-actions">
     <%= link_to "Edit", edit_admin_privacy_policy_path(@privacy_policy), class: "admin-btn admin-btn-primary" %>
@@ -41,63 +41,63 @@
 </div>
 
 <!-- Audit History Section -->
-<div class="admin-content-section" style="margin-top: 40px;">
+<div class="admin-content-section admin-spacer-40">
   <div class="admin-content-header">
     <div class="admin-content-title">
-      <h2 style="color: var(--primary-color); font-size: 24px; font-weight: 700; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid var(--primary-color); position: relative;">Change History</h2>
-      <div style="margin-top: 8px;"></div>
+      <h2 class="admin-change-history-title">Change History</h2>
+      <div class="admin-spacer-8"></div>
     </div>
   </div>
 
-  <div class="audit-history-container">
+  <div class="admin-audit-history-container">
     <% if @audit_history.any? %>
-      <div class="audit-timeline">
+      <div class="admin-audit-timeline">
         <% @audit_history.each do |version| %>
-          <div class="audit-entry">
-            <div class="audit-icon">
+          <div class="admin-audit-entry">
+            <div class="admin-audit-icon">
               <% case version.action %>
               <% when 'created' %>
-                <span class="audit-icon-created">➕</span>
+                <span class="admin-audit-icon-created">➕</span>
               <% when 'updated' %>
-                <span class="audit-icon-updated">✏️</span>
+                <span class="admin-audit-icon-updated">✏️</span>
               <% when 'activated' %>
-                <span class="audit-icon-activated">✅</span>
+                <span class="admin-audit-icon-activated">✅</span>
               <% end %>
             </div>
             
-            <div class="audit-content">
-              <div class="audit-header">
-                <h4 class="audit-action"><%= version.action_description %></h4>
-                <span class="audit-date"><%= version.formatted_created_at %></span>
+            <div class="admin-audit-content">
+              <div class="admin-audit-header">
+                <h4 class="admin-audit-action"><%= version.action_description %></h4>
+                <span class="admin-audit-date"><%= version.formatted_created_at %></span>
               </div>
               
-              <div class="audit-details">
-                <p class="audit-user">
+              <div class="admin-audit-details">
+                <p class="admin-audit-user">
                   <strong><%= version.user.display_name %></strong>
-                  <span class="audit-email">(<%= version.user.email %>)</span>
+                  <span class="admin-audit-email">(<%= version.user.email %>)</span>
                 </p>
                 
                 <% if version.action == 'updated' && version.has_content_changes? %>
-                  <div class="content-diff-container">
-                    <details class="content-diff-details">
-                      <summary class="content-diff-summary">Changes</summary>
-                      <div class="content-diff">
-                        <div class="diff-viewer">
+                  <div class="admin-content-diff-container">
+                    <details class="admin-content-diff-details">
+                      <summary class="admin-content-diff-summary">Changes</summary>
+                      <div class="admin-content-diff">
+                        <div class="admin-diff-viewer">
                           <% version.content_diff.each do |diff_line| %>
-                            <div class="diff-line diff-<%= diff_line[:type] %>">
+                            <div class="admin-diff-line admin-diff-<%= diff_line[:type] %>">
                               <% case diff_line[:type] %>
                               <% when :added %>
-                                <span class="diff-marker">+</span>
-                                <span class="diff-text"><%= diff_line[:content] %></span>
+                                <span class="admin-diff-marker">+</span>
+                                <span class="admin-diff-text"><%= diff_line[:content] %></span>
                               <% when :removed %>
-                                <span class="diff-marker">-</span>
-                                <span class="diff-text"><%= diff_line[:content] %></span>
+                                <span class="admin-diff-marker">-</span>
+                                <span class="admin-diff-text"><%= diff_line[:content] %></span>
                               <% when :unchanged %>
-                                <span class="diff-marker"> </span>
-                                <span class="diff-text"><%= diff_line[:content] %></span>
+                                <span class="admin-diff-marker"> </span>
+                                <span class="admin-diff-text"><%= diff_line[:content] %></span>
                               <% when :context %>
-                                <span class="diff-marker">⋯</span>
-                                <span class="diff-text context-text"><%= diff_line[:content] %></span>
+                                <span class="admin-diff-marker">⋯</span>
+                                <span class="admin-diff-text admin-context-text"><%= diff_line[:content] %></span>
                               <% end %>
                             </div>
                           <% end %>
@@ -114,7 +114,7 @@
       
       <!-- Pagination -->
       <% if @audit_history.respond_to?(:current_page) && @audit_history.total_pages > 1 %>
-        <div class="audit-pagination">
+        <div class="admin-audit-pagination">
           <div class="flex items-center justify-center space-x-2">
             <% if @audit_history.prev_page %>
               <%= link_to "← Previous", 
@@ -136,254 +136,10 @@
       <% end %>
       
     <% else %>
-      <div class="audit-empty-state">
+      <div class="admin-audit-empty-state">
         <p>No change history available for this Privacy Policy document.</p>
       </div>
     <% end %>
   </div>
 </div>
 
-<style>
-/* Audit History Styles */
-.audit-history-container {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-}
-
-.audit-timeline {
-  padding: 24px;
-}
-
-.audit-entry {
-  display: flex;
-  align-items: flex-start;
-  padding: 20px 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.audit-entry:last-child {
-  border-bottom: none;
-}
-
-.audit-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 16px;
-  flex-shrink: 0;
-}
-
-.audit-icon-created {
-  background: #dcfce7;
-  color: #166534;
-  border: 2px solid #bbf7d0;
-}
-
-.audit-icon-updated {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 2px solid #bfdbfe;
-}
-
-.audit-icon-activated {
-  background: #fef3c7;
-  color: #92400e;
-  border: 2px solid #fed7aa;
-}
-
-.audit-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.audit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.audit-action {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-}
-
-.audit-date {
-  font-size: 14px;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.audit-details {
-  margin-top: 8px;
-}
-
-.audit-user {
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #374151;
-}
-
-.audit-email {
-  color: #6b7280;
-  font-weight: normal;
-}
-
-.audit-changes {
-  margin: 8px 0 0 0;
-  font-size: 14px;
-  color: #4b5563;
-  background: #f9fafb;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border-left: 3px solid #e5e7eb;
-}
-
-.audit-empty-state {
-  padding: 60px 20px;
-  text-align: center;
-  color: #6b7280;
-  font-style: italic;
-}
-
-.audit-pagination {
-  padding: 20px;
-  border-top: 1px solid #f3f4f6;
-  background: #f9fafb;
-  text-align: center;
-}
-
-/* Content Diff Styles */
-.content-diff-container {
-  margin-top: 12px;
-}
-
-.content-diff-details {
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.content-diff-summary {
-  background: #f9fafb;
-  padding: 12px 16px;
-  cursor: pointer;
-  font-weight: 500;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
-  user-select: none;
-}
-
-.content-diff-summary:hover {
-  background: #f3f4f6;
-}
-
-.content-diff {
-  background: white;
-}
-
-.diff-viewer {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 13px;
-  line-height: 1.4;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.diff-line {
-  display: flex;
-  padding: 2px 8px;
-  border-left: 3px solid transparent;
-}
-
-.diff-line:hover {
-  background: #f8fafc;
-}
-
-.diff-marker {
-  width: 20px;
-  flex-shrink: 0;
-  font-weight: bold;
-  margin-right: 8px;
-}
-
-.diff-text {
-  flex: 1;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.diff-added {
-  background: #f0fdf4;
-  border-left-color: #22c55e;
-}
-
-.diff-added .diff-marker {
-  color: #166534;
-}
-
-.diff-added .diff-text {
-  color: #166534;
-}
-
-.diff-removed {
-  background: #fef2f2;
-  border-left-color: #ef4444;
-}
-
-.diff-removed .diff-marker {
-  color: #991b1b;
-}
-
-.diff-removed .diff-text {
-  color: #991b1b;
-}
-
-.diff-unchanged {
-  background: #fafafa;
-  color: #6b7280;
-}
-
-.diff-unchanged .diff-marker {
-  color: #9ca3af;
-}
-
-.diff-context {
-  background: #f8fafc;
-  border-left-color: #cbd5e1;
-}
-
-.diff-context .diff-marker {
-  color: #64748b;
-}
-
-.diff-context .context-text {
-  color: #64748b;
-  font-style: italic;
-}
-
-@media (max-width: 768px) {
-  .audit-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .audit-date {
-    margin-top: 4px;
-    white-space: normal;
-  }
-  
-  .audit-icon {
-    width: 32px;
-    height: 32px;
-    margin-right: 12px;
-  }
-}
-</style>

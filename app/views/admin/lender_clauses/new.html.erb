@@ -8,7 +8,7 @@
 
 <div class="admin-card">
   <h2>Add Clause for <%= @lender.name %></h2>
-  <p class="form-description">Create a clause for this lender. This clause can be used in mortgage contracts.</p>
+  <p class="admin-form-description">Create a clause for this lender. This clause can be used in mortgage contracts.</p>
   
   <%= form_with url: admin_lender_clause_path(@lender), method: :post, local: true do |form| %>
     <% if @lender.errors.any? %>
@@ -22,134 +22,19 @@
       </div>
     <% end %>
 
-    <div class="form-group">
-      <%= form.label :content, "Clause Content", class: "form-label" %>
+    <div class="admin-form-group">
+      <%= form.label :content, "Clause Content", class: "admin-form-label" %>
       <%= form.text_area :content, value: @clause_content, rows: 15, 
-          class: "form-control", 
-          placeholder: "Enter the clause content here. This text will be inserted into mortgage contracts.\n\nExample:\nThis lender requires additional documentation including:\n- Property appraisal reports\n- Income verification documents\n- Credit history reports\n\nAll documents must be provided within 30 days of application.",
-          style: "font-family: monospace; line-height: 1.5;" %>
-      <div class="form-help">
-        <small class="form-text">Enter clear, legal language suitable for contract documents. This clause will be available for insertion into mortgage contracts.</small>
+          class: "admin-form-control", 
+          placeholder: "Enter the clause content here. This text will be inserted into mortgage contracts.\n\nExample:\nThis lender requires additional documentation including:\n- Property appraisal reports\n- Income verification documents\n- Credit history reports\n\nAll documents must be provided within 30 days of application." %>
+      <div class="admin-form-help">
+        <small class="admin-form-text">Enter clear, legal language suitable for contract documents. This clause will be available for insertion into mortgage contracts.</small>
       </div>
     </div>
 
-    <div class="form-actions">
+    <div class="admin-form-actions">
       <%= form.submit "Save Clause", class: "admin-btn admin-btn-primary" %>
       <%= link_to "Cancel", :back, class: "admin-btn admin-btn-secondary" %>
     </div>
   <% end %>
 </div>
-
-<style>
-.admin-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.admin-card h2 {
-  margin: 0 0 8px 0;
-  color: #111827;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.form-description {
-  margin: 0 0 24px 0;
-  color: #6b7280;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #374151;
-  font-size: 14px;
-}
-
-.form-control {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-  resize: vertical;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-help {
-  margin-top: 6px;
-}
-
-.form-text {
-  color: #6b7280;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #f3f4f6;
-  margin-top: 24px;
-}
-
-.admin-alert {
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
-
-.admin-alert-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-}
-
-.admin-alert h4 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.admin-alert ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.admin-alert li {
-  margin-bottom: 4px;
-}
-
-@media (max-width: 768px) {
-  .admin-card {
-    padding: 20px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .admin-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-</style>

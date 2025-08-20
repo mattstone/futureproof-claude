@@ -1,4 +1,5 @@
-<%= form_with model: [:admin, @terms_of_use], local: true, class: "admin-form structured-terms-form" do |form| %>
+<%= form_with model: [:admin, @terms_of_use], local: true, class: "admin-form structured-terms-form", 
+      data: { controller: "structured-form", "structured-form-section-index-value": @terms_of_use.sections.length } do |form| %>
   <% if @terms_of_use.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(@terms_of_use.errors.count, "error") %> prohibited this Terms of Use from being saved:</h4>
@@ -21,13 +22,13 @@
       Create sections for your Terms of Use. Each section will be automatically formatted with proper styling.
     </div>
     
-    <div id="sections-container">
+    <div id="sections-container" data-structured-form-target="sectionsContainer">
       <% @terms_of_use.sections.each_with_index do |section, index| %>
         <%= render 'section_form', section: section, index: index %>
       <% end %>
     </div>
     
-    <button type="button" class="admin-btn admin-btn-secondary add-section-btn">
+    <button type="button" class="admin-btn admin-btn-secondary add-section-btn" data-structured-form-target="addSectionButton">
       + Add Section
     </button>
   </div>
@@ -43,218 +44,4 @@
   <%= render 'section_form', section: {}, index: '__INDEX__' %>
 </template>
 
-<style>
-.structured-terms-form {
-  max-width: none;
-}
 
-.section-form {
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  background: #f9fafb;
-  position: relative;
-}
-
-.section-form.section-standard {
-  border-left: 4px solid #3b82f6;
-}
-
-.section-form.section-contact {
-  border-left: 4px solid #10b981;
-}
-
-.section-header {
-  display: flex;
-  justify-content: between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-type-selector {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  margin-right: 10px;
-}
-
-.remove-section-btn {
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.remove-section-btn:hover {
-  background: #b91c1c;
-}
-
-.section-field {
-  margin-bottom: 15px;
-}
-
-.section-field label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #374151;
-}
-
-.section-field input,
-.section-field textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.section-field textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.items-container {
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 15px;
-  background: white;
-}
-
-.item-input {
-  display: flex;
-  margin-bottom: 10px;
-  align-items: center;
-}
-
-.item-input input {
-  flex: 1;
-  margin-right: 10px;
-}
-
-.remove-item-btn {
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.add-item-btn {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.contact-info-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-@media (max-width: 768px) {
-  .contact-info-fields {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  let sectionIndex = <%= @terms_of_use.sections.length %>;
-  
-  // Add new section
-  document.querySelector('.add-section-btn').addEventListener('click', function() {
-    const template = document.getElementById('section-template');
-    const container = document.getElementById('sections-container');
-    
-    let html = template.innerHTML.replace(/__INDEX__/g, sectionIndex);
-    
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    container.appendChild(div.firstElementChild);
-    
-    sectionIndex++;
-    updateSectionEvents();
-  });
-  
-  // Update events for all sections
-  function updateSectionEvents() {
-    // Remove section buttons
-    document.querySelectorAll('.remove-section-btn').forEach(btn => {
-      btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
-    });
-    
-    document.querySelectorAll('.remove-section-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        this.closest('.section-form').remove();
-      });
-    });
-    
-    // Section type change
-    document.querySelectorAll('.section-type-selector').forEach(select => {
-      select.addEventListener('change', function() {
-        const section = this.closest('.section-form');
-        const type = this.value;
-        
-        // Update section styling
-        section.className = `section-form section-${type}`;
-        
-        // Show/hide relevant fields
-        const standardFields = section.querySelector('.standard-fields');
-        const contactFields = section.querySelector('.contact-fields');
-        
-        if (type === 'contact') {
-          standardFields.style.display = 'none';
-          contactFields.style.display = 'block';
-        } else {
-          standardFields.style.display = 'block';
-          contactFields.style.display = 'none';
-        }
-      });
-    });
-    
-    // Add/remove item buttons
-    updateItemEvents();
-  }
-  
-  function updateItemEvents() {
-    document.querySelectorAll('.add-item-btn').forEach(btn => {
-      btn.replaceWith(btn.cloneNode(true));
-      btn.addEventListener('click', function() {
-        const container = this.previousElementSibling;
-        const newItem = document.createElement('div');
-        newItem.className = 'item-input';
-        newItem.innerHTML = `
-          <input type="text" name="terms_of_use[sections][][items][]" placeholder="Enter item text">
-          <button type="button" class="remove-item-btn">Remove</button>
-        `;
-        container.appendChild(newItem);
-        updateItemEvents();
-      });
-    });
-    
-    document.querySelectorAll('.remove-item-btn').forEach(btn => {
-      btn.replaceWith(btn.cloneNode(true));
-      btn.addEventListener('click', function() {
-        this.parentElement.remove();
-      });
-    });
-  }
-  
-  // Initialize events
-  updateSectionEvents();
-});
-</script>

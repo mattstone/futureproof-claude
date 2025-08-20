@@ -103,14 +103,11 @@
     <% end %>
   <% end %>
 
-  <!-- Success message will be shown by JavaScript notification -->
-  <script>
-    console.log('<%= @message %>');
-    // Show a temporary success indicator
-    if (window.showTemporarySuccess) {
-      window.showTemporarySuccess('<%= @message %>');
-    }
-  </script>
+  <!-- Success message will be shown by wholesale funder interface controller -->
+  <%= turbo_stream.invoke "wholesale-funder-interface", 
+      method: :showSuccess,
+      args: ["<%= @message %>"],
+      selector: '[data-controller*="wholesale-funder-interface"]' %>
 
 <% else %>
   <!-- Show error message -->
