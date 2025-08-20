@@ -1,5 +1,9 @@
 <!-- Clear the message form -->
 <%= turbo_stream.update "message-form" do %>
+  <div data-controller="messaging"
+       data-messaging-resource-type-value="contract"
+       data-messaging-resource-data-value="<%= { id: @contract.id, status: @contract.status, statusDisplay: @contract.status.humanize, startDate: @contract.start_date.strftime('%B %d, %Y'), endDate: @contract.end_date.strftime('%B %d, %Y'), application: { address: @contract.application.address, formattedHomeValue: @contract.application.formatted_home_value }, user: { firstName: @contract.application.user.first_name, lastName: @contract.application.user.last_name, email: @contract.application.user.email } }.to_json %>"
+       data-messaging-ai-agent-data-value="<%= @ai_agents.map { |agent| { id: agent.id, name: agent.name, displayName: agent.display_name, roleDescription: agent.role_description, avatarPath: (agent.asset_avatar_path rescue nil), specialties: agent.specialties } }.to_json %>">
   <%= form_with(model: [:admin, @contract, @contract.contract_messages.build], 
                 url: create_message_admin_contract_path(@contract), 
                 local: true, class: "message-form", data: { turbo: true }) do |form| %>
@@ -7,29 +11,29 @@
     <%= hidden_field_tag :from_view, controller.action_name %>
     
     <!-- AI Agent Selection -->
-    <div class="field ai-agent-selection" style="margin-bottom: 24px;">
+    <div class="field ai-agent-selection">
       <%= form.label :ai_agent_id, "Send message as:" %>
       <%= form.select :ai_agent_id, 
           options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
           { prompt: 'Select AI Agent...' },
-          { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+          { class: "admin-form-select", required: true, 
+            data: { messaging_target: "agentSelect", action: "change->messaging#agentChanged" } } %>
       
-      <div id="agent-preview" class="agent-preview" style="<%= @suggested_agent ? 'display: block;' : 'display: none;' %>">
+      <div id="agent-preview" class="agent-preview <%= 'visible' if @suggested_agent %>" 
+           data-messaging-target="agentPreview">
         <div class="agent-info">
           <% if @suggested_agent %>
             <% begin %>
               <%= image_tag @suggested_agent.asset_avatar_path, 
                   alt: "#{@suggested_agent.name} Avatar", 
-                  class: "agent-avatar", 
-                  style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+                  class: "agent-avatar" %>
             <% rescue => e %>
-              <div class="agent-avatar agent-avatar-fallback" 
-                   style="width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+              <div class="agent-avatar agent-avatar-fallback">
                 <%= @suggested_agent.name.first.upcase %>
               </div>
             <% end %>
           <% else %>
-            <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            <img class="agent-avatar" src="" alt="">
           <% end %>
           <div class="agent-details">
             <strong class="agent-name"><%= @suggested_agent&.display_name %></strong>
@@ -50,19 +54,32 @@
 
     <div class="field">
       <%= form.label :subject %>
-      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true,
+                         data: { messaging_target: "subjectInput" } %>
     </div>
 
     <!-- Field Helper Buttons -->
     <div class="field-helpers">
       <h4>Quick Insert:</h4>
       <div class="helper-buttons">
-        <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
-        <button type="button" onclick="insertField('{{contract.status_display}}')" class="helper-btn">Contract Status</button>
-        <button type="button" onclick="insertField('{{contract.start_date}}')" class="helper-btn">Start Date</button>
-        <button type="button" onclick="insertField('{{contract.end_date}}')" class="helper-btn">End Date</button>
-        <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
-        <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{user.first_name}}"
+                data-action="click->messaging#insertField">Customer Name</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{contract.status_display}}"
+                data-action="click->messaging#insertField">Contract Status</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{contract.start_date}}"
+                data-action="click->messaging#insertField">Start Date</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{contract.end_date}}"
+                data-action="click->messaging#insertField">End Date</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{application.address}}"
+                data-action="click->messaging#insertField">Property Address</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{application.formatted_home_value}}"
+                data-action="click->messaging#insertField">Home Value</button>
       </div>
     </div>
 
@@ -71,26 +88,32 @@
       
       <!-- WYSIWYG Toolbar -->
       <div class="wysiwyg-toolbar">
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('**', '**')" title="Bold">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyBold" title="Bold">
           <strong>B</strong>
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('*', '*')" title="Italic">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyItalic" title="Italic">
           <em>I</em>
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('- ', '')" title="Bullet Point">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyBulletPoint" title="Bullet Point">
           •
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('1. ', '')" title="Numbered List">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyNumberedList" title="Numbered List">
           1.
         </button>
-        <button type="button" class="toolbar-btn" onclick="insertLineBreak()" title="Line Break">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#insertLineBreak" title="Line Break">
           ↩
         </button>
       </div>
       
       <%= form.text_area :content, rows: 8, class: "markup-editor", 
                          placeholder: "Type your message here...", 
-                         required: true %>
+                         required: true,
+                         data: { messaging_target: "contentInput" } %>
       <small class="field-hint">
         Select text and use formatting buttons above, or type markup directly: **bold**, *italic*, - bullet points
       </small>
@@ -111,34 +134,8 @@
       </div>
     </div>
   <% end %>
+  </div>
 <% end %>
-
-<!-- Reinitialize messaging functionality after form update -->
-<%= turbo_stream.append "body" do %>
-  <script>
-    (function() {
-      // Reinitialize form functionality
-      const subjectInput = document.querySelector('#contract_message_subject');
-      const contentInput = document.querySelector('#contract_message_content');
-      const agentSelect = document.querySelector('#contract_message_ai_agent_id');
-      
-      if (subjectInput) {
-        subjectInput.addEventListener('input', updatePreview);
-      }
-      
-      if (contentInput) {
-        contentInput.addEventListener('input', updatePreview);
-      }
-      
-      // Initial preview update
-      updatePreview();
-      
-      // Remove this script after execution
-      document.currentScript.remove();
-    })();
-  </script>
-<% end %>
-
 
 <!-- Add the new message to the top of the message history -->
 <%= turbo_stream.prepend "message-threads" do %>
@@ -196,6 +193,6 @@
   <div class="alert alert-success alert-dismissible">
     <i class="fas fa-check-circle"></i>
     <%= flash[:notice] %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="this.parentElement.remove()"></button>
+    <button type="button" class="btn-close alert-dismiss" data-bs-dismiss="alert"></button>
   </div>
 <% end %>

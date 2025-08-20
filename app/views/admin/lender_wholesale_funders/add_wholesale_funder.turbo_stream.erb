@@ -2,7 +2,7 @@
   <!-- Hide the wholesale funder selection interface -->
   <%= turbo_stream.update "wholesale-funder-selection-container" do %>
     <div data-wholesale-funder-selector-target="selectionInterface" 
-         class="wholesale-funder-selection" style="display: none;">
+         class="wholesale-funder-selection hidden">
       <div class="selection-header">
         <h5>Available Wholesale Funders</h5>
         <button type="button" 
@@ -127,13 +127,7 @@
   <% end %>
 
   <!-- Success message will be shown by JavaScript notification or existing page flash -->
-  <script>
-    console.log('<%= @message %>');
-    // Optionally show a temporary success indicator
-    if (window.showTemporarySuccess) {
-      window.showTemporarySuccess('<%= @message %>');
-    }
-  </script>
+  <!-- Success notification handled by flash message above -->
 
 <% else %>
   <!-- Show error message -->

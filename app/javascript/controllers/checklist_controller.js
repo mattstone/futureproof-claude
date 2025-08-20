@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["form", "checkbox"]
   
   connect() {
-    console.log("Checklist controller connected")
     this.updateProgressBars()
   }
   
@@ -22,7 +21,6 @@ export default class extends Controller {
   // Handle form submission (can be used for additional processing if needed)
   submit(event) {
     // Let the form submit normally - Rails will handle the update
-    console.log("Checklist form submitted")
     
     // Listen for turbo:frame-load to update progress bars after form submission
     document.addEventListener('turbo:frame-load', () => {

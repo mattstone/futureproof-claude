@@ -12,8 +12,8 @@
         <%= form.hidden_field :parent_message_id, value: params[:parent_message_id] %>
         
         <% if @message.errors.any? %>
-          <div class="form-errors" style="background: #fef2f2; border: 1px solid #f87171; border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #991b1b;">
-            <ul style="margin: 0; padding-left: 20px;">
+          <div class="form-errors alert alert-danger">
+            <ul class="alert-error-list">
               <% @message.errors.full_messages.each do |error| %>
                 <li><%= error %></li>
               <% end %>
@@ -34,7 +34,9 @@
 
         <div class="form-actions">
           <%= form.submit "Send Reply", class: "btn btn-primary" %>
-          <button type="button" class="btn btn-secondary" onclick="hideReplyForm(<%= params[:parent_message_id] %>)">
+          <button type="button" class="btn btn-secondary" 
+                  data-action="click->reply#hideForm" 
+                  data-message-id="<%= params[:parent_message_id] %>">
             Cancel
           </button>
         </div>
@@ -51,8 +53,8 @@
         <%= form.hidden_field :parent_message_id, value: params[:parent_message_id] %>
         
         <% if @message.errors.any? %>
-          <div class="form-errors" style="background: #fef2f2; border: 1px solid #f87171; border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #991b1b;">
-            <ul style="margin: 0; padding-left: 20px;">
+          <div class="form-errors alert alert-danger">
+            <ul class="alert-error-list">
               <% @message.errors.full_messages.each do |error| %>
                 <li><%= error %></li>
               <% end %>

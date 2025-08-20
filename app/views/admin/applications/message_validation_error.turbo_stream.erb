@@ -1,5 +1,9 @@
 <!-- Update the message form with validation errors -->
 <%= turbo_stream.update "message-form" do %>
+  <div data-controller="messaging"
+       data-messaging-resource-type-value="application"
+       data-messaging-resource-data-value="<%= { id: @application.id, address: @application.address, status: @application.status, statusDisplay: @application.status_display, formattedHomeValue: @application.formatted_home_value, user: { firstName: @application.user.first_name, lastName: @application.user.last_name, email: @application.user.email } }.to_json %>"
+       data-messaging-ai-agent-data-value="<%= @ai_agents.map { |agent| { id: agent.id, name: agent.name, displayName: agent.display_name, roleDescription: agent.role_description, avatarPath: (agent.asset_avatar_path rescue nil), specialties: agent.specialties } }.to_json %>">
   <%= form_with(model: [:admin, @application, @new_message], 
                 url: create_message_admin_application_path(@application), 
                 local: true, class: "message-form", data: { turbo: true }) do |form| %>
@@ -7,12 +11,13 @@
     <%= hidden_field_tag :from_view, controller.action_name %>
     
     <!-- AI Agent Selection -->
-    <div class="field ai-agent-selection" style="margin-bottom: 24px;">
+    <div class="field ai-agent-selection">
       <%= form.label :ai_agent_id, "Send message as:" %>
       <%= form.select :ai_agent_id, 
           options_from_collection_for_select(@ai_agents, :id, :display_name, @new_message.ai_agent_id),
           { prompt: 'Select AI Agent...' },
-          { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+          { class: "admin-form-select", required: true, 
+            data: { messaging_target: "agentSelect", action: "change->messaging#agentChanged" } } %>
       
       <small class="field-hint">
         Customer will see this message as coming from the selected AI agent
@@ -21,7 +26,7 @@
     
     <% if @new_message.errors.any? %>
       <div class="alert alert-danger">
-        <ul style="margin: 0; padding-left: 20px;">
+        <ul class="alert-error-list">
           <% @new_message.errors.full_messages.each do |message| %>
             <li><%= message %></li>
           <% end %>
@@ -31,7 +36,9 @@
 
     <div class="field">
       <%= form.label :subject %>
-      <%= form.text_field :subject, placeholder: "Message subject...", required: true, class: @new_message.errors[:subject].any? ? "error" : "" %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true, 
+                         class: @new_message.errors[:subject].any? ? "error" : "",
+                         data: { messaging_target: "subjectInput" } %>
       <% if @new_message.errors[:subject].any? %>
         <div class="field-error"><%= @new_message.errors[:subject].first %></div>
       <% end %>
@@ -41,10 +48,18 @@
     <div class="field-helpers">
       <h4>Quick Insert:</h4>
       <div class="helper-buttons">
-        <button type="button" onclick="insertField('{{user.first_name}}')" class="helper-btn">Customer Name</button>
-        <button type="button" onclick="insertField('{{application.address}}')" class="helper-btn">Property Address</button>
-        <button type="button" onclick="insertField('{{application.formatted_home_value}}')" class="helper-btn">Home Value</button>
-        <button type="button" onclick="insertField('{{application.status_display}}')" class="helper-btn">Application Status</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{user.first_name}}"
+                data-action="click->messaging#insertField">Customer Name</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{application.address}}"
+                data-action="click->messaging#insertField">Property Address</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{application.formatted_home_value}}"
+                data-action="click->messaging#insertField">Home Value</button>
+        <button type="button" class="helper-btn" 
+                data-field-value="{{application.status_display}}"
+                data-action="click->messaging#insertField">Application Status</button>
       </div>
     </div>
 
@@ -53,26 +68,33 @@
       
       <!-- WYSIWYG Toolbar -->
       <div class="wysiwyg-toolbar">
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('**', '**')" title="Bold">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyBold" title="Bold">
           <strong>B</strong>
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('*', '*')" title="Italic">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyItalic" title="Italic">
           <em>I</em>
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('- ', '')" title="Bullet Point">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyBulletPoint" title="Bullet Point">
           •
         </button>
-        <button type="button" class="toolbar-btn" onclick="applyMarkup('1. ', '')" title="Numbered List">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#applyNumberedList" title="Numbered List">
           1.
         </button>
-        <button type="button" class="toolbar-btn" onclick="insertLineBreak()" title="Line Break">
+        <button type="button" class="toolbar-btn" 
+                data-action="click->messaging#insertLineBreak" title="Line Break">
           ↩
         </button>
       </div>
       
-      <%= form.text_area :content, rows: 8, class: "markup-editor #{'error' if @new_message.errors[:content].any?}", 
+      <%= form.text_area :content, rows: 8, 
+                         class: "markup-editor #{'error' if @new_message.errors[:content].any?}", 
                          placeholder: "Type your message here...", 
-                         required: true %>
+                         required: true,
+                         data: { messaging_target: "contentInput" } %>
       <% if @new_message.errors[:content].any? %>
         <div class="field-error"><%= @new_message.errors[:content].first %></div>
       <% end %>
@@ -96,4 +118,5 @@
       </div>
     </div>
   <% end %>
+  </div>
 <% end %>

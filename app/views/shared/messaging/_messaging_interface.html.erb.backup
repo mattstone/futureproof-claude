@@ -1,0 +1,357 @@
+<%
+  # Determine the resource type and set variables accordingly
+  if defined?(@application) && @application
+    resource = @application
+    resource_type = 'application'
+    resource_name = 'application'
+    messages = @messages || resource.message_threads
+    new_message = @new_message || resource.application_messages.build
+    create_message_path = create_message_admin_application_path(resource)
+    send_message_path_proc = ->(message) { send_message_admin_application_path(resource, message_id: message.id) }
+    context_name = 'application'
+    context_status = resource.status_display
+    quick_insert_fields = [
+      ['Customer Name', '{{user.first_name}}'],
+      ['Property Address', '{{application.address}}'],
+      ['Home Value', '{{application.formatted_home_value}}'],
+      ['Application Status', '{{application.status_display}}']
+    ]
+    greeting_context = 'application'
+  elsif defined?(@contract) && @contract
+    resource = @contract
+    resource_type = 'contract'
+    resource_name = 'contract'
+    messages = @messages || resource.message_threads
+    new_message = @new_message || resource.contract_messages.build
+    create_message_path = create_message_admin_contract_path(resource)
+    send_message_path_proc = ->(message) { send_message_admin_contract_path(resource, message_id: message.id) }
+    context_name = 'contract'
+    context_status = resource.status.humanize
+    quick_insert_fields = [
+      ['Customer Name', '{{user.first_name}}'],
+      ['Contract Status', '{{contract.status_display}}'],
+      ['Start Date', '{{contract.start_date}}'],
+      ['End Date', '{{contract.end_date}}'],
+      ['Property Address', '{{application.address}}'],
+      ['Home Value', '{{application.formatted_home_value}}']
+    ]
+    greeting_context = 'contract'
+  else
+    raise "Invalid resource: Expected @application or @contract to be defined"
+  end
+%>
+
+<!-- Flash Messages Container -->
+<div id="flash-messages"></div>
+
+<!-- Send New Message Form -->
+<div class="admin-form message-form-section">
+  <h3>Send Message to Customer 
+    <span id="message-count" class="count-badge">
+      <span class="message-count"><%= resource.respond_to?(:application_messages) ? resource.application_messages.sent.count : resource.contract_messages.sent.count %></span>
+    </span>
+    <span id="draft-count" class="count-badge draft">
+      <span class="draft-count"><%= resource.respond_to?(:application_messages) ? resource.application_messages.drafts.count : resource.contract_messages.drafts.count %></span> drafts
+    </span>
+  </h3>
+  <p class="section-subtitle">Communicate with the customer about their <%= context_name %></p>
+  
+  <div id="message-form">
+    <%= form_with(model: [:admin, resource, new_message], 
+                  url: create_message_path, 
+                  local: true, class: "message-form", data: { turbo: true }) do |form| %>
+    
+    <%= hidden_field_tag :from_view, controller.action_name %>
+    
+    <!-- AI Agent Selection -->
+    <div class="field ai-agent-selection">
+      <%= form.label :ai_agent_id, "Send message as:" %>
+      <%= form.select :ai_agent_id, 
+          options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
+          { prompt: 'Select AI Agent...' },
+          { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
+      
+      <div id="agent-preview" class="agent-preview <%= 'visible' if @suggested_agent %>">
+        <div class="agent-info">
+          <% if @suggested_agent %>
+            <% begin %>
+              <%= image_tag @suggested_agent.asset_avatar_path, 
+                  alt: "#{@suggested_agent.name} Avatar", 
+                  class: "agent-avatar", 
+                  style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+            <% rescue => e %>
+              <div class="agent-avatar agent-avatar-fallback" 
+                   style="width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+                <%= @suggested_agent.name.first.upcase %>
+              </div>
+            <% end %>
+          <% else %>
+            <img class="agent-avatar" src="" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <% end %>
+          <div class="agent-details">
+            <strong class="agent-name"><%= @suggested_agent&.display_name %></strong>
+            <div class="agent-role"><%= @suggested_agent&.role_description %></div>
+            <div class="agent-specialties">
+              <% if @suggested_agent %>
+                Specialties: <%= @suggested_agent.specialties || 'General assistance' %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <small class="field-hint">
+        Customer will see this message as coming from the selected AI agent
+      </small>
+    </div>
+    
+    <% if new_message.errors.any? %>
+      <div class="alert alert-danger">
+        <ul>
+          <% new_message.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :subject %>
+      <%= form.text_field :subject, placeholder: "Message subject...", required: true %>
+    </div>
+
+    <!-- Field Helper Buttons -->
+    <div class="field-helpers">
+      <h4>Quick Insert:</h4>
+      <div class="helper-buttons">
+        <% quick_insert_fields.each do |label, field| %>
+          <button type="button" onclick="insertField('<%= field %>')" class="helper-btn"><%= label %></button>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="field">
+      <%= form.label :content, "Message" %>
+      
+      <!-- WYSIWYG Toolbar -->
+      <div class="wysiwyg-toolbar">
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('**', '**')" title="Bold">
+          <strong>B</strong>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('*', '*')" title="Italic">
+          <em>I</em>
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('- ', '')" title="Bullet Point">
+          •
+        </button>
+        <button type="button" class="toolbar-btn" onclick="applyMarkup('1. ', '')" title="Numbered List">
+          1.
+        </button>
+        <button type="button" class="toolbar-btn" onclick="insertLineBreak()" title="Line Break">
+          ↩
+        </button>
+      </div>
+      
+      <%= form.text_area :content, rows: 8, class: "markup-editor", 
+                         placeholder: "Type your message here...\n\nSelect text and use the formatting buttons above, or type markup directly:\n**Bold text**\n*Italic text*\n- Bullet points", 
+                         required: true %>
+      <small class="field-hint">
+        Select text and use formatting buttons above, or type markup directly: **bold**, *italic*, - bullet points
+      </small>
+    </div>
+
+    <!-- Live Preview Section -->
+    <div class="field live-preview-section">
+      <label class="live-preview-label">Live Preview (Email Layout)</label>
+      <div class="preview-disclaimer" style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #92400e;">
+          <span style="font-size: 18px;">👁️</span>
+          <span style="font-weight: 500; font-size: 14px;">Preview Only - This shows how the email will appear to the customer</span>
+        </div>
+      </div>
+      <div id="message-preview" class="message-preview" style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        
+        <!-- Email Container Preview -->
+        <div style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; max-width: 600px; margin: 0 auto;">
+          
+          <!-- Lender Header (Blue) -->
+          <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 24px; text-align: center;">
+            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">
+              Futureproof Financial Group
+            </h1>
+            <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+              Equity Preservation Mortgage ®
+            </p>
+          </div>
+          
+          <!-- Agent Header Section -->
+          <div id="preview-agent-header" style="text-align: center; padding: 32px 40px; display: none;">
+            <div style="display: inline-flex; align-items: center; gap: 16px;">
+              <img id="preview-agent-avatar" src="" alt="" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6; display: none;" />
+              <div id="preview-agent-fallback" style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; border: 3px solid #3b82f6;">
+                🤖
+              </div>
+              <div style="text-align: left;">
+                <h1 id="preview-agent-name" style="margin: 0 0 4px 0; color: #374151; font-size: 24px; font-weight: 600;">
+                  Select an AI agent above
+                </h1>
+                <p id="preview-agent-role" style="margin: 0 0 8px 0; color: #3b82f6; font-size: 16px; font-weight: 500;">
+                  AI Assistant
+                </p>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                  Futureproof Financial Group
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Greeting Section -->
+          <div style="padding: 0 40px 32px 40px;">
+            <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear [Customer Name],</p>
+            <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
+              <span id="preview-greeting">I hope this message finds you well. I have an important update regarding your Equity Preservation Mortgage® <%= greeting_context %>.</span>
+            </p>
+          </div>
+          
+          <!-- Message Content Card -->
+          <div style="padding: 0 40px 40px 40px;">
+            <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
+              
+              <!-- Message Header -->
+              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid #e5e7eb;">
+                <h2 id="preview-subject" style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 600;">
+                  Enter a subject above
+                </h2>
+              </div>
+              
+              <!-- Message Content -->
+              <div id="preview-content" style="padding: 32px; color: #374151; line-height: 1.7; font-size: 16px;">
+                <p>Type your message content above to see the preview...</p>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Action Button (Preview Only) -->
+          <div style="text-align: center; padding: 0 40px 40px 40px;">
+            <div style="background-color: #0891b2; color: white; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block; position: relative; opacity: 0.7;">
+              View <%= context_name.humanize %> & Reply
+              <div style="position: absolute; top: -8px; right: -8px; background-color: #f59e0b; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                👁️
+              </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: #6b7280; font-style: italic;">
+              Preview - Customer will see this button in the actual email
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Actions -->
+    <div class="message-actions-container">
+      <div class="actions-header">📤 Ready to send your message?</div>
+      <div class="actions-description">Choose how you want to handle this message:</div>
+      
+      <div class="actions-buttons">
+        <%= form.submit "Save as Draft", name: "save_draft", class: "admin-btn admin-btn-secondary draft-btn" %>
+        <%= form.submit "Send Message Now", name: "send_now", class: "admin-btn admin-btn-primary send-btn" %>
+      </div>
+      
+      <div class="actions-tip">
+        💡 <strong>Tip:</strong> Save as draft to review later, or send now to deliver immediately to the customer.
+      </div>
+    </div>
+  <% end %>
+  </div>
+</div>
+
+<!-- Message History -->
+<div class="admin-form message-history-section">
+  <h3>Message History</h3>
+  <p class="section-subtitle">Previous messages with this customer</p>
+  
+  <% if messages.any? %>
+    <div id="message-threads" class="message-threads">
+      <% messages.each do |message| %>
+        <div class="message-thread">
+          <div class="message-header">
+            <div class="message-sender">
+              <% if message.from_ai_agent? && message.sender_avatar_path.present? %>
+                <% begin %>
+                  <%= image_tag message.sender_avatar_path, alt: "#{message.sender_name} Avatar", class: "sender-avatar" %>
+                <% rescue => e %>
+                  <!-- Avatar load failed: <%= e.message %> -->
+                  <div class="sender-avatar admin-avatar">
+                    <i class="fas fa-robot"></i>
+                  </div>
+                <% end %>
+              <% elsif message.from_admin? %>
+                <div class="sender-avatar admin-avatar">
+                  <i class="fas fa-user-shield"></i>
+                </div>
+              <% else %>
+                <div class="sender-avatar customer-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+              <% end %>
+              
+              <div class="sender-info">
+                <div class="sender-name">
+                  <strong><%= message.sender_name %></strong>
+                  <% if message.from_ai_agent? %>
+                    <span class="ai-badge">AI</span>
+                  <% end %>
+                </div>
+                <div class="sender-role"><%= message.sender_role %></div>
+              </div>
+            </div>
+            
+            <div class="message-meta">
+              <span class="message-status status-<%= message.status %>"><%= message.status.humanize %></span>
+              <time class="message-time"><%= message.formatted_created_at %></time>
+            </div>
+          </div>
+          
+          <div class="message-subject">
+            <strong><%= message.processed_subject %></strong>
+          </div>
+          
+          <div class="message-content">
+            <%= message.content_html %>
+          </div>
+          
+          <% if message.replies.any? %>
+            <div class="message-replies">
+              <h4>Replies:</h4>
+              <% message.replies.each do |reply| %>
+                <div class="message-reply">
+                  <div class="reply-header">
+                    <strong><%= reply.sender_name %></strong>
+                    <time><%= reply.formatted_created_at %></time>
+                  </div>
+                  <div class="reply-content">
+                    <%= reply.content_html %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <% if message.draft? %>
+            <div class="message-actions">
+              <%= link_to "Send Message", send_message_path_proc.call(message), 
+                          method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
+                          data: { confirm: "Send this message to the customer?", turbo_method: :patch } %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>No messages yet. Use the form above to send your first message to the customer.</p>
+    </div>
+  <% end %>
+</div>

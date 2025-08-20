@@ -6,22 +6,22 @@
 <div class="admin-actions-bar">
   <div class="admin-search">
     <%= form_with(url: search_admin_applications_path, method: :post, local: false, class: "search-form", 
-                  data: { turbo_stream: true }) do |form| %>
+                  data: { turbo_stream: true, controller: "auto-submit" }) do |form| %>
       <%= form.text_field :search, placeholder: "Search by ID, address, name, or email...", value: params[:search], 
-                         oninput: "this.form.requestSubmit();" %>
+                         data: { action: "input->auto-submit#searchChanged" } %>
       <%= form.hidden_field :status, value: params[:status] %>
     <% end %>
   </div>
   
   <div class="admin-filter">
     <%= form_with(url: search_admin_applications_path, method: :post, local: false, class: "filter-form",
-                  data: { turbo_stream: true }) do |form| %>
+                  data: { turbo_stream: true, controller: "auto-submit" }) do |form| %>
       <%= form.select :status, 
             options_for_select([["All Statuses", ""]] + @status_options.map { |name, value| [name, value] }, params[:status]),
             {},
             { 
               class: "status-filter-select",
-              onchange: "this.form.requestSubmit();"
+              data: { action: "change->auto-submit#filterChanged" }
             } %>
       <%= form.hidden_field :search, value: params[:search] %>
     <% end %>
@@ -37,195 +37,3 @@
 </div>
 
 <%= render 'results' %>
-
-<style>
-/* Filter styles */
-.admin-actions-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.admin-filter {
-  display: flex;
-  align-items: center;
-}
-
-.filter-form {
-  margin: 0;
-}
-
-.status-filter-select {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  font-size: 14px;
-  color: #374151;
-  min-width: 150px;
-  cursor: pointer;
-}
-
-.status-filter-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Compact table cells */
-.user-cell {
-  width: 15%;
-  min-width: 120px;
-}
-
-.user-cell small {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.property-cell {
-  width: 20%;
-  min-width: 160px;
-}
-
-.property-info .address {
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 2px;
-}
-
-.property-info .value {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.mortgage-cell {
-  width: 15%;
-  min-width: 120px;
-}
-
-.mortgage-type {
-  font-weight: 500;
-  color: #059669;
-}
-
-.no-mortgage {
-  color: #9ca3af;
-}
-
-.income-cell {
-  width: 12%;
-  min-width: 100px;
-  text-align: right;
-}
-
-.monthly-income {
-  font-weight: 600;
-  color: #0891b2;
-}
-
-.no-income {
-  color: #9ca3af;
-}
-
-.status-cell {
-  width: 10%;
-  min-width: 80px;
-}
-
-.messages-cell {
-  width: 8%;
-  min-width: 60px;
-}
-
-/* Actions cell - prevent button wrapping */
-.actions-cell {
-  white-space: nowrap;
-  width: 10%;
-  min-width: 80px;
-}
-
-.actions-cell .admin-btn {
-  margin-right: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
-.actions-cell .admin-btn:last-child {
-  margin-right: 0;
-}
-
-/* Message indicators */
-.message-indicators {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.message-indicator {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.message-indicator.unread {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-  animation: pulse 2s infinite;
-}
-
-.message-indicator.read {
-  background: #dbeafe;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
-}
-
-.message-indicator.none {
-  color: #9ca3af;
-  background: transparent;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .admin-actions-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-  
-  .admin-filter {
-    justify-content: center;
-  }
-  
-  .status-filter-select {
-    width: 100%;
-  }
-  
-  .admin-table table th:nth-child(4),
-  .admin-table table td:nth-child(4),
-  .admin-table table th:nth-child(6),
-  .admin-table table td:nth-child(6) {
-    display: none;
-  }
-  
-  .actions-cell {
-    width: auto;
-  }
-}
-</style>

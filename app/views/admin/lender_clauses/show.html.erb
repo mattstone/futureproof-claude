@@ -658,35 +658,3 @@
 }
 </style>
 
-<script>
-// Stimulus controller for tabs
-(() => {
-  const application = window.Stimulus;
-  
-  application.register("tabs", class extends Stimulus.Controller {
-    static targets = ["button", "panel"];
-    
-    switch(event) {
-      const clickedTab = event.currentTarget.dataset.tab;
-      
-      // Update button states
-      this.buttonTargets.forEach(button => {
-        if (button.dataset.tab === clickedTab) {
-          button.classList.add('active');
-        } else {
-          button.classList.remove('active');
-        }
-      });
-      
-      // Update panel states
-      this.panelTargets.forEach(panel => {
-        if (panel.dataset.tab === clickedTab) {
-          panel.classList.add('active');
-        } else {
-          panel.classList.remove('active');
-        }
-      });
-    }
-  });
-})();
-</script>
