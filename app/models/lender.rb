@@ -27,6 +27,13 @@ class Lender < ApplicationRecord
   has_many :funder_pools, through: :lender_funder_pools
   has_many :active_funder_pools, -> { where(lender_funder_pools: { active: true }) },
            through: :lender_funder_pools, source: :funder_pool
+
+  # Lender Clauses relationships
+  has_many :lender_clauses, dependent: :destroy
+  has_many :active_lender_clauses, -> { where(is_active: true) }, 
+           class_name: 'LenderClause'
+  has_many :published_lender_clauses, -> { where(is_draft: false) }, 
+           class_name: 'LenderClause'
   
   validates :name, presence: true
   validates :lender_type, presence: true
@@ -49,6 +56,26 @@ class Lender < ApplicationRecord
     amount = total_fund_pool_amount
     return "$0" if amount == 0
     "$#{amount.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+  end
+
+  # Simplified clause methods (singleton approach)
+  def clause_content
+    # Get the single clause content from the custom_clause_content field or create default
+    custom_clause_content || ""
+  end
+
+  def clause_content=(content)
+    self.custom_clause_content = content
+  end
+
+  def has_clause?
+    custom_clause_content.present?
+  end
+
+  def clause_summary
+    return "No clause" unless has_clause?
+    truncated = custom_clause_content.strip
+    truncated.length > 50 ? "#{truncated[0..47]}..." : truncated
   end
   
   private

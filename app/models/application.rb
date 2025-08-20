@@ -6,6 +6,7 @@ class Application < ApplicationRecord
   has_one :contract, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
+  has_many :application_checklists, dependent: :destroy
 
   # Enums
   enum :ownership_status, {
@@ -75,6 +76,7 @@ class Application < ApplicationRecord
   # Custom validations
   validate :mortgage_amount_required_if_has_mortgage
   validate :borrower_names_format_if_joint
+  validate :checklist_completed_for_acceptance
 
   # Callbacks
   before_validation :assign_demo_address, on: :create
@@ -86,6 +88,7 @@ class Application < ApplicationRecord
   after_create :log_creation
   after_update :log_update
   after_update :create_contract_if_accepted
+  after_update :auto_create_checklist_on_submitted
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -375,6 +378,49 @@ class Application < ApplicationRecord
       change_details: "Admin #{user.display_name} viewed application"
     )
   end
+  
+  # Checklist management methods
+  def create_checklist!
+    return if application_checklists.exists?
+    
+    ApplicationChecklist::STANDARD_CHECKLIST_ITEMS.each_with_index do |item_name, index|
+      application_checklists.create!(
+        name: item_name,
+        position: index,
+        completed: false
+      )
+    end
+  end
+  
+  def checklist_completed?
+    return false unless application_checklists.exists?
+    application_checklists.all?(&:completed?)
+  end
+  
+  def checklist_completion_percentage
+    return 0 unless application_checklists.exists?
+    completed_count = application_checklists.completed.count
+    total_count = application_checklists.count
+    return 0 if total_count.zero?
+    (completed_count.to_f / total_count * 100).round
+  end
+  
+  def advance_to_processing_with_checklist!(user)
+    transaction do
+      create_checklist!
+      update!(status: :processing)
+      
+      # Log the status change and checklist creation
+      application_versions.create!(
+        user: user,
+        action: 'status_changed',
+        change_details: "Application submitted and checklist created. Status changed from 'Submitted' to 'Processing'",
+        previous_status: 4, # submitted
+        new_status: 5 # processing
+      )
+    end
+  end
+  
 
   private
 
@@ -399,6 +445,19 @@ class Application < ApplicationRecord
       end
     rescue JSON::ParserError
       errors.add(:borrower_names, "must be in valid JSON format")
+    end
+  end
+
+  def checklist_completed_for_acceptance
+    # Only validate if status is being changed to accepted
+    return unless will_save_change_to_status? && status_accepted?
+    
+    # Skip validation if no checklist exists (for applications that don't have checklists yet)
+    return unless application_checklists.exists?
+    
+    # Validate that all checklist items are completed
+    unless checklist_completed?
+      errors.add(:status, "cannot be set to accepted until all checklist items are completed")
     end
   end
 
@@ -587,5 +646,15 @@ class Application < ApplicationRecord
     when 3 then 'Super Fund'
     else ownership_value.to_s
     end
+  end
+  
+  def auto_create_checklist_on_submitted
+    # Only trigger if status changed TO submitted and we have a current_user
+    return unless saved_change_to_status?
+    return unless current_user
+    return unless status_submitted?
+    
+    # Automatically advance to processing with checklist
+    advance_to_processing_with_checklist!(current_user)
   end
 end

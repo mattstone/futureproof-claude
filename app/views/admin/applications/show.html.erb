@@ -28,7 +28,7 @@
           <div>
             <%= @application.user.display_name %>
             <br>
-            <small style="color: #6b7280;"><%= @application.user.email %></small>
+            <small class="user-email"><%= @application.user.email %></small>
             <br>
             <%= link_to "View User", admin_user_path(@application.user), class: "admin-link" %>
           </div>
@@ -64,7 +64,7 @@
         <% else %>
           <div class="detail-row">
             <strong>Existing Mortgage:</strong>
-            <span style="color: #6b7280; font-style: italic;">No existing mortgage</span>
+            <span class="no-mortgage-text">No existing mortgage</span>
           </div>
         <% end %>
         
@@ -85,12 +85,12 @@
         <% else %>
           <div class="detail-row">
             <strong>Mortgage Type:</strong>
-            <span style="color: #6b7280; font-style: italic;">Not selected</span>
+            <span class="not-selected-text">Not selected</span>
           </div>
           
           <div class="detail-row">
             <strong>Monthly Income:</strong>
-            <span style="color: #6b7280; font-style: italic;">Not calculated</span>
+            <span class="not-calculated-text">Not calculated</span>
           </div>
         <% end %>
         
@@ -102,7 +102,7 @@
         <% if @application.has_borrower_names? %>
           <div class="detail-row">
             <strong>Borrower Names:</strong>
-            <div style="white-space: pre-line;"><%= @application.formatted_borrower_names %></div>
+            <div class="borrower-names-display"><%= @application.formatted_borrower_names %></div>
           </div>
         <% end %>
         
@@ -128,127 +128,19 @@
     </div>
 
     <!-- Change History Section -->
-    <div style="margin-top: 32px;">
+    <div class="form-actions">
       <%= render 'shared/change_history', versions: @application_versions %>
     </div>
   </div>
 
-  <!-- Right Column - Messages and Communication -->
-  <div class="admin-right-column">
+  <!-- Right Column - Checklist and Messages -->
+  <div class="admin-right-column" id="admin-right-column">
+    <!-- Application Processing Checklist -->
+    <%= render 'checklist', editable: false %>
+    
+    <!-- Messages and Communication -->
     <%= render 'shared/messaging/messaging_interface' %>
   </div>
 </div>
 
 <%= render 'shared/messaging/messaging_assets' %>
-
-<style>
-/* Two-Column Layout CSS */
-.admin-two-column-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  margin-top: 20px;
-}
-
-.admin-left-column {
-  min-width: 0; /* Prevents grid overflow */
-}
-
-.admin-right-column {
-  min-width: 0; /* Prevents grid overflow */
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-}
-
-/* Application Details Styles */
-.application-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.application-header h2 {
-  margin: 0;
-}
-
-.application-status {
-  flex-shrink: 0;
-}
-
-.application-details {
-  margin-top: 24px;
-}
-
-.detail-row {
-  padding: 12px 0;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  gap: 16px;
-  align-items: start;
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-row strong {
-  min-width: 120px;
-  color: #374151;
-  flex-shrink: 0;
-}
-
-
-/* Rejection Reason Display */
-.rejection-reason {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  border-radius: 6px;
-  padding: 12px;
-  color: #dc2626;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.rejection-reason p {
-  margin: 0;
-}
-
-.rejection-reason p + p {
-  margin-top: 8px;
-}
-
-/* Responsive Design */
-@media (max-width: 1400px) {
-  .admin-two-column-layout {
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 32px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .admin-two-column-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  
-  .admin-right-column {
-    position: static;
-  }
-}
-
-@media (max-width: 768px) {
-  .change-header, .message-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .change-info, .message-info {
-    flex-wrap: wrap;
-  }
-}
-</style>

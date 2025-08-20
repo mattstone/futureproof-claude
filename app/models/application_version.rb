@@ -5,7 +5,7 @@ class ApplicationVersion < ApplicationRecord
   # Alias for consistency with shared change history interface
   alias_method :admin_user, :user
   
-  validates :action, presence: true, inclusion: { in: %w[created updated viewed status_changed] }
+  validates :action, presence: true, inclusion: { in: %w[created updated viewed status_changed checklist_updated] }
   
   scope :recent, -> { order(created_at: :desc) }
   scope :by_action, ->(action) { where(action: action) }
@@ -23,6 +23,8 @@ class ApplicationVersion < ApplicationRecord
       'viewed application'
     when 'status_changed'
       'changed application status'
+    when 'checklist_updated'
+      'updated processing checklist'
     else
       action
     end

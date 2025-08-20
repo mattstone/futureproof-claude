@@ -1,0 +1,73 @@
+<% content_for :page_title, "Edit Clause" %>
+
+<div class="admin-content-header">
+  <div class="admin-content-actions">
+    <%= link_to "← Back", :back, class: "admin-btn admin-btn-secondary" %>
+    <% if @lender.has_clause? %>
+      <%= button_to "Delete Clause", admin_lender_clause_path(@lender), 
+          method: :delete, 
+          class: "admin-btn admin-btn-danger",
+          data: { confirm: "Are you sure you want to delete this clause? This action cannot be undone." } %>
+    <% end %>
+  </div>
+</div>
+
+<div class="clause-editor-layout" data-controller="clause-preview" data-clause-preview-lender-name-value="<%= @lender.name %>">
+  <div class="clause-form-column">
+    <div class="admin-form-container">
+      <h2><%= @lender.has_clause? ? "Edit" : "Add" %> Clause for <%= @lender.name %></h2>
+      <p class="form-description"><%= @lender.has_clause? ? "Update the clause content for this lender." : "Create a clause for this lender. This clause can be used in mortgage contracts." %></p>
+      
+      <%= form_with url: admin_lender_clause_path(@lender), method: :patch, local: true, class: "admin-form" do |form| %>
+        <% if @lender.errors.any? %>
+          <div class="admin-alert admin-alert-error">
+            <h4><%= pluralize(@lender.errors.count, "error") %> prohibited this clause from being saved:</h4>
+            <ul>
+              <% @lender.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="admin-form-group">
+          <%= form.label :content, "Clause Content (using simple markup)", class: "admin-form-label" %>
+          <div class="markup-help">
+            <p><strong>Clause Markup Guide:</strong></p>
+            <ul>
+              <li><code>## Section Title</code> → Creates a main section with heading</li>
+              <li><code>### Sub-section</code> → Creates a sub-section</li>
+              <li><code>- Bullet point</code> → Creates bulleted lists</li>
+              <li><code>**Bold text**</code> → Makes text bold</li>
+              <li><code>**Field:** Value</code> → Creates structured details</li>
+            </ul>
+            <p><strong>Available Placeholders:</strong> <code>{{lender_name}}</code>, <code>{{primary_user_full_name}}</code>, <code>{{primary_user_address}}</code>, <code>{{contract_start_date}}</code></p>
+          </div>
+          <%= form.text_area :content, value: @clause_content, rows: 25, 
+              class: "admin-form-textarea markup-editor", 
+              data: { clause_preview_target: "content" },
+              placeholder: "Use simple markup to format your clause content. See the guide above for examples." %>
+        </div>
+
+        <div class="admin-form-actions">
+          <%= form.submit (@lender.has_clause? ? "Save Changes" : "Save Clause"), class: "admin-btn admin-btn-primary" %>
+          <%= link_to "Cancel", :back, class: "admin-btn admin-btn-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="clause-preview-column">
+    <div class="preview-container">
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <p>See your clause in real-time with sample data</p>
+      </div>
+      <div class="markup-preview" data-clause-preview-target="preview">
+        <p class="preview-note">Clause preview will appear here as you type...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+

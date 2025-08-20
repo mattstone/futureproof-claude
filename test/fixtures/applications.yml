@@ -32,3 +32,36 @@ submitted_application:
   borrower_age: 68
   created_at: <%= 2.months.ago %>
   updated_at: <%= 1.week.ago %>
+
+processing_application:
+  user: regular_user
+  address: 321 Processing Lane, Denver, CO 80202
+  home_value: 650000
+  status: processing
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 62
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 2.days.ago %>
+
+completed_application:
+  user: regular_user
+  address: 654 Completed Drive, Austin, TX 78701
+  home_value: 850000
+  status: processing
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 59
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+
+accepted_application:
+  user: regular_user
+  address: 987 Accepted Boulevard, Miami, FL 33101
+  home_value: 950000
+  status: accepted
+  ownership_status: individual
+  property_state: primary_residence
+  borrower_age: 64
+  created_at: <%= 2.months.ago %>
+  updated_at: <%= 1.day.ago %>

@@ -1,7 +1,7 @@
 require "test_helper"
 
 class ApplicationTest < ActiveSupport::TestCase
-  fixtures :users, :applications, :contracts
+  fixtures :users, :applications, :contracts, :application_checklists
   
   def setup
     @user = users(:john)
@@ -491,5 +491,216 @@ class ApplicationTest < ActiveSupport::TestCase
     # General pool should remain unchanged
     general_pool.reload
     assert_equal 0, general_pool.allocated
+  end
+  
+  # Application Checklist Tests
+  test "create_checklist! should create standard checklist items" do
+    app = applications(:processing_application)
+    
+    # Remove any existing checklist items
+    app.application_checklists.destroy_all
+    assert_equal 0, app.application_checklists.count
+    
+    app.create_checklist!
+    
+    assert_equal 4, app.application_checklists.count
+    ApplicationChecklist::STANDARD_CHECKLIST_ITEMS.each_with_index do |item_name, index|
+      checklist_item = app.application_checklists.find_by(position: index)
+      assert_not_nil checklist_item
+      assert_equal item_name, checklist_item.name
+      assert_not checklist_item.completed?
+    end
+  end
+  
+  test "create_checklist! should not create duplicate items if checklist exists" do
+    app = applications(:processing_application)
+    
+    # Create initial checklist
+    app.create_checklist!
+    initial_count = app.application_checklists.count
+    
+    # Try to create again
+    app.create_checklist!
+    
+    # Count should remain the same
+    assert_equal initial_count, app.application_checklists.reload.count
+  end
+  
+  test "checklist_completed? should return true when all items completed" do
+    app = applications(:completed_application)
+    
+    # All items in completed_application fixture are completed
+    assert app.checklist_completed?
+  end
+  
+  test "checklist_completed? should return false when items are incomplete" do
+    app = applications(:processing_application)
+    
+    # Items in processing_application fixture are incomplete
+    assert_not app.checklist_completed?
+  end
+  
+  test "checklist_completed? should return false when no checklist exists" do
+    app = applications(:submitted_application)
+    
+    # Ensure no checklist exists
+    app.application_checklists.destroy_all
+    assert_not app.checklist_completed?
+  end
+  
+  test "checklist_completion_percentage should calculate correctly" do
+    app = applications(:processing_application)
+    
+    # Start with 0%
+    assert_equal 0, app.checklist_completion_percentage
+    
+    # Complete 1 out of 4 items
+    app.application_checklists.first.update!(completed: true)
+    assert_equal 25, app.checklist_completion_percentage
+    
+    # Complete 2 out of 4 items
+    app.application_checklists.second.update!(completed: true)
+    assert_equal 50, app.checklist_completion_percentage
+    
+    # Complete 3 out of 4 items
+    app.application_checklists.third.update!(completed: true)
+    assert_equal 75, app.checklist_completion_percentage
+    
+    # Complete all 4 items
+    app.application_checklists.fourth.update!(completed: true)
+    assert_equal 100, app.checklist_completion_percentage
+  end
+  
+  test "checklist_completion_percentage should return 0 when no checklist exists" do
+    app = applications(:submitted_application)
+    app.application_checklists.destroy_all
+    
+    assert_equal 0, app.checklist_completion_percentage
+  end
+  
+  test "advance_to_processing_with_checklist! should change status and create checklist" do
+    app = applications(:submitted_application)
+    user = users(:admin_user)
+    
+    assert_equal 'submitted', app.status
+    initial_versions_count = app.application_versions.count
+    
+    app.advance_to_processing_with_checklist!(user)
+    
+    app.reload
+    assert_equal 'processing', app.status
+    assert_equal 4, app.application_checklists.count
+    
+    # Should log the status change
+    assert_equal initial_versions_count + 1, app.application_versions.count
+    latest_version = app.application_versions.last
+    assert_equal 'status_changed', latest_version.action
+    assert_includes latest_version.change_details, 'checklist created'
+  end
+  
+  test "advance_to_processing_with_checklist! should use transaction" do
+    app = applications(:submitted_application)
+    user = users(:admin_user)
+    
+    # Stub checklist creation to raise error
+    ApplicationChecklist.stub(:create!, -> (*) { raise StandardError.new("Test error") }) do
+      assert_raises(StandardError) do
+        app.advance_to_processing_with_checklist!(user)
+      end
+      
+      # Status should not have changed due to transaction rollback
+      app.reload
+      assert_equal 'submitted', app.status
+    end
+  end
+  
+  test "checklist_completed_for_acceptance validation should allow non-accepted status changes" do
+    app = applications(:processing_application)
+    
+    # Should be able to change to processing or rejected without completed checklist
+    app.status = 'processing'
+    assert app.valid?
+    
+    app.status = 'rejected'
+    app.rejected_reason = "Test reason"
+    assert app.valid?
+  end
+  
+  test "checklist_completed_for_acceptance validation should prevent accepting incomplete checklist" do
+    app = applications(:processing_application)
+    
+    # Ensure checklist is incomplete
+    assert_not app.checklist_completed?
+    
+    # Should not be able to change status to accepted
+    app.status = 'accepted'
+    assert_not app.valid?
+    assert_includes app.errors[:status], "cannot be set to accepted until all checklist items are completed"
+  end
+  
+  test "checklist_completed_for_acceptance validation should allow accepting completed checklist" do
+    app = applications(:completed_application)
+    
+    # Ensure checklist is completed
+    assert app.checklist_completed?
+    
+    # Should be able to change status to accepted
+    app.status = 'accepted'
+    assert app.valid?
+  end
+  
+  test "checklist_completed_for_acceptance validation should skip when no checklist exists" do
+    app = applications(:submitted_application)
+    app.application_checklists.destroy_all
+    
+    # Should be able to change status to accepted even without checklist
+    app.status = 'accepted'
+    assert app.valid?
+  end
+  
+  test "auto_create_checklist_on_submitted callback should trigger when status changes to submitted" do
+    # Create fresh application
+    app = Application.create!(
+      user: @user,
+      address: '123 Callback Test Street, Sydney NSW 2000',
+      home_value: 800_000,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :created,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    user = users(:admin_user)
+    app.current_user = user
+    
+    # Change status to submitted - should trigger auto-creation
+    app.update!(status: 'submitted')
+    
+    # Should automatically be advanced to processing with checklist
+    app.reload
+    assert_equal 'processing', app.status
+    assert_equal 4, app.application_checklists.count
+  end
+  
+  test "auto_create_checklist_on_submitted callback should not trigger without current_user" do
+    app = Application.create!(
+      user: @user,
+      address: '123 No User Test Street, Sydney NSW 2000',
+      home_value: 800_000,
+      ownership_status: :individual,
+      property_state: :primary_residence,
+      status: :created,
+      growth_rate: 2.0,
+      borrower_age: 60
+    )
+    
+    # Change status to submitted without setting current_user
+    app.update!(status: 'submitted')
+    
+    # Should remain submitted - no auto-advancement
+    app.reload
+    assert_equal 'submitted', app.status
+    assert_equal 0, app.application_checklists.count
   end
 end

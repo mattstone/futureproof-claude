@@ -1,5 +1,433 @@
 /* Admin Panel Styles */
 
+/* ========================================
+   Lender Clauses Editor Styles - Professional Design
+   ======================================== */
+
+/* Clause Editor Layout */
+.clause-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.clause-form-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.clause-preview-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* Professional Form Styles for Clauses */
+.admin-form-group {
+  margin-bottom: 24px;
+}
+
+.admin-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.admin-form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.admin-form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.markup-editor {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  resize: vertical;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.markup-editor:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background-color: white;
+}
+
+/* Professional Markup Help - Blue Theme */
+.markup-help {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(14, 165, 233, 0.1);
+}
+
+.markup-help p {
+  margin: 0 0 10px 0;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.markup-help ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.markup-help li {
+  margin-bottom: 5px;
+  color: #0369a1;
+}
+
+.markup-help code {
+  background: #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: Monaco, monospace;
+  font-size: 13px;
+}
+
+/* Professional Preview Container */
+.preview-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.preview-header {
+  background: #f9fafb;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.markup-preview {
+  border: none;
+  border-radius: 0;
+  padding: 24px;
+  background: white;
+  min-height: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Disable animations for instant preview updates */
+.markup-preview .legal-section {
+  animation: none !important;
+  animation-delay: 0s !important;
+}
+
+.preview-note {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  margin: 60px 0;
+}
+
+/* Professional Legal Section Styles - Matching Terms & Conditions */
+.markup-preview .legal-section {
+  margin-bottom: 30px;
+}
+
+.markup-preview .legal-section h2 {
+  color: #0891b2;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #0891b2;
+}
+
+.markup-preview .legal-section h3 {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 20px 0 10px 0;
+}
+
+.markup-preview .legal-section p {
+  color: #1e293b;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.markup-preview .legal-section ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.markup-preview .legal-section li {
+  color: #1e293b;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.markup-preview .legal-section strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Enhanced Detail Rows */
+.markup-preview .detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.markup-preview .detail-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.markup-preview .detail-row strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.markup-preview .detail-row span {
+  color: #64748b;
+  flex: 1;
+  text-align: right;
+}
+
+/* Professional Form Actions */
+.admin-form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 32px;
+}
+
+/* Alert Styles */
+.admin-alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.admin-alert-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.admin-alert h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.admin-alert ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.admin-alert li {
+  margin-bottom: 4px;
+}
+
+.form-description {
+  margin: 0 0 24px 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .clause-editor-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .clause-preview-column {
+    position: static;
+    height: auto;
+    order: -1;
+  }
+  
+  .markup-preview {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .clause-editor-layout {
+    gap: 16px;
+  }
+}
+
+/* ========================================
+   Application Checklist Styles
+   ======================================== */
+
+.checklist-card {
+  margin-bottom: 24px;
+}
+
+.checklist-card h3 {
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.checklist-progress {
+  margin: 16px 0 24px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #10b981;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* Progress bar width classes for CSP compliance */
+.progress-fill.progress-0 { width: 0%; }
+.progress-fill.progress-25 { width: 25%; }
+.progress-fill.progress-50 { width: 50%; }
+.progress-fill.progress-75 { width: 75%; }
+.progress-fill.progress-100 { width: 100%; }
+
+.progress-text {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.checklist-items {
+  margin: 0;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.checklist-item:last-child {
+  border-bottom: none;
+}
+
+.checklist-item.completed .checklist-label {
+  color: #10b981;
+  text-decoration: line-through;
+}
+
+.checkbox-wrapper {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checklist-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checklist-checkbox.readonly {
+  cursor: default;
+}
+
+.checklist-form {
+  margin: 0;
+  padding: 0;
+}
+
+.checklist-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.checklist-label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.checklist-meta {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.checklist-complete {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.alert-success {
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.checklist-progress.completed .progress-fill {
+  background-color: #10b981;
+}
+
+.checklist-progress.completed .progress-text {
+  color: #10b981;
+  font-weight: 600;
+}
+
 /* Admin Cards - Reusable card component */
 .admin-card {
   background: #ffffff;
@@ -551,7 +979,192 @@
   color: white;
 }
 
-/* Responsive */
+/* Application Edit Page Styles */
+.user-email {
+  color: #6b7280;
+}
+
+.no-mortgage-text,
+.not-selected-text,
+.not-calculated-text {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.borrower-names-display {
+  white-space: pre-line;
+}
+
+.form-help-text {
+  color: #6b7280;
+  font-size: 14px;
+  display: block;
+  margin-top: 4px;
+}
+
+.rejected-reason-field-hidden {
+  display: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* Two-Column Layout */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* Application Details Styles */
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.application-header h2 {
+  margin: 0;
+}
+
+.application-status {
+  flex-shrink: 0;
+}
+
+.application-details {
+  margin-top: 24px;
+}
+
+.detail-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 16px;
+  align-items: start;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row strong {
+  min-width: 140px;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+/* Status Update Section */
+.status-update-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.status-update-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.status-form .field {
+  margin-bottom: 20px;
+}
+
+.status-select, .rejected-reason-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.status-select:focus, .rejected-reason-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.rejected-reason-field {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.rejected-reason-field label {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Rejection Reason Display */
+.rejection-reason {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rejection-reason p {
+  margin: 0;
+}
+
+.rejection-reason p + p {
+  margin-top: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-sidebar {
     width: 100%;
@@ -575,4 +1188,275 @@
   .admin-preview-container {
     padding: 20px;
   }
+  
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .detail-row strong {
+    min-width: auto;
+  }
+  
+  .status-update-section {
+    padding: 16px;
+  }
+  
+  .change-header, .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .change-info, .message-info {
+    flex-wrap: wrap;
+  }
+}
+
+/* Messaging Interface Styles */
+.ai-agent-selection {
+  margin-bottom: 24px;
+}
+
+.agent-preview {
+  display: none;
+}
+
+.agent-preview.visible {
+  display: block;
+}
+
+.agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.agent-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.preview-disclaimer {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.preview-disclaimer-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #92400e;
+}
+
+.preview-disclaimer-icon {
+  font-size: 18px;
+}
+
+.preview-disclaimer-text {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.message-preview {
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.email-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.email-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  padding: 24px;
+  text-align: center;
+}
+
+.email-header h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.email-header p {
+  margin: 8px 0 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.preview-agent-header {
+  text-align: center;
+  padding: 32px 40px;
+  display: none;
+}
+
+.preview-agent-header.visible {
+  display: block;
+}
+
+.preview-agent-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.preview-agent-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3b82f6;
+  display: none;
+}
+
+.preview-agent-avatar.visible {
+  display: block;
+}
+
+.preview-agent-fallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  border: 3px solid #3b82f6;
+}
+
+.preview-agent-details {
+  text-align: left;
+}
+
+.preview-agent-name {
+  margin: 0 0 4px 0;
+  color: #374151;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.preview-agent-role {
+  margin: 0 0 8px 0;
+  color: #3b82f6;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.preview-agent-company {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.email-greeting {
+  padding: 0 40px 32px 40px;
+}
+
+.email-greeting p:first-child {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.email-greeting p:last-child {
+  margin: 0 0 16px 0;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.email-content-wrapper {
+  padding: 0 40px 40px 40px;
+}
+
+.email-content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.email-content-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 24px 32px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.email-content-subject {
+  margin: 0;
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.email-content-body {
+  padding: 32px;
+  color: #374151;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.email-footer {
+  text-align: center;
+  padding: 0 40px 40px 40px;
+}
+
+.email-button {
+  background-color: #0891b2;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  position: relative;
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.email-button-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #f59e0b;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.email-button-disclaimer {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
 }

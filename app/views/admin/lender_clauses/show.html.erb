@@ -1,0 +1,692 @@
+<% content_for :page_title, "#{@lender_clause.title} - #{@lender.name}" %>
+
+<div class="admin-actions-bar">
+  <div>
+    <%= link_to "← Back to Clauses", admin_lender_lender_clauses_path(@lender), class: "admin-btn admin-btn-secondary" %>
+  </div>
+  
+  <div class="admin-actions">
+    <% if @lender_clause.draft? %>
+      <%= link_to "Edit", edit_admin_lender_lender_clause_path(@lender, @lender_clause), class: "admin-btn admin-btn-primary" %>
+      <%= button_to "Publish", publish_admin_lender_lender_clause_path(@lender, @lender_clause), 
+          method: :patch, 
+          data: { 
+            confirm: "Are you sure you want to publish this clause? Published clauses cannot be edited."
+          },
+          class: "admin-btn admin-btn-info" %>
+      <%= button_to "Delete", admin_lender_lender_clause_path(@lender, @lender_clause), 
+          method: :delete, 
+          data: { 
+            confirm: "Are you sure you want to delete this clause? This action cannot be undone."
+          },
+          class: "admin-btn admin-btn-danger" %>
+    <% elsif @lender_clause.published? && !@lender_clause.is_active? %>
+      <%= button_to "Activate", activate_admin_lender_lender_clause_path(@lender, @lender_clause), 
+          method: :patch, 
+          data: { 
+            confirm: "Are you sure you want to activate this clause? This will deactivate any currently active clause."
+          },
+          class: "admin-btn admin-btn-success" %>
+    <% elsif @lender_clause.is_active? %>
+      <%= button_to "Deactivate", deactivate_admin_lender_lender_clause_path(@lender, @lender_clause), 
+          method: :patch, 
+          data: { 
+            confirm: "Are you sure you want to deactivate this clause?"
+          },
+          class: "admin-btn admin-btn-warning" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="clause-overview">
+  <div class="overview-header">
+    <div class="clause-title-section">
+      <h2><%= @lender_clause.title %></h2>
+      <div class="clause-meta">
+        <span class="version-badge">v<%= @lender_clause.version %></span>
+        <span class="status-badge status-<%= @lender_clause.status_color %>">
+          <%= @lender_clause.status %>
+        </span>
+      </div>
+    </div>
+    <div class="clause-info">
+      <div class="info-item">
+        <span class="info-label">Lender:</span>
+        <span class="info-value"><%= @lender.name %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Last Updated:</span>
+        <span class="info-value"><%= @lender_clause.formatted_last_updated %></span>
+      </div>
+      <% if @lender_clause.created_by %>
+        <div class="info-item">
+          <span class="info-label">Created By:</span>
+          <span class="info-value"><%= @lender_clause.created_by.full_name %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <% if @lender_clause.description.present? %>
+    <div class="clause-description">
+      <h4>Description</h4>
+      <p><%= @lender_clause.description %></p>
+    </div>
+  <% end %>
+</div>
+
+<!-- Clause Content -->
+<div class="clause-content-section">
+  <h3>Clause Content</h3>
+  <div class="content-tabs" data-controller="tabs">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tabs-target="button" data-action="click->tabs#switch" data-tab="rendered">
+        Rendered View
+      </button>
+      <button class="tab-button" data-tabs-target="button" data-action="click->tabs#switch" data-tab="source">
+        Source Code
+      </button>
+    </div>
+    
+    <div class="tab-content">
+      <div class="tab-panel active" data-tabs-target="panel" data-tab="rendered">
+        <div class="rendered-content">
+          <%= @lender_clause.rendered_preview_content.html_safe %>
+        </div>
+      </div>
+      
+      <div class="tab-panel" data-tabs-target="panel" data-tab="source">
+        <div class="source-content">
+          <pre><code><%= @lender_clause.content %></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contract Usage -->
+<div class="contract-usage-section">
+  <h3>Contract Usage</h3>
+  
+  <% if @contract_usages.any? %>
+    <div class="usage-summary">
+      <div class="summary-stats">
+        <div class="stat-item">
+          <span class="stat-value"><%= @contract_usages.count %></span>
+          <span class="stat-label">Total Usages</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><%= @contract_usages.active.count %></span>
+          <span class="stat-label">Active</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><%= @contract_usages.inactive.count %></span>
+          <span class="stat-label">Removed</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="usage-list">
+      <% @contract_usages.order(:added_at).each do |usage| %>
+        <div class="usage-item">
+          <div class="usage-header">
+            <div class="usage-contract">
+              <h5>
+                <%= link_to usage.mortgage_contract.title, 
+                    admin_mortgage_mortgage_contract_path(usage.mortgage_contract.mortgage, usage.mortgage_contract),
+                    class: "contract-link" %>
+              </h5>
+              <div class="contract-info">
+                <span class="contract-version">Contract v<%= usage.contract_version_at_usage %></span>
+                <span class="clause-version">Clause v<%= usage.clause_version_at_usage %></span>
+              </div>
+            </div>
+            
+            <div class="usage-status">
+              <span class="status-badge <%= usage.active? ? 'status-active' : 'status-inactive' %>">
+                <%= usage.active? ? 'Active' : 'Removed' %>
+              </span>
+              <span class="position-badge">
+                <%= usage.clause_position.name %>
+              </span>
+            </div>
+          </div>
+          
+          <div class="usage-details">
+            <div class="usage-timeline">
+              <div class="timeline-item">
+                <span class="timeline-label">Added:</span>
+                <span class="timeline-value">
+                  <%= usage.formatted_added_at %>
+                  <% if usage.added_by %>
+                    by <%= usage.added_by_name %>
+                  <% end %>
+                </span>
+              </div>
+              
+              <% if usage.removed? %>
+                <div class="timeline-item">
+                  <span class="timeline-label">Removed:</span>
+                  <span class="timeline-value">
+                    <%= usage.formatted_removed_at %>
+                    <% if usage.removed_by %>
+                      by <%= usage.removed_by_name %>
+                    <% end %>
+                  </span>
+                </div>
+                
+                <% if usage.duration_active %>
+                  <div class="timeline-item">
+                    <span class="timeline-label">Duration:</span>
+                    <span class="timeline-value"><%= usage.duration_active %></span>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-usage">
+      <div class="empty-icon">📄</div>
+      <h5>No Contract Usage Yet</h5>
+      <p>This clause hasn't been added to any contracts yet.</p>
+      <% if @lender_clause.is_active? %>
+        <p class="usage-hint">Since this clause is active, it can be added to contracts from the mortgage contract view.</p>
+      <% elsif @lender_clause.published? %>
+        <p class="usage-hint">Activate this clause to make it available for adding to contracts.</p>
+      <% else %>
+        <p class="usage-hint">Publish and activate this clause to make it available for adding to contracts.</p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Insertion Points Reference -->
+<div class="insertion-points-section">
+  <h3>Available Insertion Points</h3>
+  <div class="positions-grid">
+    <% @clause_positions.each do |position| %>
+      <div class="position-card">
+        <h5><%= position.name %></h5>
+        <p><%= position.description %></p>
+        <div class="position-meta">
+          <span class="order-badge">Order: <%= position.display_order %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+/* Clause Overview */
+.clause-overview {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.clause-title-section h2 {
+  margin: 0 0 8px 0;
+  color: #111827;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.clause-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.clause-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+.info-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.clause-description {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.clause-description h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.clause-description p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Content Section */
+.clause-content-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.clause-content-section h3 {
+  margin: 0 0 20px 0;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.content-tabs {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tab-buttons {
+  display: flex;
+  background: #f3f4f6;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid #e5e7eb;
+}
+
+.tab-button:last-child {
+  border-right: none;
+}
+
+.tab-button.active {
+  background: white;
+  color: #111827;
+  font-weight: 600;
+}
+
+.tab-button:hover:not(.active) {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.tab-content {
+  background: white;
+}
+
+.tab-panel {
+  display: none;
+  padding: 24px;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.rendered-content {
+  min-height: 200px;
+  line-height: 1.6;
+}
+
+.source-content {
+  min-height: 200px;
+}
+
+.source-content pre {
+  margin: 0;
+  padding: 0;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.source-content code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+/* Contract Usage Section */
+.contract-usage-section,
+.insertion-points-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.contract-usage-section h3,
+.insertion-points-section h3 {
+  margin: 0 0 20px 0;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.usage-summary {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.usage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usage-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.usage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.usage-contract h5 {
+  margin: 0 0 4px 0;
+}
+
+.contract-link {
+  color: #0891b2;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contract-link:hover {
+  text-decoration: underline;
+}
+
+.contract-info {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.contract-version,
+.clause-version {
+  background: #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.usage-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.position-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.usage-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.timeline-label {
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.timeline-value {
+  color: #374151;
+}
+
+.empty-usage {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.empty-usage .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-usage h5 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.empty-usage p {
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.usage-hint {
+  font-style: italic;
+  color: #9ca3af !important;
+  font-size: 14px !important;
+}
+
+/* Insertion Points */
+.positions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.position-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.position-card h5 {
+  margin: 0 0 8px 0;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.position-card p {
+  margin: 0 0 12px 0;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.position-meta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.order-badge {
+  background: #e5e7eb;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .overview-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .clause-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .usage-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .usage-status {
+    align-items: flex-start;
+  }
+  
+  .summary-stats {
+    gap: 16px;
+  }
+  
+  .positions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-buttons {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .tab-button:last-child {
+    border-bottom: none;
+  }
+}
+</style>
+
+<script>
+// Stimulus controller for tabs
+(() => {
+  const application = window.Stimulus;
+  
+  application.register("tabs", class extends Stimulus.Controller {
+    static targets = ["button", "panel"];
+    
+    switch(event) {
+      const clickedTab = event.currentTarget.dataset.tab;
+      
+      // Update button states
+      this.buttonTargets.forEach(button => {
+        if (button.dataset.tab === clickedTab) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+      
+      // Update panel states
+      this.panelTargets.forEach(panel => {
+        if (panel.dataset.tab === clickedTab) {
+          panel.classList.add('active');
+        } else {
+          panel.classList.remove('active');
+        }
+      });
+    }
+  });
+})();
+</script>

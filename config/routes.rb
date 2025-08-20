@@ -37,6 +37,8 @@ Rails.application.routes.draw do
           patch :toggle_active
         end
       end
+      # Singleton clause resource - one clause per lender
+      resource :clause, controller: 'lender_clauses', except: [:show]
     end
     resources :wholesale_funders do
       collection do
@@ -67,6 +69,11 @@ Rails.application.routes.draw do
         collection do
           post :preview
         end
+        resources :contract_clauses, only: [:create, :destroy] do
+          collection do
+            get :available_clauses
+          end
+        end
       end
     end
     resources :applications do
@@ -76,6 +83,8 @@ Rails.application.routes.draw do
       member do
         post :create_message
         patch :send_message
+        patch :advance_to_processing
+        patch :update_checklist_item
       end
     end
     resources :contracts do

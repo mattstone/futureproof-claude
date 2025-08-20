@@ -64,14 +64,14 @@
     <%= hidden_field_tag :from_view, controller.action_name %>
     
     <!-- AI Agent Selection -->
-    <div class="field ai-agent-selection" style="margin-bottom: 24px;">
+    <div class="field ai-agent-selection">
       <%= form.label :ai_agent_id, "Send message as:" %>
       <%= form.select :ai_agent_id, 
           options_from_collection_for_select(@ai_agents, :id, :display_name, @suggested_agent&.id),
           { prompt: 'Select AI Agent...' },
           { class: "admin-form-select", required: true, onchange: "updateAgentPreview(this)" } %>
       
-      <div id="agent-preview" class="agent-preview" style="<%= @suggested_agent ? 'display: block;' : 'display: none;' %>">
+      <div id="agent-preview" class="agent-preview <%= 'visible' if @suggested_agent %>">
         <div class="agent-info">
           <% if @suggested_agent %>
             <% begin %>

@@ -1,0 +1,67 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# Processing application checklist items
+identity_check:
+  application: processing_application
+  name: "Verification of identity check"
+  completed: false
+  completed_at: 
+  completed_by: 
+  position: 0
+
+property_verification:
+  application: processing_application
+  name: "Property ownership verified"
+  completed: false
+  completed_at: 
+  completed_by: 
+  position: 1
+
+mortgage_status:
+  application: processing_application  
+  name: "Existing mortgage status verified"
+  completed: false
+  completed_at: 
+  completed_by: 
+  position: 2
+
+signed_contract:
+  application: processing_application
+  name: "Signed contract"
+  completed: false
+  completed_at: 
+  completed_by: 
+  position: 3
+
+# Completed checklist items for testing
+completed_identity_check:
+  application: completed_application
+  name: "Verification of identity check"
+  completed: true
+  completed_at: <%= 1.day.ago %>
+  completed_by: admin_user
+  position: 0
+
+completed_property_verification:
+  application: completed_application
+  name: "Property ownership verified"
+  completed: true
+  completed_at: <%= 1.day.ago %>
+  completed_by: admin_user
+  position: 1
+
+completed_mortgage_status:
+  application: completed_application
+  name: "Existing mortgage status verified"
+  completed: true
+  completed_at: <%= 23.hours.ago %>
+  completed_by: admin_user
+  position: 2
+
+completed_signed_contract:
+  application: completed_application
+  name: "Signed contract"
+  completed: true
+  completed_at: <%= 22.hours.ago %>
+  completed_by: admin_user
+  position: 3

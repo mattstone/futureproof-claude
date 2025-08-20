@@ -1,0 +1,28 @@
+<%= turbo_stream.replace "application-status-badge" do %>
+  <%= render 'status_badge', application: @application %>
+<% end %>
+
+<%= turbo_stream.replace "admin-right-column" do %>
+  <div class="admin-right-column" id="admin-right-column">
+    <!-- Application Processing Checklist -->
+    <%= render 'checklist', editable: request.path.include?('edit') %>
+    
+    <!-- Messages and Communication -->
+    <%= render 'shared/messaging/messaging_interface' %>
+  </div>
+<% end %>
+
+<%= turbo_stream.prepend "flash-messages" do %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible">
+      <%= flash[:notice] %>
+      <button type="button" class="alert-dismiss" data-bs-dismiss="alert">&times;</button>
+    </div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="alert alert-danger alert-dismissible">
+      <%= flash[:alert] %>
+      <button type="button" class="alert-dismiss" data-bs-dismiss="alert">&times;</button>
+    </div>
+  <% end %>
+<% end %>

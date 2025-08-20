@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_20_022500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
     t.datetime "updated_at", null: false
     t.index ["agent_type"], name: "index_ai_agents_on_agent_type"
     t.index ["is_active"], name: "index_ai_agents_on_is_active"
+  end
+
+  create_table "application_checklists", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "name", null: false
+    t.boolean "completed", default: false, null: false
+    t.datetime "completed_at"
+    t.bigint "completed_by_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id", "position"], name: "index_application_checklists_on_application_id_and_position"
+    t.index ["application_id"], name: "index_application_checklists_on_application_id"
+    t.index ["completed_by_id"], name: "index_application_checklists_on_completed_by_id"
   end
 
   create_table "application_messages", force: :cascade do |t|
@@ -94,6 +108,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "clause_positions", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "section_identifier", null: false
+    t.text "description"
+    t.integer "display_order", default: 0, null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["display_order"], name: "index_clause_positions_on_display_order"
+    t.index ["is_active"], name: "index_clause_positions_on_is_active"
+    t.index ["section_identifier"], name: "index_clause_positions_on_section_identifier", unique: true
+  end
+
+  create_table "contract_clause_usages", force: :cascade do |t|
+    t.bigint "mortgage_contract_id", null: false
+    t.bigint "lender_clause_id", null: false
+    t.bigint "clause_position_id", null: false
+    t.integer "contract_version_at_usage", null: false
+    t.integer "clause_version_at_usage", null: false
+    t.text "clause_content_snapshot", null: false
+    t.text "substituted_content"
+    t.boolean "is_active", default: true, null: false
+    t.datetime "added_at", null: false
+    t.datetime "removed_at"
+    t.bigint "added_by_id"
+    t.bigint "removed_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["added_at"], name: "index_contract_clause_usages_on_added_at"
+    t.index ["added_by_id"], name: "index_contract_clause_usages_on_added_by_id"
+    t.index ["clause_position_id", "is_active"], name: "idx_on_clause_position_id_is_active_4e4d8a7168"
+    t.index ["clause_position_id"], name: "index_contract_clause_usages_on_clause_position_id"
+    t.index ["lender_clause_id", "contract_version_at_usage"], name: "idx_on_lender_clause_id_contract_version_at_usage_76bd2e174b"
+    t.index ["lender_clause_id"], name: "index_contract_clause_usages_on_lender_clause_id"
+    t.index ["mortgage_contract_id", "is_active"], name: "idx_on_mortgage_contract_id_is_active_61a44de2f7"
+    t.index ["mortgage_contract_id"], name: "index_contract_clause_usages_on_mortgage_contract_id"
+    t.index ["removed_by_id"], name: "index_contract_clause_usages_on_removed_by_id"
   end
 
   create_table "contract_messages", force: :cascade do |t|
@@ -214,6 +267,41 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
     t.index ["wholesale_funder_id"], name: "index_funder_pools_on_wholesale_funder_id"
   end
 
+  create_table "lender_clause_versions", force: :cascade do |t|
+    t.bigint "lender_clause_id", null: false
+    t.bigint "user_id"
+    t.string "action", null: false
+    t.text "change_details"
+    t.text "previous_content"
+    t.text "new_content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_lender_clause_versions_on_action"
+    t.index ["lender_clause_id", "created_at"], name: "idx_on_lender_clause_id_created_at_bdf14e14bc"
+    t.index ["lender_clause_id"], name: "index_lender_clause_versions_on_lender_clause_id"
+    t.index ["user_id"], name: "index_lender_clause_versions_on_user_id"
+  end
+
+  create_table "lender_clauses", force: :cascade do |t|
+    t.bigint "lender_id", null: false
+    t.string "title", null: false
+    t.text "content", null: false
+    t.text "description"
+    t.integer "version", default: 1, null: false
+    t.boolean "is_active", default: false, null: false
+    t.boolean "is_draft", default: true, null: false
+    t.datetime "last_updated", null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_lender_clauses_on_created_by_id"
+    t.index ["is_active", "is_draft"], name: "index_lender_clauses_on_is_active_and_is_draft"
+    t.index ["last_updated"], name: "index_lender_clauses_on_last_updated"
+    t.index ["lender_id", "title"], name: "index_lender_clauses_on_lender_and_title"
+    t.index ["lender_id", "version"], name: "index_lender_clauses_on_lender_id_and_version", unique: true
+    t.index ["lender_id"], name: "index_lender_clauses_on_lender_id"
+  end
+
   create_table "lender_funder_pool_versions", force: :cascade do |t|
     t.bigint "lender_funder_pool_id", null: false
     t.bigint "user_id", null: false
@@ -294,6 +382,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "contact_telephone_country_code", default: "+61"
+    t.text "custom_clause_content"
     t.index ["lender_type"], name: "index_lenders_on_lender_type"
     t.index ["name"], name: "index_lenders_on_name"
   end
@@ -578,6 +667,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
     t.index ["name"], name: "index_wholesale_funders_on_name"
   end
 
+  add_foreign_key "application_checklists", "applications"
+  add_foreign_key "application_checklists", "users", column: "completed_by_id"
   add_foreign_key "application_messages", "ai_agents"
   add_foreign_key "application_messages", "application_messages", column: "parent_message_id"
   add_foreign_key "application_messages", "applications"
@@ -585,6 +676,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
   add_foreign_key "application_versions", "users"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
+  add_foreign_key "contract_clause_usages", "clause_positions"
+  add_foreign_key "contract_clause_usages", "lender_clauses"
+  add_foreign_key "contract_clause_usages", "mortgage_contracts"
+  add_foreign_key "contract_clause_usages", "users", column: "added_by_id"
+  add_foreign_key "contract_clause_usages", "users", column: "removed_by_id"
   add_foreign_key "contract_messages", "ai_agents"
   add_foreign_key "contract_messages", "contract_messages", column: "parent_message_id"
   add_foreign_key "contract_messages", "contracts"
@@ -597,6 +693,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_001548) do
   add_foreign_key "funder_pool_versions", "funder_pools"
   add_foreign_key "funder_pool_versions", "users"
   add_foreign_key "funder_pools", "wholesale_funders"
+  add_foreign_key "lender_clause_versions", "lender_clauses"
+  add_foreign_key "lender_clause_versions", "users"
+  add_foreign_key "lender_clauses", "lenders"
+  add_foreign_key "lender_clauses", "users", column: "created_by_id"
   add_foreign_key "lender_funder_pool_versions", "lender_funder_pools"
   add_foreign_key "lender_funder_pool_versions", "users"
   add_foreign_key "lender_funder_pools", "funder_pools"

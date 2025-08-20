@@ -1,0 +1,113 @@
+<% if @application.status_submitted? %>
+  <!-- Submitted Application - Show Advance to Processing Button -->
+  <div class="admin-card checklist-card">
+    <h3>Application Submitted</h3>
+    <p class="section-subtitle">This application is ready to be processed. Click below to create the processing checklist.</p>
+    
+    <%= button_to advance_to_processing_admin_application_path(@application), 
+        method: :patch, 
+        class: "admin-btn admin-btn-primary",
+        data: { confirm: "This will create a processing checklist and change the status to 'Processing'. Continue?" } do %>
+      Start Processing
+    <% end %>
+  </div>
+<% elsif @application.status_processing? %>
+  <!-- Processing Application - Show Checklist -->
+  <div class="admin-card checklist-card" data-controller="checklist">
+    <h3>Processing Checklist</h3>
+    <p class="section-subtitle">Complete all items below to approve the application</p>
+    
+    <div class="checklist-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" data-progress="<%= @application.checklist_completion_percentage %>"></div>
+      </div>
+      <div class="progress-text">
+        <%= @application.application_checklists.completed.count %> of <%= @application.application_checklists.count %> completed
+        (<%= @application.checklist_completion_percentage %>%)
+      </div>
+    </div>
+    
+    <div class="checklist-items">
+      <% @application.application_checklists.ordered.each do |item| %>
+        <div class="checklist-item <%= 'completed' if item.completed? %>">
+          <% if local_assigns[:editable] %>
+            <%= form_with url: update_checklist_item_admin_application_path(@application, checklist_item_id: item.id), 
+                method: :patch, local: false, class: "checklist-form", 
+                data: { checklist_target: "form", action: "submit->checklist#submit" } do |form| %>
+              <div class="checkbox-wrapper">
+                <%= check_box_tag :completed, true, item.completed?, 
+                    id: "checklist_item_#{item.id}",
+                    class: "checklist-checkbox",
+                    data: { action: "change->checklist#change" } %>
+                <%= hidden_field_tag :redirect_to, request.fullpath %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="checkbox-wrapper">
+              <input type="checkbox" <%= 'checked' if item.completed? %> disabled class="checklist-checkbox readonly">
+            </div>
+          <% end %>
+          
+          <div class="checklist-content">
+            <label for="checklist_item_<%= item.id %>" class="checklist-label">
+              <%= item.name %>
+            </label>
+            <% if item.completed? %>
+              <div class="checklist-meta">
+                Completed by <%= item.completed_by_name %> on <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @application.checklist_completed? %>
+      <div class="checklist-complete">
+        <div class="alert alert-success">
+          <strong>All checklist items completed!</strong> This application is ready for manual approval. Change the status to "Accepted" when ready.
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% elsif @application.status_accepted? %>
+  <!-- Accepted Application - Show Completed Checklist -->
+  <div class="admin-card checklist-card">
+    <h3>Processing Checklist</h3>
+    <p class="section-subtitle">Application approved - all checklist items completed</p>
+    
+    <div class="checklist-progress completed">
+      <div class="progress-bar">
+        <div class="progress-fill" data-progress="100"></div>
+      </div>
+      <div class="progress-text">
+        <%= @application.application_checklists.count %> of <%= @application.application_checklists.count %> completed (100%)
+      </div>
+    </div>
+    
+    <div class="checklist-items">
+      <% @application.application_checklists.ordered.each do |item| %>
+        <div class="checklist-item completed">
+          <div class="checkbox-wrapper">
+            <input type="checkbox" checked disabled class="checklist-checkbox readonly">
+          </div>
+          
+          <div class="checklist-content">
+            <div class="checklist-label">
+              <%= item.name %>
+            </div>
+            <div class="checklist-meta">
+              Completed by <%= item.completed_by_name %> on <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="checklist-complete">
+      <div class="alert alert-success">
+        <strong>Application Approved!</strong> All checklist requirements have been met.
+      </div>
+    </div>
+  </div>
+<% end %>

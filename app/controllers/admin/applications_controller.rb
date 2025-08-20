@@ -1,7 +1,7 @@
 class Admin::ApplicationsController < Admin::BaseController
-  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message]
+  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item]
   before_action :set_application_versions, only: [:show]
-  before_action :set_messages, only: [:show, :edit]
+  before_action :set_messages, only: [:show, :edit, :update_checklist_item]
   before_action :log_view, only: [:show]
 
   def index
@@ -214,6 +214,49 @@ class Admin::ApplicationsController < Admin::BaseController
     end
   end
 
+  def advance_to_processing
+    if @application.status_submitted?
+      @application.advance_to_processing_with_checklist!(current_user)
+      redirect_to admin_application_path(@application), notice: 'Application advanced to processing and checklist created.'
+    else
+      redirect_to admin_application_path(@application), alert: 'Application must be submitted to advance to processing.'
+    end
+  end
+
+  def update_checklist_item
+    @checklist_item = @application.application_checklists.find(params[:checklist_item_id])
+    
+    if params[:completed] == 'true'
+      @checklist_item.mark_completed!(current_user)
+      
+      # Log the checklist change
+      @application.application_versions.create!(
+        user: current_user,
+        action: 'checklist_updated',
+        change_details: "Checklist item '#{@checklist_item.name}' marked as completed by #{current_user.display_name}"
+      )
+      
+      
+      flash[:notice] = "Checklist item marked as completed."
+    else
+      @checklist_item.mark_incomplete!
+      
+      # Log the checklist change
+      @application.application_versions.create!(
+        user: current_user,
+        action: 'checklist_updated',
+        change_details: "Checklist item '#{@checklist_item.name}' marked as incomplete by #{current_user.display_name}"
+      )
+      
+      flash[:notice] = "Checklist item marked as incomplete."
+    end
+    
+    respond_to do |format|
+      format.html { redirect_to params[:redirect_to] || admin_application_path(@application) }
+      format.turbo_stream { render :checklist_updated }
+    end
+  end
+
 
   private
 
@@ -247,8 +290,9 @@ class Admin::ApplicationsController < Admin::BaseController
     permitted_params = params.require(:application).permit(:status, :rejected_reason)
     
     # Validate that status is one of the allowed values
+    # Note: submitted status changes are now handled by the advance_to_processing_with_checklist! method
     if permitted_params[:status].present?
-      allowed_statuses = %w[processing rejected accepted]
+      allowed_statuses = %w[rejected]
       unless allowed_statuses.include?(permitted_params[:status])
         # If invalid status, don't include it in permitted params
         permitted_params.delete(:status)

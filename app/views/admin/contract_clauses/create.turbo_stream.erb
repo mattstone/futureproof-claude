@@ -1,0 +1,154 @@
+<%= turbo_stream.update "lender-list-content" do %>
+  <% if @mortgage.mortgage_lenders.any? %>
+    <div class="lenders-grid">
+      <% @mortgage.mortgage_lenders.includes(:lender).each do |relationship| %>
+        <div class="lender-card" data-controller="lender-clauses" data-lender-id="<%= relationship.lender.id %>">
+          <div class="lender-info">
+            <h5><%= relationship.lender.name %></h5>
+            <div class="lender-meta">
+              <span class="lender-type-badge <%= relationship.lender.lender_type_futureproof? ? 'lender-futureproof' : 'lender-external' %>">
+                <%= relationship.lender.lender_type.humanize %>
+              </span>
+              <span class="status-badge <%= relationship.active? ? 'status-active' : 'status-inactive' %>">
+                <%= relationship.active? ? 'Active' : 'Inactive' %>
+              </span>
+            </div>
+            <p class="lender-email"><%= relationship.lender.contact_email %></p>
+            <p class="relationship-created">Added <%= relationship.created_at.strftime("%B %d, %Y") %></p>
+            
+            <!-- Clause Information -->
+            <div class="clause-info">
+              <% if relationship.lender.has_active_clauses? %>
+                <div class="clause-status">
+                  <span class="clause-badge active">
+                    📄 <%= relationship.lender.active_clauses_count %> Active Clause<%= relationship.lender.active_clauses_count == 1 ? '' : 's' %>
+                  </span>
+                </div>
+              <% else %>
+                <div class="clause-status">
+                  <span class="clause-badge inactive">📄 No Active Clauses</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="lender-actions">
+            <div class="primary-actions">
+              <%= button_to "Toggle", admin_mortgage_lender_path(@mortgage, relationship), 
+                  method: :patch, 
+                  remote: true, 
+                  params: { _method: :patch, authenticity_token: form_authenticity_token },
+                  data: { 
+                    confirm: "Are you sure you want to #{relationship.active? ? 'deactivate' : 'activate'} this lender?"
+                  },
+                  class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= button_to "Remove", admin_mortgage_lender_path(@mortgage, relationship), 
+                  method: :delete, 
+                  remote: true,
+                  params: { authenticity_token: form_authenticity_token },
+                  data: { 
+                    confirm: "Are you sure you want to remove this lender? This action cannot be undone."
+                  },
+                  class: "admin-btn admin-btn-sm admin-btn-danger" %>
+            </div>
+            
+            <div class="clause-actions">
+              <%= link_to "Manage Clauses", admin_lender_lender_clauses_path(relationship.lender), 
+                  class: "admin-btn admin-btn-sm admin-btn-info" %>
+              <% if relationship.lender.has_active_clauses? %>
+                <button class="admin-btn admin-btn-sm admin-btn-primary" 
+                        data-action="click->lender-clauses#toggleClauseManagement">
+                  Insert Clauses
+                </button>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Clause Management Interface (initially hidden) -->
+          <div class="clause-management" data-lender-clauses-target="managementInterface" style="display: none;">
+            <div class="management-header">
+              <h6>Insert Clauses into Contract</h6>
+              <button type="button" class="close-management" data-action="click->lender-clauses#hideClauseManagement">×</button>
+            </div>
+            
+            <% if @mortgage.mortgage_contracts.active.any? %>
+              <% active_contract = @mortgage.mortgage_contracts.active.first %>
+              <div class="contract-info">
+                <p>Adding to: <strong><%= active_contract.title %></strong> (v<%= active_contract.version %>)</p>
+              </div>
+              
+              <div class="insertion-points" data-lender-clauses-target="insertionPoints">
+                <% ClausePosition.order(:display_order).each do |position| %>
+                  <div class="position-item">
+                    <div class="position-info">
+                      <h6><%= position.name %></h6>
+                      <p><%= position.description %></p>
+                    </div>
+                    
+                    <% existing_usage = active_contract.active_contract_clause_usages.find_by(clause_position: position) %>
+                    <% if existing_usage %>
+                      <div class="current-clause">
+                        <span class="current-badge">Current: <%= existing_usage.lender_clause.title %></span>
+                        <%= button_to "Remove", admin_mortgage_mortgage_contract_contract_clause_path(@mortgage, active_contract, existing_usage), 
+                            method: :delete,
+                            remote: true,
+                            params: { clause_position_id: position.id, authenticity_token: form_authenticity_token },
+                            data: { confirm: "Remove this clause from the contract?" },
+                            class: "admin-btn admin-btn-xs admin-btn-warning" %>
+                      </div>
+                    <% else %>
+                      <div class="available-clauses">
+                        <% relationship.lender.active_lender_clauses.published.each do |clause| %>
+                          <%= button_to "Add #{truncate(clause.title, length: 20)}", 
+                              admin_mortgage_mortgage_contract_contract_clauses_path(@mortgage, active_contract), 
+                              method: :post,
+                              remote: true,
+                              params: { 
+                                lender_clause_id: clause.id, 
+                                clause_position_id: position.id,
+                                authenticity_token: form_authenticity_token 
+                              },
+                              class: "admin-btn admin-btn-xs admin-btn-success" %>
+                        <% end %>
+                        
+                        <% if relationship.lender.active_lender_clauses.published.empty? %>
+                          <span class="no-clauses">No available clauses</span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="no-contract">
+                <p>No active contract found. Create and activate a contract first.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-lenders">
+      <div class="empty-icon">🏦</div>
+      <h5>No Lenders Yet</h5>
+      <p>Associate lenders with this mortgage using the "Add Lender" button above.</p>
+    </div>
+  <% end %>
+<% end %>
+
+<% if flash[:notice] %>
+  <%= turbo_stream.update "flash-messages" do %>
+    <div class="flash flash-notice">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+<% end %>
+
+<% if flash[:alert] %>
+  <%= turbo_stream.update "flash-messages" do %>
+    <div class="flash flash-alert">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+<% end %>

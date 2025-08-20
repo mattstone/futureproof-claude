@@ -7,6 +7,13 @@ class MortgageContract < ApplicationRecord
   belongs_to :primary_user, class_name: 'User', optional: true
   has_many :mortgage_contract_users, dependent: :destroy
   has_many :additional_users, through: :mortgage_contract_users, source: :user
+
+  # Lender clauses relationships
+  has_many :contract_clause_usages, dependent: :destroy
+  has_many :active_contract_clause_usages, -> { where(is_active: true) }, 
+           class_name: 'ContractClauseUsage'
+  has_many :lender_clauses, through: :contract_clause_usages
+  has_many :clause_positions, through: :contract_clause_usages
   
   validates :title, presence: true
   validates :content, presence: true
@@ -215,11 +222,14 @@ class MortgageContract < ApplicationRecord
     last_updated.strftime("%B %d, %Y")
   end
   
-  # Convert markup to HTML for display
+  # Convert markup to HTML for display with integrated lender clauses
   def rendered_content(substitutions = {})
     return "" if content.blank?
     substituted_content = substitute_placeholders(content, substitutions)
-    markup_to_html(substituted_content)
+    html_content = markup_to_html(substituted_content)
+    
+    # Integrate active lender clauses at their specified positions
+    integrate_lender_clauses(html_content, substitutions)
   end
   
   # Convert markup to HTML with placeholder substitution for preview
@@ -335,8 +345,101 @@ class MortgageContract < ApplicationRecord
   def activate!
     update!(is_active: true, is_draft: false)
   end
+
+  # Lender clauses integration methods
+  def has_active_clauses?
+    active_contract_clause_usages.any?
+  end
+
+  def active_clauses_count
+    active_contract_clause_usages.count
+  end
+
+  def clauses_by_position
+    active_contract_clause_usages.includes(:lender_clause, :clause_position)
+                                 .joins(:clause_position)
+                                 .order('clause_positions.display_order')
+                                 .group_by(&:clause_position)
+  end
+
+  # Add a lender clause to this contract at a specific position
+  def add_lender_clause(lender_clause, clause_position, user = nil)
+    # Check if there's already an active clause at this position
+    existing_usage = active_contract_clause_usages.find_by(clause_position: clause_position)
+    
+    if existing_usage
+      # Remove the existing clause first
+      existing_usage.remove!(user)
+    end
+
+    # Create new usage
+    contract_clause_usages.create!(
+      lender_clause: lender_clause,
+      clause_position: clause_position,
+      added_by: user
+    )
+  end
+
+  # Remove a lender clause from this contract
+  def remove_lender_clause(clause_position, user = nil)
+    usage = active_contract_clause_usages.find_by(clause_position: clause_position)
+    usage&.remove!(user)
+  end
+
+  # Get contract with all clauses as it was at a specific time (historical reconstruction)
+  def contract_at_time(timestamp)
+    {
+      contract_version: mortgage_contract_versions.where('created_at <= ?', timestamp).order(:created_at).last,
+      active_clauses: contract_clause_usages.where('added_at <= ? AND (removed_at IS NULL OR removed_at > ?)', timestamp, timestamp)
+                                           .includes(:lender_clause, :clause_position)
+    }
+  end
   
   private
+
+  # Integrate lender clauses into the HTML content at their specified positions
+  def integrate_lender_clauses(html_content, substitutions = {})
+    return html_content unless has_active_clauses?
+
+    # Parse the HTML to find section insertion points
+    sections = html_content.split(/(<\/section>)/i)
+    integrated_sections = []
+    section_count = 0
+
+    sections.each_with_index do |section_part, index|
+      integrated_sections << section_part
+
+      # Check if this is the end of a section
+      if section_part.match(/<\/section>/i) 
+        section_count += 1
+        
+        # Insert clauses that should come after this section
+        section_identifier = "after_section_#{section_count}"
+        clauses_for_position = active_contract_clause_usages
+                              .joins(:clause_position)
+                              .where(clause_positions: { section_identifier: section_identifier })
+                              .includes(:lender_clause)
+
+        clauses_for_position.each do |usage|
+          clause_html = usage.rendered_content(substitutions)
+          integrated_sections << "\n<div class=\"lender-clause-insertion\">\n#{clause_html}\n</div>\n"
+        end
+      end
+    end
+
+    # Add clauses that should come before signatures (at the very end)
+    before_signatures_clauses = active_contract_clause_usages
+                               .joins(:clause_position)
+                               .where(clause_positions: { section_identifier: 'before_signatures' })
+                               .includes(:lender_clause)
+
+    before_signatures_clauses.each do |usage|
+      clause_html = usage.rendered_content(substitutions)
+      integrated_sections << "\n<div class=\"lender-clause-insertion\">\n#{clause_html}\n</div>\n"
+    end
+
+    integrated_sections.join
+  end
   
   def markup_to_html(text)
     return "" if text.blank?
