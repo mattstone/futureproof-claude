@@ -1,9 +1,9 @@
 <!-- Agent Header Section -->
-<div style="text-align: center; margin-bottom: 32px;">
+<div class="email-header-cell email-table-mb-32">
   <% if @message.from_ai_agent? && @message.ai_agent %>
-    <table role="presentation" style="margin: 0 auto; border-collapse: collapse;">
+    <table role="presentation" class="email-button-table" style="margin: 0 auto;">
       <tr>
-        <td style="text-align: center; vertical-align: top; padding-right: 16px;">
+        <td class="email-header-cell" style="vertical-align: top; padding-right: 16px;">
           <% begin %>
             <img src="<%= image_url(@message.ai_agent.avatar_path) %>" 
                  alt="<%= @message.ai_agent.name %>"
@@ -33,8 +33,8 @@
 </div>
 
 <!-- Greeting Section -->
-<div style="margin-bottom: 32px;">
-  <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear <%= @user.first_name %>,</p>
+<div class="email-table-mb-32">
+  <p class="email-content-text" style="margin: 0 0 16px 0;">Dear <%= @user.first_name %>,</p>
   
   <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
     <% if @message.from_ai_agent? && @message.ai_agent %>
@@ -46,20 +46,20 @@
 </div>
 
 <!-- Message Content Card -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+<table role="presentation" class="email-table" style="margin: 32px 0;">
   <tr>
-    <td style="padding: 0;">
+    <td>
       <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
         
         <!-- Message Header -->
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid #e5e7eb;">
-          <h2 style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 600;">
+        <div class="email-message-header">
+          <h2 class="email-message-title" style="font-size: 20px; color: #1e293b;">
             <%= @message.processed_subject %>
           </h2>
         </div>
         
         <!-- Message Content -->
-        <div style="padding: 32px; color: #374151; line-height: 1.7; font-size: 16px;">
+        <div class="email-message-content-wrapper">
           <%= @message.content_html %>
         </div>
         
@@ -68,12 +68,11 @@
   </tr>
 </table>
 
-<div style="text-align: center; margin: 32px 0;">
-  <table role="presentation" style="margin: 0 auto;">
+<div class="email-header-cell" style="margin: 32px 0;">
+  <table role="presentation" class="email-button-table" style="margin: 0 auto;">
     <tr>
-      <td style="padding: 0;">
-        <a href="<%= @contract_link %>" 
-           style="background-color: #0891b2; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;">
+      <td class="email-button-cell">
+        <a href="<%= @contract_link %>" class="email-button-link" style="background-color: #0891b2;">
           View Contract & Reply
         </a>
       </td>
@@ -81,8 +80,8 @@
   </table>
 </div>
 
-<div style="text-align: center; margin: 32px 0;">
-  <div style="background-color: #e3f2fd; border-radius: 8px; padding: 20px; max-width: 300px; margin: 0 auto;">
+<div class="email-header-cell" style="margin: 32px 0;">
+  <div class="email-notice-info" style="max-width: 300px; margin: 0 auto;">
     <h3 style="color: #0891b2; margin: 0 0 12px 0; font-size: 16px;">Need Help?</h3>
     <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">Questions about your contract?</p>
     <p style="margin: 0; color: #374151; font-size: 14px;">

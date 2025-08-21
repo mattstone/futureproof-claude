@@ -169,8 +169,8 @@
             <div class="form-group" 
                  data-application-form-target="lenderFields"
                  style="display: <%= @application.ownership_status_lender? ? 'block' : 'none' %>;">
-              <%= f.label :lender_name, "Lender Name", class: "form-label" %>
-              <%= f.text_field :lender_name, 
+              <%= f.label :company_name, "Lender Name", class: "form-label" %>
+              <%= f.text_field :company_name, 
                   class: "form-input", 
                   placeholder: "Enter the lender name" %>
             </div>

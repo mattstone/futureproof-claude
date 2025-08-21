@@ -1,6 +1,9 @@
 class ApplicationMailer < ActionMailer::Base
   default from: "info@futureprooffinancial.co"
   layout "mailer"
+  
+  # Add callback to inline CSS for email client compatibility
+  after_action :inline_css_for_email
 
   def message_notification(application_message)
     @message = application_message
@@ -32,6 +35,25 @@ class ApplicationMailer < ActionMailer::Base
   end
   
   private
+  
+  # Inline CSS for email client compatibility while maintaining CSP compliance in templates
+  def inline_css_for_email
+    if mail.html_part
+      # Get the HTML content
+      html_content = mail.html_part.body.to_s
+      
+      # Inline CSS classes to styles for email compatibility
+      inlined_html = EmailCssInlinerService.inline_css(html_content)
+      
+      # Update the mail body with inlined styles
+      mail.html_part.body = inlined_html
+    elsif mail.body && mail.content_type.include?('text/html')
+      # Handle single-part HTML emails
+      html_content = mail.body.to_s
+      inlined_html = EmailCssInlinerService.inline_css(html_content)
+      mail.body = inlined_html
+    end
+  end
   
   def generate_secure_token
     # Generate a secure token that expires in 24 hours

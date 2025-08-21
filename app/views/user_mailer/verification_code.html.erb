@@ -1,16 +1,16 @@
 <!-- Verification Code Content -->
-<div style="text-align: center; margin-bottom: 32px;">
+<div class="email-header-cell email-table-mb-32">
   <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">Enter the 6-digit code</h1>
 </div>
 
 <!-- Verification Code Display -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+<table role="presentation" class="email-table" style="margin: 32px 0;">
   <tr>
-    <td align="center" style="padding: 0;">
+    <td class="email-header-cell">
       <table role="presentation" style="background-color: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 32px; margin: 0 auto;">
         <tr>
-          <td align="center" style="padding: 0;">
-            <div style="font-size: 36px; font-weight: 700; color: #1f2937; letter-spacing: 8px; font-family: 'Courier New', monospace;">
+          <td class="email-header-cell">
+            <div class="email-verification-code-text" style="font-size: 36px;">
               <%= @verification_code %>
             </div>
           </td>
@@ -21,6 +21,6 @@
 </table>
 
 <!-- Expiration Warning -->
-<p style="text-align: center; color: #ef4444; font-size: 14px; font-weight: 500; margin: 24px 0 0 0;">
+<p class="email-header-cell" style="color: #ef4444; font-size: 14px; font-weight: 500; margin: 24px 0 0 0;">
   ⏱️ This code expires in 15 minutes
 </p>

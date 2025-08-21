@@ -1,37 +1,37 @@
 <!-- Security Alert Content -->
-<div style="text-align: center; margin-bottom: 32px;">
+<div class="email-header-cell email-table-mb-32">
   <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
-  <h1 style="margin: 0; color: #dc2626; font-size: 32px; font-weight: 700;">Security Alert</h1>
+  <h1 class="email-security-title" style="font-size: 32px;">Security Alert</h1>
 </div>
 
 <!-- Alert Box -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 24px;">
+<table role="presentation" class="email-table-mb-24">
   <tr>
-    <td style="padding: 16px;">
-      <h2 style="margin: 0 0 8px 0; color: #92400e; font-size: 18px; font-weight: 600;">New Browser Sign-in Detected</h2>
-      <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
+    <td class="email-notice-warning">
+      <h2 class="email-notice-title-warning" style="font-size: 18px;">New Browser Sign-in Detected</h2>
+      <p class="email-notice-text-warning">
         We detected a sign-in to your Futureproof account from a browser we haven't seen before.
       </p>
     </td>
   </tr>
 </table>
 
-<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+<p class="email-content-text">
   Hello <%= @user.first_name || @user.email %>,
 </p>
 
-<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+<p class="email-content-text-final">
   We're writing to let you know that your Futureproof account was accessed from a new browser or device.
 </p>
 
 <!-- Sign-in Details -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc; border: 2px solid #e5e7eb; border-radius: 8px; margin: 24px 0;">
+<table role="presentation" class="email-table" style="background-color: #f8fafc; border: 2px solid #e5e7eb; border-radius: 8px; margin: 24px 0;">
   <tr>
     <td style="padding: 32px;">
       <h3 style="margin: 0 0 24px 0; color: #374151; font-size: 18px; font-weight: 600;">Sign-in Details:</h3>
       
       <div style="background-color: #ffffff; border-radius: 6px; padding: 20px; border: 1px solid #e5e7eb;">
-        <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+        <table role="presentation" class="email-table">
           <tr>
             <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #6b7280; font-size: 14px; width: 35%;">Time:</td>
             <td style="padding: 16px 20px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 14px;"><%= @sign_in_time.strftime("%B %d, %Y at %I:%M %p %Z") %></td>
@@ -157,35 +157,35 @@
   </tr>
 </table>
 
-<p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 24px 0 16px 0;">
-  <strong>Was this you?</strong>
+<p class="email-content-text" style="margin: 24px 0 16px 0;">
+  <strong class="email-strong">Was this you?</strong>
 </p>
 
-<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+<p class="email-content-text">
   If you recognize this activity, you can ignore this email. We'll continue to monitor your account for any suspicious activity.
 </p>
 
-<p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
+<p class="email-content-text" style="margin-bottom: 8px;">
   If you don't recognize this activity:
 </p>
 
-<ul style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 32px; padding-left: 20px;">
+<ul class="email-content-text" style="margin-bottom: 32px; padding-left: 20px;">
   <li style="margin-bottom: 8px;">Change your password immediately</li>
   <li style="margin-bottom: 8px;">Review your account for any unauthorized changes</li>
   <li style="margin-bottom: 8px;">Contact our support team if you need assistance</li>
 </ul>
 
 <!-- Action Buttons -->
-<table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
+<table role="presentation" class="email-table" style="margin: 32px 0;">
   <tr>
-    <td align="center" style="padding: 0;">
-      <table role="presentation" style="border-collapse: collapse; border: 0; border-spacing: 0;">
+    <td class="email-header-cell">
+      <table role="presentation" class="email-button-table">
         <tr>
           <td style="padding: 0 8px;">
-            <a href="<%= edit_user_registration_url %>" style="display: inline-block; background-color: #dc2626; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">Change Password</a>
+            <a href="<%= edit_user_registration_url %>" class="email-button-link" style="background-color: #dc2626;">Change Password</a>
           </td>
           <td style="padding: 0 8px;">
-            <a href="mailto:info@futureprooffinancial.app" style="display: inline-block; background-color: #6b7280; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">Contact Support</a>
+            <a href="mailto:info@futureprooffinancial.app" class="email-button-link" style="background-color: #6b7280;">Contact Support</a>
           </td>
         </tr>
       </table>

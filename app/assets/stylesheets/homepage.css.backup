@@ -214,7 +214,7 @@ body {
 /* Hero Section */
 .hero-section {
     position: relative;
-    margin-bottom: 100px; /* Reduced from 150px to 100px */
+    margin-bottom: 150px;
 }
 
 .hero-background {
@@ -235,7 +235,7 @@ body {
 
 .calculator-overlay {
     position: absolute;
-    top: 35%; /* Reduced from 45% to 35% to move calculator up */
+    top: 45%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -359,25 +359,18 @@ body {
 }
 
 .calculate-btn {
-    min-width: 180px; /* Increased from 150px */
-    padding: 16px 32px; /* Increased from default 12px 24px */
-    font-size: 18px; /* Increased from default 16px */
-    font-weight: 700; /* Increased from default 600 */
-}
-
-.calculate-btn:hover {
-    transform: translateY(-2px) scale(1.02); /* Added slight scale effect */
+    min-width: 150px;
 }
 
 /* Unique Features Section */
 .unique-features-section {
-    padding: 60px 0; /* Reduced from 80px to 60px */
+    padding: 80px 0;
     background-color: var(--background-white);
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: 45px; /* Reduced from 60px to 45px */
+    margin-bottom: 60px;
 }
 
 .section-title {
@@ -503,14 +496,14 @@ body {
 
 /* Partners Section */
 .partners-section {
-    padding: 40px 0; /* Reduced from 60px to 40px */
+    padding: 60px 0;
     background-color: var(--background-white);
     border-top: 1px solid var(--border-color);
 }
 
 .partners-section .section-title {
     font-size: 24px;
-    margin-bottom: 30px; /* Reduced from 40px to 30px */
+    margin-bottom: 40px;
 }
 
 .partners-logos {
@@ -606,7 +599,7 @@ body {
     background-color: var(--background-white);
     border-top: 1px solid var(--border-color);
     padding: 40px 0 20px 0;
-    margin-top: 40px; /* Reduced from 60px to 40px */
+    margin-top: 60px;
 }
 
 .footer-container {
@@ -722,7 +715,7 @@ body {
     }
 
     .hero-section {
-        margin-bottom: 30px; /* Reduced from 50px to 30px */
+        margin-bottom: 50px;
     }
 
     .hero-background {

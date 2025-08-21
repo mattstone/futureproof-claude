@@ -10,6 +10,44 @@
   height: 40px;
 }
 
+/* Preview Page Styles */
+.preview-body,
+.admin-preview-page {
+  margin: 0;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.preview-header,
+.admin-preview-header {
+  background: #1e293b;
+  color: white;
+  padding: 15px 20px;
+  margin: -20px -20px 20px -20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-title,
+.admin-preview-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.preview-note,
+.admin-preview-note {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.preview-content,
+.admin-preview-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 /* ========================================
    Lender Clauses Editor Styles - Professional Design
    ======================================== */

@@ -177,7 +177,7 @@ class ApplicationsController < ApplicationController
       :rejected_reason,
       :borrower_age,
       :borrower_names,
-      :lender_name,
+      :company_name,
       :super_fund_name
     )
   end
