@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  mortgage: interest_only
+  lender: futureproof
+  active: true
+
+two:
+  mortgage: principal_interest
+  lender: futureproof
+  active: true

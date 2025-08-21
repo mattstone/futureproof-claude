@@ -6,7 +6,7 @@ class Application < ApplicationRecord
   has_one :contract, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
-  has_many :application_checklists, dependent: :destroy
+  has_many :application_checklists, class_name: 'ApplicationChecklist', dependent: :destroy
 
   # Enums
   enum :ownership_status, {

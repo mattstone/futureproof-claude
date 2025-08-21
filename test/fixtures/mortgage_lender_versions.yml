@@ -2,7 +2,7 @@
 
 one:
   mortgage_lender: one
-  user: one
+  user: admin_user
   action: MyString
   change_details: MyText
   previous_active: false
@@ -10,7 +10,7 @@ one:
 
 two:
   mortgage_lender: two
-  user: two
+  user: regular_user
   action: MyString
   change_details: MyText
   previous_active: false

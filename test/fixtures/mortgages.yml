@@ -1,11 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-basic_mortgage:
-  name: Standard Interest Only Mortgage
+interest_only:
+  name: Interest Only
   mortgage_type: 0  # interest_only
   lvr: 80.0
+  status: 1  # active
 
-premium_mortgage:
-  name: Premium Principal & Interest Mortgage
+principal_interest:
+  name: Principal and Interest
   mortgage_type: 1  # principal_and_interest
-  lvr: 75.5
+  lvr: 80.0
+  status: 1  # active

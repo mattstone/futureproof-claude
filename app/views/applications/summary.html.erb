@@ -103,10 +103,10 @@
                 <span class="summary-label">Estimate of home equity preserved:</span>
                 <span class="summary-value equity-preserved"><%= @application.formatted_home_equity_preserved %></span>
               </div>
-              <% if @application.lender_name.present? %>
+              <% if @application.company_name.present? %>
                 <div class="summary-item">
                   <span class="summary-label">Lender Name:</span>
-                  <span class="summary-value"><%= @application.lender_name %></span>
+                  <span class="summary-value"><%= @application.company_name %></span>
                 </div>
               <% end %>
               <% if @application.super_fund_name.present? %>

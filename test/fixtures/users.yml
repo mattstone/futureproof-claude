@@ -25,3 +25,29 @@ regular_user:
   admin: false
   terms_accepted: true
   lender: futureproof
+
+john:
+  email: john@example.com
+  first_name: John
+  last_name: Smith
+  country_of_residence: Australia
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  confirmed_at: <%= 1.week.ago %>
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+  admin: false
+  terms_accepted: true
+  lender: futureproof
+
+jane:
+  email: jane@example.com
+  first_name: Jane
+  last_name: Smith
+  country_of_residence: Australia
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  confirmed_at: <%= 1.week.ago %>
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+  admin: false
+  terms_accepted: true
+  lender: futureproof
