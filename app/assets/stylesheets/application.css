@@ -9,6 +9,8 @@
  * Consider organizing styles into separate files for maintainability.
  */
 
+
+
 @import url("homepage.css");
 @import url("devise.css");
 @import url("application_form.css");
@@ -17,6 +19,8 @@
 @import url("legal.css");
 @import url("ai_agents.css");
 @import url("admin.css");
+@import url("honky_pong.css");
+@import url("lace_invaders.css");
 
 /* Alert styles */
 .alert {

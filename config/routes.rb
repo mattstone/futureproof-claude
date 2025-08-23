@@ -172,6 +172,12 @@ Rails.application.routes.draw do
   # User dashboard
   get "dashboard", to: "dashboard#index"
   get "start-application", to: "dashboard#start_application"
+  
+  # Games (authenticated users only)
+  get "arcade", to: "games#arcade"
+  get "honky-pong", to: "games#honky_pong"
+  get "lace-invaders", to: "games#lace_invaders"
+  get "hackman", to: "games#hackman"
 
   # Application routes
   resources :applications, except: [:index, :destroy] do

@@ -1,0 +1,84 @@
+<%= render 'shared/header' %>
+
+<div class="lace-invaders-container" data-controller="lace-invaders">
+  <!-- Professional Loading Screen -->
+  <div id="loadingScreen" class="game-loading" data-lace-invaders-target="loadingScreen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">👟 LACE INVADERS</div>
+      <div class="loading-subtitle">Initializing Sneaker Defense System...</div>
+    </div>
+  </div>
+
+  <h1 class="game-title">👟 Lace Invaders</h1>
+  <p class="game-subtitle">Defend Earth from the Sneaker Invasion!</p>
+  
+  <div id="gameContainer" class="game-container">
+    <canvas id="gameCanvas" 
+            class="game-canvas" 
+            width="900" 
+            height="700" 
+            tabindex="0"
+            data-lace-invaders-target="canvas"
+            data-action="click->lace-invaders#focusGame"></canvas>
+    <div id="gameInstructions" class="game-instructions">
+      👟 Click on game area to focus • Arrow Keys/A,D: Move • Space: Shoot Laces • P: Pause
+    </div>
+  </div>
+  
+  <div id="gameControls" class="game-controls">
+    <div id="gameInfo" class="game-info">
+      <span class="score-item score-red">SCORE: <span id="score" data-lace-invaders-target="score">000000</span></span>
+      <span class="score-item score-green">LIVES: <span id="lives" data-lace-invaders-target="lives">3</span></span>
+      <span class="score-item score-yellow">LEVEL: <span id="level" data-lace-invaders-target="level">1</span></span>
+    </div>
+    
+    <div id="instructions" class="instructions">
+      <strong>Mission:</strong> Sneakers from space are invading Earth! Use your shoe laces to defend humanity.<br>
+      Destroy sneaker formations and avoid their lace attacks. Collect bonus points from UFO sneakers!
+    </div>
+    
+    <button id="startButton" 
+            class="game-button start-button" 
+            data-lace-invaders-target="startButton">
+      Start Game
+    </button>
+  </div>
+  
+  <div id="gameOver" 
+       class="game-over game-over-hidden" 
+       data-lace-invaders-target="gameOver">
+    <h2 class="game-over-title">👟 GAME OVER! 👟</h2>
+    <p class="final-score">Final Score: <span id="finalScore" class="final-score-value" data-lace-invaders-target="finalScore">000000</span></p>
+    <p class="game-over-message">🛸 The sneaker invasion was too powerful!</p>
+    <div>
+      <button id="restartButton" 
+              class="restart-button"
+              data-lace-invaders-target="restartButton">
+        🔄 Try Again
+      </button>
+      <p class="restart-hint">Press Space to restart quickly</p>
+    </div>
+  </div>
+
+  <div class="game-scoring">
+    <h3>Scoring:</h3>
+    <div class="scoring-grid">
+      <div class="score-item">High-Top Sneakers: <strong>10 pts</strong></div>
+      <div class="score-item">Low-Top Sneakers: <strong>20 pts</strong></div>
+      <div class="score-item">Boot Sneakers: <strong>30 pts</strong></div>
+      <div class="score-item">UFO Sneakers: <strong>50-300 pts</strong></div>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Professional Accessibility Features -->
+<div class="visually-hidden" role="status" aria-live="polite" id="gameStatus">
+  Lace Invaders initialized. Use arrow keys to move, space to shoot.
+</div>
+
+<%= render 'shared/footer' %>

@@ -1,27 +1,3 @@
-<div class="application-header">
-  <% if @section == 'applications' %>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h1 class="application-title">My Applications</h1>
-      </div>
-    </div>
-  <% elsif @section == 'contracts' %>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h1 class="application-title">My Contracts</h1>
-      </div>
-    </div>
-  <% else %>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h1 class="application-title">Dashboard</h1>
-      </div>
-      <div>
-        <%= link_to "New Application", "/start-application", class: "btn btn-primary" %>
-      </div>
-    </div>
-  <% end %>
-</div>
 
 <div class="dashboard-sections">
   

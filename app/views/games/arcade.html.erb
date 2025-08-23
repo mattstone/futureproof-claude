@@ -1,0 +1,136 @@
+<%= stylesheet_link_tag 'arcade', 'data-turbo-track': 'reload' %>
+<%= render 'shared/header' %>
+
+<div class="arcade-container">
+  <!-- Neon Arcade Sign -->
+  <div class="arcade-header">
+    <h1 class="arcade-title">
+      <span class="neon-text">🕹️ FUTUREPROOF ARCADE 🕹️</span>
+    </h1>
+    <div class="arcade-subtitle">
+      <span class="retro-text">★ SELECT YOUR GAME ★</span>
+    </div>
+  </div>
+
+  <!-- Game Selection Grid -->
+  <div class="games-grid">
+    
+    <!-- Honky Pong Game Card -->
+    <div class="game-card honky-pong-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🎮<br>
+            <div class="game-logo">HONKY PONG</div>
+            <div class="game-description">Save the Princess!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to honky_pong_path, class: "arcade-button start-button" do %>
+          <span class="button-text">START GAME</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">INSERT COIN</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Lace Invaders Game Card -->
+    <div class="game-card lace-invaders-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            👟<br>
+            <div class="game-logo">LACE INVADERS</div>
+            <div class="game-description">Defend Earth!</div>
+            <div class="high-score">HIGH SCORE: 888,888</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to lace_invaders_path, class: "arcade-button start-button" do %>
+          <span class="button-text">START GAME</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">INSERT COIN</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Hackman Game Card -->
+    <div class="game-card hackman-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🟡<br>
+            <div class="game-logo">HACKMAN</div>
+            <div class="game-description">Eat the Bitcoin!</div>
+            <div class="high-score">HIGH SCORE: 777,777</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to hackman_path, class: "arcade-button start-button" do %>
+          <span class="button-text">START GAME</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">INSERT COIN</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Arcade Atmosphere Elements -->
+  <div class="arcade-atmosphere">
+    <div class="neon-strips">
+      <div class="neon-strip strip-1"></div>
+      <div class="neon-strip strip-2"></div>
+      <div class="neon-strip strip-3"></div>
+    </div>
+    
+    <div class="arcade-sounds">
+      <div class="sound-wave wave-1"></div>
+      <div class="sound-wave wave-2"></div>
+      <div class="sound-wave wave-3"></div>
+    </div>
+  </div>
+
+  <!-- Retro Footer -->
+  <div class="arcade-footer">
+    <div class="retro-message">
+      ⚡ UNLIMITED PLAY ⚡ NO QUARTERS NEEDED ⚡
+    </div>
+    <div class="back-link">
+      <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-retro" %>
+    </div>
+  </div>
+</div>
+
+<!-- Retro Background Effects -->
+<div class="retro-background">
+  <div class="grid-lines"></div>
+  <div class="scan-lines"></div>
+</div>
+
+<%= render 'shared/footer' %>

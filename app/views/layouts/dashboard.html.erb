@@ -422,6 +422,7 @@
             </li>
             <li><%= link_to "Profile", edit_user_registration_path, class: request.path == edit_user_registration_path ? "active" : "" %></li>
             <li><%= link_to "Start New Application", "/start-application" %></li>
+            <li><%= link_to "🕹️ Arcade", "/arcade", class: request.path == "/arcade" ? "active" : "", style: "margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px;" %></li>
           </ul>
         </aside>
 

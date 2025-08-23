@@ -1,0 +1,75 @@
+<%= stylesheet_link_tag 'hackman', 'data-turbo-track': 'reload' %>
+<%= render 'shared/header' %>
+
+<div class="hackman-container" data-controller="hackman">
+  <!-- Professional Loading Screen -->
+  <div id="loadingScreen" class="game-loading" data-hackman-target="loadingScreen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">🟡 HACKMAN</div>
+      <div class="loading-subtitle">Initializing Bitcoin Maze...</div>
+    </div>
+  </div>
+
+  <h1 class="game-title">🟡 Hackman</h1>
+  <p class="game-subtitle">Eat the Bitcoin, Avoid the Jeans!</p>
+  
+  <div id="gameContainer" class="game-container">
+    <canvas id="gameCanvas" 
+            class="game-canvas" 
+            width="560" 
+            height="680" 
+            tabindex="0"
+            data-hackman-target="canvas"
+            data-action="click->hackman#focusGame"></canvas>
+    <div id="gameInstructions" class="game-instructions">
+      🟡 Click on game area to focus • Arrow Keys/WASD: Move • Space/Enter: Start Game
+    </div>
+  </div>
+  
+  <div id="gameControls" class="game-controls">
+    <div id="gameInfo" class="game-info">
+      <span class="score-item score-red">SCORE: <span id="score" data-hackman-target="score">000000</span></span>
+      <span class="score-item score-green">LIVES: <span id="lives" data-hackman-target="lives">3</span></span>
+      <span class="score-item score-yellow">LEVEL: <span id="level" data-hackman-target="level">1</span></span>
+    </div>
+    
+    <div id="instructions" class="instructions">
+      <strong>Controls:</strong> ARROW KEYS or WASD to move through the maze<br>
+      Collect Bitcoin and avoid the Jeans! Power Bitcoin lets you eat the Jeans for bonus points!
+    </div>
+    
+    <button id="startButton" 
+            class="game-button start-button" 
+            data-hackman-target="startButton">
+      Start Game
+    </button>
+  </div>
+  
+  <div id="gameOver" 
+       class="game-over game-over-hidden" 
+       data-hackman-target="gameOver">
+    <h2 class="game-over-title">🟡 GAME OVER! 🟡</h2>
+    <p class="final-score">Final Score: <span id="finalScore" class="final-score-value" data-hackman-target="finalScore">000000</span></p>
+    <p class="game-over-message">👖 The Jeans caught you!</p>
+    <div>
+      <button id="restartButton" 
+              class="restart-button"
+              data-hackman-target="restartButton">
+        🔄 Try Again
+      </button>
+      <p class="restart-hint">Press Space to restart quickly</p>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Professional Accessibility Features -->
+<div class="visually-hidden" role="status" aria-live="polite" id="gameStatus">
+  Hackman initialized. Use arrow keys or WASD to move through the maze.
+</div>
+
+<%= render 'shared/footer' %>

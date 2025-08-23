@@ -1,0 +1,88 @@
+<%= render 'shared/header' %>
+
+<div class="honky-pong-container" data-controller="honky-pong">
+  <!-- Professional Loading Screen -->
+  <div id="loadingScreen" class="game-loading" data-honky-pong-target="loadingScreen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">🎮 HONKY PONG</div>
+      <div class="loading-subtitle">Initializing Professional Game Engine...</div>
+    </div>
+  </div>
+
+  <!-- Professional Performance Indicator -->
+  <div id="performanceIndicator" class="performance-indicator performance-indicator-hidden" data-honky-pong-target="performanceIndicator">
+    <div class="fps-counter">FPS: --</div>
+    <div class="memory-usage">Memory: --MB</div>
+    <div class="particle-count">Particles: --</div>
+  </div>
+  <h1 class="game-title">🎮 Honky Pong</h1>
+  <p class="game-subtitle">Rescue the Princess from Honky Kong!</p>
+  
+  <div id="gameContainer" class="game-container">
+    <canvas id="gameCanvas" 
+            class="game-canvas" 
+            width="900" 
+            height="700" 
+            tabindex="0"
+            data-honky-pong-target="canvas"
+            data-action="click->honky-pong#focusGame keydown@document->honky-pong#handleKeyDown keyup@document->honky-pong#handleKeyUp"></canvas>
+    <div id="gameInstructions" class="game-instructions">
+      🎮 Click on game area to focus • Arrow Keys: Move/Climb • Space: Jump • P: Pause
+    </div>
+  </div>
+  
+  <div id="gameControls" class="game-controls">
+    <div id="gameInfo" class="game-info">
+      <span class="score-item score-red">SCORE: <span id="score" data-honky-pong-target="score">000000</span></span>
+      <span class="score-item score-green">LIVES: <span id="lives" data-honky-pong-target="lives">3</span></span>
+      <span class="score-item score-yellow">LEVEL: <span id="level" data-honky-pong-target="level">1</span></span>
+      <span class="score-item score-purple">BONUS: <span id="bonus" data-honky-pong-target="bonus">5000</span></span>
+    </div>
+    
+    <div id="instructions" class="instructions">
+      <strong>Controls:</strong> ARROW KEYS to move, UP/DOWN to climb ladders, SPACEBAR to jump<br>
+      Collect hammers to smash barrels! Reach the Princess for bonus points!
+    </div>
+    
+    <button id="startButton" 
+            class="game-button start-button" 
+            data-honky-pong-target="startButton">
+      Start Game
+    </button>
+    
+    <button id="pauseButton" 
+            class="game-button pause-button" 
+            disabled
+            data-honky-pong-target="pauseButton">
+      Pause
+    </button>
+  </div>
+  
+  <div id="gameOver" 
+       class="game-over game-over-hidden" 
+       data-honky-pong-target="gameOver">
+    <h2 class="game-over-title">🎮 GAME OVER! 🎮</h2>
+    <p class="final-score">Final Score: <span id="finalScore" class="final-score-value" data-honky-pong-target="finalScore">000000</span></p>
+    <p class="game-over-message">🏆 Princess Pauline is still waiting for rescue!</p>
+    <div>
+      <button id="restartButton" 
+              class="restart-button"
+              data-honky-pong-target="restartButton">
+        🔄 Play Again
+      </button>
+      <p class="restart-hint">Press R key to restart quickly</p>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Professional Accessibility Features -->
+<div class="visually-hidden" role="status" aria-live="polite" id="gameStatus">
+  Game initialized. Use arrow keys to move, space to jump.
+</div>
+
+<%= render 'shared/footer' %>
