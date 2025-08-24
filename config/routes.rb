@@ -178,6 +178,7 @@ Rails.application.routes.draw do
   get "honky-pong", to: "games#honky_pong"
   get "lace-invaders", to: "games#lace_invaders"
   get "hackman", to: "games#hackman"
+  get "defendher", to: "games#defendher"
 
   # Application routes
   resources :applications, except: [:index, :destroy] do

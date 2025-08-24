@@ -50,7 +50,7 @@ class UserMailer < ApplicationMailer
     if template
       rendered = template.render_content({
         user: user,
-        browser_info: browser_info.to_s,
+        browser_info: extract_browser_name(browser_info),
         ip_address: ip_address,
         location: location,
         sign_in_time: Time.current,
@@ -112,6 +112,35 @@ class UserMailer < ApplicationMailer
   end
 
   private
+
+  def extract_browser_name(browser_info)
+    return 'Unknown Browser' if browser_info.blank?
+    
+    # Handle both hash and string formats
+    browser_name = if browser_info.is_a?(Hash)
+                     browser_info['browser'] || browser_info[:browser] || 'Unknown'
+                   else
+                     browser_info.to_s
+                   end
+    
+    # Clean up common browser names
+    case browser_name.to_s.downcase
+    when /chrome/
+      'Google Chrome'
+    when /firefox/
+      'Mozilla Firefox'
+    when /safari/
+      'Safari'
+    when /edge/
+      'Microsoft Edge'
+    when /opera/
+      'Opera'
+    when /internet explorer|msie/
+      'Internet Explorer'
+    else
+      browser_name.to_s.titleize
+    end
+  end
 
   def extract_device_type(browser_info)
     return 'Unknown' if browser_info.blank?

@@ -1,0 +1,1712 @@
+<%= stylesheet_link_tag 'defendher', 'data-turbo-track': 'reload' %>
+<%= render 'shared/header' %>
+
+<div class="defendher-container" data-controller="defendher">
+  <!-- Professional Loading Screen -->
+  <div id="loadingScreen" class="game-loading" data-defendher-target="loadingScreen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">🚀 DEFENDHER</div>
+      <div class="loading-subtitle">Initializing Planet Defense System...</div>
+    </div>
+  </div>
+
+  <h1 class="game-title">🚀 DefendHer</h1>
+  <p class="game-subtitle">Save Humanity from Alien Invasion!</p>
+  
+  <div id="gameContainer" class="game-container">
+    <canvas id="gameCanvas" 
+            class="game-canvas" 
+            width="800" 
+            height="600" 
+            tabindex="0"
+            data-defendher-target="canvas"
+            data-action="click->defendher#focusGame"></canvas>
+    <div id="gameInstructions" class="game-instructions">
+      🚀 Click on game area to focus • Arrow Keys: Move • Space: Fire • Shift: Bomb
+    </div>
+    
+    <!-- Game UI Overlay -->
+    <div id="ui">
+      <div class="ui-panel score-panel">
+        <div>SCORE: <span id="score">0</span></div>
+      </div>
+      <div class="ui-panel lives-panel">
+        <div>LIVES: <span id="lives">3</span></div>
+      </div>
+      <div class="ui-panel wave-panel">
+        <div>WAVE: <span id="wave">1</span></div>
+      </div>
+      <div class="ui-panel humanoids-panel">
+        <div>WOMEN: <span id="humanoids">10</span></div>
+      </div>
+      <div class="ui-panel debug-panel" id="debug">
+        <div>DEBUG INFO:</div>
+        <div>Game loading...</div>
+      </div>
+      
+      <div id="startScreen" class="start-screen">
+        <h2>DEFENDHER</h2>
+        <p>Save womankind from alien invasion!</p>
+        <p>◄ ► Move • ▲ ▼ Up/Down • SPACE Fire • SHIFT Bomb</p>
+        <p>Rescue falling women • Destroy alien invaders</p>
+        <p>Press SPACE to start</p>
+      </div>
+      
+      <div id="gameOverScreen" class="game-over" style="display: none;">
+        <h2>GAME OVER</h2>
+        <p>Your Score: <span id="finalScore">0</span></p>
+        <p>Women Saved: <span id="humansRescued">0</span></p>
+        <p>Press SPACE to restart</p>
+      </div>
+    </div>
+  </div>
+  
+  <div id="gameControls" class="game-controls">
+    <div id="gameInfo" class="game-info">
+      <span class="score-item score-green">SCORE: <span id="scoreDisplay" data-defendher-target="score">000000</span></span>
+      <span class="score-item score-cyan">LIVES: <span id="livesDisplay" data-defendher-target="lives">3</span></span>
+      <span class="score-item score-yellow">BOMBS: <span id="bombsDisplay" data-defendher-target="bombs">3</span></span>
+      <span class="score-item score-red">WOMEN: <span id="humansDisplay" data-defendher-target="humans">10</span></span>
+    </div>
+    
+    <div id="instructions" class="instructions">
+      <strong>Mission:</strong> Defend the women from alien abduction! Use your ship's laser and bombs to destroy enemies.<br>
+      <strong>Controls:</strong> ARROW KEYS move, SPACEBAR fires laser, SHIFT drops bomb<br>
+      <strong>Warning:</strong> If Landers reach the top with women, they become deadly Mutants!
+    </div>
+    
+    <button id="startButton" 
+            class="game-button start-button" 
+            data-defendher-target="startButton">
+      Launch Mission
+    </button>
+  </div>
+  
+  <div id="gameOver" 
+       class="game-over game-over-hidden" 
+       data-defendher-target="gameOver">
+    <div class="game-over-content">
+      <h2>Mission Complete</h2>
+      <div class="final-stats">
+        <div class="stat-line">Final Score: <span id="finalScoreDisplay">0</span></div>
+        <div class="stat-line">Women Rescued: <span id="finalHumansDisplay">0</span></div>
+        <div class="stat-line">Enemies Destroyed: <span id="finalEnemiesDisplay">0</span></div>
+      </div>
+      <button class="game-button restart-button" data-action="click->defendher#restart">
+        New Mission
+      </button>
+    </div>
+  </div>
+  
+  <div class="back-link">
+    <%= link_to "← Back to Arcade", arcade_path %>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+// DefendHer - Full DefendHer Game Implementation
+// Based on detailed pseudocode specification
+
+console.log('🚀 DefendHer: Initializing planetary defense system...');
+
+class DefendHerGame {
+  constructor() {
+    console.log('DefendHerGame: Constructor called');
+    this.canvas = document.getElementById('gameCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+    
+    // Game state
+    this.gameState = 'loading'; // loading, start, playing, gameOver, paused
+    this.score = 0;
+    this.lives = 3;
+    this.wave = 1;
+    this.bombs = 3;
+    this.humansRescued = 0;
+    this.enemiesDestroyed = 0;
+    
+    // World parameters
+    this.worldWidth = 4000; // Smaller world
+    this.scrollX = 0;
+    this.cameraX = 0;
+    
+    // Debug and performance
+    this.debugInfo = document.getElementById('debug');
+    this.frameCount = 0;
+    this.lastFpsUpdate = 0;
+    this.fps = 0;
+    this.lastTime = 0;
+    
+    // Input handling
+    this.keys = {};
+    this.setupInput();
+    
+    // Entity management
+    this.entities = [];
+    this.particles = [];
+    this.player = null;
+    this.humans = [];
+    this.terrain = [];
+    this.stars = [];
+    
+    // Audio context for sound effects
+    this.audioContext = null;
+    this.initAudio();
+    
+    console.log('DefenderGame: Initialization complete');
+    this.init();
+  }
+  
+  initAudio() {
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      console.log('DefendHerGame: Audio context initialized');
+    } catch (e) {
+      console.warn('DefendHerGame: Audio not available:', e);
+    }
+  }
+  
+  playSound(frequency, duration, type = 'square') {
+    if (!this.audioContext) return;
+    
+    const oscillator = this.audioContext.createOscillator();
+    const gain = this.audioContext.createGain();
+    
+    oscillator.connect(gain);
+    gain.connect(this.audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+    oscillator.type = type;
+    
+    gain.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+    
+    oscillator.start(this.audioContext.currentTime);
+    oscillator.stop(this.audioContext.currentTime + duration);
+  }
+  
+  init() {
+    console.log('DefendHerGame: Initializing game world...');
+    
+    // Generate terrain
+    this.generateTerrain();
+    
+    // Generate starfield
+    this.generateStarfield();
+    
+    // Create player
+    this.player = new DefendHerShip(this.width / 2, this.height / 2);
+    this.entities.push(this.player);
+    
+    // Place humans on terrain
+    this.spawnHumans();
+    
+    // Spawn initial enemies
+    this.spawnEnemyWave();
+    
+    this.updateDebug('Planet defense system ready! Press SPACE to begin mission.');
+    this.gameState = 'start';
+    
+    // Hide loading screen
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loadingScreen');
+      if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+      }
+    }, 1500);
+  }
+  
+  generateTerrain() {
+    console.log('DefendHerGame: Generating terrain...');
+    this.terrain = [];
+    const segments = 200;
+    for (let i = 0; i <= segments; i++) {
+      const x = (i / segments) * this.worldWidth;
+      const y = this.height - 100 + Math.sin(i * 0.1) * 50 + Math.random() * 30;
+      this.terrain.push({ x, y });
+    }
+  }
+  
+  generateStarfield() {
+    console.log('DefendHerGame: Generating starfield...');
+    this.stars = [];
+    for (let i = 0; i < 200; i++) {
+      this.stars.push({
+        x: Math.random() * this.worldWidth,
+        y: Math.random() * this.height * 0.8,
+        brightness: Math.random(),
+        depth: Math.random() * 3 + 1 // Parallax depth
+      });
+    }
+  }
+  
+  spawnHumans() {
+    console.log('DefendHerGame: Spawning women...');
+    this.humans = [];
+    const humanCount = 10;
+    for (let i = 0; i < humanCount; i++) {
+      const x = (Math.random() * 0.8 + 0.1) * this.worldWidth; // Keep away from edges
+      const terrainY = this.getTerrainHeightAt(x);
+      const human = new Woman(x, terrainY - 20);
+      this.humans.push(human);
+      this.entities.push(human);
+    }
+  }
+  
+  spawnEnemyWave() {
+    console.log(`DefendHerGame: Spawning wave ${this.wave}...`);
+    const baseCount = 3 + this.wave;
+    
+    // Spawn Landers
+    for (let i = 0; i < baseCount; i++) {
+      const x = Math.random() * this.worldWidth;
+      const y = Math.random() * this.height * 0.3 + 50;
+      this.entities.push(new Lander(x, y));
+    }
+    
+    // Spawn Bombers (fewer)
+    for (let i = 0; i < Math.floor(baseCount / 2); i++) {
+      const x = Math.random() * this.worldWidth;
+      const y = Math.random() * this.height * 0.4 + 50;
+      this.entities.push(new Bomber(x, y));
+    }
+    
+    // Spawn Pods
+    for (let i = 0; i < Math.max(1, Math.floor(this.wave / 2)); i++) {
+      const x = Math.random() * this.worldWidth;
+      const y = Math.random() * this.height * 0.6 + 100;
+      this.entities.push(new Pod(x, y));
+    }
+  }
+  
+  getTerrainHeightAt(x) {
+    // Find terrain height at given x coordinate
+    const wrappedX = ((x % this.worldWidth) + this.worldWidth) % this.worldWidth;
+    
+    for (let i = 0; i < this.terrain.length - 1; i++) {
+      const curr = this.terrain[i];
+      const next = this.terrain[i + 1];
+      
+      if (wrappedX >= curr.x && wrappedX <= next.x) {
+        // Linear interpolation
+        const t = (wrappedX - curr.x) / (next.x - curr.x);
+        return curr.y + (next.y - curr.y) * t;
+      }
+    }
+    
+    return this.height - 100; // Fallback
+  }
+  
+  setupInput() {
+    document.addEventListener('keydown', (e) => {
+      this.keys[e.code] = true;
+      
+      // Prevent default for all game keys to stop browser scrolling
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 
+           'KeyW', 'KeyA', 'KeyS', 'KeyD', 'ShiftLeft', 'ShiftRight', 'Escape'].includes(e.code)) {
+        e.preventDefault();
+      }
+      
+      if (e.code === 'Space') {
+        if (this.gameState === 'start') {
+          this.startGame();
+        } else if (this.gameState === 'gameOver') {
+          this.restart();
+        }
+        // Resume audio context on user interaction
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+      }
+      
+      if (e.code === 'Escape') {
+        this.togglePause();
+      }
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      this.keys[e.code] = false;
+      
+      // Prevent default for game keys
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 
+           'KeyW', 'KeyA', 'KeyS', 'KeyD', 'ShiftLeft', 'ShiftRight'].includes(e.code)) {
+        e.preventDefault();
+      }
+    });
+    
+    // Focus canvas when clicked and prevent default scrolling
+    this.canvas.addEventListener('click', () => {
+      this.canvas.focus();
+    });
+    
+    // Prevent canvas from scrolling on focus
+    this.canvas.addEventListener('keydown', (e) => {
+      e.preventDefault();
+    });
+  }
+  
+  startGame() {
+    console.log('DefendHerGame: Mission started!');
+    this.gameState = 'playing';
+    document.getElementById('startScreen').style.display = 'none';
+    this.updateDebug('Mission active! Defend the women!');
+    this.playSound(220, 0.1, 'square');
+  }
+  
+  restart() {
+    console.log('DefendHerGame: Restarting mission...');
+    this.score = 0;
+    this.lives = 3;
+    this.wave = 1;
+    this.bombs = 3;
+    this.humansRescued = 0;
+    this.enemiesDestroyed = 0;
+    this.scrollX = 0;
+    this.cameraX = 0;
+    this.entities = [];
+    this.particles = [];
+    this.gameState = 'playing';
+    document.getElementById('gameOverScreen').style.display = 'none';
+    this.init();
+  }
+  
+  togglePause() {
+    if (this.gameState === 'playing') {
+      this.gameState = 'paused';
+      this.updateDebug('Mission paused. Press ESC to resume.');
+    } else if (this.gameState === 'paused') {
+      this.gameState = 'playing';
+      this.updateDebug('Mission resumed!');
+    }
+  }
+  
+  update(deltaTime) {
+    if (this.gameState !== 'playing') return;
+    
+    // Handle player input
+    this.handlePlayerInput(deltaTime);
+    
+    // Update entities
+    for (let i = this.entities.length - 1; i >= 0; i--) {
+      const entity = this.entities[i];
+      if (entity.update) {
+        entity.update(deltaTime, this);
+      }
+      
+      // Remove dead entities
+      if (entity.alive === false) {
+        if (entity.type === 'enemy') {
+          this.enemiesDestroyed++;
+          this.score += entity.points || 100;
+          this.spawnExplosion(entity.x, entity.y, '#ff4400');
+          this.playSound(150 + Math.random() * 100, 0.2, 'sawtooth');
+        }
+        this.entities.splice(i, 1);
+      }
+    }
+    
+    // Update particles
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const particle = this.particles[i];
+      particle.update(deltaTime);
+      if (particle.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+    
+    // Update camera
+    this.updateCamera();
+    
+    // Check collisions
+    this.checkCollisions();
+    
+    // Check wave completion
+    this.checkWaveCompletion();
+    
+    // Check game over conditions
+    this.checkGameOver();
+    
+    // Update UI
+    this.updateUI();
+  }
+  
+  handlePlayerInput(deltaTime) {
+    if (!this.player || !this.player.alive) return;
+    
+    const speed = 300;
+    
+    if (this.keys['ArrowLeft'] || this.keys['KeyA']) {
+      this.player.x -= speed * deltaTime;
+      this.player.facing = -1;
+    }
+    if (this.keys['ArrowRight'] || this.keys['KeyD']) {
+      this.player.x += speed * deltaTime;
+      this.player.facing = 1;
+    }
+    if (this.keys['ArrowUp'] || this.keys['KeyW']) {
+      this.player.y -= speed * deltaTime;
+    }
+    if (this.keys['ArrowDown'] || this.keys['KeyS']) {
+      this.player.y += speed * deltaTime;
+    }
+    
+    // Wrap around world horizontally
+    if (this.player.x < 0) this.player.x = this.worldWidth - 1;
+    if (this.player.x >= this.worldWidth) this.player.x = 0;
+    
+    // Clamp vertically
+    this.player.y = Math.max(20, Math.min(this.height - 20, this.player.y));
+    
+    // Shooting
+    if (this.keys['Space']) {
+      this.player.shoot(this);
+    }
+    
+    // Bombing
+    if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
+      this.player.bomb(this);
+    }
+  }
+  
+  updateCamera() {
+    // Keep camera centered on player with smooth wrapping
+    if (this.player && this.player.alive) {
+      const targetCameraX = this.player.x - this.width / 2;
+      
+      // Smooth camera following
+      const cameraDiff = targetCameraX - this.cameraX;
+      
+      // Handle world wrapping for camera
+      if (Math.abs(cameraDiff) > this.worldWidth / 2) {
+        if (cameraDiff > 0) {
+          this.cameraX = targetCameraX - this.worldWidth;
+        } else {
+          this.cameraX = targetCameraX + this.worldWidth;
+        }
+      } else {
+        // Smooth camera movement
+        this.cameraX += cameraDiff * 0.1;
+      }
+    }
+  }
+  
+  checkCollisions() {
+    // Player vs enemies
+    if (this.player && this.player.alive) {
+      for (let entity of this.entities) {
+        if (entity.type === 'enemy' && this.distance(this.player, entity) < 25) {
+          this.playerHit();
+          break;
+        }
+      }
+    }
+    
+    // Bullets vs enemies
+    const bullets = this.entities.filter(e => e.type === 'bullet');
+    const enemies = this.entities.filter(e => e.type === 'enemy');
+    
+    for (let bullet of bullets) {
+      for (let enemy of enemies) {
+        if (this.distance(bullet, enemy) < 20) {
+          bullet.alive = false;
+          
+          // Special handling for Landers carrying humans
+          if (enemy.type === 'enemy' && enemy.constructor.name === 'Lander' && enemy.abductedHuman) {
+            // Drop the woman
+            enemy.abductedHuman.state = 'falling';
+            enemy.abductedHuman.y = enemy.y + 30;
+            this.updateDebug('Lander destroyed! Woman falling - catch her!');
+          }
+          
+          // Special handling for Pods - they split into Swarmers
+          if (enemy.constructor.name === 'Pod') {
+            enemy.die(this);
+          }
+          
+          enemy.alive = false;
+          break;
+        }
+      }
+    }
+    
+    // Player catching falling humans
+    if (this.player && this.player.alive) {
+      for (let human of this.humans) {
+        if (human.state === 'falling' && this.distance(this.player, human) < 40) {
+          human.state = 'rescued';
+          human.alive = true; // Ensure they stay alive
+          this.humansRescued++;
+          this.score += 500;
+          this.updateDebug('Woman rescued! +500 points - return to ground!');
+          this.playSound(440, 0.3, 'sine');
+          
+          // Teleport human back to safe ground position
+          setTimeout(() => {
+            const safeX = Math.random() * this.worldWidth;
+            const groundY = this.getTerrainHeightAt(safeX);
+            human.x = safeX;
+            human.y = groundY - 20;
+            human.state = 'walking';
+            this.updateDebug('Woman safely returned to ground!');
+          }, 1000);
+        }
+      }
+    }
+  }
+  
+  distance(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  
+  playerHit() {
+    if (!this.player || !this.player.alive) return;
+    
+    this.lives--;
+    this.spawnExplosion(this.player.x, this.player.y, '#00ff00');
+    this.playSound(100, 0.5, 'sawtooth');
+    this.updateDebug(`Ship destroyed! Lives remaining: ${this.lives}`);
+    
+    if (this.lives > 0) {
+      // Respawn player
+      setTimeout(() => {
+        this.player.x = this.width / 2;
+        this.player.y = this.height / 2;
+        this.player.alive = true;
+      }, 2000);
+    }
+  }
+  
+  checkWaveCompletion() {
+    const enemies = this.entities.filter(e => e.type === 'enemy');
+    if (enemies.length === 0) {
+      this.wave++;
+      this.bombs = Math.min(5, this.bombs + 1); // Bonus bomb
+      this.updateDebug(`Wave ${this.wave} incoming! Bonus bomb awarded.`);
+      
+      // Brief pause before new wave
+      setTimeout(() => {
+        this.spawnEnemyWave();
+        this.updateDebug(`Wave ${this.wave} launched!`);
+      }, 2000);
+    }
+  }
+  
+  checkGameOver() {
+    if (this.lives <= 0) {
+      this.gameState = 'gameOver';
+      document.getElementById('gameOverScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = this.score;
+      document.getElementById('humansRescued').textContent = this.humansRescued;
+      this.updateDebug('Mission failed. All ships lost.');
+    }
+    
+    // Check if all women are dead
+    const aliveHumans = this.humans.filter(h => h.alive && h.state !== 'abducted');
+    if (aliveHumans.length === 0) {
+      this.gameState = 'gameOver';
+      document.getElementById('gameOverScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = this.score;
+      this.updateDebug('Mission failed. All women lost.');
+    }
+  }
+  
+  spawnExplosion(x, y, color) {
+    for (let i = 0; i < 15; i++) {
+      this.particles.push(new Particle(x, y, color));
+    }
+  }
+  
+  spawnMegaExplosion(x, y) {
+    // Massive bomb explosion with multiple colors and rings
+    const colors = ['#ffff00', '#ff8800', '#ff4400', '#ff0000', '#ffffff'];
+    
+    // Multiple explosion rings
+    for (let ring = 0; ring < 5; ring++) {
+      setTimeout(() => {
+        for (let i = 0; i < 30; i++) {
+          const particle = new Particle(x, y, colors[ring % colors.length]);
+          particle.vx = (Math.random() - 0.5) * 400 * (ring + 1);
+          particle.vy = (Math.random() - 0.5) * 400 * (ring + 1);
+          particle.life = 2.0; // Longer lasting
+          particle.decay = 0.5; // Slower decay
+          this.particles.push(particle);
+        }
+      }, ring * 100);
+    }
+    
+    // Screen flash effect
+    this.flashScreen = { intensity: 1.0, decay: 3.0 };
+  }
+  
+  render() {
+    // Clear canvas
+    this.ctx.fillStyle = '#000011';
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    
+    // Save context for scrolling
+    this.ctx.save();
+    this.ctx.translate(-this.cameraX, 0);
+    
+    // Draw starfield with parallax
+    this.drawStarfield();
+    
+    // Draw terrain
+    this.drawTerrain();
+    
+    // Draw entities with world wrapping
+    for (let entity of this.entities) {
+      if (entity.render) {
+        // Draw entity at its normal position if visible
+        if (this.isVisible(entity)) {
+          entity.render(this.ctx);
+        }
+        
+        // Also draw wrapped versions near world edges
+        if (entity.x < this.width) {
+          // Draw wrapped version on the right
+          const savedX = entity.x;
+          entity.x += this.worldWidth;
+          if (this.isVisible(entity)) {
+            entity.render(this.ctx);
+          }
+          entity.x = savedX;
+        }
+        
+        if (entity.x > this.worldWidth - this.width) {
+          // Draw wrapped version on the left
+          const savedX = entity.x;
+          entity.x -= this.worldWidth;
+          if (this.isVisible(entity)) {
+            entity.render(this.ctx);
+          }
+          entity.x = savedX;
+        }
+      }
+    }
+    
+    // Restore context
+    this.ctx.restore();
+    
+    // Draw particles (screen space)
+    for (let particle of this.particles) {
+      particle.render(this.ctx, this.cameraX);
+    }
+    
+    // Draw UI (always on screen)
+    this.drawRadar();
+    
+    // Screen flash effect for bomb explosions
+    if (this.flashScreen && this.flashScreen.intensity > 0) {
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${this.flashScreen.intensity * 0.3})`;
+      this.ctx.fillRect(0, 0, this.width, this.height);
+      this.flashScreen.intensity -= this.flashScreen.decay * (1/60); // Assume 60 FPS
+      if (this.flashScreen.intensity <= 0) {
+        this.flashScreen = null;
+      }
+    }
+    
+    // Update FPS counter
+    this.frameCount++;
+    const now = performance.now();
+    if (now - this.lastFpsUpdate > 1000) {
+      this.fps = Math.round((this.frameCount * 1000) / (now - this.lastFpsUpdate));
+      this.frameCount = 0;
+      this.lastFpsUpdate = now;
+    }
+  }
+  
+  isVisible(entity) {
+    return entity.x > this.cameraX - 100 && entity.x < this.cameraX + this.width + 100;
+  }
+  
+  drawStarfield() {
+    this.ctx.save();
+    
+    for (let star of this.stars) {
+      const parallax = 1 / star.depth;
+      const x = star.x * parallax;
+      const y = star.y;
+      
+      // Wrap stars
+      const wrappedX = ((x % this.worldWidth) + this.worldWidth) % this.worldWidth;
+      
+      // Twinkling effect
+      const twinkle = Math.sin(Date.now() * 0.003 + star.x) * 0.3 + 0.7;
+      const alpha = star.brightness * twinkle * 0.9;
+      
+      // Different star colors and sizes based on depth
+      if (star.depth > 2.5) {
+        // Distant stars - small and dim
+        this.ctx.fillStyle = `rgba(200, 200, 255, ${alpha * 0.6})`;
+        this.ctx.fillRect(wrappedX, y, 1, 1);
+      } else if (star.depth > 1.5) {
+        // Medium stars - white/blue
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        this.ctx.fillRect(wrappedX, y, 2, 2);
+        
+        // Bright stars get a glow
+        if (star.brightness > 0.8) {
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.3})`;
+          this.ctx.fillRect(wrappedX - 1, y - 1, 4, 4);
+        }
+      } else {
+        // Close bright stars - larger with colors
+        const starColors = ['#ffffff', '#ffdddd', '#ddddff', '#ffffdd'];
+        const colorIndex = Math.floor(star.x / 100) % starColors.length;
+        this.ctx.fillStyle = starColors[colorIndex];
+        this.ctx.globalAlpha = alpha;
+        this.ctx.fillRect(wrappedX, y, 2, 2);
+        
+        // Bright star cross pattern
+        if (star.brightness > 0.9) {
+          this.ctx.globalAlpha = alpha * 0.5;
+          this.ctx.fillRect(wrappedX - 2, y, 6, 1);
+          this.ctx.fillRect(wrappedX, y - 2, 1, 6);
+        }
+      }
+    }
+    
+    this.ctx.globalAlpha = 1;
+    this.ctx.restore();
+  }
+  
+  drawTerrain() {
+    this.ctx.save();
+    
+    // Draw terrain with wrapping - draw multiple copies for seamless wrapping
+    const drawTerrainSection = (offsetX) => {
+      // Fill terrain with gradient
+      const gradient = this.ctx.createLinearGradient(0, this.height - 200, 0, this.height);
+      gradient.addColorStop(0, '#004400');
+      gradient.addColorStop(0.5, '#002200');
+      gradient.addColorStop(1, '#001100');
+      this.ctx.fillStyle = gradient;
+      
+      // Create filled terrain path
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.terrain[0].x + offsetX, this.terrain[0].y);
+      
+      for (let i = 1; i < this.terrain.length; i++) {
+        this.ctx.lineTo(this.terrain[i].x + offsetX, this.terrain[i].y);
+      }
+      
+      // Complete the fill to bottom of screen
+      this.ctx.lineTo(this.terrain[this.terrain.length - 1].x + offsetX, this.height);
+      this.ctx.lineTo(this.terrain[0].x + offsetX, this.height);
+      this.ctx.closePath();
+      this.ctx.fill();
+      
+      // Draw glowing terrain outline
+      this.ctx.strokeStyle = '#00ff00';
+      this.ctx.lineWidth = 2;
+      this.ctx.shadowColor = '#00ff00';
+      this.ctx.shadowBlur = 5;
+      this.ctx.beginPath();
+      
+      for (let i = 0; i < this.terrain.length; i++) {
+        const point = this.terrain[i];
+        if (i === 0) {
+          this.ctx.moveTo(point.x + offsetX, point.y);
+        } else {
+          this.ctx.lineTo(point.x + offsetX, point.y);
+        }
+      }
+      this.ctx.stroke();
+    };
+    
+    // Draw terrain sections with wrapping
+    const cameraWorldPos = ((this.cameraX % this.worldWidth) + this.worldWidth) % this.worldWidth;
+    
+    // Draw main section
+    drawTerrainSection(0);
+    
+    // Draw wrapped sections if needed
+    if (cameraWorldPos > this.worldWidth - this.width) {
+      drawTerrainSection(-this.worldWidth);
+    }
+    if (cameraWorldPos < this.width) {
+      drawTerrainSection(this.worldWidth);
+    }
+    
+    this.ctx.restore();
+  }
+  
+  drawRadar() {
+    // Simple radar/scanner at bottom of screen
+    const radarX = 20;
+    const radarY = this.height - 80;
+    const radarW = 200;
+    const radarH = 60;
+    
+    this.ctx.strokeStyle = '#00aa00';
+    this.ctx.strokeRect(radarX, radarY, radarW, radarH);
+    
+    // Show entities on radar
+    for (let entity of this.entities) {
+      let color = '#ffffff';
+      if (entity.type === 'player') color = '#00ff00';
+      else if (entity.type === 'enemy') color = '#ff0000';
+      else if (entity.type === 'human') color = '#ffff00';
+      
+      const radarPosX = radarX + (entity.x / this.worldWidth) * radarW;
+      const radarPosY = radarY + (entity.y / this.height) * radarH;
+      
+      this.ctx.fillStyle = color;
+      this.ctx.fillRect(radarPosX - 1, radarPosY - 1, 2, 2);
+    }
+  }
+  
+  updateUI() {
+    document.getElementById('score').textContent = this.score;
+    document.getElementById('lives').textContent = this.lives;
+    document.getElementById('wave').textContent = this.wave;
+    document.getElementById('humanoids').textContent = this.humans.filter(h => h.alive).length;
+    
+    // Update main UI displays
+    document.getElementById('scoreDisplay').textContent = this.score.toString().padStart(6, '0');
+    document.getElementById('livesDisplay').textContent = this.lives;
+    document.getElementById('bombsDisplay').textContent = this.bombs;
+    document.getElementById('humansDisplay').textContent = this.humans.filter(h => h.alive).length;
+  }
+  
+  updateDebug(message) {
+    const debugDiv = document.getElementById('debug');
+    const now = new Date().toLocaleTimeString();
+    debugDiv.innerHTML = `
+      <div>DEBUG (${now}):</div>
+      <div>FPS: ${this.fps}</div>
+      <div>Entities: ${this.entities.length}</div>
+      <div>Particles: ${this.particles.length}</div>
+      <div>State: ${this.gameState}</div>
+      <div>${message}</div>
+    `;
+  }
+  
+  gameLoop() {
+    const now = performance.now();
+    const deltaTime = Math.min((now - (this.lastTime || now)) / 1000, 0.016); // Cap at 60 FPS
+    this.lastTime = now;
+    
+    this.update(deltaTime);
+    this.render();
+    
+    requestAnimationFrame(() => this.gameLoop());
+  }
+  
+  start() {
+    console.log('DefendHerGame: Starting game loop...');
+    this.updateDebug('Planetary defense system online! Press SPACE to begin.');
+    this.gameLoop();
+  }
+}
+
+// Game Entity Classes
+
+class DefendHerShip {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'player';
+    this.alive = true;
+    this.facing = 1;
+    this.lastShot = 0;
+    this.shootCooldown = 150;
+    this.lastBomb = 0;
+    this.bombCooldown = 1000;
+  }
+  
+  shoot(game) {
+    const now = performance.now();
+    if (now - this.lastShot > this.shootCooldown) {
+      const bullet = new Bullet(this.x + this.facing * 20, this.y, this.facing, 0);
+      game.entities.push(bullet);
+      this.lastShot = now;
+      game.playSound(800, 0.05, 'square');
+    }
+  }
+  
+  bomb(game) {
+    const now = performance.now();
+    if (game.bombs > 0 && now - this.lastBomb > this.bombCooldown) {
+      game.bombs--;
+      this.lastBomb = now;
+      
+      // Massive visual explosion effect
+      game.spawnMegaExplosion(this.x, this.y);
+      game.playSound(100, 1.2, 'sawtooth'); // Deep boom sound
+      
+      // Destroy all enemies on screen with larger radius
+      const bombRadius = 300; // Much larger radius
+      let enemiesDestroyed = 0;
+      
+      for (let entity of game.entities) {
+        if (entity.type === 'enemy') {
+          const distance = game.distance(this, entity);
+          if (distance < bombRadius) {
+            // Special handling for Landers with women
+            if (entity.constructor.name === 'Lander' && entity.abductedHuman) {
+              entity.abductedHuman.state = 'falling';
+              entity.abductedHuman.y = entity.y + 30;
+            }
+            
+            // Special handling for Pods
+            if (entity.constructor.name === 'Pod') {
+              entity.die(game);
+            }
+            
+            entity.alive = false;
+            enemiesDestroyed++;
+            game.score += entity.points || 100;
+          }
+        }
+      }
+      
+      game.updateDebug(`SMART BOMB! ${enemiesDestroyed} enemies destroyed! Bombs remaining: ${game.bombs}`);
+    }
+  }
+  
+  render(ctx) {
+    if (!this.alive) return;
+    
+    ctx.save();
+    
+    // Ship sprite - detailed pixel art style
+    const shipColors = ['#ffffff', '#cccccc', '#00aaff', '#0088cc', '#ff4400', '#cc2200'];
+    
+    // Main hull
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(this.x - 18, this.y - 4, 36, 8);
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(this.x - 16, this.y - 3, 32, 6);
+    
+    // Cockpit detail
+    ctx.fillStyle = '#00aaff';
+    ctx.fillRect(this.x - 8, this.y - 6, 16, 12);
+    ctx.fillStyle = '#0088cc';
+    ctx.fillRect(this.x - 6, this.y - 5, 12, 10);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(this.x - 4, this.y - 4, 8, 8);
+    
+    // Wing details
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(this.x - 22, this.y - 2, 4, 4);
+    ctx.fillRect(this.x + 18, this.y - 2, 4, 4);
+    
+    // Engine/thruster details
+    ctx.fillStyle = '#888888';
+    if (this.facing > 0) {
+      ctx.fillRect(this.x - 24, this.y - 3, 6, 6);
+      // Thruster flame
+      if (Math.random() > 0.5) {
+        ctx.fillStyle = '#ff4400';
+        ctx.fillRect(this.x - 28, this.y - 2, 4, 4);
+        ctx.fillStyle = '#ffaa00';
+        ctx.fillRect(this.x - 26, this.y - 1, 2, 2);
+      }
+    } else {
+      ctx.fillRect(this.x + 18, this.y - 3, 6, 6);
+      // Thruster flame
+      if (Math.random() > 0.5) {
+        ctx.fillStyle = '#ff4400';
+        ctx.fillRect(this.x + 24, this.y - 2, 4, 4);
+        ctx.fillStyle = '#ffaa00';
+        ctx.fillRect(this.x + 26, this.y - 1, 2, 2);
+      }
+    }
+    
+    // Gun barrel
+    ctx.fillStyle = '#666666';
+    if (this.facing > 0) {
+      ctx.fillRect(this.x + 18, this.y - 1, 6, 2);
+    } else {
+      ctx.fillRect(this.x - 24, this.y - 1, 6, 2);
+    }
+    
+    ctx.restore();
+  }
+}
+
+class Lander {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 150;
+    this.speed = 80;
+    this.direction = Math.random() * Math.PI * 2;
+    this.state = 'hunting'; // hunting, abducting, ascending
+    this.target = null;
+    this.abductedHuman = null;
+  }
+  
+  update(deltaTime, game) {
+    if (this.state === 'hunting') {
+      // Look for women to abduct
+      const nearbyWomen = game.humans.filter(h => 
+        h.alive && h.state === 'walking' && game.distance(this, h) < 200
+      );
+      
+      if (nearbyWomen.length > 0) {
+        this.target = nearbyWomen[Math.floor(Math.random() * nearbyWomen.length)];
+        this.state = 'abducting';
+      } else {
+        // Random movement
+        this.x += Math.cos(this.direction) * this.speed * deltaTime;
+        this.y += Math.sin(this.direction) * this.speed * deltaTime;
+        
+        if (Math.random() < 0.02) {
+          this.direction = Math.random() * Math.PI * 2;
+        }
+      }
+    } else if (this.state === 'abducting') {
+      if (this.target && this.target.alive) {
+        // Move toward target woman
+        const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist > 30) {
+          this.x += (dx / dist) * this.speed * deltaTime;
+          this.y += (dy / dist) * this.speed * deltaTime;
+        } else {
+          // Start abduction
+          this.target.state = 'abducted';
+          this.abductedHuman = this.target;
+          this.state = 'ascending';
+        }
+      } else {
+        this.state = 'hunting';
+      }
+    } else if (this.state === 'ascending') {
+      this.y -= this.speed * deltaTime;
+      if (this.abductedHuman) {
+        this.abductedHuman.x = this.x;
+        this.abductedHuman.y = this.y + 30;
+      }
+      
+      // Transform into mutant if reaching top
+      if (this.y < 50) {
+        game.entities.push(new Mutant(this.x, this.y));
+        this.alive = false;
+        if (this.abductedHuman) {
+          this.abductedHuman.alive = false;
+        }
+      }
+    }
+    
+    // World wrap
+    this.x = ((this.x % game.worldWidth) + game.worldWidth) % game.worldWidth;
+  }
+  
+  render(ctx) {
+    ctx.save();
+    
+    // Lander sprite - alien ship design
+    // Main body
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(this.x - 12, this.y - 8, 24, 16);
+    ctx.fillStyle = '#44ff44';
+    ctx.fillRect(this.x - 10, this.y - 6, 20, 12);
+    
+    // Cockpit/dome
+    ctx.fillStyle = '#88ff88';
+    ctx.fillRect(this.x - 8, this.y - 10, 16, 8);
+    ctx.fillStyle = '#aaffaa';
+    ctx.fillRect(this.x - 6, this.y - 9, 12, 6);
+    
+    // Wing/fin details
+    ctx.fillStyle = '#00cc00';
+    ctx.fillRect(this.x - 16, this.y - 4, 4, 8);
+    ctx.fillRect(this.x + 12, this.y - 4, 4, 8);
+    
+    // Pulsating glow effect
+    const pulse = Math.sin(Date.now() * 0.01) * 0.5 + 0.5;
+    ctx.fillStyle = `rgba(0, 255, 0, ${pulse * 0.3})`;
+    ctx.fillRect(this.x - 14, this.y - 10, 28, 20);
+    
+    // Engine exhausts
+    ctx.fillStyle = '#ffff00';
+    if (Math.random() > 0.7) {
+      ctx.fillRect(this.x - 10, this.y + 8, 2, 4);
+      ctx.fillRect(this.x + 8, this.y + 8, 2, 4);
+    }
+    
+    // Abduction beam with particle effect
+    if (this.state === 'abducting' || this.state === 'ascending') {
+      // Main beam
+      ctx.strokeStyle = '#ffff00';
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y + 8);
+      ctx.lineTo(this.x, this.y + 50);
+      ctx.stroke();
+      
+      // Beam particles
+      ctx.fillStyle = '#ffff00';
+      for (let i = 0; i < 8; i++) {
+        const beamY = this.y + 8 + (i * 5);
+        const sparkle = Math.sin(Date.now() * 0.02 + i) * 3;
+        ctx.fillRect(this.x + sparkle - 1, beamY, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+    }
+    
+    ctx.restore();
+  }
+}
+
+class Mutant {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 300;
+    this.speed = 150;
+    this.direction = 0;
+  }
+  
+  update(deltaTime, game) {
+    // Aggressively chase player
+    if (game.player && game.player.alive) {
+      const dx = game.player.x - this.x;
+      const dy = game.player.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist > 0) {
+        this.x += (dx / dist) * this.speed * deltaTime;
+        this.y += (dy / dist) * this.speed * deltaTime;
+      }
+    }
+    
+    // Zigzag movement
+    this.direction += deltaTime * 5;
+    this.x += Math.sin(this.direction) * 30 * deltaTime;
+    
+    // World wrap
+    this.x = ((this.x % game.worldWidth) + game.worldWidth) % game.worldWidth;
+  }
+  
+  render(ctx) {
+    ctx.save();
+    
+    // Mutant sprite - aggressive spiky design
+    // Main body with angry red gradient
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(this.x - 10, this.y - 6, 20, 12);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(this.x - 8, this.y - 4, 16, 8);
+    ctx.fillStyle = '#ff4444';
+    ctx.fillRect(this.x - 6, this.y - 2, 12, 4);
+    
+    // Aggressive spikes with animation
+    const spikeAnim = Math.sin(Date.now() * 0.02) * 2;
+    ctx.fillStyle = '#ff0000';
+    // Side spikes
+    ctx.fillRect(this.x - 15 + spikeAnim, this.y - 3, 5, 6);
+    ctx.fillRect(this.x + 10 - spikeAnim, this.y - 3, 5, 6);
+    // Top/bottom spikes
+    ctx.fillRect(this.x - 3, this.y - 10 - spikeAnim, 6, 5);
+    ctx.fillRect(this.x - 3, this.y + 5 + spikeAnim, 6, 5);
+    
+    // Sharp spike tips
+    ctx.fillStyle = '#ffaa00';
+    ctx.fillRect(this.x - 17 + spikeAnim, this.y - 1, 2, 2);
+    ctx.fillRect(this.x + 15 - spikeAnim, this.y - 1, 2, 2);
+    ctx.fillRect(this.x - 1, this.y - 12 - spikeAnim, 2, 2);
+    ctx.fillRect(this.x - 1, this.y + 10 + spikeAnim, 2, 2);
+    
+    // Angry eyes/sensors
+    ctx.fillStyle = '#ffff00';
+    ctx.fillRect(this.x - 6, this.y - 4, 3, 2);
+    ctx.fillRect(this.x + 3, this.y - 4, 3, 2);
+    
+    // Energy trail effect
+    const trailLength = 5;
+    for (let i = 0; i < trailLength; i++) {
+      const alpha = (trailLength - i) / trailLength * 0.3;
+      ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
+      const trailX = this.x - (i * 4);
+      ctx.fillRect(trailX - 5, this.y - 3, 10, 6);
+    }
+    
+    ctx.restore();
+  }
+}
+
+class Bomber {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 250;
+    this.speed = 60;
+    this.direction = Math.random() * Math.PI * 2;
+    this.lastMine = 0;
+    this.mineCooldown = 2000;
+  }
+  
+  update(deltaTime, game) {
+    this.x += Math.cos(this.direction) * this.speed * deltaTime;
+    this.y += Math.sin(this.direction) * this.speed * deltaTime;
+    
+    // Change direction occasionally
+    if (Math.random() < 0.01) {
+      this.direction = Math.random() * Math.PI * 2;
+    }
+    
+    // Drop mines
+    const now = performance.now();
+    if (now - this.lastMine > this.mineCooldown) {
+      game.entities.push(new Mine(this.x, this.y + 20));
+      this.lastMine = now;
+    }
+    
+    // World wrap
+    this.x = ((this.x % game.worldWidth) + game.worldWidth) % game.worldWidth;
+    this.y = Math.max(50, Math.min(game.height * 0.6, this.y));
+  }
+  
+  render(ctx) {
+    ctx.save();
+    
+    // Bomber sprite - large bulky design
+    // Main hull - gray metallic
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillRect(this.x - 16, this.y - 10, 32, 20);
+    ctx.fillStyle = '#888888';
+    ctx.fillRect(this.x - 14, this.y - 8, 28, 16);
+    ctx.fillStyle = '#666666';
+    ctx.fillRect(this.x - 12, this.y - 6, 24, 12);
+    
+    // Cockpit/control section
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(this.x - 8, this.y - 8, 16, 8);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(this.x - 6, this.y - 7, 12, 6);
+    
+    // Engine pods
+    ctx.fillStyle = '#444444';
+    ctx.fillRect(this.x - 18, this.y - 6, 4, 12);
+    ctx.fillRect(this.x + 14, this.y - 6, 4, 12);
+    
+    // Engine glow
+    ctx.fillStyle = '#0088ff';
+    if (Math.random() > 0.6) {
+      ctx.fillRect(this.x - 20, this.y - 4, 2, 8);
+      ctx.fillRect(this.x + 18, this.y - 4, 2, 8);
+    }
+    
+    // Bomb bay doors (slightly open)
+    ctx.fillStyle = '#333333';
+    ctx.fillRect(this.x - 4, this.y + 10, 8, 4);
+    ctx.fillStyle = '#555555';
+    ctx.fillRect(this.x - 3, this.y + 11, 6, 2);
+    
+    // Warning lights (blinking)
+    const blinkState = Math.floor(Date.now() / 500) % 2;
+    if (blinkState) {
+      ctx.fillStyle = '#ffff00';
+      ctx.fillRect(this.x - 2, this.y - 2, 4, 4);
+      ctx.fillRect(this.x - 10, this.y + 6, 3, 3);
+      ctx.fillRect(this.x + 7, this.y + 6, 3, 3);
+    } else {
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(this.x - 2, this.y - 2, 4, 4);
+      ctx.fillRect(this.x - 10, this.y + 6, 3, 3);
+      ctx.fillRect(this.x + 7, this.y + 6, 3, 3);
+    }
+    
+    // Antenna/sensor array
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(this.x - 1, this.y - 14, 2, 6);
+    ctx.fillRect(this.x - 3, this.y - 12, 6, 1);
+    
+    ctx.restore();
+  }
+}
+
+class Pod {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 200;
+    this.bobOffset = Math.random() * Math.PI * 2;
+    this.originalY = y;
+  }
+  
+  update(deltaTime, game) {
+    this.bobOffset += deltaTime * 3;
+    this.y = this.originalY + Math.sin(this.bobOffset) * 20;
+  }
+  
+  die(game) {
+    // Split into swarmers
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
+      const swarmer = new Swarmer(this.x, this.y);
+      swarmer.direction = angle;
+      game.entities.push(swarmer);
+    }
+    game.spawnExplosion(this.x, this.y, '#aa00ff');
+  }
+  
+  render(ctx) {
+    ctx.save();
+    
+    // Pod sprite - glowing orb design
+    const pulse = Math.sin(this.bobOffset) * 0.3 + 0.7;
+    
+    // Outer glow
+    ctx.fillStyle = `rgba(170, 0, 255, ${pulse * 0.2})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 16, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Main body
+    ctx.fillStyle = '#aa00ff';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Inner core
+    ctx.fillStyle = '#ff88ff';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Bright center
+    ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Energy rings
+    for (let i = 0; i < 3; i++) {
+      const ringSize = 6 + (i * 3);
+      const ringPulse = Math.sin(this.bobOffset + i) * 0.5 + 0.5;
+      ctx.strokeStyle = `rgba(255, 136, 255, ${ringPulse * 0.6})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, ringSize, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    
+    // Energy sparks around the pod
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 + this.bobOffset;
+      const sparkDistance = 14 + Math.sin(this.bobOffset + i) * 2;
+      const sparkX = this.x + Math.cos(angle) * sparkDistance;
+      const sparkY = this.y + Math.sin(angle) * sparkDistance;
+      
+      ctx.fillStyle = '#ffff00';
+      ctx.fillRect(sparkX - 1, sparkY - 1, 2, 2);
+    }
+    
+    ctx.restore();
+  }
+}
+
+class Swarmer {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 50;
+    this.speed = 200;
+    this.direction = 0;
+  }
+  
+  update(deltaTime, game) {
+    // Erratic movement toward player
+    if (game.player && game.player.alive) {
+      const dx = game.player.x - this.x;
+      const dy = game.player.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist > 0) {
+        this.direction = Math.atan2(dy, dx) + Math.sin(Date.now() * 0.01) * 0.5;
+      }
+    }
+    
+    this.x += Math.cos(this.direction) * this.speed * deltaTime;
+    this.y += Math.sin(this.direction) * this.speed * deltaTime;
+    
+    // World wrap
+    this.x = ((this.x % game.worldWidth) + game.worldWidth) % game.worldWidth;
+  }
+  
+  render(ctx) {
+    ctx.fillStyle = '#ffff00';
+    ctx.fillRect(this.x - 4, this.y - 4, 8, 8);
+    ctx.fillStyle = '#ffaa00';
+    ctx.fillRect(this.x - 2, this.y - 2, 4, 4);
+  }
+}
+
+class Mine {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'enemy';
+    this.alive = true;
+    this.points = 100;
+    this.fallSpeed = 50;
+  }
+  
+  update(deltaTime, game) {
+    this.y += this.fallSpeed * deltaTime;
+    
+    // Remove if hits ground
+    if (this.y > game.height - 100) {
+      this.alive = false;
+      game.spawnExplosion(this.x, this.y, '#ff8800');
+    }
+  }
+  
+  render(ctx) {
+    ctx.fillStyle = '#ff8800';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+class Woman {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.type = 'human';
+    this.alive = true;
+    this.state = 'walking'; // walking, abducted, falling, rescued
+    this.animFrame = 0;
+  }
+  
+  update(deltaTime, game) {
+    if (this.state === 'walking') {
+      this.animFrame += deltaTime * 5;
+      // Occasional wave
+      if (Math.random() < 0.01) {
+        this.animFrame = 0;
+      }
+    } else if (this.state === 'falling') {
+      this.y += 150 * deltaTime; // Slightly slower fall
+      
+      // Add some visual effects while falling
+      if (Math.random() < 0.1) {
+        // Panic particles
+        game.particles.push(new Particle(
+          this.x + (Math.random() - 0.5) * 10, 
+          this.y + (Math.random() - 0.5) * 10, 
+          '#ffff00'
+        ));
+      }
+      
+      // Check if hits ground
+      const groundY = game.getTerrainHeightAt(this.x);
+      if (this.y >= groundY - 15) {
+        this.alive = false;
+        game.spawnExplosion(this.x, this.y, '#ff0000');
+        game.updateDebug('Woman lost! Impact with surface.');
+        game.playSound(200, 0.5, 'sawtooth');
+      }
+    } else if (this.state === 'rescued') {
+      // Rescued women float briefly before being teleported
+      this.y -= 50 * deltaTime; // Float upward briefly
+    }
+  }
+  
+  render(ctx) {
+    if (!this.alive) return;
+    
+    ctx.save();
+    
+    // Woman sprite - detailed figure with dress
+    const legAnimation = Math.sin(this.animFrame * 2) * 1;
+    
+    // Head
+    ctx.fillStyle = '#ffddaa'; // Skin tone
+    ctx.fillRect(this.x - 2, this.y - 20, 4, 4);
+    
+    // Hair (longer for women)
+    ctx.fillStyle = '#8b4513';
+    ctx.fillRect(this.x - 3, this.y - 22, 6, 3); // Longer hair
+    ctx.fillRect(this.x - 2, this.y - 19, 4, 1); // Hair fringe
+    
+    // Body/torso - different colors for different states
+    let topColor = '#ff69b4'; // Pink top (more feminine)
+    if (this.state === 'abducted') topColor = '#ffaa00'; // Orange when abducted
+    else if (this.state === 'falling') topColor = '#ff4444'; // Red when falling
+    else if (this.state === 'rescued') topColor = '#44ff44'; // Green when rescued
+    
+    ctx.fillStyle = topColor;
+    ctx.fillRect(this.x - 2, this.y - 15, 4, 6); // Shorter torso for dress
+    
+    // Arms
+    ctx.fillStyle = '#ffddaa';
+    if (this.state === 'walking' && Math.sin(this.animFrame) > 0.5) {
+      // Waving arm
+      ctx.fillRect(this.x - 6, this.y - 13, 4, 1);
+      ctx.fillRect(this.x - 6, this.y - 15, 1, 3);
+      // Other arm
+      ctx.fillRect(this.x + 2, this.y - 13, 4, 1);
+    } else {
+      // Normal arms
+      ctx.fillRect(this.x - 5, this.y - 13, 3, 1);
+      ctx.fillRect(this.x + 2, this.y - 13, 3, 1);
+    }
+    
+    // DRESS - A-line dress shape
+    let dressColor = '#9966cc'; // Purple dress
+    if (this.state === 'abducted') dressColor = '#cc8800'; // Orange dress when abducted
+    else if (this.state === 'falling') dressColor = '#cc4444'; // Red dress when falling
+    else if (this.state === 'rescued') dressColor = '#66cc66'; // Green dress when rescued
+    
+    ctx.fillStyle = dressColor;
+    // Dress gets wider towards the bottom (A-line shape)
+    ctx.fillRect(this.x - 2, this.y - 9, 4, 3); // Upper dress
+    ctx.fillRect(this.x - 3, this.y - 6, 6, 3); // Middle dress (wider)
+    ctx.fillRect(this.x - 4, this.y - 3, 8, 2); // Lower dress (widest)
+    
+    // Dress hem detail
+    ctx.fillStyle = '#663399'; // Darker purple for hem
+    ctx.fillRect(this.x - 4, this.y - 2, 8, 1);
+    
+    // Legs (partially visible under dress)
+    ctx.fillStyle = '#ffddaa'; // Skin tone for legs
+    ctx.fillRect(this.x - 1, this.y - 1, 1, 2 + legAnimation * 0.5); // Left leg
+    ctx.fillRect(this.x, this.y - 1, 1, 2 - legAnimation * 0.5); // Right leg
+    
+    // High heels/shoes
+    ctx.fillStyle = '#000000'; // Black shoes
+    ctx.fillRect(this.x - 2, this.y + 1, 2, 2); // Left shoe
+    ctx.fillRect(this.x, this.y + 1, 2, 2); // Right shoe
+    
+    // Special effects for abducted state
+    if (this.state === 'abducted') {
+      // Distress particles
+      ctx.fillStyle = '#ffff00';
+      for (let i = 0; i < 3; i++) {
+        const sparkX = this.x + (Math.random() - 0.5) * 8;
+        const sparkY = this.y - 10 + (Math.random() - 0.5) * 8;
+        ctx.fillRect(sparkX, sparkY, 1, 1);
+      }
+    }
+    
+    // Shadow on ground
+    if (this.state === 'walking') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(this.x - 3, this.y + 1, 6, 2);
+    }
+    
+    ctx.restore();
+  }
+}
+
+class Bullet {
+  constructor(x, y, dx, dy) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.type = 'bullet';
+    this.speed = 600;
+    this.alive = true;
+  }
+  
+  update(deltaTime, game) {
+    this.x += this.dx * this.speed * deltaTime;
+    this.y += this.dy * this.speed * deltaTime;
+    
+    // Remove if off world
+    if (this.x < -100 || this.x > game.worldWidth + 100 || 
+        this.y < -50 || this.y > game.height + 50) {
+      this.alive = false;
+    }
+  }
+  
+  render(ctx) {
+    ctx.fillStyle = '#ffff00';
+    ctx.fillRect(this.x - 3, this.y - 1, 6, 2);
+  }
+}
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.vx = (Math.random() - 0.5) * 200;
+    this.vy = (Math.random() - 0.5) * 200;
+    this.life = 1.0;
+    this.decay = 2.0 + Math.random() * 2.0;
+  }
+  
+  update(deltaTime) {
+    this.x += this.vx * deltaTime;
+    this.y += this.vy * deltaTime;
+    this.life -= this.decay * deltaTime;
+  }
+  
+  render(ctx, cameraX) {
+    const screenX = this.x - cameraX;
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.fillRect(screenX - 1, this.y - 1, 2, 2);
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Initialize game when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 DefendHer: DOM loaded, initializing...');
+  
+  // Hide loading screen initially
+  setTimeout(() => {
+    try {
+      window.defendHerGame = new DefendHerGame();
+      window.defendHerGame.start();
+      console.log('🚀 DefendHer: Game started successfully!');
+    } catch (error) {
+      console.error('🚀 DefendHer: Error starting game:', error);
+      const debugDiv = document.getElementById('debug');
+      if (debugDiv) {
+        debugDiv.innerHTML = `
+          <div style="color: #ff0000;">SYSTEM ERROR:</div>
+          <div>${error.message}</div>
+          <div>Check browser console for details</div>
+          <div>Try refreshing the page</div>
+        `;
+      }
+    }
+  }, 100);
+});
+
+// Button event handlers
+document.addEventListener('DOMContentLoaded', () => {
+  const startButton = document.getElementById('startButton');
+  if (startButton) {
+    startButton.addEventListener('click', () => {
+      if (window.defendHerGame && window.defendHerGame.gameState === 'start') {
+        window.defendHerGame.startGame();
+      }
+    });
+  }
+});
+</script>
+
+<%= render 'shared/footer' %>

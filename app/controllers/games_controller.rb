@@ -13,6 +13,10 @@ class GamesController < ApplicationController
     # Simple controller action to render the Hackman game
   end
   
+  def defendher
+    # Simple controller action to render the DefendHer game
+  end
+  
   def arcade
     # Arcade selection page
   end

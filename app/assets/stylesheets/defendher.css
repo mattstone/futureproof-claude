@@ -1,0 +1,379 @@
+/* DefendHer Game - Professional Retro Arcade Styling */
+
+.defendher-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #000011 0%, #001122 50%, #000000 100%);
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated starfield background */
+.defendher-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.7), transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: twinkling 8s infinite linear;
+  z-index: -1;
+}
+
+@keyframes twinkling {
+  from { background-position: 0 0; }
+  to { background-position: -200px 0; }
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  background: linear-gradient(45deg, #00ff00, #00ccff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: neon-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-glow {
+  from { filter: brightness(1) drop-shadow(0 0 5px #00ff00); }
+  to { filter: brightness(1.2) drop-shadow(0 0 15px #00ff00); }
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+  color: #00ccff;
+  text-shadow: 0 0 5px #00ccff;
+}
+
+/* Game Container */
+.game-container {
+  display: inline-block;
+  position: relative;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,255,0,0.3), 0 10px 30px rgba(0,0,0,0.5);
+  background: radial-gradient(circle at center, #001100 0%, #000000 100%);
+  padding: 8px;
+  border: 3px solid #00ff00;
+  overflow: hidden;
+}
+
+.game-canvas {
+  display: block;
+  background: #000000;
+  border-radius: 7px;
+  border: 2px solid #00ccff;
+  box-shadow: 
+    inset 0 0 10px rgba(0,255,0,0.2),
+    0 0 20px rgba(0,204,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.game-canvas:focus {
+  outline: 2px solid #00ff00;
+  outline-offset: 2px;
+  box-shadow: 
+    inset 0 0 10px rgba(0,255,0,0.2),
+    0 0 25px rgba(0,255,0,0.5);
+}
+
+/* UI Panels */
+.ui-panel {
+  position: absolute;
+  background: rgba(0, 20, 0, 0.85);
+  padding: 8px 12px;
+  border: 1px solid #00ff00;
+  font-size: 12px;
+  color: #00ff00;
+  font-weight: bold;
+  border-radius: 4px;
+  backdrop-filter: blur(2px);
+  text-shadow: 0 0 3px #00ff00;
+}
+
+.score-panel {
+  top: 10px;
+  left: 10px;
+}
+
+.lives-panel {
+  top: 10px;
+  right: 10px;
+}
+
+.wave-panel {
+  top: 50px;
+  left: 10px;
+}
+
+.humanoids-panel {
+  top: 50px;
+  right: 10px;
+}
+
+.debug-panel {
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 50, 0, 0.9);
+  max-width: 300px;
+  font-size: 10px;
+  color: #88ff88;
+}
+
+/* Game Controls and Info */
+.game-controls {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.game-info {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.score-item {
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 8px 15px;
+  border-radius: 20px;
+  text-shadow: 0 0 5px currentColor;
+  border: 2px solid currentColor;
+  background: rgba(0,0,0,0.3);
+}
+
+.score-green { color: #00ff00; }
+.score-cyan { color: #00ffff; }
+.score-yellow { color: #ffff00; }
+.score-red { color: #ff0040; }
+
+/* Game Instructions */
+.game-instructions {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #88ff88;
+  opacity: 0.8;
+}
+
+.instructions {
+  background: rgba(0,50,0,0.3);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #00aa00;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.4;
+  color: #aaffaa;
+}
+
+/* Game Button */
+.game-button {
+  background: linear-gradient(135deg, #00aa00 0%, #00ff00 100%);
+  border: none;
+  color: #000;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0,255,0,0.3);
+  font-family: 'Courier New', monospace;
+}
+
+.game-button:hover {
+  background: linear-gradient(135deg, #00ff00 0%, #88ff88 100%);
+  box-shadow: 0 6px 25px rgba(0,255,0,0.5);
+  transform: translateY(-2px);
+}
+
+.game-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0,255,0,0.3);
+}
+
+/* Start/Game Over Screens */
+.start-screen, .game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 30px;
+  border: 2px solid #00ff00;
+  color: #00ff00;
+  font-size: 18px;
+  z-index: 20;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 0 30px rgba(0,255,0,0.3),
+    inset 0 0 20px rgba(0,255,0,0.1);
+}
+
+.game-over {
+  border-color: #ff0040;
+  color: #ff0040;
+  box-shadow: 
+    0 0 30px rgba(255,0,64,0.3),
+    inset 0 0 20px rgba(255,0,64,0.1);
+}
+
+.start-screen h2, .game-over h2 {
+  margin: 0 0 15px 0;
+  font-size: 28px;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.start-screen p, .game-over p {
+  margin: 10px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Back Link */
+.back-link {
+  margin-top: 20px;
+}
+
+.back-link a {
+  color: #00ff00;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid #00aa00;
+  background: rgba(0, 50, 0, 0.3);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 3px #00ff00;
+}
+
+.back-link a:hover {
+  background: rgba(0, 100, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0,255,0,0.3);
+  text-shadow: 0 0 5px #00ff00;
+}
+
+/* Loading Screen */
+.game-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(5px);
+}
+
+.loading-content {
+  text-align: center;
+  color: #00ff00;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0,255,0,0.3);
+  border-radius: 50%;
+  border-top: 3px solid #00ff00;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px #00ff00;
+}
+
+.loading-subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .game-container {
+    margin: 10px;
+    padding: 4px;
+  }
+  
+  .game-canvas {
+    max-width: calc(100vw - 60px);
+    height: auto;
+  }
+  
+  .game-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .score-item {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+  
+  .game-title {
+    font-size: 2rem;
+  }
+  
+  .instructions {
+    font-size: 0.8rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .game-canvas {
+    max-width: calc(100vw - 20px);
+    max-height: 400px;
+  }
+  
+  .game-title {
+    font-size: 1.5rem;
+  }
+  
+  .ui-panel {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+  
+  .score-item {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+}

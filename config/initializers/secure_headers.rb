@@ -3,11 +3,7 @@ SecureHeaders::Configuration.default do |config|
   # SecureHeaders handles cookies differently - disable it and let Rails handle cookies
   config.cookies = SecureHeaders::OPT_OUT
   
-  config.hsts = {
-    max_age: 31_536_000,          # 1 year
-    include_subdomains: true,
-    preload: true
-  }
+  config.hsts = "max-age=31536000; includeSubdomains; preload"
   
   config.x_frame_options = "DENY"
   config.x_content_type_options = "nosniff"
