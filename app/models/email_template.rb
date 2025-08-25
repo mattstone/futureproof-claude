@@ -32,7 +32,7 @@ class EmailTemplate < ApplicationRecord
       },
       'application_submitted' => {
         'user' => %w[first_name last_name full_name email mobile_number],
-        'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at],
+        'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at formatted_monthly_income_amount total_income_amount formatted_total_income_amount monthly_income_amount annuity_duration_years],
         'mortgage' => %w[name lvr interest_rate mortgage_type_display]
       },
       'security_notification' => {
@@ -117,6 +117,11 @@ class EmailTemplate < ApplicationRecord
         text.gsub!(/{{application\.formatted_existing_mortgage_amount}}/i, safe_field_value(app, :formatted_existing_mortgage_amount))
         text.gsub!(/{{application\.loan_value}}/i, safe_field_value(app, :loan_value))
         text.gsub!(/{{application\.formatted_loan_value}}/i, safe_field_value(app, :formatted_loan_value))
+        text.gsub!(/{{application\.monthly_income_amount}}/i, safe_field_value(app, :monthly_income_amount))
+        text.gsub!(/{{application\.formatted_monthly_income_amount}}/i, safe_field_value(app, :formatted_monthly_income_amount))
+        text.gsub!(/{{application\.total_income_amount}}/i, safe_field_value(app, :total_income_amount))
+        text.gsub!(/{{application\.formatted_total_income_amount}}/i, safe_field_value(app, :formatted_total_income_amount))
+        text.gsub!(/{{application\.annuity_duration_years}}/i, safe_field_value(app, :annuity_duration_years))
         text.gsub!(/{{application\.borrower_age}}/i, safe_field_value(app, :borrower_age))
         text.gsub!(/{{application\.loan_term}}/i, safe_field_value(app, :loan_term))
         text.gsub!(/{{application\.growth_rate}}/i, safe_field_value(app, :growth_rate))

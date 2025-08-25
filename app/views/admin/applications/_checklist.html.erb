@@ -17,6 +17,7 @@
     <h3>Processing Checklist</h3>
     <p class="section-subtitle">Complete all items below to approve the application</p>
     
+    
     <div class="checklist-progress">
       <div class="progress-bar">
         <div class="progress-fill" data-progress="<%= @application.checklist_completion_percentage %>"></div>
@@ -30,7 +31,8 @@
     <div class="checklist-items">
       <% @application.application_checklists.ordered.each do |item| %>
         <div class="checklist-item <%= 'completed' if item.completed? %>">
-          <% if local_assigns[:editable] %>
+          <% editable_param = local_assigns.fetch(:editable, local_assigns.fetch('editable', true)) %>
+          <% if editable_param %>
             <%= form_with url: update_checklist_item_admin_application_path(@application, checklist_item_id: item.id), 
                 method: :patch, local: false, class: "checklist-form", 
                 data: { checklist_target: "form", action: "submit->checklist#submit" } do |form| %>

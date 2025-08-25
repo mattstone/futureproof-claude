@@ -326,8 +326,8 @@
         <div class="message-thread">
           <div class="message-header">
             <div class="message-sender">
-              <div class="sender-avatar <%= message.customer_message? ? 'customer-avatar' : 'admin-avatar' %>">
-                <% if message.customer_message? %>
+              <div class="sender-avatar <%= message.from_customer? ? 'customer-avatar' : 'admin-avatar' %>">
+                <% if message.from_customer? %>
                   <%= resource.user.first_name.first.upcase %>
                 <% else %>
                   <%= (message.ai_agent&.name&.first&.upcase) || 'A' %>
@@ -335,7 +335,7 @@
               </div>
               <div class="sender-info">
                 <div class="sender-name">
-                  <% if message.customer_message? %>
+                  <% if message.from_customer? %>
                     <%= resource.user.display_name %> (Customer)
                   <% else %>
                     <%= message.ai_agent&.display_name || 'Admin' %>
@@ -345,7 +345,7 @@
                   <% end %>
                 </div>
                 <div class="sender-role">
-                  <% if message.customer_message? %>
+                  <% if message.from_customer? %>
                     Customer
                   <% else %>
                     <%= message.ai_agent&.role_description || 'Administrator' %>
@@ -354,7 +354,7 @@
               </div>
             </div>
             <div class="message-meta">
-              <% unless message.customer_message? %>
+              <% unless message.from_customer? %>
                 <span class="message-status status-<%= message.status %>">
                   <%= message.status %>
                 </span>
@@ -392,7 +392,7 @@
             </div>
           <% end %>
           
-          <% unless message.customer_message? %>
+          <% unless message.from_customer? %>
             <div class="message-actions">
               <%= link_to "Send Message", send_message_path_proc.call(message), 
                          method: :post, 

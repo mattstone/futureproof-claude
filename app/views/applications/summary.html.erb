@@ -91,6 +91,12 @@
                 <span class="summary-label">Current Property Value:</span>
                 <span class="summary-value"><%= @application.formatted_home_value %></span>
               </div>
+              <% if @application.has_existing_mortgage? %>
+                <div class="summary-item">
+                  <span class="summary-label">Existing Mortgage:</span>
+                  <span class="summary-value"><%= @application.formatted_existing_mortgage_amount %></span>
+                </div>
+              <% end %>
               <div class="summary-item">
                 <span class="summary-label">Your projected annual growth:</span>
                 <span class="summary-value"><%= @application.formatted_growth_rate %></span>
@@ -113,12 +119,6 @@
                 <div class="summary-item">
                   <span class="summary-label">Super Fund Name:</span>
                   <span class="summary-value"><%= @application.super_fund_name %></span>
-                </div>
-              <% end %>
-              <% if @application.has_existing_mortgage? %>
-                <div class="summary-item">
-                  <span class="summary-label">Existing Mortgage:</span>
-                  <span class="summary-value"><%= @application.formatted_existing_mortgage_amount %></span>
                 </div>
               <% end %>
             </div>

@@ -208,14 +208,14 @@
                     min: 10000,
                     max: 4000000,
                     step: 10000,
-                    value: @application.existing_mortgage_amount || 500000,
+                    value: @application.has_existing_mortgage? ? (@application.existing_mortgage_amount || 500000) : 0,
                     class: "value-slider",
                     data: { 
                       "application-form-target": "mortgageSlider",
                       "action": "input->application-form#updateMortgageAmount"
                     } %>
                 <div class="slider-value" data-application-form-target="mortgageAmountDisplay">
-                  <%= number_to_currency(@application.existing_mortgage_amount || 500000, precision: 0) %>
+                  <%= number_to_currency(@application.has_existing_mortgage? ? (@application.existing_mortgage_amount || 500000) : 0, precision: 0) %>
                 </div>
               </div>
               <div class="form-hint">Adjust the slider to set your outstanding mortgage balance</div>

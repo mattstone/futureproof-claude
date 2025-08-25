@@ -82,6 +82,35 @@ class Admin::WholesaleFundersTest < ActionDispatch::IntegrationTest
     assert_kind_of WholesaleFunder, @funder_pool.wholesale_funder
   end
 
+  test "wholesale funders index displays available funds column" do
+    sign_in @futureproof_admin
+    get admin_wholesale_funders_path
+    assert_response :success
+    
+    # Check that the Available column header is present
+    assert_select 'th.available-cell', text: 'Available'
+    
+    # Check that available funds data is displayed
+    assert_select 'td.available-cell'
+    
+    # If the wholesale funder has available funds, check for the display
+    if @wholesale_funder.total_available > 0
+      assert_select '.available-amount', text: @wholesale_funder.formatted_total_available
+    else
+      assert_select '.no-available', text: '—'
+    end
+  end
+
+  test "wholesale funder available funds calculation methods exist" do
+    # Test that wholesale funder has available funds methods
+    assert_respond_to @wholesale_funder, :total_available
+    assert_respond_to @wholesale_funder, :formatted_total_available
+    
+    # Test the calculation
+    expected_available = @wholesale_funder.total_capital - @wholesale_funder.total_allocated
+    assert_equal expected_available, @wholesale_funder.total_available
+  end
+
   private
 
   def sign_in(user)

@@ -44,15 +44,15 @@ class FunderPool < ApplicationRecord
   end
   
   def formatted_amount
-    "$#{amount.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(amount, precision: 0)
   end
   
   def formatted_allocated
-    "$#{allocated.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(allocated, precision: 0)
   end
   
   def formatted_available
-    "$#{available_amount.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(available_amount, precision: 0)
   end
   
   def display_name
@@ -99,6 +99,18 @@ class FunderPool < ApplicationRecord
     raise StandardError, "Insufficient capital available" if available_amount < amount
     
     update!(allocated: allocated + amount)
+  end
+  
+  # Deallocate capital from this pool (when contracts are deleted)
+  def deallocate_capital!(amount)
+    new_allocated = [allocated - amount, 0].max  # Ensure it doesn't go below 0
+    update!(allocated: new_allocated)
+  end
+  
+  # Recalculate allocated amount based on actual contracts
+  def recalculate_allocation!
+    actual_allocated = contracts.sum(:allocated_amount)
+    update!(allocated: actual_allocated)
   end
   
   private

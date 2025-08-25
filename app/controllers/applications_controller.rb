@@ -2,6 +2,7 @@ class ApplicationsController < ApplicationController
   before_action :authenticate_user!, except: [:messages]
   before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
   before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
+  before_action :prevent_admin_access, except: [:messages]
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message, :mark_all_messages_as_read]
 
   def new
@@ -24,6 +25,12 @@ class ApplicationsController < ApplicationController
     
     # Update with form data
     @application.assign_attributes(application_params)
+    
+    # If no existing mortgage checkbox is unchecked, clear the mortgage amount
+    unless @application.has_existing_mortgage?
+      @application.existing_mortgage_amount = 0
+    end
+    
     @application.status = :property_details
     
     if @application.save
@@ -44,6 +51,12 @@ class ApplicationsController < ApplicationController
   def update
     # Update status to property_details when updating property details
     @application.assign_attributes(application_params)
+    
+    # If no existing mortgage checkbox is unchecked, clear the mortgage amount
+    unless @application.has_existing_mortgage?
+      @application.existing_mortgage_amount = 0
+    end
+    
     @application.status = :property_details
     
     if @application.save
@@ -161,6 +174,12 @@ class ApplicationsController < ApplicationController
   end
 
   private
+
+  def prevent_admin_access
+    if current_user&.admin?
+      redirect_to dashboard_path, alert: 'Admin users cannot complete applications. This feature is for customers only.'
+    end
+  end
 
   def set_application
     @application = current_user.applications.find(params[:id])

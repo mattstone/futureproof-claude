@@ -166,8 +166,14 @@
 }
 
 .allocated-cell {
-  width: 15%;
-  min-width: 140px;
+  width: 12%;
+  min-width: 120px;
+  text-align: right;
+}
+
+.available-cell {
+  width: 12%;
+  min-width: 120px;
   text-align: right;
 }
 
@@ -243,8 +249,15 @@
   font-size: 14px;
 }
 
+.available-amount {
+  font-weight: 600;
+  color: #059669;
+  font-size: 14px;
+}
+
 .no-capital,
-.no-allocation {
+.no-allocation,
+.no-available {
   color: #9ca3af;
   font-size: 14px;
 }
@@ -386,8 +399,10 @@
   /* Hide some columns on mobile to save space */
   .admin-table table th:nth-child(4), /* Pools */
   .admin-table table td:nth-child(4),
-  .admin-table table th:nth-child(7), /* Lenders */
-  .admin-table table td:nth-child(7) {
+  .admin-table table th:nth-child(7), /* Available */
+  .admin-table table td:nth-child(7),
+  .admin-table table th:nth-child(8), /* Lenders */
+  .admin-table table td:nth-child(8) {
     display: none;
   }
   
@@ -396,7 +411,8 @@
   }
   
   .capital-amount,
-  .allocated-amount {
+  .allocated-amount,
+  .available-amount {
     font-size: 12px;
   }
 }

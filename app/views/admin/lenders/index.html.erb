@@ -24,6 +24,8 @@
         <th>Country</th>
         <th>Wholesale Funders</th>
         <th>Fund Pools</th>
+        <th>Active Loans</th>
+        <th>Total Allocated</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -66,6 +68,25 @@
                 <span class="info-label">(<%= lender.funder_pools.count %> pools)</span>
               <% else %>
                 <span class="text-muted">No pools</span>
+              <% end %>
+            </div>
+          </td>
+          <td>
+            <div class="loans-info">
+              <% if lender.loans_count > 0 %>
+                <span class="count-badge"><%= lender.loans_count %></span>
+                <span class="info-label">loans</span>
+              <% else %>
+                <span class="text-muted">No loans</span>
+              <% end %>
+            </div>
+          </td>
+          <td>
+            <div class="allocated-funds-info">
+              <% if lender.total_allocated_amount > 0 %>
+                <span class="allocated-amount"><%= lender.formatted_total_allocated_amount %></span>
+              <% else %>
+                <span class="text-muted">$0</span>
               <% end %>
             </div>
           </td>
@@ -162,6 +183,23 @@
 .fund-amount {
   font-weight: 600;
   color: #059669;
+}
+
+.loans-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.allocated-funds-info {
+  text-align: right;
+  font-size: 14px;
+}
+
+.allocated-amount {
+  font-weight: 600;
+  color: #dc2626;
 }
 
 .info-label {

@@ -237,7 +237,11 @@ class Admin::ApplicationsController < Admin::BaseController
       )
       
       
-      flash[:notice] = "Checklist item marked as completed."
+      if @application.checklist_completed?
+        flash[:notice] = "🎉 All checklist items completed! Application can now be accepted."
+      else
+        flash[:notice] = "Checklist item marked as completed."
+      end
     else
       @checklist_item.mark_incomplete!
       
@@ -292,7 +296,7 @@ class Admin::ApplicationsController < Admin::BaseController
     # Validate that status is one of the allowed values
     # Note: submitted status changes are now handled by the advance_to_processing_with_checklist! method
     if permitted_params[:status].present?
-      allowed_statuses = %w[rejected]
+      allowed_statuses = %w[rejected accepted]
       unless allowed_statuses.include?(permitted_params[:status])
         # If invalid status, don't include it in permitted params
         permitted_params.delete(:status)

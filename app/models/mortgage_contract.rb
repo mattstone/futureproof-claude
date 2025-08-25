@@ -7,6 +7,9 @@ class MortgageContract < ApplicationRecord
   belongs_to :primary_user, class_name: 'User', optional: true
   has_many :mortgage_contract_users, dependent: :destroy
   has_many :additional_users, through: :mortgage_contract_users, source: :user
+  
+  # Contract relationships
+  has_many :contracts, dependent: :restrict_with_exception
 
   # Lender clauses relationships
   has_many :contract_clause_usages, dependent: :destroy

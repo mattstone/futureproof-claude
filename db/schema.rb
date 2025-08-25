@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_20_022500) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_24_115736) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -197,8 +197,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_022500) do
     t.datetime "updated_at", null: false
     t.bigint "funder_pool_id"
     t.decimal "allocated_amount", precision: 15, scale: 2
+    t.bigint "lender_id"
+    t.bigint "mortgage_contract_id"
     t.index ["application_id"], name: "index_contracts_on_application_id", unique: true
     t.index ["funder_pool_id"], name: "index_contracts_on_funder_pool_id"
+    t.index ["lender_id"], name: "index_contracts_on_lender_id"
+    t.index ["mortgage_contract_id"], name: "index_contracts_on_mortgage_contract_id"
   end
 
   create_table "email_template_versions", force: :cascade do |t|
@@ -688,6 +692,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_022500) do
   add_foreign_key "contract_versions", "users", column: "admin_user_id"
   add_foreign_key "contracts", "applications"
   add_foreign_key "contracts", "funder_pools"
+  add_foreign_key "contracts", "lenders"
+  add_foreign_key "contracts", "mortgage_contracts"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
   add_foreign_key "funder_pool_versions", "funder_pools"

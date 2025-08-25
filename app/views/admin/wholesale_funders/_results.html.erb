@@ -10,6 +10,7 @@
             <th class="pools-cell">Pools</th>
             <th class="capital-cell">Capital</th>
             <th class="allocated-cell">Allocated</th>
+            <th class="available-cell">Available</th>
             <th class="lenders-cell">Lenders</th>
             <th class="actions-cell">Actions</th>
           </tr>
@@ -58,6 +59,13 @@
                   </div>
                 <% else %>
                   <span class="no-allocation">—</span>
+                <% end %>
+              </td>
+              <td class="available-cell">
+                <% if wholesale_funder.total_available > 0 %>
+                  <span class="available-amount"><%= wholesale_funder.formatted_total_available %></span>
+                <% else %>
+                  <span class="no-available">—</span>
                 <% end %>
               </td>
               <td class="lenders-cell">

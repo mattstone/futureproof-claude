@@ -1,6 +1,11 @@
 class Contract < ApplicationRecord
+  # Core relationships
   belongs_to :application
-  belongs_to :wholesale_funder_pool, optional: true
+  belongs_to :mortgage_contract, optional: true
+  belongs_to :lender, optional: true
+  belongs_to :funder_pool, optional: true
+  
+  # Messaging and versioning
   has_many :contract_messages, dependent: :destroy
   has_many :contract_versions, dependent: :destroy
   
@@ -26,6 +31,9 @@ class Contract < ApplicationRecord
   after_create :log_creation
   after_update :log_update
   
+  # Callbacks for funder pool allocation management
+  after_destroy :deallocate_from_funder_pool
+  
   # Display methods
   def status_display
     status.humanize
@@ -38,6 +46,28 @@ class Contract < ApplicationRecord
   
   def display_name
     "#{application.user.display_name} - #{application.address[0..50]}"
+  end
+  
+  # Get the mortgage associated with this contract
+  def mortgage
+    application.mortgage
+  end
+  
+  # Get the user who signed this contract
+  def user
+    application.user
+  end
+  
+  # Contract relationship summary
+  def relationship_summary
+    {
+      user: user.display_name,
+      lender: lender&.name || "Not specified",
+      mortgage: mortgage&.name || "Not specified", 
+      mortgage_contract_version: mortgage_contract&.version || "Not specified",
+      funder_pool: funder_pool&.id || "Not specified",
+      allocated_amount: formatted_allocated_amount
+    }
   end
 
   # Messaging methods
@@ -144,5 +174,14 @@ class Contract < ApplicationRecord
     if end_date < start_date
       errors.add(:end_date, "must be after start date")
     end
+  end
+  
+  # Deallocate capital when contract is destroyed
+  def deallocate_from_funder_pool
+    return unless funder_pool && allocated_amount
+    
+    # Use recalculate_allocation! instead of deallocate_capital! to avoid double-deallocation issues
+    # This ensures the pool allocation always matches the actual sum of contracts
+    funder_pool.recalculate_allocation!
   end
 end

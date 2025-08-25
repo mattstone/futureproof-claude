@@ -5,11 +5,65 @@
 <%= turbo_stream.replace "admin-right-column" do %>
   <div class="admin-right-column" id="admin-right-column">
     <!-- Application Processing Checklist -->
-    <%= render 'checklist', editable: request.path.include?('edit') %>
+    <%= render 'checklist', editable: true %>
     
     <!-- Messages and Communication -->
     <%= render 'shared/messaging/messaging_interface' %>
   </div>
+<% end %>
+
+<% # Update the status form when checklist completion changes %>
+<%= turbo_stream.replace "application-status-form" do %>
+  <%= form_with(model: [:admin, @application], local: false, class: "status-form", id: "application-status-form", data: { controller: "status-form" }) do |form| %>
+    <h3>Update Application Status</h3>
+    <p class="section-subtitle">Only the application status can be modified by administrators</p>
+    
+    <% if @application.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h4>
+        <ul>
+          <% @application.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field <%= 'checklist-completed-highlight' if @application.checklist_completed? %>">
+      <%= form.label :status, "Application Status" %>
+      <% status_options = [
+           ['Processing', 'processing'],
+           ['Rejected', 'rejected']
+         ] %>
+      <% if @application.checklist_completed? %>
+        <% status_options << ['✅ Accepted', 'accepted'] %>
+      <% end %>
+      <%= form.select :status, 
+          options_for_select(status_options, @application.status), 
+          { prompt: 'Select Status' }, 
+          { required: true, class: 'status-select', data: { status_form_target: 'statusSelect', action: 'change->status-form#statusChanged' } } %>
+      <small class="form-help-text <%= 'text-success' if @application.checklist_completed? %>">
+        <% if @application.checklist_completed? %>
+          <strong>✅ All checklist items completed! Application can be accepted, rejected, or kept in processing.</strong>
+        <% else %>
+          Complete all checklist items to enable "Accepted" status. Currently available: processing and rejected.
+        <% end %>
+      </small>
+    </div>
+
+    <div class="field rejected-reason-field <%= 'rejected-reason-field-hidden' unless @application.status == 'rejected' %>" data-status-form-target="rejectedReasonField">
+      <%= form.label :rejected_reason, "Reason for Rejection" %>
+      <%= form.text_area :rejected_reason, rows: 3, placeholder: "Please provide a detailed reason for rejection...", class: 'rejected-reason-textarea', data: { status_form_target: 'rejectedReasonTextarea' } %>
+      <small class="form-help-text">
+        Required when rejecting an application
+      </small>
+    </div>
+
+    <div class="actions form-actions">
+      <%= form.submit "Update Status", class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_application_path(@application), class: "admin-btn admin-btn-secondary" %>
+    </div>
+  <% end %>
 <% end %>
 
 <%= turbo_stream.prepend "flash-messages" do %>

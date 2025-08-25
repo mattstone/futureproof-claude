@@ -95,7 +95,15 @@
     <div class="apply-footer">
       <div class="apply-actions">
         <% if user_signed_in? %>
-          <%= link_to "Start Your Application", new_application_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startApplication" } %>
+          <% if current_user.admin? %>
+            <div class="admin-notice" style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 16px; text-align: center;">
+              <p style="color: #dc2626; font-weight: bold; margin: 0 0 8px 0;">Admin Account</p>
+              <p style="color: #666; margin: 0; font-size: 14px;">Admin users cannot complete applications. This feature is for customers only.</p>
+              <p style="color: #666; margin: 8px 0 0 0; font-size: 14px;"><%= link_to "Go to Dashboard", dashboard_path, style: "color: #dc2626; font-weight: bold;" %></p>
+            </div>
+          <% else %>
+            <%= link_to "Start Your Application", new_application_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startApplication" } %>
+          <% end %>
         <% else %>
           <%= link_to "Create Account to Start", new_user_registration_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startRegistration" } %>
         <% end %>

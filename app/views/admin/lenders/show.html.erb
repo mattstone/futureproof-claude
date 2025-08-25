@@ -350,6 +350,112 @@
   </div>
 </div>
 
+<!-- Active Loans -->
+<div class="admin-card">
+  <div class="section-header">
+    <h3>Active Loans</h3>
+    <div class="loans-summary">
+      <span class="count-badge"><%= @lender.contracts.count %></span>
+      <span class="summary-text">
+        <%= @lender.contracts.count == 1 ? 'loan' : 'loans' %> • 
+        <%= @lender.formatted_total_allocated_amount %> total allocated
+      </span>
+    </div>
+  </div>
+
+  <% if @lender.contracts.any? %>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Property Address</th>
+            <th>Loan Amount</th>
+            <th>Funding Pool</th>
+            <th>Wholesale Funder</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @lender.contracts.includes(:application => :user, :funder_pool => :wholesale_funder).order(:created_at).each do |contract| %>
+            <tr>
+              <td>
+                <div class="customer-info">
+                  <strong><%= contract.application.user.display_name %></strong>
+                  <div class="customer-email">
+                    <%= contract.application.user.email %>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="address-cell">
+                  <%= contract.application.address.truncate(50) %>
+                </div>
+              </td>
+              <td class="amount-cell">
+                <span class="loan-amount"><%= contract.formatted_allocated_amount %></span>
+              </td>
+              <td>
+                <div class="funding-pool-info">
+                  <% if contract.funder_pool %>
+                    <div class="pool-name">
+                      <%= link_to contract.funder_pool.name, 
+                          admin_wholesale_funder_funder_pool_path(contract.funder_pool.wholesale_funder, contract.funder_pool), 
+                          class: "pool-link" %>
+                    </div>
+                    <div class="pool-details">
+                      Available: <%= contract.funder_pool.formatted_available %>
+                    </div>
+                  <% else %>
+                    <span class="text-muted">No pool assigned</span>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <% if contract.funder_pool&.wholesale_funder %>
+                  <div class="wholesale-funder-info">
+                    <%= link_to contract.funder_pool.wholesale_funder.name,
+                        admin_wholesale_funder_path(contract.funder_pool.wholesale_funder),
+                        class: "funder-link" %>
+                    <div class="funder-currency">
+                      <%= contract.funder_pool.wholesale_funder.currency_display %>
+                    </div>
+                  </div>
+                <% else %>
+                  <span class="text-muted">No funder</span>
+                <% end %>
+              </td>
+              <td class="status-cell">
+                <span class="status-badge status-<%= contract.status %>">
+                  <%= contract.status_display %>
+                </span>
+              </td>
+              <td>
+                <%= contract.start_date.strftime("%b %d, %Y") if contract.start_date %>
+              </td>
+              <td class="actions-cell">
+                <div class="admin-actions">
+                  <%= link_to "View Contract", admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+                  <%= link_to "View Application", admin_application_path(contract.application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <h4>No active loans</h4>
+        <p>This lender has no active loan contracts. Contracts will appear here when applications are accepted and funding is allocated.</p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
 <!-- Change History -->
 <%= render 'shared/change_history', versions: @all_versions %>
 
@@ -1197,6 +1303,142 @@
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 6px;
+}
+
+/* Active Loans Section */
+.loans-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.summary-text {
+  font-weight: 500;
+}
+
+.customer-info strong {
+  display: block;
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.customer-email {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.address-cell {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.loan-amount {
+  color: #dc2626;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.funding-pool-info {
+  font-size: 14px;
+}
+
+.pool-name {
+  margin-bottom: 4px;
+}
+
+.pool-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pool-link:hover {
+  text-decoration: underline;
+}
+
+.pool-details {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.wholesale-funder-info {
+  font-size: 14px;
+}
+
+.funder-link {
+  color: #7c3aed;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.funder-link:hover {
+  text-decoration: underline;
+}
+
+.funder-currency {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.status-awaiting_funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting_investment {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-in_holiday {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.status-in_arrears {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.empty-state-content h4 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.empty-state-content p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Mobile responsive for loans table */
+@media (max-width: 768px) {
+  .loans-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
 }
 </style>
 </script>

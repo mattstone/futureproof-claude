@@ -27,6 +27,9 @@ class Lender < ApplicationRecord
   has_many :funder_pools, through: :lender_funder_pools
   has_many :active_funder_pools, -> { where(lender_funder_pools: { active: true }) },
            through: :lender_funder_pools, source: :funder_pool
+  
+  # Contract relationships
+  has_many :contracts, dependent: :restrict_with_exception
 
   # Lender Clauses relationships
   has_many :lender_clauses, dependent: :destroy
@@ -53,9 +56,20 @@ class Lender < ApplicationRecord
   end
   
   def formatted_total_fund_pool_amount
-    amount = total_fund_pool_amount
-    return "$0" if amount == 0
-    "$#{amount.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(total_fund_pool_amount, precision: 0)
+  end
+  
+  # Loan/Contract summary methods
+  def loans_count
+    contracts.count
+  end
+  
+  def total_allocated_amount
+    contracts.sum(:allocated_amount)
+  end
+  
+  def formatted_total_allocated_amount
+    ActionController::Base.helpers.number_to_currency(total_allocated_amount, precision: 0)
   end
 
   # Simplified clause methods (singleton approach)
@@ -70,6 +84,11 @@ class Lender < ApplicationRecord
 
   def has_clause?
     custom_clause_content.present?
+  end
+  
+  # Get the single active funder pool for this lender
+  def active_funder_pool
+    active_funder_pools.first
   end
 
   def clause_summary

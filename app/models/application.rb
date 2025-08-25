@@ -554,39 +554,50 @@ class Application < ApplicationRecord
     return unless status_accepted?
     return if contract.present?
     
-    # Find the first available wholesale_funder pool that can handle the home value
-    available_pool = nil
-    if mortgage.present?
-      # Look for funder pools associated with this mortgage that have available capital
-      available_pool = mortgage.funder_pools.joins(:mortgage_funder_pools)
-                              .where(mortgage_funder_pools: { active: true })
-                              .where("funder_pools.amount - funder_pools.allocated >= ?", home_value)
-                              .order(:created_at)
-                              .first
+    # Get the lender - for now, use the first lender associated with the mortgage
+    # In the future, this might be determined by the user's choice or application data
+    lender = mortgage&.active_lenders&.first
+    if lender.nil?
+      Rails.logger.error "No active lender found for mortgage #{mortgage&.id} in application #{id}"
+      raise StandardError, "No active lender available for this mortgage"
     end
     
-    # If no mortgage-specific pool available, find any available pool
-    available_pool ||= FunderPool.find_available_for_allocation(home_value)
-    
-    if available_pool.nil?
-      Rails.logger.error "No wholesale_funder pool with sufficient capital (#{home_value}) found for application #{id}"
-      raise StandardError, "No wholesale_funder pool available with sufficient capital for this contract"
+    # Get the lender's active funder pool
+    funder_pool = lender.active_funder_pool
+    if funder_pool.nil?
+      Rails.logger.error "Lender #{lender.name} has no active funder pool for application #{id}"
+      raise StandardError, "Lender #{lender.name} has no active funder pool available"
     end
     
-    # Create contract with wholesale_funder pool allocation
+    # Check if the funder pool has sufficient capital
+    if funder_pool.amount - funder_pool.allocated < home_value
+      Rails.logger.error "Lender #{lender.name}'s funder pool has insufficient capital (need: #{home_value}, available: #{funder_pool.amount - funder_pool.allocated})"
+      raise StandardError, "Insufficient funding available in lender's pool"
+    end
+    
+    # Get the active mortgage contract (the terms document)
+    mortgage_contract = MortgageContract.current
+    if mortgage_contract.nil?
+      Rails.logger.error "No active mortgage contract found for application #{id}"
+      raise StandardError, "No active mortgage contract available"
+    end
+    
+    # Create contract linking user, lender, terms, and funding
     contract = Contract.create!(
       application: self,
-      wholesale_funder_pool: available_pool,
+      lender: lender,
+      mortgage_contract: mortgage_contract,
+      funder_pool: funder_pool,
       allocated_amount: home_value,
-      start_date: Date.current, # Temporary placeholder
-      end_date: Date.current + 5.years, # Temporary placeholder
+      start_date: Date.current,
+      end_date: Date.current + (loan_term || 30).years,
       status: :awaiting_funding
     )
     
-    # Allocate the capital from the wholesale_funder pool
-    available_pool.allocate_capital!(home_value)
+    # Allocate the capital from the funder pool
+    funder_pool.allocate_capital!(home_value)
     
-    Rails.logger.info "Contract created for application #{id} with wholesale_funder pool #{available_pool.id} allocated #{home_value}"
+    Rails.logger.info "Contract created for application #{id}: User #{user.display_name} + Lender #{lender.name} + MortgageContract v#{mortgage_contract.version} + FunderPool #{funder_pool.id}"
   rescue => e
     Rails.logger.error "Failed to create contract for application #{id}: #{e.message}"
     raise e

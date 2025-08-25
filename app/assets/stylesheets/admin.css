@@ -1,5 +1,25 @@
 /* Admin Panel Styles */
 
+/* Checklist completion highlight */
+.checklist-completed-highlight {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #16a34a;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  animation: pulse-success 2s ease-in-out;
+}
+
+@keyframes pulse-success {
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.3); }
+  50% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.text-success {
+  color: #16a34a !important;
+}
+
 /* Admin HTML element styling */
 .admin-html {
   color-scheme: light;
