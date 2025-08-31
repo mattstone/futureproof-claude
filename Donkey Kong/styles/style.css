@@ -1,0 +1,668 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+@font-face {
+  font-family: Dogica;
+  src: url(../fonts/dogica.ttf);
+}
+:root {
+  --contRight: 0px;
+  --font-basic: Dogica, sans-serif;
+  --body: 16px / 27px var(--font-basic);
+  --body: bold 16px / 27px var(--font-basic); 
+  --border-r: 0.5rem;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  font: var(--body);
+}
+
+.entorno {
+  display: none;
+}
+.mobile-version {
+  width: 95%;
+  margin: auto;
+}
+.mobile-version img {
+  height: 100%;
+  width: 100%;
+  border-radius: var(--border-r);
+}
+.notification {
+  font-family: -apple-system, Roboto, sans-serif;
+  height: calc(30px + 1em);
+  border: 3px solid rgba(255, 102, 0, 0.267);
+  border-radius: 0.25rem;
+  padding: 0.25em 1em;
+  overflow: hidden;
+  width: min(800px, 90%);
+  margin: 1em 0;
+}
+.notification .content {
+  font-size: 14px;
+  display: block;
+  animation: rotateText 10s ease-in-out infinite;
+}
+.notification .content small {
+  font-size: 14px;
+}
+@keyframes rotateText {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  5% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  10% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-26px);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-26px);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-26px);
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(-54px);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-53px);
+    opacity: 1;
+  }
+  45% {
+    transform: translateY(-53px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-80px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-80px);
+    opacity: 1;
+  }
+  65% {
+    transform: translateY(-80px);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-107px);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-107px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-107px);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(-135px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+}
+@media (min-width: 768px) {
+  .mobile-version {
+    display: none;
+  }
+  .entorno {
+    display: flex;
+    justify-content: space-between;
+    width: min(800px, 90%);
+    padding: 0 0em;
+    background: url("../images/escalera.png") 200px 285px no-repeat,
+      url("../images/piso.png") center 350px no-repeat;
+    background-color: #222221;
+    height: 400px;
+    align-items: flex-end;
+    border-radius: 0.5rem;
+    background-size: 50px, 1000px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .entorno.play {
+    display: flex;
+    justify-content: space-between;
+    width: min(800px, 90%);
+    padding: 0 0em;
+    height: 400px;
+    background: #222221;
+    align-items: flex-end;
+    border-radius: 0.5rem;
+    background-size: 50px, 1000px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .floor {
+    background: url(../images/piso.png) center 4px no-repeat;
+    background-size: cover;
+    height: 40px;
+    width: 60%;
+    position: absolute;
+  }
+  .floor-right {
+    background: url(../images/piso.png) center 4px no-repeat;
+    background-size: cover;
+    height: 40px;
+    width: 40%;
+    position: absolute;
+    right: 0;
+  }
+  .floor-right::before {
+    content: "";
+    background: url(../images/down.png) center 4px no-repeat;
+    background-size: contain;
+    height: 33px;
+    width: 100%;
+    position: absolute;
+    left: -53%;
+    top: 10%;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .peach {
+    background: url("../images/peach-no-floor.png") center center no-repeat;
+    height: 100px;
+    background-size: contain, 800px;
+    width: 100px;
+    position: absolute;
+    right: 0em;
+    bottom: 11em;
+  }
+  .peach.peach-down {
+    animation: 1s linear down-peach both;
+  }
+  .peach::after {
+    content: "";
+    position: absolute;
+    background: url(../images/piso.png) 0px 50px no-repeat;
+    background-size: 700px;
+    height: 90px;
+    width: 500%;
+    top: 1.9em;
+    left: 0;
+  }
+  @keyframes down-peach {
+    to {
+      transform: translate(-225px, 160px);
+    }
+  }
+  .hearts {
+    position: inherit;
+    left: -0.5em;
+    animation: float-hearts 0.6s linear both;
+  }
+  @keyframes float-hearts {
+    0% {
+      transform: translate(0px, -10px);
+    }
+
+    50% {
+      transform: translate(10px, -20px);
+    }
+
+    100% {
+      transform: translate(-5px, -30px);
+    }
+  }
+  .donkey-kong-banner {
+    position: absolute;
+    inset: -90px 0 0 0;
+    margin: auto;
+  }
+  .entorno.game-over {
+    display: flex;
+    justify-content: space-between;
+    width: min(800px, 90%);
+    padding: 0 0em;
+    background: #222221;
+    height: 400px;
+    align-items: flex-end;
+    border-radius: 0.5rem;
+    background: black url("../images/game-over.png") center 20px no-repeat;
+    background-size: 300px;
+    background-position-y: 100px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .btn-start {
+    font: var(--button);
+    background: transparent;
+    text-transform: uppercase;
+    border: 2px solid white;
+    color: white;
+    position: absolute;
+    inset: 200px 0 0 0;
+    margin: auto;
+    cursor: pointer;
+    height: min-content;
+    padding: 0.5em 1em;
+  }
+  .btn-start.restart {
+    inset: 240px 0 0 0;
+  }
+  .puntuacion {
+    color: white;
+    font: var(--body);
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    font-size: 30px;
+    text-transform: uppercase;
+  }
+  .puntuacion p {
+    font: var(--body);
+    margin-top: 0.2em;
+  }
+  .images {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    transform: translatey(-7px);
+  }
+
+  .mario.right {
+    height: 100px;
+    width: 100px;
+    background-size: 100px;
+    position: relative;
+    animation: mario-right 0.5s linear infinite;
+    transition: translate 0.5s linear;
+    transform: translatex(var(--contRight));
+  }
+  @keyframes mario-right {
+    from {
+      background: url("../images/mario-run.png") no-repeat center center;
+      background-size: 100px;
+    }
+    50% {
+      background: url("../images/mario-run-2.png") no-repeat center center;
+      background-size: 100px;
+    }
+    to {
+      background: url("../images/mario.png") no-repeat center center;
+      background-size: 100px;
+    }
+  }
+  .mario.view-left {
+    background: url("../images/mario-left.png") no-repeat center center;
+    height: 100px;
+    width: 100px;
+    background-size: 100px;
+    position: relative;
+    transition: all 0.1s ease-in;
+  }
+  .mario.left {
+    height: 100px;
+    width: 100px;
+    background-size: contain;
+    position: relative;
+    animation: mario-left 0.4s linear infinite;
+    transform: translatex(var(--contRight));
+  }
+
+  @keyframes mario-left {
+    from {
+      background: url("../images/mario-left.png") no-repeat center center;
+      background-size: 100px;
+    }
+    50% {
+      background: url("../images/mario-left-run-2.png") no-repeat center center;
+
+      background-size: 100px;
+    }
+    to {
+      background: url("../images/mario-left-run.png") no-repeat center center;
+      background-size: 100px;
+    }
+  }
+
+  .mario.up {
+    background: url("../images/mario-up-r.png") no-repeat center center;
+    height: 100px;
+    width: 100px;
+    background-size: 100px;
+    position: relative;
+    top: -50px;
+    left: 0;
+    transition: all 0.1s ease-in;
+  }
+  .mario.up-left {
+    background: url("../images/mario-up-left.png") no-repeat center center;
+    height: 100px;
+    width: 100px;
+    background-size: 100px;
+    position: relative;
+    top: -50px;
+    left: 0;
+    transition: all 0.1s ease-in;
+  }
+  .mario {
+    background: url("../images/mario.png") no-repeat center center;
+    height: 100px;
+    width: 100px;
+    background-size: 100px;
+    position: relative;
+    transition: all 0.1s linear;
+    transform: translatex(var(--contRight));
+    /* border: 1px solid red; */
+  }
+  .mono {
+    position: relative;
+    top: 8px;
+    transform: translateX(3em);
+  }
+  .container-kong {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .barriles {
+    position: relative;
+    right: -1em;
+    top: 1em;
+  }
+
+  .new-barril {
+    background: url("../images/barriles-2.gif") no-repeat center center;
+    height: 30px;
+    width: 30px;
+    background-size: contain;
+    position: absolute;
+    bottom: 22px;
+    animation: barril 3s ease-in both;
+    border-radius: 100%;
+  }
+  .new-barril.smash {
+    background: transparent;
+    border: 2px solid white;
+    height: 50px;
+    width: 50px;
+    background-size: contain;
+    border-radius: 100%;
+    animation: smashbarril 0.5s ease-in both;
+  }
+  @keyframes smashbarril {
+    0% {
+      transform: scale(0.9);
+    }
+    50% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes barril {
+    0% {
+      transform: translateX(-15em);
+    }
+    100% {
+      transform: translateX(-50em) rotate(-180deg);
+    }
+  }
+  .blink {
+    animation: blinkMario 0.5s linear infinite;
+  }
+
+  @keyframes blinkMario {
+    0% {
+      filter: opacity(1);
+    }
+    20% {
+      filter: opacity(0.2);
+    }
+    40% {
+      filter: opacity(1);
+    }
+    60% {
+      filter: opacity(0.2);
+    }
+    80% {
+      filter: opacity(1);
+    }
+    100% {
+      filter: opacity(0.2);
+    }
+  }
+
+  .mario.martillo {
+    height: 100px;
+    width: 100px;
+    background-size: contain;
+    transform: translatex(var(--contRight));
+    animation: mario-martillo-right 0.25s linear infinite;
+    background-size: contain;
+  }
+
+  @keyframes mario-martillo-right {
+    from {
+      background: url("../images/run-martillo-2.png") no-repeat center center;
+      background-size: 100px;
+    }
+    100% {
+      background: url("../images/run-martillo.png") no-repeat center center;
+      background-size: 100px;
+    }
+  }
+
+  .mario.martillo-left {
+    height: 100px;
+    width: 100px;
+    background-size: contain;
+    transform: translatex(var(--contRight));
+    animation: mario-martillo-left 0.25s linear infinite;
+    background-size: contain;
+  }
+  @keyframes mario-martillo-left {
+    from {
+      background: url("../images/run-martillo-2.png") no-repeat center center;
+      background-size: 100px;
+      transform: translatex(var(--contRight)) scaleX(-1);
+    }
+    100% {
+      background: url("../images/run-martillo.png") no-repeat center center;
+      background-size: 100px;
+      transform: translatex(var(--contRight)) scaleX(-1);
+    }
+  }
+
+  /* ==================== ENHANCED CLASSIC DONKEY KONG PLATFORMS ==================== */
+  
+  /* Multi-level platform system */
+  .platform {
+    position: absolute;
+    height: 40px;
+    background: url(../images/piso.png) center 4px no-repeat;
+    background-size: cover;
+    z-index: 2;
+  }
+  
+  /* Level 1 - Ground level (bottom) */
+  .platform-level-1 {
+    bottom: 0px;
+    left: 0%;
+    width: 100%;
+  }
+  
+  /* Level 2 - First elevated platform (slanted right to left) */
+  .platform-level-2 {
+    bottom: 120px;
+    left: 15%;
+    width: 85%;
+    transform: rotate(-2deg);
+    transform-origin: left bottom;
+  }
+  
+  /* Level 3 - Second platform (slanted left to right) */
+  .platform-level-3 {
+    bottom: 240px;
+    left: 0%;
+    width: 85%;
+    transform: rotate(2deg);
+    transform-origin: right bottom;
+  }
+  
+  /* Level 4 - Third platform (slanted right to left) */
+  .platform-level-4 {
+    bottom: 360px;
+    left: 15%;
+    width: 85%;
+    transform: rotate(-2deg);
+    transform-origin: left bottom;
+  }
+  
+  /* Level 5 - Top platform (where princess is) */
+  .platform-level-5 {
+    bottom: 480px;
+    left: 0%;
+    width: 70%;
+    transform: rotate(1deg);
+  }
+  
+  /* Ladders connecting the levels */
+  .ladder {
+    position: absolute;
+    width: 30px;
+    background: url(../images/escalera.png) center center repeat-y;
+    background-size: contain;
+    z-index: 1;
+  }
+  
+  /* Ladder positions - alternating sides for classic DK layout */
+  .ladder-1-2 {
+    bottom: 40px;
+    height: 120px;
+    right: 10%;
+  }
+  
+  .ladder-2-3 {
+    bottom: 160px;
+    height: 120px;
+    left: 8%;
+  }
+  
+  .ladder-3-4 {
+    bottom: 280px;
+    height: 120px;
+    right: 10%;
+  }
+  
+  .ladder-4-5 {
+    bottom: 400px;
+    height: 120px;
+    left: 8%;
+  }
+  
+  /* Enhanced Donkey Kong positioning at top */
+  .enhanced-kong-position {
+    position: absolute;
+    bottom: 520px;
+    right: 15%;
+    z-index: 3;
+  }
+  
+  /* Enhanced Princess positioning */
+  .enhanced-princess {
+    position: absolute;
+    bottom: 520px;
+    left: 10%;
+    z-index: 3;
+  }
+  
+  /* Barrel spawning positions for each level */
+  .barrel-spawn-top {
+    position: absolute;
+    bottom: 520px;
+    right: 20%;
+  }
+  
+  /* Mario climbing animation */
+  .mario.climbing {
+    animation: mario-climb 0.3s linear infinite;
+  }
+  
+  @keyframes mario-climb {
+    0% { 
+      background: url("../images/mario-up-left.png") no-repeat center center;
+      background-size: 100px;
+    }
+    50% { 
+      background: url("../images/mario-up-r.png") no-repeat center center; 
+      background-size: 100px;
+    }
+    100% { 
+      background: url("../images/mario-up-left.png") no-repeat center center;
+      background-size: 100px;
+    }
+  }
+  
+  /* Enhanced barrel physics for multi-level */
+  .enhanced-barrel {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: url("../images/barril-2.png") no-repeat center center;
+    background-size: contain;
+    z-index: 4;
+    transition: all 0.1s linear;
+  }
+  
+  .enhanced-barrel.rolling {
+    animation: barrel-roll 0.5s linear infinite;
+  }
+  
+  @keyframes barrel-roll {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Level indicators for debugging/gameplay */
+  .level-indicator {
+    position: absolute;
+    right: 10px;
+    font-size: 12px;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  .level-indicator-1 { bottom: 20px; }
+  .level-indicator-2 { bottom: 140px; }
+  .level-indicator-3 { bottom: 260px; }
+  .level-indicator-4 { bottom: 380px; }
+  .level-indicator-5 { bottom: 500px; }
+
+}

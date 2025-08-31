@@ -16,7 +16,7 @@ swarm:
       description: "Rails architect coordinating full-stack development for Futureproof"
       directory: .
       model: opus
-      connections: [models, controllers, views, stimulus, jobs, tests, devops]
+      connections: [models, controllers, views, stimulus, jobs, tests, devops, financial, arcade]
       prompt_file: .claude-on-rails/prompts/architect.md
       vibe: true
 
@@ -72,3 +72,17 @@ swarm:
       model: opus
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/devops.md
+
+    financial:
+      description: "Financial modeling, Monte Carlo simulation, and quantitative analysis specialist"
+      directory: ./python
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/financial_modeling.md
+
+    arcade:
+      description: "Classic arcade game development, platform game mechanics, and retro gaming specialist"
+      directory: ./public
+      model: opus
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/arcade_gaming.md

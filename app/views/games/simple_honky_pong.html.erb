@@ -1,0 +1,28 @@
+<%= render 'shared/header' %>
+
+<div class="simple-honky-pong-wrapper" data-controller="simple-honky-pong">
+  <h1 class="game-title">🎮 Simple Honky Pong</h1>
+  <p class="game-subtitle">Clean, Working Donkey Kong Clone!</p>
+  
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" 
+          data-simple-honky-pong-target="canvas"
+          width="900" 
+          height="700">
+  </canvas>
+  
+  <!-- Instructions -->
+  <div class="game-instructions">
+    <p><strong>🎮 Controls:</strong></p>
+    <p>🔴 <strong>Arrow Keys:</strong> Move Mario left and right</p>
+    <p>🔴 <strong>Up Arrow:</strong> Climb ladders</p> 
+    <p>🔴 <strong>Down Arrow:</strong> Climb down ladders</p>
+    <p>🔴 <strong>Goal:</strong> Climb to the top platform to rescue the princess!</p>
+  </div>
+  
+  <div class="back-link">
+    <%= link_to "← Back to Arcade", "/arcade", class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

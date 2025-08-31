@@ -132,6 +132,13 @@ Rails.application.routes.draw do
       end
     end
     
+    # Calculator
+    resources :calculators, only: [:index] do
+      collection do
+        post :calculate
+      end
+    end
+    
     # Error notification testing (production only, futureproof admins only)
     if Rails.env.production?
       resource :error_test, only: [:show] do
@@ -176,9 +183,13 @@ Rails.application.routes.draw do
   # Games (authenticated users only)
   get "arcade", to: "games#arcade"
   get "honky-pong", to: "games#honky_pong"
+  get "honky-pong-simple", to: "games#honky_pong_simple"
+  get "honky-pong-minimal", to: "games#honky_pong_minimal"
+  get "simple-honky-pong", to: "games#simple_honky_pong"
   get "lace-invaders", to: "games#lace_invaders"
   get "hackman", to: "games#hackman"
   get "defendher", to: "games#defendher"
+  get "hemorrhoids", to: "games#hemorrhoids", as: :hemorrhoids
 
   # Application routes
   resources :applications, except: [:index, :destroy] do

@@ -26,6 +26,22 @@
             height="700" 
             tabindex="0"
             data-honky-pong-target="canvas"
+            data-mario-sprite="/sprites/mario.png"
+            data-enemies-sprite="/sprites/enemies.png"
+            data-pauline-sprite="/sprites/pauline.png"
+            data-levels-sprite="/sprites/levels.png"
+            data-sound-bacmusic="<%= asset_path('arcade/honkypong/sounds/bacmusic.wav') %>"
+            data-sound-death="<%= asset_path('arcade/honkypong/sounds/death.wav') %>"
+            data-sound-hammer="<%= asset_path('arcade/honkypong/sounds/hammer.wav') %>"
+            data-sound-howhigh="<%= asset_path('arcade/honkypong/sounds/howhigh.wav') %>"
+            data-sound-intro="<%= asset_path('arcade/honkypong/sounds/intro1.wav') %>"
+            data-sound-intro-long="<%= asset_path('arcade/honkypong/sounds/intro1_long.wav') %>"
+            data-sound-itemget="<%= asset_path('arcade/honkypong/sounds/itemget.wav') %>"
+            data-sound-jump="<%= asset_path('arcade/honkypong/sounds/jump.wav') %>"
+            data-sound-jumpbar="<%= asset_path('arcade/honkypong/sounds/jumpbar.wav') %>"
+            data-sound-walking="<%= asset_path('arcade/honkypong/sounds/walking.wav') %>"
+            data-sound-win1="<%= asset_path('arcade/honkypong/sounds/win1.wav') %>"
+            data-sound-win2="<%= asset_path('arcade/honkypong/sounds/win2.wav') %>"
             data-action="click->honky-pong#focusGame keydown@document->honky-pong#handleKeyDown keyup@document->honky-pong#handleKeyUp"></canvas>
     <div id="gameInstructions" class="game-instructions">
       🎮 Click on game area to focus • Arrow Keys: Move/Climb • Space: Jump • P: Pause

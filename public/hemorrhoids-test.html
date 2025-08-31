@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hemorrhoids Game Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: #fff; font-family: monospace; }
+        canvas { border: 2px solid #444; display: block; margin: 20px auto; background: #001; }
+        .controls { text-align: center; margin: 20px; }
+        .info { color: #0f0; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>🚀 HEMORRHOIDS - Game Engine Test</h1>
+        <p>Arrow Keys: Rotate & Thrust | Space: Fire | H: Hyperspace</p>
+        <p>Click canvas area then press SPACE to start</p>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="600" tabindex="0"></canvas>
+    
+    <div class="controls">
+        <div>Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Wave: <span id="level">1</span> | Rocks: <span id="asteroids">0</span></div>
+    </div>
+
+    <script>
+        // Simplified Hemorrhoids game engine for testing
+        class HemorrhoidsTest {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Game state
+                this.gameState = {
+                    ship: null,
+                    bullets: [],
+                    asteroids: [],
+                    particles: [],
+                    score: 0,
+                    lives: 3,
+                    level: 1,
+                    gameStarted: false,
+                    keys: {}
+                };
+                
+                this.initGame();
+                this.setupControls();
+                this.gameLoop();
+            }
+            
+            initGame() {
+                // Initialize ship
+                this.gameState.ship = {
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height / 2,
+                    angle: 0,
+                    velocity: { x: 0, y: 0 },
+                    size: 8
+                };
+                
+                // Create initial asteroids
+                for (let i = 0; i < 4; i++) {
+                    this.createAsteroid(0);
+                }
+                
+                this.updateUI();
+            }
+            
+            setupControls() {
+                document.addEventListener('keydown', (e) => {
+                    this.gameState.keys[e.code] = true;
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        if (!this.gameState.gameStarted) {
+                            this.gameState.gameStarted = true;
+                        } else {
+                            this.fireBullet();
+                        }
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.gameState.keys[e.code] = false;
+                });
+                
+                this.canvas.addEventListener('click', () => {
+                    this.canvas.focus();
+                });
+                
+                this.canvas.focus();
+            }
+            
+            createAsteroid(size) {
+                const asteroid = {
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    velocity: {
+                        x: (Math.random() - 0.5) * 2,
+                        y: (Math.random() - 0.5) * 2
+                    },
+                    size: size,
+                    radius: [30, 20, 10][size],
+                    rotation: 0,
+                    rotationSpeed: (Math.random() - 0.5) * 0.1
+                };
+                
+                this.gameState.asteroids.push(asteroid);
+            }
+            
+            fireBullet() {
+                const ship = this.gameState.ship;
+                const bullet = {
+                    x: ship.x + Math.cos(ship.angle) * ship.size,
+                    y: ship.y + Math.sin(ship.angle) * ship.size,
+                    velocity: {
+                        x: Math.cos(ship.angle) * 5 + ship.velocity.x,
+                        y: Math.sin(ship.angle) * 5 + ship.velocity.y
+                    },
+                    life: 60,
+                    size: 2
+                };
+                
+                this.gameState.bullets.push(bullet);
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            update() {
+                if (!this.gameState.gameStarted) return;
+                
+                this.updateShip();
+                this.updateBullets();
+                this.updateAsteroids();
+                this.checkCollisions();
+            }
+            
+            updateShip() {
+                const ship = this.gameState.ship;
+                const keys = this.gameState.keys;
+                
+                if (keys['ArrowLeft']) ship.angle -= 0.15;
+                if (keys['ArrowRight']) ship.angle += 0.15;
+                
+                if (keys['ArrowUp']) {
+                    ship.velocity.x += Math.cos(ship.angle) * 0.3;
+                    ship.velocity.y += Math.sin(ship.angle) * 0.3;
+                }
+                
+                ship.velocity.x *= 0.98;
+                ship.velocity.y *= 0.98;
+                
+                ship.x += ship.velocity.x;
+                ship.y += ship.velocity.y;
+                
+                // Screen wrapping
+                ship.x = (ship.x + this.canvas.width) % this.canvas.width;
+                ship.y = (ship.y + this.canvas.height) % this.canvas.height;
+            }
+            
+            updateBullets() {
+                this.gameState.bullets = this.gameState.bullets.filter(bullet => {
+                    bullet.x += bullet.velocity.x;
+                    bullet.y += bullet.velocity.y;
+                    bullet.life--;
+                    
+                    bullet.x = (bullet.x + this.canvas.width) % this.canvas.width;
+                    bullet.y = (bullet.y + this.canvas.height) % this.canvas.height;
+                    
+                    return bullet.life > 0;
+                });
+            }
+            
+            updateAsteroids() {
+                this.gameState.asteroids.forEach(asteroid => {
+                    asteroid.x += asteroid.velocity.x;
+                    asteroid.y += asteroid.velocity.y;
+                    asteroid.rotation += asteroid.rotationSpeed;
+                    
+                    asteroid.x = (asteroid.x + this.canvas.width) % this.canvas.width;
+                    asteroid.y = (asteroid.y + this.canvas.height) % this.canvas.height;
+                });
+            }
+            
+            checkCollisions() {
+                // Bullets vs Asteroids
+                this.gameState.bullets.forEach((bullet, bulletIndex) => {
+                    this.gameState.asteroids.forEach((asteroid, asteroidIndex) => {
+                        if (this.checkCircleCollision(bullet, asteroid)) {
+                            this.gameState.bullets.splice(bulletIndex, 1);
+                            this.destroyAsteroid(asteroidIndex);
+                        }
+                    });
+                });
+            }
+            
+            checkCircleCollision(obj1, obj2) {
+                const dx = obj1.x - obj2.x;
+                const dy = obj1.y - obj2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < (obj1.radius || obj1.size) + (obj2.radius || obj2.size);
+            }
+            
+            destroyAsteroid(index) {
+                const asteroid = this.gameState.asteroids[index];
+                
+                this.gameState.score += [20, 50, 100][asteroid.size];
+                
+                // Split asteroid if not smallest
+                if (asteroid.size < 2) {
+                    for (let i = 0; i < 2; i++) {
+                        this.createAsteroid(asteroid.size + 1);
+                    }
+                }
+                
+                this.gameState.asteroids.splice(index, 1);
+                this.updateUI();
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#001122';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw stars
+                this.ctx.fillStyle = '#ffffff';
+                for (let i = 0; i < 50; i++) {
+                    const x = (i * 123) % this.canvas.width;
+                    const y = (i * 456) % this.canvas.height;
+                    this.ctx.fillRect(x, y, 1, 1);
+                }
+                
+                if (this.gameState.gameStarted) {
+                    this.drawShip();
+                    this.drawBullets();
+                    this.drawAsteroids();
+                } else {
+                    this.drawStartScreen();
+                }
+            }
+            
+            drawShip() {
+                const ship = this.gameState.ship;
+                
+                this.ctx.save();
+                this.ctx.translate(ship.x, ship.y);
+                this.ctx.rotate(ship.angle);
+                
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(ship.size, 0);
+                this.ctx.lineTo(-ship.size, -ship.size / 2);
+                this.ctx.lineTo(-ship.size / 2, 0);
+                this.ctx.lineTo(-ship.size, ship.size / 2);
+                this.ctx.closePath();
+                this.ctx.stroke();
+                
+                this.ctx.restore();
+            }
+            
+            drawBullets() {
+                this.ctx.fillStyle = '#ffffff';
+                this.gameState.bullets.forEach(bullet => {
+                    this.ctx.fillRect(bullet.x - 1, bullet.y - 1, 2, 2);
+                });
+            }
+            
+            drawAsteroids() {
+                this.ctx.strokeStyle = '#cccccc';
+                this.ctx.lineWidth = 2;
+                
+                this.gameState.asteroids.forEach(asteroid => {
+                    this.ctx.save();
+                    this.ctx.translate(asteroid.x, asteroid.y);
+                    this.ctx.rotate(asteroid.rotation);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, asteroid.radius, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                    
+                    this.ctx.restore();
+                });
+            }
+            
+            drawStartScreen() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.ctx.fillStyle = '#ff66cc';
+                this.ctx.font = '48px monospace';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('HEMORRHOIDS', this.canvas.width / 2, this.canvas.height / 2 - 50);
+                
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '24px monospace';
+                this.ctx.fillText('PRESS SPACE TO START', this.canvas.width / 2, this.canvas.height / 2 + 50);
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = this.gameState.score;
+                document.getElementById('lives').textContent = this.gameState.lives;
+                document.getElementById('level').textContent = this.gameState.level;
+                document.getElementById('asteroids').textContent = this.gameState.asteroids.length;
+            }
+        }
+        
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            new HemorrhoidsTest();
+        });
+    </script>
+</body>
+</html>

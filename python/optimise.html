@@ -1,0 +1,298 @@
+<loading-spinner overlay></loading-spinner>
+<div class="d-flex justify-content-between">
+  <h1>Holiday threshold optimiser</h1>
+  <div class="d-flex">
+    <div class="me-2">
+      <pause-button></pause-button>
+
+    </div>
+    <div class="dropdown me-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Edit
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=4">Core model</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=3">Calculation</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=2">Layout</a></li>
+      </ul>
+    </div>
+    <preset-select></preset-select>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex">
+      <div>
+        <h3>Borrower Parameters</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th>House value $</th>
+              <td><input class="form-control" name="house_value" type="number" value="1500000" min="1000000"
+                  max="3000000" step="1000" /></td>
+            </tr>
+            <tr>
+              <th>Loan duration Yrs</th>
+              <td><input class="form-control" name="loan_duration" type="number" value="30" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Annuity duration Yrs</th>
+              <td><input class="form-control" name="annuity_duration" type="number" value="10" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Loan type</th>
+              <td><select class="form-select" name="loan_type">
+                  <option>Interest only</option>
+                  <option>Principal+Interest</option>
+                  <option>Hybrid</option>
+                </select></td>
+            </tr>
+            <tr>
+              <th>Loan-to-value %</th>
+              <td><input class="form-control" name="loan_to_value" type="number" value="80" min="10" max="100"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Annual income $</th>
+              <td class="d-flex">
+                <input class="form-control" name="annual_income_from" type="number" value="10000" min="1000" max="50000"
+                  step="500" />
+                <input class="form-control" name="annual_income_to" type="number" value="30000" min="1000" max="50000"
+                  step="500" />
+              </td>
+            </tr>
+            <tr>
+              <th>At Risk Capital fraction %</th>
+              <td><input class="form-control" name="at_risk_captital_fraction" type="number" value="0" min="0" max="100"
+                  step="5" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Economic assumptions</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Equity return %</th>
+              <td><input class="form-control" name="equity_return" type="number" value="9.75" min="5" max="15"
+                  step="0.25" /></td>
+            </tr>
+            <tr>
+              <th>Volatility %</th>
+              <td><input class="form-control" name="volatility" type="number" value="15" min="0" max="30" step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>Paths</th>
+              <td><input class="form-control" name="total_paths" type="number" value="200" min="1" max="20000"
+                  step="100" /></td>
+            </tr>
+            <tr>
+              <th>Cash rate %</th>
+              <td><input class="form-control" name="cash_rate" type="number" value="4.35" min="0" max="10"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>House appreciation pa %</th>
+              <td><input class="form-control" name="annual_house_price_appreciation" type="number" value="4" min="0"
+                  max="10" step="0.5" /></td>
+            </tr>
+            <tr>
+              <th>Insurer profit margin %</th>
+              <td><input class="form-control" name="insurer_profit_margin" type="number" value="50" min="0" max="200"
+                  step="5" /></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Loan parameters</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Wholesale lending margin %</th>
+              <td><input class="form-control" name="wholesale_lending_margin" type="number" value="2" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Additional loan margins %</th>
+              <td><input class="form-control" name="additional_loan_margins" type="number" value="1.25" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday enter fraction %</th>
+              <td class="d-flex">
+                <input class="form-control" name="holiday_enter_fraction_from" type="number" value="1.0" min="0" max="4"
+                  step="0.05" />
+                <input class="form-control" name="holiday_enter_fraction_to" type="number" value="2.0" min="0" max="4"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Holiday exit fraction Δ%</th>
+              <td class="d-flex">
+                <input class="form-control" name="holiday_exit_fraction_delta_from" type="number" value="0.1" min="0"
+                  max="4" step="0.05" />
+                <input class="form-control" name="holiday_exit_fraction_delta_to" type="number" value="1.0" min="0"
+                  max="4" step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Amount factor</th>
+              <td class="d-flex">
+                <input class="form-control" name="max_superpay_factor_from" type="number" value="0.5" min="0" max="4"
+                  step="0.05" />
+                <input class="form-control" name="max_superpay_factor_to" type="number" value="1.5" min="0" max="4"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Start factor</th>
+              <td class="d-flex">
+                <input class="form-control" name="superpay_start_factor_from" type="number" value="1.0" min="1.0"
+                  max="4" step="0.05" />
+                <input class="form-control" name="superpay_start_factor_to" type="number" value="1.5" min="0" max="4"
+                  step="0.05" />
+              </td>
+            </tr>
+
+            <tr>
+              <th>Subperform threshold quarters</th>
+              <td><input class="form-control" name="subperform_loan_threshold_quarters" type="number" value="12" min="0"
+                  max="40" step="1" /></td>
+            </tr>
+
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex">
+      <div>
+        Optimise <select class="form-select d-inline" style="width: 200px" name="optim_outcome">
+          <option>Max Annual Income</option>
+          <option>Max Funder ROI</option>
+          <option>Max Reinvestment</option>
+          <option>Min Deficit</option>
+          <option>Min Holidays</option>
+        </select> subject to:
+        <br />
+        <table>
+          <tbody>
+            <tr>
+              <th>%Quarters on Holiday less than</th>
+              <td>
+                <input class="form-control" name="holiday_upper_limit" type="number" value="40" min="0" max="100"
+                  step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>Insurance pure risk pricing p.a. % less than</th>
+              <td>
+                <input class="form-control" name="insurance_upper_limit" type="number" value="0.5" min="0" max="2.0"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Funder ROI greater than %</th>
+              <td>
+                <input class="form-control" name="roi_lower_limit" type="number" value="300" min="0" max="600"
+                  step="50" />
+              </td>
+            </tr>
+            <tr>
+              <th>Max optimisation steps</th>
+              <td>
+                <input class="form-control" name="maxfev" type="number" value="25" min="20" max="100" step="1" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ps-3">
+        <h3>Solution</h3>
+        <p data-eval-expr="result.message"></p>
+        <table>
+          <tbody>
+            <tr>
+              <th>Holiday enter</th>
+              <td style="text-align: right" data-eval-expr="result.x[0].toFixed(3)"></td>
+            </tr>
+            <tr>
+              <th>Holiday exit delta</th>
+              <td style="text-align: right" data-eval-expr="result.x[1].toFixed(3)"></td>
+            </tr>
+            <tr>
+              <th>Holiday exit</th>
+              <td style="text-align: right" data-eval-expr="(result.x[1]+result.x[0]).toFixed(3)"></td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Amount factor</th>
+              <td style="text-align: right" data-eval-expr="result.x[2].toFixed(3)"></td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Start factor</th>
+              <td style="text-align: right" data-eval-expr="result.x[3].toFixed(3)"></td>
+            </tr>
+            <tr>
+              <th>Annual income $</th>
+              <td style="text-align: right" data-eval-expr="result.x[4].toFixed(0)"></td>
+            </tr>
+            <tr>
+              <th>Total income $</th>
+              <td style="text-align: right" data-eval-expr="(result.x[4]*annuity_duration).toFixed(0)"></td>
+            </tr>
+            <tr>
+              <th>Quarters on Holiday</th>
+              <td style="text-align: right" data-eval-expr="Math.round(pcnt_hol*100) + '%'"></td>
+            </tr>
+            <tr>
+              <th>Insurance pure risk pricing p.a.</th>
+              <td style="text-align: right" data-eval-expr="Math.round(insurance_pa*10000)/100 + '%'"></td>
+            </tr>
+            <tr>
+              <th>Funder ROI</th>
+              <td style="text-align: right" data-eval-expr="Math.round(roi*100)+'%'"></td>
+            </tr>
+            <tr>
+              <th class="pe-3">Objective function value</th>
+              <td style="text-align: right" data-eval-expr="result.objective_value.toFixed(4)"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <df-table id="main-output" data="outdf" sticky-header>
+      <column name="Quantity" align="left"></column>
+      <column name="Formula" align="left"></column>
+    </df-table>
+  </div>
+</div>
+
+
+<style>
+  #rainy-pause-button {
+    height: 40px;
+  }
+
+  table#path-output,
+  table#main-output {
+    font-feature-settings: 'tnum'
+  }
+</style>

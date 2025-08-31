@@ -1,0 +1,216 @@
+<loading-spinner overlay></loading-spinner>
+<div class="d-flex justify-content-between">
+  <h1>Sensitivity analysis</h1>
+  <div class="d-flex">
+    <div class="me-2">
+      <pause-button></pause-button>
+
+    </div>
+    <div class="dropdown me-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Edit
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=4">Core model</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=3">Calculation</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=2">Layout</a></li>
+      </ul>
+    </div>
+    <preset-select></preset-select>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex">
+      <div>
+        <h3>Borrower Parameters</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th>House value $</th>
+              <td><input class="form-control" name="house_value" type="number" value="1500000" min="1000000"
+                  max="3000000" step="1000" /></td>
+            </tr>
+            <tr>
+              <th>Loan duration Yrs</th>
+              <td><input class="form-control" name="loan_duration" type="number" value="30" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Annuity duration Yrs</th>
+              <td><input class="form-control" name="annuity_duration" type="number" value="10" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Loan type</th>
+              <td><select class="form-select" name="loan_type">
+                  <option>Interest only</option>
+                  <option>Principal+Interest</option>
+                  <option>Hybrid</option>
+                </select></td>
+            </tr>
+            <tr>
+              <th>Loan-to-value %</th>
+              <td><input class="form-control" name="loan_to_value" type="number" value="80" min="10" max="100"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Annual income $</th>
+              <td><input class="form-control" name="annual_income" type="number" value="30000" min="1000" max="50000"
+                  step="500" /></td>
+            </tr>
+            <tr>
+              <th>At Risk Capital fraction %</th>
+              <td><input class="form-control" name="at_risk_captital_fraction" type="number" value="0" min="0" max="100"
+                  step="5" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Economic assumptions</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Equity return %</th>
+              <td><input class="form-control" name="equity_return" type="number" value="9.75" min="5" max="15"
+                  step="0.25" /></td>
+            </tr>
+            <tr>
+              <th>Volatility %</th>
+              <td><input class="form-control" name="volatility" type="number" value="15" min="0" max="30" step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>Paths</th>
+              <td><input class="form-control" name="total_paths" type="number" value="200" min="1" max="20000"
+                  step="100" /></td>
+            </tr>
+            <tr>
+              <th>Cash rate %</th>
+              <td><input class="form-control" name="cash_rate" type="number" value="4.35" min="0" max="10"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>House appreciation pa %</th>
+              <td><input class="form-control" name="annual_house_price_appreciation" type="number" value="4" min="0"
+                  max="10" step="0.5" /></td>
+            </tr>
+            <tr>
+              <th>Insurer profit margin %</th>
+              <td><input class="form-control" name="insurer_profit_margin" type="number" value="50" min="0" max="200"
+                  step="5" /></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Loan parameters</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Wholesale lending margin %</th>
+              <td><input class="form-control" name="wholesale_lending_margin" type="number" value="2" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Additional loan margins %</th>
+              <td><input class="form-control" name="additional_loan_margins" type="number" value="1.25" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday enter fraction %</th>
+              <td class="d-flex"><input class="form-control" name="holiday_enter_fraction_from" type="number"
+                  value="1.0" min="0" max="4" step="0.05" /><input class="form-control" name="holiday_enter_fraction_to"
+                  type="number" value="1.5" min="0" max="4" step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday exit fraction Δ%</th>
+              <td class="d-flex"><input class="form-control" name="holiday_exit_fraction_delta_from" type="number"
+                  value="0.1" min="0" max="4" step="0.05" /><input class="form-control"
+                  name="holiday_exit_fraction_delta_to" type="number" value="1.0" min="0" max="4" step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Subperform threshold quarters</th>
+              <td><input class="form-control" name="subperform_loan_threshold_quarters" type="number" value="12" min="0"
+                  max="40" step="1" /></td>
+            </tr>
+
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<nav-tabs card>
+
+  <tab label="% Quarters on holiday" id="frachol">
+    <xy-plot id="fracholplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.frac" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+  <tab label="Insurance" id="insurance">
+    <xy-plot id="insureplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.insurance" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+  <tab label="Funder ROI%" id="roi">
+    <xy-plot id="roiplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.roi" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+  <tab label="Final interest deficit" id="deficit">
+    <xy-plot id="deficitplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.deficit" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+  <tab label="Surplus" id="surplus">
+    <xy-plot id="surlusplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.surplus" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+  <tab label="Lender profit share" id="profshare">
+    <xy-plot id="profitshareplot" showlegend="false" responsive no-mode-bar>
+      <trace x="df.enter" y="df.exitdelta" z="df.profit_share" type="contour">
+      </trace>
+      <axis dir="x" title="Enter fraction"></axis>
+      <axis dir="y" title="Exit fraction Delta"></axis>
+    </xy-plot>
+  </tab>
+
+</nav-tabs>
+
+
+<style>
+  #rainy-pause-button {
+    height: 40px;
+  }
+
+  table#path-output,
+  table#main-output {
+    font-feature-settings: 'tnum'
+  }
+</style>

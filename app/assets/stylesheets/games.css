@@ -1,0 +1,214 @@
+/*
+ * Games CSS Manifest - Isolated from main application
+ * This file includes all game-specific styles without affecting the main site
+ */
+
+/* Core game styles */
+@import url("arcade.css");
+@import url("honky_pong.css");
+@import url("honky_pong_simple.css");
+@import url("honky_pong_simple_fixed.css");
+@import url("honky_pong_minimal.css");
+@import url("lace_invaders.css");
+@import url("hackman.css");
+@import url("defendher.css");
+@import url("hemorrhoids.css");
+
+/* Professional Header Section - Applied to ALL Games */
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 0;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.top-left-logo .futureproof-logo {
+  height: 50px;
+  width: auto;
+}
+
+.logo-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: center;
+}
+
+.company-logo {
+  height: 60px;
+  width: auto;
+}
+
+.title-group {
+  text-align: center;
+}
+
+.main-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle-text {
+  margin: 4px 0 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.header-auth {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.nav-signin {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-signin:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-user {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+/* Spectacular Game Footer - Transform shared footer for all games */
+.games-body .site-footer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.games-body .site-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.games-body .site-footer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.games-body .footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.games-body .footer-content {
+  text-align: center;
+}
+
+.games-body .footer-copyright {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 24px;
+}
+
+.games-body .footer-copyright p {
+  margin: 8px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.games-body .trademark-notice {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.games-body .disclaimer {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.games-body .footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.games-body .footer-link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.games-body .footer-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Base game styles for the games HTML structure */
+.games-html {
+  color-scheme: light;
+  background-color: transparent;
+}
+
+.games-body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier New', monospace; /* This is OK here since it's isolated to games */
+}

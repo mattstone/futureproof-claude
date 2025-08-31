@@ -1,0 +1,675 @@
+/* Honky Pong - Streamlined Donkey Kong Clone CSS */
+
+@font-face {
+  font-family: Dogica;
+  src: asset-url('arcade/donkeykong/dogica.ttf');
+}
+
+:root {
+  --contRight: 0px;
+  --font-basic: Dogica, 'Courier New', monospace;
+  --body: bold 16px / 27px var(--font-basic);
+  --border-r: 0.5rem;
+}
+
+/* Base Styles */
+.honky-pong-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 80vh;
+  font: var(--body);
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  position: relative;
+}
+
+/* Start Screen */
+.donkey-kong-banner {
+  position: absolute;
+  inset: -90px 0 0 0;
+  margin: auto;
+  max-height: 200px;
+}
+
+.btn-start {
+  font: var(--body);
+  background: transparent;
+  text-transform: uppercase;
+  border: 2px solid white;
+  color: white;
+  position: absolute;
+  inset: 200px 0 0 0;
+  margin: auto;
+  cursor: pointer;
+  height: min-content;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.btn-start:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn-start.restart {
+  inset: 240px 0 0 0;
+}
+
+/* Game Play Area - Extended height for multi-level platforms */
+.honky-pong-container.play {
+  display: flex;
+  justify-content: space-between;
+  width: min(800px, 90%);
+  padding: 0;
+  height: 600px;
+  background: #222221;
+  align-items: flex-end;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.score-display {
+  color: white;
+  font: var(--body);
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  font-size: 30px;
+  text-transform: uppercase;
+}
+
+.score-display p {
+  font: var(--body);
+  margin-top: 0.2em;
+}
+
+.game-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  transform: translatey(-7px);
+}
+
+/* ==================== ENHANCED MULTI-LEVEL PLATFORMS ==================== */
+
+/* Multi-level platform system */
+.platform {
+  position: absolute;
+  height: 40px;
+  background: asset-url('arcade/donkeykong/piso.png') center 4px no-repeat;
+  background-size: cover;
+  z-index: 2;
+}
+
+/* Level 1 - Ground level (bottom) */
+.platform-level-1 {
+  bottom: 0px;
+  left: 0%;
+  width: 100%;
+}
+
+/* Level 2 - First elevated platform (slanted right to left) */
+.platform-level-2 {
+  bottom: 120px;
+  left: 15%;
+  width: 85%;
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+
+/* Level 3 - Second platform (slanted left to right) */
+.platform-level-3 {
+  bottom: 240px;
+  left: 0%;
+  width: 85%;
+  transform: rotate(2deg);
+  transform-origin: right bottom;
+}
+
+/* Level 4 - Third platform (slanted right to left) */
+.platform-level-4 {
+  bottom: 360px;
+  left: 15%;
+  width: 85%;
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+
+/* Level 5 - Top platform (where princess is) */
+.platform-level-5 {
+  bottom: 480px;
+  left: 0%;
+  width: 70%;
+  transform: rotate(1deg);
+}
+
+/* Ladders connecting the levels */
+.ladder {
+  position: absolute;
+  width: 30px;
+  background: asset-url('arcade/donkeykong/escalera.png') center center repeat-y;
+  background-size: contain;
+  z-index: 1;
+}
+
+/* Ladder positions - alternating sides for classic DK layout */
+.ladder-1-2 {
+  bottom: 40px;
+  height: 120px;
+  right: 10%;
+}
+
+.ladder-2-3 {
+  bottom: 160px;
+  height: 120px;
+  left: 8%;
+}
+
+.ladder-3-4 {
+  bottom: 280px;
+  height: 120px;
+  right: 10%;
+}
+
+.ladder-4-5 {
+  bottom: 400px;
+  height: 120px;
+  left: 8%;
+}
+
+/* Floor Elements - Legacy support */
+.floor {
+  background: asset-url('arcade/donkeykong/piso.png') center 4px no-repeat;
+  background-size: cover;
+  height: 40px;
+  width: 60%;
+  position: absolute;
+}
+
+.floor-right {
+  background: asset-url('arcade/donkeykong/piso.png') center 4px no-repeat;
+  background-size: cover;
+  height: 40px;
+  width: 40%;
+  position: absolute;
+  right: 0;
+}
+
+.floor-right::before {
+  content: "";
+  background: var(--asset-down) center 4px no-repeat;
+  background-size: contain;
+  height: 33px;
+  width: 100%;
+  position: absolute;
+  left: -53%;
+  top: 10%;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Princess - positioned on top platform */
+.princess {
+  background: asset-url('arcade/donkeykong/peach-no-floor.png') center center no-repeat;
+  height: 100px;
+  background-size: contain, 800px;
+  width: 100px;
+  position: absolute;
+  right: 3%;
+  bottom: 520px;
+  z-index: 3;
+}
+
+.princess.princess-down {
+  animation: 1s linear down-princess both;
+}
+
+.princess::after {
+  content: "";
+  position: absolute;
+  background: var(--asset-piso) 0px 50px no-repeat;
+  background-size: 700px;
+  height: 90px;
+  width: 500%;
+  top: 1.9em;
+  left: 0;
+}
+
+@keyframes down-princess {
+  to {
+    transform: translate(-225px, 160px);
+  }
+}
+
+.hearts {
+  position: inherit;
+  left: -0.5em;
+  animation: float-hearts 0.6s linear both;
+}
+
+@keyframes float-hearts {
+  0% {
+    transform: translate(0px, -10px);
+  }
+  50% {
+    transform: translate(10px, -20px);
+  }
+  100% {
+    transform: translate(-5px, -30px);
+  }
+}
+
+/* Mario Character */
+.mario {
+  background: var(--asset-mario) no-repeat center center;
+  height: 100px;
+  width: 100px;
+  background-size: 100px;
+  position: relative;
+  transition: all 0.1s linear;
+  transform: translatex(var(--contRight));
+}
+
+.mario.right {
+  animation: mario-right 0.5s linear infinite;
+  transition: translate 0.5s linear;
+  transform: translatex(var(--contRight));
+}
+
+@keyframes mario-right {
+  from {
+    background: var(--asset-mario-run) no-repeat center center;
+    background-size: 100px;
+  }
+  50% {
+    background: var(--asset-mario-run-2) no-repeat center center;
+    background-size: 100px;
+  }
+  to {
+    background: var(--asset-mario) no-repeat center center;
+    background-size: 100px;
+  }
+}
+
+.mario.view-left {
+  background: var(--asset-mario-left) no-repeat center center;
+  background-size: 100px;
+  transition: all 0.1s ease-in;
+}
+
+.mario.left {
+  animation: mario-left 0.4s linear infinite;
+  transform: translatex(var(--contRight));
+}
+
+@keyframes mario-left {
+  from {
+    background: var(--asset-mario-left) no-repeat center center;
+    background-size: 100px;
+  }
+  50% {
+    background: var(--asset-mario-left-run-2) no-repeat center center;
+    background-size: 100px;
+  }
+  to {
+    background: var(--asset-mario-left-run) no-repeat center center;
+    background-size: 100px;
+  }
+}
+
+.mario.up {
+  background: var(--asset-mario-up) no-repeat center center;
+  background-size: 100px;
+  position: relative;
+  top: -50px;
+  left: 0;
+  transition: all 0.1s ease-in;
+}
+
+.mario.up-left {
+  background: var(--asset-mario-up-left) no-repeat center center;
+  background-size: 100px;
+  position: relative;
+  top: -50px;
+  left: 0;
+  transition: all 0.1s ease-in;
+}
+
+/* Mario with Hammer */
+.mario.hammer {
+  animation: mario-hammer-right 0.25s linear infinite;
+  background-size: contain;
+  transform: translatex(var(--contRight));
+}
+
+@keyframes mario-hammer-right {
+  from {
+    background: var(--asset-hammer-run-2) no-repeat center center;
+    background-size: 100px;
+  }
+  100% {
+    background: var(--asset-hammer-run) no-repeat center center;
+    background-size: 100px;
+  }
+}
+
+.mario.hammer-left {
+  animation: mario-hammer-left 0.25s linear infinite;
+  background-size: contain;
+  transform: translatex(var(--contRight));
+}
+
+@keyframes mario-hammer-left {
+  from {
+    background: var(--asset-hammer-run-2) no-repeat center center;
+    background-size: 100px;
+    transform: translatex(var(--contRight)) scaleX(-1);
+  }
+  100% {
+    background: var(--asset-hammer-run) no-repeat center center;
+    background-size: 100px;
+    transform: translatex(var(--contRight)) scaleX(-1);
+  }
+}
+
+.mario.blink {
+  animation: blinkMario 0.5s linear infinite;
+}
+
+@keyframes blinkMario {
+  0% { filter: opacity(1); }
+  20% { filter: opacity(0.2); }
+  40% { filter: opacity(1); }
+  60% { filter: opacity(0.2); }
+  80% { filter: opacity(1); }
+  100% { filter: opacity(0.2); }
+}
+
+/* Mario climbing animation */
+.mario.climbing {
+  animation: mario-climb 0.3s linear infinite;
+  background-size: 100px;
+}
+
+@keyframes mario-climb {
+  0% { 
+    background: asset-url('arcade/donkeykong/mario-up-left.png') no-repeat center center;
+    background-size: 100px;
+  }
+  50% { 
+    background: asset-url('arcade/donkeykong/mario-up-r.png') no-repeat center center; 
+    background-size: 100px;
+  }
+  100% { 
+    background: asset-url('arcade/donkeykong/mario-up-left.png') no-repeat center center;
+    background-size: 100px;
+  }
+}
+
+/* Donkey Kong - positioned on top platform */
+.donkey {
+  position: relative;
+  top: 8px;
+  transform: translateX(3em);
+}
+
+.container-kong {
+  position: absolute;
+  bottom: 520px;
+  right: 15%;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  width: auto;
+}
+
+.barrels-pile {
+  position: relative;
+  right: -1em;
+  top: 1em;
+}
+
+/* Barrels */
+.new-barrel {
+  background: var(--asset-barriles-gif) no-repeat center center;
+  height: 30px;
+  width: 30px;
+  background-size: contain;
+  position: absolute;
+  bottom: 22px;
+  animation: barrel 3s ease-in both;
+  border-radius: 100%;
+}
+
+@keyframes barrel {
+  0% {
+    transform: translateX(-15em);
+  }
+  100% {
+    transform: translateX(-50em) rotate(-180deg);
+  }
+}
+
+/* Game Over Screen */
+.honky-pong-container.game-over {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(800px, 90%);
+  height: 400px;
+  background: black asset-url('arcade/donkeykong/game-over.png') center 20px no-repeat;
+  background-size: 300px;
+  background-position-y: 100px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hidden UI Elements */
+.game-ui-hidden {
+  display: none !important;
+}
+
+/* Lives Display */
+.content-lives {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+}
+
+.heart-icon {
+  margin-right: 5px;
+}
+
+/* Hammer Pickup */
+.img-hammer {
+  position: absolute;
+  top: 60%;
+  right: 80%;
+}
+
+/* Wrapper Styles */
+.honky-pong-simple-wrapper {
+  padding: 20px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  min-height: 100vh;
+  color: #fff;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  background: linear-gradient(45deg, #ff6b35, #f7931e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.game-instructions-simple {
+  margin: 20px auto;
+  max-width: 600px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+
+.game-instructions-simple p {
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.back-link {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.btn {
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+  text-decoration: none;
+  color: white;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.game-error {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(244, 67, 54, 0.5);
+  z-index: 10000;
+  text-align: center;
+  max-width: 400px;
+}
+
+.error-content h3 {
+  margin: 0 0 15px 0;
+  font-size: 24px;
+  font-family: 'Courier New', monospace;
+}
+
+.error-content p {
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.error-content button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.error-content button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .honky-pong-container {
+    width: 100%;
+    min-height: 70vh;
+  }
+  
+  .honky-pong-container.play {
+    width: 100%;
+    height: 350px;
+  }
+  
+  .score-display {
+    font-size: 24px;
+  }
+  
+  .mario {
+    height: 80px;
+    width: 80px;
+    background-size: 80px !important;
+  }
+  
+  .donkey {
+    height: 120px;
+    width: 120px;
+  }
+  
+  .barrels-pile {
+    height: 100px;
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .honky-pong-container {
+    padding: 10px;
+  }
+  
+  .score-display {
+    font-size: 20px;
+  }
+  
+  .mario {
+    height: 60px;
+    width: 60px;
+    background-size: 60px !important;
+  }
+}

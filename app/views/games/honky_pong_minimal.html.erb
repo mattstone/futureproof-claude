@@ -1,0 +1,35 @@
+<%= render 'shared/header' %>
+
+<div class="honky-pong-simple-wrapper" data-controller="honky-pong-minimal">
+  <h1 class="game-title">🎮 Honky Pong</h1>
+  <p class="game-subtitle">Rescue the Princess from Honky Kong!</p>
+  
+  <!-- Game Container - Minimal data attributes for assets -->
+  <div class="entorno" 
+       data-honky-pong-minimal-target="container"
+       data-asset-donkey-kong="<%= asset_path('arcade/donkeykong/donkey-kong.png') %>"
+       data-asset-mono="<%= asset_path('arcade/donkeykong/mono.gif') %>"
+       data-asset-barriles="<%= asset_path('arcade/donkeykong/barriles.png') %>"
+       data-asset-heart="<%= asset_path('arcade/donkeykong/heart.png') %>"
+       data-asset-hearts="<%= asset_path('arcade/donkeykong/hearts.png') %>"
+       data-asset-hammer="<%= asset_path('arcade/donkeykong/martillo.png') %>">
+    
+    <!-- Start Screen Content -->
+    <img class="donkey-kong-banner" src="<%= asset_path('arcade/donkeykong/donkey-kong.png') %>" alt="Honky Pong" height="200px">
+    <button class="btn-start" data-action="click->honky-pong-minimal#startGame">Start Game</button>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="game-instructions-simple">
+    <p><strong>🎮 How to Play:</strong></p>
+    <p>🔴 <strong>Arrow Keys:</strong> Move Mario left and right</p>
+    <p>🔴 <strong>Up Arrow:</strong> Jump and collect hammer</p> 
+    <p>🔴 <strong>Goal:</strong> Avoid barrels, collect hammer to smash them, reach the princess!</p>
+  </div>
+  
+  <div class="back-link">
+    <%= link_to "← Back to Arcade", "/arcade", class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

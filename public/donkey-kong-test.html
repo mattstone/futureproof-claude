@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donkey Kong Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ff0000;
+            display: block;
+            margin: 20px auto;
+            image-rendering: pixelated;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        #debug {
+            text-align: left;
+            background: #333;
+            padding: 10px;
+            margin: 20px auto;
+            max-width: 800px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 DONKEY KONG TEST</h1>
+    <p>Direct test without Rails - let's see if this works!</p>
+    
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <button onclick="startGame()">START GAME</button>
+    <button onclick="loadSprites()">LOAD SPRITES</button>
+    
+    <div id="debug">
+        <div id="log">Loading...</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const log = document.getElementById('log');
+        
+        let sprites = {};
+        let gameRunning = false;
+        
+        function debug(msg) {
+            console.log(msg);
+            log.innerHTML += '<br>' + msg;
+        }
+        
+        async function loadSprites() {
+            debug('🔄 Loading sprites...');
+            
+            const spritePaths = {
+                mario: '/assets/arcade/honkypong/mario.png',
+                levels: '/assets/arcade/honkypong/levels.png',
+                enemies: '/assets/arcade/honkypong/enemies.png',
+                pauline: '/assets/arcade/honkypong/pauline.png'
+            };
+            
+            for (const [name, path] of Object.entries(spritePaths)) {
+                try {
+                    debug(`Loading ${name} from ${path}...`);
+                    const img = new Image();
+                    
+                    await new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            debug(`✅ ${name} loaded (${img.width}x${img.height})`);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            debug(`❌ ${name} failed to load from ${path}`);
+                            reject();
+                        };
+                        img.src = path;
+                    });
+                    
+                    sprites[name] = img;
+                } catch (error) {
+                    debug(`❌ Error loading ${name}: ${error}`);
+                }
+            }
+            
+            debug(`🎮 Sprites loaded: ${Object.keys(sprites).join(', ')}`);
+        }
+        
+        function render() {
+            // Clear screen
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Test text
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('DONKEY KONG TEST', canvas.width/2, 50);
+            
+            // Try to draw the level sprite if loaded
+            if (sprites.levels) {
+                debug('🎨 Drawing level sprite...');
+                try {
+                    // Draw the entire levels sprite to see what we have
+                    ctx.drawImage(sprites.levels, 0, 100);
+                    debug('✅ Level sprite drawn successfully');
+                } catch (error) {
+                    debug(`❌ Error drawing level: ${error}`);
+                }
+            } else {
+                ctx.fillStyle = '#FF0000';
+                ctx.fillText('NO LEVEL SPRITE LOADED', canvas.width/2, 300);
+            }
+            
+            // Try to draw Mario sprite if loaded
+            if (sprites.mario) {
+                try {
+                    ctx.drawImage(sprites.mario, 100, 500);
+                    debug('✅ Mario sprite drawn');
+                } catch (error) {
+                    debug(`❌ Error drawing Mario: ${error}`);
+                }
+            }
+            
+            // Try to draw enemy sprites if loaded
+            if (sprites.enemies) {
+                try {
+                    ctx.drawImage(sprites.enemies, 200, 500);
+                    debug('✅ Enemies sprite drawn');
+                } catch (error) {
+                    debug(`❌ Error drawing enemies: ${error}`);
+                }
+            }
+        }
+        
+        function startGame() {
+            debug('🎮 Starting game...');
+            if (Object.keys(sprites).length === 0) {
+                debug('⚠️ No sprites loaded, loading now...');
+                loadSprites().then(() => {
+                    render();
+                });
+            } else {
+                render();
+            }
+        }
+        
+        // Auto-start
+        debug('🚀 Page loaded, starting test...');
+        render();
+    </script>
+</body>
+</html>

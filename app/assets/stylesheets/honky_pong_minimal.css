@@ -1,0 +1,433 @@
+/* Honky Pong Minimal - Direct copy of working Donkey Kong CSS */
+
+.honky-pong-simple-wrapper * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.honky-pong-simple-wrapper {
+  --font-basic: 'Courier New', monospace;
+  --body: 16px / 27px var(--font-basic);
+  --body: bold 16px / 27px var(--font-basic); 
+  --border-r: 0.5rem;
+}
+
+.honky-pong-simple-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  font: var(--body);
+}
+
+/* Game Container */
+.entorno {
+  display: flex;
+  justify-content: space-between;
+  width: min(800px, 90%);
+  padding: 0 0em;
+  background-color: #222221;
+  height: 400px;
+  align-items: flex-end;
+  border-radius: 0.5rem;
+  background-size: 50px, 1000px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.entorno.play {
+  display: flex;
+  justify-content: space-between;
+  width: min(800px, 90%);
+  padding: 0 0em;
+  height: 400px;
+  background: #222221;
+  align-items: flex-end;
+  border-radius: 0.5rem;
+  background-size: 50px, 1000px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Platforms */
+.floor {
+  background-color: #F24A8D;
+  height: 40px;
+  width: 60%;
+  position: absolute;
+}
+
+.floor-right {
+  background-color: #F24A8D;
+  height: 40px;
+  width: 40%;
+  position: absolute;
+  right: 0;
+}
+
+.floor-right::before {
+  content: "";
+  background-color: #1F55FF;
+  height: 33px;
+  width: 100%;
+  position: absolute;
+  left: -53%;
+  top: 10%;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Princess */
+.peach {
+  background-color: #ffb6c1;
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  right: 0em;
+  bottom: 11em;
+  border-radius: 10px;
+}
+
+.peach.peach-down {
+  animation: 1s linear down-peach both;
+}
+
+@keyframes down-peach {
+  to {
+    transform: translate(-225px, 160px);
+  }
+}
+
+.hearts {
+  position: inherit;
+  left: -0.5em;
+  animation: float-hearts 0.6s linear both;
+}
+
+@keyframes float-hearts {
+  0% { transform: translate(0px, -10px); }
+  50% { transform: translate(10px, -20px); }
+  100% { transform: translate(-5px, -30px); }
+}
+
+.donkey-kong-banner {
+  position: absolute;
+  inset: -90px 0 0 0;
+  margin: auto;
+}
+
+.entorno.game-over {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(800px, 90%);
+  padding: 0 0em;
+  background: black;
+  height: 400px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-start {
+  font: var(--body);
+  background: transparent;
+  text-transform: uppercase;
+  border: 2px solid white;
+  color: white;
+  position: absolute;
+  inset: 200px 0 0 0;
+  margin: auto;
+  cursor: pointer;
+  height: min-content;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+}
+
+.btn-start.restart {
+  inset: 240px 0 0 0;
+}
+
+.puntuacion {
+  color: white;
+  font: var(--body);
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  font-size: 30px;
+  text-transform: uppercase;
+}
+
+.puntuacion p {
+  font: var(--body);
+  margin-top: 0.2em;
+}
+
+.images {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  transform: translatey(-7px);
+}
+
+/* Mario */
+.mario.right {
+  height: 100px;
+  width: 100px;
+  background-color: #ff6b35;
+  background-size: 100px;
+  position: relative;
+  animation: mario-right 0.5s linear infinite;
+  transition: all 0.1s linear;
+  border-radius: 5px;
+}
+
+@keyframes mario-right {
+  from { background-color: #ff6b35; }
+  50% { background-color: #ff8c00; }
+  to { background-color: #ff6b35; }
+}
+
+.mario.view-left {
+  background-color: #ff4500;
+  height: 100px;
+  width: 100px;
+  background-size: 100px;
+  position: relative;
+  transition: all 0.1s ease-in;
+  border-radius: 5px;
+}
+
+.mario.left {
+  height: 100px;
+  width: 100px;
+  background-size: contain;
+  position: relative;
+  animation: mario-left 0.4s linear infinite;
+  transition: all 0.1s linear;
+  border-radius: 5px;
+}
+
+@keyframes mario-left {
+  from { background-color: #ff4500; }
+  50% { background-color: #ff8c00; }
+  to { background-color: #ff4500; }
+}
+
+.mario.up {
+  background-color: #ffd700;
+  height: 100px;
+  width: 100px;
+  background-size: 100px;
+  position: relative;
+  top: -50px;
+  left: 0;
+  transition: all 0.1s ease-in;
+  border-radius: 5px;
+}
+
+.mario.up-left {
+  background-color: #ffd700;
+  height: 100px;
+  width: 100px;
+  background-size: 100px;
+  position: relative;
+  top: -50px;
+  left: 0;
+  transition: all 0.1s ease-in;
+  border-radius: 5px;
+}
+
+.mario {
+  background-color: #ff6b35;
+  height: 100px;
+  width: 100px;
+  background-size: 100px;
+  position: relative;
+  transition: all 0.1s linear;
+  border-radius: 5px;
+  left: 0px;
+}
+
+/* Position classes for CSP compliance */
+.mario.pos-left { left: -100px; }
+.mario.pos-center { left: 0px; }
+.mario.pos-right { left: 100px; }
+.mario.pos-far-right { left: 200px; }
+
+.mono {
+  position: relative;
+  top: 8px;
+  transform: translateX(3em);
+}
+
+.container-kong {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.barriles {
+  position: relative;
+  right: -1em;
+  top: 1em;
+}
+
+.new-barril {
+  background-color: #8B4513;
+  height: 30px;
+  width: 30px;
+  background-size: contain;
+  position: absolute;
+  bottom: 22px;
+  animation: barril 3s ease-in both;
+  border-radius: 100%;
+  border: 2px solid #654321;
+}
+
+@keyframes barril {
+  0% { transform: translateX(-15em); }
+  100% { transform: translateX(-50em) rotate(-180deg); }
+}
+
+.blink {
+  animation: blinkMario 0.5s linear infinite;
+}
+
+@keyframes blinkMario {
+  0% { filter: opacity(1); }
+  20% { filter: opacity(0.2); }
+  40% { filter: opacity(1); }
+  60% { filter: opacity(0.2); }
+  80% { filter: opacity(1); }
+  100% { filter: opacity(0.2); }
+}
+
+.mario.martillo {
+  height: 100px;
+  width: 100px;
+  background-size: contain;
+  animation: mario-martillo-right 0.25s linear infinite;
+  background-size: contain;
+  background-color: #ff1493;
+  border-radius: 5px;
+  transition: all 0.1s linear;
+}
+
+@keyframes mario-martillo-right {
+  from { background-color: #ff1493; transform: scale(1); }
+  100% { background-color: #ff69b4; transform: scale(1.1); }
+}
+
+.mario.martillo-left {
+  height: 100px;
+  width: 100px;
+  background-size: contain;
+  animation: mario-martillo-left 0.25s linear infinite;
+  background-size: contain;
+  background-color: #ff1493;
+  border-radius: 5px;
+  transition: all 0.1s linear;
+}
+
+@keyframes mario-martillo-left {
+  from { 
+    background-color: #ff1493;
+    transform: scaleX(-1) scale(1);
+  }
+  100% { 
+    background-color: #ff69b4;
+    transform: scaleX(-1) scale(1.1);
+  }
+}
+
+.content-lives {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+}
+
+.img-martillo {
+  position: absolute;
+  top: 60%;
+  right: 80%;
+}
+
+/* Wrapper for Rails integration */
+.honky-pong-simple-wrapper {
+  padding: 20px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  min-height: 100vh;
+  color: #fff;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.game-instructions-simple {
+  margin: 20px auto;
+  max-width: 600px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+
+.game-instructions-simple p {
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.back-link {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.btn {
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+  text-decoration: none;
+  color: white;
+}
+
+.game-ui-hidden {
+  display: none !important;
+}

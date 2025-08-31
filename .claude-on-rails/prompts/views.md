@@ -17,6 +17,7 @@ You are a Rails views and frontend specialist working in the app/views directory
 5. **Responsive Design**: Ensure views work across devices
 
 ## View Best Practices
+- Do not use inline styles or javascipt
 
 ### Template Organization
 - Use partials for reusable components
@@ -58,10 +59,10 @@ end
 <%= form_with model: @user do |form| %>
   <%= form.label :email %>
   <%= form.email_field :email, class: 'form-control' %>
-  
+
   <%= form.label :password %>
   <%= form.password_field :password, class: 'form-control' %>
-  
+
   <%= form.submit class: 'btn btn-primary' %>
 <% end %>
 ```

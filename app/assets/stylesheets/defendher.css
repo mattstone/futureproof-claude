@@ -1,10 +1,17 @@
 /* DefendHer Game - Professional Cinematic Styling */
 
+@font-face {
+  font-family: 'Arcade';
+  src: asset-url('arcade/defendher/Fonts/Arcade.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .defendher-container {
   min-height: 100vh;
   background: linear-gradient(180deg, #0a0520 0%, #1a1040 30%, #2a0540 70%, #0f0220 100%);
   color: #e6ccff;
-  font-family: 'Courier New', monospace;
+  font-family: 'Arcade', 'Courier New', monospace;
   padding: 20px;
   text-align: center;
   position: relative;
@@ -203,7 +210,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   box-shadow: 0 4px 15px rgba(0,255,0,0.3);
-  font-family: 'Courier New', monospace;
+  font-family: 'Arcade', 'Courier New', monospace;
 }
 
 .game-button:hover {

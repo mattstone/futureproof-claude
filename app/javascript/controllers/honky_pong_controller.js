@@ -20,8 +20,8 @@ export default class extends Controller {
       // Show professional loading screen
       this.showLoadingScreen()
       
-      // Dynamic import of the game module for better performance
-      const { HonkyPongGame } = await import("honky_pong")
+      // Dynamic import of the fresh game module
+      const { HonkyPongGame } = await import("honky_pong_fresh")
       
       // Initialize the professional game engine
       this.game = new HonkyPongGame({

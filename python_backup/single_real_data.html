@@ -1,0 +1,245 @@
+<loading-spinner overlay></loading-spinner>
+<div class="d-flex justify-content-between">
+  <h1>Single mortgage model with Historical</h1>
+  <div class="d-flex">
+    <div class="me-2">
+      <pause-button></pause-button>
+
+    </div>
+    <div class="dropdown me-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Edit
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=4">Core model</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=5">Calculation</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=6">Layout</a></li>
+
+      </ul>
+    </div>
+    <preset-select></preset-select>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex">
+      <div>
+        <h3>Borrower Parameters</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th>House value $</th>
+              <td><input class="form-control" name="house_value" type="number" value="1500000" min="1000000"
+                  max="3000000" step="1000" /></td>
+            </tr>
+            <tr>
+              <th>Loan duration Yrs</th>
+              <td><input class="form-control" name="loan_duration" type="number" value="30" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Annuity duration Yrs</th>
+              <td><input class="form-control" name="annuity_duration" type="number" value="10" min="10" max="30"
+                  step="1" /></td>
+            </tr>
+            <tr>
+              <th>Loan type</th>
+              <td><select class="form-select" name="loan_type">
+                  <option>Interest only</option>
+                  <option>Principal+Interest</option>
+                  <option>Hybrid</option>
+                </select></td>
+            </tr>
+            <tr>
+              <th>Principal repayment</th>
+              <td><input name="principal_repayment" type="checkbox" /></td>
+            </tr>
+            <tr>
+              <th>Loan-to-value %</th>
+              <td><input class="form-control" name="loan_to_value" type="number" value="80" min="10" max="100"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Annual income $</th>
+              <td><input class="form-control" name="annual_income" type="number" value="30000" min="1000" max="50000"
+                  step="500" /></td>
+            </tr>
+            <tr>
+              <th>At Risk Capital fraction %</th>
+              <td><input class="form-control" name="at_risk_captital_fraction" type="number" value="0" min="0" max="100"
+                  step="5" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Economic assumptions</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Start Year</th>
+              <td><input class="form-control" name="year0" type="number" value="1988" min="1988" max="2015" step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>House appreciation pa %</th>
+              <td><input class="form-control" name="annual_house_price_appreciation" type="number" value="4" min="0"
+                  max="10" step="0.5" /></td>
+            </tr>
+            <tr>
+              <th>Insurance cost p.a. %</th>
+              <td><input class="form-control" name="insurance_cost_pa" type="number" value="0.5" min="0" max="5"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Insurer profit margin %</th>
+              <td><input class="form-control" name="insurer_profit_margin" type="number" value="50" min="0" max="200"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Hedged</th>
+              <td><input name="hedged" type="checkbox" /></td>
+            </tr>
+            <tr data-show-if="hedged">
+              <th>Hedging costs p.a. %</th>
+              <td><input class="form-control" name="hedging_cost_pa" type="number" value="0.5" min="0" max="5"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr data-show-if="hedged">
+              <th>Max loss p.a. %</th>
+              <td><input class="form-control" name="hedging_max_loss" type="number" value="10" min="0" max="5"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr data-show-if="hedged">
+              <th>Cap p.a. %</th>
+              <td><input class="form-control" name="hedging_cap" type="number" value="20" min="0" max="5" step="0.05" />
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Loan parameters</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Wholesale lending margin %</th>
+              <td><input class="form-control" name="wholesale_lending_margin" type="number" value="2" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Additional loan margins %</th>
+              <td><input class="form-control" name="additional_loan_margins" type="number" value="1.25" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday enter fraction %</th>
+              <td><input class="form-control" name="holiday_enter_fraction" type="number" value="0.9" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday exit fraction %</th>
+              <td><input class="form-control" name="holiday_exit_fraction" type="number" value="1.458" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Amount factor</th>
+              <td>
+                <input class="form-control" name="max_superpay_factor" type="number" value="1.261" min="0" max="4"
+                  step="0.05" />
+
+              </td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Start factor</th>
+              <td>
+                <input class="form-control" name="superpay_start_factor" type="number" value="1.50" min="1.0" max="4"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Subperform threshold quarters</th>
+              <td><input class="form-control" name="subperform_loan_threshold_quarters" type="number" value="12" min="0"
+                  max="4" step="0.05" /></td>
+            </tr>
+
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav-tabs card>
+  <tab label="Path table" table" id="mainout">
+    <div class="d-flex">
+      <label>Path output</label>
+      <div class="rainy-hide-loading ms-2">
+        <download-link data="pathdf" format="csv"></download-link>
+      </div>
+      <div clas="ms-3">
+        Download accounts table: <download-link data="accounts_table" format="csv"></download-link>
+
+      </div>
+    </div>
+    <div class="rainy-hide-loading">
+      <df-table id="path-output" data="pathdf" sticky-header>
+        <column name="SP500" thousands-sep></column>
+        <column name="Interest" thousands-sep round></column>
+        <column name="Loan size" thousands-sep round></column>
+        <column name="Units" thousands-sep round></column>
+        <column name="Reinvestment" thousands-sep round></column>
+        <column name="InterestDeficit" thousands-sep round></column>
+        <column name="CapitalDeficit" thousands-sep round></column>
+        <column name="Surplus" thousands-sep round></column>
+        <column name="FunderEarned" thousands-sep round></column>
+        <column name="AnnuityIncome" thousands-sep round></column>
+        <column name="InterestPaid" thousands-sep round></column>
+        <column name="InterestRate" roundpt="2"></column>
+        <column name="InterestPaidToFunder" thousands-sep round></column>
+        <column name="UnitsSold" thousands-sep></column>
+        <column name="CumUnitsSold" thousands-sep></column>
+        <column name="UnitsToPrincipal" round></column>
+        <column name="TotalUnitsSold" round></column>
+        <column name="CumInterestPaid" thousands-sep round></column>
+        <column name="HedgeUnitsDelta" thousands-sep round></column>
+        <column name="InterestDeficitDelta" thousands-sep round></column>
+      </df-table>
+    </div>
+  </tab>
+  <tab label="Timeline Plot" id="pathtab">
+    <xy-plot id="meanplot1">
+      <trace x="pathdf['Period']" y="pathdf['CumAnnuityIncome']" width="3" type="lines" name="Cum. Annuity Income">
+      </trace>
+      <trace x="pathdf['Period']" y="pathdf['CumInterestAccrued']" width="3" type="lines" name="Cum. Interest Accrued">
+      </trace>
+      <trace x="pathdf['Period']" y="pathdf['CumInterestPaid']" width="3" type="lines" name="Cum. Interest Paid">
+      </trace>
+      <trace x="pathdf['Period']" y="pathdf['Loan size']" width="3" type="lines" name="Loan"></trace>
+      <trace x="pathdf['Period']" y="pathdf['Surplus']" width="3" type="lines" name="Surplus"></trace>
+      <trace x="pathdf['Period']" y="pathdf['Units']" width="3" yaxis="y2" type="lines" name="S&P Units"></trace>
+      <axis dir="y" title="$ Value"></axis>
+      <axis dir="y" n="2" title="S&P Units" side="right" overlaying="y"></axis>
+      <axis dir="x" title="Quarter"></axis>
+    </xy-plot>
+  </tab>
+</nav-tabs>
+<style>
+  #rainy-pause-button {
+    height: 40px;
+  }
+
+  table#path-output,
+  table#main-output {
+    font-feature-settings: 'tnum'
+  }
+</style>

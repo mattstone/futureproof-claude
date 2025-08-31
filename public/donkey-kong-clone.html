@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donkey Kong Clone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+        }
+        
+        canvas {
+            border: 2px solid #fff;
+            background: #0066ff;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .game-container {
+            text-align: center;
+        }
+        
+        .ui {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        
+        .controls {
+            color: white;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-size: 48px;
+            text-shadow: 2px 2px black;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="ui">
+            Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Level: <span id="level">1</span>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="controls">
+            Arrow Keys: Move | Spacebar: Jump | Enter: Start/Restart
+        </div>
+        <div class="game-over" id="gameOver">GAME OVER</div>
+    </div>
+
+    <script>
+        // Sound System
+        class SoundSystem {
+            constructor() {
+                this.audioContext = null;
+                this.sounds = {};
+                this.initAudio();
+            }
+            
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.createSounds();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+            
+            createSounds() {
+                // Create simple beep sounds using oscillators
+                this.sounds = {
+                    jump: () => this.beep(300, 0.1),
+                    hit: () => this.beep(150, 0.3),
+                    barrel: () => this.beep(200, 0.15),
+                    complete: () => this.melody([400, 500, 600], 0.2),
+                    gameOver: () => this.melody([200, 180, 160, 140], 0.4)
+                };
+            }
+            
+            beep(frequency, duration) {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'square';
+                
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+            
+            melody(frequencies, noteDuration) {
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => this.beep(freq, noteDuration), index * noteDuration * 1000);
+                });
+            }
+            
+            play(soundName) {
+                if (this.sounds[soundName]) {
+                    this.sounds[soundName]();
+                }
+            }
+        }
+
+        // Game Engine Core
+        class DonkeyKongGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.ctx.imageSmoothingEnabled = false;
+                
+                // Initialize sound system
+                this.sound = new SoundSystem();
+                
+                // Game constants
+                this.GRAVITY = 0.8;
+                this.TERMINAL_VELOCITY = 15;
+                this.GROUND_FRICTION = 0.85;
+                this.AIR_FRICTION = 0.95;
+                this.JUMP_POWER = -16;
+                this.MOVE_SPEED = 4;
+                this.COYOTE_TIME = 6; // frames
+                
+                // Game state
+                this.gameState = 'attract'; // attract, playing, gameOver
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.frameCount = 0;
+                
+                // Input handling
+                this.keys = {};
+                this.prevKeys = {};
+                
+                // Game objects
+                this.mario = null;
+                this.barrels = [];
+                this.platforms = [];
+                this.ladders = [];
+                this.collectibles = [];
+                this.donkeyKong = null;
+                
+                this.initializeInput();
+                this.initializeLevel();
+                this.gameLoop();
+            }
+            
+            initializeInput() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true;
+                    if (e.code === 'Enter' && (this.gameState === 'attract' || this.gameState === 'gameOver')) {
+                        this.startGame();
+                    }
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false;
+                });
+            }
+            
+            startGame() {
+                this.gameState = 'playing';
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.initializeMario();
+                this.barrels = [];
+                document.getElementById('gameOver').style.display = 'none';
+                this.updateUI();
+            }
+            
+            initializeLevel() {
+                // Create platforms (classic Donkey Kong layout)
+                this.platforms = [
+                    // Bottom platforms
+                    { x: 50, y: 550, width: 150, height: 20 },
+                    { x: 250, y: 550, width: 500, height: 20 },
+                    
+                    // Second level
+                    { x: 50, y: 450, width: 200, height: 20 },
+                    { x: 300, y: 450, width: 100, height: 20 },
+                    { x: 450, y: 450, width: 300, height: 20 },
+                    
+                    // Third level  
+                    { x: 50, y: 350, width: 150, height: 20 },
+                    { x: 250, y: 350, width: 100, height: 20 },
+                    { x: 400, y: 350, width: 350, height: 20 },
+                    
+                    // Fourth level
+                    { x: 50, y: 250, width: 300, height: 20 },
+                    { x: 400, y: 250, width: 100, height: 20 },
+                    { x: 550, y: 250, width: 200, height: 20 },
+                    
+                    // Top level (Donkey Kong's perch)
+                    { x: 50, y: 150, width: 700, height: 20 },
+                    
+                    // Sloped platforms for barrel rolling
+                    { x: 200, y: 520, width: 50, height: 30, slope: -0.3 },
+                    { x: 400, y: 420, width: 50, height: 30, slope: 0.3 },
+                    { x: 350, y: 320, width: 50, height: 30, slope: -0.3 },
+                    { x: 500, y: 220, width: 50, height: 30, slope: 0.3 }
+                ];
+                
+                // Create ladders
+                this.ladders = [
+                    { x: 200, y: 450, width: 20, height: 100 },
+                    { x: 700, y: 450, width: 20, height: 100 },
+                    { x: 200, y: 350, width: 20, height: 100 },
+                    { x: 500, y: 350, width: 20, height: 100 },
+                    { x: 350, y: 250, width: 20, height: 100 },
+                    { x: 600, y: 250, width: 20, height: 100 },
+                    { x: 100, y: 150, width: 20, height: 100 }
+                ];
+                
+                // Initialize Donkey Kong
+                this.donkeyKong = {
+                    x: 100,
+                    y: 100,
+                    width: 60,
+                    height: 60,
+                    barrelTimer: 0,
+                    barrelDelay: 120 // frames between barrels
+                };
+            }
+            
+            initializeMario() {
+                this.mario = {
+                    x: 100,
+                    y: 500,
+                    width: 16,
+                    height: 24,
+                    vx: 0,
+                    vy: 0,
+                    grounded: false,
+                    onLadder: false,
+                    coyoteTime: 0,
+                    facing: 1, // 1 = right, -1 = left
+                    state: 'idle', // idle, walking, jumping, falling, climbing, dead
+                    invulnerable: 0,
+                    hammerTime: 0,
+                    animFrame: 0,
+                    animTimer: 0
+                };
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                this.frameCount++;
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            update() {
+                if (this.gameState !== 'playing') return;
+                
+                this.updateInput();
+                this.updateMario();
+                this.updateBarrels();
+                this.updateDonkeyKong();
+                this.checkCollisions();
+                this.updateUI();
+                
+                // Store previous input state
+                this.prevKeys = { ...this.keys };
+            }
+            
+            updateInput() {
+                const mario = this.mario;
+                if (!mario || mario.state === 'dead') return;
+                
+                // Horizontal movement
+                if (this.keys['ArrowLeft']) {
+                    mario.vx = Math.max(mario.vx - 1, -this.MOVE_SPEED);
+                    mario.facing = -1;
+                    if (mario.grounded && !mario.onLadder) mario.state = 'walking';
+                } else if (this.keys['ArrowRight']) {
+                    mario.vx = Math.min(mario.vx + 1, this.MOVE_SPEED);
+                    mario.facing = 1;
+                    if (mario.grounded && !mario.onLadder) mario.state = 'walking';
+                } else {
+                    if (mario.grounded) mario.state = 'idle';
+                }
+                
+                // Jumping
+                if (this.keys['Space'] && !this.prevKeys['Space']) {
+                    if (mario.grounded || mario.coyoteTime > 0) {
+                        mario.vy = this.JUMP_POWER;
+                        mario.grounded = false;
+                        mario.onLadder = false;
+                        mario.coyoteTime = 0;
+                        mario.state = 'jumping';
+                        this.sound.play('jump');
+                    }
+                }
+                
+                // Variable jump height
+                if (!this.keys['Space'] && mario.vy < -4) {
+                    mario.vy *= 0.5;
+                }
+                
+                // Ladder climbing
+                if (this.keys['ArrowUp'] || this.keys['ArrowDown']) {
+                    const onLadder = this.checkLadderCollision(mario);
+                    if (onLadder) {
+                        mario.onLadder = true;
+                        mario.grounded = true;
+                        mario.vy = 0;
+                        mario.state = 'climbing';
+                        
+                        if (this.keys['ArrowUp']) {
+                            mario.y -= 2;
+                        } else if (this.keys['ArrowDown']) {
+                            mario.y += 2;
+                        }
+                    }
+                }
+            }
+            
+            updateMario() {
+                const mario = this.mario;
+                if (!mario || mario.state === 'dead') return;
+                
+                // Update invulnerability
+                if (mario.invulnerable > 0) mario.invulnerable--;
+                if (mario.hammerTime > 0) mario.hammerTime--;
+                
+                // Coyote time
+                if (mario.coyoteTime > 0) mario.coyoteTime--;
+                
+                // Apply physics if not on ladder
+                if (!mario.onLadder) {
+                    // Apply gravity
+                    mario.vy += this.GRAVITY;
+                    mario.vy = Math.min(mario.vy, this.TERMINAL_VELOCITY);
+                    
+                    // Apply friction
+                    if (mario.grounded) {
+                        mario.vx *= this.GROUND_FRICTION;
+                    } else {
+                        mario.vx *= this.AIR_FRICTION;
+                        if (mario.vy > 0) mario.state = 'falling';
+                    }
+                    
+                    // Update position
+                    mario.x += mario.vx;
+                    mario.y += mario.vy;
+                }
+                
+                // Check platform collisions
+                this.handlePlatformCollisions(mario);
+                
+                // Keep Mario in bounds
+                mario.x = Math.max(0, Math.min(mario.x, this.canvas.width - mario.width));
+                
+                // Update animations
+                mario.animTimer++;
+                if (mario.animTimer >= 8) {
+                    mario.animFrame = (mario.animFrame + 1) % 4;
+                    mario.animTimer = 0;
+                }
+                
+                // Check if reached top (win condition)
+                if (mario.y < 180) {
+                    this.levelComplete();
+                }
+            }
+            
+            handlePlatformCollisions(mario) {
+                mario.grounded = false;
+                
+                for (const platform of this.platforms) {
+                    // Check collision
+                    if (mario.x + mario.width > platform.x &&
+                        mario.x < platform.x + platform.width &&
+                        mario.y + mario.height > platform.y &&
+                        mario.y < platform.y + platform.height) {
+                        
+                        // Landing on top of platform
+                        if (mario.vy > 0 && mario.y < platform.y) {
+                            mario.y = platform.y - mario.height;
+                            mario.vy = 0;
+                            mario.grounded = true;
+                            mario.onLadder = false;
+                            mario.coyoteTime = this.COYOTE_TIME;
+                            
+                            if (mario.state === 'falling' || mario.state === 'jumping') {
+                                mario.state = 'idle';
+                            }
+                        }
+                        // Hit platform from below
+                        else if (mario.vy < 0 && mario.y > platform.y) {
+                            mario.y = platform.y + platform.height;
+                            mario.vy = 0;
+                        }
+                        // Hit platform from side
+                        else if (mario.vx !== 0) {
+                            if (mario.x < platform.x) {
+                                mario.x = platform.x - mario.width;
+                            } else {
+                                mario.x = platform.x + platform.width;
+                            }
+                            mario.vx = 0;
+                        }
+                    }
+                }
+                
+                // Update coyote time
+                if (!mario.grounded && mario.coyoteTime === this.COYOTE_TIME) {
+                    mario.coyoteTime = this.COYOTE_TIME;
+                }
+            }
+            
+            checkLadderCollision(mario) {
+                for (const ladder of this.ladders) {
+                    if (mario.x + mario.width/2 > ladder.x &&
+                        mario.x + mario.width/2 < ladder.x + ladder.width &&
+                        mario.y + mario.height > ladder.y &&
+                        mario.y < ladder.y + ladder.height) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            updateDonkeyKong() {
+                this.donkeyKong.barrelTimer++;
+                
+                if (this.donkeyKong.barrelTimer >= this.donkeyKong.barrelDelay) {
+                    this.createBarrel();
+                    this.donkeyKong.barrelTimer = 0;
+                }
+            }
+            
+            createBarrel() {
+                this.barrels.push({
+                    x: this.donkeyKong.x + 30,
+                    y: this.donkeyKong.y + 50,
+                    width: 16,
+                    height: 16,
+                    vx: 2 + Math.random() * 2,
+                    vy: 0,
+                    grounded: false,
+                    bounces: 0,
+                    maxBounces: 3 + Math.floor(Math.random() * 3)
+                });
+                this.sound.play('barrel');
+            }
+            
+            updateBarrels() {
+                for (let i = this.barrels.length - 1; i >= 0; i--) {
+                    const barrel = this.barrels[i];
+                    
+                    // Apply physics
+                    barrel.vy += this.GRAVITY;
+                    barrel.vy = Math.min(barrel.vy, this.TERMINAL_VELOCITY);
+                    
+                    // Update position
+                    barrel.x += barrel.vx;
+                    barrel.y += barrel.vy;
+                    
+                    // Platform collision
+                    barrel.grounded = false;
+                    for (const platform of this.platforms) {
+                        if (barrel.x + barrel.width > platform.x &&
+                            barrel.x < platform.x + platform.width &&
+                            barrel.y + barrel.height > platform.y &&
+                            barrel.y < platform.y + platform.height) {
+                            
+                            if (barrel.vy > 0 && barrel.y < platform.y) {
+                                barrel.y = platform.y - barrel.height;
+                                barrel.vy = -barrel.vy * 0.3; // Bounce
+                                barrel.grounded = true;
+                                barrel.bounces++;
+                                
+                                // Handle slope rolling
+                                if (platform.slope) {
+                                    barrel.vx += platform.slope * 2;
+                                }
+                                
+                                // Destroy after too many bounces
+                                if (barrel.bounces > barrel.maxBounces) {
+                                    this.barrels.splice(i, 1);
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Remove if off screen
+                    if (barrel.y > this.canvas.height || barrel.x < -50 || barrel.x > this.canvas.width + 50) {
+                        this.barrels.splice(i, 1);
+                    }
+                }
+            }
+            
+            checkCollisions() {
+                if (!this.mario || this.mario.invulnerable > 0) return;
+                
+                // Mario vs Barrels
+                for (const barrel of this.barrels) {
+                    if (this.mario.x + this.mario.width > barrel.x &&
+                        this.mario.x < barrel.x + barrel.width &&
+                        this.mario.y + this.mario.height > barrel.y &&
+                        this.mario.y < barrel.y + barrel.height) {
+                        
+                        this.hitMario();
+                        break;
+                    }
+                }
+            }
+            
+            hitMario() {
+                this.mario.state = 'dead';
+                this.mario.invulnerable = 120;
+                this.lives--;
+                this.sound.play('hit');
+                
+                if (this.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    // Respawn after delay
+                    setTimeout(() => {
+                        this.initializeMario();
+                    }, 2000);
+                }
+            }
+            
+            levelComplete() {
+                this.score += 5000 + (this.level * 1000);
+                this.level++;
+                this.sound.play('complete');
+                
+                // Reset level with increased difficulty
+                this.initializeMario();
+                this.barrels = [];
+                this.donkeyKong.barrelDelay = Math.max(60, this.donkeyKong.barrelDelay - 10);
+            }
+            
+            gameOver() {
+                this.gameState = 'gameOver';
+                this.sound.play('gameOver');
+                document.getElementById('gameOver').style.display = 'block';
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('lives').textContent = this.lives;
+                document.getElementById('level').textContent = this.level;
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#0066ff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.renderPlatforms();
+                this.renderLadders();
+                this.renderDonkeyKong();
+                this.renderBarrels();
+                this.renderMario();
+                
+                if (this.gameState === 'attract') {
+                    this.renderAttractScreen();
+                }
+            }
+            
+            renderPlatforms() {
+                this.ctx.fillStyle = '#ff6600';
+                for (const platform of this.platforms) {
+                    this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                }
+            }
+            
+            renderLadders() {
+                this.ctx.fillStyle = '#ffff00';
+                for (const ladder of this.ladders) {
+                    // Draw ladder rungs
+                    for (let y = ladder.y; y < ladder.y + ladder.height; y += 8) {
+                        this.ctx.fillRect(ladder.x, y, ladder.width, 2);
+                    }
+                    // Draw ladder sides
+                    this.ctx.fillRect(ladder.x, ladder.y, 2, ladder.height);
+                    this.ctx.fillRect(ladder.x + ladder.width - 2, ladder.y, 2, ladder.height);
+                }
+            }
+            
+            renderDonkeyKong() {
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(this.donkeyKong.x, this.donkeyKong.y, this.donkeyKong.width, this.donkeyKong.height);
+                
+                // Simple face
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(this.donkeyKong.x + 15, this.donkeyKong.y + 15, 4, 4);
+                this.ctx.fillRect(this.donkeyKong.x + 35, this.donkeyKong.y + 15, 4, 4);
+            }
+            
+            renderBarrels() {
+                this.ctx.fillStyle = '#CD853F';
+                for (const barrel of this.barrels) {
+                    this.ctx.fillRect(barrel.x, barrel.y, barrel.width, barrel.height);
+                    
+                    // Barrel stripes
+                    this.ctx.fillStyle = '#8B4513';
+                    this.ctx.fillRect(barrel.x, barrel.y + 4, barrel.width, 2);
+                    this.ctx.fillRect(barrel.x, barrel.y + 10, barrel.width, 2);
+                    this.ctx.fillStyle = '#CD853F';
+                }
+            }
+            
+            renderMario() {
+                if (!this.mario) return;
+                
+                // Flicker when invulnerable
+                if (this.mario.invulnerable > 0 && Math.floor(this.frameCount / 4) % 2) return;
+                
+                this.ctx.fillStyle = '#ff0000';
+                this.ctx.fillRect(this.mario.x, this.mario.y, this.mario.width, this.mario.height);
+                
+                // Simple face
+                this.ctx.fillStyle = '#ffdbac';
+                this.ctx.fillRect(this.mario.x + 2, this.mario.y + 4, this.mario.width - 4, 8);
+                
+                // Eyes
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(this.mario.x + 4, this.mario.y + 6, 2, 2);
+                this.ctx.fillRect(this.mario.x + 10, this.mario.y + 6, 2, 2);
+                
+                // Mustache
+                this.ctx.fillRect(this.mario.x + 5, this.mario.y + 9, 6, 2);
+            }
+            
+            renderAttractScreen() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '48px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('DONKEY KONG', this.canvas.width / 2, 200);
+                
+                this.ctx.font = '24px Courier New';
+                this.ctx.fillText('Press ENTER to Start', this.canvas.width / 2, 300);
+                
+                this.ctx.font = '16px Courier New';
+                this.ctx.fillText('Arrow Keys: Move  |  Space: Jump', this.canvas.width / 2, 400);
+                this.ctx.fillText('Climb ladders to reach the top!', this.canvas.width / 2, 430);
+            }
+        }
+        
+        // Start the game
+        window.addEventListener('load', () => {
+            new DonkeyKongGame();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform System Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #222;
+            color: white;
+            font-family: monospace;
+        }
+        .test-container {
+            width: 800px;
+            height: 600px;
+            background: #333;
+            position: relative;
+            border: 2px solid #555;
+        }
+        .platform {
+            position: absolute;
+            height: 40px;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            border: 2px solid #654321;
+            z-index: 2;
+        }
+        .platform-level-1 {
+            bottom: 0px;
+            left: 0%;
+            width: 100%;
+        }
+        .platform-level-2 {
+            bottom: 120px;
+            left: 15%;
+            width: 85%;
+            transform: rotate(-2deg);
+            transform-origin: left bottom;
+        }
+        .platform-level-3 {
+            bottom: 240px;
+            left: 0%;
+            width: 85%;
+            transform: rotate(2deg);
+            transform-origin: right bottom;
+        }
+        .platform-level-4 {
+            bottom: 360px;
+            left: 15%;
+            width: 85%;
+            transform: rotate(-2deg);
+            transform-origin: left bottom;
+        }
+        .platform-level-5 {
+            bottom: 480px;
+            left: 0%;
+            width: 70%;
+            transform: rotate(1deg);
+        }
+        .ladder {
+            position: absolute;
+            width: 30px;
+            background: linear-gradient(180deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+            background-image: 
+                linear-gradient(90deg, transparent 45%, #654321 45%, #654321 55%, transparent 55%);
+            z-index: 1;
+            border: 1px solid #444;
+        }
+        .ladder-1-2 {
+            bottom: 40px;
+            height: 120px;
+            right: 10%;
+        }
+        .ladder-2-3 {
+            bottom: 160px;
+            height: 120px;
+            left: 8%;
+        }
+        .ladder-3-4 {
+            bottom: 280px;
+            height: 120px;
+            right: 10%;
+        }
+        .ladder-4-5 {
+            bottom: 400px;
+            height: 120px;
+            left: 8%;
+        }
+        .mario {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: red;
+            border-radius: 50%;
+            bottom: 40px;
+            left: 50px;
+            z-index: 10;
+        }
+        .princess {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: pink;
+            border-radius: 50%;
+            bottom: 520px;
+            right: 3%;
+            z-index: 3;
+        }
+        .donkey {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: brown;
+            border-radius: 50%;
+            bottom: 520px;
+            right: 15%;
+            z-index: 3;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enhanced Honky Pong Platform System Test</h1>
+    <p>This test visualizes the 5-level platform system with alternating ladders</p>
+    
+    <div class="test-container">
+        <div class="info">
+            ✅ 5 platforms with proper slants<br>
+            ✅ 4 ladders alternating left/right<br>
+            ✅ Princess on top platform<br>
+            ✅ Donkey Kong on top platform<br>
+            ✅ Mario starts on bottom platform
+        </div>
+        
+        <!-- Multi-Level Platform System -->
+        <div class="platform platform-level-1"></div>
+        <div class="platform platform-level-2"></div>
+        <div class="platform platform-level-3"></div>
+        <div class="platform platform-level-4"></div>
+        <div class="platform platform-level-5"></div>
+        
+        <!-- Ladders connecting the platforms -->
+        <div class="ladder ladder-1-2"></div>
+        <div class="ladder ladder-2-3"></div>
+        <div class="ladder ladder-3-4"></div>
+        <div class="ladder ladder-4-5"></div>
+        
+        <!-- Game characters -->
+        <div class="mario"></div>
+        <div class="princess"></div>
+        <div class="donkey"></div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <h2>Platform System Verification</h2>
+        <ul>
+            <li>✅ Level 1 (Ground): 100% width, no rotation</li>
+            <li>✅ Level 2: 85% width, -2° rotation, starts at 15% left</li>
+            <li>✅ Level 3: 85% width, +2° rotation, starts at 0% left</li>
+            <li>✅ Level 4: 85% width, -2° rotation, starts at 15% left</li>
+            <li>✅ Level 5 (Top): 70% width, +1° rotation, starts at 0% left</li>
+            <li>✅ Ladders alternate sides for authentic DK layout</li>
+            <li>✅ Princess positioned on top platform</li>
+            <li>✅ Donkey Kong positioned on top platform</li>
+            <li>✅ Mario starts on bottom platform</li>
+        </ul>
+    </div>
+</body>
+</html>

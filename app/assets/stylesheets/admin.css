@@ -1,4 +1,5 @@
 /* Admin Panel Styles */
+@import url("admin_dashboard.css");
 
 /* Checklist completion highlight */
 .checklist-completed-highlight {
@@ -28,6 +29,651 @@
 /* Admin logo styling */
 .admin-logo {
   height: 40px;
+}
+
+/* Calculator Styles */
+.calculator-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  padding: 3rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.calculator-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.calculator-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+.parameter-section {
+  min-height: 100%;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: auto;
+}
+
+/* Force columns to display side by side on large screens and up */
+@media (min-width: 992px) {
+  .calculator-columns {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1.5rem;
+  }
+  
+  .calculator-columns .col-lg-4 {
+    flex: 1 !important;
+    max-width: none !important;
+    width: 33.333333% !important;
+  }
+}
+
+/* Medium screens - stack vertically for better readability */
+@media (min-width: 768px) and (max-width: 991px) {
+  .calculator-columns .col-lg-4 {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Make parameter sections equal height and organized */
+.parameter-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.parameter-section:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Ensure form fields take up available space properly */
+.parameter-section .mb-3:last-of-type {
+  margin-bottom: 1rem !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+  .calculator-columns .col-lg-4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .parameter-section {
+    min-height: auto;
+  }
+  
+  .calculator-header {
+    padding: 2rem 1rem;
+  }
+  
+  .calculator-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  /* Stack labels and inputs on mobile for better readability */
+  .parameter-section .mb-3 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .parameter-section .form-check {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .parameter-section .form-label {
+    text-align: left;
+    min-width: auto;
+    margin-bottom: 0.25rem;
+    padding-right: 0;
+  }
+  
+  .parameter-section .form-control,
+  .parameter-section .form-select {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+.section-title {
+  color: #495057;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.75rem !important;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  white-space: nowrap;
+  min-width: 120px;
+  text-align: right;
+  padding-right: 0.5rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  height: auto;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.calculate-section {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
+  border: 2px solid #10b981;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.calculate-section:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.calculate-section p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+.calculate-section .d-flex {
+  min-height: 60px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.form-check-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Elegant Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  min-width: 300px;
+}
+
+.elegant-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-content p {
+  color: #6b7280;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* Results Display Styling */
+.results-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.results-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.results-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.results-content {
+  padding: 2rem;
+}
+
+.results-section {
+  margin-bottom: 3rem;
+}
+
+.results-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.section-header-with-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.section-header-with-controls h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.path-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.path-controls label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.path-selector {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background: white;
+  min-width: 180px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.results-table thead th {
+  background: #f9fafb;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.results-table tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #4b5563;
+}
+
+.results-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.results-table tbody tr:hover {
+  background: #f3f4f6;
+}
+
+/* Mobile responsive adjustments for results */
+@media (max-width: 767px) {
+  .results-content {
+    padding: 1rem;
+  }
+  
+  .section-header-with-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .path-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .path-selector {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+/* Enhanced Results Display */
+
+/* Key Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 0.5rem;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+  font-style: italic;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 500px;
+  min-height: 500px;
+  min-width: 1200px;
+}
+
+.chart-canvas-small {
+  height: 400px;
+  min-height: 400px;
+  min-width: 1200px;
+}
+
+/* Term adjustment notification */
+.term-adjustment-notification {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.375rem;
+  color: #92400e;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.chart-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.chart-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Risk Analysis */
+.risk-analysis {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.risk-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.risk-label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.risk-value {
+  font-weight: 600;
+  color: #10b981;
+  font-size: 0.875rem;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+/* Table Sections */
+.table-section {
+  margin-bottom: 2rem;
+}
+
+.table-section:last-child {
+  margin-bottom: 0;
+}
+
+.table-section h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header-with-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header-with-controls h4 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 767px) {
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  
+  .metric-card {
+    padding: 1rem;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .chart-container {
+    padding: 1rem;
+  }
+  
+  .risk-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .table-header-with-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+/* Inline form styling for calculator */
+.parameter-section .mb-3 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem !important;
+}
+
+.parameter-section .form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem !important;
+}
+
+.parameter-section .form-check .form-check-input {
+  margin-right: 0.5rem;
+  margin-top: 0;
+}
+
+.parameter-section .form-check .form-check-label {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  min-width: 120px;
+  text-align: left;
+  padding-left: 0;
+}
+
+/* Adjust form controls to take remaining space */
+.parameter-section .form-control,
+.parameter-section .form-select {
+  flex: 1;
+  max-width: 180px;
+}
+
+/* Make sections more compact */
+.parameter-section {
+  min-height: 400px;
+  padding: 1rem;
 }
 
 /* Preview Page Styles */

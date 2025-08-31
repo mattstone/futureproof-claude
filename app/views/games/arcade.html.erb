@@ -1,16 +1,38 @@
-<%= stylesheet_link_tag 'arcade', 'data-turbo-track': 'reload' %>
-<%= render 'shared/header' %>
-
-<div class="arcade-container">
-  <!-- Neon Arcade Sign -->
-  <div class="arcade-header">
-    <h1 class="arcade-title">
-      <span class="neon-text">🕹️ FUTUREPROOF ARCADE 🕹️</span>
-    </h1>
-    <div class="arcade-subtitle">
-      <span class="retro-text">★ SELECT YOUR GAME ★</span>
+<!-- Arcade Header Section - Mirrors Main Site Structure -->
+<section class="header-section">
+  <div class="header-container">
+    <div class="header-content">
+      <div class="top-left-logo">
+        <%= link_to root_path do %>
+          <%= image_tag "futureproof-logo.png", class: "futureproof-logo" %>
+        <% end %>
+      </div>
+      <div class="logo-title-wrapper">
+        <div class="arcade-logo">🕹️</div>
+        <div class="title-group">
+          <h1 class="main-title">Futureproof Arcade</h1>
+          <p class="subtitle-text"><span class="lightning-bolt">⚡</span> UNLIMITED PLAY <span class="lightning-bolt">⚡</span> NO QUARTERS NEEDED <span class="lightning-bolt">⚡</span></p>
+        </div>
+      </div>
+      <div class="header-auth">
+        <% if user_signed_in? %>
+          <div class="nav-links">
+            <% if current_user.admin? %>
+              <%= link_to "Admin", admin_root_path, class: "nav-link" %>
+            <% end %>
+            <%= link_to "Profile", edit_user_registration_path, class: "nav-link" %>
+            <%= render 'shared/sign_out_link' %>
+          </div>
+          <div class="nav-user"><%= current_user.email %></div>
+        <% else %>
+          <%= link_to "Sign In", new_user_session_path, class: "nav-link nav-signin" %>
+        <% end %>
+      </div>
     </div>
   </div>
+</section>
+
+<div class="arcade-container">
 
   <!-- Game Selection Grid -->
   <div class="games-grid">
@@ -28,13 +50,16 @@
         </div>
       </div>
       <div class="game-controls">
-        <%= link_to honky_pong_path, class: "arcade-button start-button" do %>
-          <span class="button-text">START GAME</span>
+        <%= link_to "/honky-pong-simple", class: "arcade-button start-button" do %>
+          <span class="button-text">PLAY SIMPLE</span>
           <div class="button-lights">
             <div class="light red"></div>
             <div class="light yellow"></div>
             <div class="light green"></div>
           </div>
+        <% end %>
+        <%= link_to honky_pong_path, class: "arcade-button advanced-button" do %>
+          <span class="button-text">FULL VERSION</span>
         <% end %>
       </div>
       <div class="game-info">
@@ -99,6 +124,37 @@
       </div>
     </div>
 
+    <!-- Donkey Kong Standalone Game Card -->
+    <div class="game-card donkey-kong-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🦍<br>
+            <div class="game-logo">DONKEY KONG</div>
+            <div class="game-description">Standalone Phaser Game!</div>
+            <div class="high-score">HIGH SCORE: 555,555</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/enhanced-donkey-kong/index.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">ENHANCED VERSION</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+        <%= link_to "/donkey-kong.html", class: "arcade-button advanced-button", target: "_blank" do %>
+          <span class="button-text">SIMPLE VERSION</span>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">NO LOGIN REQUIRED</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
     <!-- DefendHer Game Card -->
     <div class="game-card defendher-card">
       <div class="game-screen">
@@ -113,6 +169,34 @@
       </div>
       <div class="game-controls">
         <%= link_to defendher_path, class: "arcade-button start-button" do %>
+          <span class="button-text">START GAME</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">INSERT COIN</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Hemorrhoids Game Card -->
+    <div class="game-card hemorrhoids-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            ☄️<br>
+            <div class="game-logo">HEMORRHOIDS</div>
+            <div class="game-description">Asteroids Classic!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to hemorrhoids_path, class: "arcade-button start-button" do %>
           <span class="button-text">START GAME</span>
           <div class="button-lights">
             <div class="light red"></div>
@@ -144,10 +228,10 @@
     </div>
   </div>
 
-  <!-- Retro Footer -->
+  <!-- Professional Footer -->
   <div class="arcade-footer">
     <div class="retro-message">
-      ⚡ UNLIMITED PLAY ⚡ NO QUARTERS NEEDED ⚡
+      <span class="lightning-bolt">⚡</span> UNLIMITED PLAY <span class="lightning-bolt">⚡</span> NO QUARTERS NEEDED <span class="lightning-bolt">⚡</span>
     </div>
     <div class="back-link">
       <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-retro" %>

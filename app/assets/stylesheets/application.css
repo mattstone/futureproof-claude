@@ -19,8 +19,12 @@
 @import url("legal.css");
 @import url("ai_agents.css");
 @import url("admin.css");
-@import url("honky_pong.css");
-@import url("lace_invaders.css");
+
+/* HTML theme styles - moved from inline to fix CSP */
+html.theme-light {
+  color-scheme: light;
+  background-color: transparent;
+}
 
 /* Alert styles */
 .alert {
@@ -67,4 +71,9 @@
 .alert-dismiss:focus {
   outline: none;
   opacity: 1;
+}
+
+/* Restore default font size for main application */
+body {
+  font-size: 14px; /* Standard web app font size */
 }

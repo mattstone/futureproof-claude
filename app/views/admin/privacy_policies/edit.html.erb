@@ -7,7 +7,10 @@
   </div>
 </div>
 
-<div class="privacy-editor-layout">
+<div class="privacy-editor-layout" 
+     data-controller="markup-editor" 
+     data-markup-editor-preview-url-value="<%= preview_admin_privacy_policies_path %>"
+     data-markup-editor-legal-type-value="privacy">
   <div class="privacy-form-column">
     <div class="admin-form-container">
       <%= render 'form' %>
@@ -21,10 +24,7 @@
         <p>See your changes in real-time</p>
       </div>
       <div class="markup-preview" 
-           data-controller="markup-editor" 
            data-markup-editor-target="preview"
-           data-markup-editor-legal-type-value="privacy"
-           data-markup-editor-preview-url-value="/admin/privacy_policies/preview"
            id="markup-preview-standalone">
         <p class="preview-note">Content preview will appear here as you type...</p>
       </div>

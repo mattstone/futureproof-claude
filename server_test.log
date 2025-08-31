@@ -1,0 +1,1302 @@
+=> Booting Puma
+=> Rails 8.0.2.1 application starting in development 
+=> Run `bin/rails server --help` for more startup options
+Puma starting in single mode...
+* Puma version: 6.6.1 ("Return to Forever")
+* Ruby version: ruby 3.3.6 (2024-11-05 revision 75015d4c1f) [arm64-darwin24]
+*  Min threads: 3
+*  Max threads: 3
+*  Environment: development
+*          PID: 69712
+* Listening on http://127.0.0.1:3000
+Use Ctrl-C to stop
+[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 06:55:25 +1000
+[0m[32m  📊 SQL (1.97ms): SELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='Futureproof'*/[0m
+[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}}
+[0m[32mℹ️  Completed 401 Unauthorized in 76ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.2ms)
+
+
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 06:55:43 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}}
+[0m[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}, "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 2
+[0m[32mℹ️  annual_house_price_appreciation: 3
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 0.02
+[0m[32mℹ️  annual_house_price_appreciation: 0.03
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 6.496 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.137 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.617 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 0.0, "std_final_reinvestment": 0.0, "percentile_2": 0.0, "percentile_25": 0.0, "percentile_50": 0.0, "percentile_75": 0.0, "percentile_98": 0.0, "all_final_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "62.5%", "", "", "", ""], ["Total Income", "TI", "$450000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$0", "$0", "$0", "$0", "$0"], ["Standard Deviation", "", "$0", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>0.0, :std=>0.0, :percentiles=>{:p2=>0.0, :p25=>0.0, :p50=>0.0, :p75=>0.0, :p98=>0.0}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 6546ms (Views: 4.6ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.7ms)
+
+
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 06:59:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}}
+[0m[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}, "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 2
+[0m[32mℹ️  annual_house_price_appreciation: 3
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 0.02
+[0m[32mℹ️  annual_house_price_appreciation: 0.03
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 6.235 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.119 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.522 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 0.0, "std_final_reinvestment": 0.0, "percentile_2": 0.0, "percentile_25": 0.0, "percentile_50": 0.0, "percentile_75": 0.0, "percentile_98": 0.0, "all_final_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  Temporary file left for debugging: /Users/zen/projects/futureproof/futureproof/python/ruby_monte_carlo_1756587546_179.py
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "62.5%", "", "", "", ""], ["Total Income", "TI", "$450000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$0", "$0", "$0", "$0", "$0"], ["Standard Deviation", "", "$0", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>0.0, :std=>0.0, :percentiles=>{:p2=>0.0, :p25=>0.0, :p50=>0.0, :p75=>0.0, :p98=>0.0}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 6283ms (Views: 4.3ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 06:59:46 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}}
+[0m[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}, "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 2
+[0m[32mℹ️  annual_house_price_appreciation: 3
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 0.02
+[0m[32mℹ️  annual_house_price_appreciation: 0.03
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 6.3 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.107 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.517 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 423396.441, "std_final_reinvestment": 75007.92095194026, "percentile_2": 284186.76, "percentile_25": 365682.0, "percentile_50": 420355.5, "percentile_75": 478332.25, "percentile_98": 569882.32, "all_final_values": [475231, 354361, 496967, 332331, 473289, 576869, 342225, 552312, 288109, 503
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  Temporary file left for debugging: /Users/zen/projects/futureproof/futureproof/python/ruby_monte_carlo_1756587586_711.py
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "62.5%", "", "", "", ""], ["Total Income", "TI", "$450000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$423396", "$284187", "$365682", "$420356", "$478332"], ["Standard Deviation", "", "$75008", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>423396.441, :std=>75007.92095194026, :percentiles=>{:p2=>284186.76, :p25=>365682.0, :p50=>420355.5, :p75=>478332.25, :p98=>569882.32}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 6355ms (Views: 4.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 5.4ms)
+
+
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 07:00:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}}
+[0m[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"15", "loan_type"=>"Interest only", "principal_repayment"=>"false", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"42", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"false", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.50", "enable_pool"=>"false", "calculation_engine"=>"python_monte_carlo", "start_year"=>"2000", "insurance_cost_pa"=>"2", "annual_house_price_appreciation"=>"3"}, "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 2
+[0m[32mℹ️  annual_house_price_appreciation: 3
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 15
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: false
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 42
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: false
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.50
+[0m[32mℹ️  enable_pool: false
+[0m[32mℹ️  calculation_engine: python_monte_carlo
+[0m[32mℹ️  start_year: 2000
+[0m[32mℹ️  insurance_cost_pa: 0.02
+[0m[32mℹ️  annual_house_price_appreciation: 0.03
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 6.19 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.119 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.546 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 423396.441, "std_final_reinvestment": 75007.92095194026, "percentile_2": 284186.76, "percentile_25": 365682.0, "percentile_50": 420355.5, "percentile_75": 478332.25, "percentile_98": 569882.32, "all_final_values": [475231, 354361, 496967, 332331, 473289, 576869, 342225, 552312, 288109, 503
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  Temporary file left for debugging: /Users/zen/projects/futureproof/futureproof/python/ruby_monte_carlo_1756587604_951.py
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "62.5%", "", "", "", ""], ["Total Income", "TI", "$450000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$423396", "$284187", "$365682", "$420356", "$478332"], ["Standard Deviation", "", "$75008", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>423396.441, :std=>75007.92095194026, :percentiles=>{:p2=>284186.76, :p25=>365682.0, :p50=>420355.5, :p75=>478332.25, :p98=>569882.32}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 6233ms (Views: 4.8ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.5ms)
+
+
+[0m[32mℹ️  Started GET "/admin/calculators" for 127.0.0.1 at 2025-08-31 07:09:49 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/calculators
+[0m[32mℹ️  Processing by Admin::CalculatorsController#index as HTML
+[0m[32m  📊 SQL (6.9ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (2.48ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (2.97ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 399.9ms | GC: 40.4ms)
+[0m[32mℹ️  Completed 200 OK in 956ms (Views: 393.5ms | ActiveRecord: 541.2ms (3 queries, 0 cached) | GC: 46.4ms)
+
+
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 07:09:50 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 07:09:52 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"authenticity_token"=>"[FILTERED]", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean"}
+[0m[32m  📊 SQL (0.82ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.76ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"authenticity_token"=>"NMlXulw9aqDnHGb6uc69i0HqOKAXpAACw2ulxApZkahfuJ3DV4cPYn7vLa73Rpv9pkUGRLKaz8JoKWxv0F5Qag", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean", "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 7.014 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.148 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.764 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 573688.505, "std_final_reinvestment": 103857.27245595263, "percentile_2": 372357.96, "percentile_25": 497134.0, "percentile_50": 567095.0, "percentile_75": 651274.0, "percentile_98": 775281.1, "all_final_values": [480148, 529914, 611669, 486879, 588726, 457021, 596469, 530510, 477720, 5202
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "75.0%", "", "", "", ""], ["Total Income", "TI", "$300000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$573689", "$372358", "$497134", "$567095", "$651274"], ["Standard Deviation", "", "$103857", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>573688.505, :std=>103857.27245595263, :percentiles=>{:p2=>372357.96, :p25=>497134.0, :p50=>567095.0, :p75=>651274.0, :p98=>775281.1}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 7091ms (Views: 4.4ms | ActiveRecord: 1.6ms (2 queries, 0 cached) | GC: 0.0ms)
+
+
+[0m[32mℹ️  Started GET "/admin" for 127.0.0.1 at 2025-08-31 07:12:34 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin
+[0m[32mℹ️  Processing by Admin::DashboardController#index as HTML
+[0m[32m  📊 SQL (0.29ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.44ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32mℹ️  [ADMIN] admin@futureprooffinancial.co accessed /admin from IP: 127.0.0.1
+[0m[32m  📊 SQL (0.29ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (3.78ms): SELECT COUNT(*) FROM "users" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.29ms): SELECT COUNT(*) FROM "users" WHERE "users"."confirmed_at" IS NOT NULL /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.15ms): SELECT COUNT(*) FROM "users" WHERE "users"."confirmed_at" IS NULL /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.23ms): SELECT COUNT(*) FROM "users" WHERE "users"."admin" = TRUE /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.44ms): SELECT COUNT(*) FROM "users" WHERE (created_at >= '2025-07-30 21:12:34.536784') /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.2ms): SELECT COUNT(*) FROM "applications" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.35ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.17ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."status" IN (0, 1, 2, 3) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.9ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."status" = 7 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.14ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."status" = 6 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.14ms): SELECT COUNT(*) FROM "applications" WHERE (created_at >= '2025-07-30 21:12:34.541556') /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.18ms): SELECT COUNT(*) AS "count_all", "applications"."status" AS "applications_status" FROM "applications" GROUP BY "applications"."status" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.19ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-08-01 00:00:00' AND '2025-08-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.13ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-07-01 00:00:00' AND '2025-07-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.12ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-06-01 00:00:00' AND '2025-06-30 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.15ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-05-01 00:00:00' AND '2025-05-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.12ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-04-01 00:00:00' AND '2025-04-30 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.1ms): SELECT COUNT(*) FROM "applications" WHERE "applications"."created_at" BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.14ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-08-01 00:00:00' AND '2025-08-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.09ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-08-01 00:00:00' AND '2025-08-31 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.73ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-07-01 00:00:00' AND '2025-07-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.38ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-07-01 00:00:00' AND '2025-07-31 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.17ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-06-01 00:00:00' AND '2025-06-30 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.25ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-06-01 00:00:00' AND '2025-06-30 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.13ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-05-01 00:00:00' AND '2025-05-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.22ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-05-01 00:00:00' AND '2025-05-31 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.12ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-04-01 00:00:00' AND '2025-04-30 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.22ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-04-01 00:00:00' AND '2025-04-30 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.13ms): SELECT COUNT(*) FROM "users" WHERE "users"."created_at" BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59.999999' /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.22ms): SELECT COUNT(*) FROM "applications" INNER JOIN "users" ON "users"."id" = "applications"."user_id" WHERE "users"."created_at" BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59.999999' AND "applications"."status" IN (4, 5, 7, 6) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.2ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-08-01 00:00:00' AND '2025-08-31 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.24ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-07-01 00:00:00' AND '2025-07-31 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.23ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-06-01 00:00:00' AND '2025-06-30 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.34ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-05-01 00:00:00' AND '2025-05-31 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.26ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-04-01 00:00:00' AND '2025-04-30 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.2ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE "contracts"."created_at" BETWEEN '2025-03-01 00:00:00' AND '2025-03-31 23:59:59.999999' AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.2ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-08-31 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.18ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-07-31 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.17ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-06-30 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.22ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-05-31 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.18ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-04-30 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.19ms): SELECT SUM("applications"."home_value") FROM "contracts" INNER JOIN "applications" ON "applications"."id" = "contracts"."application_id" WHERE (contracts.created_at <= '2025-03-31 23:59:59.999999') AND "applications"."home_value" >= 0 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.42ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.18ms): SELECT SUM("funder_pools"."allocated") FROM "funder_pools" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.13ms): SELECT COUNT(*) FROM "funder_pools" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.19ms): SELECT COUNT(*) FROM "contracts" WHERE "contracts"."funder_pool_id" IS NOT NULL /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.14ms): SELECT "funder_pools".* FROM "funder_pools" /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (2.7ms): SELECT "wholesale_funders".* FROM "wholesale_funders" WHERE "wholesale_funders"."id" = 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.26ms): SELECT 1 AS one FROM "applications" LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.55ms): SELECT "applications".* FROM "applications" ORDER BY "applications"."updated_at" DESC LIMIT 5 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.72ms): SELECT "users".* FROM "users" WHERE "users"."id" IN (25, 40, 39, 38, 37) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.09ms): SELECT 1 AS one FROM "users" LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.35ms): SELECT "users".* FROM "users" ORDER BY "users"."created_at" DESC LIMIT 5 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.18ms): SELECT "user_versions".* FROM "user_versions" WHERE "user_versions"."action" != 'viewed' ORDER BY "user_versions"."created_at" DESC LIMIT 10 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (1.11ms): SELECT "application_versions".* FROM "application_versions" WHERE "application_versions"."action" != 'viewed' ORDER BY "application_versions"."created_at" DESC LIMIT 10 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.38ms): SELECT "applications".* FROM "applications" WHERE "applications"."id" IN (68, 8) /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.22ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.23ms): SELECT "users".* FROM "users" WHERE "users"."id" = 25 LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32m  📊 SQL (0.2ms): SELECT "users".* FROM "users" WHERE "users"."id" = 5 LIMIT 1 /*action='index',application='Futureproof',controller='dashboard'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 35.8ms | GC: 4.8ms)
+[0m[32mℹ️  Completed 200 OK in 196ms (Views: 28.7ms | ActiveRecord: 72.6ms (62 queries, 0 cached) | GC: 9.6ms)
+
+
+[0m[32mℹ️  Started GET "/admin/calculators" for 127.0.0.1 at 2025-08-31 07:12:35 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/calculators
+[0m[32mℹ️  Processing by Admin::CalculatorsController#index as HTML
+[0m[32m  📊 SQL (0.56ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.32ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.35ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 5.1ms | GC: 0.5ms)
+[0m[32mℹ️  Completed 200 OK in 53ms (Views: 5.0ms | ActiveRecord: 1.2ms (3 queries, 0 cached) | GC: 0.5ms)
+
+
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 07:12:35 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 07:12:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"authenticity_token"=>"[FILTERED]", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean"}
+[0m[32m  📊 SQL (0.44ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.51ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"authenticity_token"=>"DNmrYPccgOpJs3grTQhau1PKI1yuTd6e0-vl9Re3dpdnqGEZ_KblKNBAM38DgHzNtGUduAtzEV54qSxezbC3VQ", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean", "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 7.38 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.117 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.554 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 573688.505, "std_final_reinvestment": 103857.27245595263, "percentile_2": 372357.96, "percentile_25": 497134.0, "percentile_50": 567095.0, "percentile_75": 651274.0, "percentile_98": 775281.1, "all_final_values": [480148, 529914, 611669, 486879, 588726, 457021, 596469, 530510, 477720, 5202
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "75.0%", "", "", "", ""], ["Total Income", "TI", "$300000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$573689", "$372358", "$497134", "$567095", "$651274"], ["Standard Deviation", "", "$103857", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>573688.505, :std=>103857.27245595263, :percentiles=>{:p2=>372357.96, :p25=>497134.0, :p50=>567095.0, :p75=>651274.0, :p98=>775281.1}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution, :all_paths]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 7444ms (Views: 5.1ms | ActiveRecord: 0.9ms (2 queries, 0 cached) | GC: 0.4ms)
+
+
+[0m[32mℹ️  Started GET "/admin/calculators" for 127.0.0.1 at 2025-08-31 07:16:35 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/calculators
+[0m[32mℹ️  Processing by Admin::CalculatorsController#index as HTML
+[0m[32m  📊 SQL (0.25ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.39ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (1.17ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 53.2ms | GC: 29.2ms)
+[0m[32mℹ️  Completed 200 OK in 123ms (Views: 48.6ms | ActiveRecord: 21.2ms (3 queries, 0 cached) | GC: 30.0ms)
+
+
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 07:16:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started POST "/admin/calculators/calculate" for 127.0.0.1 at 2025-08-31 07:16:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 POST /admin/calculators/calculate
+[0m[32mℹ️  Processing by Admin::CalculatorsController#calculate as JSON
+[0m[32mℹ️    Parameters: {"authenticity_token"=>"[FILTERED]", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean"}
+[0m[32m  📊 SQL (0.6ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.59ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='calculate',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️  === RECEIVED CALCULATOR PARAMS ===
+[0m[32mℹ️  Raw params: #<ActionController::Parameters {"authenticity_token"=>"kp4_3GYlyymVdK3pQjo9Np0VTmUZeDc8BNTKbUAe08X57_WlbZ-u6wyH5r0MshtAerpwgbxG-PyvlgPGmhkSBw", "calculator"=>{"house_value"=>"1500000", "loan_duration"=>"30", "annuity_duration"=>"10", "loan_type"=>"Interest only", "principal_repayment"=>"0", "loan_to_value"=>"80", "annual_income"=>"30000", "at_risk_captital_fraction"=>"0", "equity_return"=>"10.8", "volatility"=>"15", "total_paths"=>"1000", "random_seed"=>"0", "cash_rate"=>"3.85", "insurer_profit_margin"=>"50", "hedged"=>"0", "hedging_cost_pa"=>"0.5", "hedging_max_loss"=>"10", "hedging_cap"=>"20", "wholesale_lending_margin"=>"2", "additional_loan_margins"=>"1.25", "holiday_enter_fraction"=>"0.9", "holiday_exit_fraction"=>"1.458", "subperform_loan_threshold_quarters"=>"12", "max_superpay_factor"=>"1.261", "superpay_start_factor"=>"1.5", "enable_pool"=>"0"}, "path_table_type"=>"Mean", "controller"=>"admin/calculators", "action"=>"calculate"} permitted: false>
+[0m[32mℹ️  Calculator params exist: true
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 80
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 10.8
+[0m[32mℹ️  volatility: 15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 3.85
+[0m[32mℹ️  insurer_profit_margin: 50
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 10
+[0m[32mℹ️  hedging_cap: 20
+[0m[32mℹ️  wholesale_lending_margin: 2
+[0m[32mℹ️  additional_loan_margins: 1.25
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  ==================================
+[0m[32mℹ️  === CONVERTED PARAMS ===
+[0m[32mℹ️  house_value: 1500000
+[0m[32mℹ️  loan_duration: 30
+[0m[32mℹ️  annuity_duration: 10
+[0m[32mℹ️  loan_type: Interest only
+[0m[32mℹ️  principal_repayment: 0
+[0m[32mℹ️  loan_to_value: 0.8
+[0m[32mℹ️  annual_income: 30000
+[0m[32mℹ️  at_risk_captital_fraction: 0
+[0m[32mℹ️  equity_return: 0.10800000000000001
+[0m[32mℹ️  volatility: 0.15
+[0m[32mℹ️  total_paths: 1000
+[0m[32mℹ️  random_seed: 0
+[0m[32mℹ️  cash_rate: 0.0385
+[0m[32mℹ️  insurer_profit_margin: 0.5
+[0m[32mℹ️  hedged: 0
+[0m[32mℹ️  hedging_cost_pa: 0.5
+[0m[32mℹ️  hedging_max_loss: 0.1
+[0m[32mℹ️  hedging_cap: 0.2
+[0m[32mℹ️  wholesale_lending_margin: 0.02
+[0m[32mℹ️  additional_loan_margins: 0.0125
+[0m[32mℹ️  holiday_enter_fraction: 0.9
+[0m[32mℹ️  holiday_exit_fraction: 1.458
+[0m[32mℹ️  subperform_loan_threshold_quarters: 12
+[0m[32mℹ️  max_superpay_factor: 1.261
+[0m[32mℹ️  superpay_start_factor: 1.5
+[0m[32mℹ️  enable_pool: 0
+[0m[32mℹ️  =========================
+[0m[32mℹ️  Using Python Monte Carlo Service (PRODUCTION DEFAULT)
+[0m[32mℹ️  Executing Python Monte Carlo calculation with 1000 paths...
+[0m[32mℹ️  Python Monte Carlo completed in 6.676 seconds
+[0m[32mℹ️  Python script output (first 500 chars): Generated 1000 paths in 0.122 seconds
+Running Monte Carlo simulation with 1000 paths...
+Simulation completed in 0.585 seconds
+Final values extracted: 1000 values
+{"total_paths": 1000, "mean_final_reinvestment": 573688.505, "std_final_reinvestment": 103857.27245595263, "percentile_2": 372357.96, "percentile_25": 497134.0, "percentile_50": 567095.0, "percentile_75": 651274.0, "percentile_98": 775281.1, "all_final_values": [480148, 529914, 611669, 486879, 588726, 457021, 596469, 530510, 477720, 5202
+[0m[32mℹ️  Found JSON line, parsing...
+[0m[32mℹ️  Chart data: 1000 paths available for visualization
+[0m[32mℹ️  === CALCULATION RESULT ===
+[0m[32mℹ️  Main outputs: [["Reinvestment fraction", "", "75.0%", "", "", "", ""], ["Total Income", "TI", "$300000.0", "", "", "", ""], ["Total Loan", "L", "$1200000", "", "", "", ""], ["Insurance Cost", "", "$720000.0", "", "", "", ""], ["Reinvestment value", "R", "$573689", "$372358", "$497134", "$567095", "$651274"], ["Standard Deviation", "", "$103857", "", "", "", ""], ["Total Paths", "", "1000", "", "", "", ""]]
+[0m[32mℹ️  Statistics: {:mean=>573688.505, :std=>103857.27245595263, :percentiles=>{:p2=>372357.96, :p25=>497134.0, :p50=>567095.0, :p75=>651274.0, :p98=>775281.1}}
+[0m[32mℹ️  Chart data keys: [:portfolio_values, :equity_prices, :periods, :years, :final_value_distribution, :all_paths]
+[0m[32mℹ️  ==========================
+[0m[32mℹ️  Completed 200 OK in 6765ms (Views: 18.0ms | ActiveRecord: 1.2ms (2 queries, 0 cached) | GC: 0.0ms)
+
+
+[0m[32mℹ️  Started GET "/whackeroids" for 127.0.0.1 at 2025-08-31 07:27:41 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /whackeroids
+[0m[32mℹ️  Processing by GamesController#whackeroids as */*
+[0m[32mℹ️  Completed 401 Unauthorized in 55ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 3.6ms)
+
+
+[0m[32mℹ️  Started HEAD "/hemorrhoids" for 127.0.0.1 at 2025-08-31 11:20:01 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 HEAD /hemorrhoids
+[0m[32mℹ️  Processing by GamesController#hemorrhoids as */*
+[0m[32mℹ️  Completed 401 Unauthorized in 59ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 3.7ms)
+
+
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_1.wav" for 127.0.0.1 at 2025-08-31 11:24:43 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_1.wav
+[0m[32mℹ️  Started GET "/assets/images/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_1.wav" for 127.0.0.1 at 2025-08-31 11:25:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/images/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_1.wav
+[0m[32mℹ️  Started GET "/assets/arcade/honkypong/sounds/itemget.wav" for 127.0.0.1 at 2025-08-31 11:25:18 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/honkypong/sounds/itemget.wav
+[0m[32mℹ️  Started GET "/assets/images/arcade/honkypong/sounds/itemget.wav" for 127.0.0.1 at 2025-08-31 11:25:25 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/images/arcade/honkypong/sounds/itemget.wav
+[0m[32mℹ️  Started GET "/admin/calculators" for 127.0.0.1 at 2025-08-31 11:34:35 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/calculators
+[0m[32mℹ️  Processing by Admin::CalculatorsController#index as HTML
+[0m[32m  📊 SQL (3.34ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (2.13ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32m  📊 SQL (0.94ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='calculators'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 37.7ms | GC: 3.2ms)
+[0m[32mℹ️  Completed 200 OK in 148ms (Views: 37.8ms | ActiveRecord: 19.8ms (3 queries, 0 cached) | GC: 10.1ms)
+
+
+[0m[32mℹ️  Started GET "/assets/application-bfcdf840.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/turbo.min-3a2e143f.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/stimulus.min-4b1e420e.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/turbo.min-3a2e143f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/application-bfcdf840.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus.min-4b1e420e.js
+[0m[32mℹ️  Started GET "/assets/honky_pong_fresh-fde7b416.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-f474d147.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/homepage-00e9e83c.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-f474d147.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_fresh-fde7b416.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/homepage-00e9e83c.css
+[0m[32mℹ️  Started GET "/assets/devise-1d414799.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/application_form-daece9ea.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/ai_agents-734631f3.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/application_form-daece9ea.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/ai_agents-734631f3.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/devise-1d414799.css
+[0m[32mℹ️  Started GET "/assets/auth-74545aac.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/legal-5635dbad.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/apply-9c363869.css" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/apply-9c363869.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/legal-5635dbad.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/auth-74545aac.css
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-467f35ad.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-8acd77f8.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/lace_invaders-a5dfb2a3.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-467f35ad.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-8acd77f8.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-a5dfb2a3.js
+[0m[32mℹ️  Started GET "/assets/hackman-3142d946.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/audio_manager-729cca8e.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/alert_controller-f0b8fb76.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-3142d946.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/audio_manager-729cca8e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/alert_controller-f0b8fb76.js
+[0m[32mℹ️  Started GET "/assets/controllers/application-3affb389.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_form_controller-62756a8e.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_messages_controller-9d5d138e.js" for 127.0.0.1 at 2025-08-31 11:34:36 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application-3affb389.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_messages_controller-9d5d138e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_form_controller-62756a8e.js
+[0m[32mℹ️  Started GET "/assets/controllers/application_summary_controller-d5c81f7a.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_value_controller-33cb4a6f.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/apply_page_controller-51abd002.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_summary_controller-d5c81f7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/apply_page_controller-51abd002.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_value_controller-33cb4a6f.js
+[0m[32mℹ️  Started GET "/assets/controllers/auth_form_controller-8a20f848.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/auto_submit_controller-a69822c0.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/calculator_controller-32609482.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auth_form_controller-8a20f848.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auto_submit_controller-a69822c0.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/calculator_controller-32609482.js
+[0m[32mℹ️  Started GET "/assets/controllers/checklist_controller-091be7f5.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/stimulus-loading-1fc53fe7.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/contract_messages_controller-7fc286d1.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/checklist_controller-091be7f5.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus-loading-1fc53fe7.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/contract_messages_controller-7fc286d1.js
+[0m[32mℹ️  Started GET "/assets/honky_pong_authentic-a4daf478.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/funder_pool_selector_controller-0e481f7a.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-35a64c70.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_authentic-a4daf478.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/funder_pool_selector_controller-0e481f7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-35a64c70.js
+[0m[32mℹ️  Started GET "/assets/controllers/hello_controller-708796bd.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/hemorrhoids_controller-f1929040.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_controller-c79a8d83.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hemorrhoids_controller-f1929040.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hello_controller-708796bd.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_controller-c79a8d83.js
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_minimal_controller-c19ecd5f.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_simple_controller-20fbfdf4.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/income_loan_form_controller-76cc9682.js" for 127.0.0.1 at 2025-08-31 11:34:37 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_minimal_controller-c19ecd5f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_simple_controller-20fbfdf4.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/income_loan_form_controller-76cc9682.js
+[0m[32mℹ️  Started GET "/assets/controllers/messaging_controller-80e0e93f.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/preview_controller-12385aba.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/index-ee64e1f1.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/messaging_controller-80e0e93f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/preview_controller-12385aba.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/index-ee64e1f1.js
+[0m[32mℹ️  Started GET "/assets/controllers/lace_invaders_controller-6bd0fe7a.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/markup_editor_controller-23188e36.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/mortgage_lender_selector_controller-febf8d72.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/markup_editor_controller-23188e36.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/lace_invaders_controller-6bd0fe7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/mortgage_lender_selector_controller-febf8d72.js
+[0m[32mℹ️  Started GET "/assets/controllers/terms_modal_controller-798fd400.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/monte_carlo_calculator_controller-61c7e04c.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/resend_timer_controller-15187bda.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/monte_carlo_calculator_controller-61c7e04c.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/terms_modal_controller-798fd400.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/resend_timer_controller-15187bda.js
+[0m[32mℹ️  Started GET "/assets/controllers/simple_honky_pong_controller-82143ef1.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/status_form_controller-f9147d4d.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/structured_form_controller-9040725a.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/status_form_controller-f9147d4d.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/structured_form_controller-9040725a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/simple_honky_pong_controller-82143ef1.js
+[0m[32mℹ️  Started GET "/assets/controllers/tabs_controller-84c216ee.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/turbo_selection_controller-a1caa982.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/verification_code_controller-bba91f9a.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/turbo_selection_controller-a1caa982.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/tabs_controller-84c216ee.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/verification_code_controller-bba91f9a.js
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_interface_controller-a1e1b412.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_selector_controller-b64cf548.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/assets/futureproof-logo-0aa661c5.png" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_interface_controller-a1e1b412.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_selector_controller-b64cf548.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/futureproof-logo-0aa661c5.png
+[0m[32mℹ️  Started GET "/assets/controllers/clause_preview_controller-9cc120e9.js" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 11:34:38 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/clause_preview_controller-9cc120e9.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started GET "/assets/controllers/email_template_editor_controller-105dc1e8.js" for 127.0.0.1 at 2025-08-31 11:34:39 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/email_template_editor_controller-105dc1e8.js
+[0m[32mℹ️  Started GET "/assets/controllers/hackman_controller-40e26e89.js" for 127.0.0.1 at 2025-08-31 11:34:39 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hackman_controller-40e26e89.js
+[0m[32mℹ️  Started GET "/admin/users" for 127.0.0.1 at 2025-08-31 11:34:39 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/users
+[0m[32mℹ️  Processing by Admin::UsersController#index as HTML
+[0m[32m  📊 SQL (1.05ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='users'*/[0m
+[32m  📊 SQL (0.55ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='users'*/[0m
+[32mℹ️  [ADMIN] admin@futureprooffinancial.co accessed /admin/users from IP: 127.0.0.1
+[0m[32m  📊 SQL (0.16ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='users'*/[0m
+[32m  📊 SQL (0.41ms): SELECT "lenders"."name", "lenders"."id" FROM "lenders" ORDER BY "lenders"."name" ASC /*action='index',application='Futureproof',controller='users'*/[0m
+[32m  📊 SQL (0.42ms): SELECT "users".* FROM "users" ORDER BY "users"."email" ASC LIMIT 10 OFFSET 0 /*action='index',application='Futureproof',controller='users'*/[0m
+[32m  📊 SQL (0.12ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 /*action='index',application='Futureproof',controller='users'*/[0m
+[32m  📊 SQL (0.46ms): SELECT COUNT(*) FROM "users" /*action='index',application='Futureproof',controller='users'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 8.7ms | GC: 0.4ms)
+[0m[32mℹ️  Completed 200 OK in 52ms (Views: 7.9ms | ActiveRecord: 3.2ms (7 queries, 0 cached) | GC: 1.0ms)
+
+
+[0m[32mℹ️  Started GET "/admin/lenders" for 127.0.0.1 at 2025-08-31 11:34:39 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /admin/lenders
+[0m[32mℹ️  Processing by Admin::LendersController#index as HTML
+[0m[32m  📊 SQL (0.57ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.37ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32mℹ️  [ADMIN] admin@futureprooffinancial.co accessed /admin/lenders from IP: 127.0.0.1
+[0m[32m  📊 SQL (0.21ms): SELECT "lenders".* FROM "lenders" WHERE "lenders"."id" = 1 LIMIT 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.32ms): SELECT COUNT(*) FROM "lenders" /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.39ms): SELECT "lenders".* FROM "lenders" ORDER BY "lenders"."lender_type" ASC, "lenders"."name" ASC /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (3.85ms): SELECT "lender_wholesale_funders".* FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" IN (1, 2, 3) /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (2.66ms): SELECT "lender_funder_pools".* FROM "lender_funder_pools" WHERE "lender_funder_pools"."lender_id" IN (1, 2, 3) /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.77ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.02ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 1[0m
+[32m  📊 SQL (3.36ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 1[0m
+[32m  📊 SQL (0.54ms): SELECT COUNT(*) FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.85ms): SELECT COUNT(*) FROM "contracts" WHERE "contracts"."lender_id" = 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT COUNT(*) FROM "contracts" WHERE "contracts"."lender_id" = 1[0m
+[32m  📊 SQL (0.43ms): SELECT SUM("contracts"."allocated_amount") FROM "contracts" WHERE "contracts"."lender_id" = 1 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT SUM("contracts"."allocated_amount") FROM "contracts" WHERE "contracts"."lender_id" = 1[0m
+[32m  📊 SQL (0.35ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 2 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 2[0m
+[32m  📊 SQL (0.79ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 2 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 2[0m
+[32m  📊 SQL (0.26ms): SELECT COUNT(*) FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 2 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.16ms): SELECT COUNT(*) FROM "contracts" WHERE "contracts"."lender_id" = 2 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.14ms): SELECT SUM("contracts"."allocated_amount") FROM "contracts" WHERE "contracts"."lender_id" = 2 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.17ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 3 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT COUNT(*) FROM "lender_wholesale_funders" WHERE "lender_wholesale_funders"."lender_id" = 3[0m
+[32m  📊 SQL (0.32ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 3 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.01ms): SELECT SUM("funder_pools"."amount") FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 3[0m
+[32m  📊 SQL (0.27ms): SELECT COUNT(*) FROM "funder_pools" INNER JOIN "lender_funder_pools" ON "funder_pools"."id" = "lender_funder_pools"."funder_pool_id" WHERE "lender_funder_pools"."lender_id" = 3 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.19ms): SELECT COUNT(*) FROM "contracts" WHERE "contracts"."lender_id" = 3 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32m  📊 SQL (0.16ms): SELECT SUM("contracts"."allocated_amount") FROM "contracts" WHERE "contracts"."lender_id" = 3 /*action='index',application='Futureproof',controller='lenders'*/[0m
+[32mℹ️    Rendered layout layouts/admin/application.html.erb (Duration: 74.8ms | GC: 3.9ms)
+[0m[32mℹ️  Completed 200 OK in 125ms (Views: 32.6ms | ActiveRecord: 43.7ms (30 queries, 8 cached) | GC: 3.9ms)
+
+
+[0m[32mℹ️  Started GET "/arcade" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /arcade
+[0m[32mℹ️  Processing by GamesController#arcade as HTML
+[0m[32m  📊 SQL (0.73ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='arcade',application='Futureproof',controller='games'*/[0m
+[32m  📊 SQL (0.42ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='arcade',application='Futureproof',controller='games'*/[0m
+[32mℹ️    Rendered layout layouts/games.html.erb (Duration: 7.5ms | GC: 0.1ms)
+[0m[32mℹ️  Completed 200 OK in 56ms (Views: 8.1ms | ActiveRecord: 1.1ms (2 queries, 0 cached) | GC: 0.1ms)
+
+
+[0m[32mℹ️  Started GET "/assets/games-ed92c139.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/games-ed92c139.css
+[0m[32mℹ️  Started GET "/assets/arcade-f07e9486.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-8a190af4.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-11c6f78f.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-11c6f78f.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade-f07e9486.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-8a190af4.css
+[0m[32mℹ️  Started GET "/assets/lace_invaders-7e44ccbe.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-7e44ccbe.css
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-707fc4a6.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-6caaf8a1.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  Started GET "/assets/hackman-6e324965.css" for 127.0.0.1 at 2025-08-31 11:34:42 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-707fc4a6.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-6caaf8a1.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-6e324965.css
+[0m[32mℹ️  Started GET "/hemorrhoids" for 127.0.0.1 at 2025-08-31 11:35:12 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /hemorrhoids
+[0m[32mℹ️  Processing by GamesController#hemorrhoids as HTML
+[0m[32m  📊 SQL (1.46ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32m  📊 SQL (0.77ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32mℹ️    Rendered layout layouts/games.html.erb (Duration: 7.9ms | GC: 0.0ms)
+[0m[32mℹ️  Completed 200 OK in 82ms (Views: 10.1ms | ActiveRecord: 2.2ms (2 queries, 0 cached) | GC: 3.8ms)
+
+
+[0m[32mℹ️  Started GET "/hemorrhoids" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /hemorrhoids
+[0m[32mℹ️  Processing by GamesController#hemorrhoids as HTML
+[0m[33m  📊 SQL (17.65ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32m  📊 SQL (2.15ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32mℹ️    Rendered layout layouts/games.html.erb (Duration: 18.5ms | GC: 6.7ms)
+[0m[32mℹ️  Completed 200 OK in 122ms (Views: 19.0ms | ActiveRecord: 27.9ms (2 queries, 0 cached) | GC: 13.8ms)
+
+
+[0m[32mℹ️  Started GET "/assets/games-4d2b289f.css" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  Started GET "/assets/application-bfcdf840.js" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  Started GET "/assets/turbo.min-3a2e143f.js" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/games-4d2b289f.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/application-bfcdf840.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/turbo.min-3a2e143f.js
+[0m[32mℹ️  Started GET "/assets/honky_pong_fresh-fde7b416.js" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-707fc4a6.css" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-11c6f78f.css" for 127.0.0.1 at 2025-08-31 11:42:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_fresh-fde7b416.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-707fc4a6.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-11c6f78f.css
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-6caaf8a1.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/hackman-6e324965.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/arcade-443f4954.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-6e324965.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-6caaf8a1.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade-443f4954.css
+[0m[32mℹ️  Started GET "/assets/lace_invaders-7e44ccbe.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-8a190af4.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/defendher-f1d4d48f.css" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-7e44ccbe.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-8a190af4.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/defendher-f1d4d48f.css
+[0m[32mℹ️  Started GET "/assets/honky_pong_authentic-a4daf478.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-8acd77f8.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/lace_invaders-a5dfb2a3.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_authentic-a4daf478.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-8acd77f8.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-a5dfb2a3.js
+[0m[32mℹ️  Started GET "/assets/hackman-3142d946.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/audio_manager-729cca8e.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-467f35ad.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-3142d946.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/audio_manager-729cca8e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-467f35ad.js
+[0m[32mℹ️  Started GET "/assets/controllers/application_form_controller-62756a8e.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-f474d147.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/alert_controller-f0b8fb76.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/alert_controller-f0b8fb76.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_form_controller-62756a8e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-f474d147.js
+[0m[32mℹ️  Started GET "/assets/controllers/application-3affb389.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_messages_controller-9d5d138e.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_value_controller-33cb4a6f.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_messages_controller-9d5d138e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application-3affb389.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_value_controller-33cb4a6f.js
+[0m[32mℹ️  Started GET "/assets/controllers/calculator_controller-32609482.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/auth_form_controller-8a20f848.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/apply_page_controller-51abd002.js" for 127.0.0.1 at 2025-08-31 11:42:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auth_form_controller-8a20f848.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/calculator_controller-32609482.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/apply_page_controller-51abd002.js
+[0m[32mℹ️  Started GET "/assets/stimulus-loading-1fc53fe7.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/auto_submit_controller-a69822c0.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/contract_messages_controller-7fc286d1.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/contract_messages_controller-7fc286d1.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auto_submit_controller-a69822c0.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus-loading-1fc53fe7.js
+[0m[32mℹ️  Started GET "/assets/stimulus.min-4b1e420e.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-35a64c70.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/clause_preview_controller-9cc120e9.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-35a64c70.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus.min-4b1e420e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/clause_preview_controller-9cc120e9.js
+[0m[32mℹ️  Started GET "/assets/controllers/hello_controller-708796bd.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/funder_pool_selector_controller-0e481f7a.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_minimal_controller-c19ecd5f.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/funder_pool_selector_controller-0e481f7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_minimal_controller-c19ecd5f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hello_controller-708796bd.js
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_controller-c79a8d83.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/hemorrhoids_controller-f1929040.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/hackman_controller-40e26e89.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hemorrhoids_controller-f1929040.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hackman_controller-40e26e89.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_controller-c79a8d83.js
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_simple_controller-20fbfdf4.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/income_loan_form_controller-76cc9682.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/lace_invaders_controller-6bd0fe7a.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/income_loan_form_controller-76cc9682.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/lace_invaders_controller-6bd0fe7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_simple_controller-20fbfdf4.js
+[0m[32mℹ️  Started GET "/assets/controllers/messaging_controller-80e0e93f.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/index-ee64e1f1.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/markup_editor_controller-23188e36.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/markup_editor_controller-23188e36.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/messaging_controller-80e0e93f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/index-ee64e1f1.js
+[0m[32mℹ️  Started GET "/assets/controllers/preview_controller-12385aba.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/mortgage_lender_selector_controller-febf8d72.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/status_form_controller-f9147d4d.js" for 127.0.0.1 at 2025-08-31 11:42:08 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/preview_controller-12385aba.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/status_form_controller-f9147d4d.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/mortgage_lender_selector_controller-febf8d72.js
+[0m[32mℹ️  Started GET "/assets/controllers/terms_modal_controller-798fd400.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/monte_carlo_calculator_controller-61c7e04c.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/resend_timer_controller-15187bda.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/terms_modal_controller-798fd400.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/resend_timer_controller-15187bda.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/monte_carlo_calculator_controller-61c7e04c.js
+[0m[32mℹ️  Started GET "/assets/controllers/simple_honky_pong_controller-82143ef1.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/tabs_controller-84c216ee.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/structured_form_controller-9040725a.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/structured_form_controller-9040725a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/simple_honky_pong_controller-82143ef1.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/tabs_controller-84c216ee.js
+[0m[32mℹ️  Started GET "/assets/controllers/turbo_selection_controller-a1caa982.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/verification_code_controller-bba91f9a.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_selector_controller-b64cf548.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/turbo_selection_controller-a1caa982.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/verification_code_controller-bba91f9a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_selector_controller-b64cf548.js
+[0m[32mℹ️  Started GET "/assets/controllers/application_summary_controller-d5c81f7a.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/futureproof-financial-group-logo-4b327193.jpeg" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/futureproof-logo-0aa661c5.png" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/futureproof-logo-0aa661c5.png
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_summary_controller-d5c81f7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/futureproof-financial-group-logo-4b327193.jpeg
+[0m[32mℹ️  Started GET "/assets/controllers/email_template_editor_controller-105dc1e8.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/436871__mozfoo__distant-explosion-3ae8d6bc.wav" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/checklist_controller-091be7f5.js" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/email_template_editor_controller-105dc1e8.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/436871__mozfoo__distant-explosion-3ae8d6bc.wav
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/checklist_controller-091be7f5.js
+[0m[32mℹ️  Started GET "/" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/heavy_blast_001-4530aeaa.wav" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/deflande-7220c335.wav" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/heavy_blast_001-4530aeaa.wav
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/deflande-7220c335.wav
+[0m[32mℹ️  Processing by PagesController#index as HTML
+[0m[32m  📊 SQL (1.03ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='pages'*/[0m
+[32m  📊 SQL (0.36ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='pages'*/[0m
+[32mℹ️    Rendered layout layouts/application.html.erb (Duration: 11.8ms | GC: 0.3ms)
+[0m[32mℹ️  Completed 200 OK in 143ms (Views: 13.2ms | ActiveRecord: 1.4ms (2 queries, 0 cached) | GC: 0.8ms)
+
+
+[0m[32mℹ️  Started GET "/assets/application-455febf8.css" for 127.0.0.1 at 2025-08-31 11:42:09 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/application-455febf8.css
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_interface_controller-a1e1b412.js" for 127.0.0.1 at 2025-08-31 11:42:10 +1000
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_3-737ca3c8.wav" for 127.0.0.1 at 2025-08-31 11:42:10 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/Laser%20Weapons%20Sound%20Pack/Free/light_blast_3-737ca3c8.wav
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_interface_controller-a1e1b412.js
+[0m[32mℹ️  Started GET "/assets/arcade/defendher/Sounds/512815__mostyxs__good-jetpack-sound-loop-691b58f6.wav" for 127.0.0.1 at 2025-08-31 11:42:10 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade/defendher/Sounds/512815__mostyxs__good-jetpack-sound-loop-691b58f6.wav
+[0m[32mℹ️  Started GET "/" for 127.0.0.1 at 2025-08-31 11:42:16 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /
+[0m[32mℹ️  Processing by PagesController#index as HTML
+[0m[32m  📊 SQL (0.46ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='pages'*/[0m
+[32m  📊 SQL (0.35ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='pages'*/[0m
+[32mℹ️    Rendered layout layouts/application.html.erb (Duration: 0.9ms | GC: 0.0ms)
+[0m[32mℹ️  Completed 200 OK in 68ms (Views: 1.2ms | ActiveRecord: 0.8ms (2 queries, 0 cached) | GC: 0.0ms)
+
+
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 11:42:22 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started HEAD "/hemorrhoids" for 127.0.0.1 at 2025-08-31 11:44:52 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 HEAD /hemorrhoids
+[0m[32mℹ️  Processing by GamesController#hemorrhoids as */*
+[0m[32mℹ️  Completed 401 Unauthorized in 57ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 3.1ms)
+
+
+[0m[32mℹ️  Started GET "/arcade" for 127.0.0.1 at 2025-08-31 11:44:59 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /arcade
+[0m[32mℹ️  Processing by GamesController#arcade as */*
+[0m[32mℹ️  Completed 401 Unauthorized in 35ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+[0m[32mℹ️  Started GET "/hemorrhoids" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /hemorrhoids
+[0m[32mℹ️  Processing by GamesController#hemorrhoids as HTML
+[0m[32m  📊 SQL (0.35ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32m  📊 SQL (0.98ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='hemorrhoids',application='Futureproof',controller='games'*/[0m
+[32mℹ️    Rendered layout layouts/games.html.erb (Duration: 27.9ms | GC: 0.5ms)
+[0m[32mℹ️  Completed 200 OK in 153ms (Views: 29.3ms | ActiveRecord: 25.5ms (2 queries, 0 cached) | GC: 19.8ms)
+
+
+[0m[32mℹ️  Started GET "/assets/application-bfcdf840.js" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/turbo.min-3a2e143f.js" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/stimulus.min-4b1e420e.js" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/turbo.min-3a2e143f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/application-bfcdf840.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus.min-4b1e420e.js
+[0m[32mℹ️  Started GET "/assets/arcade-443f4954.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-8a190af4.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-11c6f78f.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-8a190af4.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/arcade-443f4954.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-11c6f78f.css
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-6caaf8a1.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-707fc4a6.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/lace_invaders-7e44ccbe.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-6caaf8a1.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-707fc4a6.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-7e44ccbe.css
+[0m[32mℹ️  Started GET "/assets/hackman-6e324965.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/defendher-f1d4d48f.css" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_fresh-fde7b416.js" for 127.0.0.1 at 2025-08-31 11:48:03 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-6e324965.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/defendher-f1d4d48f.css
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_fresh-fde7b416.js
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple-f474d147.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_simple_fixed-467f35ad.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_minimal-8acd77f8.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple_fixed-467f35ad.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_minimal-8acd77f8.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_simple-f474d147.js
+[0m[32mℹ️  Started GET "/assets/lace_invaders-a5dfb2a3.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/hackman-3142d946.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/audio_manager-729cca8e.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/hackman-3142d946.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/lace_invaders-a5dfb2a3.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/audio_manager-729cca8e.js
+[0m[32mℹ️  Started GET "/assets/controllers/application-3affb389.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/alert_controller-f0b8fb76.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_form_controller-62756a8e.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_form_controller-62756a8e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application-3affb389.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/alert_controller-f0b8fb76.js
+[0m[32mℹ️  Started GET "/assets/controllers/application_messages_controller-9d5d138e.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_summary_controller-d5c81f7a.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/application_value_controller-33cb4a6f.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_messages_controller-9d5d138e.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_summary_controller-d5c81f7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/application_value_controller-33cb4a6f.js
+[0m[32mℹ️  Started GET "/assets/controllers/apply_page_controller-51abd002.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/auth_form_controller-8a20f848.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/auto_submit_controller-a69822c0.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auth_form_controller-8a20f848.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/apply_page_controller-51abd002.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/auto_submit_controller-a69822c0.js
+[0m[32mℹ️  Started GET "/assets/stimulus-loading-1fc53fe7.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/checklist_controller-091be7f5.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/clause_preview_controller-9cc120e9.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/stimulus-loading-1fc53fe7.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/clause_preview_controller-9cc120e9.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/checklist_controller-091be7f5.js
+[0m[32mℹ️  Started GET "/assets/controllers/contract_messages_controller-7fc286d1.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong_authentic-a4daf478.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  Started GET "/assets/honky_pong-35a64c70.js" for 127.0.0.1 at 2025-08-31 11:48:04 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/contract_messages_controller-7fc286d1.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong_authentic-a4daf478.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/honky_pong-35a64c70.js
+[0m[32mℹ️  Started GET "/assets/controllers/hackman_controller-40e26e89.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/hello_controller-708796bd.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/hemorrhoids_controller-f1929040.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hello_controller-708796bd.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hackman_controller-40e26e89.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/hemorrhoids_controller-f1929040.js
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_controller-c79a8d83.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_minimal_controller-c19ecd5f.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_simple_controller-20fbfdf4.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_minimal_controller-c19ecd5f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_controller-c79a8d83.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/honky_pong_simple_controller-20fbfdf4.js
+[0m[32mℹ️  Started GET "/assets/controllers/income_loan_form_controller-76cc9682.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/index-ee64e1f1.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/lace_invaders_controller-6bd0fe7a.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/lace_invaders_controller-6bd0fe7a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/income_loan_form_controller-76cc9682.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/index-ee64e1f1.js
+[0m[32mℹ️  Started GET "/assets/controllers/markup_editor_controller-23188e36.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/messaging_controller-80e0e93f.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/monte_carlo_calculator_controller-61c7e04c.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/monte_carlo_calculator_controller-61c7e04c.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/messaging_controller-80e0e93f.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/markup_editor_controller-23188e36.js
+[0m[32mℹ️  Started GET "/assets/controllers/mortgage_lender_selector_controller-febf8d72.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/preview_controller-12385aba.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/resend_timer_controller-15187bda.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/preview_controller-12385aba.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/mortgage_lender_selector_controller-febf8d72.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/resend_timer_controller-15187bda.js
+[0m[32mℹ️  Started GET "/assets/controllers/simple_honky_pong_controller-82143ef1.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/status_form_controller-f9147d4d.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/structured_form_controller-9040725a.js" for 127.0.0.1 at 2025-08-31 11:48:05 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/simple_honky_pong_controller-82143ef1.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/structured_form_controller-9040725a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/status_form_controller-f9147d4d.js
+[0m[32mℹ️  Started GET "/assets/controllers/tabs_controller-84c216ee.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/terms_modal_controller-798fd400.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/turbo_selection_controller-a1caa982.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/tabs_controller-84c216ee.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/terms_modal_controller-798fd400.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/turbo_selection_controller-a1caa982.js
+[0m[32mℹ️  Started GET "/assets/controllers/verification_code_controller-bba91f9a.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_selector_controller-b64cf548.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/wholesale_funder_interface_controller-a1e1b412.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_selector_controller-b64cf548.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/verification_code_controller-bba91f9a.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/wholesale_funder_interface_controller-a1e1b412.js
+[0m[32mℹ️  Started GET "/assets/futureproof-financial-group-logo-4b327193.jpeg" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/assets/controllers/calculator_controller-32609482.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  Started GET "/.well-known/appspecific/com.chrome.devtools.json" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/calculator_controller-32609482.js
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/futureproof-financial-group-logo-4b327193.jpeg
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /.well-known/appspecific/com.chrome.devtools.json
+[0m[31m❌   
+ActionController::RoutingError (No route matches [GET] "/.well-known/appspecific/com.chrome.devtools.json"):
+  
+[0m[32mℹ️  Started GET "/assets/controllers/email_template_editor_controller-105dc1e8.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/email_template_editor_controller-105dc1e8.js
+[0m[32mℹ️  Started GET "/assets/controllers/funder_pool_selector_controller-0e481f7a.js" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/controllers/funder_pool_selector_controller-0e481f7a.js
+[0m[32mℹ️  Started GET "/assets/futureproof-logo-0aa661c5.png" for 127.0.0.1 at 2025-08-31 11:48:06 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /assets/futureproof-logo-0aa661c5.png
+[0m[32mℹ️  Started GET "/" for 127.0.0.1 at 2025-08-31 11:48:07 +1000
+[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: 127.0.0.1 GET /
+[0m[32mℹ️  Processing by PagesController#index as HTML
+[0m[32m  📊 SQL (0.61ms): SELECT "users".* FROM "users" WHERE "users"."id" = 1 ORDER BY "users"."id" ASC LIMIT 1 /*action='index',application='Futureproof',controller='pages'*/[0m
+[32m  📊 SQL (1.73ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 1 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='index',application='Futureproof',controller='pages'*/[0m
+[32mℹ️    Rendered layout layouts/application.html.erb (Duration: 8.4ms | GC: 0.0ms)
+[0m[32mℹ️  Completed 200 OK in 80ms (Views: 9.5ms | ActiveRecord: 2.3ms (2 queries, 0 cached) | GC: 0.9ms)
+
+
+[0m

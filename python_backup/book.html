@@ -1,0 +1,238 @@
+<div class="d-flex justify-content-between">
+  <h1>Book Model</h1>
+  <div class="d-flex">
+    <div>
+      <loading-spinner overlay></loading-spinner>
+    </div>
+    <div class="dropdown me-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Edit
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=4">Core model</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=3">Calculation</a></li>
+        <li><a class="dropdown-item" href="/view/Edit%20Editable%20Files?id=2">Layout</a></li>
+
+      </ul>
+    </div>
+    <preset-select></preset-select>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex">
+      <div>
+        <h3>Borrower Parameters</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th>Funding per year $M</th>
+              <td><input class="form-control" name="funding_per_year" type="number" value="1000" min="1" max="3000"
+                  step="10" /></td>
+            </tr>
+
+            <tr>
+              <th>Loan type</th>
+              <td><select class="form-select" name="loan_type">
+                  <option>Interest only</option>
+                  <option>Principal+Interest</option>
+                  <option>Hybrid</option>
+                </select></td>
+            </tr>
+            <tr>
+              <th>At Risk Capital fraction %</th>
+              <td><input class="form-control" name="at_risk_captital_fraction" type="number" value="0" min="0" max="100"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Loan-to-value %</th>
+              <td><input class="form-control" name="loan_to_value" type="number" value="80" min="10" max="100"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Annual income %</th>
+              <td><input class="form-control" name="annual_income_pcnt" type="number" value="2.0" min="0" max="3"
+                  step="500" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Economic assumptions</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Start Year</th>
+              <td><input class="form-control" name="year0" type="number" value="1988" min="1988" max="2015" step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>House appreciation pa %</th>
+              <td><input class="form-control" name="annual_house_price_appreciation" type="number" value="4" min="0"
+                  max="10" step="0.5" /></td>
+            </tr>
+            <tr>
+              <th>Insurer profit margin %</th>
+              <td><input class="form-control" name="insurer_profit_margin" type="number" value="50" min="0" max="200"
+                  step="5" /></td>
+            </tr>
+            <tr>
+              <th>Random seed</th>
+              <td><input class="form-control" name="random_seed" type="number" value="0" min="0" max="9999" step="1" />
+              </td>
+            </tr>
+            <tr>
+              <th>Loans 15 Year %</th>
+              <td><input class="form-control" name="fraction_15" type="number" value="25" min="5" max="100" step="5" />
+              </td>
+            </tr>
+            <tr>
+              <th>Loans 20 Year %</th>
+              <td><input class="form-control" name="fraction_20" type="number" value="25" min="5" max="100" step="5" />
+              </td>
+            </tr>
+            <tr>
+              <th>Loans 25 Year %</th>
+              <td><input class="form-control" name="fraction_25" type="number" value="25" min="5" max="100" step="5" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mx-3">
+        <h3>Loan parameters</h3>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Wholesale lending margin %</th>
+              <td><input class="form-control" name="wholesale_lending_margin" type="number" value="2" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Additional loan margins %</th>
+              <td><input class="form-control" name="additional_loan_margins" type="number" value="1.25" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday enter fraction %</th>
+              <td><input class="form-control" name="holiday_enter_fraction" type="number" value="1.2" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Holiday exit fraction %</th>
+              <td><input class="form-control" name="holiday_exit_fraction" type="number" value="1.6" min="0" max="4"
+                  step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Amount factor</th>
+              <td>
+                <input class="form-control" name="max_superpay_factor" type="number" value="1.261" min="0" max="4"
+                  step="0.05" />
+
+              </td>
+            </tr>
+            <tr>
+              <th>Deficit Repay Start factor</th>
+              <td>
+                <input class="form-control" name="superpay_start_factor" type="number" value="1.50" min="1.0" max="4"
+                  step="0.05" />
+              </td>
+            </tr>
+            <tr>
+              <th>Subperform threshold quarters</th>
+              <td><input class="form-control" name="subperform_loan_threshold_quarters" type="number" value="12" min="0"
+                  max="4" step="0.05" /></td>
+            </tr>
+            <tr>
+              <th>Enable shared pool</th>
+              <td>
+                <input name="enable_pool" type="checkbox" />
+
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<nav-tabs card>
+  <tab label="Path table" id="pathtab">
+
+
+    <div class="d-flex">
+      <label>Path output</label>
+      <div class="rainy-hide-loading ms-2">
+        <download-link data="bookdf" format="csv"></download-link>
+      </div>
+    </div>
+    <div class="rainy-hide-loading">
+      <df-table id="path-output" data="bookdf">
+        <column name="Reinvestment" thousands-sep round></column>
+        <column name="Loan" thousands-sep round></column>
+        <column name="InterestDeficit" thousands-sep round></column>
+        <column name="Surplus" thousands-sep round></column>
+        <column name="Units" thousands-sep round></column>
+        <column name="SchemeProfit" thousands-sep round></column>
+        <column name="Pool" label="Insured units" thousands-sep round></column>
+        <column name="InsuranceClaims" thousands-sep round></column>
+        <column name="InsuranceProfit" thousands-sep round></column>
+        <column name="InsuranceGrossPremium" thousands-sep round></column>
+        <column name="SharedPoolUnits" thousands-sep round></column>
+      </df-table>
+    </div>
+  </tab>
+  <tab label=" Timeline plots" id="plottab">
+    <h3>Total Loan Book Summary</h3>
+    <xy-plot id="meanplot1">
+      <trace x="bookdf.Year" y="bookdf.Reinvestment" type="lines" name="Reinvestment"></trace>
+      <trace x="bookdf.Year" y="bookdf.Loan" type="lines" name="Loan"></trace>
+      <trace x="bookdf.Year" y="bookdf.InterestDeficit" type="lines" name="InterestDeficit"></trace>
+      <trace x="bookdf.Year" y="bookdf.Surplus" type="lines" name="Surplus"></trace>
+      <trace x="bookdf.Year" y="bookdf.SchemeProfit" type="lines" name="SchemeProfit"></trace>
+      <axis dir="y" title="Value ($)"></axis>
+      <margin t="10"></margin>
+    </xy-plot>
+    <h3>Reinvestment Pool Summary</h3>
+
+    <xy-plot id="meanplotunits">
+      <trace x="bookdf.Year" y="bookdf.HedgedUnits" type="lines" name="Hedged Units"></trace>
+      <trace x="bookdf.Year" y="bookdf.Pool" type="lines" name="Insured Units"></trace>
+      <trace x="bookdf.Year" y="bookdf.SharedPoolUnits" type="lines" name="Excess Pool Units"></trace>
+      <axis dir="y" title="Units held"></axis>
+      <margin t="10"></margin>
+    </xy-plot>
+    <h3>Insurance Underwriting Summary</h3>
+
+    <xy-plot id="insureplot1">
+      <trace x="bookdf.Year" y="bookdf.InsuranceClaims" type="lines" name="Insurance claim / qtr"></trace>
+      <trace x="bookdf.Year" y="bookdf.InsuranceProfit" type="lines" name="Insurance earnings / qtr"></trace>
+      <trace x="bookdf.Year" y="bookdf.InsuranceGrossPremium" type="lines" name="Insurance gross premium / qtr">
+      </trace>
+      <axis dir="y" title="Value ($)"></axis>
+      <margin t="10"></margin>
+    </xy-plot>
+    <h3>Insurance Underwriting Summary - Cummulative</h3>
+
+    <xy-plot id="insureplot2">
+      <trace x="bookdf.Year" y="bookdf.CumInsuranceClaims" type="lines" name="Insurance claim / qtr"></trace>
+      <trace x="bookdf.Year" y="bookdf.CumInsuranceProfit" type="lines" name="Insurance earnings / qtr"></trace>
+      <trace x="bookdf.Year" y="bookdf.CumInsuranceGrossPremium" type="lines" name="Insurance gross premium / qtr">
+      </trace>
+      <axis dir="y" title="Value ($)"></axis>
+      <margin t="10"></margin>
+    </xy-plot>
+
+
+  </tab>
+  <tab label="Debug messages" id="dbtab">
+    <pre data-eval-expr="JSON.stringify(debug_msgs, null,2)"></pre>
+
+  </tab>
+</nav-tabs>

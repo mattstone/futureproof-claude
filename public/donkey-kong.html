@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>
+            Donkey Kong — Professional Tilemap Demo (placeholder assets)
+        </title>
+        <style>
+            body {
+                margin: 0;
+                background: #07142b;
+                color: #fff;
+                font-family:
+                    system-ui,
+                    Segoe UI,
+                    Roboto,
+                    Helvetica,
+                    Arial,
+                    sans-serif;
+            }
+            canvas {
+                display: block;
+                margin: 0 auto;
+            }
+            #loader {
+                position: fixed;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                gap: 10px;
+            }
+            #credits {
+                position: fixed;
+                left: 8px;
+                bottom: 8px;
+                font-size: 12px;
+                opacity: 0.8;
+            }
+        </style>
+        <!-- Phaser 3 (pinned version) -->
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    </head>
+    <body>
+        <div id="loader">
+            <div id="progress">Preparing...</div>
+            <div
+                id="bar"
+                style="
+                    width: 320px;
+                    height: 10px;
+                    background: #000;
+                    border: 1px solid #333;
+                "
+            >
+                <div
+                    id="barinner"
+                    style="height: 100%; width: 0%; background: #8b5a2b"
+                ></div>
+            </div>
+        </div>
+        <div id="credits">
+            Donkey-Kong-like demo • Placeholder assets only • Swap in your
+            licensed sprites/sfx in the assets section
+        </div>
+        <script>
+            /*
+Professional Donkey-Kong-inspired game (single-file)
+- Tilemap based, modular code, assets loader, level manager, barrel AI, ladders, hammers, enemies
+- Uses *placeholder* procedurally-generated graphics & programmatic sounds. Replace with licensed assets before publishing.
+- Save as `index.html` and open in a modern browser. For local audio autoplay, user gesture may be required (click to start).
+
+Notes on legal: DO NOT use Nintendo-owned sprites/sounds unless you have a license.
+*/
+
+            const WIDTH = 540; // canvas width
+            const HEIGHT = 760; // canvas height
+
+            const config = {
+                type: Phaser.AUTO,
+                width: WIDTH,
+                height: HEIGHT,
+                backgroundColor: 0x07142b,
+                parent: null,
+                physics: {
+                    default: "arcade",
+                    arcade: { gravity: { y: 1100 }, debug: false },
+                },
+                scene: { preload, create, update },
+            };
+
+            const game = new Phaser.Game(config);
+
+            function preload() {
+                // Progress UI
+                const loader = this.load;
+                loader.on("progress", (p) => {
+                    document.getElementById("barinner").style.width =
+                        Math.round(p * 100) + "%";
+                    document.getElementById("progress").innerText =
+                        "Loading... " + Math.round(p * 100) + "%";
+                });
+                loader.on("complete", () => {
+                    document.getElementById("loader").style.display = "none";
+                });
+
+                // -------------------- ASSET LOADING --------------------
+                // This demo uses procedurally generated placeholder graphics below in create() for convenience.
+                // If you own licensed assets, replace placeholders by uncommenting and using load.image/spritesheet/audio here.
+                // Example:
+                // this.load.spritesheet('player_sprites', 'assets/player.png', { frameWidth: 32, frameHeight:48 });
+                // this.load.audio('sfx_jump','assets/jump.wav');
+
+                // We still create a small blank tileset image used by tilemap loader (Tiled JSON references an image).
+                const canvas = document.createElement("canvas");
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext("2d");
+                ctx.fillStyle = "#00000000";
+                ctx.fillRect(0, 0, 64, 64);
+                this.textures.addBase64("tileset_dummy", canvas.toDataURL());
+
+                // We'll embed tilemaps as JSON objects later (no external network required).
+                //
+                // Simple colored blocks as guaranteed fallback textures
+                this.textures.generate("tile", {
+                    data: ["2"],
+                    pixelWidth: 16,
+                    pixelHeight: 16,
+                });
+                this.textures.generate("ladder", {
+                    data: ["3"],
+                    pixelWidth: 16,
+                    pixelHeight: 16,
+                });
+                this.textures.generate("player", {
+                    data: ["4"],
+                    pixelWidth: 16,
+                    pixelHeight: 16,
+                });
+                this.textures.generate("barrel", {
+                    data: ["5"],
+                    pixelWidth: 16,
+                    pixelHeight: 16,
+                });
+            }
+
+            function create() {
+                const scene = this;
+
+                // Create placeholder textures programmatically (professional-looking, pixel-art friendly)
+                createArt(scene);
+
+                // Build tilemaps (we include 4 classic levels approximated here) — use Tiled for production-level maps.
+                const mapDataList = buildMaps(); // returns array of map JSON-like objects
+
+                // Level manager
+                scene.levelIndex = 0;
+                scene.levels = mapDataList;
+
+                // Input & controls
+                scene.cursors = scene.input.keyboard.createCursorKeys();
+                scene.keySpace = scene.input.keyboard.addKey(
+                    Phaser.Input.Keyboard.KeyCodes.SPACE,
+                );
+                scene.keyR = scene.input.keyboard.addKey(
+                    Phaser.Input.Keyboard.KeyCodes.R,
+                );
+                scene.keyP = scene.input.keyboard.addKey(
+                    Phaser.Input.Keyboard.KeyCodes.P,
+                );
+
+                // Audio context: tiny helper audio for SFX if needed
+                try {
+                    scene.audioCtx = new (window.AudioContext ||
+                        window.webkitAudioContext)();
+                } catch (e) {
+                    scene.audioCtx = null;
+                }
+
+                // Pause on focus loss
+                window.addEventListener("blur", () => {
+                    scene.physics.pause();
+                });
+                window.addEventListener("focus", () => {
+                    if (!scene.levelWon && !scene.gameOver)
+                        scene.physics.resume();
+                });
+
+                // Start first level
+                loadLevel(scene, scene.levelIndex);
+
+                // Click to start audio on some browsers
+                scene.input.once("pointerdown", () => {
+                    if (scene.audioCtx && scene.audioCtx.state !== "running")
+                        scene.audioCtx.resume();
+                });
+            }
+
+            function update(time, dt) {
+                const scene = this;
+                if (!scene.player) return;
+
+                // Restart
+                if (Phaser.Input.Keyboard.JustDown(scene.keyR)) {
+                    loadLevel(scene, scene.levelIndex);
+                    return;
+                }
+                // Next level (debug)
+                if (Phaser.Input.Keyboard.JustDown(scene.keyP)) {
+                    scene.levelIndex =
+                        (scene.levelIndex + 1) % scene.levels.length;
+                    loadLevel(scene, scene.levelIndex);
+                    return;
+                }
+
+                if (scene.gameOver || scene.levelWon) return;
+
+                handlePlayerInput(scene);
+                handleBarrelsAI(scene, dt);
+                handleEnemies(scene, dt);
+            }
+
+            /* -------------------- GAME SYSTEMS -------------------- */
+
+            function loadLevel(scene, index) {
+                // Clear previous
+                if (scene.map) {
+                    scene.map.layers.forEach((l) => {
+                        if (l.tilemapLayer) l.tilemapLayer.destroy();
+                    });
+                }
+                if (scene.levelGroup) {
+                    scene.levelGroup.destroy(true);
+                }
+                if (scene.barrels) {
+                    scene.barrels.clear(true, true);
+                }
+                if (scene.enemies) {
+                    scene.enemies.clear(true, true);
+                }
+                if (scene.player) {
+                    try {
+                        scene.player.destroy();
+                    } catch (e) {}
+                }
+                if (scene.hud) {
+                    scene.hud.destroy();
+                }
+                scene.levelWon = false;
+                scene.gameOver = false;
+                scene.score = scene.score || 0;
+                scene.lives = scene.lives || 3;
+
+                const levelData = scene.levels[index];
+
+                // Build a Phaser Tilemap from our JSON-like object (we use make.tilemap with data)
+                const tileSize = levelData.tilewidth;
+                const map = scene.make.tilemap({
+                    data: levelData.layers.girders.data,
+                    tileWidth: tileSize,
+                    tileHeight: tileSize,
+                    width: levelData.width,
+                    height: levelData.height,
+                });
+                // create tileset from generated tile texture
+                const tileset = map.addTilesetImage(
+                    "tileset_internal",
+                    null,
+                    tileSize,
+                    tileSize,
+                    0,
+                    0,
+                );
+                const girdersLayer = map.createLayer(0, tileset, 0, 0);
+                girdersLayer.setScale(1);
+                girdersLayer.setCollisionByExclusion([-1]);
+
+                // Ladders layer (overlay) - will not be colliding but used for detection
+                const ladderMap = scene.make.tilemap({
+                    data: levelData.layers.ladders.data,
+                    tileWidth: tileSize,
+                    tileHeight: tileSize,
+                    width: levelData.width,
+                    height: levelData.height,
+                });
+                const ladderTileset = ladderMap.addTilesetImage(
+                    "tileset_internal",
+                    null,
+                    tileSize,
+                    tileSize,
+                    0,
+                    0,
+                );
+                const laddersLayer = ladderMap.createLayer(
+                    0,
+                    ladderTileset,
+                    0,
+                    0,
+                );
+                laddersLayer.setVisible(false);
+
+                // Store map refs
+                scene.map = {
+                    map,
+                    girdersLayer,
+                    laddersLayer,
+                    tileSize,
+                    width: levelData.width,
+                    height: levelData.height,
+                };
+
+                // Create groups
+                scene.levelGroup = scene.add.group();
+                scene.barrels = scene.physics.add.group({
+                    bounceX: 0.2,
+                    bounceY: 0.1,
+                    dragX: 5,
+                });
+                scene.enemies = scene.physics.add.group();
+
+                // Build collision for girders (we'll treat any non-empty tile as solid)
+                scene.physics.add.collider(scene.barrels, girdersLayer);
+
+                // Spawn player
+                const px = levelData.playerStart.x * tileSize + tileSize / 2;
+                const py = levelData.playerStart.y * tileSize + tileSize / 2;
+                scene.player = scene.physics.add.sprite(px, py, "player_idle");
+                scene.player.setCollideWorldBounds(true);
+                scene.player.setDepth(10);
+                scene.player.body.setSize(14, 20).setOffset(1, 4);
+                scene.player.canDoubleJump = true;
+                scene.player.isClimbing = false;
+
+                // Colliders
+                scene.physics.add.collider(scene.player, girdersLayer, () => {
+                    scene.player.canDoubleJump = true;
+                });
+                scene.physics.add.overlap(
+                    scene.player,
+                    scene.barrels,
+                    onPlayerHit,
+                    null,
+                    scene,
+                );
+                scene.physics.add.overlap(
+                    scene.player,
+                    scene.enemies,
+                    onPlayerHit,
+                    null,
+                    scene,
+                );
+
+                // Spawn goal
+                const gx = levelData.goal.x * tileSize + tileSize / 2;
+                const gy = levelData.goal.y * tileSize + tileSize / 2;
+                scene.goal = scene.add.sprite(gx, gy, "goal");
+                scene.goal.setDepth(9);
+                scene.physics.add.existing(scene.goal, true);
+                scene.physics.add.overlap(
+                    scene.player,
+                    scene.goal,
+                    () => {
+                        onLevelComplete(scene);
+                    },
+                    null,
+                    scene,
+                );
+
+                // Spawn barrels schedule (through a burner/spawner entity positions in level)
+                scene.barrelSpawners = [];
+                levelData.spawners.forEach((s) =>
+                    scene.barrelSpawners.push({
+                        x: s.x * tileSize + tileSize / 2,
+                        y: s.y * tileSize + tileSize / 2,
+                        timer: s.interval,
+                        next: s.interval,
+                    }),
+                );
+
+                // Spawn enemies/hammers if present
+                levelData.hammers.forEach((h) =>
+                    spawnHammer(
+                        scene,
+                        h.x * tileSize + tileSize / 2,
+                        h.y * tileSize + tileSize / 2,
+                    ),
+                );
+
+                // camera and HUD
+                scene.cameras.main.setBounds(
+                    0,
+                    0,
+                    levelData.width * tileSize,
+                    levelData.height * tileSize,
+                );
+                scene.cameras.main.startFollow(scene.player, true, 0.08, 0.08);
+                scene.hud = scene.add
+                    .text(8, 8, "", { font: "16px monospace", fill: "#ffffff" })
+                    .setScrollFactor(0)
+                    .setDepth(50);
+                updateHUD(scene);
+
+                // spawn initial barrels maybe
+                scene.time.addEvent({
+                    delay: 1000,
+                    callback: () => {
+                        spawnBarrel(scene);
+                    },
+                    callbackScope: scene,
+                    repeat: 0,
+                });
+
+                // store some helpers
+                scene.tileSize = tileSize;
+                scene.levelData = levelData;
+            }
+
+            function updateHUD(scene) {
+                scene.hud.setText(
+                    `Level: ${scene.levelIndex + 1}   Score: ${scene.score || 0}   Lives: ${scene.lives || 3}`,
+                );
+            }
+
+            function onLevelComplete(scene) {
+                if (scene.levelWon) return;
+                scene.levelWon = true;
+                playTune(scene, [880, 1320, 1760], 150);
+                scene.add
+                    .text(
+                        scene.cameras.main.worldView.centerX,
+                        120,
+                        "YOU RESCUED HER!",
+                        {
+                            font: "28px monospace",
+                            fill: "#fff",
+                            backgroundColor: "#0008",
+                            padding: 8,
+                        },
+                    )
+                    .setOrigin(0.5)
+                    .setDepth(60);
+                // after short delay, advance
+                scene.time.delayedCall(1800, () => {
+                    scene.levelIndex =
+                        (scene.levelIndex + 1) % scene.levels.length;
+                    loadLevel(scene, scene.levelIndex);
+                });
+            }
+
+            function onPlayerHit(player, danger) {
+                const scene = this;
+                // invulnerability brief
+                if (scene.playerInvul) return;
+                scene.lives = (scene.lives || 3) - 1;
+                updateHUD(scene);
+                scene.playerInvul = true;
+                playTune(scene, [220], 80);
+                scene.player.setTint(0xff0000);
+                scene.time.delayedCall(1000, () => {
+                    scene.player.clearTint();
+                    scene.playerInvul = false;
+                });
+                if (scene.lives <= 0) {
+                    scene.gameOver = true;
+                    scene.physics.pause();
+                    scene.add
+                        .text(
+                            scene.cameras.main.worldView.centerX,
+                            160,
+                            "GAME OVER",
+                            { font: "36px monospace", fill: "#fff" },
+                        )
+                        .setOrigin(0.5)
+                        .setDepth(60);
+                } else {
+                    // respawn to start
+                    scene.player.x =
+                        scene.levelData.playerStart.x * scene.tileSize +
+                        scene.tileSize / 2;
+                    scene.player.y =
+                        scene.levelData.playerStart.y * scene.tileSize +
+                        scene.tileSize / 2;
+                    scene.player.setVelocity(0, 0);
+                }
+            }
+
+            /* -------------------- PLAYER INPUT & MOVEMENT (faithful mechanics) -------------------- */
+            function handlePlayerInput(scene) {
+                const p = scene.player;
+                const cursors = scene.cursors;
+
+                // Horizontal movement
+                const speed = 150;
+                if (cursors.left.isDown) {
+                    p.setVelocityX(-speed);
+                    p.setFlipX(true);
+                } else if (cursors.right.isDown) {
+                    p.setVelocityX(speed);
+                    p.setFlipX(false);
+                } else {
+                    p.setVelocityX(0);
+                }
+
+                // Ladder detection: sample tile below/at player
+                const ladderTile = getTileAtWorld(
+                    scene,
+                    scene.map.laddersLayer,
+                    p.x,
+                    p.y,
+                );
+                if (ladderTile && (cursors.up.isDown || cursors.down.isDown)) {
+                    // enable climbing
+                    p.body.allowGravity = false;
+                    p.isClimbing = true;
+                    p.setVelocityX(0);
+                    if (cursors.up.isDown) p.setVelocityY(-100);
+                    else if (cursors.down.isDown) p.setVelocityY(100);
+                    else p.setVelocityY(0);
+                } else {
+                    if (p.isClimbing) {
+                        p.body.allowGravity = true;
+                        p.isClimbing = false;
+                    }
+                    // Jumping — single + double jump (faithful arcade had single jump; we include double as option toggled by level flag)
+                    const canDouble = scene.levelData.allowDoubleJump;
+                    if (
+                        Phaser.Input.Keyboard.JustDown(scene.keySpace) ||
+                        Phaser.Input.Keyboard.JustDown(scene.cursors.up)
+                    ) {
+                        if (p.body.blocked.down) {
+                            p.setVelocityY(-420);
+                            playBeep(scene, 800, 0.08);
+                            p.canDoubleJump = true;
+                        } else if (canDouble && p.canDoubleJump) {
+                            p.setVelocityY(-360);
+                            p.canDoubleJump = false;
+                            playBeep(scene, 1000, 0.06);
+                        }
+                    }
+                }
+            }
+
+            /* -------------------- BARREL / OBJECT AI -------------------- */
+            function handleBarrelsAI(scene, dt) {
+                // spawn according to spawners
+                scene.barrelSpawners.forEach((s) => {
+                    s.next -= dt;
+                    if (s.next <= 0) {
+                        spawnBarrelAt(scene, s.x, s.y);
+                        s.next = s.timer + Math.random() * 600;
+                    }
+                });
+
+                // barrels interaction with ladders: barrels have probabilities to take ladders when hitting a gap
+                scene.barrels.children.iterate((b) => {
+                    if (!b) return;
+                    // if on floor, maintain vx
+                    if (b.body.blocked.down) {
+                        // friction and rolling
+                        if (Math.abs(b.body.velocity.x) < 30) {
+                            const dir = Math.random() < 0.5 ? -1 : 1;
+                            b.setVelocityX(dir * 80);
+                        }
+                        // detect if there's a ladder nearby below + decide to take it
+                        const belowX = b.x + (b.body.velocity.x > 0 ? 8 : -8);
+                        const ladderTile = getTileAtWorld(
+                            scene,
+                            scene.map.laddersLayer,
+                            belowX,
+                            b.y,
+                        );
+                        if (ladderTile && Math.random() < 0.02) {
+                            // roll onto ladder location and drop
+                            b.setVelocityX(0);
+                            b.setVelocityY(120);
+                        }
+                    }
+                    // destroy offscreen
+                    if (b.y > scene.map.height * scene.tileSize + 64)
+                        b.destroy();
+                });
+            }
+
+            function spawnBarrel(scene) {
+                // spawn at default spawners
+                if (scene.barrelSpawners && scene.barrelSpawners.length)
+                    spawnBarrelAt(
+                        scene,
+                        scene.barrelSpawners[0].x,
+                        scene.barrelSpawners[0].y,
+                    );
+            }
+            function spawnBarrelAt(scene, x, y) {
+                const b = scene.barrels.create(x, y, "barrel");
+                b.setCircle(7);
+                b.setBounce(0.1);
+                b.setVelocityX(-120 - Math.random() * 80);
+                b.setVelocityY(30);
+                b.setDepth(8);
+            }
+
+            /* -------------------- ENEMIES & HAMMERS -------------------- */
+            function spawnHammer(scene, x, y) {
+                const hammer = scene.enemies.create(x, y, "hammer");
+                hammer.setImmovable(false);
+                hammer.setBounce(0.2);
+                hammer.setDepth(9);
+                // Hammer behavior could be picked up by player in classic DK. For demo it is stationary.
+            }
+
+            function handleEnemies(scene, dt) {
+                // Simple patrol for enemies
+                scene.enemies.children.iterate((e) => {
+                    if (!e) return;
+                    if (!e._vx || Math.abs(e._vx) < 1)
+                        e._vx = Math.random() < 0.5 ? 60 : -60;
+                    e.setVelocityX(e._vx);
+                    // flip on edge detection (approx)
+                    const tileBelow = getTileAtWorld(
+                        scene,
+                        scene.map.girdersLayer,
+                        e.x + Math.sign(e._vx) * 8,
+                        e.y + 16,
+                    );
+                    if (!tileBelow) e._vx *= -1;
+                });
+            }
+
+            /* -------------------- UTILITIES -------------------- */
+            function getTileAtWorld(scene, layer, wx, wy) {
+                if (!layer || !scene.map) return null;
+                const tx = Math.floor(wx / scene.tileSize);
+                const ty = Math.floor(wy / scene.tileSize);
+                if (
+                    tx < 0 ||
+                    tx >= scene.map.width ||
+                    ty < 0 ||
+                    ty >= scene.map.height
+                )
+                    return null;
+                const tile = layer.hasOwnProperty("tilemap")
+                    ? layer.tilemap.getTileAt(tx, ty)
+                    : scene.map.map.layers[0].data[ty][tx];
+                // For our simple map objects above we store data as numbers; layer is a Phaser TilemapLayer or custom. We'll attempt robust returns.
+                try {
+                    if (layer.tilemap && layer.tilemap.layers)
+                        return layer.tilemap.getTileAt(tx, ty);
+                } catch (e) {}
+                // fallback: read data array if exists
+                if (
+                    layer.layer &&
+                    layer.layer.data &&
+                    layer.layer.data[ty] &&
+                    layer.layer.data[ty][tx]
+                )
+                    return layer.layer.data[ty][tx];
+                return null;
+            }
+
+            /* -------------------- ART & AUDIO (placeholders) -------------------- */
+            function createArt(scene) {
+                const g = scene.make.graphics({ x: 0, y: 0, add: false });
+                // Tileset: girder
+                g.fillStyle(0x8b5a2b, 1);
+                g.fillRect(0, 0, 16, 16);
+                g.lineStyle(1, 0x6b3f2a, 1);
+                g.strokeRect(0, 0, 16, 16);
+                scene.textures.generate(
+                    "tile_girder",
+                    g.generateTexture("tmp1", 16, 16),
+                );
+                g.clear();
+                // ladder
+                g.fillStyle(0x7fb07f, 1);
+                g.fillRect(0, 0, 16, 16);
+                g.lineStyle(2, 0x5b3c2a, 1);
+                g.beginPath();
+                g.moveTo(4, 2);
+                g.lineTo(4, 14);
+                g.moveTo(12, 2);
+                g.lineTo(12, 14);
+                g.strokePath();
+                scene.textures.generate(
+                    "tile_ladder",
+                    g.generateTexture("tmp2", 16, 16),
+                );
+                g.clear();
+
+                // Player frames
+                g.fillStyle(0xffcc00, 1);
+                g.fillRect(0, 0, 18, 24);
+                g.fillStyle(0x222, 1);
+                g.fillRect(3, 4, 12, 6);
+                scene.textures.generate(
+                    "player_idle",
+                    g.generateTexture("player_idle", 18, 24),
+                );
+                g.clear();
+                g.fillStyle(0xffcc00, 1);
+                g.fillRect(0, 0, 18, 24);
+                g.fillStyle(0x222, 1);
+                g.fillRect(3, 8, 12, 6);
+                scene.textures.generate(
+                    "player_run",
+                    g.generateTexture("player_run", 18, 24),
+                );
+                g.clear();
+
+                // Barrel
+                g.fillStyle(0x663300, 1);
+                g.fillCircle(8, 8, 8);
+                scene.textures.generate(
+                    "barrel",
+                    g.generateTexture("barrel", 16, 16),
+                );
+                g.clear();
+
+                // Goal
+                g.fillStyle(0xff6699, 1);
+                g.fillRect(0, 0, 16, 24);
+                g.fillStyle(0xffe0b2, 1);
+                g.fillRect(4, 4, 8, 8);
+                scene.textures.generate(
+                    "goal",
+                    g.generateTexture("goal", 16, 24),
+                );
+                g.clear();
+
+                // Hammer (placeholder)
+                g.fillStyle(0xcccccc, 1);
+                g.fillRect(0, 0, 14, 8);
+                g.fillStyle(0x6b3f2a, 1);
+                g.fillRect(6, 6, 6, 10);
+                scene.textures.generate(
+                    "hammer",
+                    g.generateTexture("hammer", 16, 16),
+                );
+                g.clear();
+
+                // Build a combined tileset image used by tilemap layers: create a small canvas with girder/ladders
+                const c = document.createElement("canvas");
+                c.width = 32;
+                c.height = 32;
+                const ctx = c.getContext("2d");
+                // girder at (0,0)
+                ctx.fillStyle = "#8b5a2b";
+                ctx.fillRect(0, 0, 16, 16);
+                ctx.strokeStyle = "#6b3f2a";
+                ctx.strokeRect(0, 0, 16, 16);
+                // ladder at (16,0)
+                ctx.fillStyle = "#7fb07f";
+                ctx.fillRect(16, 0, 16, 16);
+                ctx.strokeStyle = "#4f3c2a";
+                ctx.beginPath();
+                ctx.moveTo(20, 2);
+                ctx.lineTo(20, 14);
+                ctx.moveTo(28, 2);
+                ctx.lineTo(28, 14);
+                ctx.stroke();
+                scene.textures.addBase64("tileset_internal", c.toDataURL());
+            }
+
+            function playBeep(scene, freq = 440, dur = 0.06) {
+                if (!scene.audioCtx) return;
+                const o = scene.audioCtx.createOscillator();
+                const g = scene.audioCtx.createGain();
+                o.type = "sine";
+                o.frequency.value = freq;
+                g.gain.value = 0.0001;
+                o.connect(g);
+                g.connect(scene.audioCtx.destination);
+                const now = scene.audioCtx.currentTime;
+                o.start(now);
+                g.gain.linearRampToValueAtTime(0.12, now + 0.005);
+                g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+                o.stop(now + dur + 0.02);
+            }
+            function playTune(scene, freqs = [440, 660], tempo = 240) {
+                if (!scene.audioCtx) return;
+                const now = scene.audioCtx.currentTime;
+                let t = 0;
+                freqs.forEach((f) => {
+                    const o = scene.audioCtx.createOscillator();
+                    const g = scene.audioCtx.createGain();
+                    o.type = "square";
+                    o.frequency.value = f;
+                    o.connect(g);
+                    g.connect(scene.audioCtx.destination);
+                    o.start(now + t);
+                    g.gain.setValueAtTime(0.0001, now + t);
+                    g.gain.linearRampToValueAtTime(0.12, now + t + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + t + 0.18);
+                    o.stop(now + t + 0.2);
+                    t += 60 / tempo;
+                });
+            }
+
+            /* -------------------- LEVEL DATA BUILDERS -------------------- */
+            function buildMaps() {
+                // We'll produce 4 levels approximating Donkey Kong. For production, export from Tiled.
+                const tileW = 18; // pixels per tile
+                const W = Math.floor(WIDTH / tileW);
+                const H = Math.floor(HEIGHT / tileW);
+
+                const base = createEmptyLevel(W, H, tileW);
+                // Level 1: classic corkscrew with 6 girders and ladders alternating
+                const lvl1 = JSON.parse(JSON.stringify(base));
+                lvl1.name = "Level 1";
+                lvl1.allowDoubleJump = false;
+                placeGirdersAndLadders(lvl1, W, H, 6);
+                lvl1.playerStart = { x: 2, y: H - 3 };
+                lvl1.goal = { x: W - 4, y: 4 };
+                lvl1.spawners = [{ x: W - 4, y: 4, interval: 2200 }];
+                lvl1.hammers = [{ x: W / 2, y: H - 6 }];
+
+                // Level 2: more gaps, increase spawn freq
+                const lvl2 = JSON.parse(JSON.stringify(lvl1));
+                lvl2.name = "Level 2";
+                lvl2.spawners[0].interval = 1700;
+                lvl2.allowDoubleJump = true;
+
+                // Level 3 & 4: increased difficulty
+                const lvl3 = JSON.parse(JSON.stringify(lvl2));
+                lvl3.name = "Level 3";
+                lvl3.spawners[0].interval = 1400;
+                placeGirdersAndLadders(lvl3, W, H, 7);
+                const lvl4 = JSON.parse(JSON.stringify(lvl3));
+                lvl4.name = "Level 4";
+                lvl4.spawners[0].interval = 1100;
+                lvl4.allowDoubleJump = false;
+
+                return [lvl1, lvl2, lvl3, lvl4];
+            }
+
+            function createEmptyLevel(W, H, tileW) {
+                const dataG = Array(H)
+                    .fill()
+                    .map(() => Array(W).fill(0));
+                const dataL = Array(H)
+                    .fill()
+                    .map(() => Array(W).fill(0));
+                return {
+                    width: W,
+                    height: H,
+                    tilewidth: tileW,
+                    tileheight: tileW,
+                    layers: {
+                        girders: { data: dataG },
+                        ladders: { data: dataL },
+                    },
+                    spawners: [],
+                    hammers: [],
+                    playerStart: { x: 2, y: H - 3 },
+                    goal: { x: W - 4, y: 4 },
+                };
+            }
+
+            function placeGirdersAndLadders(level, W, H, rows) {
+                const gap = Math.floor(H / (rows + 1));
+                for (let i = 1; i <= rows; i++) {
+                    const y = i * gap;
+                    // make a sloped girder by offsetting tile runs left/right
+                    const leftToRight = i % 2 === 1;
+                    const runStart = leftToRight ? 2 : 4;
+                    for (let x = runStart; x < W - 2; x++) {
+                        level.layers.girders.data[y][x] = 1; // girder tile index
+                        // occasionally remove tiles for gaps
+                        if (Math.random() < 0.06)
+                            level.layers.girders.data[y][x] = 0;
+                    }
+                    // place a ladder connecting downwards a few tiles at a position
+                    const ladderX = leftToRight ? W - 6 : 4;
+                    for (
+                        let ly = Math.max(0, y - 5);
+                        ly <= Math.min(H - 1, y + 3);
+                        ly++
+                    )
+                        level.layers.ladders.data[ly][ladderX] = 1;
+                }
+            }
+
+            /* -------------------- TINY POLISH HELPERS -------------------- */
+            function showMessage(scene, text, duration = 1800) {
+                const txt = scene.add
+                    .text(scene.cameras.main.worldView.centerX, 120, text, {
+                        font: "20px monospace",
+                        fill: "#fff",
+                        backgroundColor: "#0008",
+                        padding: 8,
+                    })
+                    .setOrigin(0.5)
+                    .setDepth(120);
+                if (duration > 0)
+                    scene.time.delayedCall(duration, () => txt.destroy());
+            }
+
+            /* -------------------- DEV NOTES -------------------- */
+            /*
+How to swap in your licensed assets (recommended workflow):
+1) Export tilemaps from Tiled (JSON) and replace the `buildMaps()` step. Use load.tilemapTiledJSON in preload and map = this.make.tilemap({ key:'mapKey' }).
+2) Replace procedural textures: in preload call this.load.image('tiles', 'path/to/tiles.png'); this.load.spritesheet('player','player.png',{frameWidth:32,frameHeight:48}); this.load.audio('sfx_jump','jump.wav');
+3) Update tile indexes and collision rules based on your tileset.
+4) Improve barrel physics: consider using Matter.js (sloped physics) or pre-baked path nodes for barrels.
+5) Add real animations: use this.anims.create and call player.anims.play('run') etc.
+
+Testing & Packaging:
+- For local development run a static server (e.g. `npx http-server` or `python -m http.server`) rather than file:// for consistent audio behavior.
+
+Copyright:
+- This project intentionally uses placeholder art/sfx. Do not publish Nintendo's original assets without permission.
+*/
+        </script>
+    </body>
+</html>

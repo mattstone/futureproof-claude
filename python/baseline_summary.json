@@ -1,0 +1,12 @@
+{
+  "total_periods": 121,
+  "final_reinvestment": -1442487,
+  "final_loan_size": 1200000,
+  "final_interest_deficit": 1857140.625,
+  "final_surplus": -4499628,
+  "total_interest_paid": 33285.5625,
+  "total_annuity_income": 450000.0,
+  "insurance_cost": 720000.0,
+  "sp500_start": 548.96,
+  "sp500_end": 11494.7
+}

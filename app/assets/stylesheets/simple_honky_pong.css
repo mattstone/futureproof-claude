@@ -1,0 +1,72 @@
+/* Simple Honky Pong Game Styles */
+
+.simple-honky-pong-wrapper {
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  min-height: 100vh;
+  color: #fff;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  color: #ff6b35;
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+#gameCanvas {
+  border: 2px solid #fff;
+  background: #000;
+  margin: 20px 0;
+}
+
+.game-instructions {
+  margin: 20px auto;
+  max-width: 600px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+
+.game-instructions p {
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.back-link {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.btn {
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+  text-decoration: none;
+  color: white;
+}

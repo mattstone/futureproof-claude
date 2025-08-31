@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Donkey Kong</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 4px solid #ff0000;
+            display: block;
+            margin: 20px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        .controls {
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 0 10px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        .score {
+            font-family: monospace;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 WORKING DONKEY KONG</h1>
+    
+    <div class="score">
+        <span>SCORE: <span id="score">000000</span></span> |
+        <span>LIVES: <span id="lives">3</span></span> |
+        <span>LEVEL: <span id="level">1</span></span>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div class="controls">
+        <button onclick="startGame()">START GAME</button>
+        <button onclick="showSprites()">SHOW SPRITES</button>
+        <button onclick="cycleMarioSprites(1)">CYCLE MARIO ROW 1</button>
+        <button onclick="cycleMarioSprites(2)">CYCLE MARIO ROW 2</button>
+        <button onclick="cycleMarioSprites(3)">CYCLE MARIO ROW 3</button>
+        <button onclick="cycleMarioSprites(4)">CYCLE MARIO ROW 4</button>
+    </div>
+    
+    <p>Arrow Keys: Move | Spacebar: Jump | L: Load Sprites | D: Test Death Animation</p>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let sprites = {};
+        let gameState = 'loading';
+        
+        // Debug box drawing
+        let isDrawingBox = false;
+        let boxStart = { x: 0, y: 0 };
+        let boxEnd = { x: 0, y: 0 };
+        let drawnBoxes = [];
+        
+        // Draggable platform lines
+        let platforms = [
+            { x1: 0, y1: 580, x2: 800, y2: 580, color: '#FF0000', name: 'Ground' },      
+            { x1: 0, y1: 480, x2: 800, y2: 460, color: '#00FF00', name: 'Level 1' },     
+            { x1: 0, y1: 400, x2: 800, y2: 380, color: '#0000FF', name: 'Level 2' },     
+            { x1: 0, y1: 320, x2: 800, y2: 300, color: '#FFFF00', name: 'Level 3' },     
+            { x1: 0, y1: 240, x2: 800, y2: 220, color: '#FF00FF', name: 'Level 4' },     
+            { x1: 0, y1: 160, x2: 800, y2: 140, color: '#00FFFF', name: 'Top' },         
+        ];
+        
+        let dragState = {
+            isDragging: false,
+            platformIndex: -1,
+            endpoint: null, // 'start' or 'end'
+            offset: { x: 0, y: 0 }
+        };
+        let mario = {
+            x: 100,
+            y: 600 - 15 - 48, // Start on the ground platform (canvas.height - ground_offset - mario.height)
+            width: 48,  // Double the size from 24 to 48
+            height: 48, // Double the size from 24 to 48
+            vx: 0,
+            vy: 0,
+            onGround: false,
+            facing: 'right',
+            state: 'standing',    // standing, running, climbing, hammering, dying, tumbling, angel
+            animFrame: 0,
+            animTimer: 0,
+            animSpeed: 8,         // frames between animation changes
+            isDead: false,
+            deathTimer: 0
+        };
+        
+        let donkeyKong = {
+            x: 50,
+            y: 50,
+            width: 48,
+            height: 48
+        };
+        
+        let barrels = [];
+        let keys = {};
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        
+        let marioSpriteTest = {
+            active: false,
+            frame: 0,
+            timer: 0,
+            row: 1  // Which row we're testing
+        };
+        
+        // Load sprites
+        async function loadSprites() {
+            console.log('🔄 Loading sprites...');
+            
+            const spriteFiles = {
+                mario: '/sprites/mario.png',
+                levels: '/sprites/levels.png',
+                enemies: '/sprites/enemies.png',
+                pauline: '/sprites/pauline.png'
+            };
+            
+            for (const [name, path] of Object.entries(spriteFiles)) {
+                try {
+                    const img = new Image();
+                    await new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            console.log(`✅ Loaded ${name} (${img.width}x${img.height})`);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.log(`❌ Failed to load ${name} from ${path}`);
+                            reject();
+                        };
+                        img.src = path;
+                    });
+                    sprites[name] = img;
+                } catch (error) {
+                    console.log(`❌ Error loading ${name}:`, error);
+                }
+            }
+            
+            gameState = 'ready';
+            console.log('🎮 All sprites loaded!');
+            render();
+        }
+        
+        function showSprites() {
+            // Clear and show all sprites for debugging
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            let x = 10, y = 10;
+            for (const [name, sprite] of Object.entries(sprites)) {
+                ctx.fillStyle = '#FFFF00';
+                ctx.font = '14px Arial';
+                ctx.fillText(name, x, y);
+                ctx.drawImage(sprite, x, y + 20);
+                x += sprite.width + 20;
+                if (x > canvas.width - 200) {
+                    x = 10;
+                    y += 300;
+                }
+            }
+        }
+        
+        function cycleMarioSprites(row = 1) {
+            marioSpriteTest.active = true;
+            marioSpriteTest.frame = 0;
+            marioSpriteTest.timer = 0;
+            marioSpriteTest.row = row;
+            gameState = 'testing';
+            
+            // Start the cycle animation
+            setInterval(cycleMarioFrame, 2000); // Change frame every 2 seconds for Row 3
+            render();
+        }
+        
+        function cycleMarioFrame() {
+            if (!marioSpriteTest.active) return;
+            
+            if (marioSpriteTest.row === 3) {
+                // For Row 3, cycle through all 8 frames (0-7)
+                marioSpriteTest.frame = (marioSpriteTest.frame + 1) % 8;
+            } else {
+                marioSpriteTest.frame = (marioSpriteTest.frame + 1) % 8;
+            }
+            render();
+        }
+        
+        function renderMarioSpriteTest() {
+            // Black background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Title
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`MARIO SPRITE TEST - ROW ${marioSpriteTest.row}`, canvas.width/2, 50);
+            
+            if (!sprites.mario) {
+                ctx.fillStyle = '#FF0000';
+                ctx.fillText('Mario sprite not loaded!', canvas.width/2, canvas.height/2);
+                return;
+            }
+            
+            // Show current frame info
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '18px Arial';
+            ctx.fillText(`Frame: ${marioSpriteTest.frame}`, canvas.width/2, 100);
+            
+            // Frame descriptions for each row
+            const frameDescriptions = {
+                1: [
+                    'Frame 0: Death Left',
+                    'Frame 1: Running Left 1', 
+                    'Frame 2: Running Left 2',
+                    'Frame 3: Standing Left',
+                    'Frame 4: Standing Right',
+                    'Frame 5: Running Right 1',
+                    'Frame 6: Running Right 2', 
+                    'Frame 7: Death Right'
+                ],
+                2: [
+                    'Frame 0: Bottom of Ladder',
+                    'Frame 1: Climbing 1', 
+                    'Frame 2: Climbing 2',
+                    'Frame 3: Climbing 3',
+                    'Frame 4: Climbing 4',
+                    'Frame 5: Climbing 5',
+                    'Frame 6: Climbing 6', 
+                    'Frame 7: Top of Ladder'
+                ],
+                3: [
+                    'Frame 0: Left Hammer Down',
+                    'Frame 1: Left Hammer Up', 
+                    'Frame 2: Left Hammer Down',
+                    'Frame 3: Right Hammer Down',
+                    'Frame 4: Right Hammer Up',
+                    'Frame 5: Right Hammer Down',
+                    'Frame 6: Right Hammer Up', 
+                    'Frame 7: (Unused/Extra)'
+                ],
+                4: [
+                    'Frame 0: Tumbling 1',
+                    'Frame 1: Tumbling 2', 
+                    'Frame 2: Tumbling 3',
+                    'Frame 3: Tumbling 4',
+                    'Frame 4: Tumbling 5',
+                    'Frame 5: Tumbling 6',
+                    'Frame 6: Tumbling 7', 
+                    'Frame 7: Tumbling 8'
+                ]
+            };
+            
+            ctx.fillText(frameDescriptions[marioSpriteTest.row][marioSpriteTest.frame], canvas.width/2, 130);
+            
+            // Draw the current Mario sprite frame
+            let spriteWidth, spriteHeight, displaySize;
+            let spriteX, spriteY;
+            
+            if (marioSpriteTest.row === 3) {
+                // Row 3 (Hammer) has special coordinates and sizes - FIXED coordinates
+                displaySize = 120; // Larger for the hammer sprites
+                
+                // Testing Frames 0 and 1 with corrected coordinates
+                if (marioSpriteTest.frame === 0) {
+                    // Frame 0: x axis 105 to 60 (VERTICAL), y axis 0 to 15 (HORIZONTAL)
+                    spriteX = 0;         // Horizontal start (y axis in your terms)
+                    spriteY = 60;        // Vertical start (x axis in your terms)  
+                    spriteWidth = 15;    // Horizontal width (y axis: 15 - 0 = 15)
+                    spriteHeight = 45;   // Vertical height (x axis: 105 - 60 = 45)
+                } else if (marioSpriteTest.frame === 1) {
+                    // Frame 1: x=35-60 (horizontal), y=95-70 (vertical)
+                    spriteX = 35;        // Horizontal start
+                    spriteY = 70;        // Vertical start (corrected from 95 to 70)
+                    spriteWidth = 25;    // Width (60 - 35 = 25)
+                    spriteHeight = 25;   // Height (95 - 70 = 25)
+                } else if (marioSpriteTest.frame === 2) {
+                    // Frame 2: Mario hammer up facing left, x=80-95 (horizontal), y=105-70 (vertical)
+                    spriteX = 80;        // Horizontal start
+                    spriteY = 70;        // Vertical start
+                    spriteWidth = 15;    // Width (95 - 80 = 15)
+                    spriteHeight = 35;   // Height (105 - 70 = 35)
+                } else if (marioSpriteTest.frame === 3) {
+                    // Frame 3: Mario hammer down facing left, x=115-140 (horizontal), y=95-80 (vertical)
+                    spriteX = 115;       // Horizontal start
+                    spriteY = 80;        // Vertical start
+                    spriteWidth = 25;    // Width (140 - 115 = 25)
+                    spriteHeight = 15;   // Height (95 - 80 = 15)
+                } else if (marioSpriteTest.frame === 4) {
+                    // Frame 4: Mario hammer down facing right, x=155-180 (horizontal), y=95-80 (vertical)
+                    spriteX = 155;       // Horizontal start
+                    spriteY = 80;        // Vertical start
+                    spriteWidth = 25;    // Width (180 - 155 = 25)
+                    spriteHeight = 15;   // Height (95 - 80 = 15)
+                } else if (marioSpriteTest.frame === 5) {
+                    // Frame 5: Mario hammer up facing right, x=200-215 (horizontal), y=105-70 (vertical)
+                    spriteX = 200;       // Horizontal start
+                    spriteY = 70;        // Vertical start
+                    spriteWidth = 15;    // Width (215 - 200 = 15)
+                    spriteHeight = 35;   // Height (105 - 70 = 35)
+                } else if (marioSpriteTest.frame === 6) {
+                    // Frame 6: Mario hammer down facing right, x=235-260 (horizontal), y=95-80 (vertical)
+                    spriteX = 235;       // Horizontal start
+                    spriteY = 80;        // Vertical start
+                    spriteWidth = 25;    // Width (260 - 235 = 25)
+                    spriteHeight = 15;   // Height (95 - 80 = 15)
+                } else if (marioSpriteTest.frame === 7) {
+                    // Frame 7: Mario hammer up facing right, x=280-295 (horizontal), y=105-70 (vertical)
+                    spriteX = 280;       // Horizontal start
+                    spriteY = 70;        // Vertical start
+                    spriteWidth = 15;    // Width (295 - 280 = 15)
+                    spriteHeight = 35;   // Height (105 - 70 = 35)
+                } else {
+                    // All other frames: use a simple fallback so we can focus on frame 0
+                    spriteX = 0;
+                    spriteY = 0;
+                    spriteWidth = 16;
+                    spriteHeight = 16;
+                }
+            } else {
+                // Standard 16x16 sprites for other rows
+                spriteWidth = 16;
+                spriteHeight = 16;
+                displaySize = 96;
+                
+                // Standard x coordinates
+                switch(marioSpriteTest.frame) {
+                    case 0: spriteX = 0; break;    // x=0
+                    case 1: spriteX = 40; break;   // x=40
+                    case 2: spriteX = 80; break;   // x=80  
+                    case 3: spriteX = 120; break;  // x=120
+                    case 4: spriteX = 160; break;  // x=160
+                    case 5: spriteX = 200; break;  // x=200
+                    case 6: spriteX = 240; break;  // x=240
+                    case 7: spriteX = 280; break;  // x=280
+                    default: spriteX = 0;
+                }
+                
+                // Standard y coordinates
+                switch(marioSpriteTest.row) {
+                    case 1: spriteY = 0; break;    // Row 1: y=0 (vertical 15 to 0)
+                    case 2: spriteY = 40; break;   // Row 2: y=40 (vertical 55 to 40)
+                    case 4: spriteY = 120; break;  // Row 4: y=120 (vertical 135 to 120)
+                    default: spriteY = 0;
+                }
+            }
+            
+            // Calculate scaled dimensions to fit in displaySize box while maintaining aspect ratio
+            const aspectRatio = spriteWidth / spriteHeight;
+            let drawWidth, drawHeight;
+            
+            if (aspectRatio > 1) {
+                // Wider than tall - fit to width
+                drawWidth = displaySize;
+                drawHeight = displaySize / aspectRatio;
+            } else {
+                // Taller than wide - fit to height
+                drawHeight = displaySize;
+                drawWidth = displaySize * aspectRatio;
+            }
+            
+            const centerX = canvas.width/2 - drawWidth/2;
+            const centerY = canvas.height/2 - drawHeight/2;
+            
+            // Draw sprite with border (around actual scaled size)
+            ctx.strokeStyle = '#FFFF00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(centerX - 2, centerY - 2, drawWidth + 4, drawHeight + 4);
+            
+            ctx.drawImage(
+                sprites.mario,
+                spriteX, spriteY,               // Source position
+                spriteWidth, spriteHeight,      // Source size (variable for hammer sprites)
+                centerX, centerY,               // Destination position
+                drawWidth, drawHeight           // Destination size (properly scaled)
+            );
+            
+            // Debug coordinates display (for Row 3 debugging)
+            if (marioSpriteTest.row === 3 && marioSpriteTest.frame <= 7) {
+                ctx.fillStyle = '#00FF00';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`DEBUG COORDINATES:`, 20, canvas.height - 160);
+                ctx.fillText(`Frame ${marioSpriteTest.frame}:`, 20, canvas.height - 140);
+                ctx.fillText(`spriteX (horizontal): ${spriteX}`, 20, canvas.height - 120);
+                ctx.fillText(`spriteY (vertical): ${spriteY}`, 20, canvas.height - 100);
+                ctx.fillText(`spriteWidth: ${spriteWidth}`, 20, canvas.height - 80);
+                ctx.fillText(`spriteHeight: ${spriteHeight}`, 20, canvas.height - 60);
+                ctx.textAlign = 'center'; // Reset alignment
+            }
+            
+            // Instructions
+            ctx.fillStyle = '#AAAAAA';
+            ctx.font = '16px Arial';
+            ctx.fillText('Watch the sprites cycle every second', canvas.width/2, canvas.height - 100);
+            ctx.fillText('Press START GAME to exit test mode', canvas.width/2, canvas.height - 70);
+        }
+        
+        function startGame() {
+            // Exit test mode
+            marioSpriteTest.active = false;
+            
+            if (Object.keys(sprites).length === 0) {
+                loadSprites().then(() => {
+                    gameState = 'playing';
+                    gameLoop();
+                });
+            } else {
+                gameState = 'playing';
+                gameLoop();
+            }
+        }
+        
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            
+            update();
+            render();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function update() {
+            updateAutoTest(); // Run automated test if active
+            updateMario();
+            updateBarrels();
+        }
+        
+        let detectedLadders = [];
+
+        function sampleLadderColors() {
+            if (!sprites.levels) {
+                console.log('❌ Level sprite not loaded yet');
+                return;
+            }
+
+            console.log('🎨 Sampling colors at your drawn ladder positions...');
+            
+            // Create a temporary canvas to analyze the level sprite
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = 256;  // Original sprite width
+            tempCanvas.height = 232; // Original sprite height
+            
+            // Draw the level sprite at original size
+            tempCtx.drawImage(sprites.levels, 0, 0, 256, 232);
+            
+            // Get pixel data
+            const imageData = tempCtx.getImageData(0, 0, 256, 232);
+            const data = imageData.data;
+            
+            // Sample colors at your manually drawn ladder positions
+            const yourLadders = [
+                { x: 632.5, y: 539.125, width: 23, height: 34, name: "Right bottom" },
+                { x: 307.5, y: 526.125, width: 22, height: 17, name: "Left bottom" },
+                { x: 357.5, y: 455.125, width: 20, height: 48, name: "Center second" },
+                { x: 158.5, y: 461.125, width: 20, height: 32, name: "Left second" },
+            ];
+            
+            const scaleX = 256 / canvas.width;   // Scale factor to original sprite
+            const scaleY = 232 / canvas.height;
+            
+            for (const ladder of yourLadders) {
+                console.log(`\n🔍 Sampling ${ladder.name} ladder:`);
+                
+                // Convert to sprite coordinates
+                const spriteX = Math.round(ladder.x * scaleX);
+                const spriteY = Math.round(ladder.y * scaleY);
+                const spriteW = Math.round(ladder.width * scaleX);
+                const spriteH = Math.round(ladder.height * scaleY);
+                
+                console.log(`Sprite coords: x=${spriteX}, y=${spriteY}, w=${spriteW}, h=${spriteH}`);
+                
+                // Sample a few pixels in this area
+                const colors = new Set();
+                for (let y = spriteY; y < spriteY + spriteH && y < 232; y += 2) {
+                    for (let x = spriteX; x < spriteX + spriteW && x < 256; x += 2) {
+                        const index = (y * 256 + x) * 4;
+                        const r = data[index];
+                        const g = data[index + 1];
+                        const b = data[index + 2];
+                        const a = data[index + 3];
+                        
+                        if (a > 0) {
+                            colors.add(`rgb(${r},${g},${b})`);
+                        }
+                    }
+                }
+                
+                console.log(`Colors found:`, Array.from(colors));
+            }
+        }
+
+        function detectLadders() {
+            if (!sprites.levels) {
+                console.log('❌ Level sprite not loaded yet');
+                return [];
+            }
+
+            console.log('🔍 Scanning level sprite for ladder pixels...');
+            
+            // Create a temporary canvas to analyze the level sprite
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = 256;  // Original sprite width
+            tempCanvas.height = 232; // Original sprite height
+            
+            // Draw the level sprite at original size
+            tempCtx.drawImage(sprites.levels, 0, 0, 256, 232);
+            
+            // Get pixel data
+            const imageData = tempCtx.getImageData(0, 0, 256, 232);
+            const data = imageData.data;
+            
+            const ladders = [];
+            const colorSamples = new Set();
+            const scaleX = canvas.width / 256;   // Scale factor for x
+            const scaleY = canvas.height / 232;  // Scale factor for y
+            
+            // First pass: sample colors to see what we're working with
+            for (let y = 0; y < 232; y += 10) { // Sample every 10 pixels
+                for (let x = 0; x < 256; x += 10) {
+                    const index = (y * 256 + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+                    
+                    if (a > 0) { // Only non-transparent pixels
+                        colorSamples.add(`rgb(${r},${g},${b})`);
+                    }
+                }
+            }
+            
+            console.log('🎨 Color samples found in sprite:', Array.from(colorSamples).slice(0, 20));
+            
+            // Second pass: look for ladder pixels
+            for (let y = 0; y < 232; y++) {
+                for (let x = 0; x < 256; x++) {
+                    const index = (y * 256 + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    
+                    // Look for brown/orange ladder colors found in your drawings
+                    const isLadder = (
+                        r >= 70 && r <= 200 &&    // Red: 70-200 (covers 83, 110, 161, 188)
+                        g >= 40 && g <= 120 &&    // Green: 40-120 (covers 50, 67, 97, 113)  
+                        b >= 15 && b <= 50         // Blue: 15-50 (covers 18, 25, 36, 42)
+                    );
+                    if (isLadder) {
+                        // Found a green pixel, scale it to canvas coordinates
+                        const scaledX = x * scaleX;
+                        const scaledY = y * scaleY;
+                        
+                        // Group nearby green pixels into ladder rectangles
+                        let foundLadder = false;
+                        for (let ladder of ladders) {
+                            if (Math.abs(ladder.x - scaledX) < 30 && Math.abs(ladder.y - scaledY) < 30) {
+                                // Extend existing ladder bounds
+                                ladder.x = Math.min(ladder.x, scaledX);
+                                ladder.y = Math.min(ladder.y, scaledY);
+                                ladder.width = Math.max(ladder.width, scaledX - ladder.x + 5);
+                                ladder.height = Math.max(ladder.height, scaledY - ladder.y + 5);
+                                foundLadder = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!foundLadder) {
+                            ladders.push({
+                                x: scaledX,
+                                y: scaledY,
+                                width: 5,
+                                height: 5
+                            });
+                        }
+                    }
+                }
+            }
+            
+            console.log(`🎯 Found ${ladders.length} ladder regions:`, ladders);
+            return ladders;
+        }
+
+        function getLadders() {
+            // YOUR EXACT COORDINATES - no modifications, no guessing
+            return [
+                { x: 632.5, y: 539.125, width: 23, height: 34 },   // Right bottom
+                { x: 307.5, y: 571.125, width: 21, height: 14 },   // Left bottom part 1
+                { x: 307.5, y: 526.125, width: 22, height: 17 },   // Left bottom part 2
+                { x: 357.5, y: 455.125, width: 20, height: 48 },   // Center second
+                { x: 158.5, y: 461.125, width: 20, height: 32 },   // Left second
+                { x: 255.5, y: 372.125, width: 24, height: 8 },    // Left connector
+                { x: 258.5, y: 405.125, width: 20, height: 27 },   // Left-center
+                { x: 408.5, y: 378.125, width: 20, height: 45 },   // Center third
+                { x: 631.5, y: 384.125, width: 24, height: 33 },   // Right second
+                { x: 153.5, y: 306.125, width: 26, height: 33 },   // Left third
+                { x: 282.5, y: 304.125, width: 21, height: 40 },   // Left-center third
+                { x: 579.5, y: 294.125, width: 28, height: 5 },    // Right connector
+                { x: 581.5, y: 341.125, width: 23, height: 13 },   // Right third
+                { x: 631.5, y: 232.125, width: 22, height: 31 },   // Right fourth
+                { x: 455.5, y: 156.125, width: 22, height: 37 },   // Right upper
+                { x: 332.5, y: 222.125, width: 23, height: 9 },    // Center connector
+                { x: 332.5, y: 261.125, width: 24, height: 10 },   // Center fourth
+                { x: 256.5, y: 53.125, width: 21, height: 94 },    // Left top
+                { x: 305.5, y: 55.125, width: 20, height: 94 },    // Right top
+                { x: 256.5, y: 177.125, width: 21, height: 16 },   // Left connector
+                { x: 308.5, y: 178.125, width: 19, height: 11 },   // Right connector
+            ];
+        }
+
+        function checkLadderCollision(x, y) {
+            const ladders = getLadders();
+            for (const ladder of ladders) {
+                if (x + mario.width > ladder.x && 
+                    x < ladder.x + ladder.width && 
+                    y + mario.height > ladder.y && 
+                    y < ladder.y + ladder.height) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function getLadderBounds(x, y) {
+            const ladders = getLadders();
+            for (const ladder of ladders) {
+                if (x + mario.width > ladder.x && 
+                    x < ladder.x + ladder.width && 
+                    y + mario.height > ladder.y && 
+                    y < ladder.y + ladder.height) {
+                    return ladder;
+                }
+            }
+            return null;
+        }
+
+        function updateMario() {
+            if (mario.isDead) {
+                updateDeathAnimation();
+                return;
+            }
+            
+            // Mario movement
+            let isMoving = false;
+            let isClimbing = false;
+            
+            // Check for ladder climbing (up/down arrows) - only if Mario is on a ladder
+            const isOnLadder = checkLadderCollision(mario.x, mario.y);
+            // const isOnLadder = true; // TEMP: Allow climbing anywhere to test
+            if (isOnLadder && keys['ArrowUp']) {
+                mario.vy = -3;
+                mario.state = 'climbing';
+                isClimbing = true;
+            } else if (isOnLadder && keys['ArrowDown']) {
+                mario.vy = 3;
+                mario.state = 'climbing';
+                isClimbing = true;
+            }
+            
+            // Horizontal movement
+            if (keys['ArrowLeft']) {
+                mario.vx = -3;
+                mario.facing = 'left';
+                isMoving = true;
+            } else if (keys['ArrowRight']) {
+                mario.vx = 3;
+                mario.facing = 'right';
+                isMoving = true;
+            } else {
+                mario.vx = 0;
+            }
+            
+            // Set Mario's state based on movement
+            if (isClimbing) {
+                // Already set to climbing above
+            } else if (isMoving && mario.onGround) {
+                mario.state = 'running';
+            } else if (mario.onGround) {
+                mario.state = 'standing';
+            }
+            
+            mario.x += mario.vx;
+            
+            // Apply gravity only when not climbing
+            if (!isClimbing) {
+                mario.vy += 0.5;
+            }
+            mario.y += mario.vy;
+            
+            // DISABLE ALL BOUNDARIES - Let Mario climb and fall normally
+            // Just simple ground collision
+            const groundLevel = canvas.height - 15;
+            if (mario.y + mario.height >= groundLevel) {
+                mario.y = groundLevel - mario.height;
+                mario.vy = 0;
+                mario.onGround = true;
+            } else {
+                mario.onGround = false;
+            }
+            
+            // Screen boundaries
+            mario.x = Math.max(0, Math.min(canvas.width - mario.width, mario.x));
+            
+            // Update animation
+            updateMarioAnimation();
+        }
+        
+        function updateMarioAnimation() {
+            mario.animTimer++;
+            if (mario.animTimer >= mario.animSpeed) {
+                mario.animTimer = 0;
+                
+                switch (mario.state) {
+                    case 'standing':
+                        mario.animFrame = 0; // Standing still frame
+                        break;
+                    case 'running':
+                        // Cycle between running frames (0 and 1 for frames 1-2)
+                        mario.animFrame = (mario.animFrame === 0) ? 1 : 0;
+                        break;
+                    case 'climbing':
+                        // Check if Mario is at top or bottom of ladder
+                        const currentLadder = getLadderBounds(mario.x, mario.y);
+                        if (currentLadder) {
+                            if (mario.y <= currentLadder.y + 10) {
+                                // At top of ladder
+                                mario.animFrame = 7;
+                            } else if (mario.y + mario.height >= currentLadder.y + currentLadder.height - 10) {
+                                // At bottom of ladder
+                                mario.animFrame = 0;
+                            } else {
+                                // Climbing in middle - cycle through frames 1-6
+                                if (mario.animFrame < 1 || mario.animFrame > 6) {
+                                    mario.animFrame = 1;
+                                } else {
+                                    mario.animFrame = (mario.animFrame % 6) + 1;
+                                }
+                            }
+                        } else {
+                            // Default climbing animation
+                            mario.animFrame = (mario.animFrame + 1) % 8;
+                        }
+                        break;
+                    case 'hammering':
+                        // Cycle through hammer frames (0-7 on row 3)
+                        mario.animFrame = (mario.animFrame + 1) % 8;
+                        break;
+                }
+            }
+        }
+        
+        function updateDeathAnimation() {
+            mario.deathTimer++;
+            
+            if (mario.state === 'dying') {
+                // Death animation (frame 0 or 7 on row 1)
+                mario.animFrame = mario.facing === 'left' ? 0 : 7;
+                
+                if (mario.deathTimer > 30) { // After 30 frames, start tumbling
+                    mario.state = 'tumbling';
+                    mario.deathTimer = 0;
+                    mario.vy = -5; // Initial upward velocity for tumble
+                }
+            } else if (mario.state === 'tumbling') {
+                // Tumbling animation (row 4)
+                mario.animFrame = Math.floor(mario.deathTimer / 6) % 8;
+                
+                // Physics for tumbling
+                mario.vy += 0.3;
+                mario.y += mario.vy;
+                mario.x += mario.vx * 0.5; // Slow horizontal drift
+                
+                if (mario.y >= canvas.height - 80) { // Hit ground
+                    mario.y = canvas.height - 80;
+                    mario.state = 'angel';
+                    mario.deathTimer = 0;
+                    mario.vy = -1; // Slow upward float
+                }
+            } else if (mario.state === 'angel') {
+                // Float upward and fade away
+                mario.y += mario.vy;
+                mario.deathTimer++;
+                
+                // Could add fading effect here later
+                if (mario.deathTimer > 120) { // After 2 seconds, respawn
+                    respawnMario();
+                }
+            }
+        }
+        
+        function killMario() {
+            if (!mario.isDead) {
+                mario.isDead = true;
+                mario.state = 'dying';
+                mario.deathTimer = 0;
+                mario.vx = 0;
+                mario.vy = 0;
+                lives--;
+                updateUI();
+            }
+        }
+        
+        function respawnMario() {
+            mario.isDead = false;
+            mario.state = 'standing';
+            mario.x = 100;
+            mario.y = 600 - 15 - 48; // Proper ground level
+            mario.vx = 0;
+            mario.vy = 0;
+            mario.animFrame = 0;
+            mario.animTimer = 0;
+            mario.deathTimer = 0;
+            mario.onGround = true;
+        }
+        
+        function updateBarrels() {
+            
+            // Add barrels occasionally
+            if (Math.random() < 0.02) {
+                barrels.push({
+                    x: donkeyKong.x + 20,
+                    y: donkeyKong.y + 40,
+                    width: 16,
+                    height: 16,
+                    vx: -2,
+                    vy: 0
+                });
+            }
+            
+            // Update barrels
+            for (let i = barrels.length - 1; i >= 0; i--) {
+                const barrel = barrels[i];
+                barrel.x += barrel.vx;
+                barrel.vy += 0.3;
+                barrel.y += barrel.vy;
+                
+                if (barrel.y >= canvas.height - 60) {
+                    barrel.y = canvas.height - 60;
+                    barrel.vy = 0;
+                }
+                
+                if (barrel.x < -50) {
+                    barrels.splice(i, 1);
+                }
+            }
+        }
+        
+        function render() {
+            // Clear screen
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (gameState === 'loading') {
+                ctx.fillStyle = '#FFFF00';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Loading Donkey Kong...', canvas.width/2, canvas.height/2);
+                return;
+            }
+            
+            if (gameState === 'testing' && marioSpriteTest.active) {
+                renderMarioSpriteTest();
+                return;
+            }
+            
+            // Draw level using sprite
+            if (sprites.levels) {
+                // Draw the classic DK level (top-left section of sprite sheet)
+                ctx.drawImage(
+                    sprites.levels,
+                    0, 0,           // Source x, y (top-left level)
+                    256, 232,       // Source width, height
+                    0, 0,           // Destination x, y
+                    canvas.width, canvas.height  // Scale to full canvas
+                );
+            } else {
+                // Fallback rectangles
+                ctx.fillStyle = '#FF4444';
+                ctx.fillRect(0, canvas.height - 32, canvas.width, 32);
+                ctx.fillRect(0, canvas.height - 150, canvas.width * 0.8, 20);
+            }
+            
+            // Draw Donkey Kong
+            if (sprites.enemies) {
+                ctx.drawImage(
+                    sprites.enemies,
+                    64, 16,         // DK position in sprite
+                    32, 32,         // DK size in sprite
+                    donkeyKong.x, donkeyKong.y,
+                    donkeyKong.width, donkeyKong.height
+                );
+            } else {
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(donkeyKong.x, donkeyKong.y, donkeyKong.width, donkeyKong.height);
+            }
+            
+            // Draw barrels
+            ctx.fillStyle = '#8B4513';
+            for (const barrel of barrels) {
+                if (sprites.enemies) {
+                    ctx.drawImage(
+                        sprites.enemies,
+                        0, 0,           // Barrel position in sprite
+                        16, 16,         // Barrel size in sprite
+                        barrel.x, barrel.y,
+                        barrel.width, barrel.height
+                    );
+                } else {
+                    ctx.fillRect(barrel.x, barrel.y, barrel.width, barrel.height);
+                }
+            }
+            
+            // Draw Mario using corrected sprite coordinates
+            if (sprites.mario) {
+                let spriteX, spriteY, spriteWidth, spriteHeight;
+                
+                // Calculate sprite position based on state and animation frame
+                switch (mario.state) {
+                    case 'standing':
+                        // Row 1: Standing still (frame 3 for left, frame 4 for right)
+                        if (mario.facing === 'left') {
+                            spriteX = 120; spriteY = 0; spriteWidth = 16; spriteHeight = 16; // Frame 3
+                        } else {
+                            spriteX = 160; spriteY = 0; spriteWidth = 16; spriteHeight = 16; // Frame 4
+                        }
+                        break;
+                    case 'running':
+                        // Row 1: Running frames (1-2 for left, 5-6 for right)
+                        if (mario.facing === 'left') {
+                            spriteX = mario.animFrame === 0 ? 40 : 80; // frames 1-2
+                            spriteY = 0;
+                        } else {
+                            spriteX = mario.animFrame === 0 ? 200 : 240; // frames 5-6
+                            spriteY = 0;
+                        }
+                        spriteWidth = 16; spriteHeight = 16;
+                        break;
+                    case 'climbing':
+                        // Row 2: Climbing frames (0-7) - use standard coordinates for now
+                        spriteX = mario.animFrame * 40; // spacing every 40 pixels
+                        spriteY = 40; // Row 2
+                        spriteWidth = 16; spriteHeight = 16;
+                        break;
+                    case 'hammering':
+                        // Row 3: Use our corrected hammer coordinates
+                        if (mario.animFrame === 0) {
+                            spriteX = 0; spriteY = 60; spriteWidth = 15; spriteHeight = 45;
+                        } else if (mario.animFrame === 1) {
+                            spriteX = 35; spriteY = 70; spriteWidth = 25; spriteHeight = 25;
+                        } else {
+                            // Default to first frame for other frames
+                            spriteX = 0; spriteY = 60; spriteWidth = 15; spriteHeight = 45;
+                        }
+                        break;
+                    case 'dying':
+                        // Row 1: Death frames (0 for left, 7 for right)
+                        spriteX = mario.facing === 'left' ? 0 : 280;
+                        spriteY = 0;
+                        spriteWidth = 16; spriteHeight = 16;
+                        break;
+                    case 'tumbling':
+                        // Row 4: Tumbling frames (0-7) - use standard coordinates for now
+                        spriteX = mario.animFrame * 40; // spacing every 40 pixels
+                        spriteY = 120; // Row 4
+                        spriteWidth = 16; spriteHeight = 16;
+                        break;
+                    case 'angel':
+                        // Use standing frame
+                        if (mario.facing === 'left') {
+                            spriteX = 120; spriteY = 0; spriteWidth = 16; spriteHeight = 16;
+                        } else {
+                            spriteX = 160; spriteY = 0; spriteWidth = 16; spriteHeight = 16;
+                        }
+                        break;
+                    default:
+                        spriteX = 0; spriteY = 0; spriteWidth = 16; spriteHeight = 16;
+                }
+                
+                // Apply transparency for angel state
+                if (mario.state === 'angel') {
+                    const alpha = Math.max(0, 1 - (mario.deathTimer / 120));
+                    ctx.globalAlpha = alpha;
+                }
+                
+                ctx.drawImage(
+                    sprites.mario,
+                    spriteX, spriteY,           // Source position
+                    spriteWidth, spriteHeight, // Source size
+                    mario.x, mario.y,
+                    mario.width, mario.height
+                );
+                
+                // DEBUG: Draw a red rectangle where Mario should be
+                ctx.strokeStyle = '#FF0000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(mario.x, mario.y, mario.width, mario.height);
+                
+                // DEBUG: Show Mario's position and state
+                ctx.fillStyle = '#FFFF00';
+                ctx.font = '12px Arial';
+                ctx.fillText(`Mario: (${mario.x},${mario.y}) ${mario.state}`, 10, canvas.height - 20);
+                
+                // DEBUG: Show a crosshair at Mario's center for positioning
+                ctx.strokeStyle = '#00FFFF';
+                ctx.lineWidth = 1;
+                const centerX = mario.x + mario.width/2;
+                const centerY = mario.y + mario.height/2;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 10, centerY);
+                ctx.lineTo(centerX + 10, centerY);
+                ctx.moveTo(centerX, centerY - 10);
+                ctx.lineTo(centerX, centerY + 10);
+                ctx.stroke();
+                
+                // DEBUG: Draw ladder collision boxes
+                const ladders = getLadders();
+                ctx.strokeStyle = '#00FF00';
+                ctx.lineWidth = 2;
+                for (const ladder of ladders) {
+                    ctx.strokeRect(ladder.x, ladder.y, ladder.width, ladder.height);
+                }
+                
+                // SPRITE ANALYSIS TOOL - Grid overlay to understand structure
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 1;
+                
+                // Draw horizontal lines every 50 pixels to identify platform levels
+                for (let y = 0; y < canvas.height; y += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                    
+                    // Label the y-coordinate
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`y=${y}`, 5, y - 5);
+                }
+                
+                // Draw vertical lines every 100 pixels
+                for (let x = 0; x < canvas.width; x += 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                    
+                    // Label the x-coordinate
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`x=${x}`, x + 5, 15);
+                }
+                
+                // DEBUG: Draw draggable platform lines
+                for (const platform of platforms) {
+                    ctx.strokeStyle = platform.color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(platform.x1, platform.y1);
+                    ctx.lineTo(platform.x2, platform.y2);
+                    ctx.stroke();
+                    
+                    // Draw draggable endpoints as circles
+                    ctx.fillStyle = platform.color;
+                    ctx.beginPath();
+                    ctx.arc(platform.x1, platform.y1, 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(platform.x2, platform.y2, 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // Label
+                    ctx.fillStyle = platform.color;
+                    ctx.font = '14px Arial';
+                    ctx.fillText(platform.name, (platform.x1 + platform.x2) / 2 - 30, (platform.y1 + platform.y2) / 2 - 10);
+                }
+                
+                // DEBUG: Draw user-drawn boxes (now in white for visibility)
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                for (const box of drawnBoxes) {
+                    ctx.strokeRect(box.x, box.y, box.width, box.height);
+                }
+                
+                // Reset transparency
+                if (mario.state === 'angel') {
+                    ctx.globalAlpha = 1;
+                }
+            } else {
+                ctx.fillStyle = '#0000FF';
+                ctx.fillRect(mario.x, mario.y, mario.width, mario.height);
+            }
+            
+            // UI
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = '16px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`SCORE: ${score.toString().padStart(6, '0')}`, 10, 30);
+            ctx.fillText(`LIVES: ${lives}`, 10, 50);
+            ctx.fillText(`LEVEL: ${level}`, 10, 70);
+            
+            if (gameState === 'ready') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '20px Arial';
+                ctx.fillText('PRESS START TO PLAY', canvas.width/2, canvas.height/2 + 100);
+            }
+        }
+        
+        function jump() {
+            if (mario.onGround) {
+                mario.vy = -12;
+                mario.onGround = false;
+            }
+        }
+        
+        // Controls
+        // Mouse events for dragging platform lines
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Check if mouse is near any platform endpoint
+            for (let i = 0; i < platforms.length; i++) {
+                const platform = platforms[i];
+                
+                // Check start point (left end)
+                if (Math.abs(mouseX - platform.x1) < 10 && Math.abs(mouseY - platform.y1) < 10) {
+                    dragState.isDragging = true;
+                    dragState.platformIndex = i;
+                    dragState.endpoint = 'start';
+                    console.log(`Dragging ${platform.name} start point`);
+                    return;
+                }
+                
+                // Check end point (right end)
+                if (Math.abs(mouseX - platform.x2) < 10 && Math.abs(mouseY - platform.y2) < 10) {
+                    dragState.isDragging = true;
+                    dragState.platformIndex = i;
+                    dragState.endpoint = 'end';
+                    console.log(`Dragging ${platform.name} end point`);
+                    return;
+                }
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (dragState.isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const platform = platforms[dragState.platformIndex];
+                
+                if (dragState.endpoint === 'start') {
+                    platform.x1 = mouseX;
+                    platform.y1 = mouseY;
+                } else {
+                    platform.x2 = mouseX;
+                    platform.y2 = mouseY;
+                }
+                
+                render();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (dragState.isDragging) {
+                const platform = platforms[dragState.platformIndex];
+                console.log(`${platform.name} positioned:`, {
+                    x1: platform.x1, y1: platform.y1,
+                    x2: platform.x2, y2: platform.y2
+                });
+                dragState.isDragging = false;
+            }
+        });
+
+        // Automated test sequence
+        let autoTest = {
+            active: false,
+            phase: 0,
+            timer: 0
+        };
+
+        function startAutoTest() {
+            autoTest.active = true;
+            autoTest.phase = 0;
+            autoTest.timer = 0;
+            mario.x = 100;
+            mario.y = 600 - 15 - 48;
+            mario.state = 'standing';
+            console.log('🤖 Auto test started - Mario will walk to ladder and climb');
+        }
+
+        function updateAutoTest() {
+            if (!autoTest.active) return;
+            
+            autoTest.timer++;
+            
+            switch(autoTest.phase) {
+                case 0: // Walk to right ladder (x=632) - the full ladder
+                    if (mario.x < 632) {
+                        keys['ArrowRight'] = true;
+                        keys['ArrowLeft'] = false;
+                    } else {
+                        keys['ArrowRight'] = false;
+                        keys['ArrowLeft'] = false;
+                        autoTest.phase = 1;
+                        autoTest.timer = 0;
+                        console.log('🤖 Reached full ladder, starting to climb');
+                    }
+                    break;
+                    
+                case 1: // Climb up for 3 seconds
+                    keys['ArrowUp'] = true;
+                    if (autoTest.timer > 180) { // 3 seconds at 60fps
+                        keys['ArrowUp'] = false;
+                        autoTest.phase = 2;
+                        console.log('🤖 Finished climbing test');
+                    }
+                    break;
+                    
+                case 2: // Test complete
+                    autoTest.active = false;
+                    console.log('🤖 Auto test complete. Mario state:', mario.state, 'Position:', mario.x, mario.y);
+                    break;
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            
+            // Prevent default for all arrow keys and space to stop browser scrolling
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+            
+            if (e.code === 'Space') {
+                jump();
+            }
+            
+            if (e.code === 'KeyL') {
+                loadSprites();
+            }
+            
+            if (e.code === 'KeyD') {
+                // Test death animation
+                killMario();
+            }
+            
+            if (e.code === 'KeyT') {
+                // Start auto test
+                startAutoTest();
+            }
+            
+            if (e.code === 'KeyS') {
+                // Scan for ladders using brown colors
+                detectedLadders = detectLadders();
+                render();
+            }
+            
+            if (e.code === 'KeyC') {
+                // Clear drawn boxes
+                drawnBoxes = [];
+                console.log('Cleared all drawn boxes');
+                render();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+        
+        // Update UI elements
+        function updateUI() {
+            document.getElementById('score').textContent = score.toString().padStart(6, '0');
+            document.getElementById('lives').textContent = lives.toString();
+            document.getElementById('level').textContent = level.toString();
+        }
+        
+        // Start loading immediately
+        console.log('🚀 Starting Donkey Kong...');
+        loadSprites();
+        
+        // Initial render
+        render();
+    </script>
+</body>
+</html>

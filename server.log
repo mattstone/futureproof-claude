@@ -7,31 +7,36 @@ Puma starting in single mode...
 *  Min threads: 3
 *  Max threads: 3
 *  Environment: development
-*          PID: 87739
-* Listening on http://127.0.0.1:3000
-* Listening on http://[::1]:3000
-Use Ctrl-C to stop
-[32mℹ️  Started GET "/games/honky_pong" for ::1 at 2025-08-22 15:33:54 +1000
-[0m[32m  📊 SQL (4.5ms): SELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='Futureproof'*/[0m
-[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /games/honky_pong
-[0m[31m❌   
-ActionController::RoutingError (No route matches [GET] "/games/honky_pong"):
-  
-[0m[32mℹ️  Started GET "/honky-pong" for ::1 at 2025-08-22 15:34:14 +1000
-[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /honky-pong
-[0m[32mℹ️  Processing by GamesController#honky_pong as HTML
-[0m[32m  📊 SQL (1.9ms): SELECT "users".* FROM "users" WHERE "users"."id" = 77 ORDER BY "users"."id" ASC LIMIT 1 /*action='honky_pong',application='Futureproof',controller='games'*/[0m
-[32m  📊 SQL (2.89ms): SELECT COUNT("application_messages"."id") FROM "applications" INNER JOIN "application_messages" ON "application_messages"."application_id" = "applications"."id" WHERE "applications"."user_id" = 77 AND "application_messages"."message_type" = 'admin_to_customer' AND "application_messages"."status" = 'sent' /*action='honky_pong',application='Futureproof',controller='games'*/[0m
-[32mℹ️    Rendered layout layouts/application.html.erb (Duration: 28.8ms | GC: 0.2ms)
-[0m[32mℹ️  Completed 200 OK in 237ms (Views: 30.2ms | ActiveRecord: 85.3ms (2 queries, 0 cached) | GC: 19.0ms)
-
-
-[0m[32mℹ️  Started GET "/assets/application-393fed30.css" for ::1 at 2025-08-22 15:34:14 +1000
-[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /assets/application-393fed30.css
-[0m[32mℹ️  Started GET "/assets/honky_pong-10b2f301.js" for ::1 at 2025-08-22 15:34:14 +1000
-[0m[32mℹ️  Started GET "/assets/audio_manager-729cca8e.js" for ::1 at 2025-08-22 15:34:14 +1000
-[0m[32mℹ️  Started GET "/assets/controllers/honky_pong_controller-1549812e.js" for ::1 at 2025-08-22 15:34:14 +1000
-[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /assets/audio_manager-729cca8e.js
-[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /assets/honky_pong-10b2f301.js
-[0m[32mℹ️  [Rack::Attack] SAFELIST allow from localhost: ::1 GET /assets/controllers/honky_pong_controller-1549812e.js
-[0m
+*          PID: 68252
+Exiting
+/Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:342:in `initialize': Address already in use - bind(2) for "127.0.0.1" port 3000 (Errno::EADDRINUSE)
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:342:in `new'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:342:in `add_tcp_listener'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:336:in `block in add_tcp_listener'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:335:in `each'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:335:in `add_tcp_listener'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:171:in `block in parse'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:154:in `each'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/binder.rb:154:in `parse'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/runner.rb:175:in `load_and_bind'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/single.rb:44:in `run'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/puma/launcher.rb:203:in `run'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/puma-6.6.1/lib/rack/handler/puma.rb:79:in `run'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/rackup-2.2.1/lib/rackup/server.rb:341:in `start'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/commands/server/server_command.rb:38:in `start'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/commands/server/server_command.rb:145:in `block in perform'
+	from <internal:kernel>:90:in `tap'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/commands/server/server_command.rb:136:in `perform'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/thor-1.4.0/lib/thor/command.rb:28:in `run'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/thor-1.4.0/lib/thor/invocation.rb:127:in `invoke_command'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/command/base.rb:178:in `invoke_command'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/thor-1.4.0/lib/thor.rb:538:in `dispatch'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/command/base.rb:73:in `perform'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/command.rb:65:in `block in invoke'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/command.rb:143:in `with_argv'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/command.rb:63:in `invoke'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/railties-8.0.2.1/lib/rails/commands.rb:18:in `<main>'
+	from /Users/zen/.rvm/rubies/ruby-3.3.6/lib/ruby/3.3.0/bundled_gems.rb:69:in `require'
+	from /Users/zen/.rvm/rubies/ruby-3.3.6/lib/ruby/3.3.0/bundled_gems.rb:69:in `block (2 levels) in replace_require'
+	from /Users/zen/.rvm/gems/ruby-3.3.6/gems/bootsnap-1.18.6/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:30:in `require'
+	from bin/rails:4:in `<main>'

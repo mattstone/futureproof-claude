@@ -1,12 +1,12 @@
-<%= stylesheet_link_tag 'defendher', 'data-turbo-track': 'reload' %>
 <%= render 'shared/header' %>
 
 <div class="defendher-container" data-controller="defendher">
   <!-- Professional Loading Screen -->
   <div id="loadingScreen" class="game-loading" data-defendher-target="loadingScreen">
     <div class="loading-content">
+      <%= image_tag "arcade/defendher/Art/deflogo.jpg", class: "game-logo", alt: "DefendHer Logo" %>
       <div class="loading-spinner"></div>
-      <div class="loading-text">🚀 DEFENDHER</div>
+      <div class="loading-text">DEFENDHER</div>
       <div class="loading-subtitle">Initializing Planet Defense System...</div>
     </div>
   </div>
@@ -40,7 +40,7 @@
       <div class="ui-panel humanoids-panel">
         <div>WOMEN: <span id="humanoids">10</span></div>
       </div>
-      <div class="ui-panel debug-panel" id="debug">
+      <div class="ui-panel debug-panel" id="debug" style="display: none;">
         <div>DEBUG INFO:</div>
         <div>Game loading...</div>
       </div>
@@ -126,6 +126,7 @@ class DefendHerGame {
     this.bombs = 3;
     this.humansRescued = 0;
     this.enemiesDestroyed = 0;
+    this.waveTransitioning = false;
     
     // World parameters
     this.worldWidth = 4000; // Smaller world
@@ -160,6 +161,32 @@ class DefendHerGame {
     this.audioContext = null;
     this.initAudio();
     
+    // Background image
+    this.backgroundImage = new Image();
+    this.backgroundImage.src = '<%= asset_path("arcade/defendher/Art/BG-mountains.png") %>';
+    this.backgroundImageLoaded = false;
+    this.backgroundImage.onload = () => {
+      console.log('Background image loaded');
+      this.backgroundImageLoaded = true;
+    };
+    
+    // Audio files
+    this.sounds = {};
+    this.loadSounds();
+    
+    // Sprite sheet
+    this.spriteSheet = new Image();
+    this.spriteSheet.src = '<%= asset_path("arcade/defendher/Art/defendersprites.jpg") %>';
+    this.spriteSheetLoaded = false;
+    this.spriteSheet.onload = () => {
+      console.log('Sprite sheet loaded successfully:', this.spriteSheet.width, 'x', this.spriteSheet.height);
+      this.spriteSheetLoaded = true;
+    };
+    this.spriteSheet.onerror = (error) => {
+      console.error('Failed to load sprite sheet:', error);
+      console.error('Sprite sheet URL:', this.spriteSheet.src);
+    };
+    
     console.log('DefenderGame: Initialization complete');
     this.init();
   }
@@ -190,6 +217,58 @@ class DefendHerGame {
     
     oscillator.start(this.audioContext.currentTime);
     oscillator.stop(this.audioContext.currentTime + duration);
+  }
+  
+  loadSounds() {
+    const soundFiles = {
+      laser: '<%= asset_path("arcade/defendher/Sounds/Laser Weapons Sound Pack/Free/light_blast_1.wav") %>',
+      explosion: '<%= asset_path("arcade/defendher/Sounds/436871__mozfoo__distant-explosion.wav") %>',
+      gameStart: '<%= asset_path("arcade/defendher/Sounds/defstart.wav") %>',
+      enemySound: '<%= asset_path("arcade/defendher/Sounds/deflande.wav") %>',
+      bomb: '<%= asset_path("arcade/defendher/Sounds/Laser Weapons Sound Pack/Free/heavy_blast_001.wav") %>'
+    };
+    
+    Object.keys(soundFiles).forEach(key => {
+      const audio = new Audio();
+      audio.src = soundFiles[key];
+      audio.preload = 'auto';
+      audio.volume = 0.3;
+      this.sounds[key] = audio;
+    });
+    
+    console.log('Audio files loaded:', Object.keys(this.sounds));
+  }
+  
+  playAudioFile(soundName) {
+    if (this.sounds[soundName]) {
+      try {
+        const sound = this.sounds[soundName].cloneNode();
+        sound.currentTime = 0;
+        sound.play().catch(e => console.warn('Could not play sound:', soundName, e));
+      } catch (e) {
+        console.warn('Error playing sound:', soundName, e);
+      }
+    }
+  }
+  
+  drawSprite(ctx, spriteX, spriteY, spriteWidth, spriteHeight, destX, destY, destWidth = spriteWidth, destHeight = spriteHeight) {
+    if (this.spriteSheetLoaded && this.spriteSheet.complete) {
+      console.log(`Drawing sprite: (${spriteX},${spriteY}) size ${spriteWidth}x${spriteHeight} at (${destX},${destY})`);
+      try {
+        ctx.drawImage(
+          this.spriteSheet,
+          spriteX, spriteY, spriteWidth, spriteHeight,
+          destX - destWidth/2, destY - destHeight/2, destWidth, destHeight
+        );
+        return true;
+      } catch (error) {
+        console.error('Error drawing sprite:', error);
+        return false;
+      }
+    } else {
+      console.log('Sprite sheet not ready:', this.spriteSheetLoaded, this.spriteSheet.complete);
+      return false;
+    }
   }
   
   init() {
@@ -262,7 +341,7 @@ class DefendHerGame {
   
   spawnEnemyWave() {
     console.log(`DefendHerGame: Spawning wave ${this.wave}...`);
-    const baseCount = 3 + this.wave;
+    const baseCount = Math.min(3 + this.wave, 15); // Cap enemy count to prevent explosion
     
     // Spawn Landers
     for (let i = 0; i < baseCount; i++) {
@@ -329,6 +408,13 @@ class DefendHerGame {
       if (e.code === 'Escape') {
         this.togglePause();
       }
+      
+      // Debug sprite cycling
+      if (e.code === 'KeyT') {
+        if (!window.debugSpriteIndex) window.debugSpriteIndex = 0;
+        window.debugSpriteIndex++;
+        console.log('Debug: Switched to sprite index', window.debugSpriteIndex);
+      }
     });
     
     document.addEventListener('keyup', (e) => {
@@ -357,7 +443,7 @@ class DefendHerGame {
     this.gameState = 'playing';
     document.getElementById('startScreen').style.display = 'none';
     this.updateDebug('Mission active! Defend the women!');
-    this.playSound(220, 0.1, 'square');
+    this.playAudioFile('gameStart');
   }
   
   restart() {
@@ -406,7 +492,7 @@ class DefendHerGame {
           this.enemiesDestroyed++;
           this.score += entity.points || 100;
           this.spawnExplosion(entity.x, entity.y, '#ff66cc');
-          this.playSound(150 + Math.random() * 100, 0.2, 'sawtooth');
+          this.playAudioFile('explosion');
           
           // Small screen shake for enemy destruction
           this.addScreenShake(3, 0.2);
@@ -486,15 +572,23 @@ class DefendHerGame {
     if (this.player && this.player.alive) {
       const targetCameraX = this.player.x - this.width / 2;
       
-      // Smooth camera movement without complex wrapping
+      // Check if player wrapped around the world
       const cameraDiff = targetCameraX - this.cameraX;
-      this.cameraX += cameraDiff * 0.1;
+      
+      // If the camera difference is too large (> half world), player likely wrapped
+      if (Math.abs(cameraDiff) > this.worldWidth / 2) {
+        // Snap camera immediately for world wrapping
+        this.cameraX = targetCameraX;
+      } else {
+        // Normal smooth camera movement
+        this.cameraX += cameraDiff * 0.15; // Slightly faster than before
+      }
     }
   }
   
   checkCollisions() {
     // Player vs enemies
-    if (this.player && this.player.alive) {
+    if (this.player && this.player.alive && !this.player.invulnerable) {
       for (let entity of this.entities) {
         if (entity.type === 'enemy' && this.distance(this.player, entity) < 25) {
           this.playerHit();
@@ -577,19 +671,39 @@ class DefendHerGame {
     this.flashScreen = { intensity: 0.7, decay: 2.0 };
     
     if (this.lives > 0) {
-      // Respawn player
+      // Make player temporarily invulnerable but still alive for respawn
+      this.player.invulnerable = true;
+      
+      // Respawn player after delay
       setTimeout(() => {
-        this.player.x = this.width / 2;
-        this.player.y = this.height / 2;
-        this.player.alive = true;
+        if (this.player) {
+          this.player.x = this.width / 2;
+          this.player.y = this.height / 2;
+          this.player.alive = true;
+          this.player.invulnerable = false;
+        }
       }, 2000);
+    } else {
+      // Only set player dead if no lives left
+      this.player.alive = false;
     }
   }
   
   checkWaveCompletion() {
+    // Prevent wave completion check from running multiple times
+    if (this.waveTransitioning) return;
+    
     const enemies = this.entities.filter(e => e.type === 'enemy');
     if (enemies.length === 0) {
+      this.waveTransitioning = true;
       this.wave++;
+      
+      // Cap wave number to prevent overflow bug
+      if (this.wave > 50) {
+        console.warn('Wave number exceeded 50, resetting to 50');
+        this.wave = 50;
+      }
+      
       this.bombs = Math.min(5, this.bombs + 1); // Bonus bomb
       this.updateDebug(`Wave ${this.wave} incoming! Bonus bomb awarded.`);
       
@@ -597,7 +711,8 @@ class DefendHerGame {
       setTimeout(() => {
         this.spawnEnemyWave();
         this.updateDebug(`Wave ${this.wave} launched!`);
-      }, 2000);
+        this.waveTransitioning = false;
+      }, 500); // Reduced from 2000ms to 500ms
     }
   }
   
@@ -682,6 +797,19 @@ class DefendHerGame {
     this.ctx.save();
     this.ctx.translate(-this.cameraX, 0);
     
+    // Draw background mountains with parallax - DISABLED due to sprite issues
+    if (false && this.backgroundImageLoaded) {
+      const parallaxSpeed = 0.3;
+      const bgX = (-this.cameraX * parallaxSpeed) % this.backgroundImage.width;
+      
+      // Draw background image with tiling
+      this.ctx.drawImage(this.backgroundImage, bgX, this.height - this.backgroundImage.height);
+      this.ctx.drawImage(this.backgroundImage, bgX + this.backgroundImage.width, this.height - this.backgroundImage.height);
+      if (bgX > 0) {
+        this.ctx.drawImage(this.backgroundImage, bgX - this.backgroundImage.width, this.height - this.backgroundImage.height);
+      }
+    }
+    
     // Draw starfield with parallax
     this.drawStarfield();
     
@@ -689,9 +817,34 @@ class DefendHerGame {
     this.drawTerrain();
     
     // Draw entities with improved world wrapping
+    console.log(`Rendering ${this.entities.length} entities`);
     for (let entity of this.entities) {
       if (entity.render) {
-        // Draw entity if visible\n        if (this.isVisible(entity)) {\n          entity.render(this.ctx);\n        }\n        \n        // Add simple wrapping for entities near world edges\n        const savedX = entity.x;\n        \n        // If entity is near left edge, also check if it should appear on right\n        if (entity.x < this.width) {\n          entity.x = savedX + this.worldWidth;\n          if (this.isVisible(entity)) {\n            entity.render(this.ctx);\n          }\n          entity.x = savedX; // restore\n        }\n        \n        // If entity is near right edge, also check if it should appear on left\n        if (entity.x > this.worldWidth - this.width) {\n          entity.x = savedX - this.worldWidth;\n          if (this.isVisible(entity)) {\n            entity.render(this.ctx);\n          }\n          entity.x = savedX; // restore\n        }
+        // Draw entity if visible
+        if (this.isVisible(entity)) {
+          entity.render(this.ctx);
+        }
+        
+        // Add simple wrapping for entities near world edges
+        const savedX = entity.x;
+        
+        // If entity is near left edge, also check if it should appear on right
+        if (entity.x < this.width) {
+          entity.x = savedX + this.worldWidth;
+          if (this.isVisible(entity)) {
+            entity.render(this.ctx);
+          }
+          entity.x = savedX; // restore
+        }
+        
+        // If entity is near right edge, also check if it should appear on left
+        if (entity.x > this.worldWidth - this.width) {
+          entity.x = savedX - this.worldWidth;
+          if (this.isVisible(entity)) {
+            entity.render(this.ctx);
+          }
+          entity.x = savedX; // restore
+        }
       }
     }
     
@@ -706,8 +859,8 @@ class DefendHerGame {
     // Restore from screen shake
     this.ctx.restore();
     
-    // Draw UI (always on screen)
-    this.drawRadar();
+    // Draw UI (always on screen) - radar disabled
+    // this.drawRadar();
     
     // Screen flash effect for explosions
     if (this.flashScreen && this.flashScreen.intensity > 0) {
@@ -740,7 +893,11 @@ class DefendHerGame {
   }
   
   isVisible(entity) {
-    return entity.x > this.cameraX - 100 && entity.x < this.cameraX + this.width + 100;
+    const visible = entity.x > this.cameraX - 100 && entity.x < this.cameraX + this.width + 100;
+    if (!visible) {
+      console.log(`Entity at (${entity.x}, ${entity.y}) not visible. Camera: ${this.cameraX}, Width: ${this.width}`);
+    }
+    return visible;
   }
   
   drawStarfield() {
@@ -890,26 +1047,11 @@ class DefendHerGame {
       this.ctx.restore();
     };
     
-    // Draw terrain sections with proper wrapping
-    // Always draw the main terrain
-    drawTerrainSection(0);
-    
-    // Draw additional terrain sections to ensure seamless wrapping
-    // Check if we need terrain on the left
-    if (this.cameraX < 0) {
-      drawTerrainSection(this.worldWidth);
-    }
-    
-    // Check if we need terrain on the right  
-    if (this.cameraX + this.width > this.worldWidth) {
-      drawTerrainSection(-this.worldWidth);
-    }
-    
-    // For very wide views or extreme positions, draw both sides
-    if (this.width > this.worldWidth / 2) {
-      drawTerrainSection(this.worldWidth);
-      drawTerrainSection(-this.worldWidth);
-    }
+    // Draw terrain sections with seamless wrapping
+    // Always draw multiple terrain sections to prevent gaps
+    drawTerrainSection(-this.worldWidth); // Left side
+    drawTerrainSection(0);               // Main terrain  
+    drawTerrainSection(this.worldWidth); // Right side
     
     this.ctx.restore();
   }
@@ -1026,7 +1168,7 @@ class DefendHerShip {
       const bullet = new Bullet(this.x + this.facing * 20, this.y, this.facing, 0);
       game.entities.push(bullet);
       this.lastShot = now;
-      game.playSound(800, 0.05, 'square');
+      game.playAudioFile('laser');
     }
   }
   
@@ -1038,7 +1180,7 @@ class DefendHerShip {
       
       // Massive visual explosion effect
       game.spawnMegaExplosion(this.x, this.y);
-      game.playSound(100, 1.2, 'sawtooth'); // Deep boom sound
+      game.playAudioFile('bomb');
       
       // Destroy all enemies on screen with larger radius
       const bombRadius = 300; // Much larger radius
@@ -1075,80 +1217,60 @@ class DefendHerShip {
     
     ctx.save();
     
-    // Ship sprite - cinematic professional design
-    
-    // Main hull - sleek silver/chrome
-    ctx.fillStyle = '#e6ccff';
-    ctx.fillRect(this.x - 18, this.y - 4, 36, 8);
-    ctx.fillStyle = '#ccaaee';
-    ctx.fillRect(this.x - 16, this.y - 3, 32, 6);
-    
-    // Hull highlights
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(this.x - 18, this.y - 4, 36, 2); // Top highlight
-    
-    // Cockpit detail - crystal blue
-    ctx.fillStyle = '#66ccff';
-    ctx.fillRect(this.x - 8, this.y - 6, 16, 12);
-    ctx.fillStyle = '#4499cc';
-    ctx.fillRect(this.x - 6, this.y - 5, 12, 10);
-    ctx.fillStyle = '#aaeeff';
-    ctx.fillRect(this.x - 4, this.y - 4, 8, 8);
-    
-    // Cockpit glow
-    ctx.fillStyle = 'rgba(102, 204, 255, 0.6)';
-    ctx.fillRect(this.x - 10, this.y - 7, 20, 14);
-    
-    // Wing details - purple accents
-    ctx.fillStyle = '#9966cc';
-    ctx.fillRect(this.x - 22, this.y - 2, 4, 4);
-    ctx.fillRect(this.x + 18, this.y - 2, 4, 4);
-    
-    // Wing tips - bright pink
-    ctx.fillStyle = '#ff66cc';
-    ctx.fillRect(this.x - 24, this.y - 1, 2, 2);
-    ctx.fillRect(this.x + 22, this.y - 1, 2, 2);
-    
-    // Engine/thruster details - metallic purple
-    ctx.fillStyle = '#6644aa';
-    if (this.facing > 0) {
-      ctx.fillRect(this.x - 24, this.y - 3, 6, 6);
-      // Thruster flame - pink/purple energy
-      if (Math.random() > 0.5) {
-        ctx.fillStyle = '#ff66cc';
-        ctx.fillRect(this.x - 28, this.y - 2, 4, 4);
-        ctx.fillStyle = '#ffaaee';
-        ctx.fillRect(this.x - 26, this.y - 1, 2, 2);
-        // Energy trail
-        ctx.fillStyle = 'rgba(255, 102, 204, 0.4)';
-        ctx.fillRect(this.x - 32, this.y - 1, 4, 2);
+    // Use actual ship sprite from the sprite sheet
+    let spriteDrawn = false;
+    if (window.defendHerGame && window.defendHerGame.spriteSheetLoaded) {
+      // Let's try the first obvious ship sprite - I can see some colorful sprites
+      // Try several different coordinates to find a working ship sprite
+      // Hero craft sprites are in row 4 from the top - the pink/magenta ships
+      // These sprites have different dimensions and aren't on a regular grid
+      // From the sprite sheet: forward, forward, reverse, reverse orientations
+      const testCoordinates = [
+        // Row 4 hero craft sprites - using exact measurements you provided
+        { x: 0, y: 160, w: 60, h: 25 },    // Ship 1: 0-60, forward stopped
+        { x: 90, y: 160, w: 60, h: 25 },   // Ship 2: 90-150, forward moving  
+        { x: 170, y: 160, w: 60, h: 25 },  // Ship 3: 170-230, backward stopped
+        { x: 255, y: 160, w: 60, h: 25 },  // Ship 4: 255-315, backward moving
+        
+        // Try slight vertical adjustments in case y=160 isn't perfect
+        { x: 0, y: 158, w: 60, h: 25 },    // Ship 1, slightly higher
+        { x: 90, y: 158, w: 60, h: 25 },   // Ship 2, slightly higher
+        { x: 0, y: 162, w: 60, h: 25 },    // Ship 1, slightly lower
+        { x: 90, y: 162, w: 60, h: 25 },   // Ship 2, slightly lower
+        
+        // Try different heights 
+        { x: 0, y: 160, w: 60, h: 30 },    // Ship 1, taller
+        { x: 90, y: 160, w: 60, h: 30 },   // Ship 2, taller
+      ];
+      
+      // Add debug sprite cycling - use 'T' key to cycle through coordinates
+      if (!window.debugSpriteIndex) window.debugSpriteIndex = 0;
+      let sprite = testCoordinates[window.debugSpriteIndex % testCoordinates.length];
+      
+      // Use appropriate sprite based on facing direction (when not in debug mode)
+      if (window.debugSpriteIndex === 0) { // Only use auto-selection for first sprite
+        if (this.facing > 0) {
+          sprite = testCoordinates[1]; // Forward moving sprite (90-150)
+        } else {
+          sprite = testCoordinates[3]; // Backward moving sprite (255-315)  
+        }
       }
-    } else {
-      ctx.fillRect(this.x + 18, this.y - 3, 6, 6);
-      // Thruster flame - pink/purple energy
-      if (Math.random() > 0.5) {
-        ctx.fillStyle = '#ff66cc';
-        ctx.fillRect(this.x + 24, this.y - 2, 4, 4);
-        ctx.fillStyle = '#ffaaee';
-        ctx.fillRect(this.x + 26, this.y - 1, 2, 2);
-        // Energy trail
-        ctx.fillStyle = 'rgba(255, 102, 204, 0.4)';
-        ctx.fillRect(this.x + 28, this.y - 1, 4, 2);
-      }
+      
+      
+      // Draw sprite without flipping and preserve aspect ratio
+      // Scale up but maintain the 60x25 proportions
+      const scaleX = 48; // Scale width to 48px (60 * 0.8)
+      const scaleY = 20; // Scale height to 20px (25 * 0.8) 
+      spriteDrawn = window.defendHerGame.drawSprite(ctx, sprite.x, sprite.y, sprite.w, sprite.h, this.x, this.y, scaleX, scaleY);
     }
     
-    // Gun barrel - energy cannon
-    ctx.fillStyle = '#4455aa';
-    if (this.facing > 0) {
-      ctx.fillRect(this.x + 18, this.y - 1, 6, 2);
-      // Energy glow
-      ctx.fillStyle = 'rgba(102, 204, 255, 0.8)';
-      ctx.fillRect(this.x + 22, this.y, 2, 1);
-    } else {
-      ctx.fillRect(this.x - 24, this.y - 1, 6, 2);
-      // Energy glow
-      ctx.fillStyle = 'rgba(102, 204, 255, 0.8)';
-      ctx.fillRect(this.x - 24, this.y, 2, 1);
+    if (!spriteDrawn) {
+      // Visible fallback - bright green ship
+      ctx.fillStyle = '#00ff00';
+      ctx.fillRect(this.x - 16, this.y - 8, 32, 16);
+      // Add a bright center
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(this.x - 4, this.y - 2, 8, 4);
     }
     
     // Shield shimmer effect
@@ -1235,14 +1357,21 @@ class Lander {
   }
   
   render(ctx) {
+    console.log('Lander render called at', this.x, this.y, 'state:', this.state);
     ctx.save();
     
-    // Lander sprite - menacing alien ship design
-    // Main body - dark metallic with red accents
-    ctx.fillStyle = '#444466';
-    ctx.fillRect(this.x - 12, this.y - 8, 24, 16);
-    ctx.fillStyle = '#666688';
-    ctx.fillRect(this.x - 10, this.y - 6, 20, 12);
+    // Temporarily use fallback rectangle while debugging sprites
+    if (false && window.defendHerGame && window.defendHerGame.spriteSheetLoaded) {
+      // Try one of the blue containers in the top row at approximately (450, 20)
+      window.defendHerGame.drawSprite(ctx, 450, 20, 16, 16, this.x, this.y, 24, 24);
+    } else {
+      // Visible fallback - bright blue enemy
+      ctx.fillStyle = '#0066ff';
+      ctx.fillRect(this.x - 12, this.y - 8, 24, 16);
+      // Add a bright red center to make it look menacing
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(this.x - 6, this.y - 4, 12, 8);
+    }
     
     // Cockpit/dome - sinister red glow
     ctx.fillStyle = '#cc3344';
@@ -1625,7 +1754,7 @@ class Swarmer {
     this.type = 'enemy';
     this.alive = true;
     this.points = 50;
-    this.speed = 200;
+    this.speed = 120; // Slower so player can evade them
     this.direction = 0;
   }
   
@@ -1673,7 +1802,7 @@ class Mine {
     this.type = 'enemy';
     this.alive = true;
     this.points = 100;
-    this.fallSpeed = 50;
+    this.fallSpeed = 80; // Faster falling mines
   }
   
   update(deltaTime, game) {
@@ -1733,7 +1862,7 @@ class Woman {
         this.animFrame = 0;
       }
     } else if (this.state === 'falling') {
-      this.y += 150 * deltaTime; // Slightly slower fall
+      this.y += 60 * deltaTime; // Much slower fall so player can catch them
       
       // Add some visual effects while falling
       if (Math.random() < 0.1) {

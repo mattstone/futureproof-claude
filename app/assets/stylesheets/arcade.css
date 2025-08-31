@@ -1,5 +1,31 @@
 /* Futureproof Arcade - Retro Gaming Experience */
 
+/* Arcade Header Styling - Mirrors Main Site Structure */
+.arcade-logo {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 15px rgba(102, 126, 234, 0.2),
+    0 1px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.arcade-logo:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(102, 126, 234, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 .arcade-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #000000 100%);
@@ -11,43 +37,7 @@
   overflow-x: hidden;
 }
 
-/* Neon Arcade Header */
-.arcade-header {
-  margin-bottom: 50px;
-  position: relative;
-  z-index: 10;
-}
-
-.arcade-title {
-  margin: 30px 0;
-}
-
-.neon-text {
-  font-size: 3.5rem;
-  font-weight: bold;
-  color: #ff00ff;
-  text-shadow: 
-    0 0 5px #ff00ff,
-    0 0 10px #ff00ff,
-    0 0 15px #ff00ff,
-    0 0 20px #ff00ff,
-    0 0 35px #ff00ff,
-    0 0 40px #ff00ff;
-  animation: neonFlicker 2s ease-in-out infinite alternate;
-}
-
-.arcade-subtitle {
-  margin: 20px 0;
-}
-
-.retro-text {
-  font-size: 1.5rem;
-  color: #00ffff;
-  text-shadow: 
-    0 0 5px #00ffff,
-    0 0 10px #00ffff;
-  animation: pulse 3s ease-in-out infinite;
-}
+/* Old arcade header styles removed - now using main site structure */
 
 /* Games Grid */
 .games-grid {
@@ -96,6 +86,18 @@
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.7),
     0 0 30px rgba(255, 255, 0, 0.5);
+}
+
+.defendher-card:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(255, 0, 0, 0.5);
+}
+
+.hemorrhoids-card:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(255, 102, 204, 0.5);
 }
 
 /* CRT Game Screen */
@@ -336,38 +338,134 @@
   animation-delay: 2s;
 }
 
-/* Footer */
+/* Spectacular Footer - Matching Header Quality */
 .arcade-footer {
-  margin-top: 60px;
-  padding: 30px 0;
+  margin-top: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 50px 0 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.arcade-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.arcade-footer > * {
+  position: relative;
+  z-index: 1;
 }
 
 .retro-message {
-  font-size: 1.2rem;
-  color: #ffff00;
-  text-shadow: 0 0 10px #ffff00;
-  margin-bottom: 20px;
-  animation: pulse 2s ease-in-out infinite;
+  font-size: 1.3rem;
+  color: #ffffff;
+  margin-bottom: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Make lightning bolts look like awesome lightning */
+.lightning-bolt {
+  color: #fbbf24;
+  text-shadow: 
+    0 0 10px #fbbf24,
+    0 0 20px #f59e0b,
+    0 0 30px #d97706;
+  filter: drop-shadow(0 0 8px #fbbf24);
+  display: inline-block;
+  animation: lightning-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes lightning-glow {
+  0% {
+    text-shadow: 
+      0 0 10px #fbbf24,
+      0 0 20px #f59e0b,
+      0 0 30px #d97706;
+  }
+  100% {
+    text-shadow: 
+      0 0 15px #fbbf24,
+      0 0 25px #f59e0b,
+      0 0 35px #d97706,
+      0 0 40px #b45309;
+  }
+}
+
+.back-link {
+  text-align: center;
 }
 
 .back-link .btn-retro {
-  background: linear-gradient(145deg, #333, #111);
-  color: #00ffff;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
   text-decoration: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  border: 2px solid #00ffff;
+  padding: 16px 32px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   display: inline-block;
-  text-shadow: 0 0 5px #00ffff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.back-link .btn-retro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .back-link .btn-retro:hover {
-  background: linear-gradient(145deg, #00ffff, #008888);
-  color: #000;
-  text-shadow: none;
-  box-shadow: 0 0 20px #00ffff;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(255, 255, 255, 0.1);
   text-decoration: none;
+  color: #ffffff;
+}
+
+.back-link .btn-retro:hover::before {
+  left: 100%;
+}
+
+.back-link .btn-retro:active {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* Retro Background Effects */
@@ -505,4 +603,21 @@
   .game-preview {
     font-size: 2rem;
   }
+}
+
+/* Advanced Button for Alternative Game Versions */
+.arcade-button.advanced-button {
+  background: linear-gradient(145deg, #0040ff, #0030cc);
+  font-size: 0.85rem;
+  padding: 10px 20px;
+  margin-left: 10px;
+  box-shadow: 
+    0 3px 10px rgba(0, 64, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.arcade-button.advanced-button:hover {
+  box-shadow: 
+    0 6px 20px rgba(0, 64, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }

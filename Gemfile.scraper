@@ -1,0 +1,7 @@
+# Gemfile for ASX Dividend Scraper
+source 'https://rubygems.org'
+
+gem 'mechanize', '~> 2.8'
+gem 'pdf-reader', '~> 2.11'
+gem 'nokogiri', '~> 1.15'
+gem 'selenium-webdriver', '~> 4.0'

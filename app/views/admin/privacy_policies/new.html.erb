@@ -1,13 +1,32 @@
-<% content_for :page_title, "Create New Privacy Policy Version" %>
+<% content_for :page_title, "New Privacy Policy Version" %>
 
-<div class="admin-form-container">
-  <div class="admin-form-header">
-    <h1>Create New Privacy Policy Version</h1>
+<div class="admin-content-header">
+  <div class="admin-content-actions">
+    <%= link_to "← Back to Privacy Policies", admin_privacy_policies_path, class: "admin-btn admin-btn-secondary" %>
   </div>
+</div>
 
-  <div class="admin-form-content" 
-       data-controller="preview" 
-       data-preview-preview-url-value="<%= preview_admin_privacy_policies_path %>">
-    <%= render 'form' %>
+<div class="privacy-editor-layout" 
+     data-controller="markup-editor" 
+     data-markup-editor-preview-url-value="<%= preview_admin_privacy_policies_path %>"
+     data-markup-editor-legal-type-value="privacy">
+  <div class="privacy-form-column">
+    <div class="admin-form-container">
+      <%= render 'form' %>
+    </div>
+  </div>
+  
+  <div class="privacy-preview-column">
+    <div class="preview-container">
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <p>See your changes in real-time</p>
+      </div>
+      <div class="markup-preview" 
+           data-markup-editor-target="preview"
+           id="markup-preview-standalone">
+        <p class="preview-note">Content preview will appear here as you type...</p>
+      </div>
+    </div>
   </div>
 </div>

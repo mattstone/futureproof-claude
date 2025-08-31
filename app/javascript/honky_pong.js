@@ -56,8 +56,9 @@ export class HonkyPongGame {
       climbAnimation: 0
     };
     
-    // AUTHENTIC DONKEY KONG PLATFORM GENERATION - MUST COME FIRST
-    this.platforms = this.generateDonkeyKongPlatforms();
+    // AUTHENTIC DONKEY KONG LEVEL SYSTEM
+    this.currentLevelType = 1; // 1=Barrels, 2=Elevators, 3=Boss
+    this.platforms = this.generateLevelPlatforms(this.currentLevelType);
     
     // Generate ladders dynamically based on platform positions
     this.ladders = this.generateLadders();
@@ -65,10 +66,10 @@ export class HonkyPongGame {
     // Generate hammer positions dynamically on middle platforms
     this.hammers = this.generateHammers();
     
-    // Honky Kong (Donkey Kong) - on top platform
+    // Honky Kong (Donkey Kong) - on top platform (x=250, y=180, width=450)
     this.honkyKong = {
       x: 270,  // Left side of top platform (x=250 + 20 margin)
-      y: 160,  // On top of platform (platform y: 200 - kong height: 40 = y: 160)
+      y: 140,  // On top of platform (platform y=180 - kong height=40 = y=140)
       width: 48,
       height: 40,
       throwTimer: 0,
@@ -80,8 +81,8 @@ export class HonkyPongGame {
     
     // Princess (Pauline) - right side of top platform
     this.princess = {
-      x: 600,  // Right side of top platform  
-      y: 176,  // On top of platform 
+      x: 620,  // Right side of top platform (x=250 + width=450 - 30 margin = 620) 
+      y: 156,  // On top of platform (platform y=180 - princess height=24 = y=156)
       width: 16,
       height: 24,
       animation: 0,
@@ -107,17 +108,43 @@ export class HonkyPongGame {
     this.keys = {};
     this.keyPressed = {};
     
-    // Professional sound system integration
+    // Load authentic Donkey Kong sound files from data attributes
+    this.soundPaths = {
+      bacmusic: this.canvas.dataset.soundBacmusic,
+      death: this.canvas.dataset.soundDeath,
+      hammer: this.canvas.dataset.soundHammer,
+      howhigh: this.canvas.dataset.soundHowhigh,
+      intro: this.canvas.dataset.soundIntro,
+      introLong: this.canvas.dataset.soundIntroLong,
+      itemget: this.canvas.dataset.soundItemget,
+      jump: this.canvas.dataset.soundJump,
+      jumpbar: this.canvas.dataset.soundJumpbar,
+      walking: this.canvas.dataset.soundWalking,
+      win1: this.canvas.dataset.soundWin1,
+      win2: this.canvas.dataset.soundWin2
+    };
+    
+    // Initialize authentic sound system
+    this.sounds = {};
+    this.audioElements = {};
+    this.loadSounds();
+    
+    // Professional sound system integration with authentic Donkey Kong sounds
     this.sounds = {
-      walk: () => this.audioManager.playSound("walk"),
-      jump: () => this.audioManager.playSound("jump"), 
-      barrel: () => this.audioManager.playSound("barrel"),
-      hammer: () => this.audioManager.playSound("hammer"),
-      death: () => this.audioManager.playSound("death"),
-      levelComplete: () => this.audioManager.playSound("levelComplete"),
-      climb: () => this.audioManager.playSound("climb"),
-      coin: () => this.audioManager.playSound("coin"),
-      powerUp: () => this.audioManager.playSound("powerUp")
+      walk: () => this.playSound("walking"),
+      jump: () => this.playSound("jump"), 
+      barrel: () => this.playSound("hammer"), // Use hammer sound for barrel destruction
+      hammer: () => this.playSound("hammer"),
+      death: () => this.playSound("death"),
+      levelComplete: () => this.playSound("win1"),
+      climb: () => this.playSound("walking"), // Use walking sound for climbing
+      coin: () => this.playSound("itemget"), // Use itemget for points
+      powerUp: () => this.playSound("itemget"), // Use itemget for hammer pickup
+      backgroundMusic: () => this.playSound("bacmusic", true), // Background music with loop
+      victory: () => this.playSound("win2"),
+      jumpOverBarrel: () => this.playSound("jumpbar"), // Special jump over barrel sound
+      howhigh: () => this.playSound("howhigh"), // High score/bonus sound
+      intro: () => this.playSound("intro") // Game start sound
     };
     
     // Professional particle system
@@ -133,14 +160,208 @@ export class HonkyPongGame {
   
   // Professional inline sprite system for better compatibility
   initializeSprites() {
-    // Simple sprite drawing functions
+    // Load authentic Donkey Kong sprite sheets
+    this.spriteSheets = {};
+    this.spritesLoaded = 0;
+    this.totalSprites = 4;
+    
+    // Load sprite sheets using Rails asset paths from data attributes
+    const marioPath = this.canvas.dataset.marioSprite;
+    const enemiesPath = this.canvas.dataset.enemiesSprite;
+    const paulinePath = this.canvas.dataset.paulineSprite;
+    const levelsPath = this.canvas.dataset.levelsSprite;
+    
+    if (marioPath && enemiesPath && paulinePath && levelsPath) {
+      this.loadSpriteSheet('mario', marioPath);
+      this.loadSpriteSheet('enemies', enemiesPath);
+      this.loadSpriteSheet('pauline', paulinePath);
+      this.loadSpriteSheet('levels', levelsPath);
+    } else {
+      console.warn('Sprite sheet paths not found in canvas data attributes');
+    }
+    
+    // Initialize fallback sprites
+    this.initializeFallbackSprites();
+  }
+
+  loadSpriteSheet(name, url) {
+    const img = new Image();
+    img.onload = () => {
+      this.spriteSheets[name] = img;
+      this.spritesLoaded++;
+      console.log(`Loaded sprite sheet: ${name} (${this.spritesLoaded}/${this.totalSprites})`);
+      
+      if (this.spritesLoaded === this.totalSprites) {
+        console.log('All Donkey Kong sprites loaded!');
+        this.allSpritesLoaded = true;
+        
+        // Now that sprites are loaded, regenerate levels with authentic data
+        // DISABLED: this.regenerateLevelsFromSprites(); // Claude: Using simple platforms instead
+        console.log('🔥 CLAUDE: Sprite regeneration DISABLED - using simple platforms!');
+      }
+    };
+    img.onerror = () => {
+      console.warn(`Failed to load sprite sheet: ${name}`);
+      this.spritesLoaded++; // Count as loaded to prevent hanging
+    };
+    img.src = url;
+  }
+
+  drawSprite(sheetName, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh) {
+    if (this.allSpritesLoaded && this.spriteSheets[sheetName]) {
+      this.ctx.drawImage(
+        this.spriteSheets[sheetName],
+        sx, sy, sw, sh,
+        dx, dy, dw, dh
+      );
+      return true;
+    }
+    return false;
+  }
+
+  initializeFallbackSprites() {
+    
+    // Authentic Donkey Kong sprite drawing functions
     this.sprites = {
       mario: (x, y, state = 'right') => {
-        const s = 1; // scale factor
+        // Try to draw authentic Mario sprite first
+        let spriteDrawn = false;
         
-        // Hat
-        this.ctx.fillStyle = '#CC0000';
-        this.ctx.fillRect(x + 2*s, y, 12*s, 6*s);
+        if (this.allSpritesLoaded) {
+          // Mario sprites - using exact pixel coordinates
+          let sx = 0, sy = 0;
+          let spriteW = 16; // Default width
+          let spriteH = 16; // Default height
+          
+          switch (state) {
+            // Left-facing states (top row)
+            case 'dead-left':
+              sx = 0; sy = 0; // Dead Mario facing left (0-15)
+              break;
+            case 'run-left-1':
+              sx = 40; sy = 0; // Running left frame 1 (40-55)
+              break;
+            case 'run-left-2':
+              sx = 80; sy = 0; // Running left frame 2 (80-95)
+              break;
+            case 'left':
+            case 'stand-left':
+              sx = 120; sy = 0; // Standing left (120-135)
+              break;
+              
+            // Right-facing states (top row)
+            case 'right':
+            case 'stand-right':
+              sx = 160; sy = 0; // Standing right (160-175)
+              break;
+            case 'run-right-1':
+              sx = 200; sy = 0; // Running right frame 1 (200-215)
+              break;
+            case 'run-right-2':
+              sx = 240; sy = 0; // Running right frame 2 (240-255)
+              break;
+            case 'dead-right':
+              sx = 280; sy = 0; // Dead Mario facing right (280-295)
+              break;
+              
+            // Climbing ladder states (second row, y: 40-55)
+            case 'climb-bottom':
+              sx = 0; sy = 40; // Mario at bottom of ladder (0-15, 40-55)
+              break;
+            case 'climb-1':
+              sx = 40; sy = 40; // Climbing frame 1 (40-55, 40-55)
+              break;
+            case 'climb-2':
+              sx = 80; sy = 40; // Climbing frame 2 (80-95, 40-55)
+              break;
+            case 'climb-3':
+              sx = 120; sy = 40; // Climbing frame 3 (120-135, 40-55)
+              break;
+            case 'climb-4':
+              sx = 160; sy = 40; // Climbing frame 4 (160-175, 40-55)
+              break;
+            case 'climb-5':
+              sx = 200; sy = 40; // Climbing frame 5 (200-215, 40-55)
+              break;
+            case 'climb-6':
+              sx = 240; sy = 40; // Climbing frame 6 (240-255, 40-55)
+              break;
+            case 'climb-top':
+              sx = 280; sy = 40; // Mario at top of ladder (280-295, 40-55)
+              break;
+              
+            // Hammer states (third row) - Left facing
+            case 'hammer-left-up-1':
+              sx = 0; sy = 65; spriteW = 16; spriteH = 40; // VR: Mario hammer up left (0-15, 65-105)
+              break;
+            case 'hammer-left-down-1':
+              sx = 35; sy = 70; spriteW = 21; spriteH = 25; // HR: Mario hammer down left (35-55, 70-95)
+              break;
+            case 'hammer-left-up-2':
+              sx = 80; sy = 65; spriteW = 16; spriteH = 40; // VR: Mario hammer up left (80-95, 65-105)
+              break;
+            case 'hammer-left-down-2':
+              sx = 115; sy = 70; spriteW = 26; spriteH = 25; // HR: Mario hammer down left (115-140, 70-95)
+              break;
+              
+            // Hammer states (third row) - Right facing
+            case 'hammer-right-down-1':
+              sx = 155; sy = 70; spriteW = 26; spriteH = 25; // HR: Mario hammer down right (155-180, 70-95)
+              break;
+            case 'hammer-right-up-1':
+              sx = 200; sy = 65; spriteW = 16; spriteH = 40; // VR: Mario hammer up right (200-215, 65-105)
+              break;
+            case 'hammer-right-down-2':
+              sx = 235; sy = 70; spriteW = 26; spriteH = 25; // HR: Mario hammer down right (235-260, 70-95)
+              break;
+            case 'hammer-right-up-2':
+              sx = 280; sy = 65; spriteW = 16; spriteH = 40; // VR: Mario hammer up right (280-295, 65-105)
+              break;
+              
+            // Death tumbling animation (fourth row, y: 120-135)
+            case 'tumble-1':
+              sx = 0; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 1 (0-15, 120-135)
+              break;
+            case 'tumble-2':
+              sx = 40; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 2 (40-55, 120-135)
+              break;
+            case 'tumble-3':
+              sx = 80; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 3 (80-95, 120-135)
+              break;
+            case 'tumble-4':
+              sx = 120; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 4 (120-135, 120-135)
+              break;
+            case 'tumble-5':
+              sx = 160; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 5 (160-175, 120-135)
+              break;
+            case 'tumble-6':
+              sx = 200; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 6 (200-215, 120-135)
+              break;
+            case 'tumble-7':
+              sx = 240; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 7 (240-255, 120-135)
+              break;
+            case 'tumble-8':
+              sx = 280; sy = 120; spriteW = 15; spriteH = 16; // Tumbling frame 8 (280-295, 120-135)
+              break;
+              
+            // Default to standing right
+            default:
+              sx = 160; sy = 0;
+          }
+          
+          // Scale to appropriate render size while maintaining aspect ratio
+          const renderW = spriteH > 16 ? 16 : spriteW; // VR sprites render at 16 width
+          const renderH = spriteH > 16 ? 32 : 16;      // VR sprites render taller
+          spriteDrawn = this.drawSprite('mario', sx, sy, spriteW, spriteH, x, y, renderW, renderH);
+        }
+        
+        // Fallback to drawn sprite if needed
+        if (!spriteDrawn) {
+          const s = 1; // scale factor
+          
+          // Hat
+          this.ctx.fillStyle = '#CC0000';
+          this.ctx.fillRect(x + 2*s, y, 12*s, 6*s);
         
         // Face
         this.ctx.fillStyle = '#FFE4B5';
@@ -189,12 +410,34 @@ export class HonkyPongGame {
           this.ctx.fillStyle = '#FFFF00'; // Glow
           this.ctx.fillRect(x + 13*s, y + 5*s, 8*s, 1*s);
         }
+        } // Close fallback sprite drawing
       },
       
       donkeyKong: (x, y, state = 'normal') => {
-        const s = 1;
+        // Try to draw authentic Donkey Kong sprite first
+        let spriteDrawn = false;
         
-        // Body
+        if (this.allSpritesLoaded) {
+          // Donkey Kong sprites from enemies.png (bottom row has the big Kong sprites)
+          let sx = 0, sy = 64; // Bottom row of enemies sprite sheet
+          
+          switch (state) {
+            case 'normal':
+              sx = 0; sy = 64; // First big Kong sprite
+              break;
+            case 'beating':
+              sx = 32; sy = 64; // Second big Kong sprite (chest beating)
+              break;
+          }
+          
+          spriteDrawn = this.drawSprite('enemies', sx, sy, 32, 32, x, y, 48, 40);
+        }
+        
+        // Fallback to drawn sprite if needed
+        if (!spriteDrawn) {
+          const s = 1;
+          
+          // Body
         this.ctx.fillStyle = '#8B4513';
         this.ctx.fillRect(x + 8*s, y + 15*s, 32*s, 25*s);
         
@@ -258,10 +501,32 @@ export class HonkyPongGame {
         this.ctx.fillStyle = '#8B4513';
         this.ctx.fillRect(x + 12*s, y + 35*s, 8*s, 5*s);
         this.ctx.fillRect(x + 28*s, y + 35*s, 8*s, 5*s);
+        } // Close fallback sprite drawing
       },
       
       princess: (x, y, state = 'normal') => {
-        const s = 1;
+        // Try to draw authentic Pauline sprite first
+        let spriteDrawn = false;
+        
+        if (this.allSpritesLoaded) {
+          // Pauline sprites from pauline.png
+          let sx = 0, sy = 0;
+          
+          switch (state) {
+            case 'normal':
+              sx = 0; sy = 0; // First Pauline sprite
+              break;
+            case 'help':
+              sx = 16; sy = 0; // Second Pauline sprite (calling for help)
+              break;
+          }
+          
+          spriteDrawn = this.drawSprite('pauline', sx, sy, 16, 24, x, y, 16, 24);
+        }
+        
+        // Fallback to drawn sprite if needed
+        if (!spriteDrawn) {
+          const s = 1;
         
         // Dress
         this.ctx.fillStyle = '#FF69B4';
@@ -306,6 +571,7 @@ export class HonkyPongGame {
           this.ctx.fillRect(x + 1*s, y + 12*s, 3*s, 8*s);
           this.ctx.fillRect(x + 12*s, y + 12*s, 3*s, 8*s);
         }
+        } // Close fallback sprite drawing
       }
     };
   }
@@ -430,60 +696,78 @@ export class HonkyPongGame {
     }
   }
   
-  generateDonkeyKongPlatforms() {
+  generateLevelPlatforms(levelType) {
+    switch(levelType) {
+      case 1: return this.generateBarrelLevel();
+      case 2: return this.generateElevatorLevel(); 
+      case 3: return this.generateBossLevel();
+      default: return this.generateBarrelLevel();
+    }
+  }
+
+  generateBarrelLevel() {
+    // Level 1: Classic Donkey Kong barrel level with slanted platforms
+    // Extracted from authentic arcade level layout
     const platforms = [];
     
-    // STEP 2: Fixed cascade system - each platform positioned to catch barrels
+    // Bottom platform (ground level) - flat
+    platforms.push({ x: 20, y: 620, width: 860, height: 20, slope: 0, color: '#FF69B4' });
     
-    // Bottom platform - flat, full width
-    platforms.push({
-      x: 50,
-      y: 600,
-      width: 800,
-      height: 20,
-      slope: 0,
-      type: 'bottom'
-    });
+    // Platform 2 - slanted up left to right  
+    platforms.push({ x: 120, y: 540, width: 700, height: 20, slope: -0.02, color: '#FF69B4' });
     
-    // Level 1 - slopes RIGHT, positioned to catch from Level 2
-    platforms.push({
-      x: 100,  // Starts at x=100
-      y: 500,
-      width: 600, // Ends at x=700
-      height: 20,
-      slope: 0.04,
-      type: 'girder'
-    });
+    // Platform 3 - slanted down left to right
+    platforms.push({ x: 20, y: 460, width: 700, height: 20, slope: 0.02, color: '#FF69B4' });
     
-    // Level 2 - slopes LEFT, positioned to catch from Level 3  
-    platforms.push({
-      x: 200,  // Starts at x=200, ends at x=750 (overlaps with Level 1)
-      y: 400,
-      width: 550,
-      height: 20,
-      slope: -0.04,
-      type: 'girder'
-    });
+    // Platform 4 - slanted up left to right
+    platforms.push({ x: 120, y: 380, width: 700, height: 20, slope: -0.02, color: '#FF69B4' });
     
-    // Level 3 - slopes RIGHT, positioned to catch from Top
-    platforms.push({
-      x: 150,  // Starts at x=150, ends at x=600 (overlaps with Level 2)
-      y: 300,
-      width: 450,
-      height: 20,
-      slope: 0.04,
-      type: 'girder'
-    });
+    // Platform 5 - slanted down left to right  
+    platforms.push({ x: 20, y: 300, width: 700, height: 20, slope: 0.02, color: '#FF69B4' });
     
-    // Top platform - slopes LEFT (where Kong sits)
-    platforms.push({
-      x: 250,  // Starts at x=250, ends at x=650 (overlaps with Level 3)
-      y: 200,
-      width: 400,
-      height: 20,
-      slope: -0.04,
-      type: 'top'
-    });
+    // Platform 6 - slanted up left to right
+    platforms.push({ x: 120, y: 220, width: 600, height: 20, slope: -0.02, color: '#FF69B4' });
+    
+    // Top platform (Donkey Kong's platform) - flat
+    platforms.push({ x: 250, y: 180, width: 450, height: 20, slope: 0, color: '#FF0000' });
+    
+    return platforms;
+  }
+
+  generateElevatorLevel() {
+    // Level 2: Elevator level with moving platforms and conveyor belts
+    const platforms = [];
+    
+    // Bottom platform
+    platforms.push({ x: 20, y: 620, width: 860, height: 20, slope: 0, color: '#4169E1' });
+    
+    // Conveyor belt platforms (will add movement logic later)
+    platforms.push({ x: 150, y: 520, width: 200, height: 20, slope: 0, color: '#FFD700' });
+    platforms.push({ x: 550, y: 520, width: 200, height: 20, slope: 0, color: '#FFD700' });
+    
+    // Middle platforms
+    platforms.push({ x: 50, y: 420, width: 300, height: 20, slope: 0, color: '#4169E1' });
+    platforms.push({ x: 550, y: 420, width: 300, height: 20, slope: 0, color: '#4169E1' });
+    
+    // Upper platforms
+    platforms.push({ x: 200, y: 320, width: 500, height: 20, slope: 0, color: '#4169E1' });
+    
+    // Top platform
+    platforms.push({ x: 250, y: 180, width: 400, height: 20, slope: 0, color: '#FF0000' });
+    
+    return platforms;
+  }
+
+  generateBossLevel() {
+    // Level 3: Final boss confrontation level
+    const platforms = [];
+    
+    // Simple boss level layout
+    platforms.push({ x: 50, y: 620, width: 800, height: 20, slope: 0, color: '#000000' });
+    platforms.push({ x: 200, y: 500, width: 500, height: 20, slope: 0, color: '#000000' });
+    platforms.push({ x: 150, y: 380, width: 600, height: 20, slope: 0, color: '#000000' });
+    platforms.push({ x: 250, y: 260, width: 400, height: 20, slope: 0, color: '#000000' });
+    platforms.push({ x: 300, y: 180, width: 300, height: 20, slope: 0, color: '#FF0000' });
     
     return platforms;
   }
@@ -491,54 +775,67 @@ export class HonkyPongGame {
   generateLadders() {
     const ladders = [];
     
-    // Ladders connecting all 5 levels
-    // Bottom to Level 1
+    // SIMPLE WORKING LADDERS matching the new simple platform coordinates
+    // Platform positions: Ground=620, L2=540, L3=460, L4=380, L5=300, Top=180
+    
+    // Ground (y=620) to Level 2 (y=540) - right side 
     ladders.push({
-      x: 400,
-      y: 500,
+      x: 750,  // Right side for classic DK alternating pattern
+      y: 540,
       width: 16, 
-      height: 100, // 600 - 500 = 100
+      height: 80, // 620 - 540 = 80
       type: 'full'
     });
     
-    // Level 1 to Level 2  
+    // Level 2 (y=540) to Level 3 (y=460) - left side
     ladders.push({
-      x: 500,
-      y: 400,
+      x: 80,   // Left side 
+      y: 460,
       width: 16,
-      height: 100, // 500 - 400 = 100
+      height: 80, // 540 - 460 = 80
       type: 'full'
     });
     
-    // Level 2 to Level 3
+    // Level 3 (y=460) to Level 4 (y=380) - right side
     ladders.push({
-      x: 350,
+      x: 750,  // Right side
+      y: 380,
+      width: 16,
+      height: 80, // 460 - 380 = 80
+      type: 'full'
+    });
+    
+    // Level 4 (y=380) to Level 5 (y=300) - left side  
+    ladders.push({
+      x: 80,   // Left side
       y: 300,
       width: 16,
-      height: 100, // 400 - 300 = 100
+      height: 80, // 380 - 300 = 80
       type: 'full'
     });
     
-    // Level 3 to Top
+    // Level 5 (y=300) to Top (y=180) - center
     ladders.push({
-      x: 450,
-      y: 200,
+      x: 400,  // Center ladder to top platform
+      y: 180,
       width: 16,
-      height: 100, // 300 - 200 = 100
+      height: 120, // 300 - 180 = 120
       type: 'full'
     });
     
+    console.log(`✅ Generated ${ladders.length} simple ladders`);
     return ladders;
   }
 
   generateHammers() {
     const hammers = [];
     
-    // Hammer on Level 2 (y: 400) - account for slope
-    const level2Platform = { x: 200, y: 400, slope: -0.04 };
-    const hammerX = 400;
-    const relativeX = hammerX - level2Platform.x;
-    const slopedY = level2Platform.y + (relativeX * level2Platform.slope);
+    // Hammer on Level 3 (y=460) - account for slope 
+    // Platform 3: x=20, y=460, width=700, slope=0.02
+    const level3Platform = { x: 20, y: 460, slope: 0.02 };
+    const hammerX = 300;
+    const relativeX = hammerX - level3Platform.x;
+    const slopedY = level3Platform.y + (relativeX * level3Platform.slope);
     hammers.push({
       x: hammerX,
       y: slopedY - 12, // Position on sloped surface
@@ -548,11 +845,12 @@ export class HonkyPongGame {
       sparkle: 0
     });
     
-    // Hammer on Level 1 (y: 500) - account for slope  
-    const level1Platform = { x: 100, y: 500, slope: 0.04 };
-    const hammerX2 = 350;
-    const relativeX2 = hammerX2 - level1Platform.x;
-    const slopedY2 = level1Platform.y + (relativeX2 * level1Platform.slope);
+    // Hammer on Level 5 (y=300) - account for slope  
+    // Platform 5: x=20, y=300, width=700, slope=0.02
+    const level5Platform = { x: 20, y: 300, slope: 0.02 };
+    const hammerX2 = 400;
+    const relativeX2 = hammerX2 - level5Platform.x;
+    const slopedY2 = level5Platform.y + (relativeX2 * level5Platform.slope);
     hammers.push({
       x: hammerX2,
       y: slopedY2 - 12, // Position on sloped surface
@@ -668,19 +966,37 @@ export class HonkyPongGame {
     this.gameState = 'playing';
     this.resetLevel();
     
+    // Play authentic intro sound and start background music
+    this.sounds.intro();
+    setTimeout(() => {
+      this.sounds.backgroundMusic(); // Start background music after intro
+    }, 500);
+    
     if (this.startButton) this.startButton.disabled = true;
     if (this.pauseButton) this.pauseButton.disabled = false;
     if (this.gameOverElement) this.gameOverElement.classList.add('game-over-hidden');
-    console.log('🎮 GAME: Game started successfully, gameState:', this.gameState)
+    
+    // CRITICAL DEBUG: Show current player and platform state
+    console.log('🎮 GAME: Game started successfully, gameState:', this.gameState);
+    console.log('🎮 CRITICAL DEBUG: Player positioning check...');
+    this.debugPlayerPlatform();
   }
   
   togglePause() {
     if (this.gameState === 'playing') {
       this.gameState = 'paused';
       if (this.pauseButton) this.pauseButton.textContent = 'Resume';
+      // Pause background music
+      if (this.audioElements.bacmusic) {
+        this.audioElements.bacmusic.pause();
+      }
     } else if (this.gameState === 'paused') {
       this.gameState = 'playing';
       if (this.pauseButton) this.pauseButton.textContent = 'Pause';
+      // Resume background music
+      if (this.audioElements.bacmusic) {
+        this.audioElements.bacmusic.play().catch(e => console.log('Background music resume failed:', e.name));
+      }
     }
   }
   
@@ -706,6 +1022,9 @@ export class HonkyPongGame {
     this.player.isJumping = false;
     this.player.jumpTimer = 0;
     this.player.hasHammer = false;
+    this.player.alive = true; // Reset Mario to alive
+    this.player.deathTimer = undefined; // Clear death animation
+    this.player.deathPhase = undefined; // Clear death phase
     this.player.hammerTimer = 0;
     this.player.walkAnimation = 0;
     this.player.climbAnimation = 0;
@@ -737,8 +1056,8 @@ export class HonkyPongGame {
       
       // End celebration and start next level
       if (this.celebrationTimer >= this.celebrationDuration) {
-        this.gameState = 'playing';
-        this.resetLevel();
+        this.level++;
+        this.advanceToNextLevel();
         this.resetHammers();
         
         // Progressive difficulty
@@ -748,6 +1067,48 @@ export class HonkyPongGame {
     }
     
     this.frameCounter++;
+    
+    // Handle death animation sequence
+    if (!this.player.alive && this.player.deathTimer !== undefined) {
+      this.player.deathTimer++;
+      
+      if (this.player.deathPhase === 'tumbling') {
+        // Apply physics during tumbling - Mario falls to ground (slower)
+        this.player.x += this.player.vx;
+        this.player.y += this.player.vy;
+        this.player.vy += 0.2; // Slower gravity for more dramatic fall
+        
+        // Check if Mario hits the bottom platform (around y=620)
+        const bottomPlatformY = 620;
+        if (this.player.y >= bottomPlatformY - this.player.height) {
+          // Hit the bottom platform - stop tumbling and become angel
+          this.player.y = bottomPlatformY - this.player.height;
+          this.player.vx = 0;
+          this.player.vy = 0;
+          this.player.deathPhase = 'dead';
+          this.player.deathTimer = 0; // Reset timer for dead phase
+        } else if (this.player.deathTimer > 120) {
+          // Failsafe: if tumbling too long, force to dead phase
+          this.player.deathPhase = 'dead';
+          this.player.deathTimer = 0;
+        }
+      } else if (this.player.deathPhase === 'dead') {
+        // Dead with halo phase: hold much longer for dramatic effect
+        if (this.player.deathTimer > 120) { // Extended from 60 to 120 frames (2 full seconds)
+          this.player.deathPhase = 'floating';
+          this.player.deathTimer = 0; // Reset timer for floating phase
+        }
+      } else if (this.player.deathPhase === 'floating') {
+        // Floating phase: slower float up and disappear
+        if (this.player.deathTimer > 120) { // Extended from 60 to 120 frames (2 seconds)
+          // Animation complete
+          this.player.deathTimer = undefined;
+          this.player.deathPhase = undefined;
+        }
+      }
+      
+      return; // Skip other player updates during death
+    }
     
     // Decrease bonus over time (every second)
     this.bonusTimer++;
@@ -897,7 +1258,7 @@ export class HonkyPongGame {
         barrel.jumpedOver = true;
         this.score += 100;
         this.createParticles(barrel.x + barrel.width/2, barrel.y - 10, 3, '#FFFF00', 'spark');
-        this.sounds.coin(); // Jump-over sound
+        this.sounds.jumpOverBarrel(); // Authentic jump over barrel sound
         this.updateUI();
       }
       
@@ -917,6 +1278,40 @@ export class HonkyPongGame {
           this.playerHit();
           return;
         }
+      }
+    }
+    
+    // Boss fight mechanics for Level 3
+    if (this.level === 3 && this.bossMode && this.player.hasHammer) {
+      // Check if player can hit Kong with hammer
+      const hammerReach = 40; // Extended reach for hammer attack
+      const distanceToKong = Math.sqrt(
+        Math.pow(this.player.x - this.honkyKong.x, 2) + 
+        Math.pow(this.player.y - this.honkyKong.y, 2)
+      );
+      
+      if (distanceToKong <= hammerReach && this.player.hammerTimer % 30 === 0) {
+        // Hit Kong with hammer (only once per hammer swing cycle)
+        if (!this.kongHitThisSwing) {
+          this.kongHealth--;
+          this.kongHitThisSwing = true;
+          this.score += 1000; // Big points for hitting Kong
+          
+          // Massive explosion particles
+          this.createParticles(this.honkyKong.x + 24, this.honkyKong.y + 20, 20, '#FF0000', 'explosion');
+          this.createParticles(this.honkyKong.x + 24, this.honkyKong.y + 20, 15, '#FFFF00', 'spark');
+          
+          this.sounds.barrel(); // Kong hit sound
+          this.updateUI();
+          
+          // Check if Kong is defeated
+          if (this.kongHealth <= 0) {
+            this.bossDefeated();
+            return;
+          }
+        }
+      } else {
+        this.kongHitThisSwing = false; // Reset for next swing cycle
       }
     }
     
@@ -968,6 +1363,16 @@ export class HonkyPongGame {
         this.player.y = platformY - this.player.height;
         this.player.vy = 0;
         this.player.onGround = true;
+        
+        // Apply conveyor belt movement for Level 2
+        if (platform.conveyor && this.level === 2) {
+          if (platform.conveyor === 'left') {
+            this.player.x -= this.conveyorSpeed || 1;
+          } else if (platform.conveyor === 'right') {
+            this.player.x += this.conveyorSpeed || 1;
+          }
+        }
+        
         break;
       }
     }
@@ -1237,13 +1642,23 @@ export class HonkyPongGame {
     this.createParticles(this.player.x + this.player.width/2, this.player.y + this.player.height/2, 15, '#FF0000', 'explosion');
     this.createParticles(this.player.x + this.player.width/2, this.player.y + this.player.height/2, 10, '#FFFF00', 'spark');
     
+    // Start death animation sequence: tumbling → dead with halo → float up
+    this.player.alive = false;
+    this.player.deathTimer = 0;
+    this.player.deathPhase = 'tumbling'; // tumbling, dead, floating
+    this.player.vx = this.player.direction * 0.5; // Small horizontal drift while tumbling
+    this.player.vy = 0; // Will start falling due to gravity
+    
     this.updateUI();
     
-    if (this.lives <= 0) {
-      this.gameOver();
-    } else {
-      this.resetLevel();
-    }
+    // Start death animation - will complete in update loop
+    setTimeout(() => {
+      if (this.lives <= 0) {
+        this.gameOver();
+      } else {
+        this.resetLevel();
+      }
+    }, 2000); // 2 second death animation
   }
   
   levelComplete() {
@@ -1251,6 +1666,16 @@ export class HonkyPongGame {
     this.score += 3000; // Level completion bonus
     this.level++;
     this.sounds.levelComplete();
+    
+    // Play bonus sound for high score achievement
+    if (this.bonus > 3000) {
+      setTimeout(() => {
+        this.sounds.howhigh(); // High bonus sound
+      }, 800);
+    }
+    
+    // Progress to next level type
+    this.advanceToNextLevel();
     
     // SPECTACULAR RESCUE CELEBRATION!
     this.gameState = 'celebrating';
@@ -1280,6 +1705,9 @@ export class HonkyPongGame {
   
   gameOver() {
     this.gameState = 'gameOver';
+    
+    // Stop background music on game over
+    this.stopSound('bacmusic');
     
     if (this.gameOverElement) this.gameOverElement.classList.remove('game-over-hidden');
     if (this.finalScoreElement) this.finalScoreElement.textContent = this.score.toString().padStart(6, '0');
@@ -1314,12 +1742,12 @@ export class HonkyPongGame {
         this.ctx.lineTo(platform.x, platform.y + platform.height);
         this.ctx.closePath();
         
-        // Main girder body
-        this.ctx.fillStyle = '#FF6B35';
+        // Main girder body - use authentic colors
+        this.ctx.fillStyle = platform.color || '#F24A8D'; // Authentic girder color
         this.ctx.fill();
         
         // Shadow
-        this.ctx.fillStyle = '#CC4A00';
+        this.ctx.fillStyle = platform.color === '#1F55FF' ? '#0F2F9F' : '#B03064'; // Authentic shadow colors
         this.ctx.beginPath();
         this.ctx.moveTo(platform.x, platform.y + platform.height - 3);
         this.ctx.lineTo(platform.x + platform.width, platform.y + slopeOffset + platform.height - 3);
@@ -1328,12 +1756,12 @@ export class HonkyPongGame {
         this.ctx.closePath();
         this.ctx.fill();
       } else {
-        // Flat platform
-        this.ctx.fillStyle = '#FF6B35';
+        // Flat platform - use authentic colors
+        this.ctx.fillStyle = platform.color || '#F24A8D'; // Authentic girder color
         this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         
         // Shadow
-        this.ctx.fillStyle = '#CC4A00';
+        this.ctx.fillStyle = platform.color === '#1F55FF' ? '#0F2F9F' : '#B03064'; // Authentic shadow colors
         this.ctx.fillRect(platform.x, platform.y + platform.height - 3, platform.width, 3);
       }
       
@@ -1409,6 +1837,19 @@ export class HonkyPongGame {
   
   drawHonkyKong() {
     let kong = this.honkyKong;
+    
+    // Don't draw Kong if he's defeated
+    if (kong.defeated) {
+      // Show victory particles instead
+      if (kong.defeatTimer !== undefined) {
+        kong.defeatTimer++;
+        if (kong.defeatTimer % 10 === 0) {
+          this.createParticles(kong.x + 24, kong.y + 20, 3, '#FFD700', 'victory');
+        }
+      }
+      return;
+    }
+    
     let state = 'normal';
     
     // Determine sprite state based on Kong's status
@@ -1416,6 +1857,21 @@ export class HonkyPongGame {
       state = 'throwing';
     } else if (kong.beating) {
       state = 'beating';
+    }
+    
+    // In boss mode (Level 3), show Kong's health
+    if (this.level === 3 && this.bossMode) {
+      // Draw Kong health indicator
+      this.ctx.fillStyle = '#FF0000';
+      this.ctx.fillRect(kong.x, kong.y - 15, 48, 8);
+      this.ctx.fillStyle = '#00FF00';
+      this.ctx.fillRect(kong.x + 2, kong.y - 13, (44 * this.kongHealth / 3), 4);
+      
+      // Show "BOSS" label
+      this.ctx.fillStyle = '#FFFF00';
+      this.ctx.font = 'bold 12px monospace';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('BOSS', kong.x + 24, kong.y - 20);
     }
     
     // Draw professional Donkey Kong sprite
@@ -1446,36 +1902,119 @@ export class HonkyPongGame {
   
   drawPlayer() {
     let player = this.player;
-    let state = 'normal';
+    let state = 'right'; // Default state
     
-    // Determine sprite state based on player status
-    if (player.hasHammer) {
-      state = 'hammer';
+    // Determine sprite state based on player status and direction
+    if (!player.alive) {
+      if (player.deathPhase === 'tumbling') {
+        // Cycle through tumbling animation frames - slower animation
+        const tumbleFrame = Math.floor(player.deathTimer / 15) % 8; // Changed from 8 to 15 frames per sprite
+        state = `tumble-${tumbleFrame + 1}`;
+      } else {
+        // Dead Mario with floating halo (dead or floating phase)
+        state = player.direction < 0 ? 'dead-left' : 'dead-right';
+      }
+    } else if (player.hasHammer) {
+      // Cycle through all 4 hammer animation frames for each direction
+      const hammerFrame = Math.floor(this.frameCounter / 12) % 4; // Slower animation, 12 frames per sprite
+      
+      if (player.direction < 0) {
+        // Left-facing hammer animation: up1 -> down1 -> up2 -> down2
+        switch (hammerFrame) {
+          case 0: state = 'hammer-left-up-1'; break;
+          case 1: state = 'hammer-left-down-1'; break;
+          case 2: state = 'hammer-left-up-2'; break;
+          case 3: state = 'hammer-left-down-2'; break;
+        }
+      } else {
+        // Right-facing hammer animation: down1 -> up1 -> down2 -> up2
+        switch (hammerFrame) {
+          case 0: state = 'hammer-right-down-1'; break;
+          case 1: state = 'hammer-right-up-1'; break;
+          case 2: state = 'hammer-right-down-2'; break;
+          case 3: state = 'hammer-right-up-2'; break;
+        }
+      }
     } else if (player.climbingLadder) {
-      state = 'climb';
+      // Cycle through climbing animation frames (8 frames total)
+      const climbFrame = Math.floor(this.frameCounter / 8) % 8;
+      switch (climbFrame) {
+        case 0: state = 'climb-bottom'; break;
+        case 1: state = 'climb-1'; break;
+        case 2: state = 'climb-2'; break;
+        case 3: state = 'climb-3'; break;
+        case 4: state = 'climb-4'; break;
+        case 5: state = 'climb-5'; break;
+        case 6: state = 'climb-6'; break;
+        case 7: state = 'climb-top'; break;
+        default: state = 'climb-1';
+      }
+    } else {
+      // Running or standing based on movement and direction
+      const isMoving = Math.abs(player.vx) > 0.1;
+      
+      if (player.direction < 0) {
+        if (isMoving) {
+          // Alternate between run frames for animation (every 10 frames)
+          const runFrame = Math.floor(this.frameCounter / 10) % 2;
+          state = runFrame === 0 ? 'run-left-1' : 'run-left-2';
+        } else {
+          state = 'stand-left';
+        }
+      } else {
+        if (isMoving) {
+          // Alternate between run frames for animation (every 10 frames)
+          const runFrame = Math.floor(this.frameCounter / 10) % 2;
+          state = runFrame === 0 ? 'run-right-1' : 'run-right-2';
+        } else {
+          state = 'stand-right';
+        }
+      }
     }
     
-    // Flash player when hammer time is about to expire (last 5 seconds = 300 frames)
-    let shouldFlash = false;
-    if (player.hasHammer && player.hammerTimer >= 600) { // Last 5 seconds (900 - 300 = 600)
-      shouldFlash = Math.floor(this.frameCounter / 10) % 2 === 0; // Flash every 10 frames
-    }
-    
-    // Mirror the sprite based on direction
+    // Render sprite (no more mirroring since we have directional sprites)
     this.ctx.save();
     
-    // Apply flashing effect
-    if (shouldFlash) {
-      this.ctx.globalAlpha = 0.3; // Make player semi-transparent when flashing
+    // Handle death animation positioning
+    let renderY = player.y;
+    if (!player.alive && player.deathTimer !== undefined) {
+      if (player.deathPhase === 'floating') {
+        // Only float upward during the floating phase - slower and more graceful
+        renderY -= player.deathTimer * 1.5; // Slower float upward (reduced from 3 to 1.5)
+      }
+      // Tumbling and dead phases stay at ground level
     }
     
-    if (player.direction < 0) {
-      this.ctx.translate(player.x + player.width/2, player.y + player.height/2);
-      this.ctx.scale(-1, 1);
-      this.sprites.mario(-player.width/2, -player.height/2, state);
-    } else {
-      this.sprites.mario(player.x, player.y, state);
+    // Adjust Y position for hammer sprites to keep Mario at same ground level
+    if (state.includes('hammer')) {
+      if (state.includes('up')) {
+        // VR sprites are taller (40px vs 16px), so move up less to keep feet grounded
+        renderY -= 8; // Reduced adjustment - lets hammer extend up naturally
+      } else {
+        // HR sprites are different height (25px vs 16px), adjust slightly
+        renderY -= 5; // Small adjustment for hammer-down sprites
+      }
     }
+    
+    this.sprites.mario(player.x, renderY, state);
+    
+    // Hammer expiration warning - draw warning glow around Mario
+    if (player.hasHammer && player.hammerTimer >= 600) { // Last 5 seconds (900 - 300 = 600)
+      const pulseIntensity = Math.sin(this.frameCounter * 0.3) * 0.5 + 0.5; // Smooth pulsing
+      const glowColor = `rgba(255, 255, 0, ${pulseIntensity * 0.4})`; // Yellow glow
+      
+      // Draw glow rings around Mario
+      this.ctx.strokeStyle = glowColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(player.x + player.width/2, renderY + player.height/2, 20 + pulseIntensity * 5, 0, Math.PI * 2);
+      this.ctx.stroke();
+      
+      this.ctx.beginPath();
+      this.ctx.arc(player.x + player.width/2, renderY + player.height/2, 25 + pulseIntensity * 8, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+    
     this.ctx.restore();
     
     // Jumping spark effect
@@ -1513,13 +2052,27 @@ export class HonkyPongGame {
   
   drawBarrels() {
     for (let barrel of this.barrels) {
-      this.ctx.save();
-      this.ctx.translate(barrel.x + barrel.width/2, barrel.y + barrel.height/2);
-      this.ctx.rotate(barrel.rotation);
+      // Try to draw authentic barrel sprite first
+      let spriteDrawn = false;
       
-      // Barrel body
-      this.ctx.fillStyle = '#8B4513';
-      this.ctx.fillRect(-barrel.width/2, -barrel.height/2, barrel.width, barrel.height);
+      if (this.allSpritesLoaded) {
+        // Barrel sprites from enemies.png (top row has barrels)
+        const rotationFrame = Math.floor(barrel.rotation * 4 / (Math.PI * 2)) % 4;
+        const sx = rotationFrame * 16; // Each barrel frame is 16px wide
+        const sy = 0; // Top row
+        
+        spriteDrawn = this.drawSprite('enemies', sx, sy, 16, 16, barrel.x, barrel.y, barrel.width, barrel.height);
+      }
+      
+      // Fallback to drawn sprite if needed
+      if (!spriteDrawn) {
+        this.ctx.save();
+        this.ctx.translate(barrel.x + barrel.width/2, barrel.y + barrel.height/2);
+        this.ctx.rotate(barrel.rotation);
+        
+        // Barrel body
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.fillRect(-barrel.width/2, -barrel.height/2, barrel.width, barrel.height);
       
       // Barrel bands (authentic look)
       this.ctx.fillStyle = '#654321';
@@ -1527,11 +2080,12 @@ export class HonkyPongGame {
       this.ctx.fillRect(-barrel.width/2, -barrel.height/2 + barrel.height/2, barrel.width, 1);
       this.ctx.fillRect(-barrel.width/2, -barrel.height/2 + barrel.height - 3, barrel.width, 1);
       
-      // Barrel highlight
-      this.ctx.fillStyle = '#AA6633';
-      this.ctx.fillRect(-barrel.width/2 + 1, -barrel.height/2 + 1, barrel.width - 2, 2);
-      
-      this.ctx.restore();
+        // Barrel highlight
+        this.ctx.fillStyle = '#AA6633';
+        this.ctx.fillRect(-barrel.width/2 + 1, -barrel.height/2 + 1, barrel.width - 2, 2);
+        
+        this.ctx.restore();
+      } // Close fallback drawing
     }
   }
   
@@ -1621,8 +2175,16 @@ export class HonkyPongGame {
       // Score celebration
       this.ctx.fillStyle = '#FFFFFF';
       this.ctx.font = 'bold 20px monospace';
-      this.ctx.fillText(`🎉 LEVEL ${this.level - 1} COMPLETE! 🎉`, this.canvas.width / 2, this.canvas.height / 2 + 30);
-      this.ctx.fillText(`⭐ BONUS: ${this.bonus} points! ⭐`, this.canvas.width / 2, this.canvas.height / 2 + 60);
+      
+      if (this.level === 4 && this.honkyKong.defeated) {
+        // Boss defeated - ultimate victory message
+        this.ctx.fillText(`🏆 KONG DEFEATED! GAME COMPLETE! 🏆`, this.canvas.width / 2, this.canvas.height / 2 + 30);
+        this.ctx.fillText(`⭐ VICTORY BONUS: ${this.bonus} points! ⭐`, this.canvas.width / 2, this.canvas.height / 2 + 60);
+      } else {
+        // Normal level completion
+        this.ctx.fillText(`🎉 LEVEL ${this.level - 1} COMPLETE! 🎉`, this.canvas.width / 2, this.canvas.height / 2 + 30);
+        this.ctx.fillText(`⭐ BONUS: ${this.bonus} points! ⭐`, this.canvas.width / 2, this.canvas.height / 2 + 60);
+      }
       
       // Next level countdown
       const timeLeft = Math.ceil((this.celebrationDuration - this.celebrationTimer) / 60);
@@ -1706,10 +2268,1338 @@ export class HonkyPongGame {
     this.lastFrameTime = performance.now();
   }
   
+  // SIMPLE WORKING DONKEY KONG PLATFORMS - Based on GROK pseudocode
+  generateLevelPlatforms(levelType) {
+    console.log('🔥 CLAUDE SIMPLE PLATFORMS FUNCTION CALLED! Level:', levelType);
+    
+    // Canvas dimensions: 900x700, using classic DK proportions
+    const platforms = [];
+    
+    switch(levelType % 4) {
+      case 1:
+      default:
+        // Level 1: Classic barrel level with 6 sloped girders
+        // Using canvas coordinates where y=0 is top
+        
+        // Bottom platform (ground) - flat
+        platforms.push({
+          x: 20, y: 620, width: 860, height: 20, 
+          slope: 0, color: '#F24A8D'
+        });
+        
+        // Second girder - sloped up from left to right
+        platforms.push({
+          x: 120, y: 540, width: 700, height: 20, 
+          slope: -0.02, color: '#F24A8D'  // Negative slope = up left to right
+        });
+        
+        // Third girder - sloped down from left to right  
+        platforms.push({
+          x: 20, y: 460, width: 700, height: 20, 
+          slope: 0.02, color: '#F24A8D'   // Positive slope = down left to right
+        });
+        
+        // Fourth girder - sloped up from left to right
+        platforms.push({
+          x: 120, y: 380, width: 700, height: 20, 
+          slope: -0.02, color: '#F24A8D'
+        });
+        
+        // Fifth girder - sloped down from left to right
+        platforms.push({
+          x: 20, y: 300, width: 700, height: 20, 
+          slope: 0.02, color: '#F24A8D'
+        });
+        
+        // Top platform (DK's platform) - flat
+        platforms.push({
+          x: 250, y: 180, width: 450, height: 20, 
+          slope: 0, color: '#FF0000'  // Red for DK platform
+        });
+        
+        break;
+    }
+    
+    console.log(`✅ Generated ${platforms.length} simple platforms for level ${levelType}`);
+    return platforms;
+  }
+  
+  // Authentic Donkey Kong Level Data (from specification)
+  getAuthenticLevelData(levelNumber) {
+    const levelPackage = {
+      "meta": {
+        "tileSizePx": 8,
+        "cols": 32,
+        "rows": 28,
+        "palette": {
+          "girder": "#F24A8D",
+          "girderShadow": "#B03064",
+          "bluePlatform": "#1F55FF",
+          "ladder": "#36E2FF",
+          "ladderRung": "#FFD048",
+          "rivet": "#FFD048",
+          "elevator": "#F0B600",
+          "barrel": "#8B5A2B",
+          "oil": "#5B3A16",
+          "bg": "#000000"
+        }
+      },
+      "levels": [
+        {
+          "name": "Level 1 — Girders & Barrels",
+          "paletteHint": "girders",
+          "segments": [
+            { "x": 1,  "y": 26, "len": 30, "slope": "flat",       "step": 0  },
+            { "x": 4,  "y": 22, "len": 24, "slope": "down_right", "step": 8  },
+            { "x": 1,  "y": 18, "len": 24, "slope": "down_left",  "step": 8  },
+            { "x": 4,  "y": 14, "len": 24, "slope": "down_right", "step": 8  },
+            { "x": 1,  "y": 10, "len": 24, "slope": "down_left",  "step": 8  },
+            { "x": 8,  "y": 6,  "len": 16, "slope": "flat",       "step": 0  }
+          ],
+          "ladders": [
+            { "x": 26, "yTop": 22, "yBottom": 26, "brokenTop": 0 },
+            { "x": 3,  "yTop": 18, "yBottom": 22, "brokenTop": 0 },
+            { "x": 26, "yTop": 14, "yBottom": 18, "brokenTop": 0 },
+            { "x": 3,  "yTop": 10, "yBottom": 14, "brokenTop": 0 },
+            { "x": 6,  "yTop": 6,  "yBottom": 10, "brokenTop": 0 }
+          ],
+          "objects": {
+            "S": { "x": 2,  "y": 25 },
+            "K": { "x": 10, "y": 5  },
+            "P": { "x": 20, "y": 5  },
+            "B": { "x": 8,  "y": 5  },
+            "O": { "x": 1,  "y": 26 },
+            "H": [ { "x": 12, "y": 13 }, { "x": 12, "y": 17 } ]
+          }
+        },
+        {
+          "name": "Level 2 — Elevators",
+          "paletteHint": "elevators",
+          "segments": [
+            { "x": 2,  "y": 25, "len": 28, "slope": "flat", "step": 0 },
+            { "x": 3,  "y": 19, "len": 8,  "slope": "flat", "step": 0 },
+            { "x": 21, "y": 19, "len": 8,  "slope": "flat", "step": 0 },
+            { "x": 12, "y": 13, "len": 8,  "slope": "flat", "step": 0 },
+            { "x": 3,  "y": 7,  "len": 8,  "slope": "flat", "step": 0 },
+            { "x": 21, "y": 7,  "len": 8,  "slope": "flat", "step": 0 }
+          ],
+          "ladders": [
+            { "x": 7,  "yTop": 6,  "yBottom": 19, "brokenTop": 0 },
+            { "x": 24, "yTop": 6,  "yBottom": 19, "brokenTop": 0 },
+            { "x": 16, "yTop": 12, "yBottom": 19, "brokenTop": 0 }
+          ],
+          "elevators": [
+            { "x": 10, "yTop": 6,  "yBottom": 24, "speedTilesPerSec": 2.0, "dir": "down" },
+            { "x": 14, "yTop": 6,  "yBottom": 24, "speedTilesPerSec": 2.0, "dir": "up"   },
+            { "x": 18, "yTop": 6,  "yBottom": 24, "speedTilesPerSec": 2.0, "dir": "down" },
+            { "x": 22, "yTop": 6,  "yBottom": 24, "speedTilesPerSec": 2.0, "dir": "up"   }
+          ],
+          "objects": {
+            "S": { "x": 2,  "y": 24 },
+            "K": { "x": 23, "y": 6  },
+            "P": { "x": 6,  "y": 6  },
+            "B": { "x": 22, "y": 6  },
+            "O": { "x": 28, "y": 25 },
+            "H": [ { "x": 13, "y": 12 } ]
+          }
+        },
+        {
+          "name": "Level 3 — Rivets",
+          "paletteHint": "rivets",
+          "segments": [
+            { "x": 2,  "y": 25, "len": 28, "slope": "flat", "step": 0 },
+            { "x": 2,  "y": 19, "len": 28, "slope": "flat", "step": 0 },
+            { "x": 2,  "y": 13, "len": 28, "slope": "flat", "step": 0 },
+            { "x": 2,  "y": 7,  "len": 28, "slope": "flat", "step": 0 }
+          ],
+          "ladders": [
+            { "x": 6,  "yTop": 6,  "yBottom": 25, "brokenTop": 0 },
+            { "x": 16, "yTop": 6,  "yBottom": 25, "brokenTop": 0 },
+            { "x": 26, "yTop": 6,  "yBottom": 25, "brokenTop": 0 }
+          ],
+          "rivets": [
+            { "x": 3,  "y": 25 }, { "x": 29, "y": 25 },
+            { "x": 3,  "y": 19 }, { "x": 29, "y": 19 },
+            { "x": 3,  "y": 13 }, { "x": 29, "y": 13 },
+            { "x": 3,  "y": 7  }, { "x": 29, "y": 7  }
+          ],
+          "objects": {
+            "S": { "x": 2,  "y": 24 },
+            "K": { "x": 16, "y": 5  },
+            "P": { "x": 16, "y": 3  },
+            "H": [ { "x": 11, "y": 18 }, { "x": 21, "y": 18 } ]
+          }
+        }
+      ]
+    };
+    
+    return levelPackage.levels[levelNumber - 1];
+  }
+  
+  // Build Algorithm (deterministic) - following specification exactly
+  buildPlatformsFromLevelData(levelData) {
+    console.log(`🎮 Building authentic ${levelData.name}`);
+    
+    // Step 1: Create empty 32×28 char grid filled with "."
+    const grid = Array(28).fill(null).map(() => Array(32).fill('.'));
+    
+    // Step 2: For each "segment" - generate platform tiles
+    for (const segment of levelData.segments) {
+      let curX = segment.x;
+      let curY = segment.y;
+      
+      for (let i = 0; i < segment.len; i++) {
+        // Bounds check
+        if (curX >= 0 && curX < 32 && curY >= 0 && curY < 28) {
+          // tileType = ("=" if paletteHint=="rivets" else "#")
+          const tileType = (levelData.paletteHint === "rivets") ? "=" : "#";
+          grid[curY][curX] = tileType;
+        }
+        
+        // Apply slope every "step" tiles
+        if (segment.step > 0 && i > 0 && (i % segment.step === 0)) {
+          if (segment.slope === "down_right") {
+            curY = Math.min(curY + 1, 27);
+          } else if (segment.slope === "down_left") {
+            curY = Math.max(curY - 1, 0);
+          }
+        }
+        
+        curX += 1;
+        if (curX >= 32) break; // Don't exceed grid bounds
+      }
+    }
+    
+    // Step 3: For each ladder
+    for (const ladder of levelData.ladders) {
+      const x = ladder.x;
+      
+      // Draw ladder body
+      for (let y = ladder.yTop; y <= ladder.yBottom; y++) {
+        if (x >= 0 && x < 32 && y >= 0 && y < 28) {
+          grid[y][x] = "|";
+        }
+      }
+      
+      // Set ladder top cap
+      if (ladder.yTop >= 0 && ladder.yTop < 28 && x >= 0 && x < 32) {
+        grid[ladder.yTop][x] = "T";
+      }
+      
+      // Handle broken top ladders
+      if (ladder.brokenTop > 0) {
+        for (let k = 0; k < ladder.brokenTop; k++) {
+          const brokenY = ladder.yTop + k;
+          if (brokenY >= 0 && brokenY < 28 && x >= 0 && x < 32) {
+            grid[brokenY][x] = ".";
+          }
+        }
+      }
+    }
+    
+    // Step 6: Place rivets (level 3 only)
+    if (levelData.rivets) {
+      for (const rivet of levelData.rivets) {
+        if (rivet.x >= 0 && rivet.x < 32 && rivet.y >= 0 && rivet.y < 28) {
+          grid[rivet.y][rivet.x] = "R";
+        }
+      }
+    }
+    
+    // Debug: Print the generated grid
+    console.log(`🎮 ${levelData.name} Grid:`);
+    grid.forEach((row, y) => {
+      const rowStr = row.join('');
+      console.log(`Row ${y.toString().padStart(2)}: ${rowStr}`);
+    });
+    
+    // Convert the authentic grid to game platforms
+    return this.convertAuthenticGridToPlatforms(grid, levelData);
+  }
+  
+  // Convert authentic DK grid to game platforms
+  convertAuthenticGridToPlatforms(grid, levelData) {
+    const platforms = [];
+    const tileSize = 8; // Authentic 8px tiles
+    const gameWidth = 900;
+    const gameHeight = 700;
+    const cols = 32;
+    const rows = 28;
+    
+    // Scale factors to fit 32×28 grid into game canvas
+    const scaleX = gameWidth / (cols * tileSize);
+    const scaleY = gameHeight / (rows * tileSize);
+    
+    console.log(`🎮 Converting ${cols}×${rows} authentic grid to ${gameWidth}×${gameHeight} canvas`);
+    console.log(`🎮 Scale factors: ${scaleX.toFixed(2)}x horizontal, ${scaleY.toFixed(2)}x vertical`);
+    
+    // CRITICAL: Ensure platforms are visible by adding debug rectangles
+    console.log(`🎮 Canvas dimensions: ${this.canvas.width}x${this.canvas.height}`);
+    console.log(`🎮 Game area: ${gameWidth}x${gameHeight}`);
+    
+    // Scan for platform segments (# and = tiles)
+    for (let y = 0; y < rows; y++) {
+      let platformStart = -1;
+      let platformType = null;
+      
+      for (let x = 0; x <= cols; x++) {
+        const tile = (x < cols) ? grid[y][x] : '.';
+        const isPlat = (tile === '#' || tile === '=');
+        
+        if (isPlat && platformStart === -1) {
+          platformStart = x;
+          platformType = tile;
+        } else if (!isPlat && platformStart !== -1) {
+          // End of platform segment - create platform
+          const worldX = platformStart * tileSize * scaleX;
+          const worldY = y * tileSize * scaleY;
+          const width = (x - platformStart) * tileSize * scaleX;
+          const height = tileSize * scaleY * 1.5; // Slightly thicker for better collision
+          
+          // Determine slope based on segment data
+          let slope = 0;
+          const segment = this.findSegmentForPosition(levelData.segments, platformStart, y);
+          if (segment) {
+            if (segment.slope === "down_right") slope = 0.02;
+            else if (segment.slope === "down_left") slope = -0.02;
+          }
+          
+          // Color based on platform type and palette
+          let color = '#F24A8D'; // Authentic girder color
+          if (platformType === '=') {
+            color = '#1F55FF'; // Authentic blue platform color
+          }
+          
+          console.log(`🎮 Platform: x=${worldX.toFixed(1)}, y=${worldY.toFixed(1)}, w=${width.toFixed(1)}, slope=${slope.toFixed(3)}, type=${platformType}`);
+          
+          platforms.push({
+            x: worldX,
+            y: worldY,
+            width: width,
+            height: height,
+            color: color,
+            slope: slope,
+            type: platformType
+          });
+          
+          platformStart = -1;
+          platformType = null;
+        }
+      }
+    }
+    
+    console.log(`🎮 Generated ${platforms.length} authentic platforms`);
+    return platforms;
+  }
+  
+  // Helper to find the segment that generated a platform tile
+  findSegmentForPosition(segments, x, y) {
+    for (const segment of segments) {
+      let curX = segment.x;
+      let curY = segment.y;
+      
+      for (let i = 0; i < segment.len; i++) {
+        if (curX === x && curY === y) {
+          return segment;
+        }
+        
+        if (segment.step > 0 && i > 0 && (i % segment.step === 0)) {
+          if (segment.slope === "down_right") curY = Math.min(curY + 1, 27);
+          else if (segment.slope === "down_left") curY = Math.max(curY - 1, 0);
+        }
+        
+        curX += 1;
+        if (curX >= 32) break;
+      }
+    }
+    return null;
+  }
+  
+  // Extract object positions from authentic level data
+  extractObjectPositions(levelData) {
+    const positions = {};
+    const tileSize = 8;
+    const gameWidth = 900;
+    const gameHeight = 700;
+    const cols = 32;
+    const rows = 28;
+    
+    // Scale factors
+    const scaleX = gameWidth / (cols * tileSize);
+    const scaleY = gameHeight / (rows * tileSize);
+    
+    if (levelData.objects) {
+      const objects = levelData.objects;
+      
+      // Player start position (S)
+      if (objects.S) {
+        positions.player = {
+          x: objects.S.x * tileSize * scaleX,
+          y: objects.S.y * tileSize * scaleY
+        };
+      }
+      
+      // Kong position (K)
+      if (objects.K) {
+        positions.kong = {
+          x: objects.K.x * tileSize * scaleX,
+          y: objects.K.y * tileSize * scaleY
+        };
+      }
+      
+      // Princess position (P)
+      if (objects.P) {
+        positions.princess = {
+          x: objects.P.x * tileSize * scaleX,
+          y: objects.P.y * tileSize * scaleY
+        };
+      }
+      
+      // Hammer positions (H) - array
+      if (objects.H && Array.isArray(objects.H)) {
+        positions.hammers = objects.H.map(hammer => ({
+          x: hammer.x * tileSize * scaleX,
+          y: (hammer.y - 1) * tileSize * scaleY // Hammers float 1 tile above platform
+        }));
+      }
+      
+      // Barrel spawner (B)
+      if (objects.B) {
+        positions.barrelSpawn = {
+          x: objects.B.x * tileSize * scaleX,
+          y: objects.B.y * tileSize * scaleY
+        };
+      }
+      
+      // Oil drum (O)
+      if (objects.O) {
+        positions.oilDrum = {
+          x: objects.O.x * tileSize * scaleX,
+          y: objects.O.y * tileSize * scaleY
+        };
+      }
+      
+      console.log(`🎮 Extracted authentic object positions:`, Object.keys(positions));
+    }
+    
+    return positions;
+  }
+  
+  // Debug method to check player-platform alignment
+  debugPlayerPlatform() {
+    console.log(`🎮 DEBUG: Player at (${this.player.x}, ${this.player.y}), size: ${this.player.width}x${this.player.height}`);
+    console.log(`🎮 DEBUG: Found ${this.platforms.length} platforms:`);
+    
+    for (let i = 0; i < this.platforms.length; i++) {
+      const p = this.platforms[i];
+      console.log(`  Platform ${i}: (${p.x.toFixed(1)}, ${p.y.toFixed(1)}) ${p.width.toFixed(1)}x${p.height.toFixed(1)} slope:${p.slope.toFixed(3)}`);
+      
+      // Check if player is near this platform
+      const distance = Math.abs(this.player.y + this.player.height - p.y);
+      if (distance < 50) {
+        console.log(`    ⚠️ Player is ${distance.toFixed(1)}px from this platform`);
+      }
+    }
+    
+    console.log(`🎮 DEBUG: Found ${this.ladders.length} ladders:`);
+    for (let i = 0; i < this.ladders.length; i++) {
+      const l = this.ladders[i];
+      console.log(`  Ladder ${i}: (${l.x.toFixed(1)}, ${l.y.toFixed(1)}) ${l.width.toFixed(1)}x${l.height.toFixed(1)}`);
+    }
+  }
+  
+  // Sprite-based level data extraction (legacy - now unused)
+  getLevelDataFromSprites(levelNumber) {
+    if (!this.spriteSheets.levels) {
+      console.warn('Level sprite sheet not loaded, using fallback data');
+      return this.getFallbackLevelData(levelNumber);
+    }
+    
+    try {
+      // Analyze the levels sprite sheet to extract authentic level data
+      return this.analyzeLevelSprite(levelNumber);
+    } catch (error) {
+      console.warn('Sprite analysis failed, using fallback:', error);
+      return this.getFallbackLevelData(levelNumber);
+    }
+  }
+  
+  analyzeLevelSprite(levelNumber) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const sprite = this.spriteSheets.levels;
+    
+    // Authentic Donkey Kong levels from sprite sheet analysis
+    // The sprite sheet might have levels arranged differently
+    const spriteWidth = sprite.width;
+    const spriteHeight = sprite.height;
+    
+    console.log(`🎮 Full sprite sheet dimensions: ${spriteWidth}x${spriteHeight}`);
+    
+    // Try different level extraction strategies
+    let levelWidth, levelHeight, startX;
+    
+    if (spriteWidth > spriteHeight * 2) {
+      // Horizontal layout - levels side by side
+      levelWidth = Math.floor(spriteWidth / 3);
+      levelHeight = spriteHeight;
+      startX = (levelNumber - 1) * levelWidth;
+      console.log(`🎮 Using horizontal layout: ${levelWidth}x${levelHeight} per level`);
+    } else {
+      // Vertical layout - levels stacked
+      levelWidth = spriteWidth;
+      levelHeight = Math.floor(spriteHeight / 3);
+      startX = 0;
+      console.log(`🎮 Using vertical layout: ${levelWidth}x${levelHeight} per level`);
+    }
+    
+    canvas.width = levelWidth;
+    canvas.height = levelHeight;
+    
+    // Optimize canvas for frequent pixel reading
+    ctx.willReadFrequently = true;
+    
+    // Extract the specific level section based on layout
+    let startY = 0;
+    if (spriteWidth <= spriteHeight * 2) {
+      // Vertical layout - adjust Y position
+      startY = (levelNumber - 1) * levelHeight;
+      console.log(`🎮 Extracting level from Y position: ${startY}`);
+    }
+    
+    ctx.drawImage(sprite, startX, startY, levelWidth, levelHeight, 0, 0, levelWidth, levelHeight);
+    
+    // Debug: Save the extracted level image for inspection
+    console.log(`🎮 Level ${levelNumber} extracted section dimensions: ${levelWidth}x${levelHeight} from position ${startX}`);
+    console.log(`🎮 Level ${levelNumber} canvas data URL:`, canvas.toDataURL());
+    
+    // Convert to grid using tile analysis
+    const grid = this.convertSpriteToGrid(ctx, levelWidth, levelHeight);
+    
+    // Debug output for level analysis
+    console.log(`🎮 Level ${levelNumber} Grid Analysis:`);
+    grid.forEach((row, i) => {
+      console.log(`Row ${i.toString().padStart(2)}: ${row}`);
+    });
+    
+    return {
+      level: levelNumber,
+      width: Math.floor(levelWidth / 16), // 16-pixel tiles
+      height: Math.floor(levelHeight / 16),
+      grid: grid
+    };
+  }
+  
+  convertSpriteToGrid(ctx, width, height) {
+    // Authentic Donkey Kong uses 8x8 pixel tiles with 32-pixel cell scaling
+    const tileSize = 8; // Authentic 8x8 tiles
+    const cellSize = 32; // Screen cell size
+    const gridWidth = Math.floor(width / cellSize);
+    const gridHeight = Math.floor(height / cellSize);
+    const grid = [];
+    
+    console.log(`🎮 Using authentic 8x8 tiles with ${cellSize}px cells for ${gridWidth}x${gridHeight} grid`);
+    
+    for (let y = 0; y < gridHeight; y++) {
+      let row = '';
+      for (let x = 0; x < gridWidth; x++) {
+        const cellX = x * cellSize;
+        const cellY = y * cellSize;
+        
+        // Sample multiple 8x8 tiles within each 32x32 cell for better detection
+        const symbol = this.classifyCell(ctx, cellX, cellY, cellSize, tileSize);
+        row += symbol;
+      }
+      grid.push(row);
+    }
+    
+    return grid;
+  }
+  
+  classifyCell(ctx, cellX, cellY, cellSize, tileSize) {
+    let platformTiles = 0;
+    let ladderTiles = 0;
+    let emptyTiles = 0;
+    let totalTiles = 0;
+    
+    // Sample 8x8 tiles within the 32x32 cell
+    const tilesPerCell = cellSize / tileSize; // 4x4 tiles per cell
+    
+    for (let tY = 0; tY < tilesPerCell; tY++) {
+      for (let tX = 0; tX < tilesPerCell; tX++) {
+        const tileX = cellX + (tX * tileSize);
+        const tileY = cellY + (tY * tileSize);
+        
+        if (tileX < ctx.canvas.width && tileY < ctx.canvas.height) {
+          const imageData = ctx.getImageData(tileX, tileY, tileSize, tileSize);
+          const tileType = this.classifyTile(imageData, tileX, tileY);
+          
+          totalTiles++;
+          if (tileType === 'P') platformTiles++;
+          else if (tileType === 'L') ladderTiles++;
+          else emptyTiles++;
+        }
+      }
+    }
+    
+    // Determine cell type based on dominant tile types
+    if (platformTiles > totalTiles * 0.3) return 'P'; // Platform cell
+    if (ladderTiles > totalTiles * 0.2) return 'L'; // Ladder cell
+    
+    // Check for special positions (Kong, Princess) based on location and content
+    if (cellY < cellSize * 2) { // Top 2 rows
+      if (cellX < ctx.canvas.width * 0.3) return 'K'; // Kong area (left)
+      if (cellX > ctx.canvas.width * 0.7 && (platformTiles > 0 || ladderTiles > 0)) return 'G'; // Princess area (right)
+    }
+    
+    return '.'; // Empty cell
+  }
+  
+  classifyTile(imageData, tileX, tileY) {
+    const pixels = imageData.data;
+    let redCount = 0, blueCount = 0, yellowCount = 0, blackCount = 0, pinkCount = 0;
+    let totalPixels = 0;
+    
+    // Analyze pixel colors in the tile
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i];
+      const g = pixels[i + 1]; 
+      const b = pixels[i + 2];
+      const a = pixels[i + 3];
+      
+      if (a > 128) { // Skip transparent pixels
+        totalPixels++;
+        
+        // Classify based on dominant colors in Donkey Kong
+        if (r > 200 && g < 100 && b < 100) redCount++;        // Red platforms
+        else if (r < 100 && g < 100 && b > 200) blueCount++;  // Blue platforms  
+        else if (r > 200 && g > 200 && b < 100) yellowCount++; // Yellow ladders/items
+        else if (r > 200 && g < 150 && b > 150) pinkCount++;  // Pink platforms
+        else if (r < 50 && g < 50 && b < 50) blackCount++;    // Black/empty
+      }
+    }
+    
+    if (totalPixels < 8) return '.'; // Mostly empty tile
+    
+    const redRatio = redCount / totalPixels;
+    const blueRatio = blueCount / totalPixels;
+    const yellowRatio = yellowCount / totalPixels;
+    const pinkRatio = pinkCount / totalPixels;
+    
+    // More sensitive classification for better detection
+    if (redRatio > 0.1 || pinkRatio > 0.1) return 'P'; // Platform (red or pink girders)
+    if (blueRatio > 0.1) return 'P'; // Blue platforms (conveyor belts)
+    if (yellowRatio > 0.05) return 'L'; // Yellow ladders (more sensitive)
+    
+    // Special position-based classification for characters
+    if (tileY < 64 && (redRatio > 0.05 || pinkRatio > 0.05 || yellowRatio > 0.05)) {
+      if (tileX < 128) return 'K'; // Kong area (top-left)
+      else return 'G'; // Princess area (top-right)  
+    }
+    
+    // Look for any significant color activity that might be missed
+    if (totalPixels > 64 && (redRatio + blueRatio + yellowRatio + pinkRatio) > 0.1) {
+      return 'P'; // Probably a platform we missed
+    }
+    
+    return '.'; // Empty space
+  }
+  
+  getFallbackLevelData(levelNumber) {
+    // Authentic Donkey Kong level layouts as backup
+    const fallbackLevels = {
+      1: {
+        level: 1,
+        width: 16,
+        height: 16,
+        grid: [
+          "....K...........",
+          "PPPPPPPPPPPPPPP",
+          "..........L.....",
+          "PPPPPPP....PPPP",
+          ".....L.........",
+          "PPPP....PPPPPPP",
+          "...L...........P",
+          "PP....PPPPPPPPP",
+          ".L.............",
+          "PPPPPPPPPPPPPPP",
+          "...............",
+          ".........G....."
+        ]
+      },
+      2: {
+        level: 2,
+        width: 16,
+        height: 16,
+        grid: [
+          "....K...........",
+          "PPPPPPPPPPPPPPP",
+          "..L.......L....",
+          "PPPPP.....PPPPP",
+          "....L.....L....",
+          "PPPPP.....PPPPP",
+          "..L.......L....",
+          "PPPPPPPPPPPPPPP",
+          "...............",
+          "PPPPPPPPPPPPPPP",
+          "...............",
+          ".........G....."
+        ]
+      },
+      3: {
+        level: 3,
+        width: 16,
+        height: 16,
+        grid: [
+          ".........G.....",
+          "PPPPPPPPPPPPPPP",
+          "......K........",
+          "PPPPPPPPPPPPPPP",
+          "..L.......L....",
+          "PPP.......PPPPP",
+          "..L.......L....",
+          "PPPPPPPPPPPPPPP",
+          "...............",
+          "PPPPPPPPPPPPPPP",
+          "...............",
+          "PPPPPPPPPPPPPPP"
+        ]
+      }
+    };
+    
+    return fallbackLevels[levelNumber] || fallbackLevels[1];
+  }
+  
+  convertGridToPlatforms(grid) {
+    const platforms = [];
+    
+    // Use authentic Donkey Kong proportions
+    const gameWidth = 900;
+    const gameHeight = 700;
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+    
+    console.log(`🎮 Converting ${gridWidth}x${gridHeight} grid to platforms`);
+    
+    // Create platforms with authentic Donkey Kong slopes and positioning
+    for (let y = 0; y < grid.length; y++) {
+      let platformStart = -1;
+      let slopeDirection = 0; // -1 = down-left, 0 = flat, 1 = down-right
+      
+      for (let x = 0; x <= grid[y].length; x++) {
+        const isPlat = (x < grid[y].length && grid[y][x] === 'P');
+        
+        if (isPlat && platformStart === -1) {
+          platformStart = x;
+          
+          // Detect slope direction based on authentic Donkey Kong level patterns
+          if (y % 2 === 1 && y < gridHeight - 2) { // Sloped platforms in DK
+            slopeDirection = (y % 4 === 1) ? -1 : 1; // Alternate slope directions
+          }
+        } else if (!isPlat && platformStart !== -1) {
+          // Create platform with authentic positioning and slopes
+          const baseX = (platformStart / gridWidth) * gameWidth;
+          const baseY = (y / gridHeight) * gameHeight;
+          const width = ((x - platformStart) / gridWidth) * gameWidth;
+          const height = (1.2 / gridHeight) * gameHeight; // Slightly thicker platforms
+          
+          // Apply authentic Donkey Kong slope calculation
+          let slope = 0;
+          if (slopeDirection !== 0) {
+            slope = slopeDirection * 0.03; // Gentle slope like original DK
+          }
+          
+          // Color based on level (authentic DK colors)
+          let color = '#FF69B4'; // Pink girders (level 1)
+          if (this.level === 2) color = '#4169E1'; // Blue girders (level 2) 
+          if (this.level === 3) color = '#8B4513'; // Brown girders (level 3)
+          
+          console.log(`🎮 Platform: x=${baseX.toFixed(1)}, y=${baseY.toFixed(1)}, w=${width.toFixed(1)}, slope=${slope.toFixed(3)}`);
+          
+          platforms.push({
+            x: baseX,
+            y: baseY,
+            width: width,
+            height: height,
+            color: color,
+            slope: slope // Add slope for authentic DK physics
+          });
+          
+          platformStart = -1;
+          slopeDirection = 0;
+        }
+      }
+    }
+    
+    // Add bottom platform if missing (authentic DK always has bottom platform)
+    if (platforms.length === 0 || platforms[platforms.length - 1].y < gameHeight - 100) {
+      platforms.push({
+        x: 0,
+        y: gameHeight - 50,
+        width: gameWidth,
+        height: 50,
+        color: '#FF69B4',
+        slope: 0
+      });
+      console.log(`🎮 Added missing bottom platform`);
+    }
+    
+    console.log(`🎮 Generated ${platforms.length} authentic DK platforms`);
+    return platforms;
+  }
+  
+  generateBarrelLevel() {
+    // Level 1: Barrel Level (Classic sloped platforms)
+    return [
+      // Bottom platform (full width)
+      { x: 0, y: 650, width: 900, height: 20, color: '#FF69B4' },
+      
+      // Second level - sloped platforms
+      { x: 100, y: 550, width: 150, height: 15, color: '#FF69B4' },
+      { x: 300, y: 540, width: 200, height: 15, color: '#FF69B4' },
+      { x: 550, y: 530, width: 200, height: 15, color: '#FF69B4' },
+      { x: 780, y: 520, width: 120, height: 15, color: '#FF69B4' },
+      
+      // Third level - more sloped
+      { x: 50, y: 450, width: 180, height: 15, color: '#FF69B4' },
+      { x: 280, y: 440, width: 220, height: 15, color: '#FF69B4' },
+      { x: 550, y: 430, width: 180, height: 15, color: '#FF69B4' },
+      { x: 780, y: 420, width: 120, height: 15, color: '#FF69B4' },
+      
+      // Fourth level
+      { x: 100, y: 350, width: 150, height: 15, color: '#FF69B4' },
+      { x: 300, y: 340, width: 200, height: 15, color: '#FF69B4' },
+      { x: 550, y: 330, width: 200, height: 15, color: '#FF69B4' },
+      { x: 780, y: 320, width: 120, height: 15, color: '#FF69B4' },
+      
+      // Fifth level  
+      { x: 50, y: 250, width: 180, height: 15, color: '#FF69B4' },
+      { x: 280, y: 240, width: 220, height: 15, color: '#FF69B4' },
+      { x: 550, y: 230, width: 180, height: 15, color: '#FF69B4' },
+      { x: 780, y: 220, width: 120, height: 15, color: '#FF69B4' },
+      
+      // Sixth level
+      { x: 100, y: 150, width: 150, height: 15, color: '#FF69B4' },
+      { x: 300, y: 140, width: 200, height: 15, color: '#FF69B4' },
+      { x: 550, y: 130, width: 200, height: 15, color: '#FF69B4' },
+      { x: 780, y: 120, width: 120, height: 15, color: '#FF69B4' },
+      
+      // Top platform (Princess platform)
+      { x: 350, y: 50, width: 200, height: 20, color: '#FFD700' }
+    ];
+  }
+  
+  generateElevatorLevel() {
+    // Level 2: Elevator Level (Conveyors and elevators)
+    return [
+      // Bottom platform (full width)
+      { x: 0, y: 650, width: 900, height: 20, color: '#00BFFF' },
+      
+      // Conveyor platforms (moving belts)
+      { x: 50, y: 550, width: 200, height: 15, color: '#00BFFF', conveyor: 'left' },
+      { x: 350, y: 550, width: 200, height: 15, color: '#00BFFF', conveyor: 'right' },
+      { x: 650, y: 550, width: 200, height: 15, color: '#00BFFF', conveyor: 'left' },
+      
+      // Middle platforms with gaps for elevators
+      { x: 100, y: 450, width: 150, height: 15, color: '#00BFFF' },
+      { x: 400, y: 450, width: 100, height: 15, color: '#00BFFF' },
+      { x: 650, y: 450, width: 150, height: 15, color: '#00BFFF' },
+      
+      // More conveyor belts
+      { x: 0, y: 350, width: 180, height: 15, color: '#00BFFF', conveyor: 'right' },
+      { x: 280, y: 350, width: 180, height: 15, color: '#00BFFF', conveyor: 'left' },
+      { x: 560, y: 350, width: 180, height: 15, color: '#00BFFF', conveyor: 'right' },
+      { x: 780, y: 350, width: 120, height: 15, color: '#00BFFF' },
+      
+      // Upper platforms
+      { x: 100, y: 250, width: 150, height: 15, color: '#00BFFF' },
+      { x: 350, y: 250, width: 200, height: 15, color: '#00BFFF', conveyor: 'left' },
+      { x: 650, y: 250, width: 150, height: 15, color: '#00BFFF' },
+      
+      // Near-top platforms
+      { x: 50, y: 150, width: 180, height: 15, color: '#00BFFF', conveyor: 'right' },
+      { x: 330, y: 150, width: 240, height: 15, color: '#00BFFF' },
+      { x: 670, y: 150, width: 180, height: 15, color: '#00BFFF', conveyor: 'left' },
+      
+      // Top platform (Princess platform)
+      { x: 350, y: 50, width: 200, height: 20, color: '#FFD700' }
+    ];
+  }
+  
+  generateBossLevel() {
+    // Level 3: Boss Level (Direct confrontation with Kong)
+    return [
+      // Bottom platform (full width)
+      { x: 0, y: 650, width: 900, height: 20, color: '#8B4513' },
+      
+      // Large lower platforms for maneuvering
+      { x: 50, y: 550, width: 300, height: 20, color: '#8B4513' },
+      { x: 550, y: 550, width: 300, height: 20, color: '#8B4513' },
+      
+      // Middle level - wider platforms
+      { x: 100, y: 450, width: 250, height: 20, color: '#8B4513' },
+      { x: 450, y: 450, width: 250, height: 20, color: '#8B4513' },
+      { x: 750, y: 450, width: 150, height: 20, color: '#8B4513' },
+      
+      // Upper level - fewer but strategic platforms
+      { x: 0, y: 350, width: 200, height: 20, color: '#8B4513' },
+      { x: 300, y: 350, width: 300, height: 20, color: '#8B4513' },
+      { x: 700, y: 350, width: 200, height: 20, color: '#8B4513' },
+      
+      // Pre-boss platforms
+      { x: 150, y: 250, width: 200, height: 20, color: '#8B4513' },
+      { x: 450, y: 250, width: 200, height: 20, color: '#8B4513' },
+      { x: 750, y: 250, width: 150, height: 20, color: '#8B4513' },
+      
+      // Kong's platform (larger and central)
+      { x: 300, y: 150, width: 300, height: 25, color: '#8B0000' },
+      
+      // Top platform (Princess platform - final rescue)
+      { x: 350, y: 50, width: 200, height: 20, color: '#FFD700' }
+    ];
+  }
+  
+  generateLevelLadders(levelType) {
+    // Generate ladders from authentic JSON specification
+    const levelData = this.getAuthenticLevelData(levelType);
+    if (levelData) {
+      return this.buildLaddersFromLevelData(levelData);
+    }
+    
+    // Should never reach here with authentic data
+    console.warn('⚠️ No authentic ladder data found, using emergency fallback');
+    return this.generateBarrelLevelLadders();
+  }
+  
+  // Build authentic ladders from level data
+  buildLaddersFromLevelData(levelData) {
+    const ladders = [];
+    const tileSize = 8; // Authentic 8px tiles
+    const gameWidth = 900;
+    const gameHeight = 700;
+    const cols = 32;
+    const rows = 28;
+    
+    // Scale factors to fit 32×28 grid into game canvas
+    const scaleX = gameWidth / (cols * tileSize);
+    const scaleY = gameHeight / (rows * tileSize);
+    
+    console.log(`🎮 Building ${levelData.ladders.length} authentic ladders for ${levelData.name}`);
+    
+    for (const ladderData of levelData.ladders) {
+      const x = ladderData.x;
+      const yTop = ladderData.yTop;
+      const yBottom = ladderData.yBottom;
+      const brokenTop = ladderData.brokenTop || 0;
+      
+      // Calculate actual ladder start (accounting for broken top)
+      const actualTop = yTop + brokenTop;
+      
+      // Convert to world coordinates
+      const worldX = x * tileSize * scaleX;
+      const worldY = actualTop * tileSize * scaleY;
+      const width = tileSize * scaleX;
+      const height = (yBottom - actualTop + 1) * tileSize * scaleY;
+      
+      console.log(`🎮 Ladder: x=${worldX.toFixed(1)}, y=${worldY.toFixed(1)}, h=${height.toFixed(1)}, broken=${brokenTop}`);
+      
+      ladders.push({
+        x: worldX,
+        y: worldY,
+        width: width,
+        height: height,
+        originalData: ladderData // Keep original for reference
+      });
+    }
+    
+    console.log(`🎮 Generated ${ladders.length} authentic ladders`);
+    return ladders;
+  }
+  
+  convertGridToLadders(grid) {
+    const ladders = [];
+    
+    // Direct mapping to game canvas coordinates
+    const gameWidth = 900;
+    const gameHeight = 700;
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+    
+    console.log(`🎮 Converting grid to ladders: ${gridWidth}x${gridHeight} grid`);
+    
+    // Scan for ladder segments (vertical L sequences)
+    for (let x = 0; x < grid[0].length; x++) {
+      let ladderStart = -1;
+      
+      for (let y = 0; y <= grid.length; y++) {
+        const isLadder = (y < grid.length && grid[y][x] === 'L');
+        
+        if (isLadder && ladderStart === -1) {
+          ladderStart = y; // Start of ladder segment
+        } else if (!isLadder && ladderStart !== -1) {
+          // End of ladder segment - create ladder with proper scaling
+          const worldX = (x / gridWidth) * gameWidth;
+          const worldY = (ladderStart / gridHeight) * gameHeight;
+          const width = (1 / gridWidth) * gameWidth; // One tile width
+          const height = ((y - ladderStart) / gridHeight) * gameHeight;
+          
+          console.log(`🎮 Ladder: x=${worldX.toFixed(1)}, y=${worldY.toFixed(1)}, w=${width.toFixed(1)}, h=${height.toFixed(1)}`);
+          
+          ladders.push({
+            x: worldX,
+            y: worldY,
+            width: width,
+            height: height
+          });
+          
+          ladderStart = -1;
+        }
+      }
+    }
+    
+    console.log(`🎮 Generated ${ladders.length} ladders from grid`);
+    return ladders;
+  }
+  
+  // Extract special positions from grid (Kong, Princess, etc.)
+  extractSpecialPositions(grid) {
+    const positions = {};
+    const tileSize = 16;
+    const scaleX = 900 / (grid[0].length * tileSize);
+    const scaleY = 700 / (grid.length * tileSize);
+    
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+        const symbol = grid[y][x];
+        
+        if (symbol === 'K') {
+          // Kong position
+          positions.kong = {
+            x: x * tileSize * scaleX,
+            y: y * tileSize * scaleY
+          };
+        } else if (symbol === 'G') {
+          // Princess/Goal position
+          positions.princess = {
+            x: x * tileSize * scaleX,
+            y: y * tileSize * scaleY
+          };
+        } else if (symbol === 'B') {
+          // Barrel spawn points
+          if (!positions.barrelSpawns) positions.barrelSpawns = [];
+          positions.barrelSpawns.push({
+            x: x * tileSize * scaleX,
+            y: y * tileSize * scaleY
+          });
+        }
+      }
+    }
+    
+    return positions;
+  }
+  
+  // Regenerate current level with authentic sprite data
+  regenerateLevelsFromSprites() {
+    if (!this.allSpritesLoaded) return;
+    
+    console.log('🎮 Regenerating levels with authentic sprite data...');
+    
+    // Regenerate current level platforms and ladders
+    this.platforms = this.generateLevelPlatforms(this.level || this.currentLevelType || 1);
+    this.ladders = this.generateLevelLadders(this.level || this.currentLevelType || 1);
+    
+    // Update special positions if in an active game
+    if (this.gameState === 'playing' || this.gameState === 'menu') {
+      const levelData = this.getLevelDataFromSprites(this.level || this.currentLevelType || 1);
+      if (levelData) {
+        const specialPositions = this.extractSpecialPositions(levelData.grid);
+        
+        // Update Kong position if found in sprite data
+        if (specialPositions.kong && this.honkyKong) {
+          this.honkyKong.x = specialPositions.kong.x;
+          this.honkyKong.y = specialPositions.kong.y;
+          console.log('🦍 Updated Kong position from sprites:', specialPositions.kong);
+        }
+        
+        // Update Princess position if found in sprite data
+        if (specialPositions.princess && this.princess) {
+          this.princess.x = specialPositions.princess.x;
+          this.princess.y = specialPositions.princess.y;
+          console.log('👸 Updated Princess position from sprites:', specialPositions.princess);
+        }
+        
+        // Store barrel spawn points
+        if (specialPositions.barrelSpawns) {
+          this.barrelSpawns = specialPositions.barrelSpawns;
+          console.log('🛢️ Updated barrel spawn points from sprites:', specialPositions.barrelSpawns.length, 'points');
+        }
+      }
+    }
+    
+    console.log('✅ Level regeneration complete with authentic sprite data');
+  }
+  
+  generateBarrelLevelLadders() {
+    return [
+      // Ladders connecting platforms (positioned to avoid sloped sections)
+      { x: 80, y: 550, width: 15, height: 100 },
+      { x: 280, y: 440, width: 15, height: 110 },
+      { x: 520, y: 330, width: 15, height: 120 },
+      { x: 780, y: 220, width: 15, height: 100 },
+      { x: 480, y: 130, width: 15, height: 100 },
+      { x: 180, y: 140, width: 15, height: 110 },
+      { x: 680, y: 230, width: 15, height: 100 },
+      
+      // Final ladder to Princess
+      { x: 420, y: 50, width: 15, height: 90 }
+    ];
+  }
+  
+  generateElevatorLevelLadders() {
+    return [
+      // Strategic ladders between conveyor sections
+      { x: 30, y: 550, width: 15, height: 100 },
+      { x: 250, y: 450, width: 15, height: 100 },
+      { x: 600, y: 350, width: 15, height: 100 },
+      { x: 180, y: 250, width: 15, height: 100 },
+      { x: 750, y: 150, width: 15, height: 100 },
+      { x: 320, y: 150, width: 15, height: 100 },
+      { x: 580, y: 250, width: 15, height: 100 },
+      
+      // Final ladder to Princess
+      { x: 420, y: 50, width: 15, height: 100 }
+    ];
+  }
+  
+  generateBossLevelLadders() {
+    return [
+      // Fewer but more strategic ladders for boss fight
+      { x: 200, y: 550, width: 15, height: 100 },
+      { x: 650, y: 450, width: 15, height: 100 },
+      { x: 120, y: 350, width: 15, height: 100 },
+      { x: 520, y: 250, width: 15, height: 100 },
+      { x: 780, y: 250, width: 15, height: 100 },
+      { x: 250, y: 150, width: 15, height: 100 },
+      
+      // Final ladder to Princess (boss confrontation)
+      { x: 420, y: 50, width: 15, height: 100 }
+    ];
+  }
+  
+  advanceToNextLevel() {
+    // Check if we've completed all 3 levels
+    if (this.level > 3) {
+      // Game completed - start over with increased difficulty
+      this.level = 1;
+      this.score += 10000; // Completion bonus
+      this.lives = Math.min(this.lives + 1, 6); // Bonus life, max 6
+    }
+    
+    // Generate new level layout
+    this.platforms = this.generateLevelPlatforms(this.level);
+    this.ladders = this.generateLevelLadders(this.level);
+    
+    // Extract authentic positions from JSON specification
+    const levelData = this.getAuthenticLevelData(this.level);
+    const objectPositions = levelData ? this.extractObjectPositions(levelData) : {};
+    
+    // Reset player to authentic starting position
+    if (objectPositions.player) {
+      this.player.x = objectPositions.player.x;
+      this.player.y = objectPositions.player.y - 25; // Place player ON TOP of platform, not inside it
+      console.log(`🎮 Player positioned at authentic coordinates: ${this.player.x}, ${this.player.y}`);
+    } else {
+      this.player.x = 100;
+      this.player.y = 630;
+      console.log(`🎮 Player positioned at fallback coordinates: ${this.player.x}, ${this.player.y}`);
+    }
+    
+    // CRITICAL DEBUG: Show if player is on a valid platform
+    this.debugPlayerPlatform();
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.hasHammer = false;
+    this.player.hammerTimer = 0;
+    this.player.isClimbing = false;
+    this.player.animation = 'stand-right';
+    
+    // Position Princess based on authentic object data
+    if (objectPositions.princess) {
+      this.princess.x = objectPositions.princess.x;
+      this.princess.y = objectPositions.princess.y;
+    } else {
+      this.princess.x = 450;
+      this.princess.y = 30;
+    }
+    
+    // Clear all barrels and fireballs
+    this.barrels = [];
+    this.fireballs = [];
+    
+    // Position Kong based on authentic object data
+    if (objectPositions.kong) {
+      this.honkyKong.x = objectPositions.kong.x;
+      this.honkyKong.y = objectPositions.kong.y;
+    } else {
+      this.honkyKong.x = 200;
+      this.honkyKong.y = 30;
+    }
+    
+    // Store authentic hammer positions
+    if (objectPositions.hammers) {
+      this.authenticHammers = objectPositions.hammers;
+      console.log(`🎮 Level ${this.level} has ${this.authenticHammers.length} authentic hammer positions`);
+    }
+    
+    // Store other object positions for reference
+    this.authenticObjects = objectPositions;
+    
+    // Level-specific adjustments
+    if (this.level === 2) {
+      // Elevator level - add moving platform mechanics
+      this.conveyorSpeed = 1;
+      this.elevatorPositions = [
+        { x: 275, y: 500, direction: 1 }, // Moving elevator
+        { x: 525, y: 400, direction: -1 }
+      ];
+      this.bossMode = false;
+    } else if (this.level === 3) {
+      // Boss level - direct confrontation mode
+      this.bossMode = true;
+      this.kongHealth = 3; // Kong takes 3 hammer hits
+      this.kongHitThisSwing = false;
+      this.honkyKong.defeated = false;
+    } else {
+      // Level 1 - normal barrel level
+      this.bossMode = false;
+    }
+    
+    // Reset bonus timer
+    this.bonus = 5000;
+    this.bonusTimer = 0;
+    
+    // Start new level
+    this.gameState = 'playing';
+  }
+  
+  bossDefeated() {
+    // Kong defeated - ultimate victory!
+    this.gameState = 'celebrating';
+    this.celebrationTimer = 0;
+    this.celebrationDuration = 360; // Extra long celebration for boss victory
+    
+    // Award massive bonus points
+    this.score += 5000;
+    this.bonus += 2000;
+    this.updateUI();
+    
+    // Ultra spectacular particle effects
+    this.createParticles(this.honkyKong.x + 24, this.honkyKong.y + 20, 50, '#FFD700', 'spark');
+    this.createParticles(this.honkyKong.x + 24, this.honkyKong.y + 20, 30, '#FF0000', 'explosion');
+    this.createParticles(this.player.x + 8, this.player.y + 10, 25, '#00FF00', 'victory');
+    
+    // Stop background music and play ultimate victory sound
+    this.stopSound('bacmusic');
+    this.sounds.victory();
+    
+    // Make Kong disappear (defeated animation)
+    this.honkyKong.defeated = true;
+    this.honkyKong.defeatTimer = 0;
+  }
+
+  // Authentic Donkey Kong sound system
+  loadSounds() {
+    for (let [soundName, soundPath] of Object.entries(this.soundPaths)) {
+      if (soundPath) {
+        try {
+          const audio = new Audio();
+          audio.src = soundPath;
+          audio.preload = 'auto';
+          
+          // Configure for game audio
+          audio.volume = 0.3; // Reasonable default volume
+          
+          // Special configuration for background music
+          if (soundName === 'bacmusic') {
+            audio.loop = true;
+            audio.volume = 0.15; // Lower volume for background
+          }
+          
+          this.audioElements[soundName] = audio;
+          
+          // Handle loading errors gracefully
+          audio.addEventListener('error', (e) => {
+            console.warn(`Could not load sound: ${soundName} from ${soundPath}`);
+          });
+          
+        } catch (error) {
+          console.warn(`Error creating audio element for ${soundName}:`, error);
+        }
+      }
+    }
+  }
+  
+  playSound(soundName, loop = false) {
+    try {
+      const audio = this.audioElements[soundName];
+      if (audio) {
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        
+        // Set loop if specified
+        if (loop) {
+          audio.loop = true;
+        }
+        
+        // Play with promise handling for better browser compatibility
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            // Handle autoplay restrictions gracefully
+            console.log(`Audio play prevented for ${soundName}:`, error.name);
+          });
+        }
+      }
+    } catch (error) {
+      console.warn(`Error playing sound ${soundName}:`, error);
+    }
+  }
+  
+  stopSound(soundName) {
+    try {
+      const audio = this.audioElements[soundName];
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    } catch (error) {
+      console.warn(`Error stopping sound ${soundName}:`, error);
+    }
+  }
+  
+  setVolume(soundName, volume) {
+    try {
+      const audio = this.audioElements[soundName];
+      if (audio) {
+        audio.volume = Math.max(0, Math.min(1, volume)); // Clamp between 0 and 1
+      }
+    } catch (error) {
+      console.warn(`Error setting volume for ${soundName}:`, error);
+    }
+  }
+
   // Professional cleanup method
   destroy() {
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
+    }
+    
+    // Clean up audio elements
+    for (let audio of Object.values(this.audioElements)) {
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+      }
     }
     
     // Clean up audio manager

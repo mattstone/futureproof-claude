@@ -1,0 +1,67 @@
+<%= render 'shared/header' %>
+
+<div class="honky-pong-simple-wrapper" data-controller="honky-pong-simple">
+  <h1 class="game-title">🎮 Honky Pong</h1>
+  <p class="game-subtitle">Rescue the Princess from Honky Kong!</p>
+  
+  <!-- Game Container -->
+  <div id="gameContainer" 
+       class="honky-pong-container" 
+       data-honky-pong-simple-target="container"
+       data-asset-donkey-kong="<%= asset_path('arcade/donkeykong/donkey-kong.png') %>"
+       data-asset-mono="<%= asset_path('arcade/donkeykong/mono.gif') %>"
+       data-asset-barriles="<%= asset_path('arcade/donkeykong/barriles.png') %>"
+       data-asset-barriles-gif="<%= asset_path('arcade/donkeykong/barriles-2.gif') %>"
+       data-asset-mario="<%= asset_path('arcade/donkeykong/mario.png') %>"
+       data-asset-mario-run="<%= asset_path('arcade/donkeykong/mario-run.png') %>"
+       data-asset-mario-run-2="<%= asset_path('arcade/donkeykong/mario-run-2.png') %>"
+       data-asset-mario-left="<%= asset_path('arcade/donkeykong/mario-left.png') %>"
+       data-asset-mario-left-run="<%= asset_path('arcade/donkeykong/mario-left-run.png') %>"
+       data-asset-mario-left-run-2="<%= asset_path('arcade/donkeykong/mario-left-run-2.png') %>"
+       data-asset-mario-up="<%= asset_path('arcade/donkeykong/mario-up-r.png') %>"
+       data-asset-mario-up-left="<%= asset_path('arcade/donkeykong/mario-up-left.png') %>"
+       data-asset-hammer-run="<%= asset_path('arcade/donkeykong/run-martillo.png') %>"
+       data-asset-hammer-run-2="<%= asset_path('arcade/donkeykong/run-martillo-2.png') %>"
+       data-asset-heart="<%= asset_path('arcade/donkeykong/heart.png') %>"
+       data-asset-hearts="<%= asset_path('arcade/donkeykong/hearts.png') %>"
+       data-asset-hammer="<%= asset_path('arcade/donkeykong/martillo.png') %>"
+       data-asset-game-over="<%= asset_path('arcade/donkeykong/game-over.png') %>"
+       data-asset-piso="<%= asset_path('arcade/donkeykong/piso.png') %>"
+       data-asset-down="<%= asset_path('arcade/donkeykong/down.png') %>"
+       data-asset-peach="<%= asset_path('arcade/donkeykong/peach-no-floor.png') %>"
+>
+    <!-- Game content will be dynamically inserted here -->
+  </div>
+  
+  <!-- Game UI Elements (hidden but available for game logic) -->
+  <div class="game-ui-elements game-ui-hidden">
+    <div id="score" data-honky-pong-simple-target="score">000000</div>
+    <div id="lives" data-honky-pong-simple-target="lives">1</div>
+    <button id="startButton" data-honky-pong-simple-target="startButton">Start Game</button>
+    <div id="gameOver" data-honky-pong-simple-target="gameOver" class="game-over-hidden">
+      <h2>🎮 GAME OVER! 🎮</h2>
+      <p>Princess Pauline is still waiting for rescue!</p>
+      <button class="restart-button">🔄 Play Again</button>
+    </div>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="game-instructions-simple">
+    <p><strong>🎮 How to Play:</strong></p>
+    <p>🔴 <strong>Arrow Keys:</strong> Move Mario left and right</p>
+    <p>🔴 <strong>Up Arrow:</strong> Jump and collect hammer</p> 
+    <p>🔴 <strong>Goal:</strong> Avoid barrels, collect hammer to smash them, reach the princess!</p>
+    <p>🔴 <strong>Tip:</strong> Use hammer facing the right direction to destroy barrels for points!</p>
+  </div>
+  
+  <div class="back-link">
+    <%= link_to "← Back to Arcade", "/arcade", class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Professional accessibility features -->
+<div class="visually-hidden" role="status" aria-live="polite" id="gameStatus">
+  Honky Pong game initialized. Use arrow keys to move and jump.
+</div>
+
+<%= render 'shared/footer' %>
