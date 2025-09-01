@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HonkyPong Sprite Extraction Test</title>
+    <style>
+        body {
+            background: #222;
+            color: white;
+            font-family: monospace;
+            padding: 20px;
+        }
+        
+        .sprite-sheet {
+            margin: 20px 0;
+            border: 2px solid #555;
+            padding: 10px;
+        }
+        
+        .sprite-sheet h3 {
+            margin-top: 0;
+            color: #ff6;
+        }
+        
+        .sprite-sheet img {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border: 1px solid #666;
+        }
+        
+        .zoom-controls {
+            margin: 10px 0;
+        }
+        
+        .zoom-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #666;
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        
+        .zoom-controls button:hover {
+            background: #555;
+        }
+        
+        .sprite-info {
+            margin: 10px 0;
+            background: #333;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .extracted-sprites {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #111;
+            border-radius: 4px;
+        }
+        
+        .sprite-tile {
+            border: 1px solid #666;
+            padding: 5px;
+            background: #333;
+            text-align: center;
+        }
+        
+        .sprite-tile canvas {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .coordinates {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            background: #333;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .controls label {
+            display: inline-block;
+            width: 120px;
+            margin-right: 10px;
+        }
+        
+        .controls input {
+            background: #222;
+            color: white;
+            border: 1px solid #666;
+            padding: 3px;
+            width: 60px;
+        }
+        
+        .tile-type-btn {
+            background: #333;
+            color: white;
+            border: 1px solid #666;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        
+        .tile-type-btn:hover {
+            background: #555;
+        }
+        
+        .tile-type-btn.active {
+            background: #4a90e2;
+            border-color: #357abd;
+        }
+        
+        #tileCanvas {
+            cursor: crosshair;
+        }
+        
+        .success { color: #0f0; }
+        .error { color: #f00; }
+    </style>
+</head>
+<body>
+    <h1>🎮 HonkyPong Sprite Extraction Test</h1>
+    
+    <div class="controls">
+        <h3>Extraction Settings</h3>
+        <div>
+            <label>Sprite Width:</label>
+            <input type="number" id="spriteWidth" value="16">
+            <label>Sprite Height:</label>
+            <input type="number" id="spriteHeight" value="16">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>Start X:</label>
+            <input type="number" id="startX" value="0">
+            <label>Start Y:</label>
+            <input type="number" id="startY" value="0">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>X Spacing:</label>
+            <input type="number" id="xSpacing" value="24">
+            <label>Y Spacing:</label>
+            <input type="number" id="ySpacing" value="24">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>Columns:</label>
+            <input type="number" id="columns" value="10">
+            <label>Rows:</label>
+            <input type="number" id="rows" value="4">
+        </div>
+        
+        <div style="margin-top: 15px; padding: 10px; background: #444; border-radius: 4px;">
+            <strong>Quick Presets:</strong>
+            <button onclick="setMarioRow1Settings()" style="margin: 5px; padding: 5px 10px;">Mario Row 1 (left/right facing)</button>
+            <button onclick="setMarioRow2Settings()" style="margin: 5px; padding: 5px 10px;">Mario Row 2 (ladder climbing)</button>
+            <button onclick="setMarioRow3Settings()" style="margin: 5px; padding: 5px 10px;">Mario Row 3 (with hammer)</button>
+            <button onclick="setMarioRow4Settings()" style="margin: 5px; padding: 5px 10px;">Mario Row 4 (tumbling)</button>
+            <button onclick="setBarrelSettings()" style="margin: 5px; padding: 5px 10px;">Barrels (2x2)</button>
+            <button onclick="setFireballSettings()" style="margin: 5px; padding: 5px 10px;">Fireballs 1 (2x2)</button>
+            <button onclick="setFireball2Settings()" style="margin: 5px; padding: 5px 10px;">Fireballs 2 (2x2)</button>
+            <button onclick="setBlueFIreballSettings()" style="margin: 5px; padding: 5px 10px;">Blue Fireballs (2x2)</button>
+            <button onclick="setPlatformSettings()" style="margin: 5px; padding: 5px 10px;">Platform Supports (1x2)</button>
+            <button onclick="setOilBarrelSettings()" style="margin: 5px; padding: 5px 10px;">Oil Barrels (1x2)</button>
+            <button onclick="setDonkeyKongSettings()" style="margin: 5px; padding: 5px 10px;">Donkey Kong (single large)</button>
+            <button onclick="setDonkeyKongRow2Settings()" style="margin: 5px; padding: 5px 10px;">DK Row 2 (5 poses)</button>
+            <button onclick="setHammerSettings()" style="margin: 5px; padding: 5px 10px;">Hammer (y 69-54 x 269-276)</button>
+            <button onclick="setUmbrellaSettings()" style="margin: 5px; padding: 5px 10px;">Umbrella (y 89-74 x 255-271)</button>
+            <button onclick="setJewelSettings()" style="margin: 5px; padding: 5px 10px;">Jewel (y 87-76 x 279-287)</button>
+            <button onclick="setDKDeath1Settings()" style="margin: 5px; padding: 5px 10px;">DK Death 1 (y 136-107 x 0-46)</button>
+            <button onclick="setDKDeath2Settings()" style="margin: 5px; padding: 5px 10px;">DK Death 2 (y 135-108 x 49-96)</button>
+            <button onclick="setDKDeath3Settings()" style="margin: 5px; padding: 5px 10px;">DK Death 3 (y 138-106 x 103-143)</button>
+            <button onclick="setDKDeath4Settings()" style="margin: 5px; padding: 5px 10px;">DK Death 4 (y 135-109 x 149-196)</button>
+            <button onclick="setDKDeath5Settings()" style="margin: 5px; padding: 5px 10px;">DK Death 5 (y 135-107 x 200-246)</button>
+            <button onclick="setBubbleFloatLeftSettings()" style="margin: 5px; padding: 5px 10px;">Bubble Float L (y 117-106 x 256-270)</button>
+            <button onclick="setBubbleFloatRightSettings()" style="margin: 5px; padding: 5px 10px;">Bubble Float R (y 116-108 x 278-288)</button>
+            <button onclick="setBubblePopLeftSettings()" style="margin: 5px; padding: 5px 10px;">Bubble Pop L (y 133-130 x 261-264)</button>
+            <button onclick="setBubblePopRightSettings()" style="margin: 5px; padding: 5px 10px;">Bubble Pop R (y 139-124 x 275-290)</button>
+            <button onclick="setPaulineRunLeft1Settings()" style="margin: 5px; padding: 5px 10px;">Pauline Run L1 (y 22-1 x 0-15)</button>
+            <button onclick="setPaulineRunLeft2Settings()" style="margin: 5px; padding: 5px 10px;">Pauline Run L2 (y 22-1 x 50-65)</button>
+            <button onclick="setLoveHeartSettings()" style="margin: 5px; padding: 5px 10px;">Love Heart (y 16-5 x 101-114)</button>
+            <button onclick="setPaulineRunRight1Settings()" style="margin: 5px; padding: 5px 10px;">Pauline Run R1 (y 22-1 x 150-165)</button>
+            <button onclick="setPaulineRunRight2Settings()" style="margin: 5px; padding: 5px 10px;">Pauline Run R2 (y 22-1 x 200-215)</button>
+        </div>
+        <button onclick="extractSprites()" style="margin-top: 10px; padding: 8px 16px;">Extract Sprites</button>
+    </div>
+    
+    <!-- Mario Sprites -->
+    <div class="sprite-sheet">
+        <h3>Mario Sprites</h3>
+        <div class="zoom-controls">
+            <button onclick="zoom('mario', 1)">1x</button>
+            <button onclick="zoom('mario', 2)">2x</button>
+            <button onclick="zoom('mario', 4)">4x</button>
+            <button onclick="zoom('mario', 8)">8x</button>
+        </div>
+        <div>
+            <img id="mario-sheet" src="<%= asset_path('arcade/honkypong/sprites/mario.png') %>" alt="Mario Sprites">
+        </div>
+        <div class="sprite-info">
+            <div>Image URL: <span id="mario-url"><%= asset_path('arcade/honkypong/sprites/mario.png') %></span></div>
+            <div>Image size: <span id="mario-size">Loading...</span></div>
+            <div>Mouse position: <span id="mario-coords">-</span></div>
+        </div>
+        <div class="extracted-sprites" id="mario-extracted"></div>
+    </div>
+    
+    <!-- Enemy Sprites -->
+    <div class="sprite-sheet">
+        <h3>Enemy Sprites</h3>
+        <div class="zoom-controls">
+            <button onclick="zoom('enemies', 1)">1x</button>
+            <button onclick="zoom('enemies', 2)">2x</button>
+            <button onclick="zoom('enemies', 4)">4x</button>
+            <button onclick="zoom('enemies', 8)">8x</button>
+        </div>
+        <div>
+            <img id="enemies-sheet" src="<%= asset_path('arcade/honkypong/sprites/enemies.png') %>" alt="Enemy Sprites">
+        </div>
+        <div class="sprite-info">
+            <div>Image URL: <span id="enemies-url"><%= asset_path('arcade/honkypong/sprites/enemies.png') %></span></div>
+            <div>Image size: <span id="enemies-size">Loading...</span></div>
+            <div>Mouse position: <span id="enemies-coords">-</span></div>
+        </div>
+        <div class="extracted-sprites" id="enemies-extracted"></div>
+    </div>
+    
+    <!-- Pauline Sprites -->
+    <div class="sprite-sheet">
+        <h3>Pauline Sprites</h3>
+        <div class="zoom-controls">
+            <button onclick="zoom('pauline', 1)">1x</button>
+            <button onclick="zoom('pauline', 2)">2x</button>
+            <button onclick="zoom('pauline', 4)">4x</button>
+            <button onclick="zoom('pauline', 8)">8x</button>
+        </div>
+        <div>
+            <img id="pauline-sheet" src="<%= asset_path('arcade/honkypong/sprites/pauline.png') %>" alt="Pauline Sprites">
+        </div>
+        <div class="sprite-info">
+            <div>Image URL: <span id="pauline-url"><%= asset_path('arcade/honkypong/sprites/pauline.png') %></span></div>
+            <div>Image size: <span id="pauline-size">Loading...</span></div>
+            <div>Mouse position: <span id="pauline-coords">-</span></div>
+        </div>
+        <div class="extracted-sprites" id="pauline-extracted"></div>
+    </div>
+    
+    <!-- Tile System Test -->
+    <div class="sprite-sheet">
+        <h3>🧱 Tile System</h3>
+        <div class="controls">
+            <h4>Tile Configuration</h4>
+            <div>
+                <label>Tile Width:</label>
+                <input type="number" id="tileWidth" value="16">
+                <label>Tile Height:</label>
+                <input type="number" id="tileHeight" value="16">
+            </div>
+            <div style="margin-top: 10px;">
+                <label>Canvas Width:</label>
+                <input type="number" id="canvasWidth" value="256">
+                <label>Canvas Height:</label>
+                <input type="number" id="canvasHeight" value="224">
+            </div>
+            <button onclick="setupTileSystem()" style="margin-top: 10px; padding: 8px 16px;">Setup Tile System</button>
+            <button onclick="drawTestLevel()" style="margin-top: 10px; padding: 8px 16px;">Draw Test Level</button>
+            <button onclick="drawHonkyPongLevel()" style="margin-top: 10px; padding: 8px 16px;">Draw HonkyPong Level</button>
+        </div>
+        
+        <div class="tile-canvas-container" style="margin: 20px 0; position: relative; display: inline-block;">
+            <canvas id="tileCanvas" style="border: 2px solid #666; image-rendering: pixelated;"></canvas>
+            <div id="tileInfo" style="position: absolute; top: -25px; left: 0; color: #ff6; font-size: 12px;"></div>
+        </div>
+        
+        <div class="tile-controls" style="margin: 10px 0;">
+            <h4>HonkyPong Tile Types</h4>
+            <button onclick="selectTileType('platform')" id="platform-btn" class="tile-type-btn">Platform</button>
+            <button onclick="selectTileType('ladder')" id="ladder-btn" class="tile-type-btn">Ladder</button>
+            <button onclick="selectTileType('elevator')" id="elevator-btn" class="tile-type-btn">Elevator</button>
+            <button onclick="selectTileType('oilfire')" id="oilfire-btn" class="tile-type-btn">Oil Fire</button>
+            <button onclick="selectTileType('barrel_spawn')" id="barrel_spawn-btn" class="tile-type-btn">Barrel Spawn</button>
+            <button onclick="selectTileType('hammer')" id="hammer-btn" class="tile-type-btn">Hammer Pickup</button>
+            <button onclick="selectTileType('empty')" id="empty-btn" class="tile-type-btn active">Empty</button>
+        </div>
+        
+        <div class="tile-data" style="margin: 10px 0;">
+            <h4>Level Data</h4>
+            <textarea id="levelData" style="width: 100%; height: 150px; background: #222; color: white; font-family: monospace; font-size: 10px;" readonly></textarea>
+            <button onclick="exportLevelData()" style="margin-top: 5px;">Export Level Data</button>
+            <button onclick="importLevelData()" style="margin-top: 5px;">Import Level Data</button>
+        </div>
+    </div>
+
+    <script>
+        function zoom(sheetName, scale) {
+            const img = document.getElementById(sheetName + '-sheet');
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+            img.style.width = (naturalWidth * scale) + 'px';
+            img.style.height = (naturalHeight * scale) + 'px';
+        }
+        
+        // Track mouse coordinates
+        function setupMouseTracking() {
+            ['mario', 'enemies', 'pauline'].forEach(sheetName => {
+                const img = document.getElementById(sheetName + '-sheet');
+                
+                img.onload = function() {
+                    document.getElementById(sheetName + '-size').textContent = 
+                        `${this.naturalWidth} x ${this.naturalHeight}`;
+                    console.log(`${sheetName} loaded:`, this.naturalWidth, 'x', this.naturalHeight);
+                };
+                
+                img.onerror = function() {
+                    document.getElementById(sheetName + '-size').innerHTML = 
+                        '<span class="error">Failed to load</span>';
+                    console.error(`Failed to load ${sheetName}:`, this.src);
+                };
+                
+                img.addEventListener('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const scaleX = this.naturalWidth / rect.width;
+                    const scaleY = this.naturalHeight / rect.height;
+                    
+                    const x = Math.floor((e.clientX - rect.left) * scaleX);
+                    const y = Math.floor((e.clientY - rect.top) * scaleY);
+                    
+                    document.getElementById(sheetName + '-coords').textContent = `${x}, ${y}`;
+                });
+                
+                img.addEventListener('mouseleave', function() {
+                    document.getElementById(sheetName + '-coords').textContent = '-';
+                });
+            });
+        }
+        
+        function extractSprites() {
+            const width = parseInt(document.getElementById('spriteWidth').value);
+            const height = parseInt(document.getElementById('spriteHeight').value);
+            const startX = parseInt(document.getElementById('startX').value);
+            const startY = parseInt(document.getElementById('startY').value);
+            const xSpacing = parseInt(document.getElementById('xSpacing').value);
+            const ySpacing = parseInt(document.getElementById('ySpacing').value);
+            const cols = parseInt(document.getElementById('columns').value);
+            const rows = parseInt(document.getElementById('rows').value);
+            
+            // Clear previous extractions
+            ['mario', 'enemies', 'pauline'].forEach(sheetName => {
+                document.getElementById(sheetName + '-extracted').innerHTML = '';
+            });
+            
+            // Check if images are loaded before extracting
+            ['mario', 'enemies', 'pauline'].forEach(sheetName => {
+                const img = document.getElementById(sheetName + '-sheet');
+                if (img.complete && img.naturalWidth > 0) {
+                    extractFromSheet(sheetName, width, height, startX, startY, xSpacing, ySpacing, cols, rows);
+                } else {
+                    console.log(`Image ${sheetName} not loaded yet, waiting...`);
+                    img.onload = () => {
+                        extractFromSheet(sheetName, width, height, startX, startY, xSpacing, ySpacing, cols, rows);
+                    };
+                }
+            });
+        }
+        
+        function extractFromSheet(sheetName, width, height, startX, startY, xSpacing, ySpacing, cols, rows) {
+            const img = document.getElementById(sheetName + '-sheet');
+            const container = document.getElementById(sheetName + '-extracted');
+            
+            if (!img.complete || img.naturalWidth === 0) {
+                console.error(`Cannot extract from ${sheetName}: image not loaded`);
+                return;
+            }
+            
+            // Create a canvas to extract sprites
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
+            
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const x = startX + (col * xSpacing);
+                    const y = startY + (row * ySpacing);
+                    
+                    // Skip if coordinates are outside image bounds
+                    if (x + width > img.naturalWidth || y + height > img.naturalHeight) {
+                        continue;
+                    }
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Draw the sprite portion
+                    ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
+                    
+                    // Create display canvas
+                    const displayCanvas = document.createElement('canvas');
+                    displayCanvas.width = width;
+                    displayCanvas.height = height;
+                    const displayCtx = displayCanvas.getContext('2d');
+                    displayCtx.drawImage(canvas, 0, 0);
+                    
+                    // Create sprite tile
+                    const tile = document.createElement('div');
+                    tile.className = 'sprite-tile';
+                    
+                    // Scale up for visibility
+                    displayCanvas.style.width = (width * 3) + 'px';
+                    displayCanvas.style.height = (height * 3) + 'px';
+                    
+                    const coords = document.createElement('div');
+                    coords.className = 'coordinates';
+                    coords.textContent = `${col},${row} (${x},${y})`;
+                    
+                    tile.appendChild(displayCanvas);
+                    tile.appendChild(coords);
+                    container.appendChild(tile);
+                }
+            }
+        }
+        
+        // Preset functions
+        function setMarioRow1Settings() {
+            // Mario Row 1: Left facing (death, run, run, stand) + Right facing (stand, run, run, death)
+            // 8 sprites total, 24x24px, 40px spacing
+            document.getElementById('spriteWidth').value = 24;  
+            document.getElementById('spriteHeight').value = 24; 
+            document.getElementById('startX').value = 0;        
+            document.getElementById('startY').value = 0;        // First row starts at top
+            document.getElementById('xSpacing').value = 40;     // 40px spacing between sprites
+            document.getElementById('ySpacing').value = 40;     // Single row
+            document.getElementById('columns').value = 8;       // 8 sprites in row
+            document.getElementById('rows').value = 1;          // Single row
+        }
+        
+        function setMarioRow2Settings() {
+            // Mario Row 2: Ladder climbing animation (8 sprites)
+            // Bottom of ladder -> 6 climbing frames -> top of ladder
+            document.getElementById('spriteWidth').value = 24;  
+            document.getElementById('spriteHeight').value = 24; 
+            document.getElementById('startX').value = 0;        
+            document.getElementById('startY').value = 40;       // Second row
+            document.getElementById('xSpacing').value = 40;     // 40px spacing
+            document.getElementById('ySpacing').value = 40;     // Single row
+            document.getElementById('columns').value = 8;       // 8 sprites
+            document.getElementById('rows').value = 1;          // Single row
+        }
+        
+        function setMarioRow3Settings() {
+            // Mario Row 3: Mario with hammer (4 left + 4 right)
+            // Hammer animations for both directions
+            document.getElementById('spriteWidth').value = 24;  
+            document.getElementById('spriteHeight').value = 24; 
+            document.getElementById('startX').value = 0;        
+            document.getElementById('startY').value = 80;       // Third row
+            document.getElementById('xSpacing').value = 40;     // 40px spacing
+            document.getElementById('ySpacing').value = 40;     // Single row
+            document.getElementById('columns').value = 8;       // 8 sprites
+            document.getElementById('rows').value = 1;          // Single row
+        }
+        
+        function setMarioRow4Settings() {
+            // Mario Row 4: Tumbling animation (8 sprites)
+            // Used for falling/tumbling down or across screen
+            document.getElementById('spriteWidth').value = 24;  
+            document.getElementById('spriteHeight').value = 24; 
+            document.getElementById('startX').value = 0;        
+            document.getElementById('startY').value = 120;      // Fourth row
+            document.getElementById('xSpacing').value = 40;     // 40px spacing
+            document.getElementById('ySpacing').value = 40;     // Single row
+            document.getElementById('columns').value = 8;       // 8 sprites
+            document.getElementById('rows').value = 1;          // Single row
+        }
+        
+        function setBarrelSettings() {
+            // 2x2 group of barrel sprites (GIMP coordinates):
+            // top left (y 17-7 x 5-20) bottom left (y 37-27 x 5-20)
+            // top right (y 17-5 x 27-39) bottom right (y 37-27 x 27-39)
+            document.getElementById('spriteWidth').value = 15;  // x 5-20 = 15px wide
+            document.getElementById('spriteHeight').value = 10; // y 17-7 = 10px tall
+            document.getElementById('startX').value = 5;
+            document.getElementById('startY').value = 7;   // Start from Y=7 (top of barrels)
+            document.getElementById('xSpacing').value = 22;  // 27 - 5 = 22
+            document.getElementById('ySpacing').value = 20;  // 27 - 7 = 20
+            document.getElementById('columns').value = 2;  
+            document.getElementById('rows').value = 2;   
+        }
+        
+        function setFireballSettings() {
+            // 2x2 group of fireball sprites (GIMP coordinates):
+            // Top row: x 55-70 & x 75-90, y 4-20
+            // Bottom row: x 56-69 & x 76-89, y 24-39
+            document.getElementById('spriteWidth').value = 14;  // x 56-69 = 13px wide, using 14 for consistency
+            document.getElementById('spriteHeight').value = 16; // y 4-20 = 16px tall
+            document.getElementById('startX').value = 55;       // Start at x=55 (top left)
+            document.getElementById('startY').value = 4;        // Start at y=4 (top of first row)
+            document.getElementById('xSpacing').value = 21;     // 76 - 55 = 21 (to align with bottom right)
+            document.getElementById('ySpacing').value = 20;     // 24 - 4 = 20 (between rows)
+            document.getElementById('columns').value = 2;  
+            document.getElementById('rows').value = 2;   
+        }
+        
+        function setFireball2Settings() {
+            // Second group of fireballs (2x2 grid, right of Donkey Kong):
+            // top left (y 18-6 x 155-171) top right (y 18-6 x 175-191)
+            // bottom left (y 38-26 x 155-171) bottom right (y 38-26 x 175-190)
+            document.getElementById('spriteWidth').value = 16;  // x 155-171 = 16px wide
+            document.getElementById('spriteHeight').value = 12; // y 18-6 = 12px tall
+            document.getElementById('startX').value = 155;      // Start at x=155
+            document.getElementById('startY').value = 6;        // Start at y=6 (top of sprites)
+            document.getElementById('xSpacing').value = 20;     // 175 - 155 = 20px spacing
+            document.getElementById('ySpacing').value = 20;     // 26 - 6 = 20px spacing
+            document.getElementById('columns').value = 2;       // 2 columns
+            document.getElementById('rows').value = 2;          // 2 rows
+        }
+        
+        function setBlueFIreballSettings() {
+            // Blue fireballs (2x2 grid, third group):
+            // Top left (y 18-6 x 205-221) top right (y 18-7 x 225-241)
+            // bottom left (y 38-26 x 205-220) bottom right (y 38-27 x 225-239)
+            document.getElementById('spriteWidth').value = 16;  // x 205-221 = 16px wide
+            document.getElementById('spriteHeight').value = 12; // y 18-6 = 12px tall
+            document.getElementById('startX').value = 205;      // Start at x=205
+            document.getElementById('startY').value = 6;        // Start at y=6 (top of sprites)
+            document.getElementById('xSpacing').value = 20;     // 225 - 205 = 20px spacing
+            document.getElementById('ySpacing').value = 20;     // 26 - 6 = 20px spacing
+            document.getElementById('columns').value = 2;       // 2 columns
+            document.getElementById('rows').value = 2;          // 2 rows
+        }
+        
+        function setPlatformSettings() {
+            // ONLY platform supports (top row):
+            // Top left (y 15-0 x 257-269) top right (y 13-2 x 275-291)
+            document.getElementById('spriteWidth').value = 16;  // 16px wide to cover both
+            document.getElementById('spriteHeight').value = 15; // 15px tall to cover both
+            document.getElementById('startX').value = 257;      // Start at x=257
+            document.getElementById('startY').value = 0;        // Start at y=0
+            document.getElementById('xSpacing').value = 18;     // 275 - 257 = 18px
+            document.getElementById('ySpacing').value = 20;     // Not needed for single row
+            document.getElementById('columns').value = 2;       // 2 platform supports
+            document.getElementById('rows').value = 1;          // Just 1 row (platforms only)
+        }
+        
+        function setOilBarrelSettings() {
+            // ONLY oil barrels (bottom row - the ones that were working great):
+            // Bottom left (y 43-21 x 255-271) bottom right (y 43-20 x 275-291)
+            document.getElementById('spriteWidth').value = 16;  // 16px wide
+            document.getElementById('spriteHeight').value = 23; // 23px tall for oil barrels
+            document.getElementById('startX').value = 255;      // Start at x=255
+            document.getElementById('startY').value = 20;       // Start at y=20 (bottom right starts at y=20)
+            document.getElementById('xSpacing').value = 20;     // 275 - 255 = 20px
+            document.getElementById('ySpacing').value = 20;     // Not needed for single row
+            document.getElementById('columns').value = 2;       // 2 oil barrels
+            document.getElementById('rows').value = 1;          // Just 1 row (oil barrels only)
+        }
+        
+        function setDonkeyKongSettings() {
+            // Single large Donkey Kong rolling barrel sprite (GIMP coordinates):
+            // y 38-6 x 103-143
+            document.getElementById('spriteWidth').value = 40;  // x 103-143 = 40px wide
+            document.getElementById('spriteHeight').value = 32; // y 38-6 = 32px tall
+            document.getElementById('startX').value = 103;      // Start at x=103
+            document.getElementById('startY').value = 6;        // Start at y=6 (top of sprite)
+            document.getElementById('xSpacing').value = 50;     // No other sprites, but set large spacing
+            document.getElementById('ySpacing').value = 50;     // No other sprites, but set large spacing
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDonkeyKongRow2Settings() {
+            // Second row - 5 Donkey Kong poses (all y 88-57 = 31px tall):
+            // 1. Rolling barrel left (x 1-44) = 43px wide
+            // 2. Chest beating left arm raised (x 50-93) = 43px wide  
+            // 3. Chest beating both arms down (x 103-143) = 40px wide
+            // 4. Chest beating right arm raised (x 150-196) = 46px wide
+            // 5. Rolling barrel right (x 201-244) = 43px wide
+            document.getElementById('spriteWidth').value = 46;  // Use widest sprite (right arm raised)
+            document.getElementById('spriteHeight').value = 31; // All are 31px tall (88-57)
+            document.getElementById('startX').value = 1;        // Start at x=1 (first sprite)
+            document.getElementById('startY').value = 57;       // Start at y=57
+            document.getElementById('xSpacing').value = 49;     // Approximate spacing (varies per sprite)
+            document.getElementById('ySpacing').value = 35;     // Single row, but set spacing
+            document.getElementById('columns').value = 5;       // 5 poses
+            document.getElementById('rows').value = 1;          // Single row
+        }
+        
+        function setHammerSettings() {
+            // Hammer: y 69-54 x 269-276 (7px wide, 15px tall)
+            document.getElementById('spriteWidth').value = 7;   // 276-269 = 7px wide
+            document.getElementById('spriteHeight').value = 15; // 69-54 = 15px tall
+            document.getElementById('startX').value = 269;      // x start
+            document.getElementById('startY').value = 54;       // y start
+            document.getElementById('xSpacing').value = 7;      // Single sprite
+            document.getElementById('ySpacing').value = 15;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setUmbrellaSettings() {
+            // Umbrella: y 89-74 x 255-271 (16px wide, 15px tall)
+            document.getElementById('spriteWidth').value = 16;  // 271-255 = 16px wide
+            document.getElementById('spriteHeight').value = 15; // 89-74 = 15px tall
+            document.getElementById('startX').value = 255;      // x start
+            document.getElementById('startY').value = 74;       // y start
+            document.getElementById('xSpacing').value = 16;     // Single sprite
+            document.getElementById('ySpacing').value = 15;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setJewelSettings() {
+            // Jewel: y 87-76 x 279-287 (8px wide, 11px tall)
+            document.getElementById('spriteWidth').value = 8;   // 287-279 = 8px wide
+            document.getElementById('spriteHeight').value = 11; // 87-76 = 11px tall
+            document.getElementById('startX').value = 279;      // x start
+            document.getElementById('startY').value = 76;       // y start
+            document.getElementById('xSpacing').value = 8;      // Single sprite
+            document.getElementById('ySpacing').value = 11;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDKDeath1Settings() {
+            // DK Death 1: y 136-107 x 0-46 (46px wide, 29px tall)
+            document.getElementById('spriteWidth').value = 46;  // 46-0 = 46px wide
+            document.getElementById('spriteHeight').value = 29; // 136-107 = 29px tall
+            document.getElementById('startX').value = 0;        // x start
+            document.getElementById('startY').value = 107;      // y start
+            document.getElementById('xSpacing').value = 46;     // Single sprite
+            document.getElementById('ySpacing').value = 29;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDKDeath2Settings() {
+            // DK Death 2: y 135-108 x 49-96 (47px wide, 27px tall)
+            document.getElementById('spriteWidth').value = 47;  // 96-49 = 47px wide
+            document.getElementById('spriteHeight').value = 27; // 135-108 = 27px tall
+            document.getElementById('startX').value = 49;       // x start
+            document.getElementById('startY').value = 108;      // y start
+            document.getElementById('xSpacing').value = 47;     // Single sprite
+            document.getElementById('ySpacing').value = 27;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDKDeath3Settings() {
+            // DK Death 3: y 138-106 x 103-143 (40px wide, 32px tall)
+            document.getElementById('spriteWidth').value = 40;  // 143-103 = 40px wide
+            document.getElementById('spriteHeight').value = 32; // 138-106 = 32px tall
+            document.getElementById('startX').value = 103;      // x start
+            document.getElementById('startY').value = 106;      // y start
+            document.getElementById('xSpacing').value = 40;     // Single sprite
+            document.getElementById('ySpacing').value = 32;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDKDeath4Settings() {
+            // DK Death 4: y 135-109 x 149-196 (47px wide, 26px tall)
+            document.getElementById('spriteWidth').value = 47;  // 196-149 = 47px wide
+            document.getElementById('spriteHeight').value = 26; // 135-109 = 26px tall
+            document.getElementById('startX').value = 149;      // x start
+            document.getElementById('startY').value = 109;      // y start
+            document.getElementById('xSpacing').value = 47;     // Single sprite
+            document.getElementById('ySpacing').value = 26;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setDKDeath5Settings() {
+            // DK Death 5: y 135-107 x 200-246 (46px wide, 28px tall)
+            document.getElementById('spriteWidth').value = 46;  // 246-200 = 46px wide
+            document.getElementById('spriteHeight').value = 28; // 135-107 = 28px tall
+            document.getElementById('startX').value = 200;      // x start
+            document.getElementById('startY').value = 107;      // y start
+            document.getElementById('xSpacing').value = 46;     // Single sprite
+            document.getElementById('ySpacing').value = 28;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setBubbleFloatLeftSettings() {
+            // Bubble Float Left: y 118-106 x 256-270 (14px wide, 12px tall)
+            document.getElementById('spriteWidth').value = 14;  // 270-256 = 14px wide
+            document.getElementById('spriteHeight').value = 12; // 118-106 = 12px tall
+            document.getElementById('startX').value = 256;      // x start
+            document.getElementById('startY').value = 106;      // y start
+            document.getElementById('xSpacing').value = 14;     // Single sprite
+            document.getElementById('ySpacing').value = 12;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setBubbleFloatRightSettings() {
+            // Bubble Float Right: y 116-108 x 278-288 (10px wide, 8px tall)
+            document.getElementById('spriteWidth').value = 10;  // 288-278 = 10px wide
+            document.getElementById('spriteHeight').value = 8;  // 116-108 = 8px tall
+            document.getElementById('startX').value = 278;      // x start
+            document.getElementById('startY').value = 108;      // y start
+            document.getElementById('xSpacing').value = 10;     // Single sprite
+            document.getElementById('ySpacing').value = 8;      // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setBubblePopLeftSettings() {
+            // Bubble Pop Left: y 133-130 x 261-264 (3px wide, 3px tall)
+            document.getElementById('spriteWidth').value = 3;   // 264-261 = 3px wide
+            document.getElementById('spriteHeight').value = 3;  // 133-130 = 3px tall
+            document.getElementById('startX').value = 261;      // x start
+            document.getElementById('startY').value = 130;      // y start
+            document.getElementById('xSpacing').value = 3;      // Single sprite
+            document.getElementById('ySpacing').value = 3;      // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setBubblePopRightSettings() {
+            // Bubble Pop Right: y 139-124 x 275-290 (15px wide, 15px tall)
+            document.getElementById('spriteWidth').value = 15;  // 290-275 = 15px wide
+            document.getElementById('spriteHeight').value = 15; // 139-124 = 15px tall
+            document.getElementById('startX').value = 275;      // x start
+            document.getElementById('startY').value = 124;      // y start
+            document.getElementById('xSpacing').value = 15;     // Single sprite
+            document.getElementById('ySpacing').value = 15;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setPaulineRunLeft1Settings() {
+            // Pauline Run Left 1: y 22-0 x 0-15 (15px wide, 22px tall)
+            document.getElementById('spriteWidth').value = 15;  // 15-0 = 15px wide
+            document.getElementById('spriteHeight').value = 22; // 22-0 = 22px tall
+            document.getElementById('startX').value = 0;        // x start
+            document.getElementById('startY').value = 0;        // y start
+            document.getElementById('xSpacing').value = 15;     // Single sprite
+            document.getElementById('ySpacing').value = 22;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setPaulineRunLeft2Settings() {
+            // Pauline Run Left 2: y 22-0 x 50-65 (15px wide, 22px tall)
+            document.getElementById('spriteWidth').value = 15;  // 65-50 = 15px wide
+            document.getElementById('spriteHeight').value = 22; // 22-0 = 22px tall
+            document.getElementById('startX').value = 50;       // x start
+            document.getElementById('startY').value = 0;        // y start
+            document.getElementById('xSpacing').value = 15;     // Single sprite
+            document.getElementById('ySpacing').value = 22;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setLoveHeartSettings() {
+            // Love Heart: y 16-5 x 101-114 (13px wide, 11px tall)
+            document.getElementById('spriteWidth').value = 13;  // 114-101 = 13px wide
+            document.getElementById('spriteHeight').value = 11; // 16-5 = 11px tall
+            document.getElementById('startX').value = 101;      // x start
+            document.getElementById('startY').value = 5;        // y start
+            document.getElementById('xSpacing').value = 13;     // Single sprite
+            document.getElementById('ySpacing').value = 11;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setPaulineRunRight1Settings() {
+            // Pauline Run Right 1: y 22-0 x 150-165 (15px wide, 22px tall)
+            document.getElementById('spriteWidth').value = 15;  // 165-150 = 15px wide
+            document.getElementById('spriteHeight').value = 22; // 22-0 = 22px tall
+            document.getElementById('startX').value = 150;      // x start
+            document.getElementById('startY').value = 0;        // y start
+            document.getElementById('xSpacing').value = 15;     // Single sprite
+            document.getElementById('ySpacing').value = 22;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        function setPaulineRunRight2Settings() {
+            // Pauline Run Right 2: y 22-0 x 200-215 (15px wide, 22px tall)
+            document.getElementById('spriteWidth').value = 15;  // 215-200 = 15px wide
+            document.getElementById('spriteHeight').value = 22; // 22-0 = 22px tall
+            document.getElementById('startX').value = 200;      // x start
+            document.getElementById('startY').value = 0;        // y start
+            document.getElementById('xSpacing').value = 15;     // Single sprite
+            document.getElementById('ySpacing').value = 22;     // Single sprite
+            document.getElementById('columns').value = 1;       // Single sprite
+            document.getElementById('rows').value = 1;          // Single sprite
+        }
+        
+        // Initialize
+        setupMouseTracking();
+        
+        // Set initial zoom
+        setTimeout(() => {
+            zoom('mario', 2);
+            zoom('enemies', 2);  
+            zoom('pauline', 2);
+        }, 100);
+        
+        // Tile System Variables
+        let tileCanvas = null;
+        let tileCtx = null;
+        let tileGrid = [];
+        let tileWidth = 16;
+        let tileHeight = 16;
+        let canvasWidth = 256;
+        let canvasHeight = 224;
+        let selectedTileType = 'empty';
+        
+        // HonkyPong Tile colors
+        const tileColors = {
+            empty: '#222',
+            platform: '#8B4513',      // Brown platforms
+            ladder: '#DAA520',        // Gold ladders
+            elevator: '#4169E1',      // Blue elevators
+            oilfire: '#FF4500',       // Red/orange oil fires
+            barrel_spawn: '#800080',  // Purple barrel spawn points
+            hammer: '#FFD700'         // Yellow hammer pickups
+        };
+        
+        function setupTileSystem() {
+            tileWidth = parseInt(document.getElementById('tileWidth').value);
+            tileHeight = parseInt(document.getElementById('tileHeight').value);
+            canvasWidth = parseInt(document.getElementById('canvasWidth').value);
+            canvasHeight = parseInt(document.getElementById('canvasHeight').value);
+            
+            tileCanvas = document.getElementById('tileCanvas');
+            tileCanvas.width = canvasWidth;
+            tileCanvas.height = canvasHeight;
+            tileCtx = tileCanvas.getContext('2d');
+            
+            const cols = Math.floor(canvasWidth / tileWidth);
+            const rows = Math.floor(canvasHeight / tileHeight);
+            
+            // Initialize empty grid
+            tileGrid = [];
+            for (let row = 0; row < rows; row++) {
+                tileGrid[row] = [];
+                for (let col = 0; col < cols; col++) {
+                    tileGrid[row][col] = 'empty';
+                }
+            }
+            
+            drawGrid();
+            setupTileCanvasEvents();
+            updateLevelData();
+            
+            console.log(`Tile system setup: ${cols}x${rows} tiles (${tileWidth}x${tileHeight}px each)`);
+        }
+        
+        function drawGrid() {
+            if (!tileCtx) return;
+            
+            tileCtx.fillStyle = '#222';
+            tileCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            const cols = Math.floor(canvasWidth / tileWidth);
+            const rows = Math.floor(canvasHeight / tileHeight);
+            
+            // Draw tiles
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const tileType = tileGrid[row] ? tileGrid[row][col] || 'empty' : 'empty';
+                    tileCtx.fillStyle = tileColors[tileType];
+                    tileCtx.fillRect(col * tileWidth, row * tileHeight, tileWidth, tileHeight);
+                }
+            }
+            
+            // Draw grid lines
+            tileCtx.strokeStyle = '#444';
+            tileCtx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let x = 0; x <= canvasWidth; x += tileWidth) {
+                tileCtx.beginPath();
+                tileCtx.moveTo(x, 0);
+                tileCtx.lineTo(x, canvasHeight);
+                tileCtx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y <= canvasHeight; y += tileHeight) {
+                tileCtx.beginPath();
+                tileCtx.moveTo(0, y);
+                tileCtx.lineTo(canvasWidth, y);
+                tileCtx.stroke();
+            }
+        }
+        
+        function setupTileCanvasEvents() {
+            tileCanvas.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const col = Math.floor(x / tileWidth);
+                const row = Math.floor(y / tileHeight);
+                
+                if (row < tileGrid.length && col < tileGrid[0].length) {
+                    tileGrid[row][col] = selectedTileType;
+                    drawGrid();
+                    updateLevelData();
+                }
+            });
+            
+            tileCanvas.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const col = Math.floor(x / tileWidth);
+                const row = Math.floor(y / tileHeight);
+                
+                document.getElementById('tileInfo').textContent = `Tile: ${col},${row} | Type: ${selectedTileType}`;
+            });
+        }
+        
+        function selectTileType(type) {
+            selectedTileType = type;
+            
+            // Update button states
+            document.querySelectorAll('.tile-type-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(type + '-btn').classList.add('active');
+        }
+        
+        function drawTestLevel() {
+            if (!tileGrid.length) {
+                setupTileSystem();
+            }
+            
+            const cols = Math.floor(canvasWidth / tileWidth);
+            const rows = Math.floor(canvasHeight / tileHeight);
+            
+            // Clear grid
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    tileGrid[row][col] = 'empty';
+                }
+            }
+            
+            // Add some platforms (similar to Donkey Kong layout)
+            const platformRows = [rows - 2, rows - 6, rows - 10];
+            platformRows.forEach(row => {
+                if (row >= 0) {
+                    for (let col = 0; col < cols; col++) {
+                        if (col < cols - 4 || col > cols - 2) { // Leave gaps for ladders
+                            tileGrid[row][col] = 'platform';
+                        }
+                    }
+                }
+            });
+            
+            // Add ladders
+            const ladderCols = [cols - 3, Math.floor(cols / 2), 2];
+            ladderCols.forEach(col => {
+                for (let row = rows - 10; row < rows - 2; row++) {
+                    if (row >= 0 && tileGrid[row][col] !== 'platform') {
+                        tileGrid[row][col] = 'ladder';
+                    }
+                }
+            });
+            
+            // Add some hazards
+            tileGrid[rows - 3][1] = 'hazard';
+            tileGrid[rows - 3][cols - 2] = 'hazard';
+            
+            drawGrid();
+            updateLevelData();
+        }
+        
+        function drawHonkyPongLevel() {
+            if (!tileGrid.length) {
+                setupTileSystem();
+            }
+            
+            const cols = Math.floor(canvasWidth / tileWidth);
+            const rows = Math.floor(canvasHeight / tileHeight);
+            
+            // Clear grid
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    tileGrid[row][col] = 'empty';
+                }
+            }
+            
+            // Create classic Donkey Kong level layout
+            
+            // Bottom platform (full width)
+            const bottomRow = rows - 2;
+            for (let col = 0; col < cols; col++) {
+                tileGrid[bottomRow][col] = 'platform';
+            }
+            
+            // Platform levels (with gaps for ladders)
+            const platformRows = [rows - 5, rows - 8, rows - 11];
+            platformRows.forEach((row, index) => {
+                if (row >= 0) {
+                    for (let col = 0; col < cols; col++) {
+                        // Create gaps for ladders and elevators
+                        const isLadderGap = (col === 2 || col === cols - 3 || col === Math.floor(cols / 2));
+                        if (!isLadderGap) {
+                            tileGrid[row][col] = 'platform';
+                        }
+                    }
+                }
+            });
+            
+            // Add ladders connecting platforms
+            const ladderCols = [2, Math.floor(cols / 2), cols - 3];
+            ladderCols.forEach(col => {
+                // Connect each platform level
+                for (let i = 0; i < platformRows.length; i++) {
+                    const startRow = i === 0 ? bottomRow - 1 : platformRows[i] - 1;
+                    const endRow = i === 0 ? platformRows[i] + 1 : (platformRows[i + 1] || 0) + 1;
+                    
+                    for (let row = endRow; row < startRow; row++) {
+                        if (row >= 0 && row < rows) {
+                            tileGrid[row][col] = 'ladder';
+                        }
+                    }
+                }
+            });
+            
+            // Add elevator (moving platform)
+            if (cols > 8) {
+                const elevatorCol = cols - 6;
+                for (let row = platformRows[0] + 1; row < bottomRow; row++) {
+                    if (row >= 0) {
+                        tileGrid[row][elevatorCol] = 'elevator';
+                    }
+                }
+            }
+            
+            // Add oil fires at bottom level
+            tileGrid[bottomRow + 1][1] = 'oilfire';
+            tileGrid[bottomRow + 1][cols - 2] = 'oilfire';
+            
+            // Add barrel spawn points (where DK throws barrels)
+            if (rows > 3) {
+                tileGrid[2][1] = 'barrel_spawn';  // Top left
+                tileGrid[2][cols - 2] = 'barrel_spawn';  // Top right
+            }
+            
+            // Add hammer pickups on middle platforms
+            if (platformRows[1] >= 0) {
+                tileGrid[platformRows[1] - 1][4] = 'hammer';
+                tileGrid[platformRows[1] - 1][cols - 5] = 'hammer';
+            }
+            
+            drawGrid();
+            updateLevelData();
+        }
+        
+        function updateLevelData() {
+            const data = {
+                width: Math.floor(canvasWidth / tileWidth),
+                height: Math.floor(canvasHeight / tileHeight),
+                tileWidth: tileWidth,
+                tileHeight: tileHeight,
+                tiles: tileGrid
+            };
+            
+            document.getElementById('levelData').value = JSON.stringify(data, null, 2);
+        }
+        
+        function exportLevelData() {
+            const data = document.getElementById('levelData').value;
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'honkypong-level.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function importLevelData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.tiles) {
+                                tileGrid = data.tiles;
+                                if (data.tileWidth) document.getElementById('tileWidth').value = data.tileWidth;
+                                if (data.tileHeight) document.getElementById('tileHeight').value = data.tileHeight;
+                                if (data.width && data.height) {
+                                    document.getElementById('canvasWidth').value = data.width * data.tileWidth;
+                                    document.getElementById('canvasHeight').value = data.height * data.tileHeight;
+                                }
+                                setupTileSystem();
+                            }
+                        } catch (err) {
+                            alert('Invalid JSON file: ' + err.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>

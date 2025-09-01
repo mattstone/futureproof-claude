@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HonkyPong Layout Test</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        canvas { border: 1px solid #000; background: #000; }
+        .info { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>HonkyPong Donkey Kong Level 1 Layout Test</h1>
+    <canvas id="testCanvas" width="900" height="700"></canvas>
+    <div class="info">
+        <p>This test renders the Donkey Kong Level 1 layout to verify the angled girders are correct.</p>
+        <p><strong>Expected:</strong> 3 angled girders sloping in alternating directions, proper ladders, classic DK colors</p>
+        <div id="status">Loading...</div>
+    </div>
+
+    <script>
+        // Simplified test version of the level rendering
+        const canvas = document.getElementById('testCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Test the exact same girder layout from our game
+        function testLevel() {
+            const canvasWidth = 900;
+            const canvasHeight = 700;
+            
+            // Clear canvas with black background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Ground platform
+            ctx.fillStyle = '#FF6B47';
+            ctx.fillRect(0, canvasHeight - 40, canvasWidth, 40);
+            
+            // Test our 3 angled girders with exact same coordinates
+            const girders = [
+                // Girder 1 (lowest angled girder)
+                {
+                    startX: 80,
+                    startY: canvasHeight - 180,
+                    endX: canvasWidth - 60,
+                    endY: canvasHeight - 180 - 60
+                },
+                // Girder 2 (middle angled girder)
+                {
+                    startX: canvasWidth - 80,
+                    startY: canvasHeight - 320,
+                    endX: 60,
+                    endY: canvasHeight - 320 - 60
+                },
+                // Girder 3 (highest angled girder)
+                {
+                    startX: 100,
+                    startY: canvasHeight - 460,
+                    endX: canvasWidth - 80,
+                    endY: canvasHeight - 460 - 50
+                }
+            ];
+            
+            // Render angled girders
+            ctx.strokeStyle = '#FF6B47';
+            ctx.lineWidth = 20;
+            
+            girders.forEach((girder, index) => {
+                ctx.beginPath();
+                ctx.moveTo(girder.startX, girder.startY);
+                ctx.lineTo(girder.endX, girder.endY);
+                ctx.stroke();
+                
+                // Add support beams
+                const numSupports = 8;
+                const stepX = (girder.endX - girder.startX) / numSupports;
+                const stepY = (girder.endY - girder.startY) / numSupports;
+                
+                ctx.strokeStyle = '#8B4513';
+                ctx.lineWidth = 3;
+                
+                for (let i = 1; i < numSupports; i++) {
+                    const supportX = girder.startX + (stepX * i);
+                    const supportY = girder.startY + (stepY * i);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(supportX, supportY - 15);
+                    ctx.lineTo(supportX, supportY + 15);
+                    ctx.stroke();
+                }
+                
+                ctx.strokeStyle = '#FF6B47';
+                ctx.lineWidth = 20;
+            });
+            
+            // Test ladders
+            const ladders = [
+                { x: 180, y: canvasHeight - 180 - 10, height: (canvasHeight - 40) - (canvasHeight - 180) + 10 },
+                { x: canvasWidth - 140, y: canvasHeight - 320 - 10, height: (canvasHeight - 180 - 60) - (canvasHeight - 320) + 10 },
+                { x: 140, y: canvasHeight - 460 - 10, height: (canvasHeight - 320 - 60) - (canvasHeight - 460) + 10 },
+                { x: canvasWidth - 120, y: canvasHeight - 600, height: (canvasHeight - 460 - 50) - (canvasHeight - 600) }
+            ];
+            
+            ctx.strokeStyle = '#DAA520';
+            ctx.lineWidth = 2;
+            
+            ladders.forEach(ladder => {
+                // Draw ladder sides
+                ctx.beginPath();
+                ctx.moveTo(ladder.x + 2, ladder.y);
+                ctx.lineTo(ladder.x + 2, ladder.y + ladder.height);
+                ctx.moveTo(ladder.x + 14, ladder.y);
+                ctx.lineTo(ladder.x + 14, ladder.y + ladder.height);
+                ctx.stroke();
+                
+                // Draw ladder rungs
+                for (let y = ladder.y + 8; y < ladder.y + ladder.height - 8; y += 12) {
+                    ctx.beginPath();
+                    ctx.moveTo(ladder.x + 2, y);
+                    ctx.lineTo(ladder.x + 14, y);
+                    ctx.stroke();
+                }
+            });
+            
+            // Top platform
+            ctx.fillStyle = '#FF6B47';
+            ctx.fillRect(canvasWidth - 200, canvasHeight - 600, 180, 20);
+            
+            document.getElementById('status').innerHTML = 
+                '<strong style="color: green;">✅ Layout Test Complete!</strong><br>' +
+                'Girders: 3 angled platforms rendered<br>' +
+                'Ladders: 4 connecting ladders rendered<br>' +
+                'Colors: Classic Donkey Kong red/orange girders with brown supports<br>' +
+                '<strong>Visual Check:</strong> Does this layout match the original Donkey Kong Level 1?';
+        }
+        
+        // Run the test
+        setTimeout(testLevel, 100);
+    </script>
+</body>
+</html>

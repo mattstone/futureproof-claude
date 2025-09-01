@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HonkyPong Browser Test</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        canvas {
+            border: 2px solid #555;
+            display: block;
+            margin: 20px auto;
+        }
+        .info {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .compatibility {
+            background: #222;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #888;
+        }
+        .compatible { border-left-color: #0f0; }
+        .warning { border-left-color: #ff0; }
+        .error { border-left-color: #f00; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        #status { 
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status-loading { background: #333; }
+        .status-ready { background: #1a5220; }
+        .status-error { background: #522020; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 HonkyPong Browser Compatibility Test</h1>
+        
+        <div id="status" class="status-loading">
+            <strong>Status:</strong> <span id="statusText">Loading...</span>
+        </div>
+        
+        <div class="info">
+            <h3>Browser Information</h3>
+            <div id="browserInfo">Detecting...</div>
+        </div>
+        
+        <div id="compatibility">
+            <h3>Feature Compatibility</h3>
+            <div id="featureList">Checking...</div>
+        </div>
+        
+        <canvas id="testCanvas" width="900" height="700"></canvas>
+        
+        <div>
+            <button id="startTest" disabled>Start Game Test</button>
+            <button id="audioTest">Test Audio</button>
+            <button id="performanceTest">Performance Test</button>
+        </div>
+        
+        <div id="testResults" class="info" style="display: none;">
+            <h3>Test Results</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        class HonkyPongBrowserTest {
+            constructor() {
+                this.canvas = document.getElementById('testCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.statusEl = document.getElementById('statusText');
+                this.startButton = document.getElementById('startTest');
+                
+                this.init();
+            }
+            
+            async init() {
+                this.updateStatus('Initializing browser test...', 'loading');
+                
+                // Check browser info
+                this.checkBrowserInfo();
+                
+                // Check feature compatibility
+                this.checkCompatibility();
+                
+                // Test basic canvas functionality
+                this.testCanvas();
+                
+                // Enable start button if basic features work
+                if (this.ctx) {
+                    this.startButton.disabled = false;
+                    this.updateStatus('Ready for testing', 'ready');
+                } else {
+                    this.updateStatus('Canvas not supported - cannot run game', 'error');
+                }
+                
+                this.setupEventListeners();
+            }
+            
+            updateStatus(text, type) {
+                this.statusEl.textContent = text;
+                const statusDiv = document.getElementById('status');
+                statusDiv.className = `status-${type}`;
+            }
+            
+            checkBrowserInfo() {
+                const info = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    onLine: navigator.onLine,
+                    screenResolution: `${screen.width}x${screen.height}`,
+                    windowSize: `${window.innerWidth}x${window.innerHeight}`
+                };
+                
+                let html = '';
+                for (const [key, value] of Object.entries(info)) {
+                    html += `<div><strong>${key}:</strong> ${value}</div>`;
+                }
+                
+                document.getElementById('browserInfo').innerHTML = html;
+            }
+            
+            checkCompatibility() {
+                const features = {
+                    'HTML5 Canvas': !!this.ctx,
+                    'Web Audio API': !!(window.AudioContext || window.webkitAudioContext),
+                    'Audio Element': !!window.Audio,
+                    'RequestAnimationFrame': !!window.requestAnimationFrame,
+                    'Performance API': !!(window.performance && window.performance.now),
+                    'Memory Info': !!(window.performance && window.performance.memory),
+                    'Local Storage': !!window.localStorage,
+                    'JSON Support': !!window.JSON,
+                    'ES6 Classes': this.checkES6Classes(),
+                    'Arrow Functions': this.checkArrowFunctions(),
+                    'Async/Await': this.checkAsyncAwait(),
+                    'Fetch API': !!window.fetch
+                };
+                
+                let html = '';
+                for (const [feature, supported] of Object.entries(features)) {
+                    const className = supported ? 'compatible' : 'error';
+                    const icon = supported ? '✅' : '❌';
+                    html += `<div class="compatibility ${className}">${icon} ${feature}</div>`;
+                }
+                
+                document.getElementById('featureList').innerHTML = html;
+            }
+            
+            checkES6Classes() {
+                try {
+                    eval('class TestClass {}');
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            checkArrowFunctions() {
+                try {
+                    eval('() => {}');
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            checkAsyncAwait() {
+                try {
+                    eval('async function test() { await Promise.resolve(); }');
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            testCanvas() {
+                if (!this.ctx) return;
+                
+                try {
+                    // Draw test pattern
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // Test gradients
+                    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
+                    gradient.addColorStop(0, '#FF0000');
+                    gradient.addColorStop(0.5, '#00FF00');
+                    gradient.addColorStop(1, '#0000FF');
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillRect(50, 50, 800, 100);
+                    
+                    // Test text rendering
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.font = '24px monospace';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('🎮 HONKYPONG CANVAS TEST', this.canvas.width/2, 250);
+                    
+                    // Test shapes
+                    this.ctx.fillStyle = '#00FFFF';
+                    this.ctx.beginPath();
+                    this.ctx.arc(200, 400, 50, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.fillStyle = '#FF00FF';
+                    this.ctx.fillRect(300, 350, 100, 100);
+                    
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(550, 350);
+                    this.ctx.lineTo(650, 350);
+                    this.ctx.lineTo(600, 450);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    
+                    // Test pixel manipulation
+                    const imageData = this.ctx.createImageData(100, 100);
+                    for (let i = 0; i < imageData.data.length; i += 4) {
+                        imageData.data[i] = Math.random() * 255;     // Red
+                        imageData.data[i + 1] = Math.random() * 255; // Green
+                        imageData.data[i + 2] = Math.random() * 255; // Blue
+                        imageData.data[i + 3] = 255;                 // Alpha
+                    }
+                    this.ctx.putImageData(imageData, 700, 350);
+                    
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.font = '16px monospace';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('Canvas rendering working! 🎨', this.canvas.width/2, 600);
+                    
+                } catch (error) {
+                    console.error('Canvas test failed:', error);
+                    this.ctx.fillStyle = '#FF0000';
+                    this.ctx.font = '20px monospace';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('Canvas test failed!', this.canvas.width/2, this.canvas.height/2);
+                }
+            }
+            
+            setupEventListeners() {
+                this.startButton.addEventListener('click', () => this.runGameTest());
+                document.getElementById('audioTest').addEventListener('click', () => this.testAudio());
+                document.getElementById('performanceTest').addEventListener('click', () => this.runPerformanceTest());
+            }
+            
+            runGameTest() {
+                this.updateStatus('Running game simulation...', 'loading');
+                this.showResults('Game test started - checking core functionality...');
+                
+                // Simulate game loop
+                let frame = 0;
+                const testAnimation = () => {
+                    frame++;
+                    
+                    // Clear and draw test game elements
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // Animated Mario-like character
+                    const x = 100 + Math.sin(frame * 0.1) * 300;
+                    const y = 500 + Math.sin(frame * 0.05) * 50;
+                    
+                    this.ctx.fillStyle = '#0000FF';
+                    this.ctx.fillRect(x, y, 24, 24);
+                    
+                    // Animated barrels
+                    for (let i = 0; i < 5; i++) {
+                        const bx = 800 - ((frame * 2 + i * 100) % 900);
+                        const by = 300 + i * 80;
+                        this.ctx.fillStyle = '#8B4513';
+                        this.ctx.fillRect(bx, by, 16, 16);
+                    }
+                    
+                    // Platforms
+                    this.ctx.fillStyle = '#8B4513';
+                    this.ctx.fillRect(0, 550, this.canvas.width, 20);
+                    this.ctx.fillRect(0, 450, this.canvas.width * 0.8, 20);
+                    this.ctx.fillRect(this.canvas.width * 0.2, 350, this.canvas.width * 0.8, 20);
+                    
+                    // Status text
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.font = '16px monospace';
+                    this.ctx.textAlign = 'left';
+                    this.ctx.fillText(`Frame: ${frame}`, 10, 30);
+                    this.ctx.fillText(`FPS Test: ${Math.round(60)} (simulated)`, 10, 50);
+                    
+                    if (frame < 300) {
+                        requestAnimationFrame(testAnimation);
+                    } else {
+                        this.updateStatus('Game test completed successfully!', 'ready');
+                        this.showResults('✅ Game simulation completed - 300 frames rendered without errors');
+                    }
+                };
+                
+                testAnimation();
+            }
+            
+            testAudio() {
+                try {
+                    // Create a simple beep sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    
+                    this.showResults('✅ Audio test: Web Audio API beep played successfully');
+                    
+                } catch (error) {
+                    this.showResults('❌ Audio test failed: ' + error.message);
+                }
+            }
+            
+            runPerformanceTest() {
+                this.updateStatus('Running performance test...', 'loading');
+                
+                const startTime = performance.now();
+                let operations = 0;
+                
+                // CPU intensive test
+                const performanceTest = () => {
+                    for (let i = 0; i < 10000; i++) {
+                        Math.random() * Math.sin(i) * Math.cos(i);
+                        operations++;
+                    }
+                    
+                    // Canvas stress test
+                    for (let i = 0; i < 1000; i++) {
+                        this.ctx.fillStyle = `hsl(${Math.random() * 360}, 50%, 50%)`;
+                        this.ctx.fillRect(
+                            Math.random() * this.canvas.width,
+                            Math.random() * this.canvas.height,
+                            10, 10
+                        );
+                    }
+                    
+                    if (performance.now() - startTime < 2000) {
+                        requestAnimationFrame(performanceTest);
+                    } else {
+                        const endTime = performance.now();
+                        const duration = endTime - startTime;
+                        const fps = Math.round((operations / 10000) / (duration / 1000));
+                        
+                        this.updateStatus('Performance test completed', 'ready');
+                        this.showResults(`✅ Performance: ${operations.toLocaleString()} operations in ${Math.round(duration)}ms (${fps} ops/sec)`);
+                        
+                        // Memory info if available
+                        if (window.performance && window.performance.memory) {
+                            const memory = Math.round(window.performance.memory.usedJSHeapSize / 1048576);
+                            this.showResults(`📊 Memory usage: ${memory}MB`);
+                        }
+                    }
+                };
+                
+                performanceTest();
+            }
+            
+            showResults(text) {
+                const resultsEl = document.getElementById('results');
+                const testResultsEl = document.getElementById('testResults');
+                
+                resultsEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${text}</div>`;
+                testResultsEl.style.display = 'block';
+            }
+        }
+        
+        // Initialize test when page loads
+        window.addEventListener('load', () => {
+            new HonkyPongBrowserTest();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Donkey Kong Level Coordinate Extractor</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: 'Courier New', monospace; 
+            background: #111; 
+            color: #0f0; 
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .controls { 
+            background: #222; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .mode-button {
+            background: #333;
+            color: #fff;
+            border: 2px solid #555;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        .mode-button.active {
+            background: #0f0;
+            color: #000;
+            border-color: #0f0;
+        }
+        .work-area {
+            display: grid;
+            grid-template-columns: auto 400px;
+            gap: 20px;
+        }
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #0f0;
+        }
+        #levelCanvas {
+            background: #000;
+            cursor: crosshair;
+        }
+        .output {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            height: 600px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        button:hover { background: #0a0; }
+        button.danger {
+            background: #f00;
+            color: #fff;
+        }
+        button.danger:hover { background: #a00; }
+        select {
+            background: #222;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+        .coordinates { color: #ff0; margin: 5px 0; }
+        .element-list {
+            background: #001100;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .help {
+            background: #003300;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Manual Donkey Kong Level Coordinate Extractor</h1>
+        <p>Click-based extraction for pixel-perfect level recreation</p>
+
+        <div class="controls">
+            <input type="file" id="imageInput" accept="image/*" style="color: #0f0;">
+            <select id="levelSelect">
+                <option value="0">Level 1 (25M) - Top Left</option>
+                <option value="1">Level 2 (50M) - Top Second</option>
+                <option value="2">Level 3 - Top Third</option>
+                <option value="3">Level 4 - Top Right</option>
+            </select>
+            <button onclick="loadLevel()">📋 Load Selected Level</button>
+            
+            <div class="mode-buttons">
+                <div class="mode-button active" onclick="setMode('platform')" id="platformMode">🏗️ Platform</div>
+                <div class="mode-button" onclick="setMode('ladder')" id="ladderMode">🪜 Ladder</div>
+                <div class="mode-button" onclick="setMode('character')" id="characterMode">👤 Character</div>
+            </div>
+            
+            <button onclick="clearAll()" class="danger">🗑️ Clear All</button>
+            <button onclick="generateCode()">💻 Generate Code</button>
+        </div>
+
+        <div class="work-area">
+            <div class="canvas-container">
+                <canvas id="levelCanvas" width="400" height="300"></canvas>
+            </div>
+            
+            <div class="output">
+                <div class="help">
+                    <strong>📋 Instructions:</strong><br>
+                    1. Load levels.png and select a level<br>
+                    2. Choose mode (Platform/Ladder/Character)<br>
+                    3. <strong>Platform Mode:</strong> Click start point, then end point<br>
+                    4. <strong>Ladder Mode:</strong> Click top, then bottom<br>
+                    5. <strong>Character Mode:</strong> Click position<br>
+                    6. Generate code when done<br><br>
+                    <strong>Current Mode: <span id="currentMode">Platform</span></strong>
+                </div>
+                
+                <div id="results">
+                    <div class="element-list">
+                        <h4>🏗️ Platforms: <span id="platformCount">0</span></h4>
+                        <div id="platformList"></div>
+                    </div>
+                    <div class="element-list">
+                        <h4>🪜 Ladders: <span id="ladderCount">0</span></h4>
+                        <div id="ladderList"></div>
+                    </div>
+                    <div class="element-list">
+                        <h4>👤 Characters: <span id="characterCount">0</span></h4>
+                        <div id="characterList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sourceImage = null;
+        let canvas = document.getElementById('levelCanvas');
+        let ctx = canvas.getContext('2d');
+        let currentMode = 'platform';
+        let pendingPlatform = null;
+        let pendingLadder = null;
+        
+        let levelData = {
+            platforms: [],
+            ladders: [],
+            characters: []
+        };
+
+        // Load image
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        sourceImage = img;
+                        loadLevel();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function loadLevel() {
+            if (!sourceImage) {
+                alert('Please load the levels.png image first');
+                return;
+            }
+
+            const levelIndex = parseInt(document.getElementById('levelSelect').value);
+            
+            // Calculate level boundaries (4 columns × 3 rows)
+            const levelWidth = sourceImage.width / 4;
+            const levelHeight = sourceImage.height / 3;
+            const col = levelIndex % 4;
+            const row = Math.floor(levelIndex / 4);
+            
+            const startX = col * levelWidth;
+            const startY = row * levelHeight;
+            
+            // Set canvas size and draw level
+            canvas.width = levelWidth;
+            canvas.height = levelHeight;
+            
+            ctx.drawImage(sourceImage, startX, startY, levelWidth, levelHeight, 0, 0, levelWidth, levelHeight);
+            
+            // Clear existing data
+            clearAll();
+            
+            console.log(`Loaded level ${levelIndex + 1}: ${levelWidth}x${levelHeight}`);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('currentMode').textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+            
+            // Reset pending operations
+            pendingPlatform = null;
+            pendingLadder = null;
+            
+            // Update button states
+            document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + 'Mode').classList.add('active');
+            
+            redrawCanvas();
+        }
+
+        function clearAll() {
+            levelData = {
+                platforms: [],
+                ladders: [],
+                characters: []
+            };
+            pendingPlatform = null;
+            pendingLadder = null;
+            updateDisplay();
+            redrawCanvas();
+        }
+
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+            
+            if (currentMode === 'platform') {
+                if (pendingPlatform === null) {
+                    // First click - start point
+                    pendingPlatform = { startX: x, startY: y };
+                    console.log(`Platform start: (${x}, ${y})`);
+                } else {
+                    // Second click - end point
+                    pendingPlatform.endX = x;
+                    pendingPlatform.endY = y;
+                    pendingPlatform.width = Math.abs(x - pendingPlatform.startX);
+                    
+                    levelData.platforms.push(pendingPlatform);
+                    console.log(`Platform complete: (${pendingPlatform.startX}, ${pendingPlatform.startY}) to (${x}, ${y})`);
+                    pendingPlatform = null;
+                }
+            } else if (currentMode === 'ladder') {
+                if (pendingLadder === null) {
+                    // First click - top point
+                    pendingLadder = { x: x, topY: y };
+                    console.log(`Ladder top: (${x}, ${y})`);
+                } else {
+                    // Second click - bottom point
+                    pendingLadder.bottomY = y;
+                    pendingLadder.height = Math.abs(y - pendingLadder.topY);
+                    
+                    levelData.ladders.push(pendingLadder);
+                    console.log(`Ladder complete: x=${x}, top=${pendingLadder.topY}, bottom=${y}, height=${pendingLadder.height}`);
+                    pendingLadder = null;
+                }
+            } else if (currentMode === 'character') {
+                levelData.characters.push({ x: x, y: y });
+                console.log(`Character placed: (${x}, ${y})`);
+            }
+            
+            updateDisplay();
+            redrawCanvas();
+        });
+
+        function redrawCanvas() {
+            // Redraw the original level image
+            if (sourceImage) {
+                const levelIndex = parseInt(document.getElementById('levelSelect').value);
+                const levelWidth = sourceImage.width / 4;
+                const levelHeight = sourceImage.height / 3;
+                const col = levelIndex % 4;
+                const row = Math.floor(levelIndex / 4);
+                const startX = col * levelWidth;
+                const startY = row * levelHeight;
+                
+                ctx.drawImage(sourceImage, startX, startY, levelWidth, levelHeight, 0, 0, levelWidth, levelHeight);
+            }
+            
+            // Draw completed platforms
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            levelData.platforms.forEach((platform, i) => {
+                ctx.beginPath();
+                ctx.moveTo(platform.startX, platform.startY);
+                ctx.lineTo(platform.endX, platform.endY);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ffff00';
+                ctx.font = '10px monospace';
+                ctx.fillText(`P${i+1}`, platform.startX, platform.startY - 5);
+            });
+            
+            // Draw completed ladders
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            levelData.ladders.forEach((ladder, i) => {
+                ctx.beginPath();
+                ctx.moveTo(ladder.x, ladder.topY);
+                ctx.lineTo(ladder.x, ladder.bottomY);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '10px monospace';
+                ctx.fillText(`L${i+1}`, ladder.x + 5, ladder.topY + 10);
+            });
+            
+            // Draw characters
+            ctx.fillStyle = '#ff00ff';
+            levelData.characters.forEach((char, i) => {
+                ctx.fillRect(char.x - 3, char.y - 3, 6, 6);
+                ctx.font = '10px monospace';
+                ctx.fillText(`C${i+1}`, char.x + 5, char.y);
+            });
+            
+            // Draw pending elements
+            if (pendingPlatform) {
+                ctx.strokeStyle = '#ff6666';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(pendingPlatform.startX, pendingPlatform.startY, 3, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            if (pendingLadder) {
+                ctx.strokeStyle = '#66ff66';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(pendingLadder.x, pendingLadder.topY, 3, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('platformCount').textContent = levelData.platforms.length;
+            document.getElementById('ladderCount').textContent = levelData.ladders.length;
+            document.getElementById('characterCount').textContent = levelData.characters.length;
+            
+            // Update platform list
+            let platformHtml = '';
+            levelData.platforms.forEach((platform, i) => {
+                platformHtml += `<div class="coordinates">P${i+1}: (${platform.startX},${platform.startY}) → (${platform.endX},${platform.endY}) [${platform.width}px]</div>`;
+            });
+            document.getElementById('platformList').innerHTML = platformHtml;
+            
+            // Update ladder list
+            let ladderHtml = '';
+            levelData.ladders.forEach((ladder, i) => {
+                ladderHtml += `<div class="coordinates">L${i+1}: x=${ladder.x}, y=${ladder.topY}→${ladder.bottomY} [${ladder.height}px]</div>`;
+            });
+            document.getElementById('ladderList').innerHTML = ladderHtml;
+            
+            // Update character list
+            let characterHtml = '';
+            levelData.characters.forEach((char, i) => {
+                characterHtml += `<div class="coordinates">C${i+1}: (${char.x},${char.y})</div>`;
+            });
+            document.getElementById('characterList').innerHTML = characterHtml;
+        }
+
+        function generateCode() {
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            
+            let code = `// Level coordinates extracted manually\n`;
+            code += `// Source level: ${canvasWidth}x${canvasHeight}\n`;
+            code += `// Scale to 900x700 game canvas\n\n`;
+            
+            // Generate girder code
+            code += `this.girders = [\n`;
+            levelData.platforms.forEach((platform, i) => {
+                const scaledStartX = Math.round(platform.startX * 900 / canvasWidth);
+                const scaledEndX = Math.round(platform.endX * 900 / canvasWidth);
+                const scaledStartY = Math.round(platform.startY * 700 / canvasHeight);
+                const scaledEndY = Math.round(platform.endY * 700 / canvasHeight);
+                
+                code += `  { startX: ${scaledStartX}, startY: ${scaledStartY}, endX: ${scaledEndX}, endY: ${scaledEndY}, color: '#FF6B47',\n`;
+                code += `    segments: this.createGirderSegments(${scaledStartX}, ${scaledStartY}, ${scaledEndX}, ${scaledEndY}) }`;
+                code += i < levelData.platforms.length - 1 ? ',\n' : '\n';
+            });
+            code += `];\n\n`;
+            
+            // Generate ladder code
+            code += `this.ladders = [\n`;
+            levelData.ladders.forEach((ladder, i) => {
+                const scaledX = Math.round(ladder.x * 900 / canvasWidth);
+                const scaledY = Math.round(ladder.topY * 700 / canvasHeight);
+                const scaledHeight = Math.round(ladder.height * 700 / canvasHeight);
+                
+                code += `  { x: ${scaledX}, y: ${scaledY}, width: 16, height: ${scaledHeight} }`;
+                code += i < levelData.ladders.length - 1 ? ',\n' : '\n';
+            });
+            code += `];\n\n`;
+            
+            // Generate character positions
+            if (levelData.characters.length > 0) {
+                code += `// Character positions\n`;
+                levelData.characters.forEach((char, i) => {
+                    const scaledX = Math.round(char.x * 900 / canvasWidth);
+                    const scaledY = Math.round(char.y * 700 / canvasHeight);
+                    code += `// Character ${i+1}: x=${scaledX}, y=${scaledY}\n`;
+                });
+            }
+            
+            // Display generated code
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <div style="background: #002200; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                    <h3>💻 Generated JavaScript Code:</h3>
+                    <pre style="color: #0f0; font-size: 10px; white-space: pre-wrap;">${code}</pre>
+                </div>
+                <button onclick="copyToClipboard(\`${code.replace(/`/g, '\\`')}\`)">📋 Copy to Clipboard</button>
+            `;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

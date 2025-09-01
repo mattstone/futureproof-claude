@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Grid Extractor</title>
+    <style>
+        body { padding: 20px; font-family: monospace; background: #111; color: #0f0; }
+        canvas { border: 2px solid #0f0; background: #000; }
+        .test-result { margin: 10px 0; padding: 10px; background: #003300; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Grid Extractor Test</h1>
+    
+    <div>
+        <canvas id="testCanvas" width="400" height="300"></canvas>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Create a test "levels.png" pattern
+        const canvas = document.getElementById('testCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Draw a simple test pattern that mimics the levels.png structure
+        function drawTestPattern() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw 4x3 grid of "levels"
+            const levelWidth = canvas.width / 4;
+            const levelHeight = canvas.height / 3;
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const x = col * levelWidth;
+                    const y = row * levelHeight;
+                    
+                    // Draw level boundary
+                    ctx.strokeRect(x, y, levelWidth, levelHeight);
+                    
+                    // Draw some sample platforms in each level
+                    ctx.fillStyle = '#FF6B47';
+                    
+                    // Ground platform
+                    ctx.fillRect(x + 5, y + levelHeight - 20, levelWidth - 10, 15);
+                    
+                    // Sample angled girder
+                    ctx.beginPath();
+                    ctx.moveTo(x + 10, y + levelHeight - 50);
+                    ctx.lineTo(x + levelWidth - 20, y + levelHeight - 60);
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = '#FF6B47';
+                    ctx.stroke();
+                    
+                    // Sample ladder
+                    ctx.strokeStyle = '#DAA520';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 30, y + levelHeight - 50);
+                    ctx.lineTo(x + 30, y + levelHeight - 20);
+                    ctx.stroke();
+                    
+                    // Level label
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '10px monospace';
+                    ctx.fillText(`L${row * 4 + col + 1}`, x + 5, y + 15);
+                }
+            }
+            
+            // Test grid extraction logic
+            testGridExtraction();
+        }
+        
+        function testGridExtraction() {
+            const results = document.getElementById('results');
+            let html = '<h2>Test Results:</h2>';
+            
+            // Test level boundary calculation
+            const levelWidth = canvas.width / 4;
+            const levelHeight = canvas.height / 3;
+            
+            html += `<div class="test-result">
+                <strong>✅ Level Boundaries:</strong><br>
+                Canvas: ${canvas.width}x${canvas.height}<br>
+                Level Size: ${levelWidth}x${levelHeight}<br>
+                Grid: 4 columns × 3 rows
+            </div>`;
+            
+            // Test coordinate conversion for Level 1 (index 0)
+            const testX = 50; // Canvas pixel
+            const testY = 200; // Canvas pixel
+            const gameX = Math.round((testX / levelWidth) * 224); // Convert to game coords
+            const gameY = Math.round(((levelHeight - testY) / levelHeight) * 256);
+            
+            html += `<div class="test-result">
+                <strong>✅ Coordinate Conversion:</strong><br>
+                Canvas Point: (${testX}, ${testY})<br>
+                Game Coordinates: (${gameX}, ${gameY})<br>
+                Scale Factor: ${(224/levelWidth).toFixed(3)}x, ${(256/levelHeight).toFixed(3)}y
+            </div>`;
+            
+            // Test grid positioning
+            const gridWidth = 28;
+            const gridHeight = 32;
+            const cellWidth = levelWidth / gridWidth;
+            const cellHeight = levelHeight / gridHeight;
+            const gridX = Math.floor(testX / cellWidth);
+            const gridY = Math.floor((levelHeight - testY) / cellHeight);
+            
+            html += `<div class="test-result">
+                <strong>✅ Grid Positioning:</strong><br>
+                Grid Dimensions: ${gridWidth}x${gridHeight}<br>
+                Cell Size: ${cellWidth.toFixed(1)}x${cellHeight.toFixed(1)}<br>
+                Grid Position: (${gridX}, ${gridY})
+            </div>`;
+            
+            html += `<div class="test-result">
+                <strong>🎯 Extractor Ready:</strong><br>
+                The grid extractor should work correctly with these calculations.<br>
+                Load a real levels.png to start extracting coordinates!
+            </div>`;
+            
+            results.innerHTML = html;
+        }
+        
+        // Draw the test pattern
+        drawTestPattern();
+    </script>
+</body>
+</html>

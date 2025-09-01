@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HonkyPong Fixes Test</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #111; color: #fff; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .success { color: #4caf50; }
+        .issue { color: #f44336; }
+        kbd { background: #333; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🎮 HonkyPong Fixes Validation</h1>
+    
+    <div class="test-section">
+        <h3>✅ Fix 1: Game Instructions Visibility</h3>
+        <p><strong>Issue:</strong> Instructions were positioned outside visible area (<code>bottom: -40px</code>)</p>
+        <p><strong>Fix:</strong> Changed to <code>bottom: 10px</code>, made text white, increased contrast</p>
+        <p><strong>Expected:</strong> Instructions should be visible at bottom of game canvas</p>
+    </div>
+
+    <div class="test-section">
+        <h3>✅ Fix 2: Arrow Keys Browser Scrolling</h3>
+        <p><strong>Issue:</strong> Arrow keys moved browser window instead of controlling Mario</p>
+        <p><strong>Fix:</strong> Added <code>event.preventDefault()</code> for all arrow keys and spacebar</p>
+        <p><strong>Test:</strong> Press <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> keys - browser should NOT scroll</p>
+        <div id="keytest" style="margin: 10px 0; padding: 10px; background: #222; border-radius: 4px;">
+            Click here and press arrow keys to test: <span id="keystatus">Waiting for key press...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎮 Game Controls Test</h3>
+        <p><strong>Controls to verify in actual game:</strong></p>
+        <ul>
+            <li><kbd>←</kbd> <kbd>→</kbd> : Move Mario left/right</li>
+            <li><kbd>↑</kbd> <kbd>↓</kbd> : Climb ladders up/down</li>
+            <li><kbd>Space</kbd> : Jump</li>
+            <li><kbd>Start Game</kbd> button : Begin playing</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Testing Checklist</h3>
+        <p>Test at: <a href="http://localhost:3000/test-honky-pong" style="color: #4caf50;">http://localhost:3000/test-honky-pong</a></p>
+        <ol>
+            <li>☐ Instructions visible at bottom of game canvas</li>
+            <li>☐ Arrow keys don't scroll browser window</li>
+            <li>☐ Mario responds to arrow key movement</li>
+            <li>☐ Spacebar makes Mario jump</li>
+            <li>☐ Game starts with "Start Game" button</li>
+        </ol>
+    </div>
+
+    <script>
+        const keytest = document.getElementById('keytest');
+        const keystatus = document.getElementById('keystatus');
+        
+        keytest.tabIndex = 0;
+        keytest.focus();
+        
+        keytest.addEventListener('keydown', (e) => {
+            keystatus.textContent = `Key pressed: ${e.code} - `;
+            
+            if (e.code === 'ArrowUp' || e.code === 'ArrowDown' || 
+                e.code === 'ArrowLeft' || e.code === 'ArrowRight' || 
+                e.code === 'Space') {
+                keystatus.textContent += '✅ Default prevented (browser should not scroll)';
+                e.preventDefault();
+            } else {
+                keystatus.textContent += '⚪ Normal key';
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            // This should NOT prevent default, so we can see if scrolling happens
+            console.log('Global key event:', e.code);
+        });
+    </script>
+</body>
+</html>

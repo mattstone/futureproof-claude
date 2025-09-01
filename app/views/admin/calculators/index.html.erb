@@ -79,7 +79,7 @@
               <h4 class="section-title border-bottom pb-2 mb-3">Economic Assumptions</h4>
               <div class="mb-3">
               <label class="form-label">Equity return %</label>
-              <%= f.number_field "calculator[equity_return]", class: "form-control", value: 10.8, min: 5, max: 15, step: 0.01, placeholder: "10.80" %>
+              <%= f.number_field "calculator[equity_return]", class: "form-control", value: 9.75, min: 5, max: 15, step: 0.01, placeholder: "9.75" %>
               </div>
               <div class="mb-3">
               <label class="form-label">Volatility %</label>
@@ -95,7 +95,7 @@
               </div>
               <div class="mb-3">
               <label class="form-label">Cash rate %</label>
-              <%= f.number_field "calculator[cash_rate]", class: "form-control", value: 3.85, min: 0, max: 10, step: 0.01, placeholder: "3.85" %>
+              <%= f.number_field "calculator[cash_rate]", class: "form-control", value: 4.0, min: 0, max: 10, step: 0.01, placeholder: "4.00" %>
               </div>
             <div class="mb-3" data-monte-carlo-calculator-target="insurerProfitMargin">
               <label class="form-label">Insurer profit margin %</label>
@@ -133,15 +133,15 @@
               </div>
               <div class="mb-3">
               <label class="form-label">Holiday enter fraction %</label>
-              <%= f.number_field "calculator[holiday_enter_fraction]", class: "form-control", value: 0.9, min: 0, max: 4, step: 0.01 %>
+              <%= f.number_field "calculator[holiday_enter_fraction]", class: "form-control", value: 1.35, min: 0, max: 4, step: 0.01 %>
               </div>
               <div class="mb-3">
               <label class="form-label">Holiday exit fraction %</label>
-              <%= f.number_field "calculator[holiday_exit_fraction]", class: "form-control", value: 1.458, min: 0, max: 4, step: 0.001 %>
+              <%= f.number_field "calculator[holiday_exit_fraction]", class: "form-control", value: 1.95, min: 0, max: 4, step: 0.01 %>
               </div>
               <div class="mb-3">
               <label class="form-label">Subperform threshold quarters</label>
-              <%= f.number_field "calculator[subperform_loan_threshold_quarters]", class: "form-control", value: 12, min: 0, max: 40, step: 1 %>
+              <%= f.number_field "calculator[subperform_loan_threshold_quarters]", class: "form-control", value: 6, min: 0, max: 40, step: 1 %>
               </div>
               <div class="mb-3">
               <label class="form-label">Deficit Repay Amount factor</label>
@@ -179,7 +179,7 @@
           <div class="loading-overlay" style="display: none;" data-monte-carlo-calculator-target="loadingOverlay">
             <div class="loading-content">
               <div class="elegant-spinner"></div>
-              <p class="mt-3"><span style="font-size: 1.5em;">🏎️</span>  Monte Carlo simulation <span style="font-size: 1.5em;">🏎️</span></p>
+              <p class="mt-3"><span style="font-size: 1.5em;">🎲</span> Monte Carlo simulation <span style="font-size: 1.5em;">🏁</span></p>
             </div>
           </div>
         </div>
@@ -240,6 +240,42 @@
               <p>Frequency distribution of final outcomes</p>
             </div>
             <div data-monte-carlo-calculator-target="distributionChart" class="chart-canvas chart-canvas-small"></div>
+          </div>
+          
+          <!-- S&P 500 Prices Chart -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4>S&P 500 Price Simulations</h4>
+              <p>Simulated S&P 500 price paths with mean</p>
+            </div>
+            <div data-monte-carlo-calculator-target="sp500Chart" class="chart-canvas"></div>
+          </div>
+          
+          <!-- Loan and Interest Deficit Chart -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4>Reinvestment Account, Loan & Interest Deficit</h4>
+              <p>Mean path analysis of key financial components</p>
+            </div>
+            <div data-monte-carlo-calculator-target="loanDeficitChart" class="chart-canvas"></div>
+          </div>
+          
+          <!-- Units Analysis Chart -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4>Hedged, Insured & Pooled Units</h4>
+              <p>Mean path unit allocation analysis</p>
+            </div>
+            <div data-monte-carlo-calculator-target="unitsChart" class="chart-canvas"></div>
+          </div>
+          
+          <!-- Cumulative Values Chart -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4>Cumulative Financial Flows</h4>
+              <p>Annuity income, interest accrued/paid, loan, surplus, S&P units</p>
+            </div>
+            <div data-monte-carlo-calculator-target="cumulativeChart" class="chart-canvas"></div>
           </div>
         </div>
       </div>

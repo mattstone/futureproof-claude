@@ -5,6 +5,7 @@ export default class extends Controller {
     "form", "submitBtn", "spinner", "results", "loadingOverlay",
     "insurerProfitMargin", "hedgingCost", "hedgingMaxLoss", "hedgingCap",
     "mainOutputTable", "pathTable", "portfolioChart", "distributionChart",
+    "sp500Chart", "loanDeficitChart", "unitsChart", "cumulativeChart",
     "expectedValue", "worstCase", "medianValue", "bestCase",
     "varValue", "lossProb", "volatilityMetric", "sharpeRatio"
   ]
@@ -206,9 +207,9 @@ export default class extends Controller {
       const keyMapping = {
         'Mean': 'mean',
         'Median': 'median', 
-        '2% percentile': '2_percentile',
-        '25% percentile': '25_percentile',
-        '75% percentile': '75_percentile'
+        '2% percentile': 'percentile_2',
+        '25% percentile': 'percentile_25',
+        '75% percentile': 'percentile_75'
       }
       
       const dataKey = keyMapping[type] || 'mean'
@@ -291,6 +292,30 @@ export default class extends Controller {
       this.createDistributionChart(data)
     } catch (error) {
       console.error('Error creating distribution chart:', error)
+    }
+    
+    try {
+      this.createSP500Chart(data)
+    } catch (error) {
+      console.error('Error creating S&P 500 chart:', error)
+    }
+    
+    try {
+      this.createLoanDeficitChart(data)
+    } catch (error) {
+      console.error('Error creating loan deficit chart:', error)
+    }
+    
+    try {
+      this.createUnitsChart(data)
+    } catch (error) {
+      console.error('Error creating units chart:', error)
+    }
+    
+    try {
+      this.createCumulativeChart(data)
+    } catch (error) {
+      console.error('Error creating cumulative chart:', error)
     }
   }
 
@@ -434,14 +459,7 @@ export default class extends Controller {
       .text("Time Period")
     
     g.append("g")
-      .call(d3.axisLeft(yScale).tickFormat(d => 
-        new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          notation: 'compact',
-          maximumFractionDigits: 0
-        }).format(d)
-      ))
+      .call(d3.axisLeft(yScale).tickFormat(d => d3.format("$,.0f")(d)))
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", -60)
@@ -693,14 +711,7 @@ export default class extends Controller {
       .text("Time Period")
     
     g.append("g")
-      .call(d3.axisLeft(yScale).tickFormat(d => 
-        new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          notation: 'compact',
-          maximumFractionDigits: 0
-        }).format(d)
-      ))
+      .call(d3.axisLeft(yScale).tickFormat(d => d3.format("$,.0f")(d)))
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", -60)
@@ -789,6 +800,10 @@ export default class extends Controller {
       return
     }
     
+    // Get volatility from form input (it's a parameter, not a calculated result)
+    const volatilityInput = this.formTarget.querySelector('input[name="calculator[volatility]"]')
+    const inputVolatility = volatilityInput ? parseFloat(volatilityInput.value) : null
+    
     // Calculate or extract risk metrics
     let var5 = null
     let lossProb = null
@@ -812,10 +827,13 @@ export default class extends Controller {
       }
     })
     
-    // Use input volatility as fallback
-    if (!volatility && data.input_params) {
-      volatility = this.formatPercentage(data.input_params.volatility / 100 || 0.15)
+    // Use input volatility (it's an input parameter, not calculated)
+    if (inputVolatility !== null) {
+      volatility = this.formatPercentage(inputVolatility / 100)
       console.log('Using input volatility:', volatility)
+    } else if (!volatility && data.parameters && data.parameters.volatility) {
+      volatility = this.formatPercentage(data.parameters.volatility)
+      console.log('Using parameter volatility:', volatility)
     } else if (!volatility) {
       volatility = '15.00%' // Default from form
     }
@@ -924,5 +942,488 @@ export default class extends Controller {
   formatPercentage(value) {
     if (value === null || value === undefined || isNaN(value)) return '--'
     return `${parseFloat(value).toFixed(2)}%`
+  }
+
+  createSP500Chart(data) {
+    console.log('Creating S&P 500 chart...')
+    if (!this.hasSp500ChartTarget || !data.chart_data || !data.chart_data.all_sp500_paths) {
+      console.log('No S&P 500 chart target or data found')
+      return
+    }
+
+    const container = this.sp500ChartTarget
+    container.innerHTML = ''
+
+    const margin = { top: 40, right: 50, bottom: 80, left: 80 }
+    const containerRect = container.getBoundingClientRect()
+    const containerWidth = Math.max(containerRect.width, 1200)
+    const width = containerWidth - margin.left - margin.right
+    const height = 500 - margin.top - margin.bottom
+
+    const svg = d3.select(container)
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`)
+
+    const allPaths = data.chart_data.all_sp500_paths || []
+    const meanPath = data.chart_data.mean_sp500_path || []
+
+    if (allPaths.length === 0 && meanPath.length === 0) {
+      console.log('No S&P 500 path data available')
+      return
+    }
+
+    // Create scales
+    const maxLength = Math.max(...allPaths.map(p => p.length), meanPath.length)
+    const xScale = d3.scaleLinear().domain([0, maxLength - 1]).range([0, width])
+    
+    const allValues = allPaths.flat().concat(meanPath)
+    const yExtent = d3.extent(allValues)
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0])
+
+    // Add axes
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+      .call(d3.axisLeft(yScale))
+
+    // Draw sample paths (lightly)
+    const line = d3.line()
+      .x((d, i) => xScale(i))
+      .y(d => yScale(d))
+
+    // Draw a sample of paths to avoid overwhelming the chart
+    const sampleSize = Math.min(100, allPaths.length)
+    const pathIndices = Array.from({length: sampleSize}, (_, i) => Math.floor(i * allPaths.length / sampleSize))
+    
+    pathIndices.forEach(i => {
+      if (i < allPaths.length && allPaths[i]) {
+        svg.append("path")
+          .datum(allPaths[i])
+          .attr("fill", "none")
+          .attr("stroke", "#e0e0e0")
+          .attr("stroke-width", 0.5)
+          .attr("opacity", 0.3)
+          .attr("d", line)
+      }
+    })
+
+    // Draw mean path (prominently)
+    if (meanPath.length > 0) {
+      svg.append("path")
+        .datum(meanPath)
+        .attr("fill", "none")
+        .attr("stroke", "#ff6b35")
+        .attr("stroke-width", 3)
+        .attr("d", line)
+
+      // Add legend
+      svg.append("text")
+        .attr("x", width - 100)
+        .attr("y", 30)
+        .attr("fill", "#ff6b35")
+        .attr("font-weight", "bold")
+        .attr("font-size", "12px")
+        .text("Mean path")
+    }
+
+    // Add title and labels
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -5)
+      .attr("text-anchor", "middle")
+      .attr("font-weight", "bold")
+      .text("S&P 500 Price Simulations")
+
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Price ($)")
+  }
+
+  createLoanDeficitChart(data) {
+    console.log('Creating loan deficit chart...')
+    if (!this.hasLoanDeficitChartTarget || !data.chart_data) {
+      console.log('No loan deficit chart target or data found')
+      return
+    }
+
+    const container = this.loanDeficitChartTarget
+    container.innerHTML = ''
+
+    const margin = { top: 40, right: 50, bottom: 80, left: 80 }
+    const containerRect = container.getBoundingClientRect()
+    const containerWidth = Math.max(containerRect.width, 1200)
+    const width = containerWidth - margin.left - margin.right
+    const height = 500 - margin.top - margin.bottom
+
+    const svg = d3.select(container)
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`)
+
+    const meanReinvestment = data.chart_data.mean_reinvestment_path || []
+    const meanLoan = data.chart_data.mean_loan_path || []
+    const meanInterestDeficit = data.chart_data.mean_interest_deficit_path || []
+
+    if (meanReinvestment.length === 0) {
+      console.log('No mean path data available')
+      return
+    }
+
+    const maxLength = Math.max(meanReinvestment.length, meanLoan.length, meanInterestDeficit.length)
+    const xScale = d3.scaleLinear().domain([0, maxLength - 1]).range([0, width])
+    
+    const allValues = meanReinvestment.concat(meanLoan).concat(meanInterestDeficit)
+    const yExtent = d3.extent(allValues)
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0])
+
+    // Add axes
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+      .call(d3.axisLeft(yScale).tickFormat(d => d3.format("$,.0f")(d)))
+
+    const line = d3.line()
+      .x((d, i) => xScale(i))
+      .y(d => yScale(d))
+
+    // Draw reinvestment account
+    if (meanReinvestment.length > 0) {
+      svg.append("path")
+        .datum(meanReinvestment)
+        .attr("fill", "none")
+        .attr("stroke", "#2563eb")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+    }
+
+    // Draw loan
+    if (meanLoan.length > 0) {
+      svg.append("path")
+        .datum(meanLoan)
+        .attr("fill", "none")
+        .attr("stroke", "#dc2626")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+    }
+
+    // Draw interest deficit
+    if (meanInterestDeficit.length > 0) {
+      svg.append("path")
+        .datum(meanInterestDeficit)
+        .attr("fill", "none")
+        .attr("stroke", "#f59e0b")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+    }
+
+    // Add legend
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width - 150}, 20)`)
+
+    legend.append("line")
+      .attr("x1", 0).attr("x2", 20)
+      .attr("y1", 0).attr("y2", 0)
+      .attr("stroke", "#2563eb").attr("stroke-width", 2)
+    legend.append("text")
+      .attr("x", 25).attr("y", 0)
+      .attr("dy", "0.35em")
+      .attr("font-size", "12px")
+      .text("Reinvestment Account")
+
+    legend.append("line")
+      .attr("x1", 0).attr("x2", 20)
+      .attr("y1", 15).attr("y2", 15)
+      .attr("stroke", "#dc2626").attr("stroke-width", 2)
+    legend.append("text")
+      .attr("x", 25).attr("y", 15)
+      .attr("dy", "0.35em")
+      .attr("font-size", "12px")
+      .text("Loan")
+
+    legend.append("line")
+      .attr("x1", 0).attr("x2", 20)
+      .attr("y1", 30).attr("y2", 30)
+      .attr("stroke", "#f59e0b").attr("stroke-width", 2)
+    legend.append("text")
+      .attr("x", 25).attr("y", 30)
+      .attr("dy", "0.35em")
+      .attr("font-size", "12px")
+      .text("Interest Deficit")
+
+    // Add labels
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Value ($)")
+  }
+
+  createUnitsChart(data) {
+    console.log('Creating units chart...')
+    if (!this.hasUnitsChartTarget || !data.chart_data) {
+      console.log('No units chart target or data found')
+      return
+    }
+
+    const container = this.unitsChartTarget
+    container.innerHTML = ''
+
+    const margin = { top: 40, right: 50, bottom: 80, left: 80 }
+    const containerRect = container.getBoundingClientRect()
+    const containerWidth = Math.max(containerRect.width, 1200)
+    const width = containerWidth - margin.left - margin.right
+    const height = 500 - margin.top - margin.bottom
+
+    const svg = d3.select(container)
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`)
+
+    const meanUnits = data.chart_data.mean_units_path || []
+    const meanPooledUnits = data.chart_data.mean_pooled_units_path || []
+    const meanHedgedUnits = data.chart_data.mean_hedged_units_path || []
+
+    // For insured units, we'll use a static value if available from parameters
+    const insuredUnits = data.parameters?.insured_units || 0
+
+    if (meanUnits.length === 0) {
+      console.log('No units data available')
+      return
+    }
+
+    const maxLength = Math.max(meanUnits.length, meanPooledUnits.length, meanHedgedUnits.length)
+    const xScale = d3.scaleLinear().domain([0, maxLength - 1]).range([0, width])
+    
+    const allValues = meanUnits.concat(meanPooledUnits).concat(meanHedgedUnits)
+    const yExtent = d3.extent(allValues.concat([insuredUnits]))
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0])
+
+    // Add axes
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+      .call(d3.axisLeft(yScale))
+
+    const line = d3.line()
+      .x((d, i) => xScale(i))
+      .y(d => yScale(d))
+
+    // Draw hedged units (cumulative)
+    if (meanHedgedUnits.length > 0) {
+      svg.append("path")
+        .datum(meanHedgedUnits)
+        .attr("fill", "none")
+        .attr("stroke", "#16a34a")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+    }
+
+    // Draw insured units (flat line if static)
+    if (insuredUnits > 0) {
+      svg.append("line")
+        .attr("x1", 0)
+        .attr("x2", width)
+        .attr("y1", yScale(insuredUnits))
+        .attr("y2", yScale(insuredUnits))
+        .attr("stroke", "#dc2626")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "5,5")
+    }
+
+    // Draw pooled units
+    if (meanPooledUnits.length > 0) {
+      svg.append("path")
+        .datum(meanPooledUnits)
+        .attr("fill", "none")
+        .attr("stroke", "#f59e0b")
+        .attr("stroke-width", 2)
+        .attr("d", line)
+    }
+
+    // Add legend
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width - 150}, 20)`)
+
+    let legendY = 0
+    
+    if (meanHedgedUnits.length > 0) {
+      legend.append("line")
+        .attr("x1", 0).attr("x2", 20)
+        .attr("y1", legendY).attr("y2", legendY)
+        .attr("stroke", "#16a34a").attr("stroke-width", 2)
+      legend.append("text")
+        .attr("x", 25).attr("y", legendY)
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .text("Hedged Units")
+      legendY += 15
+    }
+
+    if (insuredUnits > 0) {
+      legend.append("line")
+        .attr("x1", 0).attr("x2", 20)
+        .attr("y1", legendY).attr("y2", legendY)
+        .attr("stroke", "#dc2626").attr("stroke-width", 2)
+        .attr("stroke-dasharray", "5,5")
+      legend.append("text")
+        .attr("x", 25).attr("y", legendY)
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .text("Insured Units")
+      legendY += 15
+    }
+
+    if (meanPooledUnits.length > 0) {
+      legend.append("line")
+        .attr("x1", 0).attr("x2", 20)
+        .attr("y1", legendY).attr("y2", legendY)
+        .attr("stroke", "#f59e0b").attr("stroke-width", 2)
+      legend.append("text")
+        .attr("x", 25).attr("y", legendY)
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .text("Pooled Units")
+    }
+
+    // Add labels
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Units")
+  }
+
+  createCumulativeChart(data) {
+    console.log('Creating cumulative chart...')
+    if (!this.hasCumulativeChartTarget || !data.chart_data) {
+      console.log('No cumulative chart target or data found')
+      return
+    }
+
+    const container = this.cumulativeChartTarget
+    container.innerHTML = ''
+
+    const margin = { top: 40, right: 50, bottom: 80, left: 80 }
+    const containerRect = container.getBoundingClientRect()
+    const containerWidth = Math.max(containerRect.width, 1200)
+    const width = containerWidth - margin.left - margin.right
+    const height = 500 - margin.top - margin.bottom
+
+    const svg = d3.select(container)
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`)
+
+    const meanCumulativeAnnuity = data.chart_data.mean_cumulative_annuity_path || []
+    const meanCumulativeInterestPaid = data.chart_data.mean_cumulative_interest_paid_path || []
+    const meanLoan = data.chart_data.mean_loan_path || []
+    const meanSurplus = data.chart_data.mean_surplus_path || []
+    const meanUnits = data.chart_data.mean_units_path || []
+
+    if (meanCumulativeAnnuity.length === 0 && meanCumulativeInterestPaid.length === 0) {
+      console.log('No cumulative data available')
+      return
+    }
+
+    const maxLength = Math.max(
+      meanCumulativeAnnuity.length,
+      meanCumulativeInterestPaid.length,
+      meanLoan.length,
+      meanSurplus.length,
+      meanUnits.length
+    )
+    const xScale = d3.scaleLinear().domain([0, maxLength - 1]).range([0, width])
+    
+    const allValues = meanCumulativeAnnuity
+      .concat(meanCumulativeInterestPaid)
+      .concat(meanLoan)
+      .concat(meanSurplus)
+      .concat(meanUnits)
+    const yExtent = d3.extent(allValues)
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0])
+
+    // Add axes
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+      .call(d3.axisLeft(yScale).tickFormat(d => d3.format("$,.0f")(d)))
+
+    const line = d3.line()
+      .x((d, i) => xScale(i))
+      .y(d => yScale(d))
+
+    // Define colors for each series
+    const series = [
+      { data: meanCumulativeAnnuity, color: "#2563eb", label: "Cumulative Annuity Income" },
+      { data: meanCumulativeInterestPaid, color: "#dc2626", label: "Cumulative Interest Paid" },
+      { data: meanLoan, color: "#f59e0b", label: "Loan" },
+      { data: meanSurplus, color: "#16a34a", label: "Surplus" },
+      { data: meanUnits, color: "#8b5cf6", label: "S&P Units" }
+    ]
+
+    // Draw each series
+    series.forEach(s => {
+      if (s.data.length > 0) {
+        svg.append("path")
+          .datum(s.data)
+          .attr("fill", "none")
+          .attr("stroke", s.color)
+          .attr("stroke-width", 2)
+          .attr("d", line)
+      }
+    })
+
+    // Add legend
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width - 180}, 20)`)
+
+    series.forEach((s, i) => {
+      if (s.data.length > 0) {
+        const legendY = i * 15
+        legend.append("line")
+          .attr("x1", 0).attr("x2", 20)
+          .attr("y1", legendY).attr("y2", legendY)
+          .attr("stroke", s.color).attr("stroke-width", 2)
+        legend.append("text")
+          .attr("x", 25).attr("y", legendY)
+          .attr("dy", "0.35em")
+          .attr("font-size", "11px")
+          .text(s.label)
+      }
+    })
+
+    // Add labels
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Value ($)")
   }
 }

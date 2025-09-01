@@ -44,8 +44,8 @@ export class HackmanGame {
       isMoving: false
     };
     
-    // Jeans (ghosts) state  
-    this.jeans = [
+    // Genes (ghosts) state  
+    this.genes = [
       { name: 'Levi', x: 14, y: 11, direction: 0, mode: 'chase', color: '#FF0000', targetX: 0, targetY: 0, inPen: false, releaseTimer: 0 },
       { name: 'Wrangler', x: 14, y: 14, direction: 0, mode: 'chase', color: '#FFB8FF', targetX: 27, targetY: 0, inPen: true, releaseTimer: 60 },
       { name: 'Lee', x: 14, y: 14, direction: 0, mode: 'chase', color: '#00FFFF', targetX: 0, targetY: 30, inPen: true, releaseTimer: 120 },
@@ -221,13 +221,13 @@ export class HackmanGame {
     this.hackman.mouthAnimation = 0;
     
     // Reset ghosts - start all ghosts outside for now to test
-    for (let i = 0; i < this.jeans.length; i++) {
-      this.jeans[i].x = 14;
-      this.jeans[i].y = 11;
-      this.jeans[i].direction = 0;
-      this.jeans[i].inPen = false;
-      this.jeans[i].releaseTimer = 0;
-      this.jeans[i].mode = i === 3 ? 'scatter' : 'chase'; // Diesel starts in scatter
+    for (let i = 0; i < this.genes.length; i++) {
+      this.genes[i].x = 14;
+      this.genes[i].y = 11;
+      this.genes[i].direction = 0;
+      this.genes[i].inPen = false;
+      this.genes[i].releaseTimer = 0;
+      this.genes[i].mode = i === 3 ? 'scatter' : 'chase'; // Diesel starts in scatter
     }
     
     // Reset game state
@@ -258,7 +258,7 @@ export class HackmanGame {
     this.renderMaze();
     this.renderItems();
     this.renderHackman();
-    this.renderJeans();
+    this.renderGenes();
     this.renderParticles();
     this.renderScorePopups();
     this.renderGameStateOverlays();
@@ -395,18 +395,18 @@ export class HackmanGame {
     }
   }
   
-  renderJeans() {
-    for (let jean of this.jeans) {
+  renderGenes() {
+    for (let gene of this.genes) {
       // Debug: Show Levi's status
-      if (jean.name === 'Levi' && this.frameCounter % 60 === 0) {
-        console.log(`Levi status: x=${jean.x}, y=${jean.y}, inPen=${jean.inPen}, releaseTimer=${jean.releaseTimer}`);
+      if (gene.name === 'Levi' && this.frameCounter % 60 === 0) {
+        console.log(`Levi status: x=${gene.x}, y=${gene.y}, inPen=${gene.inPen}, releaseTimer=${gene.releaseTimer}`);
       }
       // Render all ghosts, whether in pen or not
       
-      const px = jean.x * this.TILE_SIZE + this.TILE_SIZE / 2;
-      const py = jean.y * this.TILE_SIZE + this.TILE_SIZE / 2;
+      const px = gene.x * this.TILE_SIZE + this.TILE_SIZE / 2;
+      const py = gene.y * this.TILE_SIZE + this.TILE_SIZE / 2;
       
-      let color = jean.color;
+      let color = gene.color;
       if (this.frightenedMode) {
         if (this.frightenedTimer <= 120) {
           // Flash faster as time runs out
@@ -498,7 +498,7 @@ export class HackmanGame {
       // Subtitle
       this.ctx.fillStyle = '#FFD700';
       this.ctx.font = 'bold 18px monospace';
-      this.ctx.fillText('Eat the Bitcoin, Avoid the Jeans!', this.canvas.width / 2, this.canvas.height / 2 - 20);
+      this.ctx.fillText('Eat the Bitcoin, Avoid the Genes!', this.canvas.width / 2, this.canvas.height / 2 - 20);
       
       // Instructions
       this.ctx.fillStyle = '#FFFFFF';
@@ -570,8 +570,8 @@ export class HackmanGame {
     // Move Hackman
     this.moveHackman();
     
-    // Move Jeans
-    this.moveJeans();
+    // Move Genes
+    this.moveGenes();
     
     // Check collisions
     this.checkCollisions();
@@ -592,10 +592,10 @@ export class HackmanGame {
         this.ghostEatenMultiplier = 200;
         
         // Reset ghost modes
-        for (let jean of this.jeans) {
-          if (!jean.inPen) {
-            jean.mode = this.modePhase;
-            console.log(`Reset ${jean.name} to ${this.modePhase} mode`);
+        for (let gene of this.genes) {
+          if (!gene.inPen) {
+            gene.mode = this.modePhase;
+            console.log(`Reset ${gene.name} to ${this.modePhase} mode`);
           }
         }
       }
@@ -610,9 +610,9 @@ export class HackmanGame {
       this.modePhase = this.modePhase === 'chase' ? 'scatter' : 'chase';
       
       // Update ghost modes
-      for (let jean of this.jeans) {
+      for (let gene of this.genes) {
         if (!this.frightenedMode) {
-          jean.mode = this.modePhase;
+          gene.mode = this.modePhase;
         }
       }
     }
@@ -657,94 +657,94 @@ export class HackmanGame {
     }
   }
   
-  moveJeans() {
+  moveGenes() {
     // Slow down ghosts for level 1 - only move every other frame
     if (this.frameCounter % 2 !== 0) return;
     
-    for (let jean of this.jeans) {
+    for (let gene of this.genes) {
       // Handle release timer
-      if (jean.inPen && jean.releaseTimer > 0) {
-        jean.releaseTimer--;
+      if (gene.inPen && gene.releaseTimer > 0) {
+        gene.releaseTimer--;
         continue;
       }
       
-      if (jean.inPen && jean.releaseTimer <= 0) {
-        jean.inPen = false;
-        jean.x = 14; // Center exit
-        jean.y = 11; // Exit pen to maze area
+      if (gene.inPen && gene.releaseTimer <= 0) {
+        gene.inPen = false;
+        gene.x = 14; // Center exit
+        gene.y = 11; // Exit pen to maze area
       }
       
       // Determine target based on mode
-      this.setGhostTarget(jean);
+      this.setGhostTarget(gene);
       
       // Move towards target (simplified AI)
-      if (jean.name === 'Levi' && this.frameCounter % 120 === 0) {
-        console.log(`Levi trying to move: target=(${jean.targetX},${jean.targetY})`);
+      if (gene.name === 'Levi' && this.frameCounter % 120 === 0) {
+        console.log(`Levi trying to move: target=(${gene.targetX},${gene.targetY})`);
       }
-      this.moveGhostTowardsTarget(jean);
+      this.moveGhostTowardsTarget(gene);
       
       // Handle tunnel wrapping
-      if (jean.x < 0) jean.x = this.MAZE_WIDTH - 1;
-      if (jean.x >= this.MAZE_WIDTH) jean.x = 0;
+      if (gene.x < 0) gene.x = this.MAZE_WIDTH - 1;
+      if (gene.x >= this.MAZE_WIDTH) gene.x = 0;
     }
   }
   
-  setGhostTarget(jean) {
+  setGhostTarget(gene) {
     if (this.frightenedMode) {
       // Random movement when frightened
-      jean.targetX = Math.floor(Math.random() * this.MAZE_WIDTH);
-      jean.targetY = Math.floor(Math.random() * this.MAZE_HEIGHT);
+      gene.targetX = Math.floor(Math.random() * this.MAZE_WIDTH);
+      gene.targetY = Math.floor(Math.random() * this.MAZE_HEIGHT);
       return;
     }
     
-    switch (jean.name) {
+    switch (gene.name) {
       case 'Levi':
         // Direct pursuit
-        jean.targetX = this.hackman.x;
-        jean.targetY = this.hackman.y;
+        gene.targetX = this.hackman.x;
+        gene.targetY = this.hackman.y;
         break;
       case 'Wrangler':
         // 4 tiles ahead of Hackman
         const [dx, dy] = this.getDirectionVector(this.hackman.direction);
-        jean.targetX = this.hackman.x + dx * 4;
-        jean.targetY = this.hackman.y + dy * 4;
+        gene.targetX = this.hackman.x + dx * 4;
+        gene.targetY = this.hackman.y + dy * 4;
         break;
       case 'Lee':
         // Opposite vector relative to Levi
-        const levi = this.jeans[0];
+        const levi = this.genes[0];
         const vectorX = this.hackman.x - levi.x;
         const vectorY = this.hackman.y - levi.y;
-        jean.targetX = this.hackman.x + vectorX;
-        jean.targetY = this.hackman.y + vectorY;
+        gene.targetX = this.hackman.x + vectorX;
+        gene.targetY = this.hackman.y + vectorY;
         break;
       case 'Diesel':
         // Random behavior with occasional direct chase
-        if (Math.abs(jean.x - this.hackman.x) + Math.abs(jean.y - this.hackman.y) < 8) {
-          jean.targetX = this.hackman.x;
-          jean.targetY = this.hackman.y;
+        if (Math.abs(gene.x - this.hackman.x) + Math.abs(gene.y - this.hackman.y) < 8) {
+          gene.targetX = this.hackman.x;
+          gene.targetY = this.hackman.y;
         } else {
-          jean.targetX = jean.targetX || Math.floor(Math.random() * this.MAZE_WIDTH);
-          jean.targetY = jean.targetY || Math.floor(Math.random() * this.MAZE_HEIGHT);
+          gene.targetX = gene.targetX || Math.floor(Math.random() * this.MAZE_WIDTH);
+          gene.targetY = gene.targetY || Math.floor(Math.random() * this.MAZE_HEIGHT);
         }
         break;
     }
     
     // In scatter mode, go to corners
-    if (jean.mode === 'scatter') {
-      jean.targetX = jean.name === 'Levi' ? 0 : jean.name === 'Wrangler' ? 27 : jean.name === 'Lee' ? 0 : 27;
-      jean.targetY = jean.name === 'Levi' ? 0 : jean.name === 'Wrangler' ? 0 : jean.name === 'Lee' ? 30 : 30;
+    if (gene.mode === 'scatter') {
+      gene.targetX = gene.name === 'Levi' ? 0 : gene.name === 'Wrangler' ? 27 : gene.name === 'Lee' ? 0 : 27;
+      gene.targetY = gene.name === 'Levi' ? 0 : gene.name === 'Wrangler' ? 0 : gene.name === 'Lee' ? 30 : 30;
     }
   }
   
-  moveGhostTowardsTarget(jean) {
+  moveGhostTowardsTarget(gene) {
     const possibleMoves = [];
     
     for (let dir = 0; dir < 4; dir++) {
-      if (this.canMove(jean.x, jean.y, dir)) {
+      if (this.canMove(gene.x, gene.y, dir)) {
         const [dx, dy] = this.getDirectionVector(dir);
-        const newX = jean.x + dx;
-        const newY = jean.y + dy;
-        const distance = Math.abs(newX - jean.targetX) + Math.abs(newY - jean.targetY);
+        const newX = gene.x + dx;
+        const newY = gene.y + dy;
+        const distance = Math.abs(newX - gene.targetX) + Math.abs(newY - gene.targetY);
         possibleMoves.push({ direction: dir, distance: distance });
       }
     }
@@ -752,11 +752,11 @@ export class HackmanGame {
     if (possibleMoves.length > 0) {
       // Sort by distance and pick best move
       possibleMoves.sort((a, b) => a.distance - b.distance);
-      jean.direction = possibleMoves[0].direction;
+      gene.direction = possibleMoves[0].direction;
       
-      const [dx, dy] = this.getDirectionVector(jean.direction);
-      jean.x += dx;
-      jean.y += dy;
+      const [dx, dy] = this.getDirectionVector(gene.direction);
+      gene.x += dx;
+      gene.y += dy;
     }
   }
   
@@ -808,43 +808,43 @@ export class HackmanGame {
       console.log(`Frightened mode set: ${this.frightenedMode}, Timer: ${this.frightenedTimer}`);
       
       // Set all ghosts to frightened
-      for (let jean of this.jeans) {
-        jean.mode = 'frightened';
-        console.log(`Set ${jean.name} to frightened mode (was in pen: ${jean.inPen})`);
+      for (let gene of this.genes) {
+        gene.mode = 'frightened';
+        console.log(`Set ${gene.name} to frightened mode (was in pen: ${gene.inPen})`);
       }
       
       this.updateUI();
     }
     
     // Check ghost collisions
-    for (let jean of this.jeans) {
-      if (jean.inPen) continue;
+    for (let gene of this.genes) {
+      if (gene.inPen) continue;
       
-      if (jean.x === this.hackman.x && jean.y === this.hackman.y) {
-        console.log(`Collision with ${jean.name}! Frightened mode: ${this.frightenedMode}, Ghost mode: ${jean.mode}`);
+      if (gene.x === this.hackman.x && gene.y === this.hackman.y) {
+        console.log(`Collision with ${gene.name}! Frightened mode: ${this.frightenedMode}, Ghost mode: ${gene.mode}`);
         if (this.frightenedMode) {
           // Eat ghost
-          console.log(`Eating ghost ${jean.name}!`);
+          console.log(`Eating ghost ${gene.name}!`);
           const points = this.ghostEatenMultiplier;
           this.score += points;
           this.ghostEatenMultiplier *= 2;
           this.sounds.eatGhost();
-          this.createParticles(jean.x * this.TILE_SIZE + 10, jean.y * this.TILE_SIZE + 10, 25, jean.color);
+          this.createParticles(gene.x * this.TILE_SIZE + 10, gene.y * this.TILE_SIZE + 10, 25, gene.color);
           
           // Show score popup
-          this.showScorePopup(jean.x, jean.y, points);
+          this.showScorePopup(gene.x, gene.y, points);
           
           // Return ghost to pen
-          jean.x = 14;
-          jean.y = 14;
-          jean.inPen = true;
-          jean.releaseTimer = 300; // 5 second delay
-          jean.mode = 'chase';
+          gene.x = 14;
+          gene.y = 14;
+          gene.inPen = true;
+          gene.releaseTimer = 300; // 5 second delay
+          gene.mode = 'chase';
           
           this.updateUI();
         } else {
           // Ghost caught Hackman
-          console.log(`Ghost ${jean.name} caught Hackman!`);
+          console.log(`Ghost ${gene.name} caught Hackman!`);
           this.playerDeath();
           return;
         }

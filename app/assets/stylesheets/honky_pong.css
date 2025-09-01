@@ -56,18 +56,19 @@
 
 .game-instructions {
   position: absolute;
-  bottom: -40px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  color: #888;
+  color: #fff;
   font-size: 0.9rem;
   font-family: 'Courier New', monospace;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 0, 0, 0.9); /* DEBUG: RED BACKGROUND TO PROVE CSS IS LOADING */
   padding: 8px 16px;
   border-radius: 20px;
   white-space: nowrap;
-  border: 1px solid #333;
+  border: 3px solid #00ff00; /* DEBUG: GREEN BORDER TO PROVE CSS IS LOADING */
+  z-index: 100;
 }
 
 .game-controls {

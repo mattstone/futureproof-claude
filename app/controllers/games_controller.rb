@@ -3,7 +3,7 @@ class GamesController < ApplicationController
   layout 'games'
   
   def honky_pong
-    # Simple controller action to render the Honky Pong game
+    # Enhanced HonkyPong game with precise sprite system
   end
   
   def honky_pong_simple
@@ -16,6 +16,10 @@ class GamesController < ApplicationController
   
   def simple_honky_pong
     # Brand new simple Donkey Kong game built from scratch
+  end
+  
+  def sprite_test
+    # Sprite extraction test page for HonkyPong development
   end
   
   def lace_invaders

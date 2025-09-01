@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Path Debug</title>
+    <style>
+        body { background: #222; color: white; font-family: monospace; padding: 20px; }
+        .test { margin: 20px 0; padding: 10px; border: 1px solid #666; }
+        img { image-rendering: pixelated; border: 1px solid #999; margin: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🎮 Sprite Path Debug Test</h1>
+    
+    <div class="test">
+        <h3>Testing different asset paths:</h3>
+        
+        <div>
+            <strong>Path 1: /assets/arcade/honkypong/sprites/mario.png</strong><br>
+            <img src="/assets/arcade/honkypong/sprites/mario.png" alt="Mario" onload="reportSuccess(this)" onerror="reportError(this)">
+        </div>
+        
+        <div>
+            <strong>Path 2: /app/assets/images/arcade/honkypong/sprites/mario.png</strong><br>
+            <img src="/app/assets/images/arcade/honkypong/sprites/mario.png" alt="Mario" onload="reportSuccess(this)" onerror="reportError(this)">
+        </div>
+        
+        <div>
+            <strong>Path 3: ./app/assets/images/arcade/honkypong/sprites/mario.png</strong><br>
+            <img src="./app/assets/images/arcade/honkypong/sprites/mario.png" alt="Mario" onload="reportSuccess(this)" onerror="reportError(this)">
+        </div>
+        
+        <div>
+            <strong>Path 4: ../app/assets/images/arcade/honkypong/sprites/mario.png</strong><br>
+            <img src="../app/assets/images/arcade/honkypong/sprites/mario.png" alt="Mario" onload="reportSuccess(this)" onerror="reportError(this)">
+        </div>
+    </div>
+    
+    <div class="test">
+        <h3>Testing enemies.png:</h3>
+        <img src="/assets/arcade/honkypong/sprites/enemies.png" alt="Enemies" onload="reportSuccess(this)" onerror="reportError(this)">
+    </div>
+    
+    <div class="test">
+        <h3>Testing pauline.png:</h3>
+        <img src="/assets/arcade/honkypong/sprites/pauline.png" alt="Pauline" onload="reportSuccess(this)" onerror="reportError(this)">
+    </div>
+    
+    <div id="results">
+        <h3>Results:</h3>
+    </div>
+
+    <script>
+        function reportSuccess(img) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.innerHTML = `✅ SUCCESS: ${img.src} - Size: ${img.naturalWidth}x${img.naturalHeight}`;
+            results.appendChild(div);
+        }
+        
+        function reportError(img) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.innerHTML = `❌ ERROR: ${img.src} failed to load`;
+            results.appendChild(div);
+        }
+        
+        // Also test programmatic loading
+        setTimeout(() => {
+            const testImg = new Image();
+            testImg.onload = () => {
+                console.log('Programmatic load SUCCESS:', testImg.src, testImg.width + 'x' + testImg.height);
+            };
+            testImg.onerror = () => {
+                console.log('Programmatic load ERROR:', testImg.src);
+            };
+            testImg.src = '/assets/arcade/honkypong/sprites/mario.png';
+        }, 1000);
+    </script>
+</body>
+</html>

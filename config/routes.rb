@@ -186,10 +186,14 @@ Rails.application.routes.draw do
   get "honky-pong-simple", to: "games#honky_pong_simple"
   get "honky-pong-minimal", to: "games#honky_pong_minimal"
   get "simple-honky-pong", to: "games#simple_honky_pong"
+  get "sprite-test", to: "games#sprite_test"
   get "lace-invaders", to: "games#lace_invaders"
   get "hackman", to: "games#hackman"
   get "defendher", to: "games#defendher"
   get "hemorrhoids", to: "games#hemorrhoids", as: :hemorrhoids
+  
+  # Test routes (no authentication)
+  get "test-honky-pong", to: "test_games#honky_pong_test"
 
   # Application routes
   resources :applications, except: [:index, :destroy] do
