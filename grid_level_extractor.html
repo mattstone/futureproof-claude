@@ -143,6 +143,7 @@
             
             <div>
                 <select id="elementType">
+                    <option value="smart_line">✨ Smart Line (Auto-segment girders)</option>
                     <option value="girder_long">🏗️ Girder (Long - 12px)</option>
                     <option value="girder_short">🏗️ Girder (Short - 8px)</option>
                     <option value="ladder">🪜 Ladder</option>
@@ -404,13 +405,15 @@
         
         function toggleEditMode() {
             editMode = !editMode;
+            console.log('Edit mode toggled:', editMode);
             const btn = document.getElementById('editModeBtn');
             if (editMode) {
                 btn.textContent = '🎯 Normal Mode';
                 btn.style.background = '#ff0';
                 btn.style.color = '#000';
-                document.getElementById('instructionStatus').textContent = 'Edit Mode: Click girders to select and move';
+                document.getElementById('instructionStatus').textContent = 'EDIT MODE: Girders are ORANGE with green dots - click any girder to select it';
                 document.getElementById('instructionStatus').style.color = '#ff0';
+                console.log('Entering edit mode - girders available:', currentLevel.elements.filter(el => el.type.includes('girder')).length);
             } else {
                 btn.textContent = '✏️ Edit Mode';
                 btn.style.background = '#0f0';
@@ -419,6 +422,7 @@
                 dragMode = null;
                 document.getElementById('instructionStatus').textContent = 'Normal Mode: Place new elements';
                 document.getElementById('instructionStatus').style.color = '#0f0';
+                console.log('Exiting edit mode');
             }
             redrawCanvas();
         }
@@ -449,7 +453,7 @@
                 const elementType = document.getElementById('elementType').value;
                 
                 // Handle girders with start/end points
-                if (elementType === 'girder_long' || elementType === 'girder_short') {
+                if (elementType === 'girder_long' || elementType === 'girder_short' || elementType === 'smart_line') {
                     if (pendingGirder === null) {
                         pendingGirder = {
                             startGridX: gridX, startGridY: gridY,
@@ -462,15 +466,23 @@
                         document.getElementById('gridPosition').textContent += ' (Click end point)';
                         document.getElementById('instructionStatus').textContent = 'Girder started - click end point';
                     } else {
-                        // Complete the girder
-                        addGirder(pendingGirder, {
-                            endGridX: gridX, endGridY: gridY,
-                            endGameX: gameX, endGameY: gameY,
-                            endCanvasX: x, endCanvasY: y
-                        });
+                        // Complete the girder or smart line
+                        if (elementType === 'smart_line') {
+                            addSmartLine(pendingGirder, {
+                                endGridX: gridX, endGridY: gridY,
+                                endGameX: gameX, endGameY: gameY,
+                                endCanvasX: x, endCanvasY: y
+                            });
+                        } else {
+                            addGirder(pendingGirder, {
+                                endGridX: gridX, endGridY: gridY,
+                                endGameX: gameX, endGameY: gameY,
+                                endCanvasX: x, endCanvasY: y
+                            });
+                        }
                         pendingGirder = null;
                         redrawCanvas();
-                        document.getElementById('instructionStatus').textContent = 'Girder completed';
+                        document.getElementById('instructionStatus').textContent = elementType === 'smart_line' ? 'Smart line segmented!' : 'Girder completed';
                     }
                 } else {
                     // Single-click elements
@@ -481,8 +493,11 @@
         });
         
         function handleEditModeClick(canvasX, canvasY, gridX, gridY, gameX, gameY) {
+            console.log('Edit mode click at:', canvasX, canvasY);
+            
             if (selectedElement && dragMode) {
                 // Complete the drag operation
+                console.log('Completing drag operation:', dragMode);
                 if (dragMode === 'start') {
                     selectedElement.grid_position = { x: gridX, y: gridY };
                     selectedElement.game_position = { x: gameX, y: gameY };
@@ -504,16 +519,19 @@
             
             // Find clicked girder
             const clickedGirder = findGirderAtPosition(canvasX, canvasY);
+            console.log('Clicked girder found:', clickedGirder);
             
             if (clickedGirder) {
                 selectedElement = clickedGirder.element;
                 const clickedEnd = clickedGirder.end; // 'start' or 'end'
                 dragMode = clickedEnd;
                 
+                console.log('Selected girder:', clickedGirder.index + 1, 'end:', clickedEnd);
                 document.getElementById('instructionStatus').textContent = `Selected girder ${clickedGirder.index + 1} ${clickedEnd} point - click new position`;
                 redrawCanvas(); // Redraw with selection highlight
             } else {
                 // Deselect
+                console.log('No girder found, deselecting');
                 selectedElement = null;
                 dragMode = null;
                 document.getElementById('instructionStatus').textContent = 'Edit Mode: Click girders to select and move';
@@ -523,9 +541,13 @@
         
         function findGirderAtPosition(canvasX, canvasY) {
             const tolerance = 15; // Click tolerance in pixels
+            console.log('Searching for girder at:', canvasX, canvasY, 'tolerance:', tolerance);
+            console.log('Available elements:', currentLevel.elements.length);
             
             for (let i = currentLevel.elements.length - 1; i >= 0; i--) {
                 const element = currentLevel.elements[i];
+                console.log('Checking element', i, 'type:', element.type);
+                
                 if (element.type === 'girder_long' || element.type === 'girder_short' || element.type === 'girder') {
                     if (element.end_game_position) {
                         // Convert girder points to canvas coordinates
@@ -534,27 +556,38 @@
                         const endCanvasX = (element.end_game_position.x / currentLevel.estimated_resolution.width) * canvas.width;
                         const endCanvasY = canvas.height - ((element.end_game_position.y / currentLevel.estimated_resolution.height) * canvas.height);
                         
+                        console.log('Girder', i, 'canvas coords:', startCanvasX, startCanvasY, 'to', endCanvasX, endCanvasY);
+                        
                         // Check if click is near start point
                         const startDist = Math.sqrt(Math.pow(canvasX - startCanvasX, 2) + Math.pow(canvasY - startCanvasY, 2));
+                        console.log('Distance to start point:', startDist);
                         if (startDist <= tolerance) {
+                            console.log('Found girder via start point');
                             return { element, end: 'start', index: i };
                         }
                         
                         // Check if click is near end point
                         const endDist = Math.sqrt(Math.pow(canvasX - endCanvasX, 2) + Math.pow(canvasY - endCanvasY, 2));
+                        console.log('Distance to end point:', endDist);
                         if (endDist <= tolerance) {
+                            console.log('Found girder via end point');
                             return { element, end: 'end', index: i };
                         }
                         
                         // Check if click is near the line itself
                         const lineDistSq = distanceToLineSquared(canvasX, canvasY, startCanvasX, startCanvasY, endCanvasX, endCanvasY);
+                        console.log('Distance to line (squared):', lineDistSq);
                         if (lineDistSq <= tolerance * tolerance) {
+                            console.log('Found girder via line');
                             // Default to moving the closest end
                             return { element, end: startDist < endDist ? 'start' : 'end', index: i };
                         }
+                    } else {
+                        console.log('Girder', i, 'has no end_game_position');
                     }
                 }
             }
+            console.log('No girder found at position');
             return null;
         }
         
@@ -759,42 +792,75 @@
                             
                             // Highlight selected girder in edit mode
                             const isSelected = editMode && selectedElement === element;
+                            const isEditable = editMode && !isSelected;
                             
                             ctx.beginPath();
                             ctx.moveTo(canvasX, canvasY);
                             ctx.lineTo(endCanvasX, endCanvasY);
-                            ctx.lineWidth = isSelected ? 8 : 6;
-                            ctx.strokeStyle = isSelected ? '#FFFF00' : element.color;
-                            ctx.stroke();
                             
-                            // Draw selection handles in edit mode
                             if (isSelected) {
-                                // Start point handle
-                                ctx.fillStyle = dragMode === 'start' ? '#FF0000' : '#FFFF00';
+                                // Selected girder: bright yellow, thicker
+                                ctx.lineWidth = 8;
+                                ctx.strokeStyle = '#FFFF00';
+                            } else if (isEditable) {
+                                // Editable girders: orange glow effect
+                                ctx.lineWidth = 8;
+                                ctx.strokeStyle = '#FFA500';
+                                ctx.globalAlpha = 0.7;
+                            } else {
+                                // Normal girders
+                                ctx.lineWidth = 6;
+                                ctx.strokeStyle = element.color;
+                                ctx.globalAlpha = 1.0;
+                            }
+                            
+                            ctx.stroke();
+                            ctx.globalAlpha = 1.0; // Reset alpha
+                            
+                            // Draw small endpoint indicators in edit mode
+                            if (editMode) {
+                                // Start point indicator
+                                ctx.fillStyle = isSelected && dragMode === 'start' ? '#FF0000' : 
+                                               isSelected ? '#FFFF00' : '#00FF00';
                                 ctx.beginPath();
-                                ctx.arc(canvasX, canvasY, 6, 0, 2 * Math.PI);
+                                ctx.arc(canvasX, canvasY, isSelected ? 6 : 3, 0, 2 * Math.PI);
                                 ctx.fill();
-                                ctx.strokeStyle = '#000';
-                                ctx.lineWidth = 2;
-                                ctx.stroke();
+                                if (isSelected) {
+                                    ctx.strokeStyle = '#000';
+                                    ctx.lineWidth = 2;
+                                    ctx.stroke();
+                                }
                                 
-                                // End point handle
-                                ctx.fillStyle = dragMode === 'end' ? '#FF0000' : '#FFFF00';
+                                // End point indicator
+                                ctx.fillStyle = isSelected && dragMode === 'end' ? '#FF0000' : 
+                                               isSelected ? '#FFFF00' : '#00FF00';
                                 ctx.beginPath();
-                                ctx.arc(endCanvasX, endCanvasY, 6, 0, 2 * Math.PI);
+                                ctx.arc(endCanvasX, endCanvasY, isSelected ? 6 : 3, 0, 2 * Math.PI);
                                 ctx.fill();
-                                ctx.strokeStyle = '#000';
-                                ctx.lineWidth = 2;
-                                ctx.stroke();
+                                if (isSelected) {
+                                    ctx.strokeStyle = '#000';
+                                    ctx.lineWidth = 2;
+                                    ctx.stroke();
+                                }
                             }
                             
                             // Draw girder length indicator
                             if (!isSelected || !dragMode) {
-                                ctx.fillStyle = element.color;
-                                ctx.font = '10px monospace';
+                                ctx.fillStyle = editMode ? '#FFFFFF' : element.color;
+                                ctx.font = editMode ? 'bold 10px monospace' : '10px monospace';
                                 const midX = (canvasX + endCanvasX) / 2;
                                 const midY = (canvasY + endCanvasY) / 2;
-                                ctx.fillText(element.expected_length + 'px', midX - 10, midY - 10);
+                                
+                                // Add background for better readability in edit mode
+                                if (editMode) {
+                                    const text = element.expected_length + 'px';
+                                    const textWidth = ctx.measureText(text).width;
+                                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                                    ctx.fillRect(midX - textWidth/2 - 2, midY - 12, textWidth + 4, 14);
+                                    ctx.fillStyle = '#FFFFFF';
+                                }
+                                
+                                ctx.fillText(element.expected_length + 'px', midX - 10, midY - 4);
                             }
                         }
                         break;
@@ -853,6 +919,75 @@
             updateElementsList();
             
             console.log(`Added ${expectedLength}px ${element.girder_type} girder from (${start.startGameX}, ${start.startGameY}) to (${end.endGameX}, ${end.endGameY})`);
+        }
+        
+        function addSmartLine(start, end) {
+            // Calculate total line length in game coordinates
+            const totalLength = Math.sqrt(
+                Math.pow(end.endGameX - start.startGameX, 2) + 
+                Math.pow(end.endGameY - start.startGameY, 2)
+            );
+            
+            console.log(`Smart line: ${totalLength.toFixed(1)}px long`);
+            
+            // Determine girder size based on total length
+            // Assume typical Donkey Kong girder patterns:
+            // - Long girders (12px) for main platforms
+            // - Short girders (8px) for smaller segments
+            const averageGirderLength = totalLength < 50 ? 8 : 12;
+            const numGirders = Math.max(1, Math.round(totalLength / averageGirderLength));
+            const actualGirderLength = totalLength / numGirders;
+            
+            console.log(`Creating ${numGirders} girders of ${actualGirderLength.toFixed(1)}px each`);
+            
+            // Calculate direction vector
+            const deltaX = end.endGameX - start.startGameX;
+            const deltaY = end.endGameY - start.startGameY;
+            
+            // Create individual girders along the line
+            for (let i = 0; i < numGirders; i++) {
+                const segmentStart = i / numGirders;
+                const segmentEnd = (i + 1) / numGirders;
+                
+                const startX = Math.round(start.startGameX + deltaX * segmentStart);
+                const startY = Math.round(start.startGameY + deltaY * segmentStart);
+                const endX = Math.round(start.startGameX + deltaX * segmentEnd);
+                const endY = Math.round(start.startGameY + deltaY * segmentEnd);
+                
+                // Convert back to grid coordinates for consistency
+                const startGridX = Math.floor((startX / currentLevel.estimated_resolution.width) * gridWidth);
+                const startGridY = Math.floor(((currentLevel.estimated_resolution.height - startY) / currentLevel.estimated_resolution.height) * gridHeight);
+                const endGridX = Math.floor((endX / currentLevel.estimated_resolution.width) * gridWidth);
+                const endGridY = Math.floor(((currentLevel.estimated_resolution.height - endY) / currentLevel.estimated_resolution.height) * gridHeight);
+                
+                const girderType = actualGirderLength > 10 ? 'girder_long' : 'girder_short';
+                const expectedLength = actualGirderLength > 10 ? 12 : 8;
+                
+                const element = {
+                    type: girderType,
+                    girder_type: actualGirderLength > 10 ? 'long' : 'short',
+                    expected_length: expectedLength,
+                    grid_position: { x: startGridX, y: startGridY },
+                    game_position: { x: startX, y: startY },
+                    end_grid_position: { x: endGridX, y: endGridY },
+                    end_game_position: { x: endX, y: endY },
+                    color: selectedColor,
+                    timestamp: Date.now(),
+                    id: currentLevel.elements.length + 1,
+                    length: actualGirderLength,
+                    orientation: Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical',
+                    smart_segment: i + 1, // Track which segment this is
+                    smart_total: numGirders // Track total segments in this line
+                };
+                
+                currentLevel.elements.push(element);
+                console.log(`  Segment ${i+1}/${numGirders}: (${startX}, ${startY}) to (${endX}, ${endY})`);
+            }
+            
+            updateElementsList();
+            
+            document.getElementById('instructionStatus').textContent = 
+                `Smart line created: ${numGirders} × ${actualGirderLength.toFixed(1)}px ${actualGirderLength > 10 ? 'long' : 'short'} girders`;
         }
 
         function generateJavaScriptCode() {

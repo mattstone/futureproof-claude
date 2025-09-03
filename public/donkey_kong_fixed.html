@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donkey Kong Clone - Fixed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        canvas {
+            transform: scale(3);
+            image-rendering: pixelated;
+            border: 2px solid #333;
+            background: #000;
+        }
+        
+        .game-container {
+            margin-bottom: 40px;
+        }
+        
+        .ui {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border: 3px solid #ff0000;
+            text-align: center;
+            font-size: 24px;
+        }
+        
+        .game-over-hidden {
+            display: none;
+        }
+        
+        button {
+            background: #333;
+            color: #fff;
+            border: 2px solid #666;
+            padding: 10px 20px;
+            font-family: monospace;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #555;
+        }
+        
+        button:disabled {
+            background: #222;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .debug {
+            color: #666;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui">
+        <div>SCORE: <span id="score">000000</span></div>
+        <div>LIVES: <span id="lives">3</span></div>
+        <div>LEVEL: <span id="level">1</span></div>
+        <div>BONUS: <span id="bonus">5000</span></div>
+    </div>
+    
+    <div class="game-container">
+        <canvas id="game" width="224" height="256"></canvas>
+        <div id="debug" class="debug">Debug info will appear here</div>
+    </div>
+    
+    <div class="controls">
+        <button id="startBtn">START GAME</button>
+        <button id="pauseBtn" disabled>PAUSE</button>
+        <br><br>
+        ARROW KEYS: Move/Climb | SPACE: Jump | R: Restart (when game over)
+    </div>
+    
+    <div id="gameOver" class="game-over game-over-hidden">
+        <h2>GAME OVER</h2>
+        <p>Final Score: <span id="finalScore">000000</span></p>
+        <button id="restartBtn">RESTART GAME</button>
+    </div>
+
+    <script>
+        // Add debug logging
+        function debug(msg) {
+            console.log('🎮 DK DEBUG:', msg);
+            const debugEl = document.getElementById('debug');
+            if (debugEl) {
+                debugEl.innerHTML += '<br>' + msg;
+            }
+        }
+        
+        debug('Script loading...');
+
+        // ===== CONSTANTS =====
+        const CANVAS_WIDTH = 224;
+        const CANVAS_HEIGHT = 256;
+        const CELL_SIZE = 8;
+        const GRID_WIDTH = 28;
+        const GRID_HEIGHT = 32;
+        
+        const COLORS = {
+            background: '#000000',
+            girder: '#FF6B47',
+            ladder: '#DAA520',
+            oil: '#FF0000',
+            mario: '#0000FF',
+            kong: '#8B4513',
+            pauline: '#FF69B4',
+            barrel: '#8B4513',
+            fireball: '#FF4500',
+            hammer: '#FFD700',
+            conveyor: '#FFFF00',
+            elevator: '#800080',
+            rivet: '#FF0000'
+        };
+
+        debug('Constants defined');
+
+        // ===== GAME CLASS =====
+        class GameObject {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.velocityX = 0;
+                this.velocityY = 0;
+            }
+            
+            draw(ctx) {
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            
+            update() {
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+            }
+            
+            intersects(other) {
+                return this.x < other.x + other.width &&
+                       this.x + this.width > other.x &&
+                       this.y < other.y + other.height &&
+                       this.y + this.height > other.y;
+            }
+        }
+        
+        class Player extends GameObject {
+            constructor(x, y) {
+                super(x, y, 16, 16);
+                this.isJumping = false;
+                this.isClimbing = false;
+                this.onGround = false;
+                this.facing = 'right';
+                this.state = 'standing';
+                this.animFrame = 0;
+                this.hasHammer = false;
+                this.hammerTimer = 0;
+                this.speed = 2;
+            }
+            
+            draw(ctx) {
+                // Hammer glow effect
+                if (this.hasHammer) {
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#FFFF00';
+                }
+                
+                ctx.fillStyle = this.hasHammer ? '#FF0000' : COLORS.mario;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Reset shadow
+                ctx.shadowBlur = 0;
+                
+                // Simple animation indication
+                if (this.state === 'running') {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(this.x + 2, this.y + 2, 2, 2);
+                }
+            }
+            
+            update() {
+                // Handle hammer timer
+                if (this.hasHammer) {
+                    this.hammerTimer--;
+                    if (this.hammerTimer <= 0) {
+                        this.hasHammer = false;
+                    }
+                }
+                
+                // Apply gravity if not on ground or ladder
+                if (!this.onGround && !this.isClimbing) {
+                    this.velocityY += 0.5;
+                }
+                
+                // Apply movement
+                super.update();
+                
+                // Keep player on screen
+                this.x = Math.max(0, Math.min(CANVAS_WIDTH - this.width, this.x));
+                
+                // Reset ground state
+                this.onGround = false;
+            }
+            
+            jump() {
+                if (this.onGround && !this.isClimbing) {
+                    this.velocityY = -8;
+                    this.isJumping = true;
+                    this.onGround = false;
+                    this.state = 'jumping';
+                    game.playSound('jump');
+                }
+            }
+        }
+        
+        class Kong extends GameObject {
+            constructor(x, y) {
+                super(x, y, 24, 24);
+                this.throwTimer = 0;
+                this.state = 'chest_beating';
+                this.animFrame = 0;
+            }
+            
+            draw(ctx) {
+                ctx.fillStyle = COLORS.kong;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Simple animation - chest beating
+                if (this.state === 'chest_beating') {
+                    ctx.fillStyle = '#654321';
+                    const offset = Math.floor(this.animFrame / 30) % 2;
+                    ctx.fillRect(this.x + 4 + offset, this.y + 8, 4, 4);
+                    ctx.fillRect(this.x + 16 - offset, this.y + 8, 4, 4);
+                }
+            }
+            
+            update() {
+                this.animFrame++;
+                this.throwTimer++;
+                
+                if (this.throwTimer > 300) { // 5 seconds at 60fps
+                    this.throwBarrel();
+                    this.throwTimer = 0;
+                }
+            }
+            
+            throwBarrel() {
+                const barrel = new Barrel(this.x + 20, this.y + 20);
+                barrel.velocityX = -1 - Math.random();
+                game.enemies.push(barrel);
+                game.playSound('barrel');
+            }
+        }
+        
+        class Barrel extends GameObject {
+            constructor(x, y) {
+                super(x, y, 8, 8);
+                this.animFrame = 0;
+                this.onGirder = false;
+            }
+            
+            draw(ctx) {
+                ctx.fillStyle = COLORS.barrel;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Rotation animation
+                const rotation = this.animFrame * 0.2;
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(this.x + 2, this.y + 2, 2, 2);
+            }
+            
+            update() {
+                this.animFrame++;
+                
+                // Apply gravity
+                this.velocityY += 0.5;
+                
+                // Random ladder climbing decision
+                if (this.onGirder && Math.random() < 0.01) {
+                    const nearbyLadder = game.currentLevel.ladders.find(ladder => 
+                        Math.abs(ladder.x - this.x) < 16 && 
+                        Math.abs(ladder.y - this.y) < 16
+                    );
+                    if (nearbyLadder) {
+                        this.velocityY = 2;
+                        this.velocityX = 0;
+                    }
+                }
+                
+                super.update();
+                
+                // Remove if off screen
+                if (this.x < -50 || this.y > CANVAS_HEIGHT + 50) {
+                    const index = game.enemies.indexOf(this);
+                    if (index > -1) {
+                        game.enemies.splice(index, 1);
+                    }
+                }
+            }
+        }
+
+        debug('Game classes defined');
+        
+        // ===== LEVEL CLASS =====
+        class Level {
+            constructor(grid) {
+                this.grid = grid;
+                this.platforms = [];
+                this.ladders = [];
+                this.oilBarrels = [];
+                this.parseGrid();
+                debug(`Level created with ${this.platforms.length} platforms, ${this.ladders.length} ladders`);
+            }
+            
+            parseGrid() {
+                for (let row = 0; row < this.grid.length; row++) {
+                    for (let col = 0; col < this.grid[row].length; col++) {
+                        const cell = this.grid[row][col];
+                        const x = col * CELL_SIZE;
+                        const y = row * CELL_SIZE;
+                        
+                        switch (cell) {
+                            case '#':
+                                this.platforms.push({x, y, width: CELL_SIZE, height: CELL_SIZE});
+                                break;
+                            case '|':
+                                this.ladders.push({x, y, width: CELL_SIZE, height: CELL_SIZE});
+                                break;
+                            case 'O':
+                                this.oilBarrels.push({x, y, width: CELL_SIZE, height: CELL_SIZE});
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            draw(ctx) {
+                // Draw platforms/girders
+                ctx.fillStyle = COLORS.girder;
+                this.platforms.forEach(platform => {
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    
+                    // Add rivets
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(platform.x + 2, platform.y + 2, 2, 2);
+                    ctx.fillRect(platform.x + 6, platform.y + 6, 2, 2);
+                    ctx.fillStyle = COLORS.girder;
+                });
+                
+                // Draw ladders
+                ctx.fillStyle = COLORS.ladder;
+                ctx.strokeStyle = '#B8860B';
+                ctx.lineWidth = 1;
+                this.ladders.forEach(ladder => {
+                    // Ladder sides
+                    ctx.fillRect(ladder.x + 1, ladder.y, 2, ladder.height);
+                    ctx.fillRect(ladder.x + 5, ladder.y, 2, ladder.height);
+                    
+                    // Ladder rungs
+                    for (let y = ladder.y; y < ladder.y + ladder.height; y += 4) {
+                        ctx.fillRect(ladder.x + 1, y, 6, 1);
+                    }
+                });
+                
+                // Draw oil barrels
+                ctx.fillStyle = COLORS.oil;
+                this.oilBarrels.forEach(barrel => {
+                    ctx.fillRect(barrel.x, barrel.y, barrel.width, barrel.height);
+                    
+                    // Flame effect
+                    const flame = Math.sin(game.gameTime * 0.2) * 3;
+                    ctx.fillStyle = '#FF6600';
+                    ctx.fillRect(barrel.x + 2, barrel.y - 8 + flame, 4, 8);
+                    ctx.fillStyle = COLORS.oil;
+                });
+            }
+            
+            update() {
+                // Basic update - could add fire spawning here
+            }
+            
+            checkCollisions(player) {
+                // Platform collisions
+                this.platforms.forEach(platform => {
+                    if (player.x + player.width > platform.x && 
+                        player.x < platform.x + platform.width &&
+                        player.y + player.height > platform.y &&
+                        player.y + player.height < platform.y + platform.height + 10 &&
+                        player.velocityY >= 0) {
+                        player.y = platform.y - player.height;
+                        player.velocityY = 0;
+                        player.onGround = true;
+                        player.isJumping = false;
+                    }
+                });
+                
+                // Ladder climbing
+                const isOnLadder = this.ladders.some(ladder => 
+                    player.x + player.width/2 > ladder.x && 
+                    player.x + player.width/2 < ladder.x + ladder.width &&
+                    player.y + player.height > ladder.y &&
+                    player.y < ladder.y + ladder.height
+                );
+                
+                if (isOnLadder && (game.keys['ArrowUp'] || game.keys['ArrowDown'])) {
+                    player.isClimbing = true;
+                    player.velocityY = game.keys['ArrowUp'] ? -player.speed : player.speed;
+                    player.velocityX = 0;
+                } else if (player.isClimbing && !isOnLadder) {
+                    player.isClimbing = false;
+                }
+            }
+        }
+        
+        debug('Level class defined');
+
+        // ===== SIMPLE LEVEL DEFINITION =====
+        const SIMPLE_LEVEL = new Level([
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', 'K', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.'],
+            ['.', '.', '|', '.', '.', '|', '.', '.', '.', '.', '|', '.', '.', '.', '.', '|', '.', '.', '.', '.', '|', '.', '.', '.', '.', '|', '.', '.'],
+            ['.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.'],
+            ['.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.'],
+            ['.', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.'],
+            ['.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.'],
+            ['.', '.', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', 'O', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.']
+        ]);
+        
+        debug('Level created');
+        
+        // ===== MAIN GAME CLASS =====
+        class DonkeyKongGame {
+            constructor() {
+                debug('Creating DonkeyKongGame...');
+                
+                this.canvas = document.getElementById('game');
+                this.ctx = this.canvas.getContext('2d');
+                
+                debug(`Canvas: ${this.canvas ? 'found' : 'not found'}, Context: ${this.ctx ? 'found' : 'not found'}`);
+                
+                // Game state
+                this.gameState = 'ready';
+                this.currentLevel = 0;
+                this.score = 0;
+                this.lives = 3;
+                this.gameTime = 0;
+                this.bonus = 5000;
+                
+                // Game objects
+                this.player = new Player(16, CANVAS_HEIGHT - 32);
+                this.kong = null;
+                this.pauline = null;
+                this.enemies = [];
+                this.hammers = [];
+                
+                // Input
+                this.keys = {};
+                
+                // Sound placeholders
+                this.sounds = {};
+                
+                // Initialize
+                this.setupControls();
+                this.loadLevel();
+                this.updateUI();
+                
+                debug('Game initialized, starting initial render...');
+                
+                // Force initial render
+                this.draw();
+                
+                debug('Initial render complete');
+            }
+            
+            setupControls() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true;
+                    
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.player.jump();
+                    }
+                    
+                    if (e.code === 'KeyR' && this.gameState === 'gameOver') {
+                        this.restartGame();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false;
+                });
+                
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    debug('Start button clicked');
+                    this.startGame();
+                });
+                
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    this.restartGame();
+                });
+                
+                debug('Controls setup complete');
+            }
+            
+            loadLevel() {
+                debug('Loading level...');
+                
+                this.level = SIMPLE_LEVEL;
+                
+                // Clear enemies
+                this.enemies = [];
+                
+                // Find and create special objects from grid
+                for (let row = 0; row < this.level.grid.length; row++) {
+                    for (let col = 0; col < this.level.grid[row].length; col++) {
+                        const cell = this.level.grid[row][col];
+                        const x = col * CELL_SIZE;
+                        const y = row * CELL_SIZE;
+                        
+                        switch (cell) {
+                            case 'K':
+                                this.kong = new Kong(x, y);
+                                // Add Pauline near Kong
+                                this.pauline = new GameObject(x - 32, y - 16, 8, 16);
+                                this.pauline.draw = function(ctx) {
+                                    ctx.fillStyle = COLORS.pauline;
+                                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                                    
+                                    // Help text
+                                    ctx.fillStyle = '#FFFF00';
+                                    ctx.font = '8px monospace';
+                                    ctx.textAlign = 'center';
+                                    ctx.fillText('HELP!', this.x + this.width/2, this.y - 2);
+                                };
+                                debug(`Kong created at ${x}, ${y}`);
+                                break;
+                            case 'P':
+                                this.player.x = x;
+                                this.player.y = y;
+                                debug(`Player positioned at ${x}, ${y}`);
+                                break;
+                        }
+                    }
+                }
+                
+                debug('Level loading complete');
+            }
+            
+            startGame() {
+                debug('Starting game...');
+                this.gameState = 'playing';
+                this.playSound('start');
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                this.gameLoop();
+                debug('Game started');
+            }
+            
+            restartGame() {
+                this.gameState = 'ready';
+                this.currentLevel = 0;
+                this.score = 0;
+                this.lives = 3;
+                this.bonus = 5000;
+                this.loadLevel();
+                this.updateUI();
+                
+                document.getElementById('gameOver').classList.add('game-over-hidden');
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+            }
+            
+            gameLoop() {
+                if (this.gameState !== 'playing') return;
+                
+                this.gameTime++;
+                
+                this.update();
+                this.draw();
+                this.updateUI();
+                
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            update() {
+                // Update player movement
+                this.player.state = 'standing';
+                
+                if (this.keys['ArrowLeft'] && !this.player.isClimbing) {
+                    this.player.velocityX = -this.player.speed;
+                    this.player.facing = 'left';
+                    this.player.state = 'running';
+                } else if (this.keys['ArrowRight'] && !this.player.isClimbing) {
+                    this.player.velocityX = this.player.speed;
+                    this.player.facing = 'right';
+                    this.player.state = 'running';
+                } else if (!this.player.isClimbing) {
+                    this.player.velocityX = 0;
+                }
+                
+                // Climbing
+                if (this.keys['ArrowUp'] || this.keys['ArrowDown']) {
+                    const isOnLadder = this.level.ladders.some(ladder => 
+                        this.player.x + this.player.width/2 > ladder.x && 
+                        this.player.x + this.player.width/2 < ladder.x + ladder.width &&
+                        this.player.y + this.player.height > ladder.y &&
+                        this.player.y < ladder.y + ladder.height
+                    );
+                    
+                    if (isOnLadder) {
+                        this.player.isClimbing = true;
+                        this.player.velocityY = this.keys['ArrowUp'] ? -this.player.speed : this.player.speed;
+                        this.player.velocityX = 0;
+                        this.player.state = 'climbing';
+                    }
+                } else if (this.player.isClimbing) {
+                    this.player.velocityY = 0;
+                    
+                    // Check if still on ladder
+                    const stillOnLadder = this.level.ladders.some(ladder => 
+                        this.player.x + this.player.width/2 > ladder.x && 
+                        this.player.x + this.player.width/2 < ladder.x + ladder.width &&
+                        this.player.y + this.player.height > ladder.y &&
+                        this.player.y < ladder.y + ladder.height
+                    );
+                    
+                    if (!stillOnLadder) {
+                        this.player.isClimbing = false;
+                    }
+                }
+                
+                // Update game objects
+                this.player.update();
+                if (this.kong) this.kong.update();
+                this.enemies.forEach(enemy => enemy.update());
+                this.level.update();
+                
+                // Level collisions
+                this.level.checkCollisions(this.player);
+                
+                // Enemy collisions on platforms
+                this.enemies.forEach(enemy => {
+                    if (enemy instanceof Barrel) {
+                        enemy.onGirder = false;
+                        
+                        this.level.platforms.forEach(platform => {
+                            if (enemy.x + enemy.width > platform.x && 
+                                enemy.x < platform.x + platform.width &&
+                                enemy.y + enemy.height > platform.y &&
+                                enemy.y + enemy.height < platform.y + platform.height + 8 &&
+                                enemy.velocityY >= 0) {
+                                enemy.y = platform.y - enemy.height;
+                                enemy.velocityY = 0;
+                                enemy.onGirder = true;
+                            }
+                        });
+                    }
+                });
+                
+                // Player-enemy collisions
+                this.enemies.forEach((enemy, index) => {
+                    if (this.player.intersects(enemy)) {
+                        if (this.player.hasHammer && enemy instanceof Barrel) {
+                            // Destroy barrel
+                            this.enemies.splice(index, 1);
+                            this.score += 500;
+                            this.playSound('hammer');
+                        } else {
+                            // Player dies
+                            this.lives--;
+                            this.playSound('death');
+                            this.resetPlayer();
+                            
+                            if (this.lives <= 0) {
+                                this.gameOver();
+                            }
+                        }
+                    }
+                });
+                
+                // Player-Pauline collision (win level)
+                if (this.pauline && this.player.intersects(this.pauline)) {
+                    this.score += 1000;
+                    this.playSound('rescue');
+                    debug('Level complete!');
+                }
+            }
+            
+            draw() {
+                // Clear screen
+                this.ctx.fillStyle = COLORS.background;
+                this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                
+                // Draw level
+                if (this.level) {
+                    this.level.draw(this.ctx);
+                }
+                
+                // Draw game objects
+                if (this.player) {
+                    this.player.draw(this.ctx);
+                }
+                if (this.kong) {
+                    this.kong.draw(this.ctx);
+                }
+                if (this.pauline) {
+                    this.pauline.draw(this.ctx);
+                }
+                this.enemies.forEach(enemy => enemy.draw(this.ctx));
+                
+                // Draw ready message
+                if (this.gameState === 'ready') {
+                    this.ctx.fillStyle = '#FFFF00';
+                    this.ctx.font = '16px monospace';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('PRESS START TO PLAY', CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+                }
+            }
+            
+            resetPlayer() {
+                this.player.x = 16;
+                this.player.y = CANVAS_HEIGHT - 32;
+                this.player.velocityX = 0;
+                this.player.velocityY = 0;
+                this.player.hasHammer = false;
+                this.player.state = 'standing';
+                this.player.isClimbing = false;
+            }
+            
+            gameOver() {
+                this.gameState = 'gameOver';
+                document.getElementById('gameOver').classList.remove('game-over-hidden');
+                document.getElementById('finalScore').textContent = this.score.toString().padStart(6, '0');
+                document.getElementById('pauseBtn').disabled = true;
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = this.score.toString().padStart(6, '0');
+                document.getElementById('lives').textContent = this.lives.toString();
+                document.getElementById('level').textContent = (this.currentLevel + 1).toString();
+                document.getElementById('bonus').textContent = this.bonus.toString();
+            }
+            
+            playSound(soundName) {
+                debug(`Playing sound: ${soundName}`);
+                // Simple beep placeholder
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    const frequencies = {
+                        jump: 400,
+                        barrel: 200,
+                        death: 150,
+                        hammer: 600,
+                        rescue: 800,
+                        start: 500
+                    };
+                    
+                    oscillator.frequency.value = frequencies[soundName] || 300;
+                    oscillator.type = 'square';
+                    
+                    gainNode.gain.value = 0.1;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } catch (error) {
+                    debug('Audio not available: ' + error.message);
+                }
+            }
+        }
+        
+        // ===== START GAME =====
+        let game;
+        
+        debug('Setting up window load event...');
+        
+        window.addEventListener('load', () => {
+            debug('Window loaded, creating game...');
+            try {
+                game = new DonkeyKongGame();
+                debug('Game created successfully!');
+            } catch (error) {
+                debug('Error creating game: ' + error.message);
+                console.error('Game creation error:', error);
+            }
+        });
+        
+        debug('Script setup complete');
+    </script>
+</body>
+</html>

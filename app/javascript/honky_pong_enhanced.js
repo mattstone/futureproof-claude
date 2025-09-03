@@ -115,7 +115,8 @@ export class HonkyPongGame {
     const spritePaths = {
       mario: this.canvas.dataset.marioSprite,
       enemies: this.canvas.dataset.enemiesSprite,
-      pauline: this.canvas.dataset.paulineSprite
+      pauline: this.canvas.dataset.paulineSprite,
+      levels: '/sprites/levels.png'  // Load levels.png for authentic sprites
     };
     
     // Load sounds from canvas data attributes  
@@ -226,77 +227,391 @@ export class HonkyPongGame {
   }
   
   createLevel() {
-    console.log('🏗️ DEBUG: Creating Level 1 with PIXEL-PERFECT extracted coordinates');
-    
-    // PIXEL-PERFECT Level 1 coordinates manually extracted from levels.png
-    // Source level: 257x273, scaled to 900x700 game canvas
-    
     const canvasWidth = this.width;
     const canvasHeight = this.height;
-    
+
     this.platforms = [];
     this.ladders = [];
     this.girders = [];
-    
-    // GROUND LEVEL - Full width red platform
-    this.platforms.push({
-      x: 0,
-      y: canvasHeight - 40,
-      width: canvasWidth,
-      height: 40,
-      type: 'ground',
+
+    // Extracted Sprite Coordinates from Level Image - Level 1 coordinates
+    const spriteCoords = {
+      "long-girder": { x: 18, y: 195, width: 48, height: 8 },   // Use actual Level 1 coordinates  
+      "short-girder": { x: 107, y: 219, width: 24, height: 8 }, // Use actual Level 1 coordinates
+      "ladder": { x: 101, y: 200, width: 16, height: 30 }       // Use actual Level 1 coordinates
+    };
+
+    // Store sprite coordinates for rendering
+    this.spriteCoords = spriteCoords;
+
+    // Sprite-based Girders (using extracted authentic sprites)
+    this.girders.push({ 
+      type: 'sprite',
+      spriteType: 'long-girder',
+      gameX: 164, gameY: 504,
+      width: 48, height: 8,
       color: '#FF6B47'
     });
-    
-    // PIXEL-PERFECT GIRDER from manual extraction
-    // This is the actual girder from Level 1 (25M) sprite
-    this.girders.push({
-      startX: 35,
-      startY: 590,
-      endX: 861,
-      endY: 579,
+    this.girders.push({ 
+      type: 'sprite',
+      spriteType: 'long-girder',
+      gameX: 225, gameY: 503,
+      width: 48, height: 8,
+      color: '#FF6B47'
+    });
+    this.girders.push({ 
+      type: 'sprite',
+      spriteType: 'long-girder',
+      gameX: 285, gameY: 504,
+      width: 48, height: 8,
+      color: '#FF6B47'
+    });
+    this.girders.push({ // long girder
+      startX: 345, startY: 504, endX: 393, endY: 504,
       color: '#FF6B47',
-      segments: this.createGirderSegments(35, 590, 861, 579)
+      segments: this.createGirderSegments(345, 504, 393, 504)
     });
-    
-    // PIXEL-PERFECT LADDER from manual extraction  
+    this.girders.push({ // short girder
+      startX: 406, startY: 504, endX: 430, endY: 504,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(406, 504, 430, 504)
+    });
+    this.girders.push({ // long girder
+      startX: 329, startY: 547, endX: 377, endY: 547,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(329, 547, 377, 547)
+    });
+    this.girders.push({ // long girder
+      startX: 389, startY: 566, endX: 437, endY: 566,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(389, 566, 437, 566)
+    });
+    this.girders.push({ // long girder
+      startX: 451, startY: 566, endX: 499, endY: 566,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(451, 566, 499, 566)
+    });
+    this.girders.push({ // long girder
+      startX: 452, startY: 502, endX: 500, endY: 502,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(452, 502, 500, 502)
+    });
+    this.girders.push({ // long girder
+      startX: 514, startY: 499, endX: 562, endY: 499,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(514, 499, 562, 499)
+    });
+    this.girders.push({ // long girder
+      startX: 576, startY: 496, endX: 624, endY: 496,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(576, 496, 624, 496)
+    });
+    this.girders.push({ // long girder
+      startX: 636, startY: 496, endX: 684, endY: 496,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(636, 496, 684, 496)
+    });
+    this.girders.push({ // long girder
+      startX: 207, startY: 417, endX: 255, endY: 417,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(207, 417, 255, 417)
+    });
+    this.girders.push({ // long girder
+      startX: 267, startY: 420, endX: 315, endY: 420,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(267, 420, 315, 420)
+    });
+    this.girders.push({ // long girder
+      startX: 328, startY: 422, endX: 376, endY: 422,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(328, 422, 376, 422)
+    });
+    this.girders.push({ // long girder
+      startX: 391, startY: 425, endX: 439, endY: 425,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(391, 425, 439, 425)
+    });
+    this.girders.push({ // long girder
+      startX: 452, startY: 427, endX: 500, endY: 427,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(452, 427, 500, 427)
+    });
+    this.girders.push({ // long girder
+      startX: 513, startY: 430, endX: 561, endY: 430,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(513, 430, 561, 430)
+    });
+    this.girders.push({ // long girder
+      startX: 575, startY: 432, endX: 623, endY: 432,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(575, 432, 623, 432)
+    });
+    this.girders.push({ // long girder
+      startX: 635, startY: 435, endX: 683, endY: 435,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(635, 435, 683, 435)
+    });
+    this.girders.push({ // short girder
+      startX: 697, startY: 436, endX: 721, endY: 436,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(697, 436, 721, 436)
+    });
+    this.girders.push({ // long girder
+      startX: 207, startY: 358, endX: 255, endY: 358,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(207, 358, 255, 358)
+    });
+    this.girders.push({ // short girder
+      startX: 166, startY: 360, endX: 190, endY: 360,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(166, 360, 190, 360)
+    });
+    this.girders.push({ // long girder
+      startX: 267, startY: 355, endX: 315, endY: 355,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(267, 355, 315, 355)
+    });
+    this.girders.push({ // long girder
+      startX: 328, startY: 352, endX: 376, endY: 352,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(328, 352, 376, 352)
+    });
+    this.girders.push({ // long girder
+      startX: 390, startY: 351, endX: 438, endY: 351,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(390, 351, 438, 351)
+    });
+    this.girders.push({ // long girder
+      startX: 452, startY: 347, endX: 500, endY: 347,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(452, 347, 500, 347)
+    });
+    this.girders.push({ // long girder
+      startX: 514, startY: 345, endX: 562, endY: 345,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(514, 345, 562, 345)
+    });
+    this.girders.push({ // long girder
+      startX: 576, startY: 342, endX: 624, endY: 342,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(576, 342, 624, 342)
+    });
+    this.girders.push({ // long girder
+      startX: 637, startY: 340, endX: 685, endY: 340,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(637, 340, 685, 340)
+    });
+    this.girders.push({ // long girder
+      startX: 207, startY: 263, endX: 255, endY: 263,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(207, 263, 255, 263)
+    });
+    this.girders.push({ // long girder
+      startX: 267, startY: 265, endX: 315, endY: 265,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(267, 265, 315, 265)
+    });
+    this.girders.push({ // long girder
+      startX: 328, startY: 267, endX: 376, endY: 267,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(328, 267, 376, 267)
+    });
+    this.girders.push({ // long girder
+      startX: 389, startY: 270, endX: 437, endY: 270,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(389, 270, 437, 270)
+    });
+    this.girders.push({ // long girder
+      startX: 450, startY: 273, endX: 498, endY: 273,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(450, 273, 498, 273)
+    });
+    this.girders.push({ // long girder
+      startX: 512, startY: 275, endX: 560, endY: 275,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(512, 275, 560, 275)
+    });
+    this.girders.push({ // long girder
+      startX: 574, startY: 278, endX: 622, endY: 278,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(574, 278, 622, 278)
+    });
+    this.girders.push({ // long girder
+      startX: 636, startY: 281, endX: 684, endY: 281,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(636, 281, 684, 281)
+    });
+    this.girders.push({ // short girder
+      startX: 697, startY: 282, endX: 721, endY: 282,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(697, 282, 721, 282)
+    });
+    this.girders.push({ // short girder
+      startX: 165, startY: 207, endX: 189, endY: 207,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(165, 207, 189, 207)
+    });
+    this.girders.push({ // long girder
+      startX: 207, startY: 204, endX: 255, endY: 204,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(207, 204, 255, 204)
+    });
+    this.girders.push({ // long girder
+      startX: 269, startY: 201, endX: 317, endY: 201,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(269, 201, 317, 201)
+    });
+    this.girders.push({ // long girder
+      startX: 328, startY: 199, endX: 376, endY: 199,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(328, 199, 376, 199)
+    });
+    this.girders.push({ // long girder
+      startX: 391, startY: 198, endX: 439, endY: 198,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(391, 198, 439, 198)
+    });
+    this.girders.push({ // long girder
+      startX: 453, startY: 193, endX: 501, endY: 193,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(453, 193, 501, 193)
+    });
+    this.girders.push({ // long girder
+      startX: 515, startY: 191, endX: 563, endY: 191,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(515, 191, 563, 191)
+    });
+    this.girders.push({ // long girder
+      startX: 576, startY: 189, endX: 624, endY: 189,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(576, 189, 624, 189)
+    });
+    this.girders.push({ // long girder
+      startX: 636, startY: 186, endX: 684, endY: 186,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(636, 186, 684, 186)
+    });
+    this.girders.push({ // long girder
+      startX: 146, startY: 114, endX: 194, endY: 114,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(146, 114, 194, 114)
+    });
+    this.girders.push({ // long girder
+      startX: 206, startY: 114, endX: 254, endY: 114,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(206, 114, 254, 114)
+    });
+    this.girders.push({ // long girder
+      startX: 267, startY: 115, endX: 315, endY: 115,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(267, 115, 315, 115)
+    });
+    this.girders.push({ // long girder
+      startX: 328, startY: 115, endX: 376, endY: 115,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(328, 115, 376, 115)
+    });
+    this.girders.push({ // long girder
+      startX: 389, startY: 114, endX: 437, endY: 114,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(389, 114, 437, 114)
+    });
+    this.girders.push({ // long girder
+      startX: 451, startY: 117, endX: 499, endY: 117,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(451, 117, 499, 117)
+    });
+    this.girders.push({ // long girder
+      startX: 512, startY: 118, endX: 560, endY: 118,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(512, 118, 560, 118)
+    });
+    this.girders.push({ // long girder
+      startX: 576, startY: 123, endX: 624, endY: 123,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(576, 123, 624, 123)
+    });
+    this.girders.push({ // long girder
+      startX: 637, startY: 124, endX: 685, endY: 124,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(637, 124, 685, 124)
+    });
+    this.girders.push({ // long girder
+      startX: 698, startY: 126, endX: 746, endY: 126,
+      color: '#FF6B47',
+      segments: this.createGirderSegments(698, 126, 746, 126)
+    });
+
+    // Sprite-based Ladders (using extracted authentic sprites)  
     this.ladders.push({
-      x: 725,
-      y: 536,
-      width: 16,
-      height: 31,
-      connects: ['girder1', 'top']
+      type: 'sprite',
+      spriteType: 'ladder',
+      x: 329, y: 508, width: 16, height: 25
     });
-    
-    // We need to extract more elements - this is just the first girder and ladder
-    // TODO: Extract remaining girders, ladders, and platforms from Level 1
-    
-    // HAMMER PICKUPS - Position on the extracted girder
-    this.hammers = [
-      { 
-        x: 400, // Positioned on the girder
-        y: 565, // Just above the girder
-        width: 7, 
-        height: 15, 
-        active: true 
-      }
-    ];
-    
-    // CHARACTER POSITIONS - Using extracted coordinates
-    
-    // Mario starts at extracted position
-    this.mario.x = 56;
-    this.mario.y = 564;
-    
-    // Donkey Kong and Pauline - need to extract these coordinates
-    // For now, positioning based on typical DK level layout
-    this.donkeyKong.x = 100;
-    this.donkeyKong.y = 100;
-    
-    this.pauline.x = 200;
-    this.pauline.y = 120;
-    
-    console.log('🏗️ Applied PIXEL-PERFECT Level 1 coordinates from manual extraction');
+    this.ladders.push({
+      type: 'sprite', 
+      spriteType: 'ladder',
+      x: 370, y: 507, width: 16, height: 25
+    });
+    this.ladders.push({
+      type: 'sprite',
+      spriteType: 'ladder', 
+      x: 390, y: 471, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 390, y: 426, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 348, y: 358, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 329, y: 276, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 495, y: 503, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 329, y: 553, width: 16, height: 80
+    });
+    this.ladders.push({
+      x: 369, y: 554, width: 16, height: 80
+    });
+    this.ladders.push({
+      x: 635, y: 433, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 454, y: 282, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 370, y: 160, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 369, y: 118, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 595, y: 340, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 329, y: 324, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 595, y: 407, width: 16, height: 25
+    });
+    this.ladders.push({
+      x: 248, y: 360, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 410, y: 205, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 636, y: 281, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 247, y: 206, width: 16, height: 50
+    });
+    this.ladders.push({
+      x: 636, y: 126, width: 16, height: 50
+    });
   }
   
   // Helper function to create collision segments along angled girders
@@ -498,16 +813,31 @@ export class HonkyPongGame {
     // Angled girder collisions
     if (!this.mario.onGround) {
       for (const girder of this.girders) {
-        for (const segment of girder.segments) {
-          if (this.mario.x + this.mario.width > segment.x && 
-              this.mario.x < segment.x + segment.width &&
-              this.mario.y + this.mario.height > segment.y &&
-              this.mario.y + this.mario.height < segment.y + segment.height + 10 &&
+        if (girder.type === 'sprite') {
+          // Simple collision for sprite-based girders
+          if (this.mario.x + this.mario.width > girder.gameX && 
+              this.mario.x < girder.gameX + girder.width &&
+              this.mario.y + this.mario.height > girder.gameY &&
+              this.mario.y + this.mario.height < girder.gameY + girder.height + 10 &&
               this.mario.vy >= 0) {
-            this.mario.y = segment.y - this.mario.height;
+            this.mario.y = girder.gameY - this.mario.height;
             this.mario.vy = 0;
             this.mario.onGround = true;
             break;
+          }
+        } else if (girder.segments) {
+          // Segment-based collision for traditional girders
+          for (const segment of girder.segments) {
+            if (this.mario.x + this.mario.width > segment.x && 
+                this.mario.x < segment.x + segment.width &&
+                this.mario.y + this.mario.height > segment.y &&
+                this.mario.y + this.mario.height < segment.y + segment.height + 10 &&
+                this.mario.vy >= 0) {
+              this.mario.y = segment.y - this.mario.height;
+              this.mario.vy = 0;
+              this.mario.onGround = true;
+              break;
+            }
           }
         }
         if (this.mario.onGround) break;
@@ -589,22 +919,37 @@ export class HonkyPongGame {
       // Check angled girders if not on platform
       if (!barrel.onGround) {
         for (const girder of this.girders) {
-          for (const segment of girder.segments) {
-            if (barrel.x + barrel.width > segment.x && 
-                barrel.x < segment.x + segment.width &&
-                barrel.y + barrel.height > segment.y &&
-                barrel.y + barrel.height < segment.y + segment.height + 10 &&
+          if (girder.type === 'sprite') {
+            // Simple collision for sprite-based girders
+            if (barrel.x + barrel.width > girder.gameX && 
+                barrel.x < girder.gameX + girder.width &&
+                barrel.y + barrel.height > girder.gameY &&
+                barrel.y + barrel.height < girder.gameY + girder.height + 10 &&
                 barrel.vy >= 0) {
-              barrel.y = segment.y - barrel.height;
+              barrel.y = girder.gameY - barrel.height;
               barrel.vy = 0;
               barrel.onGround = true;
-              // Add slight horizontal acceleration when rolling on angled girder
-              if (girder.angle < 0) {
-                barrel.vx += -0.1; // Roll faster down left-to-right slopes
-              } else {
-                barrel.vx += 0.1; // Roll faster down right-to-left slopes
-              }
               break;
+            }
+          } else if (girder.segments) {
+            // Segment-based collision for traditional girders
+            for (const segment of girder.segments) {
+              if (barrel.x + barrel.width > segment.x && 
+                  barrel.x < segment.x + segment.width &&
+                  barrel.y + barrel.height > segment.y &&
+                  barrel.y + barrel.height < segment.y + segment.height + 10 &&
+                  barrel.vy >= 0) {
+                barrel.y = segment.y - barrel.height;
+                barrel.vy = 0;
+                barrel.onGround = true;
+                // Add slight horizontal acceleration when rolling on angled girder
+                if (girder.angle < 0) {
+                  barrel.vx += -0.1; // Roll faster down left-to-right slopes
+                } else {
+                  barrel.vx += 0.1; // Roll faster down right-to-left slopes
+                }
+                break;
+              }
             }
           }
           if (barrel.onGround) break;
@@ -866,16 +1211,35 @@ export class HonkyPongGame {
       this.ctx.lineWidth = 18; // Slightly thinner for authenticity
       
       for (const girder of this.girders) {
-        // Use girder-specific color if available
-        const girderColor = girder.color || '#FF6B47';
-        this.ctx.strokeStyle = girderColor;
-        this.ctx.fillStyle = girderColor;
-        
-        // Draw main angled girder line with authentic thickness
-        this.ctx.beginPath();
-        this.ctx.moveTo(girder.startX, girder.startY);
-        this.ctx.lineTo(girder.endX, girder.endY);
-        this.ctx.stroke();
+        if (girder.type === 'sprite') {
+          if (!this.sprites.levels) {
+            console.warn('❌ levels.png sprite not loaded yet');
+          } else {
+            // Render using authentic extracted sprite
+            const spriteData = this.spriteCoords[girder.spriteType];
+            if (spriteData) {
+              this.ctx.drawImage(
+                this.sprites.levels,
+                spriteData.x, spriteData.y, spriteData.width, spriteData.height, // Source from sprite
+                girder.gameX, girder.gameY, girder.width, girder.height // Destination on game canvas
+              );
+              console.log(`🎨 Rendered authentic ${girder.spriteType} sprite at (${girder.gameX}, ${girder.gameY})`);
+            } else {
+              console.warn(`❌ No sprite data for ${girder.spriteType}`);
+            }
+          }
+        } else {
+          // Fallback to line rendering for non-sprite girders
+          const girderColor = girder.color || '#FF6B47';
+          this.ctx.strokeStyle = girderColor;
+          this.ctx.fillStyle = girderColor;
+          
+          // Draw main angled girder line with authentic thickness
+          this.ctx.beginPath();
+          this.ctx.moveTo(girder.startX, girder.startY);
+          this.ctx.lineTo(girder.endX, girder.endY);
+          this.ctx.stroke();
+        }
         
         // Add authentic girder rivets/supports
         const girderLength = Math.sqrt(
@@ -905,20 +1269,45 @@ export class HonkyPongGame {
       this.ctx.lineWidth = 2;
       
       for (const ladder of this.ladders) {
-        // Draw ladder sides
-        this.ctx.beginPath();
-        this.ctx.moveTo(ladder.x + 2, ladder.y);
-        this.ctx.lineTo(ladder.x + 2, ladder.y + ladder.height);
-        this.ctx.moveTo(ladder.x + 14, ladder.y);
-        this.ctx.lineTo(ladder.x + 14, ladder.y + ladder.height);
-        this.ctx.stroke();
-        
-        // Draw ladder rungs
-        for (let y = ladder.y + 8; y < ladder.y + ladder.height - 8; y += 12) {
+        if (ladder.type === 'sprite' && this.sprites.levels) {
+          // Render using authentic extracted ladder sprite
+          const spriteData = this.spriteCoords[ladder.spriteType];
+          if (spriteData) {
+            // Tile the ladder sprite to fill the required height
+            const spriteHeight = spriteData.height;
+            let currentY = ladder.y;
+            
+            while (currentY < ladder.y + ladder.height) {
+              const remainingHeight = (ladder.y + ladder.height) - currentY;
+              const drawHeight = Math.min(spriteHeight, remainingHeight);
+              
+              this.ctx.drawImage(
+                this.sprites.levels,
+                spriteData.x, spriteData.y, spriteData.width, drawHeight, // Source from sprite
+                ladder.x, currentY, ladder.width, drawHeight // Destination on game canvas
+              );
+              
+              currentY += spriteHeight;
+            }
+            console.log(`🪜 Rendered authentic ladder sprite at (${ladder.x}, ${ladder.y})`);
+          }
+        } else {
+          // Fallback to line rendering for non-sprite ladders
+          // Draw ladder sides
           this.ctx.beginPath();
-          this.ctx.moveTo(ladder.x + 2, y);
-          this.ctx.lineTo(ladder.x + 14, y);
+          this.ctx.moveTo(ladder.x + 2, ladder.y);
+          this.ctx.lineTo(ladder.x + 2, ladder.y + ladder.height);
+          this.ctx.moveTo(ladder.x + 14, ladder.y);
+          this.ctx.lineTo(ladder.x + 14, ladder.y + ladder.height);
           this.ctx.stroke();
+          
+          // Draw ladder rungs
+          for (let y = ladder.y + 8; y < ladder.y + ladder.height - 8; y += 12) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(ladder.x + 2, y);
+            this.ctx.lineTo(ladder.x + 14, y);
+            this.ctx.stroke();
+          }
         }
       }
       

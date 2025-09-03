@@ -1,0 +1,188 @@
+<% if application.status_processing? || application.status_rejected? || application.status_accepted? %>
+  <div class="customer-checklist-section" id="checklist-<%= application.id %>">
+    
+    <% if application.status_processing? %>
+      <!-- Processing Application - Show Progress -->
+      <div class="checklist-status-card processing">
+        <div class="status-header">
+          <h4 class="status-title">
+            <i class="fas fa-clock status-icon"></i>
+            Application Being Processed
+          </h4>
+          <div class="status-meta">
+            Processing since <%= time_ago_in_words(application.updated_at) %> ago
+          </div>
+        </div>
+        
+        <div class="status-message">
+          <div class="info-box customer">
+            Your application is being reviewed by our team. We'll complete each step below and keep you updated on our progress.
+          </div>
+        </div>
+        
+        <% if application.application_checklists.any? %>
+          <div class="checklist-progress-section">
+            <div class="progress-header">
+              <h5>Processing Progress</h5>
+              <span class="progress-summary">
+                <%= application.application_checklists.completed.count %> of <%= application.application_checklists.count %> completed
+              </span>
+            </div>
+            
+            <div class="customer-progress-bar">
+              <div class="progress-fill" 
+                   style="width: <%= application.checklist_completion_percentage %>%"></div>
+            </div>
+            <div class="progress-percentage">
+              <%= application.checklist_completion_percentage %>%
+            </div>
+            
+            <div class="checklist-items-customer">
+              <% application.application_checklists.ordered.each do |item| %>
+                <div class="checklist-item-customer <%= 'completed' if item.completed? %>">
+                  <div class="item-status">
+                    <% if item.completed? %>
+                      <i class="fas fa-check-circle completed-icon"></i>
+                    <% else %>
+                      <i class="far fa-circle pending-icon"></i>
+                    <% end %>
+                  </div>
+                  
+                  <div class="item-content">
+                    <div class="item-title">
+                      <%= item.name %>
+                    </div>
+                    <% if item.completed? %>
+                      <div class="item-completion">
+                        <i class="fas fa-calendar-check"></i>
+                        Completed <%= time_ago_in_words(item.completed_at) %> ago
+                      </div>
+                    <% else %>
+                      <div class="item-status-text">
+                        <i class="fas fa-hourglass-half"></i>
+                        In progress...
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+    <% elsif application.status_rejected? %>
+      <!-- Rejected Application - Show Final Status -->
+      <div class="checklist-status-card rejected">
+        <div class="status-header">
+          <h4 class="status-title">
+            <i class="fas fa-times-circle status-icon"></i>
+            Application Not Approved
+          </h4>
+          <div class="status-meta">
+            Decision made <%= time_ago_in_words(application.updated_at) %> ago
+          </div>
+        </div>
+        
+        <div class="status-message">
+          <div class="alert-box warning">
+            <% if application.rejected_reason.present? %>
+              <strong>Reason:</strong> <%= application.rejected_reason %>
+            <% else %>
+              Your application was not approved at this time.
+            <% end %>
+          </div>
+        </div>
+        
+        <% if application.application_checklists.any? %>
+          <div class="checklist-final-section">
+            <h5>Processing Review</h5>
+            <p class="section-subtitle">This shows what was completed before the decision was made.</p>
+            
+            <div class="checklist-items-customer readonly">
+              <% application.application_checklists.ordered.each do |item| %>
+                <div class="checklist-item-customer <%= 'completed' if item.completed? %> readonly">
+                  <div class="item-status">
+                    <% if item.completed? %>
+                      <i class="fas fa-check-circle completed-icon"></i>
+                    <% else %>
+                      <i class="far fa-circle pending-icon"></i>
+                    <% end %>
+                  </div>
+                  
+                  <div class="item-content">
+                    <div class="item-title">
+                      <%= item.name %>
+                    </div>
+                    <% if item.completed? %>
+                      <div class="item-completion">
+                        <i class="fas fa-calendar-check"></i>
+                        Completed <%= time_ago_in_words(item.completed_at) %> ago
+                      </div>
+                    <% else %>
+                      <div class="item-status-text">
+                        Not completed
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+    <% elsif application.status_accepted? %>
+      <!-- Accepted Application - Show Success -->
+      <div class="checklist-status-card accepted">
+        <div class="status-header">
+          <h4 class="status-title">
+            <i class="fas fa-check-circle status-icon"></i>
+            Application Approved!
+          </h4>
+          <div class="status-meta">
+            Approved <%= time_ago_in_words(application.updated_at) %> ago
+          </div>
+        </div>
+        
+        <div class="status-message">
+          <div class="alert-box success">
+            <strong>Congratulations!</strong> Your application has been approved. All processing requirements have been completed successfully.
+          </div>
+        </div>
+        
+        <% if application.application_checklists.any? %>
+          <div class="checklist-final-section">
+            <h5>Completed Processing Steps</h5>
+            
+            <div class="customer-progress-bar completed">
+              <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="progress-percentage completed">100%</div>
+            
+            <div class="checklist-items-customer readonly">
+              <% application.application_checklists.ordered.each do |item| %>
+                <div class="checklist-item-customer completed readonly">
+                  <div class="item-status">
+                    <i class="fas fa-check-circle completed-icon"></i>
+                  </div>
+                  
+                  <div class="item-content">
+                    <div class="item-title">
+                      <%= item.name %>
+                    </div>
+                    <div class="item-completion">
+                      <i class="fas fa-calendar-check"></i>
+                      Completed <%= time_ago_in_words(item.completed_at) %> ago
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+  </div>
+<% end %>

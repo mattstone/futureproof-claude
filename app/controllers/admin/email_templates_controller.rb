@@ -124,15 +124,19 @@ class Admin::EmailTemplatesController < Admin::BaseController
     # AJAX endpoint for live preview in the editor
     template_type = params[:template_type]
     content = params[:content]
+    content_body = params[:content_body]
+    email_category = params[:email_category]
     subject = params[:subject]
     use_sample_data = params[:use_sample_data] == 'true'
     
-    return render json: { error: 'Missing parameters' }, status: :bad_request if content.blank?
+    return render json: { error: 'Missing parameters' }, status: :bad_request if content_body.blank? && content.blank?
     
     # Create a temporary template object for rendering
     temp_template = EmailTemplate.new(
       template_type: template_type || 'verification',
       content: content,
+      content_body: content_body || content,
+      email_category: email_category || 'operational',
       subject: subject || 'Preview Subject'
     )
     
@@ -205,7 +209,7 @@ class Admin::EmailTemplatesController < Admin::BaseController
   end
 
   def email_template_params
-    params.require(:email_template).permit(:name, :subject, :content, :template_type, :description, :is_active, :markup_content)
+    params.require(:email_template).permit(:name, :subject, :content, :content_body, :email_category, :template_type, :description, :is_active, :markup_content)
   end
   
   def create_sample_application(user, mortgage)

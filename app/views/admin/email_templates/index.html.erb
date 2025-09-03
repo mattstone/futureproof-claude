@@ -1,18 +1,22 @@
 <% content_for :page_title, "Email Templates" %>
 
 <div class="admin-actions-bar">
-  <div></div>
+  <div class="admin-summary">
+    <div class="templates-summary">
+      Total Templates: <span class="count-badge"><%= @email_templates.total_count || EmailTemplate.count %></span>
+    </div>
+  </div>
   
   <div class="admin-actions">
     <%= link_to "Create New Template", new_admin_email_template_path, class: "admin-btn admin-btn-primary" %>
   </div>
 </div>
 
-<div class="admin-table-container">
-  <table class="admin-table">
+<div class="admin-table">
+  <table>
     <thead>
       <tr>
-        <th>Name</th>
+        <th>Template Details</th>
         <th>Type</th>
         <th>Subject</th>
         <th>Status</th>
@@ -22,52 +26,60 @@
     </thead>
     <tbody>
       <% @email_templates.each do |template| %>
-        <tr class="<%= 'active-row' if template.is_active? %>">
-          <td>
-            <strong><%= template.name %></strong>
-            <% if template.description.present? %>
-              <br><small class="text-muted"><%= template.description %></small>
-            <% end %>
-          </td>
-          <td>
-            <span class="admin-badge admin-badge-info"><%= template.template_type.humanize %></span>
-          </td>
-          <td>
-            <div class="subject-preview" title="<%= template.subject %>">
-              <%= truncate(template.subject, length: 40) %>
+        <tr class="<%= 'active-template-row' if template.is_active? %>">
+          <td class="template-details-cell">
+            <div>
+              <strong><%= template.name %></strong>
+              <% if template.description.present? %>
+                <br><small class="template-description"><%= template.description %></small>
+              <% end %>
             </div>
           </td>
-          <td>
+          <td class="template-type-cell">
+            <span class="template-type-badge template-type-<%= template.template_type.dasherize %>">
+              <%= template.template_type.humanize %>
+            </span>
+          </td>
+          <td class="subject-cell">
+            <div class="subject-preview" title="<%= template.subject %>">
+              <%= truncate(template.subject, length: 45) %>
+            </div>
+          </td>
+          <td class="status-cell">
             <% if template.is_active? %>
-              <span class="admin-badge admin-badge-success">Active</span>
+              <span class="status-badge status-active">Active</span>
             <% else %>
-              <span class="admin-badge admin-badge-secondary">Inactive</span>
+              <span class="status-badge status-inactive">Inactive</span>
             <% end %>
           </td>
-          <td>
+          <td class="updated-cell">
             <%= template.updated_at.strftime("%b %d, %Y") %>
+            <br>
+            <small><%= time_ago_in_words(template.updated_at) %> ago</small>
           </td>
-          <td class="admin-table-actions">
-            <%= link_to "View", admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-            <%= link_to "Edit", edit_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-            <%= link_to "Preview", preview_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-info", target: "_blank" %>
-            <% if template.is_active? %>
-              <%= link_to "Deactivate", 
-                  deactivate_admin_email_template_path(template), 
-                  method: :patch,
-                  class: "admin-btn admin-btn-sm admin-btn-warning",
-                  data: { 
-                    confirm: "Are you sure you want to deactivate this template?" 
-                  } %>
-            <% else %>
-              <%= link_to "Activate", 
-                  activate_admin_email_template_path(template), 
-                  method: :patch,
-                  class: "admin-btn admin-btn-sm admin-btn-success",
-                  data: { 
-                    confirm: "Are you sure you want to activate this template? This will deactivate the current active template of this type." 
-                  } %>
-            <% end %>
+          <td class="actions-cell">
+            <div class="admin-actions">
+              <%= link_to "View", admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit", edit_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <%= link_to "Preview", preview_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-info", target: "_blank" %>
+              <% if template.is_active? %>
+                <%= link_to "Deactivate", 
+                    deactivate_admin_email_template_path(template), 
+                    method: :patch,
+                    class: "admin-btn admin-btn-sm admin-btn-warning",
+                    data: { 
+                      confirm: "Are you sure you want to deactivate this template?" 
+                    } %>
+              <% else %>
+                <%= link_to "Activate", 
+                    activate_admin_email_template_path(template), 
+                    method: :patch,
+                    class: "admin-btn admin-btn-sm admin-btn-success",
+                    data: { 
+                      confirm: "Are you sure you want to activate this template? This will deactivate the current active template of this type." 
+                    } %>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>
@@ -75,7 +87,7 @@
   </table>
   
   <% if @email_templates.empty? %>
-    <div class="admin-empty-state">
+    <div class="empty-state">
       <h3>No Email Templates Found</h3>
       <p>Get started by creating your first email template.</p>
       <%= link_to "Create First Template", new_admin_email_template_path, class: "admin-btn admin-btn-primary" %>
@@ -83,23 +95,171 @@
   <% end %>
 </div>
 
-<%= paginate @email_templates if respond_to?(:paginate) %>
+<div class="admin-pagination">
+  <%= paginate @email_templates, window: 2 %>
+</div>
 
 <style>
-.subject-preview {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Admin actions bar styling */
+.admin-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.text-muted {
-  color: #6b7280;
+.admin-summary {
+  display: flex;
+  align-items: center;
+}
+
+.count-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
   font-size: 0.875rem;
 }
 
-.active-row {
+/* Template details cell styling */
+.template-details-cell {
+  min-width: 200px;
+}
+
+.template-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Template type badges */
+.template-type-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.template-type-verification {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.template-type-application-submitted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.template-type-security-notification {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+/* Subject preview styling */
+.subject-preview {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Updated cell styling */
+.updated-cell {
+  color: #374151;
+}
+
+.updated-cell small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Active template row highlighting */
+.active-template-row {
   background-color: #f0f9ff;
   border-left: 3px solid #0891b2;
+}
+
+.active-template-row td {
+  background-color: #f0f9ff;
+}
+
+/* Actions cell styling */
+.actions-cell {
+  white-space: nowrap;
+  width: 10%;
+  min-width: 200px;
+}
+
+.actions-cell .admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.actions-cell .admin-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .actions-cell .admin-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .actions-cell {
+    width: auto;
+    min-width: auto;
+  }
+  
+  .subject-preview {
+    max-width: 150px;
+  }
 }
 </style>

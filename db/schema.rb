@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_24_115736) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -229,6 +229,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_115736) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email_category", default: "operational", null: false
+    t.text "content_body"
+    t.index ["email_category"], name: "index_email_templates_on_email_category"
     t.index ["is_active"], name: "index_email_templates_on_is_active"
     t.index ["name"], name: "index_email_templates_on_name", unique: true
     t.index ["template_type"], name: "index_email_templates_on_template_type"

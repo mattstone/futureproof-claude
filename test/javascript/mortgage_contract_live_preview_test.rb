@@ -238,7 +238,7 @@ class MortgageContractLivePreviewTest < ActionDispatch::IntegrationTest
     
     style_selectors.each do |selector|
       assert_select "style", text: /#{Regexp.escape(selector)}/, 
-                   "Should include CSS for #{selector}"
+                            message: "Should include CSS for #{selector}"
     end
   end
   

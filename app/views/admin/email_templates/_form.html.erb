@@ -33,6 +33,22 @@
   </div>
 
   <div class="admin-form-group">
+    <%= form.label :email_category, "Email Category", class: "admin-form-label" %>
+    <%= form.select :email_category, 
+        options_for_select([
+          ['Operational (System notifications, account updates)', 'operational'],
+          ['Marketing (Promotional content, newsletters)', 'marketing']
+        ], @email_template.email_category), 
+        { prompt: 'Select email category' }, 
+        { class: "admin-form-select", id: "email_category_select", 
+          "data-email-template-editor-target": "emailCategory",
+          "data-action": "change->email-template-editor#emailCategoryChanged" } %>
+    <small class="form-text text-muted">
+      Operational emails use standard headers/footers, marketing emails use enhanced branding and social links.
+    </small>
+  </div>
+
+  <div class="admin-form-group">
     <%= form.label :description, class: "admin-form-label" %>
     <%= form.text_area :description, class: "admin-form-textarea", rows: 2, placeholder: "Brief description of when this template is used" %>
   </div>
@@ -46,12 +62,15 @@
   </div>
 
   <div class="admin-form-group">
-    <%= form.label :content, class: "admin-form-label" %>
+    <%= form.label :content_body, "Email Content Body", class: "admin-form-label" %>
     <div class="content-editor-section">
       <div class="editor-tabs">
-        <button type="button" id="html-tab" class="editor-tab active" 
+        <button type="button" id="rich-tab" class="editor-tab active" 
+                data-email-template-editor-target="richTab"
+                data-action="click->email-template-editor#switchToRich">Rich Text Editor</button>
+        <button type="button" id="html-tab" class="editor-tab" 
                 data-email-template-editor-target="htmlTab"
-                data-action="click->email-template-editor#switchToHtml">HTML Editor</button>
+                data-action="click->email-template-editor#switchToHtml">HTML Source</button>
         <button type="button" id="markup-tab" class="editor-tab"
                 data-email-template-editor-target="markupTab" 
                 data-action="click->email-template-editor#switchToMarkup">Markup Editor</button>
@@ -72,9 +91,25 @@
         </div>
       </div>
       
+      <div class="editor-note" style="margin-bottom: 12px; padding: 12px; background: #e3f2fd; border: 1px solid #bae6fd; border-radius: 4px;">
+        <small class="text-muted" style="color: #0369a1;">
+          <strong>Note:</strong> This editor is for the main email content only. Standard headers and footers will be automatically added based on the email category selected above.
+        </small>
+      </div>
+      
+      <!-- Rich Text Editor -->
+      <div id="rich-editor-section" class="editor-section" data-email-template-editor-target="richSection" data-controller="tinymce">
+        <%= form.text_area :content_body, class: "admin-form-textarea rich-text-editor", rows: 15, 
+            placeholder: "Use the rich text editor to format your email content. Field placeholders like {{user.first_name}} can be inserted using the Fields button in the toolbar.",
+            id: "rich-content", 
+            "data-email-template-editor-target": "richContent",
+            "data-tinymce-target": "editor",
+            "data-action": "input->email-template-editor#contentChanged" %>
+      </div>
+      
       <!-- HTML Editor -->
-      <div id="html-editor-section" class="editor-section" data-email-template-editor-target="htmlSection">
-        <%= form.text_area :content, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email content (HTML format, supports field placeholders)", 
+      <div id="html-editor-section" class="editor-section" style="display: none;" data-email-template-editor-target="htmlSection">
+        <%= form.text_area :content_body, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email body content (HTML format, supports field placeholders)\n\nHeaders and footers will be automatically added based on email category.", 
             id: "html-content", 
             "data-email-template-editor-target": "htmlContent",
             "data-action": "input->email-template-editor#contentChanged" %>
@@ -82,7 +117,7 @@
       
       <!-- Markup Editor -->
       <div id="markup-editor-section" class="editor-section" style="display: none;" data-email-template-editor-target="markupSection">
-        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}", 
+        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup for body content:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}\n\nHeaders and footers will be automatically added.", 
             id: "markup-content",
             "data-email-template-editor-target": "markupContent",
             "data-action": "input->email-template-editor#contentChanged" %>
@@ -100,6 +135,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden field for backward compatibility -->
+  <%= form.hidden_field :content, value: @email_template.content || "" %>
 
   <div class="admin-form-group">
     <div class="admin-form-checkbox-group">
@@ -271,6 +309,22 @@
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.5;
+}
+
+.rich-text-editor {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+/* TinyMCE specific styling */
+.tox-tinymce {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+}
+
+.tox .tox-editor-header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
 .markup-help {

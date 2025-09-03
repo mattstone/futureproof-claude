@@ -1,36 +1,59 @@
 <% if @application.status_submitted? %>
   <!-- Submitted Application - Show Advance to Processing Button -->
   <div class="admin-card checklist-card">
-    <h3>Application Submitted</h3>
-    <p class="section-subtitle">This application is ready to be processed. Click below to create the processing checklist.</p>
+    <div class="checklist-header">
+      <h3>📋 Application Submitted</h3>
+      <div class="checklist-timestamp">
+        Submitted <%= time_ago_in_words(@application.updated_at) %> ago
+      </div>
+    </div>
+    <p class="section-subtitle">This application is ready to be processed. Creating a processing checklist will automatically change the status to "Processing".</p>
     
-    <%= button_to advance_to_processing_admin_application_path(@application), 
-        method: :patch, 
-        class: "admin-btn admin-btn-primary",
-        data: { confirm: "This will create a processing checklist and change the status to 'Processing'. Continue?" } do %>
-      Start Processing
-    <% end %>
+    <div class="checklist-action">
+      <%= button_to advance_to_processing_admin_application_path(@application), 
+          method: :patch, 
+          class: "admin-btn admin-btn-primary checklist-start-btn",
+          data: { confirm: "This will create a processing checklist and change the status to 'Processing'. Continue?" } do %>
+        <span class="btn-icon">🚀</span>
+        Start Processing
+      <% end %>
+    </div>
   </div>
 <% elsif @application.status_processing? %>
   <!-- Processing Application - Show Checklist -->
   <div class="admin-card checklist-card" data-controller="checklist">
-    <h3>Processing Checklist</h3>
-    <p class="section-subtitle">Complete all items below to approve the application</p>
+    <div class="checklist-header">
+      <h3>⚙️ Processing Checklist</h3>
+      <div class="checklist-timestamp">
+        Processing since <%= time_ago_in_words(@application.updated_at) %> ago
+      </div>
+    </div>
+    <div class="checklist-progress-info">
+      <div class="info-box">
+        Complete all items below to approve the application for acceptance
+      </div>
+    </div>
     
-    
-    <div class="checklist-progress">
+    <div class="checklist-progress <%= 'completed' if @application.checklist_completed? %>">
       <div class="progress-bar">
-        <div class="progress-fill" data-progress="<%= @application.checklist_completion_percentage %>"></div>
+        <div class="progress-fill" 
+             data-progress="<%= @application.checklist_completion_percentage %>"
+             style="width: <%= @application.checklist_completion_percentage %>%"></div>
       </div>
       <div class="progress-text">
-        <%= @application.application_checklists.completed.count %> of <%= @application.application_checklists.count %> completed
-        (<%= @application.checklist_completion_percentage %>%)
+        <span class="progress-stats">
+          <%= @application.application_checklists.completed.count %> of <%= @application.application_checklists.count %> completed
+        </span>
+        <span class="progress-percentage">
+          <%= @application.checklist_completion_percentage %>%
+        </span>
       </div>
     </div>
     
     <div class="checklist-items">
-      <% @application.application_checklists.ordered.each do |item| %>
-        <div class="checklist-item <%= 'completed' if item.completed? %>">
+      <% @application.application_checklists.ordered.each_with_index do |item, index| %>
+        <div class="checklist-item <%= 'completed' if item.completed? %>" data-checklist-item="<%= item.id %>">
+          
           <% editable_param = local_assigns.fetch(:editable, local_assigns.fetch('editable', true)) %>
           <% if editable_param %>
             <%= form_with url: update_checklist_item_admin_application_path(@application, checklist_item_id: item.id), 
@@ -56,7 +79,12 @@
             </label>
             <% if item.completed? %>
               <div class="checklist-meta">
-                Completed by <%= item.completed_by_name %> on <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+                <span class="meta-icon">👤</span>
+                Completed by <strong><%= item.completed_by_name %></strong>
+                <br>
+                <span class="meta-icon">🕐</span>
+                <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+                <span class="time-ago">(<%= time_ago_in_words(item.completed_at) %> ago)</span>
               </div>
             <% end %>
           </div>
@@ -67,29 +95,115 @@
     <% if @application.checklist_completed? %>
       <div class="checklist-complete">
         <div class="alert alert-success">
-          <strong>All checklist items completed!</strong> This application is ready for manual approval. Change the status to "Accepted" when ready.
+          <div class="alert-content">
+            <span class="alert-icon">🎉</span>
+            <div class="alert-text">
+              <strong>All checklist items completed!</strong>
+              <p>This application has met all processing requirements and is ready for final approval. You can now change the status to "Accepted" in the application details.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% elsif @application.status_rejected? %>
+  <!-- Rejected Application - Show Checklist for Record Keeping -->
+  <div class="admin-card checklist-card rejected">
+    <div class="checklist-header">
+      <h3>❌ Application Rejected</h3>
+      <div class="checklist-timestamp">
+        Rejected <%= time_ago_in_words(@application.updated_at) %> ago
+      </div>
+    </div>
+    <p class="section-subtitle">Processing checklist maintained for audit trail</p>
+    
+    <% if @application.application_checklists.any? %>
+      <div class="checklist-progress rejected">
+        <div class="progress-bar">
+          <div class="progress-fill rejected" 
+               style="width: <%= @application.checklist_completion_percentage %>%"></div>
+        </div>
+        <div class="progress-text">
+          <span class="progress-stats">
+            <%= @application.application_checklists.completed.count %> of <%= @application.application_checklists.count %> completed when rejected
+          </span>
+        </div>
+      </div>
+      
+      <div class="checklist-items">
+        <% @application.application_checklists.ordered.each_with_index do |item, index| %>
+          <div class="checklist-item <%= 'completed' if item.completed? %> readonly">
+            
+            <div class="checkbox-wrapper">
+              <input type="checkbox" <%= 'checked' if item.completed? %> disabled class="checklist-checkbox readonly">
+            </div>
+            
+            <div class="checklist-content">
+              <div class="checklist-label">
+                <%= item.name %>
+              </div>
+              <% if item.completed? %>
+                <div class="checklist-meta">
+                  <span class="meta-icon">👤</span>
+                  Completed by <strong><%= item.completed_by_name %></strong>
+                  <br>
+                  <span class="meta-icon">🕐</span>
+                  <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="rejection-info">
+        <div class="alert alert-warning">
+          <div class="alert-content">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-text">
+              <strong>Application was rejected during processing</strong>
+              <% if @application.rejected_reason.present? %>
+                <p><strong>Reason:</strong> <%= @application.rejected_reason %></p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="no-checklist-info">
+        <div class="info-box">
+          This application was rejected before a processing checklist was created.
         </div>
       </div>
     <% end %>
   </div>
 <% elsif @application.status_accepted? %>
   <!-- Accepted Application - Show Completed Checklist -->
-  <div class="admin-card checklist-card">
-    <h3>Processing Checklist</h3>
-    <p class="section-subtitle">Application approved - all checklist items completed</p>
+  <div class="admin-card checklist-card accepted">
+    <div class="checklist-header">
+      <h3>✅ Application Approved</h3>
+      <div class="checklist-timestamp">
+        Approved <%= time_ago_in_words(@application.updated_at) %> ago
+      </div>
+    </div>
+    <p class="section-subtitle">All processing requirements completed successfully</p>
     
     <div class="checklist-progress completed">
       <div class="progress-bar">
-        <div class="progress-fill" data-progress="100"></div>
+        <div class="progress-fill" data-progress="100" style="width: 100%"></div>
       </div>
       <div class="progress-text">
-        <%= @application.application_checklists.count %> of <%= @application.application_checklists.count %> completed (100%)
+        <span class="progress-stats">
+          <%= @application.application_checklists.count %> of <%= @application.application_checklists.count %> completed
+        </span>
+        <span class="progress-percentage">100%</span>
       </div>
     </div>
     
     <div class="checklist-items">
-      <% @application.application_checklists.ordered.each do |item| %>
-        <div class="checklist-item completed">
+      <% @application.application_checklists.ordered.each_with_index do |item, index| %>
+        <div class="checklist-item completed readonly">
+          
           <div class="checkbox-wrapper">
             <input type="checkbox" checked disabled class="checklist-checkbox readonly">
           </div>
@@ -99,7 +213,12 @@
               <%= item.name %>
             </div>
             <div class="checklist-meta">
-              Completed by <%= item.completed_by_name %> on <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+              <span class="meta-icon">👤</span>
+              Completed by <strong><%= item.completed_by_name %></strong>
+              <br>
+              <span class="meta-icon">🕐</span>
+              <%= item.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+              <span class="time-ago">(<%= time_ago_in_words(item.completed_at) %> ago)</span>
             </div>
           </div>
         </div>
@@ -108,7 +227,13 @@
     
     <div class="checklist-complete">
       <div class="alert alert-success">
-        <strong>Application Approved!</strong> All checklist requirements have been met.
+        <div class="alert-content">
+          <span class="alert-icon">🎊</span>
+          <div class="alert-text">
+            <strong>Application Approved Successfully!</strong>
+            <p>All processing requirements have been completed and verified. The application has been officially accepted.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -89,6 +89,7 @@ class Application < ApplicationRecord
   after_update :log_update
   after_update :create_contract_if_accepted
   after_update :auto_create_checklist_on_submitted
+  after_update :ensure_checklist_for_processing_and_beyond
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -667,5 +668,25 @@ class Application < ApplicationRecord
     
     # Automatically advance to processing with checklist
     advance_to_processing_with_checklist!(current_user)
+  end
+  
+  def ensure_checklist_for_processing_and_beyond
+    # Only trigger if status changed TO processing, rejected, or accepted
+    return unless saved_change_to_status?
+    return unless status_processing? || status_rejected? || status_accepted?
+    
+    # If no checklist exists, create one
+    if application_checklists.empty?
+      create_checklist!
+      
+      # Log the checklist creation if we have a current_user
+      if current_user
+        application_versions.create!(
+          user: current_user,
+          action: 'checklist_updated',
+          change_details: "Checklist automatically created when application status changed to '#{status_display}'"
+        )
+      end
+    end
   end
 end

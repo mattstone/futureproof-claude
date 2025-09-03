@@ -2,6 +2,12 @@ require 'test_helper'
 
 class EmailTemplateTest < ActiveSupport::TestCase
   def setup
+    # Create lender first (required for user)
+    @lender = Lender.create!(
+      name: 'Test Lender',
+      email: 'lender@example.com'
+    )
+    
     @user = User.create!(
       first_name: 'John',
       last_name: 'Doe',
@@ -12,7 +18,8 @@ class EmailTemplateTest < ActiveSupport::TestCase
       mobile_country_code: '+61',
       mobile_number: '412345678',
       confirmed_at: Time.current,
-      terms_accepted: true
+      terms_accepted: true,
+      lender: @lender
     )
   end
 
@@ -20,8 +27,10 @@ class EmailTemplateTest < ActiveSupport::TestCase
     template = EmailTemplate.new(
       name: 'Test Template',
       template_type: 'verification',
+      email_category: 'operational',
       subject: 'Test Subject',
       content: '<p>Test content {{user.first_name}}</p>',
+      content_body: '<p>Test content {{user.first_name}}</p>',
       description: 'Test description'
     )
     
@@ -37,6 +46,8 @@ class EmailTemplateTest < ActiveSupport::TestCase
     assert_includes template.errors[:subject], "can't be blank"
     assert_includes template.errors[:content], "can't be blank"
     assert_includes template.errors[:template_type], "can't be blank"
+    assert_includes template.errors[:email_category], "can't be blank"
+    assert_includes template.errors[:content_body], "can't be blank"
   end
 
   test "should validate template_type inclusion" do

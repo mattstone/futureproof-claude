@@ -255,6 +255,9 @@ class Admin::ApplicationsController < Admin::BaseController
       flash[:notice] = "Checklist item marked as incomplete."
     end
     
+    # Broadcast the checklist update to the customer dashboard
+    broadcast_checklist_update
+    
     respond_to do |format|
       format.html { redirect_to params[:redirect_to] || admin_application_path(@application) }
       format.turbo_stream { render :checklist_updated }
@@ -282,6 +285,16 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def log_view
     @application.log_view_by(current_user)
+  end
+  
+  def broadcast_checklist_update
+    # Broadcast to the user's dashboard stream for real-time updates
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{@application.user_id}_dashboard",
+      target: "checklist-#{@application.id}",
+      partial: "dashboard/customer_checklist",
+      locals: { application: @application }
+    )
   end
 
   def set_turbo_stream_variables

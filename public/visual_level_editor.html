@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visual Level Editor - Drag & Position</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: monospace; 
+            background: #111; 
+            color: #0f0; 
+        }
+        .editor-container {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #0f0;
+        }
+        #levelImage {
+            display: block;
+            width: 900px;
+            height: 700px;
+            object-fit: contain;
+        }
+        .draggable {
+            position: absolute;
+            cursor: move;
+            border: 2px solid #ff0;
+            background: rgba(255, 255, 0, 0.3);
+        }
+        .girder-long {
+            height: 8px;
+            width: 55px;  /* A bit shorter */
+            background: rgba(255, 107, 137, 0.8);  /* More pinkish-red */
+            border: 2px solid #ff0;
+        }
+        .girder-short {
+            height: 8px;
+            width: 35px;  /* A bit shorter */
+            background: rgba(255, 107, 137, 0.8);  /* More pinkish-red */
+            border: 2px solid #f80;
+        }
+        .ladder-tall {
+            width: 16px;
+            height: 80px;
+            background: rgba(218, 165, 32, 0.8);
+            border: 2px solid #0f0;
+        }
+        .ladder-medium {
+            width: 16px;
+            height: 50px;
+            background: rgba(218, 165, 32, 0.8);
+            border: 2px solid #0a0;
+        }
+        .ladder-short {
+            width: 16px;
+            height: 25px;
+            background: rgba(218, 165, 32, 0.8);
+            border: 2px solid #050;
+        }
+        .platform-rect {
+            position: absolute;
+            border: 3px dashed #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            pointer-events: none;
+        }
+        .sprite-selection {
+            position: absolute;
+            border: 2px solid #ff00ff;
+            background: rgba(255, 0, 255, 0.2);
+            pointer-events: auto;
+            z-index: 10;
+        }
+        .sprite-selection::after {
+            content: attr(data-sprite-type);
+            position: absolute;
+            top: -20px;
+            left: 0;
+            background: #ff00ff;
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        .resize-handle {
+            position: absolute;
+            background: #ff00ff;
+            border: 1px solid #fff;
+            width: 8px;
+            height: 8px;
+        }
+        .resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+        .resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+        .resize-handle.n { top: -4px; left: 50%; margin-left: -4px; cursor: n-resize; }
+        .resize-handle.s { bottom: -4px; left: 50%; margin-left: -4px; cursor: s-resize; }
+        .resize-handle.w { top: 50%; left: -4px; margin-top: -4px; cursor: w-resize; }
+        .resize-handle.e { top: 50%; right: -4px; margin-top: -4px; cursor: e-resize; }
+        .controls {
+            background: #222;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+        button:hover { background: #0a0; }
+        #output {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            margin-top: 20px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Visual Level Editor</h1>
+    <p>Drag girders and ladders to position them over the original Level 1 image</p>
+
+    <div class="controls">
+        <div style="color: #0f0; margin: 5px 0;">Auto-loading levels.png...</div>
+        <select id="levelSelect">
+            <option value="0">Level 1 (25M) - Top Left</option>
+            <option value="1">Level 2 (50M) - Top 2nd</option>
+            <option value="2">Level 3 (75M) - Top 3rd</option>
+            <option value="3">Level 4 (100M) - Top Right</option>
+            <option value="4">Level 5 - Middle Left</option>
+            <option value="5">Level 6 - Middle 2nd</option>
+            <option value="6">Level 7 - Middle 3rd</option>
+            <option value="7">Level 8 - Middle Right</option>
+            <option value="8">Level 9 - Bottom Left</option>
+            <option value="9">Level 10 - Bottom 2nd</option>
+            <option value="10">Level 11 - Bottom 3rd</option>
+            <option value="11">Level 12 - Bottom Right</option>
+        </select>
+        <button onclick="extractLevel()">📋 Extract Level</button>
+        <button onclick="zoomIn()">🔍 Zoom In</button>
+        <button onclick="zoomOut()">🔍 Zoom Out</button>
+        <span id="zoomLevel">100%</span><br><br>
+        
+        <button onclick="setSpriteMode('long-girder')" id="longGirderBtn">🎨 Extract Long Girder</button>
+        <button onclick="setSpriteMode('short-girder')" id="shortGirderBtn">🎨 Extract Short Girder</button>
+        <button onclick="setSpriteMode('ladder')" id="ladderBtn">🎨 Extract Ladder</button>
+        <button onclick="clearSprites()">🗑️ Clear Sprites</button>
+        <button onclick="clearAll()">🗑️ Clear All</button>
+        <button onclick="generateCode()">💻 Generate Code</button>
+    </div>
+
+    <div class="editor-container" id="editorContainer">
+        <img id="levelImage" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAwIiBoZWlnaHQ9IjcwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+CiAgPHRleHQgeD0iNDUwIiB5PSIzNTAiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkxvYWQgWW91ciBMZXZlbCBJbWFnZTwvdGV4dD4KICA8dGV4dCB4PSI0NTAiIHk9IjM4MCIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzBmMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2xpY2sgJ0Nob29zZSBGaWxlJyBhYm92ZTwvdGV4dD4KICA8L3N2Zz4K" alt="Load your level image">
+    </div>
+
+    <div id="output">// Generated JavaScript will appear here...</div>
+
+    <script>
+        let elements = [];
+        let draggedElement = null;
+        let offset = { x: 0, y: 0 };
+        let sourceImage = null;
+        let spriteMode = null;
+        let selectionStart = null;
+        let zoomLevel = 1;
+        let extractedSprites = {};
+        let resizingSprite = null;
+        let resizeHandle = null;
+
+        // Auto-load levels.png on page load
+        function autoLoadImage() {
+            const img = new Image();
+            img.onload = function() {
+                sourceImage = img;
+                console.log('Auto-loaded levels.png:', img.width, 'x', img.height);
+                // Auto-extract Level 1 by default
+                extractLevel();
+            };
+            img.onerror = function() {
+                console.log('Could not auto-load levels.png - please place levels.png in the same directory');
+                // Fallback to file input
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.style.color = '#0f0';
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const img = new Image();
+                            img.onload = function() {
+                                sourceImage = img;
+                                console.log('Image loaded:', img.width, 'x', img.height);
+                                extractLevel();
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                document.querySelector('.controls').insertBefore(fileInput, document.querySelector('.controls').firstChild);
+            };
+            img.src = './sprites/levels.png';
+        }
+        
+        // Auto-load on page ready
+        window.addEventListener('load', autoLoadImage);
+
+        function extractLevel() {
+            if (!sourceImage) {
+                alert('Please load levels.png first');
+                return;
+            }
+
+            const levelIndex = parseInt(document.getElementById('levelSelect').value);
+            
+            // Calculate level boundaries (4 columns × 3 rows)
+            const levelWidth = sourceImage.width / 4;
+            const levelHeight = sourceImage.height / 3;
+            const col = levelIndex % 4;
+            const row = Math.floor(levelIndex / 4);
+            
+            const startX = col * levelWidth;
+            const startY = row * levelHeight;
+            
+            // Create canvas to extract the specific level
+            const canvas = document.createElement('canvas');
+            canvas.width = levelWidth;
+            canvas.height = levelHeight;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(sourceImage, startX, startY, levelWidth, levelHeight, 0, 0, levelWidth, levelHeight);
+            
+            // Set the extracted level as the background image
+            const dataURL = canvas.toDataURL();
+            const levelImage = document.getElementById('levelImage');
+            levelImage.src = dataURL;
+            
+            // Resize container to match level proportions
+            const container = document.getElementById('editorContainer');
+            const baseWidth = 900;  // Base display width
+            const baseHeight = 700; // Base display height
+            
+            const displayWidth = baseWidth * zoomLevel;
+            const displayHeight = baseHeight * zoomLevel;
+            
+            levelImage.style.width = displayWidth + 'px';
+            levelImage.style.height = displayHeight + 'px';
+            
+            console.log(`Extracted level ${levelIndex + 1}: ${levelWidth}x${levelHeight} → ${displayWidth}x${displayHeight}`);
+        }
+
+        function addLongGirder() {
+            addGirder('long', 44, 16);
+        }
+
+        function addShortGirder() {
+            addGirder('short', 28, 8);
+        }
+
+        function addGirder(type, displayWidth, actualWidth) {
+            const container = document.getElementById('editorContainer');
+            const girder = document.createElement('div');
+            girder.className = `draggable girder-${type}`;
+            girder.style.left = '100px';
+            girder.style.top = '200px';
+            girder.setAttribute('data-type', 'girder');
+            girder.setAttribute('data-subtype', type);
+            girder.setAttribute('data-id', elements.length);
+            
+            makeDraggable(girder);
+            container.appendChild(girder);
+            
+            elements.push({
+                type: 'girder',
+                subtype: type,
+                id: elements.length,
+                x: 100,
+                y: 200,
+                width: actualWidth,  // Actual game size
+                height: 6
+            });
+        }
+
+        function addTallLadder() {
+            addLadder('tall', 80);
+        }
+        
+        function addMediumLadder() {
+            addLadder('medium', 50);
+        }
+        
+        function addShortLadder() {
+            addLadder('short', 25);
+        }
+
+        function addLadder(size, height) {
+            const container = document.getElementById('editorContainer');
+            const ladder = document.createElement('div');
+            ladder.className = `draggable ladder-${size}`;
+            ladder.style.left = '300px';
+            ladder.style.top = '300px';
+            ladder.setAttribute('data-type', 'ladder');
+            ladder.setAttribute('data-subtype', size);
+            ladder.setAttribute('data-id', elements.length);
+            
+            makeDraggable(ladder);
+            container.appendChild(ladder);
+            
+            elements.push({
+                type: 'ladder',
+                subtype: size,
+                id: elements.length,
+                x: 300,
+                y: 300,
+                width: 16,
+                height: height
+            });
+        }
+
+        function makeDraggable(element) {
+            element.addEventListener('mousedown', function(e) {
+                draggedElement = element;
+                const rect = element.getBoundingClientRect();
+                const containerRect = document.getElementById('editorContainer').getBoundingClientRect();
+                
+                offset.x = e.clientX - rect.left;
+                offset.y = e.clientY - rect.top;
+                
+                e.preventDefault();
+            });
+        }
+
+        document.addEventListener('mousemove', function(e) {
+            if (resizingSprite && resizeHandle) {
+                const containerRect = document.getElementById('editorContainer').getBoundingClientRect();
+                const mouseX = e.clientX - containerRect.left;
+                const mouseY = e.clientY - containerRect.top;
+                
+                const sprite = resizingSprite;
+                const handle = resizeHandle;
+                const currentLeft = parseFloat(sprite.style.left);
+                const currentTop = parseFloat(sprite.style.top);
+                const currentWidth = parseFloat(sprite.style.width);
+                const currentHeight = parseFloat(sprite.style.height);
+                
+                let newLeft = currentLeft;
+                let newTop = currentTop;
+                let newWidth = currentWidth;
+                let newHeight = currentHeight;
+                
+                if (handle.includes('w')) {
+                    newWidth = currentWidth + (currentLeft - mouseX);
+                    newLeft = mouseX;
+                }
+                if (handle.includes('e')) {
+                    newWidth = mouseX - currentLeft;
+                }
+                if (handle.includes('n')) {
+                    newHeight = currentHeight + (currentTop - mouseY);
+                    newTop = mouseY;
+                }
+                if (handle.includes('s')) {
+                    newHeight = mouseY - currentTop;
+                }
+                
+                // Minimum size constraints
+                if (newWidth >= 10 && newHeight >= 5) {
+                    sprite.style.left = newLeft + 'px';
+                    sprite.style.top = newTop + 'px';
+                    sprite.style.width = newWidth + 'px';
+                    sprite.style.height = newHeight + 'px';
+                    
+                    // Update sprite data
+                    const spriteType = sprite.getAttribute('data-sprite-type');
+                    updateSpriteData(spriteType, newLeft, newTop, newWidth, newHeight);
+                }
+            } else if (draggedElement && !spriteMode) {
+                const containerRect = document.getElementById('editorContainer').getBoundingClientRect();
+                const x = e.clientX - containerRect.left - offset.x;
+                const y = e.clientY - containerRect.top - offset.y;
+                
+                // Keep within bounds
+                const maxX = containerRect.width - draggedElement.offsetWidth;
+                const maxY = containerRect.height - draggedElement.offsetHeight;
+                
+                const clampedX = Math.max(0, Math.min(x, maxX));
+                const clampedY = Math.max(0, Math.min(y, maxY));
+                
+                draggedElement.style.left = clampedX + 'px';
+                draggedElement.style.top = clampedY + 'px';
+                
+                // Update element data
+                const id = parseInt(draggedElement.getAttribute('data-id'));
+                if (elements[id]) {
+                    elements[id].x = clampedX;
+                    elements[id].y = clampedY;
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (spriteMode && selectionStart) {
+                // Finish sprite selection
+                const containerRect = document.getElementById('editorContainer').getBoundingClientRect();
+                const endX = e.clientX - containerRect.left;
+                const endY = e.clientY - containerRect.top;
+                
+                const left = Math.min(selectionStart.x, endX);
+                const top = Math.min(selectionStart.y, endY);
+                const width = Math.abs(endX - selectionStart.x);
+                const height = Math.abs(endY - selectionStart.y);
+                
+                if (width > 10 && height > 5) {  // Minimum size
+                    extractSprite(spriteMode, left, top, width, height);
+                }
+                selectionStart = null;
+            }
+            
+            // Reset resize state
+            resizingSprite = null;
+            resizeHandle = null;
+            draggedElement = null;
+        });
+
+        // Handle resize handle mousedown
+        document.addEventListener('mousedown', function(e) {
+            if (e.target.classList.contains('resize-handle')) {
+                resizingSprite = e.target.closest('.sprite-selection');
+                resizeHandle = e.target.getAttribute('data-handle');
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        function extractSprite(spriteType, x, y, width, height) {
+            const container = document.getElementById('editorContainer');
+            
+            // Remove existing selection of this type
+            const existing = container.querySelector(`[data-sprite-type="${spriteType}"]`);
+            if (existing) existing.remove();
+            
+            // Create visual selection indicator
+            const selection = document.createElement('div');
+            selection.className = 'sprite-selection';
+            selection.style.left = x + 'px';
+            selection.style.top = y + 'px';
+            selection.style.width = width + 'px';
+            selection.style.height = height + 'px';
+            selection.setAttribute('data-sprite-type', spriteType);
+            
+            // Add resize handles
+            const handles = ['nw', 'ne', 'sw', 'se', 'n', 's', 'w', 'e'];
+            handles.forEach(handle => {
+                const handleDiv = document.createElement('div');
+                handleDiv.className = `resize-handle ${handle}`;
+                handleDiv.setAttribute('data-handle', handle);
+                selection.appendChild(handleDiv);
+            });
+            
+            container.appendChild(selection);
+            
+            // Store sprite data
+            updateSpriteData(spriteType, x, y, width, height);
+            
+            console.log(`Extracted ${spriteType} sprite:`, extractedSprites[spriteType]);
+            
+            // Auto-disable sprite mode after extraction
+            setSpriteMode(spriteType);
+        }
+
+        function updateSpriteData(spriteType, x, y, width, height) {
+            extractedSprites[spriteType] = {
+                x: x / zoomLevel,  // Scale back to original size
+                y: y / zoomLevel,
+                width: width / zoomLevel,
+                height: height / zoomLevel
+            };
+        }
+        
+        // Handle sprite selection drawing
+        document.getElementById('editorContainer').addEventListener('mousedown', function(e) {
+            if (spriteMode && e.target.id === 'levelImage') {
+                const containerRect = this.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const y = e.clientY - containerRect.top;
+                selectionStart = { x, y };
+                e.preventDefault();
+            }
+        });
+
+        function createPlatformRect(x, y, width, height) {
+            const container = document.getElementById('editorContainer');
+            const rect = document.createElement('div');
+            rect.className = 'platform-rect';
+            rect.style.left = x + 'px';
+            rect.style.top = y + 'px';
+            rect.style.width = width + 'px';
+            rect.style.height = height + 'px';
+            rect.setAttribute('data-platform-id', platforms.length);
+            
+            container.appendChild(rect);
+            
+            platforms.push({
+                id: platforms.length,
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            });
+            
+            console.log(`Platform rectangle created: ${x}, ${y}, ${width}x${height}`);
+        }
+
+        function stitchGirders() {
+            if (platforms.length === 0) {
+                alert('Draw some platform rectangles first!');
+                return;
+            }
+            
+            // Clear existing girders
+            const container = document.getElementById('editorContainer');
+            const existingGirders = container.querySelectorAll('[data-type="girder"]');
+            existingGirders.forEach(girder => girder.remove());
+            elements = elements.filter(el => el.type !== 'girder');
+            
+            // Convert each platform rectangle into stitched girders
+            platforms.forEach(platform => {
+                const girderHeight = 8;  // Match our girder height
+                const y = platform.y + (platform.height / 2);  // Center vertically in rectangle
+                
+                let currentX = platform.x;
+                const endX = platform.x + platform.width;
+                
+                while (currentX < endX) {
+                    const remainingWidth = endX - currentX;
+                    const useShort = remainingWidth < 40;  // Use short girder for end pieces
+                    const girderWidth = useShort ? 35 : 55;  // Our CSS widths
+                    const actualWidth = useShort ? 8 : 16;   // Actual game widths
+                    
+                    if (remainingWidth >= girderWidth || remainingWidth >= 20) {
+                        // Create girder element
+                        const girder = document.createElement('div');
+                        girder.className = `draggable girder-${useShort ? 'short' : 'long'}`;
+                        girder.style.left = currentX + 'px';
+                        girder.style.top = (y - girderHeight/2) + 'px';
+                        girder.setAttribute('data-type', 'girder');
+                        girder.setAttribute('data-subtype', useShort ? 'short' : 'long');
+                        girder.setAttribute('data-id', elements.length);
+                        
+                        makeDraggable(girder);
+                        container.appendChild(girder);
+                        
+                        elements.push({
+                            type: 'girder',
+                            subtype: useShort ? 'short' : 'long',
+                            id: elements.length,
+                            x: currentX,
+                            y: y - girderHeight/2,
+                            width: actualWidth,
+                            height: 6
+                        });
+                    }
+                    
+                    currentX += Math.min(girderWidth, remainingWidth);
+                }
+            });
+            
+            console.log(`Stitched ${platforms.length} platforms into ${elements.filter(e => e.type === 'girder').length} girders`);
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel * 1.5, 4);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel / 1.5, 0.5);
+            updateZoom();
+        }
+
+        function updateZoom() {
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            extractLevel(); // Re-extract with new zoom
+        }
+
+        function setSpriteMode(mode) {
+            // Reset all buttons
+            document.querySelectorAll('#longGirderBtn, #shortGirderBtn, #ladderBtn').forEach(btn => {
+                btn.style.background = '#0f0';
+                btn.style.color = '#000';
+            });
+            
+            if (spriteMode === mode) {
+                // Toggle off
+                spriteMode = null;
+            } else {
+                // Set new mode
+                spriteMode = mode;
+                let btnId;
+                if (mode === 'long-girder') btnId = 'longGirderBtn';
+                else if (mode === 'short-girder') btnId = 'shortGirderBtn';  
+                else if (mode === 'ladder') btnId = 'ladderBtn';
+                
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.style.background = '#ff0';
+                    btn.style.color = '#000';
+                }
+                console.log(`Sprite extraction mode: ${mode}. Click and drag on the level image.`);
+            }
+        }
+
+        function clearSprites() {
+            const container = document.getElementById('editorContainer');
+            const selections = container.querySelectorAll('.sprite-selection');
+            selections.forEach(sel => sel.remove());
+            extractedSprites = {};
+            console.log('Cleared all sprite selections');
+        }
+
+        function setPlatformMode() {
+            platformMode = !platformMode;
+            const btn = document.getElementById('platformModeBtn');
+            if (platformMode) {
+                btn.style.background = '#ff0';
+                btn.style.color = '#000';
+                btn.textContent = '📐 Platform Mode ON - Click & Drag';
+            } else {
+                btn.style.background = '#0f0';
+                btn.style.color = '#000';
+                btn.textContent = '📐 Draw Platform Rectangle';
+                platformRectStart = null;
+            }
+        }
+
+        function clearAll() {
+            const container = document.getElementById('editorContainer');
+            const draggables = container.querySelectorAll('.draggable, .platform-rect');
+            draggables.forEach(el => el.remove());
+            elements = [];
+            platforms = [];
+            platformMode = false;
+            platformRectStart = null;
+            const btn = document.getElementById('platformModeBtn');
+            btn.style.background = '#0f0';
+            btn.textContent = '📐 Draw Platform Rectangle';
+        }
+
+        function generateCode() {
+            let code = '// Generated Sprite Extractions\n';
+            code += 'createLevel() {\n';
+            code += '  const canvasWidth = this.width;\n';
+            code += '  const canvasHeight = this.height;\n\n';
+            code += '  this.platforms = [];\n';
+            code += '  this.ladders = [];\n';
+            code += '  this.girders = [];\n\n';
+            
+            // Generate extracted sprite data
+            if (Object.keys(extractedSprites).length > 0) {
+                code += '  // Extracted Sprite Coordinates from Level Image\n';
+                code += '  const spriteCoords = {\n';
+                
+                Object.entries(extractedSprites).forEach(([spriteType, coords], index) => {
+                    const comma = index < Object.keys(extractedSprites).length - 1 ? ',' : '';
+                    code += `    "${spriteType}": { x: ${Math.round(coords.x)}, y: ${Math.round(coords.y)}, width: ${Math.round(coords.width)}, height: ${Math.round(coords.height)} }${comma}\n`;
+                });
+                
+                code += '  };\n\n';
+                
+                // Generate sprite usage examples
+                code += '  // Use sprites to create level elements\n';
+                if (extractedSprites['long-girder']) {
+                    code += '  // Example: Create long girders using extracted sprite\n';
+                    code += '  // const longGirder = spriteCoords["long-girder"];\n';
+                    code += '  // this.girders.push({\n';
+                    code += '  //   spriteX: longGirder.x, spriteY: longGirder.y,\n';
+                    code += '  //   spriteWidth: longGirder.width, spriteHeight: longGirder.height,\n';
+                    code += '  //   gameX: 200, gameY: 400  // Position in game\n';
+                    code += '  // });\n\n';
+                }
+                
+                if (extractedSprites['short-girder']) {
+                    code += '  // Example: Create short girders using extracted sprite\n';
+                    code += '  // const shortGirder = spriteCoords["short-girder"];\n';
+                    code += '  // this.girders.push({\n';
+                    code += '  //   spriteX: shortGirder.x, spriteY: shortGirder.y,\n';
+                    code += '  //   spriteWidth: shortGirder.width, spriteHeight: shortGirder.height,\n';
+                    code += '  //   gameX: 300, gameY: 400  // Position in game\n';
+                    code += '  // });\n\n';
+                }
+                
+                if (extractedSprites['ladder']) {
+                    code += '  // Example: Create ladders using extracted sprite\n';
+                    code += '  // const ladder = spriteCoords["ladder"];\n';
+                    code += '  // this.ladders.push({\n';
+                    code += '  //   spriteX: ladder.x, spriteY: ladder.y,\n';
+                    code += '  //   spriteWidth: ladder.width, spriteHeight: ladder.height,\n';
+                    code += '  //   gameX: 400, gameY: 300  // Position in game\n';
+                    code += '  // });\n\n';
+                }
+            } else {
+                code += '  // No sprites extracted yet\n';
+                code += '  // Use the sprite extraction buttons above to extract girders and ladders\n\n';
+            }
+            
+            code += '}\n';
+            
+            document.getElementById('output').textContent = code;
+        }
+
+        // Double-click to delete
+        document.addEventListener('dblclick', function(e) {
+            if (e.target.classList.contains('draggable')) {
+                const id = parseInt(e.target.getAttribute('data-id'));
+                elements = elements.filter(el => el.id !== id);
+                e.target.remove();
+            }
+        });
+    </script>
+</body>
+</html>

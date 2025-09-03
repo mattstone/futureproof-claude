@@ -4,8 +4,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [ 
     "templateType", "fieldHelper", "fieldHelperContent", "toggleFieldHelper",
-    "htmlContent", "markupContent", "subject", "subjectPreview", "contentPreview",
-    "htmlSection", "markupSection", "htmlTab", "markupTab", "refreshBtn", "toggleSampleBtn"
+    "htmlContent", "markupContent", "richContent", "subject", "subjectPreview", "contentPreview",
+    "htmlSection", "markupSection", "richSection", "htmlTab", "markupTab", "richTab", "refreshBtn", "toggleSampleBtn"
   ]
   
   static values = { 
@@ -17,7 +17,7 @@ export default class extends Controller {
   connect() {
     console.log("Email template editor controller connected")
     this.useSampleDataValue = false
-    this.currentEditorModeValue = 'html'
+    this.currentEditorModeValue = 'rich'  // Default to rich text editor
     this.ajaxUrlValue = '/admin/email_templates/preview_ajax'
     
     // Initialize the preview
@@ -71,7 +71,12 @@ export default class extends Controller {
     }
   }
 
-  // Switch between HTML and Markup editors
+  // Switch between Rich Text, HTML and Markup editors
+  switchToRich(event) {
+    event.preventDefault()
+    this.switchEditorMode('rich')
+  }
+
   switchToHtml(event) {
     event.preventDefault()
     this.switchEditorMode('html')
@@ -83,19 +88,31 @@ export default class extends Controller {
   }
 
   switchEditorMode(mode) {
-    if (mode === 'html') {
+    // Hide all sections first
+    this.richSectionTarget.style.display = 'none'
+    this.htmlSectionTarget.style.display = 'none'
+    this.markupSectionTarget.style.display = 'none'
+    
+    // Remove active class from all tabs
+    this.richTabTarget.classList.remove('active')
+    this.htmlTabTarget.classList.remove('active')
+    this.markupTabTarget.classList.remove('active')
+    
+    // Show the selected section and activate its tab
+    if (mode === 'rich') {
+      this.richSectionTarget.style.display = 'block'
+      this.richTabTarget.classList.add('active')
+      this.currentEditorModeValue = 'rich'
+    } else if (mode === 'html') {
       this.htmlSectionTarget.style.display = 'block'
-      this.markupSectionTarget.style.display = 'none'
       this.htmlTabTarget.classList.add('active')
-      this.markupTabTarget.classList.remove('active')
       this.currentEditorModeValue = 'html'
-    } else {
-      this.htmlSectionTarget.style.display = 'none'
+    } else if (mode === 'markup') {
       this.markupSectionTarget.style.display = 'block'
-      this.htmlTabTarget.classList.remove('active')
       this.markupTabTarget.classList.add('active')
       this.currentEditorModeValue = 'markup'
     }
+    
     this.updatePreview()
   }
 
@@ -134,7 +151,15 @@ export default class extends Controller {
     let content = ''
     let subject = this.hasSubjectTarget ? this.subjectTarget.value : ''
     
-    if (this.currentEditorModeValue === 'html') {
+    if (this.currentEditorModeValue === 'rich') {
+      // Get content from TinyMCE if available
+      const tinymceElement = this.richSectionTarget.querySelector('[data-tinymce-target="editor"]')
+      if (window.tinymce && tinymce.get(tinymceElement.id)) {
+        content = tinymce.get(tinymceElement.id).getContent()
+      } else {
+        content = this.richContentTarget.value
+      }
+    } else if (this.currentEditorModeValue === 'html') {
       content = this.htmlContentTarget.value
     } else {
       content = this.markupToHtml(this.markupContentTarget.value)

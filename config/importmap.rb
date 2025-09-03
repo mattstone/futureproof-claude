@@ -17,3 +17,4 @@ pin "lace_invaders", to: "lace_invaders.js"
 pin "hackman", to: "hackman.js"
 pin "audio_manager", to: "audio_manager.js"
 pin "chart.js", to: "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js", preload: true
+pin "tinymce", to: "https://cdn.tiny.cloud/1/#{Rails.application.credentials.TINYMCE_API_KEY}/tinymce/6/tinymce.min.js", preload: true

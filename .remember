@@ -1,0 +1,193 @@
+# Email Template System - Testing Guide
+
+## New Email Template System Overview
+
+The email template system has been enhanced with:
+- **Email Categories**: Operational (system notifications) vs Marketing (promotional)
+- **Automatic Headers/Footers**: Based on email category selection
+- **Rich Text Editor**: TinyMCE WYSIWYG editor for easy email content creation
+- **Multiple Editor Options**: Rich Text (default), HTML Source, and Markup editors
+- **Content Body Editor**: Edit only the main content, headers/footers are automatically added
+- **Header/Footer Service**: `EmailHeaderFooterService` manages different headers and footers
+
+## Browser Testing Checklist
+
+### 1. Email Template Index Page (Admin → Email Templates)
+- [ ] Templates display in modern card layout (not table-style)
+- [ ] Templates show email category badge (Operational/Marketing)
+- [ ] Color coding: Blue for Operational, Green for Marketing
+- [ ] Active/Inactive status badges display correctly
+- [ ] Responsive design works on mobile/tablet
+- [ ] Summary counts show correct totals
+
+### 2. Create New Email Template
+**Path:** Admin → Email Templates → New Template
+- [ ] Template Type dropdown works (Verification, Application Submitted, Security)
+- [ ] Email Category dropdown works (Operational, Marketing)
+- [ ] Category descriptions are clear
+- [ ] Field placeholder helper shows correct fields for selected template type
+- [ ] Editor note explains that headers/footers will be added automatically
+
+### 3. Rich Text Editor (TinyMCE)
+- [ ] Rich text editor loads properly with toolbar
+- [ ] Bold, italic, underline formatting works
+- [ ] Headers (H2, H3, H4) can be applied
+- [ ] Bullet and numbered lists work
+- [ ] Text alignment (left, center, right) works
+- [ ] Link insertion works
+- [ ] Color selection (text and background) works
+- [ ] Field placeholders can be inserted via "Fields" button in toolbar
+- [ ] Editor generates clean HTML suitable for emails
+- [ ] Content saves properly when switching tabs
+
+### 4. HTML Source Editor
+- [ ] Shows clean HTML source of email content
+- [ ] Can edit HTML directly
+- [ ] Field placeholders like `{{user.first_name}}` work
+- [ ] Switches back to rich text editor maintaining content
+- [ ] Syntax highlighting for HTML (if available)
+
+### 5. Markup Editor
+- [ ] Simplified markup syntax works (## headers, **bold**, etc.)
+- [ ] Markup help guide is visible
+- [ ] Conversion to HTML works correctly
+- [ ] Field placeholders work in markup mode
+
+### 6. Email Category Selection
+- [ ] Operational category selection shows standard header preview
+- [ ] Marketing category selection shows enhanced branding preview
+- [ ] Category change updates live preview (if available)
+- [ ] Category affects final rendered email output
+
+### 7. Email Preview
+**Path:** Admin → Email Templates → [Template] → Preview
+- [ ] Preview shows complete email with headers and footers
+- [ ] Operational emails use standard blue header with company info
+- [ ] Marketing emails use gradient header with enhanced branding
+- [ ] Footers match category (operational = simple, marketing = social links)
+- [ ] Field substitution works correctly ({{user.first_name}} becomes actual name)
+- [ ] Email structure is professional and well-formatted
+
+### 8. Template Editing
+**Path:** Admin → Email Templates → [Template] → Edit
+- [ ] Existing templates load with current email category
+- [ ] Content Body field shows current body content (not full email)
+- [ ] Category can be changed and affects preview
+- [ ] Save functionality works correctly
+- [ ] Validation errors display properly
+
+### 9. Template Validation
+- [ ] Required fields show appropriate error messages
+- [ ] Email category validation works
+- [ ] Security notification templates enforce proper padding (custom validation)
+- [ ] Content body validation prevents empty content
+
+### 10. Email Rendering Test
+**Via Rails Console or Test Email Feature:**
+- [ ] `EmailTemplate.first.render_content(sample_data)` returns complete email
+- [ ] Operational templates use EmailHeaderFooterService operational header/footer
+- [ ] Marketing templates use EmailHeaderFooterService marketing header/footer
+- [ ] Field substitutions work correctly
+- [ ] Final HTML is well-formed and renders properly in email clients
+
+### 11. Backward Compatibility
+- [ ] Existing email templates still work
+- [ ] Old templates without content_body fall back to content field
+- [ ] Migration preserved existing email content
+- [ ] No broken links or missing data
+
+## Key Test Scenarios
+
+### Scenario 1: Create Marketing Welcome Email with Rich Text Editor
+1. Go to Admin → Email Templates → New Template
+2. Select "Email Verification" template type
+3. Select "Marketing" email category
+4. In Rich Text Editor tab:
+   - Type "Welcome" and format as Heading 2
+   - Add placeholder "{{user.first_name}}" after "Welcome "
+   - Create new paragraph: "Thank you for joining Futureproof!"
+   - Make "Futureproof" bold
+5. Save and preview
+6. **Expected:** Email has marketing header with gradient, formatted content with working placeholders, and social links in footer
+
+### Scenario 2: Create Operational Security Alert
+1. Create new template with "Security Notification" type
+2. Select "Operational" category
+3. Use security placeholders like `{{security.ip_address}}`
+4. Save and preview
+5. **Expected:** Email has standard operational header and simple footer
+
+### Scenario 3: Test Editor Tab Switching
+1. Open existing email template for editing
+2. Add content in Rich Text Editor with formatting (bold, headings, lists)
+3. Switch to "HTML Source" tab
+4. **Expected:** See clean HTML source with proper email-compatible formatting
+5. Switch back to Rich Text Editor
+6. **Expected:** Formatting is preserved and editable
+
+### Scenario 4: Edit Existing Template Category
+1. Open existing email template for editing
+2. Change email category from Operational to Marketing
+3. Save changes
+4. **Expected:** Preview shows marketing headers/footers instead of operational
+
+## Common Issues to Watch For
+
+1. **TinyMCE Not Loading:** If rich text editor shows as plain textarea, check browser console for JavaScript errors
+2. **Missing Headers/Footers:** If preview shows content without headers, check EmailHeaderFooterService
+3. **Validation Errors:** Ensure both content and content_body fields are present for new templates
+4. **Field Placeholders:** Verify `{{user.first_name}}` and similar placeholders render correctly
+5. **Category Mismatch:** Ensure selected category matches the rendered header/footer style
+6. **Tab Switching Issues:** Content should persist when switching between Rich Text, HTML, and Markup editors
+7. **Mobile Responsiveness:** Test on different screen sizes
+8. **Email Client Compatibility:** Headers/footers should render well in Gmail, Outlook, Apple Mail
+
+## Development Notes
+
+- `EmailHeaderFooterService.render_complete_email(category, body)` combines headers, body, and footers
+- Model validates `email_category` in ['operational', 'marketing']
+- Content body is the main editing field, content field maintained for backward compatibility
+- Migration preserves existing email content in both content and content_body fields
+- TinyMCE configured with email-optimized settings and toolbar
+- Rich text editor generates clean, email-client-compatible HTML
+- JavaScript controllers handle tab switching and content synchronization
+
+## Quick Test Commands (Rails Console)
+
+```ruby
+# Test header/footer service
+EmailHeaderFooterService.header_for_category('operational')
+EmailHeaderFooterService.header_for_category('marketing')
+
+# Test template rendering
+template = EmailTemplate.first
+sample_data = { user: User.first }
+rendered = template.render_content(sample_data)
+puts rendered[:subject]
+puts rendered[:content]
+
+# Create test marketing template
+marketing_template = EmailTemplate.create!(
+  name: "Test Marketing",
+  template_type: "verification",
+  email_category: "marketing",
+  subject: "Welcome {{user.first_name}}!",
+  content: "placeholder",
+  content_body: "<h1>Hello {{user.first_name}}!</h1>",
+  description: "Test template"
+)
+```
+
+## Success Criteria
+
+The email template system is working correctly when:
+1. ✅ All browser tests pass
+2. ✅ Rich text editor loads and functions properly with formatting options
+3. ✅ Tab switching between Rich Text, HTML, and Markup editors works seamlessly
+4. ✅ Field placeholders can be inserted via TinyMCE toolbar and render correctly
+5. ✅ Email categories affect header/footer styling correctly  
+6. ✅ Content body editing works independently from headers/footers
+7. ✅ Generated HTML is clean and email-client compatible
+8. ✅ Both operational and marketing templates render professionally
+9. ✅ Existing templates continue to work without issues
+10. ✅ Admin interface is intuitive and responsive

@@ -1,19 +1,23 @@
 <% content_for :page_title, "Terms and Conditions" %>
 
 <div class="admin-actions-bar">
-  <div></div>
+  <div class="admin-summary">
+    <div class="terms-summary">
+      Total Versions: <span class="count-badge"><%= @terms_and_conditions.total_count || TermsAndCondition.count %></span>
+    </div>
+  </div>
   
   <div class="admin-actions">
     <%= link_to "Create New Version", new_admin_terms_and_condition_path, class: "admin-btn admin-btn-primary" %>
   </div>
 </div>
 
-<div class="admin-table-container">
-  <table class="admin-table">
+<div class="admin-table">
+  <table>
     <thead>
       <tr>
-        <th>Title</th>
-        <th style="text-align: center;">Version</th>
+        <th>Terms Details</th>
+        <th>Version</th>
         <th>Last Updated</th>
         <th>Status</th>
         <th>Created</th>
@@ -22,38 +26,44 @@
     </thead>
     <tbody>
       <% @terms_and_conditions.each do |terms| %>
-        <tr class="<%= 'active-row' if terms.is_active? %>">
-          <td>
-            <strong><%= terms.title %></strong>
+        <tr class="<%= 'active-terms-row' if terms.is_active? %>">
+          <td class="terms-details-cell">
+            <div>
+              <strong><%= terms.title %></strong>
+            </div>
           </td>
-          <td style="text-align: center;">
-            <span class="admin-badge admin-badge-info"><%= terms.version %></span>
+          <td class="version-cell">
+            <span class="version-badge"><%= terms.version %></span>
           </td>
-          <td>
+          <td class="updated-cell">
             <%= terms.formatted_last_updated %>
           </td>
-          <td>
+          <td class="status-cell">
             <% if terms.is_active? %>
-              <span class="admin-badge admin-badge-success">Active</span>
+              <span class="status-badge status-active">Active</span>
             <% else %>
-              <span class="admin-badge admin-badge-secondary">Draft</span>
+              <span class="status-badge status-draft">Draft</span>
             <% end %>
           </td>
-          <td>
+          <td class="created-cell">
             <%= terms.created_at.strftime("%b %d, %Y") %>
+            <br>
+            <small><%= time_ago_in_words(terms.created_at) %> ago</small>
           </td>
-          <td class="admin-table-actions">
-            <%= link_to "View", admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-            <%= link_to "Edit", edit_admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-            <% unless terms.is_active? %>
-              <%= link_to "Activate", 
-                  activate_admin_terms_and_condition_path(terms), 
-                  method: :patch,
-                  class: "admin-btn admin-btn-sm admin-btn-success",
-                  data: { 
-                    confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
-                  } %>
-            <% end %>
+          <td class="actions-cell">
+            <div class="admin-actions">
+              <%= link_to "View", admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
+              <%= link_to "Edit", edit_admin_terms_and_condition_path(terms), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <% unless terms.is_active? %>
+                <%= link_to "Activate", 
+                    activate_admin_terms_and_condition_path(terms), 
+                    method: :patch,
+                    class: "admin-btn admin-btn-sm admin-btn-success",
+                    data: { 
+                      confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+                    } %>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>
@@ -61,7 +71,7 @@
   </table>
   
   <% if @terms_and_conditions.empty? %>
-    <div class="admin-empty-state">
+    <div class="empty-state">
       <h3>No Terms and Conditions Found</h3>
       <p>Get started by creating your first Terms and Conditions.</p>
       <%= link_to "Create First Terms and Conditions", new_admin_terms_and_condition_path, class: "admin-btn admin-btn-primary" %>
@@ -69,4 +79,138 @@
   <% end %>
 </div>
 
-<%= paginate @terms_and_conditions if respond_to?(:paginate) %>
+<div class="admin-pagination">
+  <%= paginate @terms_and_conditions, window: 2 %>
+</div>
+
+<style>
+/* Admin actions bar styling */
+.admin-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-summary {
+  display: flex;
+  align-items: center;
+}
+
+.count-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Terms details cell styling */
+.terms-details-cell {
+  min-width: 200px;
+}
+
+/* Version badge styling */
+.version-badge {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-draft {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Updated and created cell styling */
+.updated-cell, .created-cell {
+  color: #374151;
+}
+
+.created-cell small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Active terms row highlighting */
+.active-terms-row {
+  background-color: #f0f9ff;
+  border-left: 3px solid #0891b2;
+}
+
+.active-terms-row td {
+  background-color: #f0f9ff;
+}
+
+/* Actions cell styling */
+.actions-cell {
+  white-space: nowrap;
+  width: 10%;
+  min-width: 140px;
+}
+
+.actions-cell .admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.actions-cell .admin-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .actions-cell .admin-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .actions-cell {
+    width: auto;
+    min-width: auto;
+  }
+}
+</style>
