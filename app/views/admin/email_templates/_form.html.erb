@@ -150,11 +150,12 @@
     <div class="admin-form-actions-left">
       <% if @email_template.persisted? %>
         <%= link_to "Preview", preview_admin_email_template_path(@email_template), class: "admin-btn admin-btn-info", target: "_blank", id: "preview-btn" %>
+        <%= link_to "Send test", send_test_admin_email_template_path(@email_template), class: "admin-btn admin-btn-success", method: :post, id: "send-test-btn", data: { confirm: "Send a test email to your account?" } %>
       <% end %>
     </div>
     <div class="admin-form-actions-right">
       <%= link_to "Cancel", admin_email_templates_path, class: "admin-btn admin-btn-secondary" %>
-      <%= form.submit class: "admin-btn admin-btn-primary" %>
+      <%= form.submit(@email_template.persisted? ? "Update" : "Create Email Template", class: "admin-btn admin-btn-primary") %>
     </div>
   </div>
     <% end %>
@@ -202,14 +203,14 @@
   background: white;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: 8px;
 }
 
 .email-editor-preview {
   background: white;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: 12px;
   position: sticky;
   top: 24px;
   height: fit-content;
@@ -240,25 +241,31 @@
 .email-preview-frame {
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  padding: 20px;
+  padding: 12px;
   background: #fafafa;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
 
 .email-subject-preview {
   margin-bottom: 16px;
-  padding: 12px;
+  padding: 8px 12px;
   background: white;
   border-radius: 4px;
   border-left: 4px solid #0891b2;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .email-body-preview {
   background: white;
-  padding: 20px;
+  padding: 12px;
   border-radius: 4px;
   min-height: 300px;
   line-height: 1.6;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  overflow: hidden;
 }
 
 /* Editor tabs */
@@ -380,6 +387,12 @@
 .admin-btn-success:hover {
   background: #047857;
   border-color: #047857;
+}
+
+/* Override admin-form styling for email templates */
+.admin-form {
+  padding: 8px;
+  box-shadow: none;
 }
 
 /* Responsive design */

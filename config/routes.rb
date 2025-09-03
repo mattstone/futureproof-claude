@@ -126,6 +126,7 @@ Rails.application.routes.draw do
         patch :deactivate
         get :preview
         post :test_email
+        post :send_test
       end
       collection do
         post :preview_ajax

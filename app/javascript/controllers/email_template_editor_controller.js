@@ -16,9 +16,15 @@ export default class extends Controller {
 
   connect() {
     console.log("Email template editor controller connected")
-    this.useSampleDataValue = false
+    this.useSampleDataValue = true  // Default to showing sample data
     this.currentEditorModeValue = 'rich'  // Default to rich text editor
     this.ajaxUrlValue = '/admin/email_templates/preview_ajax'
+    
+    // Set initial button text and style for sample data (enabled by default)
+    if (this.hasToggleSampleBtnTarget) {
+      this.toggleSampleBtnTarget.textContent = 'Hide Sample Data'
+      this.toggleSampleBtnTarget.classList.add('admin-btn-success')
+    }
     
     // Initialize the preview
     this.updatePreview()

@@ -2,7 +2,7 @@ require 'ostruct'
 
 class Admin::EmailTemplatesController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_email_template, only: [:show, :edit, :update, :activate, :deactivate, :preview]
+  before_action :set_email_template, only: [:show, :edit, :update, :activate, :deactivate, :preview, :send_test]
 
   def index
     @email_templates = EmailTemplate.order(:template_type, :name).page(params[:page]).per(10)
@@ -202,6 +202,31 @@ class Admin::EmailTemplatesController < Admin::BaseController
     redirect_to admin_email_template_path(@email_template), notice: 'Test email sent successfully!'
   end
 
+  def send_test
+    # Send a test email to the current user with sample data
+    begin
+      # Generate sample data based on template type
+      test_data = generate_test_data
+      
+      # Render the email content
+      rendered = @email_template.render_content(test_data)
+      
+      # Send the email using ActionMailer
+      AdminMailer.test_email(
+        to: current_user.email,
+        subject: rendered[:subject],
+        content: rendered[:content]
+      ).deliver_now
+      
+      flash[:notice] = "Test email sent successfully to #{current_user.email}!"
+    rescue => e
+      Rails.logger.error "Failed to send test email: #{e.message}"
+      flash[:alert] = "Failed to send test email: #{e.message}"
+    end
+    
+    redirect_back(fallback_location: edit_admin_email_template_path(@email_template))
+  end
+
   private
 
   def set_email_template
@@ -289,5 +314,81 @@ class Admin::EmailTemplatesController < Admin::BaseController
     else
       { user: user }
     end
+  end
+  
+  def generate_test_data
+    user = current_user
+    
+    case @email_template.template_type
+    when 'verification'
+      {
+        user: user,
+        verification: {
+          verification_code: rand(100000..999999).to_s,
+          expires_at: 30.minutes.from_now,
+          formatted_expires_at: 30.minutes.from_now.strftime('%I:%M %p')
+        }
+      }
+    when 'application_submitted'
+      # Generate random but realistic test data
+      sample_home_value = [750000, 850000, 950000, 1200000, 1500000].sample
+      sample_loan_value = (sample_home_value * 0.6).to_i
+      
+      {
+        user: user,
+        application: {
+          id: rand(1000..9999),
+          reference_number: sprintf('%06d', rand(1000..999999)),
+          address: ['123 Collins Street, Melbourne VIC 3000', '456 George Street, Sydney NSW 2000', '789 King Street, Perth WA 6000'].sample,
+          home_value: sample_home_value,
+          formatted_home_value: "$#{number_with_commas(sample_home_value)}",
+          existing_mortgage_amount: (sample_home_value * 0.2).to_i,
+          formatted_existing_mortgage_amount: "$#{number_with_commas((sample_home_value * 0.2).to_i)}",
+          loan_value: sample_loan_value,
+          formatted_loan_value: "$#{number_with_commas(sample_loan_value)}",
+          borrower_age: rand(60..75),
+          loan_term: [10, 15, 20, 25].sample,
+          growth_rate: [3.0, 3.5, 4.0, 4.5].sample,
+          formatted_growth_rate: "#{[3.0, 3.5, 4.0, 4.5].sample}%",
+          future_property_value: (sample_home_value * 1.5).to_i,
+          formatted_future_property_value: "$#{number_with_commas((sample_home_value * 1.5).to_i)}",
+          home_equity_preserved: (sample_home_value * 0.7).to_i,
+          formatted_home_equity_preserved: "$#{number_with_commas((sample_home_value * 0.7).to_i)}",
+          status: 'submitted',
+          status_display: 'Submitted for Review',
+          created_at: rand(1..7).days.ago,
+          updated_at: rand(1..24).hours.ago,
+          submitted_at: rand(1..24).hours.ago,
+          formatted_created_at: rand(1..7).days.ago.strftime('%B %d, %Y at %I:%M %p'),
+          formatted_updated_at: rand(1..24).hours.ago.strftime('%B %d, %Y at %I:%M %p'),
+          formatted_submitted_at: rand(1..24).hours.ago.strftime('%B %d, %Y at %I:%M %p')
+        },
+        mortgage: {
+          name: ['Premium Equity Mortgage', 'Lifetime Equity Release', 'Secure Retirement Mortgage'].sample,
+          lvr: ['55', '60', '65'].sample,
+          interest_rate: ['6.95', '7.25', '7.45', '7.65'].sample,
+          mortgage_type_display: 'Reverse Mortgage'
+        }
+      }
+    when 'security_notification'
+      browsers = ['Chrome 120.0 on Windows 10', 'Safari 17.0 on macOS', 'Firefox 119.0 on Ubuntu', 'Edge 119.0 on Windows 11']
+      locations = ['Sydney, Australia', 'Melbourne, Australia', 'Brisbane, Australia', 'Perth, Australia']
+      
+      {
+        user: user,
+        security: {
+          browser_info: browsers.sample,
+          ip_address: "#{rand(1..255)}.#{rand(1..255)}.#{rand(1..255)}.#{rand(1..255)}",
+          location: locations.sample,
+          sign_in_time: rand(1..60).minutes.ago.strftime('%B %d, %Y at %I:%M %p')
+        }
+      }
+    else
+      { user: user }
+    end
+  end
+  
+  def number_with_commas(number)
+    number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
   end
 end
