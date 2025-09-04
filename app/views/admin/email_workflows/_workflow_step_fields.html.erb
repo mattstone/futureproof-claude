@@ -1,0 +1,338 @@
+<div class="workflow-step-item">
+  <% if f %>
+    <%= f.hidden_field :_destroy, value: "0" %>
+    <%= f.hidden_field :id if f.object.persisted? %>
+    <%= f.hidden_field :position %>
+  <% else %>
+    <input type="hidden" name="email_workflow[workflow_steps_attributes][NEW_RECORD][_destroy]" value="0">
+    <input type="hidden" name="email_workflow[workflow_steps_attributes][NEW_RECORD][position]" value="0">
+  <% end %>
+  
+  <div class="step-header">
+    <div class="step-number"></div>
+    <div class="step-controls">
+      <button type="button" class="remove-step" title="Remove Step">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="step-content">
+    <div class="step-basic-info">
+      <div class="form-grid">
+        <div class="form-group">
+          <% if f %>
+            <%= f.label :step_type, "Step Type", class: "form-label" %>
+            <%= f.select :step_type, 
+                        options_for_select([
+                          ['Send Email', 'send_email'],
+                          ['Add Delay', 'delay'],
+                          ['Check Condition', 'condition'],
+                          ['Update Status', 'update_status']
+                        ], f.object.step_type),
+                        { prompt: "Choose step type..." },
+                        { class: "form-select", required: true } %>
+          <% else %>
+            <label class="form-label">Step Type</label>
+            <select name="email_workflow[workflow_steps_attributes][NEW_RECORD][step_type]" class="form-select" required>
+              <option value="">Choose step type...</option>
+              <option value="send_email">Send Email</option>
+              <option value="delay">Add Delay</option>
+              <option value="condition">Check Condition</option>
+              <option value="update_status">Update Status</option>
+            </select>
+          <% end %>
+        </div>
+        
+        <div class="form-group">
+          <% if f %>
+            <%= f.label :name, "Step Name (Optional)", class: "form-label" %>
+            <%= f.text_field :name, class: "form-input", placeholder: "e.g., Welcome Email" %>
+          <% else %>
+            <label class="form-label">Step Name (Optional)</label>
+            <input type="text" name="email_workflow[workflow_steps_attributes][NEW_RECORD][name]" 
+                   class="form-input" placeholder="e.g., Welcome Email">
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <% if f %>
+          <%= f.label :description, "Description (Optional)", class: "form-label" %>
+          <%= f.text_area :description, class: "form-textarea", rows: 2, 
+                          placeholder: "Describe what this step does..." %>
+        <% else %>
+          <label class="form-label">Description (Optional)</label>
+          <textarea name="email_workflow[workflow_steps_attributes][NEW_RECORD][description]" 
+                    class="form-textarea" rows="2" placeholder="Describe what this step does..."></textarea>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="step-configuration">
+      <!-- Send Email Configuration -->
+      <div class="config-group" data-step-type="send_email" style="display: none;">
+        <h4 class="config-title">Email Settings</h4>
+        <div class="form-group">
+          <label class="form-label">Email Template</label>
+          <% if f %>
+            <%= f.select :configuration, 
+                        options_from_collection_for_select(@email_templates || [], :id, :name, f.object.configuration['email_template_id']),
+                        { prompt: "Select email template..." },
+                        { class: "form-select", name: "#{f.object_name}[configuration][email_template_id]" } %>
+          <% else %>
+            <select name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][email_template_id]" 
+                    class="form-select">
+              <option value="">Select email template...</option>
+              <% if defined?(@email_templates) && @email_templates %>
+                <% @email_templates.each do |template| %>
+                  <option value="<%= template.id %>"><%= template.name %></option>
+                <% end %>
+              <% end %>
+            </select>
+          <% end %>
+          <p class="form-help">Choose which email template to send</p>
+        </div>
+      </div>
+      
+      <!-- Delay Configuration -->
+      <div class="config-group" data-step-type="delay" style="display: none;">
+        <h4 class="config-title">Delay Settings</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Duration</label>
+            <% if f %>
+              <%= f.number_field :configuration, 
+                                value: f.object.configuration['duration'],
+                                class: "form-input", min: 1, placeholder: "1",
+                                name: "#{f.object_name}[configuration][duration]" %>
+            <% else %>
+              <input type="number" name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][duration]" 
+                     class="form-input" min="1" placeholder="1">
+            <% end %>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <% if f %>
+              <%= f.select :configuration,
+                          options_for_select([
+                            ['Minutes', 'minutes'],
+                            ['Hours', 'hours'],
+                            ['Days', 'days'],
+                            ['Weeks', 'weeks']
+                          ], f.object.configuration['unit']),
+                          { prompt: "Select unit..." },
+                          { class: "form-select", name: "#{f.object_name}[configuration][unit]" } %>
+            <% else %>
+              <select name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][unit]" 
+                      class="form-select">
+                <option value="">Select unit...</option>
+                <option value="minutes">Minutes</option>
+                <option value="hours">Hours</option>
+                <option value="days">Days</option>
+                <option value="weeks">Weeks</option>
+              </select>
+            <% end %>
+          </div>
+        </div>
+        <p class="form-help">How long to wait before continuing to the next step</p>
+      </div>
+      
+      <!-- Condition Configuration -->
+      <div class="config-group" data-step-type="condition" style="display: none;">
+        <h4 class="config-title">Condition Settings</h4>
+        <div class="form-group">
+          <label class="form-label">Condition Type</label>
+          <% if f %>
+            <%= f.select :configuration,
+                        options_for_select([
+                          ['Application Status', 'application_status'],
+                          ['User Property', 'user_property'],
+                          ['Time Based', 'time_based']
+                        ], f.object.configuration['condition_type']),
+                        { prompt: "Select condition type..." },
+                        { class: "form-select", name: "#{f.object_name}[configuration][condition_type]" } %>
+          <% else %>
+            <select name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][condition_type]" 
+                    class="form-select">
+              <option value="">Select condition type...</option>
+              <option value="application_status">Application Status</option>
+              <option value="user_property">User Property</option>
+              <option value="time_based">Time Based</option>
+            </select>
+          <% end %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Expected Value</label>
+          <% if f %>
+            <%= f.text_field :configuration,
+                            value: f.object.configuration['expected_status'],
+                            class: "form-input", placeholder: "e.g., submitted",
+                            name: "#{f.object_name}[configuration][expected_status]" %>
+          <% else %>
+            <input type="text" name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][expected_status]" 
+                   class="form-input" placeholder="e.g., submitted">
+          <% end %>
+          <p class="form-help">The value to check against</p>
+        </div>
+      </div>
+      
+      <!-- Update Status Configuration -->
+      <div class="config-group" data-step-type="update_status" style="display: none;">
+        <h4 class="config-title">Update Settings</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Field to Update</label>
+            <% if f %>
+              <%= f.text_field :configuration,
+                              value: f.object.configuration['field'],
+                              class: "form-input", placeholder: "e.g., status",
+                              name: "#{f.object_name}[configuration][field]" %>
+            <% else %>
+              <input type="text" name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][field]" 
+                     class="form-input" placeholder="e.g., status">
+            <% end %>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Value</label>
+            <% if f %>
+              <%= f.text_field :configuration,
+                              value: f.object.configuration['value'],
+                              class: "form-input", placeholder: "e.g., processing",
+                              name: "#{f.object_name}[configuration][value]" %>
+            <% else %>
+              <input type="text" name="email_workflow[workflow_steps_attributes][NEW_RECORD][configuration][value]" 
+                     class="form-input" placeholder="e.g., processing">
+            <% end %>
+          </div>
+        </div>
+        <p class="form-help">Update a field on the target object</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.workflow-step-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  position: relative;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.step-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.remove-step {
+  width: 32px;
+  height: 32px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.remove-step:hover {
+  background: #dc2626;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-basic-info {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.step-configuration {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.config-group {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.config-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-title:before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Update step numbers
+  function updateStepNumbers() {
+    const steps = document.querySelectorAll('.workflow-step-item:not([style*="display: none"])');
+    steps.forEach((step, index) => {
+      const numberElement = step.querySelector('.step-number');
+      if (numberElement) {
+        numberElement.textContent = index + 1;
+      }
+    });
+  }
+  
+  // Initial update
+  updateStepNumbers();
+  
+  // Update numbers when steps are added/removed
+  const observer = new MutationObserver(updateStepNumbers);
+  observer.observe(document.getElementById('workflow-steps'), {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style']
+  });
+});
+</script>

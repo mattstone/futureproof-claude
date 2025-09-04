@@ -1,0 +1,67 @@
+<% case step.step_type %>
+<% when 'send_email' %>
+  <div class="step-icon-email">
+    <i class="fas fa-envelope"></i>
+  </div>
+<% when 'delay' %>
+  <div class="step-icon-delay">
+    <i class="fas fa-clock"></i>
+  </div>
+<% when 'condition' %>
+  <div class="step-icon-condition">
+    <i class="fas fa-code-branch"></i>
+  </div>
+<% when 'update_status' %>
+  <div class="step-icon-update">
+    <i class="fas fa-edit"></i>
+  </div>
+<% when 'webhook' %>
+  <div class="step-icon-webhook">
+    <i class="fas fa-link"></i>
+  </div>
+<% when 'wait_for_event' %>
+  <div class="step-icon-wait">
+    <i class="fas fa-pause"></i>
+  </div>
+<% else %>
+  <div class="step-icon-default">
+    <i class="fas fa-cog"></i>
+  </div>
+<% end %>
+
+<style>
+.step-icon-email {
+  background: #3b82f6;
+  color: white;
+}
+
+.step-icon-delay {
+  background: #f59e0b;
+  color: white;
+}
+
+.step-icon-condition {
+  background: #8b5cf6;
+  color: white;
+}
+
+.step-icon-update {
+  background: #10b981;
+  color: white;
+}
+
+.step-icon-webhook {
+  background: #ef4444;
+  color: white;
+}
+
+.step-icon-wait {
+  background: #6b7280;
+  color: white;
+}
+
+.step-icon-default {
+  background: #9ca3af;
+  color: white;
+}
+</style>

@@ -1,0 +1,341 @@
+<% case step.step_type %>
+<% when 'send_email' %>
+  <div class="step-preview send-email">
+    <div class="preview-header">
+      <i class="fas fa-envelope"></i>
+      <span>Email will be sent</span>
+    </div>
+    
+    <div class="email-details">
+      <% if step.configuration['email_template_id'].present? %>
+        <% template = EmailTemplate.find_by(id: step.configuration['email_template_id']) %>
+        <% if template %>
+          <div class="email-template-info">
+            <div class="template-name">
+              <strong>Template:</strong> <%= template.name %>
+            </div>
+            <div class="template-category">
+              <strong>Category:</strong> 
+              <span class="category-badge <%= template.email_category %>">
+                <%= template.email_category.humanize %>
+              </span>
+            </div>
+          </div>
+          
+          <div class="email-preview">
+            <div class="email-subject">
+              <strong>Subject:</strong> 
+              <span class="subject-preview">
+                <%= render_template_field(template.subject, sample_data) %>
+              </span>
+            </div>
+            
+            <div class="email-body-preview">
+              <strong>Content Preview:</strong>
+              <div class="content-snippet">
+                <%= truncate(strip_tags(template.content_body || template.content), length: 200) %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="email-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            Template not found (ID: <%= step.configuration['email_template_id'] %>)
+          </div>
+        <% end %>
+      <% else %>
+        <div class="email-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          No email template selected
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% when 'delay' %>
+  <div class="step-preview delay">
+    <div class="preview-header">
+      <i class="fas fa-clock"></i>
+      <span>Workflow will pause</span>
+    </div>
+    
+    <div class="delay-details">
+      <% if step.configuration['duration'].present? && step.configuration['unit'].present? %>
+        <div class="delay-info">
+          <div class="delay-duration">
+            <strong>Duration:</strong> 
+            <%= step.configuration['duration'] %> <%= step.configuration['unit'].pluralize(step.configuration['duration'].to_i) %>
+          </div>
+          <div class="delay-description">
+            The workflow will wait before continuing to the next step.
+          </div>
+        </div>
+      <% else %>
+        <div class="delay-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          Delay duration not configured
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% when 'condition' %>
+  <div class="step-preview condition">
+    <div class="preview-header">
+      <i class="fas fa-code-branch"></i>
+      <span>Condition will be checked</span>
+    </div>
+    
+    <div class="condition-details">
+      <% if step.configuration['condition_type'].present? %>
+        <div class="condition-info">
+          <div class="condition-type">
+            <strong>Type:</strong> <%= step.configuration['condition_type'].humanize %>
+          </div>
+          <% if step.configuration['expected_status'].present? %>
+            <div class="condition-value">
+              <strong>Expected Value:</strong> <%= step.configuration['expected_status'] %>
+            </div>
+          <% end %>
+          <div class="condition-description">
+            <% case step.configuration['condition_type'] %>
+            <% when 'application_status' %>
+              Will check if the application status matches the expected value.
+            <% when 'user_property' %>
+              Will check if a user property matches the expected value.
+            <% when 'time_based' %>
+              Will check if a time-based condition is met.
+            <% else %>
+              Will evaluate the specified condition.
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="condition-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          Condition type not configured
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% when 'update_status' %>
+  <div class="step-preview update-status">
+    <div class="preview-header">
+      <i class="fas fa-edit"></i>
+      <span>Field will be updated</span>
+    </div>
+    
+    <div class="update-details">
+      <% if step.configuration['field'].present? && step.configuration['value'].present? %>
+        <div class="update-info">
+          <div class="update-field">
+            <strong>Field:</strong> <%= step.configuration['field'] %>
+          </div>
+          <div class="update-value">
+            <strong>New Value:</strong> <%= step.configuration['value'] %>
+          </div>
+          <div class="update-description">
+            The target object's "<%= step.configuration['field'] %>" field will be set to "<%= step.configuration['value'] %>".
+          </div>
+        </div>
+      <% else %>
+        <div class="update-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          Field or value not configured
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% when 'webhook' %>
+  <div class="step-preview webhook">
+    <div class="preview-header">
+      <i class="fas fa-link"></i>
+      <span>Webhook will be called</span>
+    </div>
+    
+    <div class="webhook-details">
+      <% if step.configuration['webhook_url'].present? %>
+        <div class="webhook-info">
+          <div class="webhook-url">
+            <strong>URL:</strong> <%= step.configuration['webhook_url'] %>
+          </div>
+          <div class="webhook-method">
+            <strong>Method:</strong> <%= step.configuration['method'] || 'POST' %>
+          </div>
+          <div class="webhook-description">
+            Will send data to the specified webhook endpoint.
+          </div>
+        </div>
+      <% else %>
+        <div class="webhook-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          Webhook URL not configured
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% else %>
+  <div class="step-preview unknown">
+    <div class="preview-header">
+      <i class="fas fa-question"></i>
+      <span>Unknown step type: <%= step.step_type %></span>
+    </div>
+  </div>
+<% end %>
+
+<%
+# Helper method to render template fields with sample data
+def render_template_field(template_string, sample_data)
+  return template_string unless template_string.present?
+  
+  result = template_string.dup
+  sample_data.each do |category, data|
+    data.each do |key, value|
+      placeholder = "{{#{category}.#{key}}}"
+      result = result.gsub(placeholder, value.to_s)
+    end
+  end
+  result
+end
+%>
+
+<style>
+.step-preview {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.step-preview.send-email .preview-header {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.step-preview.delay .preview-header {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.step-preview.condition .preview-header {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.step-preview.update-status .preview-header {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.step-preview.webhook .preview-header {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.step-preview.unknown .preview-header {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.email-details, .delay-details, .condition-details, .update-details, .webhook-details {
+  padding: 16px;
+  background: #f9fafb;
+}
+
+.email-template-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.template-name, .template-category {
+  font-size: 0.875rem;
+}
+
+.category-badge {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.category-badge.operational {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.category-badge.marketing {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.email-subject {
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+}
+
+.subject-preview {
+  font-style: italic;
+  color: #6b7280;
+}
+
+.email-body-preview {
+  font-size: 0.875rem;
+}
+
+.content-snippet {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.delay-info, .condition-info, .update-info, .webhook-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.delay-duration, .condition-type, .condition-value, .update-field, .update-value, .webhook-url, .webhook-method {
+  font-size: 0.875rem;
+}
+
+.delay-description, .condition-description, .update-description, .webhook-description {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.email-error, .delay-error, .condition-error, .update-error, .webhook-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.email-error i, .delay-error i, .condition-error i, .update-error i, .webhook-error i {
+  color: #f87171;
+}
+</style>

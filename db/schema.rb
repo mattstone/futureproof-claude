@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_215507) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -235,6 +235,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
     t.index ["is_active"], name: "index_email_templates_on_is_active"
     t.index ["name"], name: "index_email_templates_on_name", unique: true
     t.index ["template_type"], name: "index_email_templates_on_template_type"
+  end
+
+  create_table "email_workflows", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
+    t.string "trigger_type", null: false
+    t.json "trigger_conditions", default: {}
+    t.bigint "created_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_email_workflows_on_created_by_id"
+    t.index ["trigger_type", "active"], name: "index_email_workflows_on_trigger_type_and_active"
   end
 
   create_table "funder_pool_versions", force: :cascade do |t|
@@ -514,6 +527,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
     t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
   end
 
+  create_table "scheduled_workflow_jobs", force: :cascade do |t|
+    t.bigint "execution_id", null: false
+    t.bigint "step_id", null: false
+    t.datetime "scheduled_for", null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "last_error"
+    t.string "status", default: "scheduled", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["execution_id", "step_id"], name: "index_scheduled_workflow_jobs_on_execution_id_and_step_id"
+    t.index ["execution_id"], name: "index_scheduled_workflow_jobs_on_execution_id"
+    t.index ["scheduled_for"], name: "index_scheduled_workflow_jobs_on_scheduled_for"
+    t.index ["status", "scheduled_for"], name: "index_scheduled_workflow_jobs_on_status_and_scheduled_for"
+    t.index ["step_id"], name: "index_scheduled_workflow_jobs_on_step_id"
+  end
+
   create_table "terms_and_condition_versions", force: :cascade do |t|
     t.bigint "terms_and_condition_id", null: false
     t.bigint "user_id", null: false
@@ -674,6 +703,57 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
     t.index ["name"], name: "index_wholesale_funders_on_name"
   end
 
+  create_table "workflow_executions", force: :cascade do |t|
+    t.bigint "workflow_id", null: false
+    t.string "target_type", null: false
+    t.bigint "target_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.integer "current_step_position", default: 0
+    t.json "context", default: {}
+    t.text "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["started_at"], name: "index_workflow_executions_on_started_at"
+    t.index ["status"], name: "index_workflow_executions_on_status"
+    t.index ["target_type", "target_id"], name: "index_workflow_executions_on_target"
+    t.index ["target_type", "target_id"], name: "index_workflow_executions_on_target_type_and_target_id"
+    t.index ["workflow_id", "status"], name: "index_workflow_executions_on_workflow_id_and_status"
+    t.index ["workflow_id"], name: "index_workflow_executions_on_workflow_id"
+  end
+
+  create_table "workflow_step_executions", force: :cascade do |t|
+    t.bigint "execution_id", null: false
+    t.bigint "step_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.json "result", default: {}
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["execution_id", "step_id"], name: "index_workflow_step_executions_on_execution_id_and_step_id", unique: true
+    t.index ["execution_id"], name: "index_workflow_step_executions_on_execution_id"
+    t.index ["started_at"], name: "index_workflow_step_executions_on_started_at"
+    t.index ["status"], name: "index_workflow_step_executions_on_status"
+    t.index ["step_id"], name: "index_workflow_step_executions_on_step_id"
+  end
+
+  create_table "workflow_steps", force: :cascade do |t|
+    t.bigint "workflow_id", null: false
+    t.string "step_type", null: false
+    t.integer "position", null: false
+    t.json "configuration", default: {}
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["step_type"], name: "index_workflow_steps_on_step_type"
+    t.index ["workflow_id", "position"], name: "index_workflow_steps_on_workflow_id_and_position", unique: true
+    t.index ["workflow_id"], name: "index_workflow_steps_on_workflow_id"
+  end
+
   add_foreign_key "application_checklists", "applications"
   add_foreign_key "application_checklists", "users", column: "completed_by_id"
   add_foreign_key "application_messages", "ai_agents"
@@ -699,6 +779,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
   add_foreign_key "contracts", "mortgage_contracts"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
+  add_foreign_key "email_workflows", "users", column: "created_by_id"
   add_foreign_key "funder_pool_versions", "funder_pools"
   add_foreign_key "funder_pool_versions", "users"
   add_foreign_key "funder_pools", "wholesale_funders"
@@ -731,6 +812,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
   add_foreign_key "mortgage_versions", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "scheduled_workflow_jobs", "workflow_executions", column: "execution_id"
+  add_foreign_key "scheduled_workflow_jobs", "workflow_steps", column: "step_id"
   add_foreign_key "terms_and_condition_versions", "terms_and_conditions"
   add_foreign_key "terms_and_condition_versions", "users"
   add_foreign_key "terms_and_conditions", "users", column: "created_by_id"
@@ -741,4 +824,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_055339) do
   add_foreign_key "users", "lenders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"
+  add_foreign_key "workflow_executions", "email_workflows", column: "workflow_id"
+  add_foreign_key "workflow_step_executions", "workflow_executions", column: "execution_id"
+  add_foreign_key "workflow_step_executions", "workflow_steps", column: "step_id"
+  add_foreign_key "workflow_steps", "email_workflows", column: "workflow_id"
 end

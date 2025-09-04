@@ -133,6 +133,18 @@ Rails.application.routes.draw do
       end
     end
     
+    resources :email_workflows do
+      member do
+        patch :toggle_active
+        get :preview
+        post :duplicate
+      end
+      collection do
+        get :add_step
+        get :templates
+      end
+    end
+    
     # Calculator
     resources :calculators, only: [:index] do
       collection do

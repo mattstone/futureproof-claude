@@ -1,0 +1,600 @@
+<% content_for :title, "Preview: #{@workflow.name}" %>
+<% content_for :breadcrumb do %>
+  <%= link_to "Email Workflows", admin_email_workflows_path, class: "breadcrumb-link" %>
+  <span class="breadcrumb-separator">→</span>
+  <%= link_to @workflow.name, admin_email_workflow_path(@workflow), class: "breadcrumb-link" %>
+  <span class="breadcrumb-separator">→</span>
+  <span>Preview</span>
+<% end %>
+
+<div class="workflow-preview">
+  <div class="preview-header">
+    <div class="flex items-center justify-between">
+      <div class="preview-title-section">
+        <h1>Workflow Preview</h1>
+        <p>See how "<%= @workflow.name %>" will execute with sample data</p>
+      </div>
+      
+      <div class="preview-actions">
+        <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn-secondary" do %>
+          <i class="fas fa-edit"></i> Edit Workflow
+        <% end %>
+        <%= link_to admin_email_workflow_path(@workflow), class: "btn-secondary" do %>
+          <i class="fas fa-arrow-left"></i> Back to Workflow
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-content">
+    <!-- Workflow Overview -->
+    <div class="preview-section">
+      <div class="section-header">
+        <h3>Workflow Configuration</h3>
+        <span class="status-badge <%= @workflow.active? ? 'active' : 'inactive' %>">
+          <%= @workflow.active? ? 'Active' : 'Inactive' %>
+        </span>
+      </div>
+      
+      <div class="config-overview">
+        <div class="config-item">
+          <label>Trigger:</label>
+          <span><%= @workflow.trigger_type.humanize %></span>
+        </div>
+        <% if @workflow.trigger_conditions.present? && @workflow.trigger_conditions.any? %>
+          <div class="config-item">
+            <label>Conditions:</label>
+            <div class="conditions-list">
+              <% @workflow.trigger_conditions.each do |key, value| %>
+                <span class="condition-tag"><%= key.humanize %>: <%= value %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <div class="config-item">
+          <label>Steps:</label>
+          <span><%= pluralize(@workflow.workflow_steps.count, 'step') %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample Data -->
+    <div class="preview-section">
+      <div class="section-header">
+        <h3>Sample Data</h3>
+        <p>This workflow will use the following sample data for preview</p>
+      </div>
+      
+      <div class="sample-data">
+        <% @sample_data.each do |category, data| %>
+          <div class="data-category">
+            <h4><%= category.to_s.humanize %></h4>
+            <div class="data-fields">
+              <% data.each do |key, value| %>
+                <div class="data-field">
+                  <span class="field-key">{{ <%= category %>.<%= key %> }}</span>
+                  <span class="field-value"><%= value %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Workflow Steps Preview -->
+    <div class="preview-section">
+      <div class="section-header">
+        <h3>Workflow Execution Flow</h3>
+        <p>How this workflow will execute step by step</p>
+      </div>
+      
+      <div class="workflow-flow">
+        <% if @workflow.workflow_steps.any? %>
+          <% @workflow.workflow_steps.ordered.each_with_index do |step, index| %>
+            <div class="flow-step">
+              <div class="step-indicator">
+                <div class="step-number"><%= index + 1 %></div>
+                <div class="step-icon">
+                  <%= render 'step_icon', step: step %>
+                </div>
+              </div>
+              
+              <div class="step-details">
+                <div class="step-header">
+                  <h4><%= step.name.present? ? step.name : step.step_type.humanize %></h4>
+                  <span class="step-type-badge"><%= step.step_type.humanize %></span>
+                </div>
+                
+                <% if step.description.present? %>
+                  <p class="step-description"><%= step.description %></p>
+                <% end %>
+                
+                <div class="step-preview-content">
+                  <%= render 'step_preview', step: step, sample_data: @sample_data %>
+                </div>
+              </div>
+            </div>
+            
+            <% unless step == @workflow.workflow_steps.ordered.last %>
+              <div class="flow-connector">
+                <div class="connector-line"></div>
+                <div class="connector-arrow">↓</div>
+              </div>
+            <% end %>
+          <% end %>
+          
+          <!-- Completion Step -->
+          <div class="flow-step completion-step">
+            <div class="step-indicator">
+              <div class="step-number">✓</div>
+              <div class="step-icon completion">
+                <i class="fas fa-flag-checkered"></i>
+              </div>
+            </div>
+            
+            <div class="step-details">
+              <div class="step-header">
+                <h4>Workflow Complete</h4>
+                <span class="step-type-badge success">Finished</span>
+              </div>
+              <p class="step-description">All workflow steps have been executed successfully.</p>
+            </div>
+          </div>
+        <% else %>
+          <div class="empty-workflow">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h4>No Steps Configured</h4>
+            <p>This workflow doesn't have any steps yet. Add steps to see the execution flow.</p>
+            <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn-primary" do %>
+              <i class="fas fa-plus"></i> Add Steps
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Execution History (if any) -->
+    <% if @workflow.workflow_executions.any? %>
+      <div class="preview-section">
+        <div class="section-header">
+          <h3>Recent Executions</h3>
+          <p>Last 5 times this workflow was executed</p>
+        </div>
+        
+        <div class="execution-history">
+          <% @workflow.workflow_executions.order(created_at: :desc).limit(5).each do |execution| %>
+            <div class="execution-item">
+              <div class="execution-status">
+                <span class="status-indicator <%= execution.status %>"></span>
+                <span class="status-text"><%= execution.status.humanize %></span>
+              </div>
+              
+              <div class="execution-details">
+                <div class="execution-target">
+                  Target: 
+                  <% if execution.target.respond_to?(:user) %>
+                    <%= execution.target.user.display_name %>
+                  <% elsif execution.target.respond_to?(:display_name) %>
+                    <%= execution.target.display_name %>
+                  <% else %>
+                    <%= execution.target.class.name %> #<%= execution.target.id %>
+                  <% end %>
+                </div>
+                <div class="execution-time">
+                  <%= time_ago_in_words(execution.created_at) %> ago
+                  <% if execution.completed_at %>
+                    (took <%= distance_of_time_in_words(execution.created_at, execution.completed_at) %>)
+                  <% end %>
+                </div>
+              </div>
+              
+              <% if execution.workflow_step_executions.any? %>
+                <div class="execution-progress">
+                  <div class="progress-bar">
+                    <% total_steps = @workflow.workflow_steps.count %>
+                    <% completed_steps = execution.workflow_step_executions.where(status: 'completed').count %>
+                    <% progress = total_steps > 0 ? (completed_steps.to_f / total_steps * 100).round : 0 %>
+                    <div class="progress-fill" style="width: <%= progress %>%"></div>
+                  </div>
+                  <span class="progress-text"><%= completed_steps %>/<%= total_steps %> steps</span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.workflow-preview {
+  padding: 0;
+}
+
+.preview-header {
+  background: white;
+  border-radius: 8px;
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+.preview-title-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.preview-title-section p {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.preview-section {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 32px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  margin-bottom: 24px;
+}
+
+.section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  flex: 1;
+}
+
+.section-header p {
+  color: #6b7280;
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+}
+
+.config-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.config-item label {
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.config-item span {
+  color: #111827;
+  font-size: 1rem;
+}
+
+.conditions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.condition-tag {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sample-data {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.data-category h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.data-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.data-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 4px;
+}
+
+.field-key {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: #7c3aed;
+  background: #ede9fe;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.field-value {
+  color: #111827;
+  font-weight: 500;
+}
+
+.workflow-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.flow-step.completion-step {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.completion-step .step-number {
+  background: #10b981;
+}
+
+.step-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.step-header h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.step-type-badge {
+  background: #e5e7eb;
+  color: #6b7280;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.step-type-badge.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.step-description {
+  color: #6b7280;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.step-preview-content {
+  background: white;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.flow-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: -8px 0;
+  z-index: 1;
+}
+
+.connector-line {
+  width: 2px;
+  height: 24px;
+  background: #d1d5db;
+}
+
+.connector-arrow {
+  background: white;
+  color: #6b7280;
+  font-size: 1.25rem;
+  padding: 4px 8px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+.empty-workflow {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.empty-workflow i {
+  font-size: 3rem;
+  color: #f59e0b;
+  margin-bottom: 16px;
+}
+
+.empty-workflow h4 {
+  font-size: 1.25rem;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.empty-workflow p {
+  margin-bottom: 24px;
+}
+
+.execution-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.execution-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.execution-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.completed { background: #10b981; }
+.status-indicator.running { background: #3b82f6; }
+.status-indicator.pending { background: #f59e0b; }
+.status-indicator.failed { background: #ef4444; }
+
+.status-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.execution-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.execution-target {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.execution-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.execution-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .sample-data {
+    grid-template-columns: 1fr;
+  }
+  
+  .config-overview {
+    grid-template-columns: 1fr;
+  }
+  
+  .flow-step {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .step-indicator {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  
+  .execution-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+</style>

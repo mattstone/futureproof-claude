@@ -9,4 +9,15 @@ class AdminMailer < ApplicationMailer
       from: "admin@futureprooffinancial.co"
     )
   end
+  
+  def workflow_email(to:, subject:, content:)
+    @content = content.html_safe
+    @subject = subject
+    
+    mail(
+      to: to,
+      subject: @subject,
+      from: "info@futureprooffinancial.co"
+    )
+  end
 end

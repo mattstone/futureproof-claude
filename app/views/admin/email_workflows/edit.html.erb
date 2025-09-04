@@ -1,0 +1,46 @@
+<% content_for :title, "Edit #{@workflow.name}" %>
+<% content_for :breadcrumb do %>
+  <%= link_to "Email Workflows", admin_email_workflows_path, class: "breadcrumb-link" %>
+  <span class="breadcrumb-separator">→</span>
+  <%= link_to @workflow.name, admin_email_workflow_path(@workflow), class: "breadcrumb-link" %>
+  <span class="breadcrumb-separator">→</span>
+  <span>Edit</span>
+<% end %>
+
+<div class="workflow-form-container">
+  <div class="workflow-form-header">
+    <h1>Edit "<%= @workflow.name %>"</h1>
+    <p>Modify your email workflow configuration and steps.</p>
+  </div>
+
+  <%= render 'form', workflow: @workflow %>
+</div>
+
+<style>
+.workflow-form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.workflow-form-header {
+  background: white;
+  padding: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.workflow-form-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.workflow-form-header p {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin: 0;
+}
+</style>

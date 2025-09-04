@@ -191,3 +191,187 @@ The email template system is working correctly when:
 8. ✅ Both operational and marketing templates render professionally
 9. ✅ Existing templates continue to work without issues
 10. ✅ Admin interface is intuitive and responsive
+
+# Email Automation System (FutureFlow) - Testing Guide
+
+## New Email Automation System Overview
+
+The email automation system provides Klaviyo-style workflow automation with:
+- **Trigger-Based Workflows**: Application status changes, time delays, user actions
+- **Drag-and-Drop Builder**: Visual workflow designer (Phase 2)
+- **Smart Scheduling**: Delayed email delivery with retry logic
+- **Multi-Step Sequences**: Complex email sequences with conditions
+- **Analytics Dashboard**: Track workflow performance (Phase 2)
+
+## Phase 1: Foundation Testing (Current Implementation)
+
+### 1. Database Models Testing
+**Path:** Rails Console
+- [ ] EmailWorkflow model creates successfully
+- [ ] WorkflowStep model with proper validations
+- [ ] WorkflowExecution tracks progress correctly
+- [ ] ScheduledWorkflowJob handles delays
+- [ ] All model associations work properly
+
+### 2. Workflow Creation Testing
+**Path:** Admin → Email Workflows → New Workflow
+- [ ] Can create workflow with trigger types
+- [ ] Workflow steps can be added and ordered
+- [ ] Configuration validation works for different step types
+- [ ] Email template selection works in send_email steps
+- [ ] Delay step configuration (duration/unit) validates
+
+### 3. Trigger System Testing
+**Test Scenarios:**
+1. **Application Created Trigger:**
+   - Create new application
+   - Verify workflow triggers automatically
+   - Check WorkflowExecution is created
+
+2. **Application Status Changed Trigger:**
+   - Change application from 'created' to 'submitted'
+   - Verify status-specific workflows trigger
+   - Test conditional triggering
+
+3. **Time-Based Delays:**
+   - Create workflow with delay step
+   - Verify ScheduledWorkflowJob is created
+   - Test scheduled execution
+
+### 4. Email Sending Testing
+**Path:** WorkflowStep execution
+- [ ] send_email step renders template correctly
+- [ ] Email content includes proper headers/footers
+- [ ] Field substitution works ({{user.first_name}}, etc.)
+- [ ] Emails are sent via AdminMailer.workflow_email
+- [ ] Error handling for missing templates
+
+### 5. Workflow Execution Testing
+- [ ] WorkflowExecution starts and progresses through steps
+- [ ] Step failures are handled gracefully
+- [ ] Workflow completes successfully
+- [ ] Failed workflows mark errors correctly
+- [ ] Progress tracking works (percentage, current step)
+
+### 6. Background Job Processing
+**Path:** ActiveJob/Sidekiq Testing
+- [ ] EmailWorkflowExecutorJob processes workflows
+- [ ] ScheduledWorkflowProcessorJob runs scheduled tasks
+- [ ] Job retries work for failures
+- [ ] Job logging is comprehensive
+
+## Test Scenarios for Different Workflow Types
+
+### Scenario 1: Welcome Email Sequence
+1. Create workflow triggered on "application_created"
+2. Step 1: Send welcome email immediately
+3. Step 2: 3-day delay
+4. Step 3: Send document reminder if not uploaded
+5. **Expected:** New applications trigger welcome sequence
+
+### Scenario 2: Status Change Notifications
+1. Create workflow for "application_status_changed"
+2. Condition: from_status = "submitted", to_status = "processing"
+3. Step: Send "Under Review" notification
+4. **Expected:** Status changes trigger appropriate emails
+
+### Scenario 3: Abandoned Application Follow-up
+1. Create workflow for "inactivity" trigger (future)
+2. Step 1: 24-hour delay after last activity
+3. Step 2: Send completion reminder
+4. Step 3: 72-hour delay
+5. Step 4: Send help offer
+6. **Expected:** Inactive applications get follow-up sequence
+
+## Common Issues to Watch For
+
+1. **Workflow Not Triggering:** Check trigger conditions match exactly
+2. **Email Template Errors:** Verify template exists and renders properly
+3. **Background Job Issues:** Check ActiveJob is processing jobs
+4. **Database Constraints:** Foreign key relationships must be valid
+5. **Infinite Loops:** Ensure workflow steps don't create circular triggers
+6. **Memory Issues:** Large workflow executions should be chunked
+7. **Email Rate Limits:** Respect sending limits and implement throttling
+
+## Development Testing Commands
+
+### Rails Console Test Commands
+
+```ruby
+# Test workflow creation
+user = User.first
+workflow = EmailWorkflow.create!(
+  name: "Test Welcome Sequence",
+  trigger_type: "application_created",
+  trigger_conditions: {},
+  created_by: user
+)
+
+# Add workflow steps
+step1 = workflow.workflow_steps.create!(
+  step_type: "send_email",
+  position: 0,
+  configuration: { email_template_id: EmailTemplate.first.id },
+  name: "Welcome Email"
+)
+
+step2 = workflow.workflow_steps.create!(
+  step_type: "delay",
+  position: 1,
+  configuration: { duration: 3, unit: "days" },
+  name: "3 Day Wait"
+)
+
+# Test workflow execution
+application = Application.first
+execution = workflow.execute_for(application)
+execution.start!
+
+# Check execution progress
+execution.reload
+puts "Status: #{execution.status}"
+puts "Progress: #{execution.progress_percentage}%"
+puts "Current Step: #{execution.current_step&.name}"
+
+# Process scheduled jobs manually
+ScheduledWorkflowProcessorJob.perform_now
+```
+
+### Model Testing
+```ruby
+# Test all models are properly configured
+EmailWorkflow.count
+WorkflowStep.count
+WorkflowExecution.count
+ScheduledWorkflowJob.ready_to_process.count
+
+# Test associations
+workflow = EmailWorkflow.first
+workflow.workflow_steps.count
+workflow.workflow_executions.count
+```
+
+## Success Criteria for Email Automation
+
+The email automation system is working correctly when:
+1. ✅ All model tests pass
+2. ✅ Workflows trigger on application events
+3. ✅ Email steps send emails with correct content
+4. ✅ Delay steps create scheduled jobs
+5. ✅ Scheduled jobs execute at correct times
+6. ✅ Workflow executions track progress accurately
+7. ✅ Error handling prevents system crashes
+8. ✅ Background jobs process reliably
+9. ✅ Email templates render with workflow context
+10. ✅ System scales with multiple concurrent workflows
+
+## Phase 2 Planning: Drag-and-Drop Interface
+
+Future browser testing will include:
+- [ ] Visual workflow builder loads
+- [ ] Drag-and-drop node creation
+- [ ] Node connection and flow validation
+- [ ] Real-time preview of workflow logic
+- [ ] Workflow templates and duplication
+- [ ] A/B testing setup and results
+- [ ] Analytics dashboard accuracy

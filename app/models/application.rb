@@ -90,6 +90,7 @@ class Application < ApplicationRecord
   after_update :create_contract_if_accepted
   after_update :auto_create_checklist_on_submitted
   after_update :ensure_checklist_for_processing_and_beyond
+  after_commit :trigger_email_workflows
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -686,6 +687,36 @@ class Application < ApplicationRecord
           action: 'checklist_updated',
           change_details: "Checklist automatically created when application status changed to '#{status_display}'"
         )
+      end
+    end
+  end
+  
+  def trigger_email_workflows
+    # Trigger workflows when application is created
+    if saved_change_to_id? # This means it's a new record
+      trigger_workflows_for('application_created')
+    end
+    
+    # Trigger workflows when status changes
+    if saved_change_to_status?
+      old_status, new_status = saved_change_to_status
+      trigger_workflows_for('application_status_changed', from_status: old_status, to_status: new_status)
+    end
+  end
+  
+  private
+  
+  def trigger_workflows_for(trigger_type, context = {})
+    EmailWorkflow.active.for_trigger(trigger_type).find_each do |workflow|
+      begin
+        Rails.logger.info "Triggering workflow '#{workflow.name}' for Application #{id}"
+        workflow.execute_for(self, context.merge(
+          user: user,
+          application: self,
+          triggered_at: Time.current
+        ))
+      rescue => e
+        Rails.logger.error "Failed to trigger workflow '#{workflow.name}' for Application #{id}: #{e.message}"
       end
     end
   end

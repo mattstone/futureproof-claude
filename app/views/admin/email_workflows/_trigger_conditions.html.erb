@@ -1,0 +1,171 @@
+<% case workflow.trigger_type %>
+<% when 'application_status_changed' %>
+  <div class="form-grid">
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_from_status', 'From Status', class: 'form-label' %>
+      <%= select_tag 'email_workflow[trigger_conditions][from_status]',
+                     options_for_select([
+                       ['Any status', ''],
+                       ['Created', 'created'],
+                       ['User Details', 'user_details'],
+                       ['Property Details', 'property_details'],
+                       ['Income and Loan Options', 'income_and_loan_options'],
+                       ['Submitted', 'submitted'],
+                       ['Processing', 'processing'],
+                       ['Accepted', 'accepted'],
+                       ['Rejected', 'rejected']
+                     ], workflow.trigger_conditions['from_status']),
+                     class: 'form-select' %>
+      <p class="form-help">Only trigger when changing from this status (leave empty for any)</p>
+    </div>
+    
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_to_status', 'To Status', class: 'form-label' %>
+      <%= select_tag 'email_workflow[trigger_conditions][to_status]',
+                     options_for_select([
+                       ['Any status', ''],
+                       ['Created', 'created'],
+                       ['User Details', 'user_details'],
+                       ['Property Details', 'property_details'],
+                       ['Income and Loan Options', 'income_and_loan_options'],
+                       ['Submitted', 'submitted'],
+                       ['Processing', 'processing'],
+                       ['Accepted', 'accepted'],
+                       ['Rejected', 'rejected']
+                     ], workflow.trigger_conditions['to_status']),
+                     class: 'form-select' %>
+      <p class="form-help">Only trigger when changing to this status (leave empty for any)</p>
+    </div>
+  </div>
+
+<% when 'time_delay' %>
+  <div class="form-group">
+    <%= label_tag 'email_workflow_trigger_conditions_delay_after', 'Delay After', class: 'form-label' %>
+    <%= select_tag 'email_workflow[trigger_conditions][delay_after]',
+                   options_for_select([
+                     ['Application Created', 'application_created'],
+                     ['Last Activity', 'last_activity'],
+                     ['Status Change', 'status_change'],
+                     ['User Registration', 'user_registration']
+                   ], workflow.trigger_conditions['delay_after']),
+                   class: 'form-select' %>
+    <p class="form-help">What event should start the delay countdown</p>
+  </div>
+  
+  <div class="form-grid">
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_duration', 'Duration', class: 'form-label' %>
+      <%= number_field_tag 'email_workflow[trigger_conditions][duration]',
+                           workflow.trigger_conditions['duration'],
+                           class: 'form-input', min: 1, placeholder: '1' %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_unit', 'Unit', class: 'form-label' %>
+      <%= select_tag 'email_workflow[trigger_conditions][unit]',
+                     options_for_select([
+                       ['Minutes', 'minutes'],
+                       ['Hours', 'hours'],
+                       ['Days', 'days'],
+                       ['Weeks', 'weeks']
+                     ], workflow.trigger_conditions['unit']),
+                     class: 'form-select' %>
+    </div>
+  </div>
+  <p class="form-help">How long to wait after the selected event</p>
+
+<% when 'inactivity' %>
+  <div class="form-grid">
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_inactivity_duration', 'Inactivity Period', class: 'form-label' %>
+      <%= number_field_tag 'email_workflow[trigger_conditions][inactivity_duration]',
+                           workflow.trigger_conditions['inactivity_duration'],
+                           class: 'form-input', min: 1, placeholder: '7' %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'email_workflow_trigger_conditions_inactivity_unit', 'Unit', class: 'form-label' %>
+      <%= select_tag 'email_workflow[trigger_conditions][inactivity_unit]',
+                     options_for_select([
+                       ['Hours', 'hours'],
+                       ['Days', 'days'],
+                       ['Weeks', 'weeks']
+                     ], workflow.trigger_conditions['inactivity_unit']),
+                     class: 'form-select' %>
+    </div>
+  </div>
+  <p class="form-help">Trigger when user has been inactive for this long</p>
+
+<% when 'document_uploaded' %>
+  <div class="form-group">
+    <%= label_tag 'email_workflow_trigger_conditions_document_type', 'Document Type', class: 'form-label' %>
+    <%= select_tag 'email_workflow[trigger_conditions][document_type]',
+                   options_for_select([
+                     ['Any document', ''],
+                     ['Identity Document', 'identity'],
+                     ['Income Document', 'income'],
+                     ['Property Document', 'property'],
+                     ['Bank Statement', 'bank_statement'],
+                     ['Other', 'other']
+                   ], workflow.trigger_conditions['document_type']),
+                   class: 'form-select' %>
+    <p class="form-help">Only trigger for specific document types (leave empty for any)</p>
+  </div>
+
+<% when 'application_created', 'user_registered', 'contract_signed' %>
+  <div class="trigger-conditions-simple">
+    <p class="condition-note">
+      <i class="fas fa-info-circle"></i>
+      This trigger type doesn't require additional conditions. The workflow will run automatically when 
+      <%= case workflow.trigger_type 
+          when 'application_created' then 'an application is created'
+          when 'user_registered' then 'a user registers'
+          when 'contract_signed' then 'a contract is signed'
+          end %>.
+    </p>
+    <!-- Hidden field to satisfy validation -->
+    <%= hidden_field_tag 'email_workflow[trigger_conditions][event]', workflow.trigger_type %>
+  </div>
+
+<% else %>
+  <div class="trigger-conditions-default">
+    <p class="condition-note">
+      <i class="fas fa-cog"></i>
+      Select a trigger type above to configure specific conditions for when this workflow should run.
+    </p>
+    <%= hidden_field_tag 'email_workflow[trigger_conditions][event]', 'default' %>
+  </div>
+<% end %>
+
+<style>
+.trigger-conditions-simple, .trigger-conditions-default {
+  padding: 20px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+}
+
+.condition-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0369a1;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.condition-note i {
+  color: #0284c7;
+}
+
+.trigger-conditions-default {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.trigger-conditions-default .condition-note {
+  color: #6b7280;
+}
+
+.trigger-conditions-default .condition-note i {
+  color: #9ca3af;
+}
+</style>
