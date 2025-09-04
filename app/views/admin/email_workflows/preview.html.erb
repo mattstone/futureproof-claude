@@ -195,7 +195,7 @@
                     <% total_steps = @workflow.workflow_steps.count %>
                     <% completed_steps = execution.workflow_step_executions.where(status: 'completed').count %>
                     <% progress = total_steps > 0 ? (completed_steps.to_f / total_steps * 100).round : 0 %>
-                    <div class="progress-fill" style="width: <%= progress %>%"></div>
+                    <div class="progress-fill" data-width="<%= progress %>"></div>
                   </div>
                   <span class="progress-text"><%= completed_steps %>/<%= total_steps %> steps</span>
                 </div>

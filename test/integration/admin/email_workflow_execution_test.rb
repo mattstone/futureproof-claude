@@ -1,0 +1,411 @@
+require "test_helper"
+
+class Admin::EmailWorkflowExecutionTest < ActionDispatch::IntegrationTest
+  def setup
+    # Create test lender and admin user
+    @lender = Lender.create!(
+      name: "Test Lender",
+      lender_type: "lender",
+      contact_email: "contact@testlender.com", 
+      country: "US"
+    )
+    
+    @admin_user = User.create!(
+      email: "admin@futureproof.com",
+      password: "password123",
+      first_name: "Admin",
+      last_name: "User",
+      lender: @lender,
+      country_of_residence: "US",
+      terms_accepted: "1",
+      admin: true
+    )
+    
+    # Create email templates for testing
+    @welcome_template = EmailTemplate.create!(
+      name: "Welcome Email Template",
+      subject: "Welcome to FutureProof, {{user.first_name}}!",
+      content: "Hello {{user.first_name}}, Welcome to FutureProof! We're excited to have you onboard.",
+      content_body: "Hello {{user.first_name}}, Welcome to FutureProof! We're excited to have you onboard.",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    @followup_template = EmailTemplate.create!(
+      name: "Follow Up Template", 
+      subject: "Getting Started with {{user.first_name}}",
+      content: "Hi {{user.first_name}}, Here's your getting started guide...",
+      content_body: "Hi {{user.first_name}}, Here's your getting started guide...",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    @completion_template = EmailTemplate.create!(
+      name: "Contract Completion Template",
+      subject: "Contract Completed - Next Steps",
+      content: "Hello {{user.first_name}}, Your contract has been completed successfully!",
+      content_body: "Hello {{user.first_name}}, Your contract has been completed successfully!",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    # Create target user for workflow executions
+    @target_user = User.create!(
+      email: "target@example.com",
+      password: "password123",
+      first_name: "John",
+      last_name: "Doe",
+      lender: @lender,
+      country_of_residence: "US",
+      terms_accepted: "1"
+    )
+    
+    # Create target application
+    @target_application = Application.create!(
+      user: @target_user,
+      address: "123 Test St",
+      home_value: 500000,
+      ownership_status: "individual", 
+      property_state: "primary_residence",
+      status: "created",
+      growth_rate: 2.0,
+      borrower_age: 35
+    )
+    
+    # Login as admin for tests
+    sign_in @admin_user
+  end
+  
+  test "should execute onboarding workflow when user registers" do
+    # Create onboarding workflow
+    onboarding_workflow = EmailWorkflow.create!(
+      name: "User Onboarding Sequence",
+      description: "Welcome new users with automated email sequence",
+      trigger_type: "user_registered",
+      trigger_conditions: { "user_type" => "new" },
+      active: true,
+      created_by: @admin_user
+    )
+    
+    # Add workflow steps
+    step1 = onboarding_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Welcome Email",
+      position: 1,
+      delay_amount: 0,
+      delay_unit: "minutes",
+      configuration: {
+        "email_template_id" => @welcome_template.id,
+        "subject" => "Welcome to FutureProof!",
+        "from_email" => "welcome@futureproof.com"
+      }
+    )
+    
+    step2 = onboarding_workflow.workflow_steps.create!(
+      step_type: "delay",
+      name: "Wait 2 hours", 
+      position: 2,
+      delay_amount: 2,
+      delay_unit: "hours",
+      configuration: {}
+    )
+    
+    step3 = onboarding_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Getting Started Guide",
+      position: 3,
+      delay_amount: 0,
+      delay_unit: "minutes", 
+      configuration: {
+        "email_template_id" => @followup_template.id,
+        "subject" => "Your Getting Started Guide",
+        "from_email" => "support@futureproof.com"
+      }
+    )
+    
+    # Test workflow execution
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      execution = onboarding_workflow.execute_for(@target_user, user_type: "new")
+      
+      assert_not_nil execution
+      assert_equal "pending", execution.status
+      
+      # Simulate job execution
+      perform_enqueued_jobs do
+        execution.start!
+      end
+      
+      execution.reload
+      assert_equal "running", execution.status
+    end
+    
+    # Check that welcome email was sent
+    sent_email = ActionMailer::Base.deliveries.last
+    assert_not_nil sent_email
+    assert_equal [@target_user.email], sent_email.to
+    assert_equal "Welcome to FutureProof!", sent_email.subject
+    assert_includes sent_email.body.to_s, "Hello John" # Interpolated first name
+  end
+  
+  test "should execute operational workflow for application status changes" do
+    # Create operational workflow
+    operational_workflow = EmailWorkflow.create!(
+      name: "Application Status Change Notifications",
+      description: "Notify users when application status changes",
+      trigger_type: "application_status_changed", 
+      trigger_conditions: { "from_status" => "created", "to_status" => "submitted" },
+      active: true,
+      created_by: @admin_user
+    )
+    
+    # Add email notification step
+    operational_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Application Submitted Confirmation",
+      position: 1,
+      delay_amount: 0,
+      delay_unit: "minutes",
+      configuration: {
+        "email_template_id" => @followup_template.id,
+        "subject" => "Application Submitted Successfully",
+        "from_email" => "applications@futureproof.com"
+      }
+    )
+    
+    # Test workflow triggers on status change
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      execution = operational_workflow.execute_for(@target_application, {
+        from_status: "created",
+        to_status: "submitted"
+      })
+      
+      assert_not_nil execution
+      
+      # Execute workflow
+      perform_enqueued_jobs do
+        execution.start!
+      end
+    end
+    
+    # Verify email sent
+    sent_email = ActionMailer::Base.deliveries.last
+    assert_equal [@target_user.email], sent_email.to
+    assert_includes sent_email.subject, "Getting Started"
+  end
+  
+  test "should execute end of contract workflow" do
+    # Create contract completion workflow 
+    completion_workflow = EmailWorkflow.create!(
+      name: "Contract Completion Sequence",
+      description: "Handle contract signing and completion notifications",
+      trigger_type: "contract_signed",
+      trigger_conditions: { "contract_type" => "mortgage" },
+      active: true,
+      created_by: @admin_user
+    )
+    
+    # Add completion steps
+    completion_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Contract Completion Notification",
+      position: 1,
+      delay_amount: 0,
+      delay_unit: "minutes",
+      configuration: {
+        "email_template_id" => @completion_template.id,
+        "subject" => "Contract Completed - Welcome to FutureProof!",
+        "from_email" => "contracts@futureproof.com"
+      }
+    )
+    
+    completion_workflow.workflow_steps.create!(
+      step_type: "delay",
+      name: "Wait 1 week",
+      position: 2,
+      delay_amount: 1,
+      delay_unit: "weeks", 
+      configuration: {}
+    )
+    
+    completion_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Follow Up Survey",
+      position: 3,
+      delay_amount: 0,
+      delay_unit: "minutes",
+      configuration: {
+        "email_template_id" => @followup_template.id,
+        "subject" => "How was your experience?",
+        "from_email" => "feedback@futureproof.com"
+      }
+    )
+    
+    # Create contract for testing
+    contract = Contract.create!(
+      user: @target_user,
+      application: @target_application,
+      contract_type: "mortgage", 
+      status: "signed"
+    )
+    
+    # Test contract workflow execution
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      execution = completion_workflow.execute_for(contract, {
+        contract_type: "mortgage",
+        event: "contract_signed"
+      })
+      
+      assert_not_nil execution
+      
+      # Execute first step (completion notification)
+      perform_enqueued_jobs do
+        execution.start!
+      end
+      
+      execution.reload
+      assert_equal "running", execution.status
+      assert_equal 2, execution.current_step_position # Should be at delay step
+    end
+    
+    # Verify completion email sent
+    sent_email = ActionMailer::Base.deliveries.last
+    assert_equal [@target_user.email], sent_email.to
+    assert_includes sent_email.subject, "Contract Completed"
+    assert_includes sent_email.body.to_s, "Hello John"
+  end
+  
+  test "should handle workflow errors gracefully" do
+    # Create workflow with invalid email template
+    error_workflow = EmailWorkflow.create!(
+      name: "Error Test Workflow",
+      trigger_type: "user_registered",
+      trigger_conditions: {},
+      active: true,
+      created_by: @admin_user
+    )
+    
+    # Add step with invalid template ID
+    error_workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "Invalid Email Step",
+      position: 1,
+      delay_amount: 0,
+      delay_unit: "minutes",
+      configuration: {
+        "email_template_id" => 999999, # Non-existent template
+        "subject" => "Test Email",
+        "from_email" => "test@futureproof.com"
+      }
+    )
+    
+    execution = error_workflow.execute_for(@target_user)
+    
+    # Should handle error gracefully
+    perform_enqueued_jobs do
+      execution.start!
+    end
+    
+    execution.reload
+    assert_equal "failed", execution.status
+    assert_not_nil execution.last_error
+  end
+  
+  test "should pause and resume workflow execution" do
+    # Create pausable workflow
+    workflow = EmailWorkflow.create!(
+      name: "Pausable Workflow",
+      trigger_type: "user_registered",
+      trigger_conditions: {},
+      active: true,
+      created_by: @admin_user
+    )
+    
+    workflow.workflow_steps.create!(
+      step_type: "send_email",
+      name: "First Email",
+      position: 1,
+      configuration: { "email_template_id" => @welcome_template.id }
+    )
+    
+    execution = workflow.execute_for(@target_user)
+    execution.start!
+    execution.pause!
+    
+    assert_equal "paused", execution.status
+    
+    # Resume execution
+    execution.resume!
+    assert_equal "running", execution.status
+  end
+  
+  test "should cancel workflow execution and scheduled jobs" do
+    # Create workflow with delay
+    workflow = EmailWorkflow.create!(
+      name: "Cancellable Workflow",
+      trigger_type: "user_registered", 
+      trigger_conditions: {},
+      active: true,
+      created_by: @admin_user
+    )
+    
+    workflow.workflow_steps.create!(
+      step_type: "delay",
+      name: "Long Delay",
+      position: 1,
+      delay_amount: 7,
+      delay_unit: "days",
+      configuration: {}
+    )
+    
+    execution = workflow.execute_for(@target_user)
+    
+    # Create scheduled job
+    scheduled_job = execution.scheduled_workflow_jobs.create!(
+      step: workflow.workflow_steps.first,
+      scheduled_at: 7.days.from_now,
+      status: "scheduled"
+    )
+    
+    # Cancel execution
+    execution.cancel!
+    
+    assert_equal "cancelled", execution.status
+    
+    scheduled_job.reload
+    assert_equal "cancelled", scheduled_job.status
+  end
+  
+  test "should track workflow execution progress" do
+    # Create multi-step workflow
+    workflow = EmailWorkflow.create!(
+      name: "Multi-Step Workflow", 
+      trigger_type: "user_registered",
+      trigger_conditions: {},
+      active: true,
+      created_by: @admin_user
+    )
+    
+    (1..5).each do |i|
+      workflow.workflow_steps.create!(
+        step_type: "send_email",
+        name: "Step #{i}",
+        position: i,
+        configuration: { "email_template_id" => @welcome_template.id }
+      )
+    end
+    
+    execution = workflow.execute_for(@target_user)
+    
+    # Check initial progress
+    assert_equal 20.0, execution.progress_percentage # 1/5 steps = 20%
+    
+    # Advance to step 3
+    execution.update!(current_step_position: 3)
+    assert_equal 60.0, execution.progress_percentage # 3/5 steps = 60%
+    
+    # Complete workflow
+    execution.complete!
+    assert_equal "completed", execution.status
+    assert_not_nil execution.completed_at
+  end
+end

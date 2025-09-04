@@ -71,7 +71,7 @@
     
     <div class="step-configuration">
       <!-- Send Email Configuration -->
-      <div class="config-group" data-step-type="send_email" style="display: none;">
+      <div class="config-group hidden" data-step-type="send_email">
         <h4 class="config-title">Email Settings</h4>
         <div class="form-group">
           <label class="form-label">Email Template</label>
@@ -96,7 +96,7 @@
       </div>
       
       <!-- Delay Configuration -->
-      <div class="config-group" data-step-type="delay" style="display: none;">
+      <div class="config-group hidden" data-step-type="delay">
         <h4 class="config-title">Delay Settings</h4>
         <div class="form-grid">
           <div class="form-group">
@@ -139,7 +139,7 @@
       </div>
       
       <!-- Condition Configuration -->
-      <div class="config-group" data-step-type="condition" style="display: none;">
+      <div class="config-group hidden" data-step-type="condition">
         <h4 class="config-title">Condition Settings</h4>
         <div class="form-group">
           <label class="form-label">Condition Type</label>
@@ -178,7 +178,7 @@
       </div>
       
       <!-- Update Status Configuration -->
-      <div class="config-group" data-step-type="update_status" style="display: none;">
+      <div class="config-group hidden" data-step-type="update_status">
         <h4 class="config-title">Update Settings</h4>
         <div class="form-grid">
           <div class="form-group">
@@ -212,127 +212,3 @@
   </div>
 </div>
 
-<style>
-.workflow-step-item {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 24px;
-  position: relative;
-}
-
-.step-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.step-number {
-  width: 32px;
-  height: 32px;
-  background: #3b82f6;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.step-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.remove-step {
-  width: 32px;
-  height: 32px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease;
-}
-
-.remove-step:hover {
-  background: #dc2626;
-}
-
-.step-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.step-basic-info {
-  background: white;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.step-configuration {
-  background: white;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.config-group {
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.config-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.config-title:before {
-  content: "";
-  width: 4px;
-  height: 16px;
-  background: #3b82f6;
-  border-radius: 2px;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Update step numbers
-  function updateStepNumbers() {
-    const steps = document.querySelectorAll('.workflow-step-item:not([style*="display: none"])');
-    steps.forEach((step, index) => {
-      const numberElement = step.querySelector('.step-number');
-      if (numberElement) {
-        numberElement.textContent = index + 1;
-      }
-    });
-  }
-  
-  // Initial update
-  updateStepNumbers();
-  
-  // Update numbers when steps are added/removed
-  const observer = new MutationObserver(updateStepNumbers);
-  observer.observe(document.getElementById('workflow-steps'), {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['style']
-  });
-});
-</script>

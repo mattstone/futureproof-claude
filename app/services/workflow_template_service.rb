@@ -13,7 +13,7 @@ class WorkflowTemplateService
             description: "Send immediate welcome message with account activation link",
             position: 0,
             configuration: {
-              email_template_type: "verification"
+              email_template_id: 1  # Email Verification template
             }
           },
           {
@@ -43,7 +43,7 @@ class WorkflowTemplateService
             description: "Send comprehensive getting started guide",
             position: 3,
             configuration: {
-              email_template_type: "onboarding_guide"
+              email_template_id: 2  # Application Submitted template (repurposed for onboarding)
             }
           }
         ]
@@ -60,7 +60,7 @@ class WorkflowTemplateService
             description: "Confirm application creation and next steps",
             position: 0,
             configuration: {
-              email_template_type: "application_created"
+              email_template_id: 2  # Application Submitted template
             }
           },
           {
@@ -89,7 +89,7 @@ class WorkflowTemplateService
             description: "Remind user to complete application if not done",
             position: 3,
             configuration: {
-              email_template_type: "completion_reminder"
+              email_template_id: 3  # Security Notification template (repurposed for reminders)
             }
           }
         ]
@@ -110,7 +110,7 @@ class WorkflowTemplateService
             description: "Notify customer application is being processed",
             position: 0,
             configuration: {
-              email_template_type: "processing_notification"
+              email_template_id: 2  # Application Submitted template
             }
           },
           {
@@ -129,7 +129,7 @@ class WorkflowTemplateService
             description: "Provide processing status update",
             position: 2,
             configuration: {
-              email_template_type: "status_update"
+              email_template_id: 3  # Security Notification template
             }
           }
         ]
@@ -146,7 +146,7 @@ class WorkflowTemplateService
             description: "Confirm contract has been signed",
             position: 0,
             configuration: {
-              email_template_type: "contract_signed"
+              email_template_id: 2  # Application Submitted template
             }
           },
           {
@@ -165,7 +165,7 @@ class WorkflowTemplateService
             description: "Welcome customer to ongoing services",
             position: 2,
             configuration: {
-              email_template_type: "welcome_services"
+              email_template_id: 1  # Email Verification template
             }
           }
         ]
@@ -186,7 +186,7 @@ class WorkflowTemplateService
             description: "Gentle reminder to complete their application",
             position: 0,
             configuration: {
-              email_template_type: "re_engagement"
+              email_template_id: 3  # Security Notification template
             }
           },
           {
@@ -216,7 +216,7 @@ class WorkflowTemplateService
             description: "Final reminder before marking inactive",
             position: 3,
             configuration: {
-              email_template_type: "final_reminder"
+              email_template_id: 3  # Security Notification template
             }
           }
         ]
@@ -233,7 +233,7 @@ class WorkflowTemplateService
             description: "Acknowledge document receipt",
             position: 0,
             configuration: {
-              email_template_type: "document_received"
+              email_template_id: 2  # Application Submitted template
             }
           },
           {
@@ -253,7 +253,7 @@ class WorkflowTemplateService
             description: "Notify when all documents are received",
             position: 2,
             configuration: {
-              email_template_type: "documents_complete"
+              email_template_id: 2  # Application Submitted template
             }
           }
         ]
@@ -275,7 +275,7 @@ class WorkflowTemplateService
             description: "Notify customer contract is ending in 1 week",
             position: 0,
             configuration: {
-              email_template_type: "contract_ending_soon"
+              email_template_id: 3  # Security Notification template
             }
           },
           {
@@ -294,7 +294,7 @@ class WorkflowTemplateService
             description: "Contract completion and next steps",
             position: 2,
             configuration: {
-              email_template_type: "contract_completed"
+              email_template_id: 2  # Application Submitted template
             }
           }
         ]

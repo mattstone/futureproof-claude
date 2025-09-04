@@ -142,6 +142,8 @@ Rails.application.routes.draw do
       collection do
         get :add_step
         get :templates
+        get :email_templates_content
+        post :bulk_create
       end
     end
     

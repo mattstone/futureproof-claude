@@ -1,0 +1,39 @@
+FutureProof Email Workflow Demo
+===============================
+
+Mock Customer: Sarah Johnson
+Email: sarah.johnson@email.com
+Country: United States
+Account Created: September 04, 2025 at 06:58 PM
+
+Email Sequence:
+---------------
+
+1. Welcome Email
+   Subject: 🎉 Welcome to FutureProof, Sarah!
+   Purpose: Welcome new customer and introduce FutureProof
+   Variables: {{user.first_name}}, {{user.last_name}}, {{user.email}}, {{user.country_of_residence}}
+
+2. Getting Started Guide
+   Subject: 📚 Your FutureProof Getting Started Guide
+   Purpose: Guide customer through onboarding process
+   Variables: {{user.first_name}}
+
+Workflow Features Demonstrated:
+-------------------------------
+✓ Variable interpolation from user data
+✓ Professional HTML email templates
+✓ Responsive design for mobile devices
+✓ Corporate branding and styling
+✓ Step-by-step customer onboarding
+✓ Clear call-to-action elements
+✓ Contact information and support details
+
+Technical Implementation:
+------------------------
+- EmailTemplate model with content rendering
+- EmailWorkflow with configurable steps
+- WorkflowExecution tracking and progress
+- Variable substitution system
+- Professional email layouts
+- Mobile-responsive CSS styling

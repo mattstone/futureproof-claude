@@ -5,7 +5,7 @@
   <span>Templates</span>
 <% end %>
 
-<div class="workflow-templates">
+<div class="workflow-templates" data-controller="workflow-templates">
   <!-- Header -->
   <div class="templates-header">
     <div class="flex items-center justify-between">
@@ -163,7 +163,7 @@
               <% end %>
               <button class="btn-secondary template-preview-btn" 
                       data-template="<%= template[:name] %>"
-                      onclick="showTemplatePreview(this)">
+                      data-action="click->workflow-templates#showTemplatePreview">
                 <i class="fas fa-eye"></i> Preview
               </button>
             </div>
@@ -177,59 +177,129 @@
   <div class="quick-setup-section">
     <div class="section-header">
       <h2>Quick Setup Options</h2>
-      <p>Get started quickly with these preset combinations.</p>
+      <p>Choose a setup option to automatically create multiple workflow templates at once. These options help you get started quickly with proven combinations that work well together.</p>
+      
+      <div class="setup-instructions">
+        <div class="instruction-item">
+          <i class="fas fa-info-circle"></i>
+          <span><strong>How to use:</strong> Click a setup option below to create multiple workflow templates in one action.</span>
+        </div>
+        <div class="instruction-item">
+          <i class="fas fa-edit"></i>
+          <span><strong>Customize later:</strong> After creation, you can modify any workflow to match your specific needs.</span>
+        </div>
+        <div class="instruction-item">
+          <i class="fas fa-lightbulb"></i>
+          <span><strong>Recommendation:</strong> Start with "Complete Lifecycle Setup" for comprehensive automation coverage.</span>
+        </div>
+      </div>
     </div>
     
-    <div class="quick-setup-grid">
-      <div class="setup-option">
-        <div class="setup-icon">
-          <i class="fas fa-rocket"></i>
+    <div class="quick-setup-cards">
+      <div class="setup-card featured">
+        <div class="setup-card-header">
+          <div class="setup-icon primary">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <div class="setup-badge">Most Popular</div>
         </div>
-        <div class="setup-content">
+        <div class="setup-card-content">
           <h3>Complete Lifecycle Setup</h3>
-          <p>Create all customer lifecycle workflows at once. Perfect for getting started quickly with comprehensive automation.</p>
-          <div class="setup-includes">
-            <span>Includes: <%= @template_categories.values.flatten.count %> workflows</span>
+          <p>Create all customer lifecycle workflows at once. Perfect for getting comprehensive automation coverage from day one.</p>
+          <div class="setup-features">
+            <div class="feature-item">
+              <i class="fas fa-check"></i>
+              <span>Full customer journey coverage</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-check"></i>
+              <span><%= @template_categories.values.flatten.count %> pre-built workflows</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-check"></i>
+              <span>Onboarding → Operations → Completion</span>
+            </div>
           </div>
         </div>
-        <div class="setup-action">
-          <button class="btn-primary" onclick="createAllTemplates()">
-            <i class="fas fa-magic"></i> Create All
+        <div class="setup-card-footer">
+          <button class="btn-primary full-width" 
+                  data-template-count="<%= @template_categories.values.flatten.count %>"
+                  data-onboarding-count="<%= @customer_lifecycle[:onboarding].count %>"
+                  data-operational-count="<%= @customer_lifecycle[:operational].count %>"
+                  data-end-contract-count="<%= @customer_lifecycle[:end_of_contract].count %>"
+                  data-action="click->workflow-templates#createAllTemplates">
+            <i class="fas fa-magic"></i> Create Complete Setup
           </button>
         </div>
       </div>
       
-      <div class="setup-option">
-        <div class="setup-icon">
-          <i class="fas fa-user-check"></i>
-        </div>
-        <div class="setup-content">
-          <h3>Onboarding Focus</h3>
-          <p>Start with customer onboarding workflows. Great for new businesses focusing on customer acquisition.</p>
-          <div class="setup-includes">
-            <span>Includes: <%= @customer_lifecycle[:onboarding].count %> onboarding workflows</span>
+      <div class="setup-card">
+        <div class="setup-card-header">
+          <div class="setup-icon onboarding">
+            <i class="fas fa-user-check"></i>
           </div>
         </div>
-        <div class="setup-action">
-          <button class="btn-secondary" onclick="createCategoryTemplates('onboarding')">
+        <div class="setup-card-content">
+          <h3>Onboarding Focus</h3>
+          <p>Start with customer onboarding workflows. Ideal for new businesses focusing on customer acquisition and welcome experiences.</p>
+          <div class="setup-features">
+            <div class="feature-item">
+              <i class="fas fa-user-plus"></i>
+              <span>New customer welcome flows</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-envelope"></i>
+              <span><%= @customer_lifecycle[:onboarding].count %> onboarding templates</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-clock"></i>
+              <span>Quick setup (2-3 minutes)</span>
+            </div>
+          </div>
+        </div>
+        <div class="setup-card-footer">
+          <button class="btn-secondary full-width" 
+                  data-onboarding-count="<%= @customer_lifecycle[:onboarding].count %>"
+                  data-operational-count="<%= @customer_lifecycle[:operational].count %>"
+                  data-end-contract-count="<%= @customer_lifecycle[:end_of_contract].count %>"
+                  data-category="onboarding"
+                  data-action="click->workflow-templates#createCategoryTemplates">
             <i class="fas fa-user-plus"></i> Create Onboarding
           </button>
         </div>
       </div>
       
-      <div class="setup-option">
-        <div class="setup-icon">
-          <i class="fas fa-chart-line"></i>
-        </div>
-        <div class="setup-content">
-          <h3>Operational Essentials</h3>
-          <p>Core operational workflows for managing applications and customer communications.</p>
-          <div class="setup-includes">
-            <span>Includes: <%= @customer_lifecycle[:operational].count %> operational workflows</span>
+      <div class="setup-card">
+        <div class="setup-card-header">
+          <div class="setup-icon operational">
+            <i class="fas fa-chart-line"></i>
           </div>
         </div>
-        <div class="setup-action">
-          <button class="btn-secondary" onclick="createCategoryTemplates('operational')">
+        <div class="setup-card-content">
+          <h3>Operational Essentials</h3>
+          <p>Core operational workflows for managing applications, status updates, and ongoing customer communications.</p>
+          <div class="setup-features">
+            <div class="feature-item">
+              <i class="fas fa-cogs"></i>
+              <span>Application management flows</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-bell"></i>
+              <span><%= @customer_lifecycle[:operational].count %> operational templates</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-sync"></i>
+              <span>Status update automation</span>
+            </div>
+          </div>
+        </div>
+        <div class="setup-card-footer">
+          <button class="btn-secondary full-width"
+                  data-onboarding-count="<%= @customer_lifecycle[:onboarding].count %>"
+                  data-operational-count="<%= @customer_lifecycle[:operational].count %>"
+                  data-end-contract-count="<%= @customer_lifecycle[:end_of_contract].count %>"
+                  data-category="operational"
+                  data-action="click->workflow-templates#createCategoryTemplates">
             <i class="fas fa-cogs"></i> Create Operational
           </button>
         </div>
@@ -239,12 +309,12 @@
 </div>
 
 <!-- Template Preview Modal -->
-<div id="template-preview-modal" class="modal" style="display: none;">
-  <div class="modal-overlay" onclick="closeTemplatePreview()"></div>
+<div id="template-preview-modal" class="modal" class="hidden">
+  <div class="modal-overlay" data-action="click->workflow-templates#closeTemplatePreview"></div>
   <div class="modal-content">
     <div class="modal-header">
       <h3 id="preview-title">Template Preview</h3>
-      <button class="modal-close" onclick="closeTemplatePreview()">
+      <button class="modal-close" data-action="click->workflow-templates#closeTemplatePreview">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -252,7 +322,7 @@
       <!-- Preview content will be loaded here -->
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeTemplatePreview()">Close</button>
+      <button class="btn-secondary" data-action="click->workflow-templates#closeTemplatePreview">Close</button>
       <button class="btn-primary" id="create-from-preview">
         <i class="fas fa-plus"></i> Create This Workflow
       </button>
@@ -260,732 +330,3 @@
   </div>
 </div>
 
-<script>
-// Template preview functionality
-function showTemplatePreview(button) {
-  const templateName = button.dataset.template;
-  const modal = document.getElementById('template-preview-modal');
-  const title = document.getElementById('preview-title');
-  const content = document.getElementById('preview-content');
-  const createBtn = document.getElementById('create-from-preview');
-  
-  title.textContent = `Preview: ${templateName}`;
-  content.innerHTML = '<div class="loading">Loading template preview...</div>';
-  
-  // Set create button action
-  createBtn.onclick = () => {
-    window.location.href = '<%= new_admin_email_workflow_path %>?template=' + encodeURIComponent(templateName);
-  };
-  
-  modal.style.display = 'block';
-  
-  // Load template details (in a real app, this would be an AJAX request)
-  setTimeout(() => {
-    content.innerHTML = generateTemplatePreview(templateName);
-  }, 500);
-}
-
-function closeTemplatePreview() {
-  document.getElementById('template-preview-modal').style.display = 'none';
-}
-
-function generateTemplatePreview(templateName) {
-  // This would normally fetch from the server
-  const templates = <%= raw @template_categories.values.flatten.to_json %>;
-  const template = templates.find(t => t.name === templateName);
-  
-  if (!template) return '<div class="error">Template not found</div>';
-  
-  let html = `
-    <div class="preview-summary">
-      <div class="preview-item">
-        <strong>Trigger:</strong> ${template.trigger_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </div>
-      <div class="preview-item">
-        <strong>Category:</strong> ${template.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </div>
-      <div class="preview-item">
-        <strong>Steps:</strong> ${template.steps.length}
-      </div>
-    </div>
-    <div class="preview-description">
-      <p>${template.description}</p>
-    </div>
-    <div class="preview-steps">
-      <h4>Workflow Steps:</h4>
-  `;
-  
-  template.steps.forEach((step, index) => {
-    html += `
-      <div class="preview-step">
-        <div class="preview-step-number">${index + 1}</div>
-        <div class="preview-step-content">
-          <div class="preview-step-name">${step.name}</div>
-          <div class="preview-step-type">${step.step_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-          <div class="preview-step-description">${step.description}</div>
-        </div>
-      </div>
-    `;
-  });
-  
-  html += '</div>';
-  
-  return html;
-}
-
-function createAllTemplates() {
-  if (confirm('This will create <%= @template_categories.values.flatten.count %> workflow templates. Are you sure?')) {
-    // Create a form and submit it
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '<%= new_admin_email_workflow_path %>';
-    form.innerHTML = `
-      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-      <input type="hidden" name="create_all_templates" value="true">
-    `;
-    document.body.appendChild(form);
-    form.submit();
-  }
-}
-
-function createCategoryTemplates(category) {
-  const counts = {
-    onboarding: <%= @customer_lifecycle[:onboarding].count %>,
-    operational: <%= @customer_lifecycle[:operational].count %>,
-    end_of_contract: <%= @customer_lifecycle[:end_of_contract].count %>
-  };
-  
-  if (confirm(`This will create ${counts[category]} ${category.replace('_', ' ')} workflow templates. Are you sure?`)) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '<%= new_admin_email_workflow_path %>';
-    form.innerHTML = `
-      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-      <input type="hidden" name="create_category_templates" value="${category}">
-    `;
-    document.body.appendChild(form);
-    form.submit();
-  }
-}
-</script>
-
-<style>
-.workflow-templates {
-  padding: 0;
-}
-
-.templates-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 48px 32px;
-  border-radius: 12px;
-  margin-bottom: 32px;
-}
-
-.templates-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.templates-header p {
-  font-size: 1.25rem;
-  opacity: 0.9;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.header-actions .btn-secondary {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.header-actions .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.lifecycle-overview {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 32px;
-  margin-bottom: 32px;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.section-header h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.section-header p {
-  font-size: 1.125rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.lifecycle-flow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.lifecycle-stage {
-  flex: 1;
-  min-width: 250px;
-  padding: 24px;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.lifecycle-stage:hover {
-  transform: translateY(-4px);
-}
-
-.lifecycle-stage.onboarding {
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-  border: 2px solid #a5b4fc;
-}
-
-.lifecycle-stage.operational {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 2px solid #86efac;
-}
-
-.lifecycle-stage.end-of-contract {
-  background: linear-gradient(135deg, #fef7cd 0%, #fde68a 100%);
-  border: 2px solid #facc15;
-}
-
-.stage-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.stage-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-}
-
-.onboarding .stage-icon {
-  background: #4f46e5;
-}
-
-.operational .stage-icon {
-  background: #059669;
-}
-
-.end-of-contract .stage-icon {
-  background: #d97706;
-}
-
-.stage-header h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.stage-count {
-  font-size: 0.875rem;
-  opacity: 0.8;
-  font-weight: 500;
-}
-
-.stage-description {
-  font-size: 0.9375rem;
-  color: #374151;
-  line-height: 1.5;
-}
-
-.lifecycle-arrow {
-  font-size: 2rem;
-  color: #d1d5db;
-  font-weight: bold;
-}
-
-.template-category {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 32px;
-  margin-bottom: 32px;
-}
-
-.category-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f3f4f6;
-}
-
-.category-info h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.category-info p {
-  color: #6b7280;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.category-badge {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.category-badge.onboarding {
-  background: #e0e7ff;
-  color: #4338ca;
-}
-
-.category-badge.operational {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.category-badge.end_of_contract {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.templates-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
-}
-
-.template-card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 24px;
-  transition: all 0.2s ease;
-}
-
-.template-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
-}
-
-.template-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.template-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-}
-
-.trigger-type {
-  background: #e5e7eb;
-  color: #6b7280;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.template-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.template-content p {
-  color: #6b7280;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.template-stats {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.stat-item i {
-  color: #9ca3af;
-}
-
-.steps-preview {
-  margin-bottom: 20px;
-}
-
-.steps-preview h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-}
-
-.steps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.step-mini {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: #6b7280;
-}
-
-.step-number {
-  width: 20px;
-  height: 20px;
-  background: #e5e7eb;
-  color: #374151;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.step-name {
-  font-weight: 500;
-  color: #374151;
-}
-
-.step-type {
-  color: #9ca3af;
-  font-style: italic;
-}
-
-.template-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.template-actions button,
-.template-actions a {
-  flex: 1;
-}
-
-.quick-setup-section {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 32px;
-}
-
-.quick-setup-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-}
-
-.setup-option {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 24px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.setup-option:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.setup-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.setup-content {
-  flex: 1;
-}
-
-.setup-content h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 4px;
-}
-
-.setup-content p {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-.setup-includes {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  font-weight: 500;
-}
-
-.setup-action {
-  flex-shrink: 0;
-}
-
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-}
-
-.modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  position: relative;
-  max-width: 600px;
-  margin: 5% auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: #6b7280;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.modal-close:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #6b7280;
-}
-
-.preview-summary {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.preview-item {
-  font-size: 0.875rem;
-}
-
-.preview-item strong {
-  color: #374151;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.preview-description {
-  margin-bottom: 20px;
-}
-
-.preview-description p {
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.preview-steps h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 12px;
-}
-
-.preview-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-.preview-step-number {
-  width: 24px;
-  height: 24px;
-  background: #3b82f6;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.preview-step-content {
-  flex: 1;
-}
-
-.preview-step-name {
-  font-weight: 500;
-  color: #111827;
-  margin-bottom: 2px;
-}
-
-.preview-step-type {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.preview-step-description {
-  font-size: 0.8125rem;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
-@media (max-width: 768px) {
-  .lifecycle-flow {
-    flex-direction: column;
-  }
-  
-  .lifecycle-arrow {
-    transform: rotate(90deg);
-  }
-  
-  .templates-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .quick-setup-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .setup-option {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .category-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .preview-summary {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-content {
-    margin: 2% auto;
-    max-height: 95vh;
-  }
-}
-</style>

@@ -1,0 +1,96 @@
+FutureProof Complete Email Workflow Suite
+=========================================
+
+Generated: September 04, 2025 at 08:06 PM
+Mock Customer: Sarah Johnson (sarah.johnson@futureproof.com)
+
+EMAIL WORKFLOW CATEGORIES:
+-------------------------
+
+OPERATIONAL EMAILS (5 emails):
+- Single blue header with company branding
+- Professional, transactional appearance
+- Contact information and regulatory compliance
+- Used for: Account notifications, application updates, contract completions
+
+MARKETING EMAILS (2 emails):
+- Gradient header with enhanced branding
+- Social media links and unsubscribe options
+- Marketing compliance and personalization
+- Used for: Newsletters, referrals, promotions, customer engagement
+
+COMPLETE EMAIL LIST:
+===================
+
+1. 01_onboarding_welcome.html
+     Subject: Welcome to FutureProof, Sarah!
+     Category: OPERATIONAL
+     Purpose: Initial welcome for new customers
+     File: complete_email_previews/01_onboarding_welcome.html
+  
+2. 02_onboarding_getting_started.html
+     Subject: Your FutureProof Getting Started Guide
+     Category: OPERATIONAL
+     Purpose: Step-by-step onboarding guidance
+     File: complete_email_previews/02_onboarding_getting_started.html
+  
+3. 03_application_received.html
+     Subject: Application Received - Reference #12345
+     Category: OPERATIONAL
+     Purpose: Confirmation of application submission
+     File: complete_email_previews/03_application_received.html
+  
+4. 04_application_approved.html
+     Subject: 🎉 Application Approved - Congratulations Sarah!
+     Category: OPERATIONAL
+     Purpose: Application approval notification
+     File: complete_email_previews/04_application_approved.html
+  
+5. 05_contract_completed.html
+     Subject: Contract Completed - Welcome to FutureProof!
+     Category: OPERATIONAL
+     Purpose: Contract completion and welcome to customer base
+     File: complete_email_previews/05_contract_completed.html
+  
+6. 06_marketing_newsletter.html
+     Subject: Market Update: Australian Property Insights & Your Portfolio
+     Category: MARKETING
+     Purpose: Regular newsletter with market updates and customer engagement
+     File: complete_email_previews/06_marketing_newsletter.html
+  
+7. 07_marketing_referral.html
+     Subject: Share the Benefits - Earn $500 for Each Successful Referral
+     Category: MARKETING
+     Purpose: Customer referral program promotion
+     File: complete_email_previews/07_marketing_referral.html
+  
+
+TECHNICAL FEATURES DEMONSTRATED:
+===============================
+✓ EmailHeaderFooterService integration (single header per category)
+✓ Proper operational vs marketing email categorization
+✓ Variable interpolation ({{user.first_name}}, etc.)
+✓ Professional Australian financial services styling
+✓ Responsive HTML email templates
+✓ Mortgage industry-specific content and terminology
+✓ Complete customer lifecycle coverage
+✓ Regulatory compliance elements
+✓ Call-to-action buttons and links
+✓ Professional email table layouts
+
+CUSTOMER LIFECYCLE COVERAGE:
+============================
+📧 Onboarding: Welcome → Getting Started
+📧 Application: Received → Approved
+📧 Contract: Completion → Customer Success
+📧 Marketing: Newsletter → Referral Program
+
+MOCK DATA USED:
+===============
+Customer: Sarah Johnson
+Email: sarah.johnson@futureproof.com
+Property: 42 Harbour View Drive, Sydney NSW 2000
+Home Value: $850,000
+Loan Amount: $425,000
+Application: #12345
+Contract: #67890

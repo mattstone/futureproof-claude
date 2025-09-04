@@ -1,0 +1,313 @@
+require "test_helper"
+
+class Admin::WorkflowTemplatesTest < ActionDispatch::IntegrationTest
+  def setup
+    # Create test lender and admin user
+    @lender = Lender.create!(
+      name: "Test Lender",
+      lender_type: "lender",
+      contact_email: "contact@testlender.com",
+      country: "US"
+    )
+    
+    @admin_user = User.create!(
+      email: "admin@futureproof.com",
+      password: "password123",
+      first_name: "Admin",
+      last_name: "User",
+      lender: @lender,
+      country_of_residence: "US",
+      terms_accepted: "1",
+      admin: true
+    )
+    
+    # Create required email templates
+    @welcome_template = EmailTemplate.create!(
+      name: "Welcome Email",
+      subject: "Welcome to FutureProof!",
+      content: "Hello {{user.first_name}}, welcome!",
+      content_body: "Hello {{user.first_name}}, welcome!",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    @followup_template = EmailTemplate.create!(
+      name: "Follow Up Email",
+      subject: "Getting Started Guide",
+      content: "Here's your guide...",
+      content_body: "Here's your guide...",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    @completion_template = EmailTemplate.create!(
+      name: "Contract Completion",
+      subject: "Contract Completed",
+      content: "Your contract is done!",
+      content_body: "Your contract is done!",
+      email_category: "operational",
+      template_type: "verification"
+    )
+    
+    sign_in @admin_user
+  end
+  
+  test "should display workflow templates page" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    assert_select "h1", "Customer Lifecycle Workflow Templates"
+    assert_select ".lifecycle-stage", 3 # Onboarding, Operations, End of Contract
+    assert_select ".setup-card", 3 # Complete, Onboarding, Operational
+  end
+  
+  test "should display template categories" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Check onboarding templates
+    assert_select ".lifecycle-stage.onboarding" do
+      assert_select ".stage-header h3", "Onboarding"
+      assert_select ".stage-description", /Welcome new customers/
+    end
+    
+    # Check operational templates  
+    assert_select ".lifecycle-stage.operational" do
+      assert_select ".stage-header h3", "Operations"
+      assert_select ".stage-description", /ongoing interactions/
+    end
+    
+    # Check end of contract templates
+    assert_select ".lifecycle-stage.end-of-contract" do
+      assert_select ".stage-header h3", "Contract Completion"
+      assert_select ".stage-description", /contract signing/
+    end
+  end
+  
+  test "should show individual template cards with correct information" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Should show template cards
+    assert_select ".template-card" do |cards|
+      # Check first card has proper structure
+      assert_select cards.first, ".template-header .template-icon"
+      assert_select cards.first, ".template-content h3"
+      assert_select cards.first, ".template-content p"
+      assert_select cards.first, ".template-stats .stat-item"
+      assert_select cards.first, ".template-actions .btn-primary", "Create from Template"
+      assert_select cards.first, ".template-actions .btn-secondary", "Preview"
+    end
+  end
+  
+  test "should create all workflow templates via bulk action" do
+    # Test bulk template creation
+    assert_difference 'EmailWorkflow.count', 7 do # Should create 7 templates total
+      post admin_email_workflows_bulk_create_path, params: {
+        create_all_templates: "true"
+      }
+      
+      assert_redirected_to admin_email_workflows_path
+      follow_redirect!
+      
+      assert_select ".alert-success", /7 workflow templates created successfully/
+    end
+    
+    # Verify onboarding workflow was created
+    onboarding_workflow = EmailWorkflow.find_by(name: "New User Welcome Sequence")
+    assert_not_nil onboarding_workflow
+    assert_equal "user_registered", onboarding_workflow.trigger_type
+    assert onboarding_workflow.active?
+    
+    # Verify it has correct steps
+    assert_equal 2, onboarding_workflow.workflow_steps.count
+    welcome_step = onboarding_workflow.workflow_steps.find_by(position: 1)
+    assert_equal "send_email", welcome_step.step_type
+    assert_equal "Welcome Email", welcome_step.name
+    
+    # Verify operational workflow
+    operational_workflow = EmailWorkflow.find_by(name: "Application Status Updates")
+    assert_not_nil operational_workflow
+    assert_equal "application_status_changed", operational_workflow.trigger_type
+    
+    # Verify end of contract workflow
+    completion_workflow = EmailWorkflow.find_by(name: "Contract Completion Sequence")
+    assert_not_nil completion_workflow
+    assert_equal "contract_signed", completion_workflow.trigger_type
+  end
+  
+  test "should create category-specific templates" do
+    # Test onboarding templates creation
+    assert_difference 'EmailWorkflow.count', 1 do
+      post admin_email_workflows_bulk_create_path, params: {
+        create_category_templates: "onboarding"
+      }
+      
+      assert_redirected_to admin_email_workflows_path
+      follow_redirect!
+      
+      assert_select ".alert-success", /1 onboarding workflow template created/
+    end
+    
+    # Verify only onboarding template was created
+    onboarding_workflow = EmailWorkflow.find_by(name: "New User Welcome Sequence")
+    assert_not_nil onboarding_workflow
+    
+    # Verify no operational or end of contract workflows
+    assert_nil EmailWorkflow.find_by(name: "Application Status Updates")
+    assert_nil EmailWorkflow.find_by(name: "Contract Completion Sequence")
+  end
+  
+  test "should create operational templates only" do
+    # Test operational templates creation
+    assert_difference 'EmailWorkflow.count', 5 do # 5 operational workflows
+      post admin_email_workflows_bulk_create_path, params: {
+        create_category_templates: "operational"
+      }
+      
+      assert_redirected_to admin_email_workflows_path
+    end
+    
+    # Verify operational workflows were created
+    status_workflow = EmailWorkflow.find_by(name: "Application Status Updates")
+    assert_not_nil status_workflow
+    
+    document_workflow = EmailWorkflow.find_by(name: "Document Upload Notifications")
+    assert_not_nil document_workflow
+    
+    inactivity_workflow = EmailWorkflow.find_by(name: "Customer Inactivity Follow-ups")
+    assert_not_nil inactivity_workflow
+  end
+  
+  test "should handle bulk creation errors gracefully" do
+    # Mock a failure in workflow creation
+    EmailWorkflow.any_instance.stubs(:save!).raises(ActiveRecord::RecordInvalid.new(EmailWorkflow.new))
+    
+    assert_no_difference 'EmailWorkflow.count' do
+      post admin_email_workflows_bulk_create_path, params: {
+        create_all_templates: "true"
+      }
+      
+      assert_redirected_to admin_email_workflows_templates_path
+      follow_redirect!
+      
+      assert_select ".alert-error", /Error creating workflow templates/
+    end
+  ensure
+    EmailWorkflow.any_instance.unstub(:save!)
+  end
+  
+  test "should show template preview modal" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Check modal exists
+    assert_select "#template-preview-modal" do
+      assert_select ".modal-header h3#preview-title"
+      assert_select ".modal-body#preview-content" 
+      assert_select ".modal-footer #create-from-preview", "Create This Workflow"
+      assert_select ".modal-footer button", "Close"
+    end
+  end
+  
+  test "should create workflow from individual template" do
+    assert_difference 'EmailWorkflow.count', 1 do
+      get new_admin_email_workflow_path, params: {
+        template: "New User Welcome Sequence"
+      }
+      
+      assert_response :success
+      
+      # Should pre-populate form with template data
+      assert_select "input[name='email_workflow[name]'][value='New User Welcome Sequence']"
+      assert_select "select[name='email_workflow[trigger_type]'] option[selected][value='user_registered']"
+    end
+  end
+  
+  test "should validate template creation with missing email templates" do
+    # Remove required templates
+    EmailTemplate.destroy_all
+    
+    post admin_email_workflows_bulk_create_path, params: {
+      create_all_templates: "true"
+    }
+    
+    assert_redirected_to admin_email_workflows_templates_path
+    follow_redirect!
+    
+    assert_select ".alert-error", /Required email templates are missing/
+  end
+  
+  test "should show template statistics" do
+    # Create some existing workflows
+    EmailWorkflow.create!(
+      name: "Test Onboarding",
+      trigger_type: "user_registered",
+      trigger_conditions: {},
+      created_by: @admin_user
+    )
+    
+    EmailWorkflow.create!(
+      name: "Test Operational", 
+      trigger_type: "application_status_changed",
+      trigger_conditions: {},
+      created_by: @admin_user
+    )
+    
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Should show template counts
+    assert_select ".stage-count", /1 template/ # Onboarding count
+  end
+  
+  test "should handle template creation transaction rollback on partial failure" do
+    # Mock a failure in the middle of bulk creation
+    call_count = 0
+    EmailWorkflow.any_instance.stubs(:save!).with do
+      call_count += 1
+      raise ActiveRecord::RecordInvalid.new(EmailWorkflow.new) if call_count == 3
+    end
+    
+    assert_no_difference 'EmailWorkflow.count' do
+      post admin_email_workflows_bulk_create_path, params: {
+        create_all_templates: "true"
+      }
+    end
+    
+    # Should have rolled back all creations
+    assert_equal 0, EmailWorkflow.count
+  ensure
+    EmailWorkflow.any_instance.unstub(:save!)
+  end
+  
+  test "should show quick setup instructions" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Check setup instructions are present
+    assert_select ".setup-instructions" do
+      assert_select ".instruction-item", 3 # How to use, Customize later, Recommendation
+      assert_select ".instruction-item", /How to use/
+      assert_select ".instruction-item", /Customize later/
+      assert_select ".instruction-item", /Recommendation/
+    end
+  end
+  
+  test "should have proper styling for featured setup card" do
+    get admin_email_workflows_templates_path
+    
+    assert_response :success
+    
+    # Check featured card styling
+    assert_select ".setup-card.featured" do
+      assert_select ".setup-badge", "Most Popular"
+      assert_select "h3", "Complete Lifecycle Setup"
+    end
+  end
+end

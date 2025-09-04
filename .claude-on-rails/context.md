@@ -25,3 +25,11 @@ When working on this project:
 - Keep models focused with single responsibilities
 - Extract complex business logic to service objects
 - Ensure proper database indexing for foreign keys and queries
+
+## 🚨 CRITICAL: CSP COMPLIANCE 🚨
+**NEVER use inline styles, scripts, or event handlers. This project has strict CSP requirements.**
+- NO `<style>` tags or `style=""` attributes
+- NO `<script>` tags with inline code or `onclick=""` handlers
+- ALL CSS must be in external files under `/app/assets/stylesheets/`
+- ALL JavaScript must be in external files under `/app/javascript/`
+- See `.claude-on-rails/csp-compliance.md` for full guidelines

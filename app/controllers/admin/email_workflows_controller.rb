@@ -50,6 +50,23 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     @customer_lifecycle = WorkflowTemplateService.customer_lifecycle_flow
   end
   
+  def email_templates_content
+    @email_templates = EmailTemplate.order(:template_type, :name).page(params[:page]).per(10)
+    render partial: 'templates_content', layout: false
+  end
+  
+  def bulk_create
+    # Handle bulk template creation
+    if params[:create_all_templates] == 'true'
+      handle_bulk_template_creation('all')
+    elsif params[:create_category_templates].present?
+      handle_bulk_template_creation(params[:create_category_templates])
+    else
+      flash[:alert] = "Invalid bulk creation request"
+      redirect_to admin_email_workflows_path
+    end
+  end
+  
   def create
     @workflow = EmailWorkflow.new(workflow_params)
     @workflow.created_by = current_admin_user
@@ -142,6 +159,95 @@ class Admin::EmailWorkflowsController < Admin::BaseController
   
   def set_workflow
     @workflow = EmailWorkflow.find(params[:id])
+  end
+  
+  def handle_bulk_template_creation(category_type)
+    created_workflows = []
+    failed_workflows = []
+    
+    templates_to_create = case category_type
+                         when 'all'
+                           WorkflowTemplateService.available_templates
+                         when 'onboarding'
+                           WorkflowTemplateService.onboarding_templates
+                         when 'operational'
+                           WorkflowTemplateService.operational_templates
+                         when 'end_of_contract'
+                           WorkflowTemplateService.end_of_contract_templates
+                         else
+                           []
+                         end
+    
+    if templates_to_create.empty?
+      flash[:alert] = "No templates found for category: #{category_type}"
+      redirect_to admin_email_workflows_path
+      return
+    end
+
+    Rails.logger.info "Creating #{templates_to_create.count} workflow templates for category: #{category_type}"
+    
+    # Use transaction to ensure data integrity
+    ActiveRecord::Base.transaction do
+      templates_to_create.each do |template_data|
+        begin
+          # Check if workflow with this name already exists
+          existing_workflow = EmailWorkflow.find_by(name: template_data[:name])
+          if existing_workflow
+            failed_workflows << { name: template_data[:name], error: "Workflow already exists" }
+            next
+          end
+          
+          # Create workflow from template
+          workflow = WorkflowTemplateService.create_from_template(template_data[:name], current_admin_user)
+          if workflow && workflow.persisted?
+            created_workflows << workflow
+            Rails.logger.info "Successfully created workflow: #{workflow.name}"
+          else
+            error_message = workflow&.errors&.full_messages&.join(', ') || "Unknown error"
+            failed_workflows << { name: template_data[:name], error: error_message }
+            Rails.logger.error "Failed to create workflow '#{template_data[:name]}': #{error_message}"
+          end
+          
+        rescue => e
+          Rails.logger.error "Exception creating workflow from template '#{template_data[:name]}': #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
+          failed_workflows << { name: template_data[:name], error: e.message }
+        end
+      end
+      
+      # If too many failures, rollback the transaction
+      if failed_workflows.count > templates_to_create.count / 2
+        Rails.logger.error "Too many failures (#{failed_workflows.count}/#{templates_to_create.count}), rolling back transaction"
+        raise ActiveRecord::Rollback
+      end
+    end
+    
+    # Prepare flash messages
+    if created_workflows.any?
+      success_message = "Successfully created #{created_workflows.count} workflow template(s)"
+      if created_workflows.count <= 5
+        success_message += ": #{created_workflows.map(&:name).join(', ')}"
+      end
+      flash[:success] = success_message
+      Rails.logger.info "Bulk creation completed: #{created_workflows.count} workflows created"
+    end
+    
+    if failed_workflows.any?
+      if failed_workflows.count <= 3
+        error_details = failed_workflows.map { |f| "#{f[:name]} (#{f[:error]})" }.join(', ')
+        flash[:alert] = "Failed to create #{failed_workflows.count} workflow(s): #{error_details}"
+      else
+        flash[:alert] = "Failed to create #{failed_workflows.count} workflow templates. Check logs for details."
+      end
+      Rails.logger.error "Bulk creation failures: #{failed_workflows.count} workflows failed"
+    end
+    
+    if created_workflows.empty? && failed_workflows.any?
+      flash[:alert] = "No workflows were created. Please check the error messages and try again."
+    end
+    
+    # Redirect back to workflows index
+    redirect_to admin_email_workflows_path
   end
   
   def workflow_params
