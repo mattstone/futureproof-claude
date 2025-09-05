@@ -9,4 +9,18 @@ module ApplicationHelper
       rounded.to_s
     end
   end
+
+  # Helper method to render template fields with sample data for email workflow previews
+  def render_template_field(template_string, sample_data)
+    return template_string unless template_string.present?
+    
+    result = template_string.dup
+    sample_data.each do |category, data|
+      data.each do |key, value|
+        placeholder = "{{#{category}.#{key}}}"
+        result = result.gsub(placeholder, value.to_s)
+      end
+    end
+    result
+  end
 end

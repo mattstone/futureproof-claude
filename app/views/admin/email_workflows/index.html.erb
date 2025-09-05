@@ -39,7 +39,7 @@
         
         <div class="workflow-actions">
           <%= link_to new_admin_email_workflow_path, class: "btn-primary" do %>
-            <i class="fas fa-plus"></i> New Workflow
+            <i class="fas fa-plus"></i> New
           <% end %>
         </div>
       </div>
@@ -47,189 +47,34 @@
 
   <!-- Filters -->
   <div class="workflow-filters mb-6">
-    <%= form_with url: admin_email_workflows_path, method: :get, local: true, 
+    <%= form_with url: admin_email_workflows_path, method: :get, local: false, 
+                  data: { turbo_frame: "workflows-content", controller: "auto-submit" },
                   class: "filter-form flex items-center space-x-4" do |form| %>
       <div class="filter-group">
         <%= form.select :trigger_type, 
                         options_for_select([['All Triggers', '']] + 
                         @trigger_types.map { |type| [type.humanize, type] }, 
                         params[:trigger_type]), 
-                        {}, { class: "form-select" } %>
+                        {}, { 
+                          class: "form-select", 
+                          data: { action: "change->auto-submit#filterChanged" } 
+                        } %>
       </div>
       
       <div class="filter-group">
         <%= form.select :active, 
                         options_for_select([['All Status', ''], ['Active', 'true'], ['Inactive', 'false']], 
                         params[:active]), 
-                        {}, { class: "form-select" } %>
-      </div>
-      
-      <div class="filter-actions">
-        <%= form.submit "Filter", class: "btn-secondary" %>
-        <%= link_to "Clear", admin_email_workflows_path, class: "btn-link" %>
+                        {}, { 
+                          class: "form-select",
+                          data: { action: "change->auto-submit#filterChanged" }
+                        } %>
       </div>
     <% end %>
   </div>
 
-  <!-- Workflows Grid -->
-  <div class="workflows-grid">
-    <% if @workflows.present? %>
-      <% @workflows.each do |workflow| %>
-        <div class="workflow-card <%= 'inactive' unless workflow.active? %>">
-          <div class="workflow-header">
-            <div class="workflow-status">
-              <span class="status-badge <%= workflow.active? ? 'active' : 'inactive' %>">
-                <%= workflow.active? ? 'Active' : 'Inactive' %>
-              </span>
-              <span class="trigger-badge">
-                <%= workflow.trigger_type.humanize %>
-              </span>
-            </div>
-            
-            <div class="workflow-actions-dropdown">
-              <div class="dropdown">
-                <button class="dropdown-toggle" data-toggle="dropdown">
-                  <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <%= link_to admin_email_workflow_path(workflow), class: "dropdown-item" do %>
-                    <i class="fas fa-eye"></i> View Details
-                  <% end %>
-                  <%= link_to edit_admin_email_workflow_path(workflow), class: "dropdown-item" do %>
-                    <i class="fas fa-edit"></i> Edit
-                  <% end %>
-                  <%= link_to preview_admin_email_workflow_path(workflow), class: "dropdown-item" do %>
-                    <i class="fas fa-search"></i> Preview
-                  <% end %>
-                  <%= link_to duplicate_admin_email_workflow_path(workflow), 
-                             method: :post, class: "dropdown-item" do %>
-                    <i class="fas fa-copy"></i> Duplicate
-                  <% end %>
-                  <div class="dropdown-divider"></div>
-                  <%= link_to toggle_active_admin_email_workflow_path(workflow), 
-                             method: :patch, class: "dropdown-item" do %>
-                    <i class="fas fa-<%= workflow.active? ? 'pause' : 'play' %>"></i> 
-                    <%= workflow.active? ? 'Deactivate' : 'Activate' %>
-                  <% end %>
-                  <%= link_to admin_email_workflow_path(workflow), 
-                             method: :delete, 
-                             class: "dropdown-item text-red-600",
-                             data: { 
-                               confirm: "Are you sure? This will permanently delete the workflow '#{workflow.name}' and cannot be undone." 
-                             } do %>
-                    <i class="fas fa-trash"></i> Delete
-                  <% end %>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="workflow-content">
-            <h3 class="workflow-name">
-              <%= link_to workflow.name, admin_email_workflow_path(workflow), 
-                         class: "workflow-link" %>
-            </h3>
-            
-            <% if workflow.description.present? %>
-              <p class="workflow-description">
-                <%= truncate(workflow.description, length: 120) %>
-              </p>
-            <% end %>
-            
-            <div class="workflow-meta">
-              <div class="meta-item">
-                <i class="fas fa-list"></i>
-                <span><%= pluralize(workflow.workflow_steps.count, 'step') %></span>
-              </div>
-              <div class="meta-item">
-                <i class="fas fa-play-circle"></i>
-                <span><%= pluralize(workflow.workflow_executions.count, 'execution') %></span>
-              </div>
-              <div class="meta-item">
-                <i class="fas fa-user"></i>
-                <span>By <%= workflow.created_by.display_name %></span>
-              </div>
-              <div class="meta-item">
-                <i class="fas fa-clock"></i>
-                <span><%= time_ago_in_words(workflow.created_at) %> ago</span>
-              </div>
-            </div>
-            
-            <!-- Quick execution stats -->
-            <% if workflow.workflow_executions.any? %>
-              <div class="workflow-stats">
-                <% executions = workflow.workflow_executions %>
-                <% success_rate = executions.finished.any? ? 
-                   (executions.where(status: 'completed').count.to_f / executions.finished.count * 100).round(1) : 0 %>
-                <div class="stat-mini">
-                  <span class="stat-label">Success Rate</span>
-                  <span class="stat-value <%= success_rate > 80 ? 'good' : success_rate > 50 ? 'warning' : 'poor' %>">
-                    <%= success_rate %>%
-                  </span>
-                </div>
-                <div class="stat-mini">
-                  <span class="stat-label">Last Run</span>
-                  <span class="stat-value">
-                    <%= time_ago_in_words(executions.order(:created_at).last.created_at) %> ago
-                  </span>
-                </div>
-              </div>
-            <% end %>
-          </div>
-          
-          <!-- Workflow Steps Preview -->
-          <div class="workflow-steps-preview">
-            <div class="steps-list">
-              <% workflow.workflow_steps.ordered.limit(3).each_with_index do |step, index| %>
-                <div class="step-preview">
-                  <div class="step-icon">
-                    <%= render 'admin/email_workflows/step_icon', step: step %>
-                  </div>
-                  <div class="step-label">
-                    <%= step.name.present? ? step.name : step.step_type.humanize %>
-                  </div>
-                </div>
-                <% unless index == 2 || step == workflow.workflow_steps.ordered.last %>
-                  <div class="step-connector">→</div>
-                <% end %>
-              <% end %>
-              <% if workflow.workflow_steps.count > 3 %>
-                <div class="steps-more">
-                  +<%= workflow.workflow_steps.count - 3 %> more
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="fas fa-project-diagram"></i>
-        </div>
-        <h3>No Email Workflows</h3>
-        <p>Create your first workflow to automate customer communications throughout their lifecycle.</p>
-        <%= link_to new_admin_email_workflow_path, class: "btn-primary" do %>
-          <i class="fas fa-plus"></i> Create Your First Workflow
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Trigger Type Statistics -->
-  <% if @workflow_stats[:by_trigger].any? %>
-    <div class="trigger-stats mt-8">
-      <h4 class="section-title">Workflows by Trigger Type</h4>
-      <div class="trigger-grid">
-        <% @workflow_stats[:by_trigger].each do |trigger, count| %>
-          <div class="trigger-stat-card">
-            <div class="trigger-count"><%= count %></div>
-            <div class="trigger-name"><%= trigger.humanize %></div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
+  <!-- Workflows Content Frame -->
+  <%= render 'workflows_content', workflows: @workflows, workflow_stats: @workflow_stats %>
   </div>
 
   <!-- Email Templates Tab -->

@@ -17,6 +17,11 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     
     # Load email templates for the templates tab
     @email_templates = EmailTemplate.order(:template_type, :name) if request.xhr?
+    
+    # Handle Turbo frame requests for filtering
+    if turbo_frame_request?
+      render partial: 'workflows_content', locals: { workflows: @workflows, workflow_stats: @workflow_stats }
+    end
   end
   
   def show

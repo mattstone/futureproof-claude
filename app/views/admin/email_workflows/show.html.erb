@@ -5,395 +5,778 @@
   <span><%= @workflow.name %></span>
 <% end %>
 
-<div class="workflow-detail">
-  <!-- Header with actions -->
-  <div class="workflow-detail-header">
-    <div class="flex items-center justify-between">
-      <div class="workflow-title-section">
-        <h1 class="workflow-title">
-          <%= @workflow.name %>
-          <span class="status-badge <%= @workflow.active? ? 'active' : 'inactive' %>">
-            <%= @workflow.active? ? 'Active' : 'Inactive' %>
-          </span>
-        </h1>
+<div class="workflow-detail-container">
+  <!-- Hero Header -->
+  <div class="workflow-hero">
+    <div class="workflow-hero-content">
+      <div class="workflow-identity">
+        <div class="workflow-status-badge">
+          <div class="status-dot <%= @workflow.active? ? 'active' : 'inactive' %>"></div>
+          <span class="status-text"><%= @workflow.active? ? 'Active' : 'Inactive' %></span>
+        </div>
+        <h1 class="workflow-title"><%= @workflow.name %></h1>
         <% if @workflow.description.present? %>
           <p class="workflow-description"><%= @workflow.description %></p>
         <% end %>
+        <div class="workflow-meta">
+          <span class="meta-item">
+            <i class="fas fa-bolt"></i>
+            Triggered by <%= @workflow.trigger_type.humanize %>
+          </span>
+          <span class="meta-item">
+            <i class="fas fa-layer-group"></i>
+            <%= pluralize(@workflow.workflow_steps.count, 'step') %>
+          </span>
+          <span class="meta-item">
+            <i class="fas fa-user"></i>
+            Created by <%= @workflow.created_by.display_name %>
+          </span>
+        </div>
       </div>
       
       <div class="workflow-actions">
-        <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn-secondary" do %>
-          <i class="fas fa-edit"></i> Edit
-        <% end %>
-        <%= link_to preview_admin_email_workflow_path(@workflow), class: "btn-secondary" do %>
-          <i class="fas fa-search"></i> Preview
-        <% end %>
-        <%= link_to toggle_active_admin_email_workflow_path(@workflow), 
-                   method: :patch, class: "btn-secondary" do %>
-          <i class="fas fa-<%= @workflow.active? ? 'pause' : 'play' %>"></i> 
-          <%= @workflow.active? ? 'Deactivate' : 'Activate' %>
-        <% end %>
-        <%= link_to duplicate_admin_email_workflow_path(@workflow), 
-                   method: :post, class: "btn-secondary" do %>
-          <i class="fas fa-copy"></i> Duplicate
-        <% end %>
+        <div class="action-buttons">
+          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn btn-secondary" do %>
+            <i class="fas fa-edit"></i> Edit Workflow
+          <% end %>
+          <%= link_to preview_admin_email_workflow_path(@workflow), class: "btn btn-secondary" do %>
+            <i class="fas fa-eye"></i> Preview
+          <% end %>
+          <%= link_to toggle_active_admin_email_workflow_path(@workflow), 
+                     method: :patch, class: "btn btn-secondary toggle-btn" do %>
+            <i class="fas fa-<%= @workflow.active? ? 'pause' : 'play' %>"></i>
+            <%= @workflow.active? ? 'Pause' : 'Activate' %>
+          <% end %>
+        </div>
+        <div class="secondary-actions">
+          <%= link_to duplicate_admin_email_workflow_path(@workflow), 
+                     method: :post, class: "btn btn-ghost btn-sm" do %>
+            <i class="fas fa-copy"></i> Duplicate
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="workflow-content-grid">
-    <!-- Left Column: Workflow Configuration -->
-    <div class="workflow-config">
-      <!-- Basic Info -->
-      <div class="config-section">
-        <h3 class="section-title">Configuration</h3>
-        <div class="config-grid">
-          <div class="config-item">
-            <label>Trigger Type</label>
-            <span class="trigger-badge"><%= @workflow.trigger_type.humanize %></span>
-          </div>
-          
-          <div class="config-item">
-            <label>Created By</label>
-            <span><%= @workflow.created_by.display_name %></span>
-          </div>
-          
-          <div class="config-item">
-            <label>Created</label>
-            <span><%= @workflow.created_at.strftime('%b %d, %Y at %I:%M %p') %></span>
-          </div>
-          
-          <div class="config-item">
-            <label>Last Updated</label>
-            <span><%= @workflow.updated_at.strftime('%b %d, %Y at %I:%M %p') %></span>
+  <!-- Performance Dashboard -->
+  <div class="performance-dashboard">
+    <div class="dashboard-header">
+      <h2 class="dashboard-title">Performance Overview</h2>
+      <div class="dashboard-period">Last 30 days</div>
+    </div>
+    
+    <div class="metrics-grid">
+      <div class="metric-card primary">
+        <div class="metric-icon">
+          <i class="fas fa-play-circle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value"><%= @execution_stats[:total] %></div>
+          <div class="metric-label">Total Executions</div>
+          <div class="metric-trend">
+            <% if @execution_stats[:total] > 0 %>
+              <span class="trend-positive">+<%= @execution_stats[:total] %> this month</span>
+            <% else %>
+              <span class="trend-neutral">No executions yet</span>
+            <% end %>
           </div>
         </div>
-        
-        <!-- Trigger Conditions -->
-        <% if @workflow.trigger_conditions.present? && @workflow.trigger_conditions.any? %>
-          <div class="trigger-conditions">
-            <h4>Trigger Conditions</h4>
-            <div class="conditions-list">
-              <% @workflow.trigger_conditions.each do |key, value| %>
-                <div class="condition-item">
-                  <span class="condition-key"><%= key.humanize %>:</span>
-                  <span class="condition-value"><%= value %></span>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
       </div>
 
-      <!-- Workflow Steps -->
-      <div class="config-section">
-        <h3 class="section-title">Workflow Steps (<%= @workflow.workflow_steps.count %>)</h3>
-        <div class="steps-list">
-          <% @workflow.workflow_steps.ordered.each_with_index do |step, index| %>
-            <div class="step-item">
-              <div class="step-number"><%= index + 1 %></div>
-              <div class="step-icon-container">
-                <%= render 'step_icon', step: step %>
-              </div>
-              <div class="step-content">
-                <div class="step-header">
-                  <h4 class="step-name">
-                    <%= step.name.present? ? step.name : step.step_type.humanize %>
-                  </h4>
-                  <span class="step-type"><%= step.step_type.humanize %></span>
-                </div>
-                
-                <% if step.description.present? %>
-                  <p class="step-description"><%= step.description %></p>
-                <% end %>
-                
-                <!-- Step Configuration -->
-                <div class="step-config">
-                  <% case step.step_type %>
-                  <% when 'send_email' %>
-                    <% if step.configuration['email_template_id'].present? %>
-                      <% template = EmailTemplate.find_by(id: step.configuration['email_template_id']) %>
-                      <div class="config-detail">
-                        <i class="fas fa-envelope"></i>
-                        Template: <%= template ? link_to(template.name, admin_email_template_path(template), class: 'config-link') : 'Not found' %>
-                      </div>
-                    <% end %>
-                  <% when 'delay' %>
-                    <div class="config-detail">
-                      <i class="fas fa-clock"></i>
-                      Wait: <%= step.configuration['duration'] %> <%= step.configuration['unit'] %>
-                    </div>
-                  <% when 'condition' %>
-                    <div class="config-detail">
-                      <i class="fas fa-code-branch"></i>
-                      Type: <%= step.configuration['condition_type']&.humanize %>
-                      <% if step.configuration['expected_status'].present? %>
-                        <br>Expected: <%= step.configuration['expected_status'] %>
-                      <% end %>
-                    </div>
-                  <% when 'update_status' %>
-                    <div class="config-detail">
-                      <i class="fas fa-edit"></i>
-                      Update <%= step.configuration['field'] %> to <%= step.configuration['value'] %>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            </div>
-            
-            <% unless step == @workflow.workflow_steps.ordered.last %>
-              <div class="step-connector"></div>
+      <div class="metric-card success">
+        <div class="metric-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value"><%= @execution_stats[:success_rate] %>%</div>
+          <div class="metric-label">Success Rate</div>
+          <div class="metric-trend">
+            <% if @execution_stats[:success_rate] >= 90 %>
+              <span class="trend-positive">Excellent performance</span>
+            <% elsif @execution_stats[:success_rate] >= 75 %>
+              <span class="trend-neutral">Good performance</span>
+            <% else %>
+              <span class="trend-negative">Needs attention</span>
             <% end %>
-          <% end %>
-          
-          <% if @workflow.workflow_steps.empty? %>
-            <div class="empty-steps">
-              <i class="fas fa-plus-circle"></i>
-              <p>No steps configured yet</p>
-              <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn-primary" do %>
-                Add Steps
-              <% end %>
-            </div>
-          <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card warning">
+        <div class="metric-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value"><%= @execution_stats[:running] + @execution_stats[:pending] %></div>
+          <div class="metric-label">In Progress</div>
+          <div class="metric-trend">
+            <span class="trend-neutral">
+              <%= @execution_stats[:running] %> running, <%= @execution_stats[:pending] %> pending
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card danger">
+        <div class="metric-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value"><%= @execution_stats[:failed] %></div>
+          <div class="metric-label">Failed</div>
+          <div class="metric-trend">
+            <% if @execution_stats[:failed] == 0 %>
+              <span class="trend-positive">No failures</span>
+            <% elsif @execution_stats[:failed] < 5 %>
+              <span class="trend-neutral">Minor issues</span>
+            <% else %>
+              <span class="trend-negative">Requires investigation</span>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Right Column: Execution Statistics -->
-    <div class="workflow-stats">
-      <!-- Execution Overview -->
-      <div class="stats-section">
-        <h3 class="section-title">Execution Statistics</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number"><%= @execution_stats[:total] %></div>
-            <div class="stat-label">Total Executions</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number success"><%= @execution_stats[:completed] %></div>
-            <div class="stat-label">Completed</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number running"><%= @execution_stats[:running] %></div>
-            <div class="stat-label">Running</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number pending"><%= @execution_stats[:pending] %></div>
-            <div class="stat-label">Pending</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number failed"><%= @execution_stats[:failed] %></div>
-            <div class="stat-label">Failed</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number rate"><%= @execution_stats[:success_rate] %>%</div>
-            <div class="stat-label">Success Rate</div>
-          </div>
+  <!-- Main Content Grid -->
+  <div class="workflow-main-content">
+    <!-- Workflow Flow Visualization -->
+    <div class="workflow-flow-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-project-diagram"></i>
+          Workflow Steps
+        </h2>
+        <div class="section-badge">
+          <%= pluralize(@workflow.workflow_steps.count, 'step') %>
         </div>
       </div>
 
-      <!-- Recent Executions -->
-      <% if @executions.any? %>
-        <div class="stats-section">
-          <h3 class="section-title">Recent Executions</h3>
-          <div class="executions-list">
-            <% @executions.limit(10).each do |execution| %>
-              <div class="execution-item">
-                <div class="execution-status">
-                  <span class="status-indicator <%= execution.status %>"></span>
-                </div>
-                <div class="execution-details">
-                  <div class="execution-target">
-                    <% if execution.target.respond_to?(:user) %>
-                      <%= execution.target.user.display_name %>
-                    <% elsif execution.target.respond_to?(:display_name) %>
-                      <%= execution.target.display_name %>
-                    <% else %>
-                      <%= execution.target.class.name %> #<%= execution.target.id %>
-                    <% end %>
-                  </div>
-                  <div class="execution-meta">
-                    <span class="execution-time">
-                      <%= time_ago_in_words(execution.created_at) %> ago
+      <% if @workflow.workflow_steps.any? %>
+        <div class="workflow-flow">
+          <!-- Trigger -->
+          <div class="flow-node trigger-node">
+            <div class="node-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <div class="node-content">
+              <h4 class="node-title">Trigger</h4>
+              <p class="node-description"><%= @workflow.trigger_type.humanize %></p>
+              <% if @workflow.trigger_conditions.present? && @workflow.trigger_conditions.any? %>
+                <div class="node-conditions">
+                  <% @workflow.trigger_conditions.each do |key, value| %>
+                    <span class="condition-tag">
+                      <%= key.humanize %>: <%= value %>
                     </span>
-                    <% if execution.completed_at %>
-                      <span class="execution-duration">
-                        (<%= distance_of_time_in_words(execution.created_at, execution.completed_at) %>)
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-                <div class="execution-progress">
-                  <% if execution.status == 'completed' %>
-                    <i class="fas fa-check-circle text-green-500"></i>
-                  <% elsif execution.status == 'failed' %>
-                    <i class="fas fa-times-circle text-red-500"></i>
-                  <% elsif execution.status == 'running' %>
-                    <i class="fas fa-play-circle text-blue-500"></i>
-                  <% else %>
-                    <i class="fas fa-clock text-gray-400"></i>
                   <% end %>
                 </div>
-              </div>
-            <% end %>
-            
-            <% if @executions.count > 10 %>
-              <div class="execution-item more">
-                <div class="more-executions">
-                  +<%= @executions.count - 10 %> more executions
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Flow connector -->
+          <div class="flow-connector">
+            <div class="connector-line"></div>
+            <div class="connector-arrow">
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+
+          <!-- Steps -->
+          <div class="workflow-steps">
+            <% @workflow.workflow_steps.ordered.each_with_index do |step, index| %>
+              <div class="flow-node step-node">
+                <div class="step-number-badge">
+                  <%= index + 1 %>
+                </div>
+                <div class="node-icon step-icon">
+                  <%= render 'step_icon', step: step %>
+                </div>
+                <div class="node-content">
+                  <h4 class="node-title">
+                    <%= step.name.present? ? step.name : step.step_type.humanize %>
+                  </h4>
+                  <div class="node-type-badge">
+                    <%= step.step_type.humanize %>
+                  </div>
+                  
+                  <% if step.description.present? %>
+                    <p class="node-description"><%= step.description %></p>
+                  <% end %>
+
+                  <!-- Step Configuration Preview -->
+                  <div class="node-config">
+                    <% case step.step_type %>
+                    <% when 'send_email' %>
+                      <% if step.configuration['email_template_id'].present? %>
+                        <% template = EmailTemplate.find_by(id: step.configuration['email_template_id']) %>
+                        <div class="config-item">
+                          <i class="fas fa-envelope"></i>
+                          <span>Template: 
+                            <%= template ? link_to(template.name, admin_email_template_path(template), class: 'config-link', target: '_blank') : 'Template not found' %>
+                          </span>
+                        </div>
+                      <% end %>
+                    <% when 'delay' %>
+                      <div class="config-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Wait <%= step.configuration['duration'] %> <%= step.configuration['unit'] %></span>
+                      </div>
+                    <% when 'condition' %>
+                      <div class="config-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span>
+                          <%= step.configuration['condition_type']&.humanize || 'Condition check' %>
+                          <% if step.configuration['expected_status'].present? %>
+                            → <%= step.configuration['expected_status'] %>
+                          <% end %>
+                        </span>
+                      </div>
+                    <% when 'update_status' %>
+                      <div class="config-item">
+                        <i class="fas fa-edit"></i>
+                        <span>Update <%= step.configuration['field'] %> to "<%= step.configuration['value'] %>"</span>
+                      </div>
+                    <% end %>
+                  </div>
                 </div>
               </div>
+
+              <% unless step == @workflow.workflow_steps.ordered.last %>
+                <div class="flow-connector">
+                  <div class="connector-line"></div>
+                  <div class="connector-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                </div>
+              <% end %>
             <% end %>
           </div>
         </div>
       <% else %>
-        <div class="stats-section">
-          <div class="empty-executions">
-            <i class="fas fa-play-circle"></i>
-            <h4>No Executions Yet</h4>
-            <p>This workflow hasn't been triggered yet. Executions will appear here when the workflow runs.</p>
+        <div class="empty-workflow">
+          <div class="empty-icon">
+            <i class="fas fa-project-diagram"></i>
           </div>
+          <h3>No Steps Configured</h3>
+          <p>This workflow doesn't have any steps yet. Add some steps to define what happens when this workflow is triggered.</p>
+          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn btn-primary" do %>
+            <i class="fas fa-plus"></i> Add Steps
+          <% end %>
         </div>
       <% end %>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="workflow-activity-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-history"></i>
+          Recent Activity
+        </h2>
+        <% if @executions.any? %>
+          <div class="section-badge">
+            <%= @executions.limit(10).count %> of <%= @executions.count %>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @executions.any? %>
+        <div class="activity-timeline">
+          <% @executions.limit(10).each do |execution| %>
+            <div class="timeline-item">
+              <div class="timeline-marker">
+                <div class="status-dot <%= execution.status %>"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="activity-header">
+                  <div class="activity-title">
+                    Workflow executed for 
+                    <span class="activity-target">
+                      <% if execution.target.respond_to?(:user) %>
+                        <%= execution.target.user.display_name %>
+                      <% elsif execution.target.respond_to?(:display_name) %>
+                        <%= execution.target.display_name %>
+                      <% else %>
+                        <%= execution.target.class.name %> #<%= execution.target.id %>
+                      <% end %>
+                    </span>
+                  </div>
+                  <div class="activity-status status-<%= execution.status %>">
+                    <i class="fas fa-<%= case execution.status
+                      when 'completed' then 'check-circle'
+                      when 'failed' then 'times-circle'
+                      when 'running' then 'play-circle'
+                      else 'clock'
+                      end %>"></i>
+                    <%= execution.status.humanize %>
+                  </div>
+                </div>
+                <div class="activity-meta">
+                  <span class="activity-time">
+                    <i class="fas fa-clock"></i>
+                    <%= time_ago_in_words(execution.created_at) %> ago
+                  </span>
+                  <% if execution.completed_at %>
+                    <span class="activity-duration">
+                      <i class="fas fa-stopwatch"></i>
+                      Took <%= distance_of_time_in_words(execution.created_at, execution.completed_at) %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @executions.count > 10 %>
+            <div class="timeline-item more-items">
+              <div class="timeline-marker">
+                <div class="status-dot neutral"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="more-items-text">
+                  <i class="fas fa-ellipsis-h"></i>
+                  <%= @executions.count - 10 %> more executions...
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-activity">
+          <div class="empty-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <h3>No Activity Yet</h3>
+          <p>This workflow hasn't been triggered yet. When it runs, you'll see the execution history here.</p>
+          <% if @workflow.active? %>
+            <div class="help-text">
+              <i class="fas fa-info-circle"></i>
+              This workflow will trigger automatically when the conditions are met.
+            </div>
+          <% else %>
+            <div class="help-text warning">
+              <i class="fas fa-pause-circle"></i>
+              This workflow is currently inactive and won't trigger automatically.
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Workflow Details -->
+  <div class="workflow-details-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <i class="fas fa-info-circle"></i>
+        Workflow Details
+      </h2>
+    </div>
+    
+    <div class="details-grid">
+      <div class="detail-item">
+        <label class="detail-label">Workflow ID</label>
+        <span class="detail-value mono"><%= @workflow.id %></span>
+      </div>
+      
+      <div class="detail-item">
+        <label class="detail-label">Created</label>
+        <span class="detail-value">
+          <%= @workflow.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+        </span>
+      </div>
+      
+      <div class="detail-item">
+        <label class="detail-label">Last Modified</label>
+        <span class="detail-value">
+          <%= @workflow.updated_at.strftime('%B %d, %Y at %I:%M %p') %>
+        </span>
+      </div>
+      
+      <div class="detail-item">
+        <label class="detail-label">Created By</label>
+        <span class="detail-value">
+          <%= @workflow.created_by.display_name %>
+        </span>
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-.workflow-detail {
+/* Reset and base styles */
+.workflow-detail-container {
   padding: 0;
+  background: #f8fafc;
+  min-height: 100vh;
 }
 
-.workflow-detail-header {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 1px solid #e5e7eb;
+/* Hero Header */
+.workflow-hero {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
 }
+
+.workflow-hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.workflow-identity {
+  flex: 1;
+}
+
+.workflow-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.active { background: #10b981; }
+.status-dot.inactive { background: #ef4444; }
+.status-dot.completed { background: #10b981; }
+.status-dot.running { background: #3b82f6; }
+.status-dot.pending { background: #f59e0b; }
+.status-dot.failed { background: #ef4444; }
+.status-dot.neutral { background: #6b7280; }
 
 .workflow-title {
-  font-size: 1.875rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
 }
 
 .workflow-description {
-  color: #6b7280;
   font-size: 1.125rem;
+  opacity: 0.9;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.workflow-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.95;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.meta-item i {
+  width: 16px;
+  text-align: center;
+}
+
+.workflow-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.btn-primary {
+  background: #1d4ed8;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-weight: 500;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Performance Dashboard */
+.performance-dashboard {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 0 1.5rem;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
   margin: 0;
 }
 
-.workflow-content-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+.dashboard-period {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.workflow-config, .workflow-stats {
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 1rem;
+  padding: 1rem;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+}
+
+.metric-card.primary .metric-icon {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.metric-card.success .metric-icon {
+  background: #f0fdf4;
+  color: #10b981;
+}
+
+.metric-card.warning .metric-icon {
+  background: #fffbeb;
+  color: #f59e0b;
+}
+
+.metric-card.danger .metric-icon {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.metric-label {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.metric-trend {
+  font-size: 0.75rem;
+}
+
+.trend-positive { color: #10b981; }
+.trend-negative { color: #ef4444; }
+.trend-neutral { color: #6b7280; }
+
+/* Main Content */
+.workflow-main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
-  margin-bottom: 16px;
-}
-
-.config-section {
-  margin-bottom: 32px;
-}
-
-.config-section:last-child {
-  margin-bottom: 0;
-}
-
-.config-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.config-item {
+  color: #1f2937;
+  margin: 0;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.config-item label {
-  font-size: 0.875rem;
-  font-weight: 500;
+.section-title i {
   color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.config-item span {
-  color: #111827;
-  font-weight: 500;
-}
-
-.trigger-conditions {
-  margin-top: 20px;
-}
-
-.trigger-conditions h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 12px;
-}
-
-.conditions-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.condition-item {
+.section-badge {
   background: #f3f4f6;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-}
-
-.condition-key {
-  font-weight: 500;
   color: #6b7280;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-.condition-value {
-  color: #111827;
-  margin-left: 4px;
+/* Workflow Flow Section */
+.workflow-flow-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  height: fit-content;
 }
 
-.steps-list {
+.workflow-flow {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.step-item {
+.flow-node {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 20px;
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fafbfc;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
-.step-number {
+.flow-node:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.trigger-node {
+  background: linear-gradient(135deg, #1f2937, #374151);
+  color: white;
+  border-color: #374151;
+}
+
+.trigger-node .node-title,
+.trigger-node .node-description {
+  color: white;
+}
+
+.step-node {
+  position: relative;
+}
+
+.step-number-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
   width: 24px;
   height: 24px;
   background: #3b82f6;
@@ -402,258 +785,432 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  flex-shrink: 0;
+  z-index: 2;
 }
 
-.step-icon-container {
-  flex-shrink: 0;
-}
-
-.step-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.step-header {
+.node-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  color: #6b7280;
 }
 
-.step-name {
+.trigger-node .node-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.step-icon {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.node-content {
+  flex: 1;
+}
+
+.node-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
-  margin: 0;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
 }
 
-.step-type {
+.node-type-badge {
+  display: inline-block;
   background: #e5e7eb;
   color: #6b7280;
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.node-description {
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.node-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.condition-tag {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 500;
 }
 
-.step-description {
-  color: #6b7280;
-  margin-bottom: 12px;
-  line-height: 1.5;
+.node-config {
+  margin-top: 0.75rem;
 }
 
-.step-config {
-  margin-top: 12px;
-}
-
-.config-detail {
+.config-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   color: #6b7280;
   font-size: 0.875rem;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
-.config-detail i {
+.config-item i {
   width: 16px;
-  color: #9ca3af;
+  text-align: center;
 }
 
 .config-link {
-  color: #3b82f6;
+  color: #1d4ed8;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .config-link:hover {
   text-decoration: underline;
+  color: #1e40af;
 }
 
-.step-connector {
+.flow-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.connector-line {
   width: 2px;
-  height: 16px;
+  height: 1rem;
   background: #d1d5db;
-  margin: 0 auto;
-  margin-left: 32px;
 }
 
-.empty-steps {
+.connector-arrow {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.empty-workflow {
   text-align: center;
-  padding: 40px 20px;
+  padding: 3rem 1.5rem;
   color: #6b7280;
 }
 
-.empty-steps i {
-  font-size: 2rem;
-  margin-bottom: 12px;
+.empty-icon {
+  font-size: 3rem;
   color: #d1d5db;
+  margin-bottom: 1rem;
 }
 
-.empty-steps p {
-  margin-bottom: 16px;
+.empty-workflow h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
 }
 
-.stats-section {
-  margin-bottom: 32px;
+.empty-workflow p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
-.stats-section:last-child {
+/* Activity Section */
+.workflow-activity-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  height: fit-content;
+}
+
+.activity-timeline {
+  position: relative;
+}
+
+.activity-timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.timeline-item:last-child {
   margin-bottom: 0;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+.timeline-marker {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
-.stat-card {
-  text-align: center;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+.timeline-marker .status-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
 }
 
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #111827;
-  margin-bottom: 4px;
+.timeline-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.stat-number.success { color: #10b981; }
-.stat-number.running { color: #3b82f6; }
-.stat-number.pending { color: #f59e0b; }
-.stat-number.failed { color: #ef4444; }
-.stat-number.rate { color: #8b5cf6; }
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
 
-.stat-label {
+.activity-title {
+  color: #1f2937;
+  font-weight: 500;
+  flex: 1;
+}
+
+.activity-target {
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.activity-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.activity-status.status-completed {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.activity-status.status-failed {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.activity-status.status-running {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.activity-status.status-pending {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.activity-meta {
+  display: flex;
+  gap: 1rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.activity-time,
+.activity-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.more-items {
+  opacity: 0.6;
+}
+
+.more-items-text {
+  color: #6b7280;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty-activity {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6b7280;
+}
+
+.empty-activity .empty-icon {
+  font-size: 2.5rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.empty-activity h3 {
+  font-size: 1.125rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.empty-activity p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.help-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #f0f9ff;
+  color: #0c4a6e;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.help-text.warning {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+/* Workflow Details */
+.workflow-details-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 500;
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.executions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.execution-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.execution-item.more {
-  justify-content: center;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.execution-status {
-  flex-shrink: 0;
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: block;
-}
-
-.status-indicator.completed { background: #10b981; }
-.status-indicator.running { background: #3b82f6; }
-.status-indicator.pending { background: #f59e0b; }
-.status-indicator.failed { background: #ef4444; }
-.status-indicator.cancelled { background: #6b7280; }
-
-.execution-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.execution-target {
+.detail-value {
+  color: #1f2937;
   font-weight: 500;
-  color: #111827;
+}
+
+.detail-value.mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
   font-size: 0.875rem;
 }
 
-.execution-meta {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-.execution-progress {
-  flex-shrink: 0;
-}
-
-.empty-executions {
-  text-align: center;
-  padding: 40px 20px;
-  color: #6b7280;
-}
-
-.empty-executions i {
-  font-size: 2rem;
-  margin-bottom: 12px;
-  color: #d1d5db;
-}
-
-.empty-executions h4 {
-  font-size: 1.125rem;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.empty-executions p {
-  margin: 0;
-}
-
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .workflow-content-grid {
+  .workflow-main-content {
     grid-template-columns: 1fr;
   }
   
-  .config-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .workflow-title {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .stats-grid {
+  .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .step-item {
+  .workflow-actions {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .step-header {
+  .workflow-hero-content {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: stretch;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .workflow-actions {
+    align-items: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .workflow-hero {
+    padding: 1.5rem 0;
+  }
+  
+  .workflow-hero-content {
+    padding: 0 1rem;
+  }
+  
+  .workflow-title {
+    font-size: 2rem;
+  }
+  
+  .workflow-meta {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn {
+    justify-content: center;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .workflow-main-content,
+  .performance-dashboard,
+  .workflow-details-section {
+    padding: 0 1rem;
+  }
+  
+  .flow-node {
+    padding: 1rem;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
