@@ -120,8 +120,8 @@
         <div class="empty-icon">
           <i class="fas fa-project-diagram"></i>
         </div>
-        <h3>No Email Workflows</h3>
-        <p>Create your first workflow to automate customer communications throughout their lifecycle.</p>
+        <h3>No Workflows</h3>
+        <p>Create your first workflow to automate your business processes.</p>
         <%= link_to new_admin_email_workflow_path, class: "btn-primary" do %>
           <i class="fas fa-plus"></i> Create Your First Workflow
         <% end %>
@@ -129,18 +129,4 @@
     <% end %>
   </div>
 
-  <!-- Trigger Type Statistics -->
-  <% if workflow_stats[:by_trigger].any? %>
-    <div class="trigger-stats mt-8">
-      <h4 class="section-title">Workflows by Trigger Type</h4>
-      <div class="trigger-grid">
-        <% workflow_stats[:by_trigger].each do |trigger, count| %>
-          <div class="trigger-stat-card">
-            <div class="trigger-count"><%= count %></div>
-            <div class="trigger-name"><%= trigger.humanize %></div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
 <% end %>

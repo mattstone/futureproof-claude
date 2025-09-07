@@ -138,12 +138,14 @@ Rails.application.routes.draw do
         patch :toggle_active
         get :preview
         post :duplicate
+        get :trigger_conditions
       end
       collection do
         get :add_step
         get :templates
         get :email_templates_content
         post :bulk_create
+        get 'new/trigger_conditions', to: 'email_workflows#trigger_conditions', as: :new_trigger_conditions
       end
     end
     

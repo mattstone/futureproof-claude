@@ -1,44 +1,38 @@
-<% content_for :title, "New Email Workflow" %>
+<% content_for :title, "New Workflow" %>
 <% content_for :breadcrumb do %>
-  <%= link_to "Email Workflows", admin_email_workflows_path, class: "breadcrumb-link" %>
+  <%= link_to "Workflows", admin_email_workflows_path, class: "breadcrumb-link" %>
   <span class="breadcrumb-separator">→</span>
   <span>New Workflow</span>
 <% end %>
 
-<div class="workflow-form-container">
+<div class="workflow-form-container" data-controller="workflow-mode">
   <div class="workflow-form-header">
-    <h1>Create New Email Workflow</h1>
+    <h1>Create New Workflow</h1>
     <p>Build automated email sequences to engage customers throughout their lifecycle.</p>
+    
+    <div class="builder-mode-toggle">
+      <button type="button" class="mode-btn active" data-mode="visual" 
+              data-workflow-mode-target="modeBtn" 
+              data-action="click->workflow-mode#switchToMode">
+        <i class="fas fa-project-diagram"></i> Visual Builder
+      </button>
+      <button type="button" class="mode-btn" data-mode="form" 
+              data-workflow-mode-target="modeBtn" 
+              data-action="click->workflow-mode#switchToMode">
+        <i class="fas fa-list"></i> Traditional Form
+      </button>
+    </div>
   </div>
 
-  <%= render 'form', workflow: @workflow %>
+  <!-- Visual Builder Mode (Default) -->
+  <div class="builder-mode" data-workflow-mode-target="visualMode">
+    <%= render 'visual_builder', workflow: @workflow %>
+  </div>
+
+  <!-- Traditional Form Mode -->
+  <div class="builder-mode hidden" data-workflow-mode-target="formMode">
+    <%= render 'form', workflow: @workflow %>
+  </div>
 </div>
 
-<style>
-.workflow-form-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
-.workflow-form-header {
-  background: white;
-  padding: 32px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.workflow-form-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.workflow-form-header p {
-  color: #6b7280;
-  font-size: 1.125rem;
-  margin: 0;
-}
-</style>

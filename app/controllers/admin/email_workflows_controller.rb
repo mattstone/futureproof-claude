@@ -1,6 +1,6 @@
 class Admin::EmailWorkflowsController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_workflow, only: [:show, :edit, :update, :destroy, :toggle_active, :preview, :duplicate]
+  before_action :set_workflow, only: [:show, :edit, :update, :destroy, :toggle_active, :preview, :duplicate, :trigger_conditions]
   
   def index
     @workflows = EmailWorkflow.includes(:created_by, :workflow_steps)
@@ -35,7 +35,7 @@ class Admin::EmailWorkflowsController < Admin::BaseController
   def new
     if params[:template].present?
       # Create from template
-      template_workflow = WorkflowTemplateService.create_from_template(params[:template], current_admin_user)
+      template_workflow = WorkflowTemplateService.create_from_template(params[:template], current_user)
       if template_workflow
         flash[:success] = "Workflow created from template: #{params[:template]}"
         redirect_to edit_admin_email_workflow_path(template_workflow)
@@ -74,10 +74,10 @@ class Admin::EmailWorkflowsController < Admin::BaseController
   
   def create
     @workflow = EmailWorkflow.new(workflow_params)
-    @workflow.created_by = current_admin_user
+    @workflow.created_by = current_user
     
     if @workflow.save
-      flash[:success] = "Email workflow '#{@workflow.name}' has been created successfully."
+      flash[:success] = "Workflow '#{@workflow.name}' has been created successfully."
       redirect_to admin_email_workflow_path(@workflow)
     else
       @email_templates = EmailTemplate.order(:template_type, :name)
@@ -91,7 +91,7 @@ class Admin::EmailWorkflowsController < Admin::BaseController
   
   def update
     if @workflow.update(workflow_params)
-      flash[:success] = "Email workflow '#{@workflow.name}' has been updated successfully."
+      flash[:success] = "Workflow '#{@workflow.name}' has been updated successfully."
       redirect_to admin_email_workflow_path(@workflow)
     else
       @email_templates = EmailTemplate.order(:template_type, :name)
@@ -110,14 +110,14 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     end
     
     @workflow.destroy
-    flash[:success] = "Email workflow '#{workflow_name}' has been deleted."
+    flash[:success] = "Workflow '#{workflow_name}' has been deleted."
     redirect_to admin_email_workflows_path
   end
   
   def toggle_active
     @workflow.update!(active: !@workflow.active)
     status = @workflow.active? ? 'activated' : 'deactivated'
-    flash[:success] = "Email workflow '#{@workflow.name}' has been #{status}."
+    flash[:success] = "Workflow '#{@workflow.name}' has been #{status}."
     redirect_back(fallback_location: admin_email_workflows_path)
   end
   
@@ -131,7 +131,7 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     new_workflow = @workflow.dup
     new_workflow.name = "#{@workflow.name} (Copy)"
     new_workflow.active = false
-    new_workflow.created_by = current_admin_user
+    new_workflow.created_by = current_user
     
     if new_workflow.save
       # Duplicate workflow steps
@@ -149,6 +149,20 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     end
   end
   
+  def trigger_conditions
+    # Handle both existing workflows and new workflow creation
+    if @workflow.nil?
+      # This is for new workflow creation
+      @workflow = EmailWorkflow.new
+      @workflow.trigger_type = params[:trigger_type]
+    else
+      # Update the trigger type for existing workflow if provided
+      @workflow.trigger_type = params[:trigger_type] if params[:trigger_type].present?
+    end
+    
+    render partial: 'trigger_conditions', locals: { form: nil, workflow: @workflow }, layout: false
+  end
+  
   # AJAX endpoint for adding workflow steps
   def add_step
     @step = WorkflowStep.new
@@ -163,7 +177,7 @@ class Admin::EmailWorkflowsController < Admin::BaseController
   private
   
   def set_workflow
-    @workflow = EmailWorkflow.find(params[:id])
+    @workflow = EmailWorkflow.find(params[:id]) if params[:id].present? && params[:id] != 'new'
   end
   
   def handle_bulk_template_creation(category_type)
@@ -203,7 +217,7 @@ class Admin::EmailWorkflowsController < Admin::BaseController
           end
           
           # Create workflow from template
-          workflow = WorkflowTemplateService.create_from_template(template_data[:name], current_admin_user)
+          workflow = WorkflowTemplateService.create_from_template(template_data[:name], current_user)
           if workflow && workflow.persisted?
             created_workflows << workflow
             Rails.logger.info "Successfully created workflow: #{workflow.name}"

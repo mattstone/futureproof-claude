@@ -7,6 +7,7 @@ class WorkflowExecution < ApplicationRecord
   # Enums
   enum :status, {
     pending: 'pending',
+    processing: 'processing',
     running: 'running',
     completed: 'completed',
     failed: 'failed',
@@ -19,7 +20,7 @@ class WorkflowExecution < ApplicationRecord
   validates :current_step_position, presence: true
   
   # Scopes
-  scope :active, -> { where(status: ['pending', 'running', 'paused']) }
+  scope :active, -> { where(status: ['pending', 'processing', 'running', 'paused']) }
   scope :finished, -> { where(status: ['completed', 'failed', 'cancelled']) }
   scope :recent, -> { order(created_at: :desc) }
   

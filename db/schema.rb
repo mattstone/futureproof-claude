@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_215507) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_06_101526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -246,6 +246,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_215507) do
     t.bigint "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "workflow_builder_data"
     t.index ["created_by_id"], name: "index_email_workflows_on_created_by_id"
     t.index ["trigger_type", "active"], name: "index_email_workflows_on_trigger_type_and_active"
   end
@@ -703,6 +704,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_215507) do
     t.index ["name"], name: "index_wholesale_funders_on_name"
   end
 
+  create_table "workflow_execution_trackers", force: :cascade do |t|
+    t.bigint "email_workflow_id", null: false
+    t.string "target_type", null: false
+    t.bigint "target_id", null: false
+    t.string "trigger_type", null: false
+    t.string "trigger_key", null: false
+    t.datetime "executed_at", null: false
+    t.boolean "run_once", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_workflow_id", "target_type", "target_id", "trigger_key"], name: "index_workflow_execution_uniqueness", unique: true
+    t.index ["email_workflow_id"], name: "index_workflow_execution_trackers_on_email_workflow_id"
+    t.index ["target_type", "target_id"], name: "index_workflow_execution_trackers_on_target"
+    t.index ["target_type", "target_id"], name: "index_workflow_execution_trackers_on_target_type_and_target_id"
+    t.index ["trigger_type", "executed_at"], name: "idx_on_trigger_type_executed_at_3e8d80a085"
+  end
+
   create_table "workflow_executions", force: :cascade do |t|
     t.bigint "workflow_id", null: false
     t.string "target_type", null: false
@@ -824,6 +842,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_215507) do
   add_foreign_key "users", "lenders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"
+  add_foreign_key "workflow_execution_trackers", "email_workflows"
   add_foreign_key "workflow_executions", "email_workflows", column: "workflow_id"
   add_foreign_key "workflow_step_executions", "workflow_executions", column: "execution_id"
   add_foreign_key "workflow_step_executions", "workflow_steps", column: "step_id"

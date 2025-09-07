@@ -1,0 +1,154 @@
+<div class="visual-workflow-builder" 
+     data-controller="workflow-builder" 
+     data-workflow-builder-workflow-data-value="<%= workflow.persisted? ? workflow.to_json : '' %>"
+     data-workflow-builder-email-templates-value="<%= @email_templates.to_json(only: [:id, :name, :template_type]) %>">
+  
+  <%= form_with model: [:admin, workflow], local: true, html: { data: { workflow_builder_target: "form" } } do |form| %>
+  
+  <!-- Basic workflow fields - moved to top -->
+  <div class="basic-fields">
+    <div class="form-group">
+      <%= form.label :name, class: "form-label" %>
+      <%= form.text_field :name, class: "form-input", placeholder: "e.g., Welcome New Customers", required: true %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :description, class: "form-label" %>
+      <%= form.text_area :description, class: "form-textarea", rows: 2, placeholder: "Describe what this workflow does..." %>
+    </div>
+    
+    <div class="form-group">
+      <div class="form-checkbox">
+        <%= form.check_box :active, class: "form-checkbox-input" %>
+        <%= form.label :active, "Active Workflow", class: "form-checkbox-label" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Builder Header -->
+  <div class="builder-header">
+    <div class="builder-title">
+      <h3>Visual Workflow Builder</h3>
+      <p>Drag components from the palette to create your workflow</p>
+    </div>
+    <div class="builder-actions">
+      <button type="button" class="quick-action-btn" data-action="click->workflow-builder#addQuickEmail">
+        <i class="fas fa-envelope"></i> Quick Email
+      </button>
+      <button type="button" class="quick-action-btn" data-action="click->workflow-builder#addQuickDelay">
+        <i class="fas fa-clock"></i> Quick Delay  
+      </button>
+      <button type="button" class="quick-action-btn" data-action="click->workflow-builder#addQuickCondition">
+        <i class="fas fa-code-branch"></i> Quick Condition
+      </button>
+    </div>
+  </div>
+
+  <div class="builder-workspace">
+    
+    <!-- Component Palette -->
+    <div class="component-palette" data-workflow-builder-target="palette">
+      <h4>Components</h4>
+      
+      <div class="palette-section">
+        <h5>Actions</h5>
+        <div class="palette-item" data-node-type="email" title="Send an email to the user">
+          <i class="fas fa-envelope"></i>
+          <span>Send Email</span>
+        </div>
+        <div class="palette-item" data-node-type="update" title="Update application or user data">
+          <i class="fas fa-edit"></i>
+          <span>Update Status</span>
+        </div>
+      </div>
+      
+      <div class="palette-section">
+        <h5>Flow Control</h5>
+        <div class="palette-item" data-node-type="delay" title="Wait for a specified amount of time">
+          <i class="fas fa-clock"></i>
+          <span>Add Delay</span>
+        </div>
+        <div class="palette-item" data-node-type="condition" title="Branch workflow based on conditions">
+          <i class="fas fa-code-branch"></i>
+          <span>Condition</span>
+        </div>
+      </div>
+      
+      <div class="palette-help">
+        <p><strong>How to use:</strong></p>
+        <ol>
+          <li>Drag components onto the canvas</li>
+          <li>Click nodes to configure them</li>
+          <li>Connect nodes by clicking connection points</li>
+          <li>Save your workflow when complete</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Workflow Canvas -->
+    <div class="workflow-canvas" data-workflow-builder-target="canvas">
+      <div class="canvas-grid"></div>
+      <div class="canvas-hint">
+        <i class="fas fa-mouse-pointer"></i>
+        <p>Drag components from the palette to get started</p>
+      </div>
+    </div>
+
+    <!-- Properties Panel -->
+    <div class="properties-panel" data-workflow-builder-target="properties">
+      <div class="panel-header">
+        <h4>Properties</h4>
+      </div>
+      <div class="panel-content">
+        <p class="no-selection">Click on a node to configure its properties</p>
+      </div>
+    </div>
+  </div>
+  
+
+      <!-- Hidden fields for visual builder data -->
+      <%= form.hidden_field :trigger_type %>
+      <%= form.hidden_field :trigger_conditions, value: workflow.trigger_conditions.to_json %>
+      <%= hidden_field_tag :workflow_builder_data, '', id: 'workflow_builder_data' %>
+      
+      <!-- Workflow steps will be handled by the visual builder -->
+      <div id="workflow-steps-data">
+        <%= form.fields_for :workflow_steps do |step_fields| %>
+          <div class="step-data hidden">
+            <%= step_fields.hidden_field :step_type %>
+            <%= step_fields.hidden_field :position %>
+            <%= step_fields.hidden_field :name %>
+            <%= step_fields.hidden_field :description %>
+            <%= step_fields.hidden_field :configuration, value: step_fields.object.configuration.to_json if step_fields.object.configuration.present? %>
+            <%= step_fields.hidden_field :_destroy %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Form actions -->
+      <div class="visual-form-actions">
+        <div class="actions-left">
+          <%= link_to workflow.persisted? ? admin_email_workflow_path(workflow) : admin_email_workflows_path, 
+                      class: "btn-secondary" do %>
+            <i class="fas fa-times"></i> Cancel
+          <% end %>
+        </div>
+        
+        <div class="actions-right">
+          <% if workflow.persisted? %>
+            <%= link_to preview_admin_email_workflow_path(workflow), 
+                       class: "btn-secondary", target: "_blank" do %>
+              <i class="fas fa-eye"></i> Preview
+            <% end %>
+          <% end %>
+          
+          <%= form.submit workflow.persisted? ? "Update Workflow" : "Create Workflow", 
+                         class: "btn-primary workflow-save-btn" %>
+        </div>
+      </div>
+      
+    <% end %>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'admin/visual_workflow_builder' %>

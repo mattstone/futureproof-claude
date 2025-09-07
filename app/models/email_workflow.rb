@@ -2,6 +2,7 @@ class EmailWorkflow < ApplicationRecord
   belongs_to :created_by, class_name: 'User'
   has_many :workflow_steps, foreign_key: 'workflow_id', dependent: :destroy
   has_many :workflow_executions, foreign_key: 'workflow_id', dependent: :destroy
+  has_many :workflow_execution_trackers, dependent: :destroy
   
   # Nested attributes
   accepts_nested_attributes_for :workflow_steps, allow_destroy: true
@@ -10,6 +11,9 @@ class EmailWorkflow < ApplicationRecord
   enum :trigger_type, {
     application_status_changed: 'application_status_changed',
     application_created: 'application_created', 
+    application_stuck_at_status: 'application_stuck_at_status',
+    contract_status_changed: 'contract_status_changed',
+    contract_stuck_at_status: 'contract_stuck_at_status',
     user_registered: 'user_registered',
     time_delay: 'time_delay',
     document_uploaded: 'document_uploaded',
