@@ -50,8 +50,9 @@ Rails.application.configure do
   config.cache_store = :solid_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  # Temporarily disabled solid_queue for basic app deployment
+  # config.active_job.queue_adapter = :solid_queue
+  # config.solid_queue.connects_to = { database: { writing: :queue } }
 
   # Enable email delivery for error notifications and other mailers
   config.action_mailer.raise_delivery_errors = true
@@ -73,7 +74,7 @@ Rails.application.configure do
     password: Rails.application.credentials.dig(:smtp, :password) || ENV['SMTP_PASSWORD'],
     address: Rails.application.credentials.dig(:smtp, :address) || ENV['SMTP_ADDRESS'] || "smtp.gmail.com",
     port: Rails.application.credentials.dig(:smtp, :port) || ENV['SMTP_PORT']&.to_i || 587,
-    authentication: :plain,
+    authentication: :login,
     enable_starttls_auto: true,
     domain: 'futureprooffinancial.co'
   }

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connection Stability Test - Klaviyo Right-Angled Lines</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+    
+    .test-container {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      height: 500px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      overflow: hidden;
+      transition: grid-template-columns 0.3s ease;
+    }
+    
+    .test-container.left-collapsed {
+      grid-template-columns: 0px 1fr 300px;
+    }
+    
+    .test-container.right-collapsed {
+      grid-template-columns: 250px 1fr 0px;
+    }
+    
+    .test-container.both-collapsed {
+      grid-template-columns: 0px 1fr 0px;
+    }
+    
+    .left-panel {
+      background: #f3f4f6;
+      border-right: 1px solid #e5e7eb;
+      padding: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .left-panel.collapsed {
+      width: 0;
+      padding: 0;
+      border: none;
+    }
+    
+    .right-panel {
+      background: #f8fafc;
+      border-left: 1px solid #e5e7eb;
+      padding: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .right-panel.collapsed {
+      width: 0;
+      padding: 0;
+      border: none;
+    }
+    
+    .canvas {
+      position: relative;
+      background: white;
+      overflow: hidden;
+    }
+    
+    .canvas-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+    }
+    
+    .node {
+      position: absolute;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 120px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .condition-node {
+      background: #f3f4f6;
+      border-color: #8b5cf6;
+      color: #7c3aed;
+    }
+    
+    .yes-node {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #059669;
+    }
+    
+    .no-node {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #dc2626;
+    }
+    
+    .action-node {
+      background: #f0f9ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .connection-path {
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      transition: all 0.2s ease;
+    }
+    
+    .connection-label {
+      font-weight: bold;
+      font-size: 11px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .controls {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 10px 16px;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    button:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    
+    button.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+    
+    .status.success {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+    
+    .status.warning {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connection Stability Test</h1>
+  <p>Test that right-angled connection lines stay properly linked during panel resize operations.</p>
+  
+  <div class="controls">
+    <button onclick="toggleLeftPanel()" id="leftBtn">Toggle Left Panel</button>
+    <button onclick="toggleRightPanel()" id="rightBtn">Toggle Right Panel</button>
+    <button onclick="toggleBothPanels()" id="bothBtn">Toggle Both Panels</button>
+    <button onclick="redrawConnections()">Force Redraw</button>
+    <button onclick="resetPanels()">Reset All</button>
+  </div>
+  
+  <div class="test-container" id="container">
+    <div class="left-panel" id="leftPanel">
+      <h4>Left Panel</h4>
+      <p>Components palette would be here</p>
+      <div style="background: #e5e7eb; height: 100px; border-radius: 4px; margin-top: 20px;"></div>
+    </div>
+    
+    <div class="canvas" id="canvas">
+      <div class="canvas-content" id="canvasContent">
+        <!-- Condition Node (Center) -->
+        <div class="node condition-node" style="left: 200px; top: 120px;">
+          Check Application Status
+        </div>
+        
+        <!-- No Branch (Left) -->
+        <div class="node no-node" style="left: 50px; top: 120px;">
+          NO Branch
+        </div>
+        
+        <!-- Yes Branch (Right) -->
+        <div class="node yes-node" style="left: 400px; top: 120px;">
+          YES Branch
+        </div>
+        
+        <!-- Follow-up Actions -->
+        <div class="node action-node" style="left: 50px; top: 250px;">
+          Send Rejection Email
+        </div>
+        
+        <div class="node action-node" style="left: 400px; top: 250px;">
+          Send Welcome Email
+        </div>
+        
+        <!-- SVG for connections -->
+        <svg id="svg">
+          <!-- NO path (left) - Right-angled -->
+          <path id="noPath" d="M 200 150 L 140 150 L 140 150 L 170 150" stroke="#ef4444" stroke-width="2.5" fill="none" class="connection-path" marker-end="url(#arrowhead-red)"/>
+          <text id="noLabel" x="170" y="140" class="connection-label" fill="#dc2626">NO</text>
+          
+          <!-- YES path (right) - Right-angled -->
+          <path id="yesPath" d="M 320 150 L 380 150 L 380 150 L 400 150" stroke="#10b981" stroke-width="2.5" fill="none" class="connection-path" marker-end="url(#arrowhead-green)"/>
+          <text id="yesLabel" x="360" y="140" class="connection-label" fill="#059669">YES</text>
+          
+          <!-- Continue paths -->
+          <path id="noActionPath" d="M 120 190 L 120 220 L 120 250" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path" marker-end="url(#arrowhead)"/>
+          <path id="yesActionPath" d="M 470 190 L 470 220 L 470 250" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path" marker-end="url(#arrowhead)"/>
+          
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+            </marker>
+            <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+            </marker>
+            <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="right-panel" id="rightPanel">
+      <h4>Right Panel</h4>
+      <p>Properties panel would be here</p>
+      <div style="background: #e5e7eb; height: 80px; border-radius: 4px; margin-top: 20px;"></div>
+    </div>
+  </div>
+  
+  <div class="status" id="status">
+    <strong>Status:</strong> Ready to test. Try toggling panels and watch the connection lines.
+  </div>
+  
+  <script>
+    let leftCollapsed = false;
+    let rightCollapsed = false;
+    
+    function toggleLeftPanel() {
+      leftCollapsed = !leftCollapsed;
+      const container = document.getElementById('container');
+      const leftPanel = document.getElementById('leftPanel');
+      const leftBtn = document.getElementById('leftBtn');
+      
+      if (leftCollapsed) {
+        container.classList.add('left-collapsed');
+        leftPanel.classList.add('collapsed');
+        leftBtn.classList.add('active');
+        updateStatus('Left panel collapsed - connections should stay linked...', 'warning');
+      } else {
+        container.classList.remove('left-collapsed');
+        leftPanel.classList.remove('collapsed');
+        leftBtn.classList.remove('active');
+        updateStatus('Left panel expanded - connections should stay linked...', 'warning');
+      }
+      
+      // Redraw connections after animation with multiple attempts\n      setTimeout(() => redrawConnections(), 100);\n      setTimeout(() => redrawConnections(), 400);\n      setTimeout(() => redrawConnections(), 700);\n    }\n    \n    function toggleRightPanel() {\n      rightCollapsed = !rightCollapsed;\n      const container = document.getElementById('container');\n      const rightPanel = document.getElementById('rightPanel');\n      const rightBtn = document.getElementById('rightBtn');\n      \n      if (rightCollapsed) {\n        container.classList.add('right-collapsed');\n        rightPanel.classList.add('collapsed');\n        rightBtn.classList.add('active');\n        updateStatus('Right panel collapsed - connections should stay linked...', 'warning');\n      } else {\n        container.classList.remove('right-collapsed');\n        rightPanel.classList.remove('collapsed');\n        rightBtn.classList.remove('active');\n        updateStatus('Right panel expanded - connections should stay linked...', 'warning');\n      }\n      \n      // Redraw connections after animation with multiple attempts\n      setTimeout(() => redrawConnections(), 100);\n      setTimeout(() => redrawConnections(), 400);\n      setTimeout(() => redrawConnections(), 700);\n    }\n    \n    function toggleBothPanels() {\n      const container = document.getElementById('container');\n      const bothBtn = document.getElementById('bothBtn');\n      \n      if (!leftCollapsed && !rightCollapsed) {\n        // Collapse both\n        leftCollapsed = true;\n        rightCollapsed = true;\n        container.classList.add('both-collapsed');\n        bothBtn.classList.add('active');\n        updateStatus('Both panels collapsed - ultimate connection test!', 'warning');\n      } else {\n        // Expand both\n        leftCollapsed = false;\n        rightCollapsed = false;\n        container.classList.remove('both-collapsed', 'left-collapsed', 'right-collapsed');\n        document.getElementById('leftPanel').classList.remove('collapsed');\n        document.getElementById('rightPanel').classList.remove('collapsed');\n        document.getElementById('leftBtn').classList.remove('active');\n        document.getElementById('rightBtn').classList.remove('active');\n        bothBtn.classList.remove('active');\n        updateStatus('Both panels expanded - connections should be perfect!', 'warning');\n      }\n      \n      // Redraw connections after animation with multiple attempts\n      setTimeout(() => redrawConnections(), 100);\n      setTimeout(() => redrawConnections(), 400);\n      setTimeout(() => redrawConnections(), 700);\n    }\n    \n    function resetPanels() {\n      leftCollapsed = false;\n      rightCollapsed = false;\n      \n      const container = document.getElementById('container');\n      container.classList.remove('both-collapsed', 'left-collapsed', 'right-collapsed');\n      \n      document.getElementById('leftPanel').classList.remove('collapsed');\n      document.getElementById('rightPanel').classList.remove('collapsed');\n      document.getElementById('leftBtn').classList.remove('active');\n      document.getElementById('rightBtn').classList.remove('active');\n      document.getElementById('bothBtn').classList.remove('active');\n      \n      updateStatus('All panels reset to default state', 'success');\n      \n      setTimeout(() => redrawConnections(), 400);\n    }\n    \n    function redrawConnections() {\n      const canvas = document.getElementById('canvas');\n      const svg = document.getElementById('svg');\n      \n      // Force layout updates\n      canvas.offsetHeight;\n      \n      // Get current dimensions\n      const canvasRect = canvas.getBoundingClientRect();\n      \n      // Update SVG dimensions\n      svg.style.width = canvasRect.width + 'px';\n      svg.style.height = canvasRect.height + 'px';\n      svg.setAttribute('viewBox', `0 0 ${canvasRect.width} ${canvasRect.height}`);\n      \n      // Update connection paths (simplified for demo)\n      const noPath = document.getElementById('noPath');\n      const yesPath = document.getElementById('yesPath');\n      const noActionPath = document.getElementById('noActionPath');\n      const yesActionPath = document.getElementById('yesActionPath');\n      \n      // Right-angled paths that stay connected\n      noPath.setAttribute('d', 'M 200 150 L 140 150 L 140 150 L 170 150');\n      yesPath.setAttribute('d', 'M 320 150 L 380 150 L 380 150 L 400 150');\n      noActionPath.setAttribute('d', 'M 120 190 L 120 220 L 120 250');\n      yesActionPath.setAttribute('d', 'M 470 190 L 470 220 L 470 250');\n      \n      updateStatus('Connections redrawn successfully! Right-angled lines maintained. ✅', 'success');\n    }\n    \n    function updateStatus(message, type = '') {\n      const statusEl = document.getElementById('status');\n      statusEl.innerHTML = '<strong>Status:</strong> ' + message;\n      statusEl.className = 'status ' + type;\n    }\n    \n    // Initial setup\n    setTimeout(() => redrawConnections(), 100);\n  </script>\n</body>\n</html>

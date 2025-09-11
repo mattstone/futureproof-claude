@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>POSITIONING TEST</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .test-area { 
+      border: 2px solid #000; 
+      width: 600px; 
+      height: 400px; 
+      position: relative; 
+      background: #f9f9f9;
+      margin: 20px 0;
+    }
+    .node { 
+      position: absolute; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 10px; 
+      border-radius: 4px; 
+      min-width: 100px;
+      text-align: center;
+    }
+    .trigger { background: #10b981; }
+    .condition { background: #8b5cf6; }
+    .coords { 
+      position: absolute; 
+      top: -20px; 
+      left: 0; 
+      font-size: 12px; 
+      background: yellow; 
+      padding: 2px 4px;
+    }
+    .log { 
+      background: #f3f4f6; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      font-family: monospace; 
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <h1>POSITIONING TEST - MUST TEST BEFORE CLAIMING IT WORKS</h1>
+  
+  <button onclick="testPositioning()">Test Positioning Logic</button>
+  <button onclick="clearTest()">Clear</button>
+  
+  <div id="log" class="log">Click "Test Positioning Logic" to see actual coordinates...</div>
+  
+  <div class="test-area" id="testArea"></div>
+  
+  <script>
+    // Simulate the exact logic from the workflow builder
+    let nodes = []
+    let nextId = 1
+    
+    function testPositioning() {
+      clearTest()
+      
+      // Create trigger first (simulate existing trigger)
+      const trigger = {
+        id: nextId++,
+        type: 'trigger',
+        x: 100,  // This is where trigger actually is
+        y: 100
+      }
+      nodes.push(trigger)
+      renderNode(trigger)
+      log(`TRIGGER created at x=${trigger.x}, y=${trigger.y}`)
+      
+      // Now test condition positioning using EXACT same logic
+      const triggerNode = nodes.find(node => node.type === 'trigger')
+      const mainChainNodes = nodes.filter(node => 
+        node.type !== 'trigger' && node.type !== 'branch'
+      )
+      
+      const verticalSpacing = 140
+      const chainLevel = mainChainNodes.length  // Should be 0 for first node
+      const targetX = triggerNode.x  // Should be same as trigger
+      const targetY = triggerNode.y + verticalSpacing + (verticalSpacing * chainLevel)
+      
+      log(`CALCULATION:`)
+      log(`  triggerNode.x = ${triggerNode.x}`)
+      log(`  triggerNode.y = ${triggerNode.y}`)
+      log(`  mainChainNodes.length = ${mainChainNodes.length}`)
+      log(`  chainLevel = ${chainLevel}`)
+      log(`  targetX = triggerNode.x = ${targetX}`)
+      log(`  targetY = ${triggerNode.y} + 140 + (140 * ${chainLevel}) = ${targetY}`)
+      log(``)
+      
+      const condition = {
+        id: nextId++,
+        type: 'condition', 
+        x: targetX,
+        y: targetY
+      }
+      nodes.push(condition)
+      renderNode(condition)
+      log(`CONDITION created at x=${condition.x}, y=${condition.y}`)
+      
+      // Check alignment
+      if (condition.x === trigger.x) {
+        log(`✅ SUCCESS: Condition X matches trigger X (${condition.x})`)
+      } else {
+        log(`❌ FAIL: Condition X (${condition.x}) != Trigger X (${trigger.x})`)
+        log(`   OFFSET: ${condition.x - trigger.x}px to the right`)
+      }
+    }
+    
+    function renderNode(node) {
+      const testArea = document.getElementById('testArea')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = `node ${node.type}`
+      nodeDiv.style.left = `${node.x}px`
+      nodeDiv.style.top = `${node.y}px`
+      nodeDiv.innerHTML = `
+        ${node.type.toUpperCase()}
+        <div class="coords">x=${node.x}, y=${node.y}</div>
+      `
+      testArea.appendChild(nodeDiv)
+    }
+    
+    function clearTest() {
+      document.getElementById('testArea').innerHTML = ''
+      document.getElementById('log').innerHTML = ''
+      nodes = []
+      nextId = 1
+    }
+    
+    function log(message) {
+      document.getElementById('log').innerHTML += message + '\\n'
+    }
+    
+    // Auto-run test
+    setTimeout(testPositioning, 100)
+  </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Trigger → Condition → Branches Flow</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+    
+    .flow-container {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      position: relative;
+      height: 400px;
+    }
+    
+    .node {
+      position: absolute;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 140px;
+      text-align: center;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .node:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Node Types */
+    .trigger-node {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #059669;
+    }
+    
+    .condition-node {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      border-color: #7c3aed;
+    }
+    
+    .yes-branch {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #059669;
+      font-size: 0.875rem;
+    }
+    
+    .no-branch {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border-color: #dc2626;
+      font-size: 0.875rem;
+    }
+    
+    .action-node {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border-color: #1d4ed8;
+    }
+    
+    /* Connection Points */
+    .connection-point {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 20;
+    }
+    
+    .input-point {
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #6366f1;
+    }
+    
+    .output-point {
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #6366f1;
+    }
+    
+    .yes-output-point {
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #10b981;
+    }
+    
+    .no-output-point {
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444;
+    }
+    
+    .connection-point:hover {
+      transform: translateY(-50%) scale(1.3);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .connection-path {
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    
+    .connection-label {
+      font-weight: bold;
+      font-size: 12px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .flow-title {
+      text-align: center;
+      margin: 0 0 15px 0;
+      color: #1f2937;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    .test-results {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .test-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    
+    .test-item.pass {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    
+    .test-item.fail {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    
+    .test-item::before {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    
+    .test-item.pass::before {
+      content: "✅";
+    }
+    
+    .test-item.fail::before {
+      content: "❌";
+    }
+  </style>
+</head>
+<body>
+  <h1>Trigger → Condition → Branches Flow Test</h1>
+  <p>Verify that condition nodes properly connect to trigger nodes and create branching workflows.</p>
+  
+  <div class="flow-container">
+    <h3 class="flow-title">Expected Workflow: Trigger → Condition → YES/NO Branches → Actions</h3>
+    
+    <!-- Trigger Node -->
+    <div class="node trigger-node" style="left: 50px; top: 150px;">
+      <div>🔥 Application Created</div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- Condition Node -->
+    <div class="node condition-node" style="left: 250px; top: 150px;">
+      <div>🤔 Status Check</div>
+      <div class="input-point connection-point"></div>
+      <div class="no-output-point connection-point"></div>
+      <div class="yes-output-point connection-point"></div>
+    </div>
+    
+    <!-- NO Branch -->
+    <div class="node no-branch" style="left: 100px; top: 60px;">
+      <div>❌ NO</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- YES Branch -->
+    <div class="node yes-branch" style="left: 450px; top: 60px;">
+      <div>✅ YES</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- Action Nodes -->
+    <div class="node action-node" style="left: 100px; top: 280px;">
+      <div>📧 Send Reminder</div>
+      <div class="input-point connection-point"></div>
+    </div>
+    
+    <div class="node action-node" style="left: 450px; top: 280px;">
+      <div>🎉 Send Welcome</div>
+      <div class="input-point connection-point"></div>
+    </div>
+    
+    <!-- SVG Connections -->
+    <svg>
+      <!-- Trigger to Condition -->
+      <path d="M 190 180 L 220 180 L 220 180 L 250 180" stroke="#6366f1" stroke-width="3" fill="none" class="connection-path" marker-end="url(#arrowhead)"/>
+      
+      <!-- Condition to NO Branch -->
+      <path d="M 250 180 L 190 180 L 190 90 L 240 90" stroke="#ef4444" stroke-width="2.5" fill="none" class="connection-path" marker-end="url(#arrowhead-red)"/>
+      <text x="220" y="135" class="connection-label" fill="#dc2626">NO</text>
+      
+      <!-- Condition to YES Branch -->
+      <path d="M 390 180 L 430 180 L 430 90 L 450 90" stroke="#10b981" stroke-width="2.5" fill="none" class="connection-path" marker-end="url(#arrowhead-green)"/>
+      <text x="420" y="135" class="connection-label" fill="#059669">YES</text>
+      
+      <!-- Branches to Actions -->
+      <path d="M 170 130 L 170 250 L 170 280" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path" marker-end="url(#arrowhead)"/>
+      <path d="M 520 130 L 520 250 L 520 280" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path" marker-end="url(#arrowhead)"/>
+      
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+        </marker>
+        <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+        </marker>
+        <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  
+  <div class="test-results">
+    <h3>Test Results: What Should Happen</h3>
+    <div class="test-item pass">Trigger node exists with output connection point</div>
+    <div class="test-item pass">Condition node has input connection point for receiving trigger connection</div>
+    <div class="test-item pass">Auto-connection creates link from trigger → condition</div>
+    <div class="test-item pass">Condition node creates YES branch (right side)</div>
+    <div class="test-item pass">Condition node creates NO branch (left side)</div>
+    <div class="test-item pass">YES/NO branches can connect to subsequent actions</div>
+    <div class="test-item pass">Complete workflow: Trigger → Condition → Branch → Action</div>
+    
+    <h3 style="margin-top: 25px; color: #1f2937;">Implementation Notes:</h3>
+    <ul style="margin: 10px 0; padding-left: 20px; color: #4b5563;">
+      <li><strong>Auto-connection:</strong> Condition nodes must connect to previous workflow step before creating branches</li>
+      <li><strong>Input Point:</strong> Condition nodes need input connection point to receive incoming connections</li>
+      <li><strong>Branch Creation:</strong> After auto-connecting, create YES (right) and NO (left) branches</li>
+      <li><strong>Flow Continuity:</strong> Both branches can connect to subsequent workflow steps</li>
+    </ul>
+  </div>
+</body>
+</html>

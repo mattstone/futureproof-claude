@@ -1,206 +1,139 @@
-<% case workflow.trigger_type %>
-<% when 'application_status_changed' %>
-  <div class="form-grid">
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_from_status', 'From Status', class: 'form-label' %>
-      <%= select_tag 'email_workflow[trigger_conditions][from_status]',
-                     options_for_select([
-                       ['Any status', ''],
-                       ['Created', 'created'],
-                       ['User Details', 'user_details'],
-                       ['Property Details', 'property_details'],
-                       ['Income and Loan Options', 'income_and_loan_options'],
-                       ['Submitted', 'submitted'],
-                       ['Processing', 'processing'],
-                       ['Accepted', 'accepted'],
-                       ['Rejected', 'rejected']
-                     ], workflow.trigger_conditions['from_status']),
-                     class: 'form-select' %>
-      <p class="form-help">Only trigger when changing from this status (leave empty for any)</p>
+<%= turbo_frame_tag "trigger-conditions-frame" do %>
+  <% case trigger_type %>
+  <% when 'application_status_changed' %>
+    <div class="form-section">
+      <h4>Application Status Changed Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">From Status</label>
+        <%= select_tag "email_workflow[trigger_conditions][from_status]", 
+                       options_for_select([["Any status", ""]] + Application.statuses.map { |k,v| [k.humanize, k] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Application must change FROM this status (optional)</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">To Status</label>
+        <%= select_tag "email_workflow[trigger_conditions][to_status]", 
+                       options_for_select([["Any status", ""]] + Application.statuses.map { |k,v| [k.humanize, k] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Application must change TO this status (optional)</p>
+      </div>
     </div>
-    
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_to_status', 'To Status', class: 'form-label' %>
-      <%= select_tag 'email_workflow[trigger_conditions][to_status]',
-                     options_for_select([
-                       ['Any status', ''],
-                       ['Created', 'created'],
-                       ['User Details', 'user_details'],
-                       ['Property Details', 'property_details'],
-                       ['Income and Loan Options', 'income_and_loan_options'],
-                       ['Submitted', 'submitted'],
-                       ['Processing', 'processing'],
-                       ['Accepted', 'accepted'],
-                       ['Rejected', 'rejected']
-                     ], workflow.trigger_conditions['to_status']),
-                     class: 'form-select' %>
-      <p class="form-help">Only trigger when changing to this status (leave empty for any)</p>
-    </div>
-  </div>
 
-<% when 'time_delay' %>
-  <div class="form-group">
-    <%= label_tag 'email_workflow_trigger_conditions_delay_after', 'Delay After', class: 'form-label' %>
-    <%= select_tag 'email_workflow[trigger_conditions][delay_after]',
-                   options_for_select([
-                     ['Application Created', 'application_created'],
-                     ['Last Activity', 'last_activity'],
-                     ['Status Change', 'status_change'],
-                     ['User Registration', 'user_registration']
-                   ], workflow.trigger_conditions['delay_after']),
-                   class: 'form-select' %>
-    <p class="form-help">What event should start the delay countdown</p>
-  </div>
-  
-  <div class="form-grid">
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_duration', 'Duration', class: 'form-label' %>
-      <%= number_field_tag 'email_workflow[trigger_conditions][duration]',
-                           workflow.trigger_conditions['duration'],
-                           class: 'form-input', min: 1, placeholder: '1' %>
+  <% when 'application_stuck_at_status' %>
+    <div class="form-section">
+      <h4>Application Stuck at Status Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <%= select_tag "email_workflow[trigger_conditions][status]", 
+                       options_for_select([["Select status", ""]] + Application.statuses.map { |k,v| [k.humanize, k] }),
+                       { class: "form-select", required: true } %>
+        <p class="form-help">Application has been stuck at this status</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Duration (days)</label>
+        <%= number_field_tag "email_workflow[trigger_conditions][days]", nil, 
+                            { class: "form-input", min: 1, placeholder: "e.g. 7" } %>
+        <p class="form-help">Number of days application has been at this status</p>
+      </div>
     </div>
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_unit', 'Unit', class: 'form-label' %>
-      <%= select_tag 'email_workflow[trigger_conditions][unit]',
-                     options_for_select([
-                       ['Minutes', 'minutes'],
-                       ['Hours', 'hours'],
-                       ['Days', 'days'],
-                       ['Weeks', 'weeks']
-                     ], workflow.trigger_conditions['unit']),
-                     class: 'form-select' %>
+
+  <% when 'contract_status_changed' %>
+    <div class="form-section">
+      <h4>Contract Status Changed Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">From Status</label>
+        <%= select_tag "email_workflow[trigger_conditions][from_status]", 
+                       options_for_select([["Any status", ""]] + %w[draft active completed cancelled].map { |s| [s.humanize, s] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Contract must change FROM this status (optional)</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">To Status</label>
+        <%= select_tag "email_workflow[trigger_conditions][to_status]", 
+                       options_for_select([["Any status", ""]] + %w[draft active completed cancelled].map { |s| [s.humanize, s] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Contract must change TO this status (optional)</p>
+      </div>
     </div>
-  </div>
-  <p class="form-help">How long to wait after the selected event</p>
 
-<% when 'inactivity' %>
-  <div class="form-grid">
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_inactivity_duration', 'Inactivity Period', class: 'form-label' %>
-      <%= number_field_tag 'email_workflow[trigger_conditions][inactivity_duration]',
-                           workflow.trigger_conditions['inactivity_duration'],
-                           class: 'form-input', min: 1, placeholder: '7' %>
+  <% when 'user_registered' %>
+    <div class="form-section">
+      <h4>User Registration Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Country of Residence</label>
+        <%= select_tag "email_workflow[trigger_conditions][country]", 
+                       options_for_select([["Any country", ""]] + %w[Australia Canada USA UK].map { |c| [c, c] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Only trigger for users from this country (optional)</p>
+      </div>
     </div>
-    <div class="form-group">
-      <%= label_tag 'email_workflow_trigger_conditions_inactivity_unit', 'Unit', class: 'form-label' %>
-      <%= select_tag 'email_workflow[trigger_conditions][inactivity_unit]',
-                     options_for_select([
-                       ['Hours', 'hours'],
-                       ['Days', 'days'],
-                       ['Weeks', 'weeks']
-                     ], workflow.trigger_conditions['inactivity_unit']),
-                     class: 'form-select' %>
+
+  <% when 'time_delay' %>
+    <div class="form-section">
+      <h4>Time Delay Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Delay Amount</label>
+        <%= number_field_tag "email_workflow[trigger_conditions][amount]", 1, 
+                            { class: "form-input", min: 1 } %>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Delay Unit</label>
+        <%= select_tag "email_workflow[trigger_conditions][unit]", 
+                       options_for_select([["Minutes", "minutes"], ["Hours", "hours"], ["Days", "days"]]),
+                       { class: "form-select" } %>
+      </div>
     </div>
-  </div>
-  <p class="form-help">Trigger when user has been inactive for this long</p>
 
-<% when 'document_uploaded' %>
-  <div class="form-group">
-    <%= label_tag 'email_workflow_trigger_conditions_document_type', 'Document Type', class: 'form-label' %>
-    <%= select_tag 'email_workflow[trigger_conditions][document_type]',
-                   options_for_select([
-                     ['Any document', ''],
-                     ['Identity Document', 'identity'],
-                     ['Income Document', 'income'],
-                     ['Property Document', 'property'],
-                     ['Bank Statement', 'bank_statement'],
-                     ['Other', 'other']
-                   ], workflow.trigger_conditions['document_type']),
-                   class: 'form-select' %>
-    <p class="form-help">Only trigger for specific document types (leave empty for any)</p>
-  </div>
+  <% when 'document_uploaded' %>
+    <div class="form-section">
+      <h4>Document Upload Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Document Type</label>
+        <%= select_tag "email_workflow[trigger_conditions][document_type]", 
+                       options_for_select([["Any document", ""]] + %w[identity income property].map { |t| [t.humanize, t] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Only trigger for this document type (optional)</p>
+      </div>
+    </div>
 
-<% when 'application_created', 'user_registered', 'contract_signed' %>
-  <div class="trigger-conditions-simple">
-    <p class="condition-note">
-      <i class="fas fa-info-circle"></i>
-      This trigger type doesn't require additional conditions. The workflow will run automatically when 
-      <%= case workflow.trigger_type 
-          when 'application_created' then 'an application is created'
-          when 'user_registered' then 'a user registers'
-          when 'contract_signed' then 'a contract is signed'
-          end %>.
-    </p>
-    <!-- Hidden field to satisfy validation -->
-    <%= hidden_field_tag 'email_workflow[trigger_conditions][event]', workflow.trigger_type %>
-  </div>
+  <% when 'inactivity' %>
+    <div class="form-section">
+      <h4>Inactivity Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Inactive Period (days)</label>
+        <%= number_field_tag "email_workflow[trigger_conditions][days]", 30, 
+                            { class: "form-input", min: 1 } %>
+        <p class="form-help">User has been inactive for this many days</p>
+      </div>
+    </div>
 
-<% else %>
-  <div class="trigger-conditions-default">
-    <p class="condition-note">
-      <i class="fas fa-cog"></i>
-      Select a trigger type above to configure specific conditions for when this workflow should run.
-    </p>
-    <%= hidden_field_tag 'email_workflow[trigger_conditions][event]', 'default' %>
-  </div>
+  <% when 'contract_signed' %>
+    <div class="form-section">
+      <h4>Contract Signed Conditions</h4>
+      
+      <div class="form-group">
+        <label class="form-label">Contract Type</label>
+        <%= select_tag "email_workflow[trigger_conditions][contract_type]", 
+                       options_for_select([["Any contract", ""]] + %w[standard premium business].map { |t| [t.humanize, t] }),
+                       { class: "form-select" } %>
+        <p class="form-help">Only trigger for this contract type (optional)</p>
+      </div>
+    </div>
+
+  <% else %>
+    <div class="trigger-conditions-placeholder">
+      <p class="form-help">This trigger type doesn't require additional configuration.</p>
+    </div>
+  <% end %>
 <% end %>
-
-<style>
-.trigger-conditions-simple, .trigger-conditions-default {
-  padding: 20px;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 6px;
-}
-
-.condition-note {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #0369a1;
-  font-size: 0.875rem;
-  margin: 0;
-}
-
-.condition-note i {
-  color: #0284c7;
-}
-
-.trigger-conditions-default {
-  background: #f9fafb;
-  border-color: #d1d5db;
-}
-
-.trigger-conditions-default .condition-note {
-  color: #6b7280;
-}
-
-.trigger-conditions-default .condition-note i {
-  color: #9ca3af;
-}
-
-.trigger-conditions-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px;
-  color: #6b7280;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
-
-.trigger-conditions-loading i {
-  font-size: 1.1em;
-}
-
-.trigger-conditions-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-direction: column;
-  padding: 20px;
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.trigger-conditions-error i {
-  font-size: 1.5em;
-  margin-bottom: 8px;
-}
-</style>

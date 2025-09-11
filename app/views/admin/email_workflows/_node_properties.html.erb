@@ -1,0 +1,187 @@
+<% case node_type %>
+<% when 'trigger' %>
+  <h3 class="property-panel-title">Trigger Configuration</h3>
+  <div class="property-group">
+    <label>Trigger Type <span class="required">*</span></label>
+    <select data-action="change->workflow-builder#updateNodeConfig" data-property="trigger_type" required>
+      <option value="">Select trigger type...</option>
+      <% EmailWorkflow.trigger_types.each do |key, value| %>
+        <option value="<%= value %>" <%= 'selected' if config['trigger_type'] == value %>><%= key.humanize %></option>
+      <% end %>
+    </select>
+  </div>
+  
+  <% if config['trigger_type'] == 'application_status_changed' %>
+    <%= render 'application_status_trigger_conditions', config: config %>
+  <% elsif config['trigger_type'] == 'application_stuck_at_status' %>
+    <div class="property-group">
+      <label>Status <span class="required">*</span></label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="stuck_at_status" required>
+        <option value="">Select status...</option>
+        <option value="created" <%= 'selected' if config['stuck_at_status'] == 'created' %>>Created</option>
+        <option value="user_details" <%= 'selected' if config['stuck_at_status'] == 'user_details' %>>User Details</option>
+        <option value="property_details" <%= 'selected' if config['stuck_at_status'] == 'property_details' %>>Property Details</option>
+        <option value="income_and_loan_options" <%= 'selected' if config['stuck_at_status'] == 'income_and_loan_options' %>>Income and Loan Options</option>
+        <option value="submitted" <%= 'selected' if config['stuck_at_status'] == 'submitted' %>>Submitted</option>
+        <option value="processing" <%= 'selected' if config['stuck_at_status'] == 'processing' %>>Processing</option>
+      </select>
+    </div>
+    <div class="property-group">
+      <label>Time Stuck For <span class="required">*</span></label>
+      <div class="inline-fields">
+        <input type="number" min="1" value="<%= config['stuck_duration'] || '' %>" 
+               data-action="input->workflow-builder#updateNodeConfig" data-property="stuck_duration"
+               class="duration-input" required>
+        <select data-action="change->workflow-builder#updateNodeConfig" data-property="stuck_unit" required>
+          <option value="">Unit...</option>
+          <option value="hours" <%= 'selected' if config['stuck_unit'] == 'hours' %>>Hours</option>
+          <option value="days" <%= 'selected' if config['stuck_unit'] == 'days' %>>Days</option>
+          <option value="weeks" <%= 'selected' if config['stuck_unit'] == 'weeks' %>>Weeks</option>
+        </select>
+      </div>
+    </div>
+  <% elsif config['trigger_type'] == 'contract_status_changed' %>
+    <div class="property-group">
+      <label>From Status <span class="required">*</span></label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="contract_from_status" required>
+        <option value="">Select from status...</option>
+        <option value="awaiting_funding" <%= 'selected' if config['contract_from_status'] == 'awaiting_funding' %>>Awaiting Funding</option>
+        <option value="awaiting_investment" <%= 'selected' if config['contract_from_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
+        <option value="ok" <%= 'selected' if config['contract_from_status'] == 'ok' %>>OK</option>
+        <option value="in_holiday" <%= 'selected' if config['contract_from_status'] == 'in_holiday' %>>In Holiday</option>
+        <option value="in_arrears" <%= 'selected' if config['contract_from_status'] == 'in_arrears' %>>In Arrears</option>
+        <option value="complete" <%= 'selected' if config['contract_from_status'] == 'complete' %>>Complete</option>
+      </select>
+    </div>
+    <div class="property-group">
+      <label>To Status <span class="required">*</span></label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="contract_to_status" required>
+        <option value="">Select to status...</option>
+        <option value="awaiting_funding" <%= 'selected' if config['contract_to_status'] == 'awaiting_funding' %>>Awaiting Funding</option>
+        <option value="awaiting_investment" <%= 'selected' if config['contract_to_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
+        <option value="ok" <%= 'selected' if config['contract_to_status'] == 'ok' %>>OK</option>
+        <option value="in_holiday" <%= 'selected' if config['contract_to_status'] == 'in_holiday' %>>In Holiday</option>
+        <option value="in_arrears" <%= 'selected' if config['contract_to_status'] == 'in_arrears' %>>In Arrears</option>
+        <option value="complete" <%= 'selected' if config['contract_to_status'] == 'complete' %>>Complete</option>
+      </select>
+    </div>
+  <% elsif config['trigger_type'] == 'contract_stuck_at_status' %>
+    <div class="property-group">
+      <label>Status <span class="required">*</span></label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="contract_stuck_at_status" required>
+        <option value="">Select status...</option>
+        <option value="awaiting_funding" <%= 'selected' if config['contract_stuck_at_status'] == 'awaiting_funding' %>>Awaiting Funding</option>
+        <option value="awaiting_investment" <%= 'selected' if config['contract_stuck_at_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
+        <option value="ok" <%= 'selected' if config['contract_stuck_at_status'] == 'ok' %>>OK</option>
+        <option value="in_holiday" <%= 'selected' if config['contract_stuck_at_status'] == 'in_holiday' %>>In Holiday</option>
+        <option value="in_arrears" <%= 'selected' if config['contract_stuck_at_status'] == 'in_arrears' %>>In Arrears</option>
+      </select>
+    </div>
+    <div class="property-group">
+      <label>Time Stuck For <span class="required">*</span></label>
+      <div class="inline-fields">
+        <input type="number" min="1" value="<%= config['contract_stuck_duration'] || '' %>" 
+               data-action="input->workflow-builder#updateNodeConfig" data-property="contract_stuck_duration"
+               class="duration-input" required>
+        <select data-action="change->workflow-builder#updateNodeConfig" data-property="contract_stuck_unit" required>
+          <option value="">Unit...</option>
+          <option value="hours" <%= 'selected' if config['contract_stuck_unit'] == 'hours' %>>Hours</option>
+          <option value="days" <%= 'selected' if config['contract_stuck_unit'] == 'days' %>>Days</option>
+          <option value="weeks" <%= 'selected' if config['contract_stuck_unit'] == 'weeks' %>>Weeks</option>
+        </select>
+      </div>
+    </div>
+  <% end %>
+
+<% when 'email' %>
+  <h3 class="property-panel-title">Email Configuration</h3>
+  <div class="property-group">
+    <p>Configure email templates in the workflow form above.</p>
+  </div>
+
+<% when 'condition' %>
+  <h3 class="property-panel-title">Condition Configuration</h3>
+  <div class="property-group">
+    <label>Condition Type</label>
+    <select data-action="change->workflow-builder#updateNodeConfig" data-property="condition_type">
+      <option value="">Select condition type...</option>
+      <option value="application_status" <%= 'selected' if config['condition_type'] == 'application_status' %>>Application Status</option>
+      <option value="user_status" <%= 'selected' if config['condition_type'] == 'user_status' %>>User Status</option>
+      <option value="date_range" <%= 'selected' if config['condition_type'] == 'date_range' %>>Date Range</option>
+      <option value="field_value" <%= 'selected' if config['condition_type'] == 'field_value' %>>Field Value</option>
+      <option value="time_based" <%= 'selected' if config['condition_type'] == 'time_based' %>>Time Based</option>
+      <option value="user_activity" <%= 'selected' if config['condition_type'] == 'user_activity' %>>User Activity</option>
+      <option value="document_status" <%= 'selected' if config['condition_type'] == 'document_status' %>>Document Status</option>
+      <option value="contract_value" <%= 'selected' if config['condition_type'] == 'contract_value' %>>Contract Value</option>
+    </select>
+  </div>
+  
+  <% if config['condition_type'] == 'application_status' %>
+    <div class="property-group">
+      <label>Expected Status</label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="expected_status">
+        <option value="">Select status...</option>
+        <option value="created" <%= 'selected' if config['expected_status'] == 'created' %>>Created</option>
+        <option value="submitted" <%= 'selected' if config['expected_status'] == 'submitted' %>>Submitted</option>
+        <option value="approved" <%= 'selected' if config['expected_status'] == 'approved' %>>Approved</option>
+        <option value="rejected" <%= 'selected' if config['expected_status'] == 'rejected' %>>Rejected</option>
+      </select>
+    </div>
+  <% elsif config['condition_type'] == 'field_value' %>
+    <div class="property-group">
+      <label>Field Name</label>
+      <input type="text" data-action="input->workflow-builder#updateNodeConfig" data-property="field_name" value="<%= config['field_name'] %>" placeholder="e.g., home_value">
+    </div>
+    <div class="property-group">
+      <label>Operator</label>
+      <select data-action="change->workflow-builder#updateNodeConfig" data-property="operator">
+        <option value="">Select operator...</option>
+        <option value="equals" <%= 'selected' if config['operator'] == 'equals' %>>Equals</option>
+        <option value="greater_than" <%= 'selected' if config['operator'] == 'greater_than' %>>Greater Than</option>
+        <option value="less_than" <%= 'selected' if config['operator'] == 'less_than' %>>Less Than</option>
+        <option value="contains" <%= 'selected' if config['operator'] == 'contains' %>>Contains</option>
+      </select>
+    </div>
+    <div class="property-group">
+      <label>Value</label>
+      <input type="text" data-action="input->workflow-builder#updateNodeConfig" data-property="expected_value" value="<%= config['expected_value'] %>" placeholder="Expected value">
+    </div>
+  <% end %>
+
+<% when 'delay' %>
+  <h3 class="property-panel-title">Delay Configuration</h3>
+  <div class="property-group">
+    <p>Configure delay settings in the workflow form above.</p>
+  </div>
+
+<% when 'update' %>
+  <h3 class="property-panel-title">Update Configuration</h3>
+  <div class="property-group">
+    <p>Configure update actions in the workflow form above.</p>
+  </div>
+
+<% when 'endpoint' %>
+  <h3 class="property-panel-title">Endpoint Configuration</h3>
+  <div class="property-group">
+    <label>Label</label>
+    <input type="text" value="<%= config['label'] || 'End' %>" 
+           data-action="input->workflow-builder#updateNodeConfig" data-property="label"
+           placeholder="End point label">
+  </div>
+  <% if config['endpoint_type']&.start_with?('condition_') %>
+    <div class="property-group">
+      <p class="text-small">This endpoint represents the <strong><%= config['endpoint_type'] == 'condition_yes' ? 'Yes' : 'No' %></strong> path from a condition.</p>
+      <p class="text-small">You can extend this path by dragging more components and connecting them here.</p>
+    </div>
+  <% end %>
+
+<% else %>
+  <p>Click on a node to configure its properties</p>
+<% end %>
+
+<div class="connection-info">
+  <h6>Connections</h6>
+  <p class="text-small">
+    <strong>Output:</strong> Click the right circle to connect to other nodes
+  </p>
+</div>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Node Placement Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+    
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .demo-container {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      height: 500px;
+      position: relative;
+    }
+    
+    .demo-title {
+      text-align: center;
+      margin: 0 0 20px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .old-style { border-color: #ef4444; }
+    .new-style { border-color: #10b981; }
+    
+    .node {
+      position: absolute;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 15px;
+      min-width: 140px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .trigger-node {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #059669;
+    }
+    
+    .condition-node {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      border-color: #7c3aed;
+    }
+    
+    .email-node {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border-color: #1d4ed8;
+    }
+    
+    .delay-node {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      border-color: #d97706;
+    }
+    
+    .yes-branch {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #059669;
+      font-size: 0.8rem;
+      min-width: 80px;
+      padding: 8px 12px;
+    }
+    
+    .no-branch {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border-color: #dc2626;
+      font-size: 0.8rem;
+      min-width: 80px;
+      padding: 8px 12px;
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .connection-path {
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    
+    .placement-rules {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .rule-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 15px 0;
+    }
+    
+    .rule-item {
+      padding: 12px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    
+    .rule-item strong {
+      color: #0369a1;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .benefits {
+      margin-top: 20px;
+      padding: 15px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+    }
+    
+    .benefits h4 {
+      color: #065f46;
+      margin: 0 0 10px 0;
+    }
+    
+    .benefits ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #047857;
+    }
+    
+    .benefits li {
+      margin: 5px 0;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smart Node Placement Rules</h1>
+  <p>Organized workflow layout that prevents chaos and maintains clean structure.</p>
+  
+  <div class="comparison">
+    <!-- Old random placement -->
+    <div class="demo-container old-style">
+      <h3 class="demo-title">❌ Before: Random Drop Placement</h3>
+      
+      <!-- Messy, chaotic layout -->
+      <div class="node trigger-node" style="left: 100px; top: 80px;">Trigger</div>
+      <div class="node email-node" style="left: 180px; top: 160px;">Email</div>
+      <div class="node condition-node" style="left: 50px; top: 240px;">Condition</div>
+      <div class="node delay-node" style="left: 280px; top: 120px;">Delay</div>
+      <div class="node yes-branch" style="left: 200px; top: 320px;">YES</div>
+      <div class="node no-branch" style="left: 80px; top: 380px;">NO</div>
+      
+      <!-- Messy connections -->
+      <svg>
+        <path d="M 170 110 L 200 110 L 220 140 L 250 190" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path"/>
+        <path d="M 250 190 L 180 220 L 120 270" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path"/>
+        <path d="M 120 270 L 80 300 L 120 350" stroke="#ef4444" stroke-width="2" fill="none" class="connection-path"/>
+        <path d="M 120 270 L 160 300 L 200 350" stroke="#10b981" stroke-width="2" fill="none" class="connection-path"/>
+        <path d="M 250 190 L 300 160 L 350 150" stroke="#6366f1" stroke-width="2" fill="none" class="connection-path"/>
+        
+        <text x="350" y="30" fill="#ef4444" font-weight="bold" font-size="12px">CHAOTIC!</text>
+      </svg>
+    </div>
+    
+    <!-- New organized placement -->
+    <div class="demo-container new-style">
+      <h3 class="demo-title">✅ After: Smart Organized Placement</h3>
+      
+      <!-- Clean, organized layout -->
+      <div class="node trigger-node" style="left: 150px; top: 60px;">Trigger</div>
+      <div class="node email-node" style="left: 150px; top: 200px;">Email</div>
+      <div class="node condition-node" style="left: 150px; top: 340px;">Condition</div>
+      
+      <!-- Organized branches -->
+      <div class="node no-branch" style="left: 50px; top: 280px;">NO</div>
+      <div class="node yes-branch" style="left: 350px; top: 400px;">YES</div>
+      
+      <!-- Clean connections -->
+      <svg>
+        <!-- Main chain: vertical alignment -->
+        <path d="M 220 120 L 220 160 L 220 200" stroke="#6366f1" stroke-width="2.5" fill="none" class="connection-path"/>
+        <path d="M 220 260 L 220 300 L 220 340" stroke="#6366f1" stroke-width="2.5" fill="none" class="connection-path"/>
+        
+        <!-- Condition branches: right angles -->
+        <path d="M 150 370 L 90 370 L 90 310 L 130 310" stroke="#ef4444" stroke-width="2.5" fill="none" class="connection-path"/>
+        <path d="M 250 370 L 320 370 L 320 430 L 350 430" stroke="#10b981" stroke-width="2.5" fill="none" class="connection-path"/>
+        
+        <text x="100" y="350" fill="#dc2626" font-weight="bold" font-size="10px">NO</text>
+        <text x="300" y="390" fill="#059669" font-weight="bold" font-size="10px">YES</text>
+        
+        <text x="350" y="30" fill="#10b981" font-weight="bold" font-size="12px">ORGANIZED!</text>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="placement-rules">
+    <h3>Smart Placement Rules</h3>
+    <div class="rule-list">
+      <div class="rule-item">
+        <strong>Main Chain Nodes:</strong>
+        Go directly under trigger with 140px vertical spacing
+      </div>
+      <div class="rule-item">
+        <strong>First Node:</strong>
+        Always positioned directly below trigger (no horizontal offset)
+      </div>
+      <div class="rule-item">
+        <strong>Condition Branches:</strong>
+        NO branch 300px left, YES branch 300px right with slight vertical offset
+      </div>
+      <div class="rule-item">
+        <strong>Overflow Handling:</strong>
+        If position occupied, try below → right → left in order
+      </div>
+      <div class="rule-item">
+        <strong>Node Reference:</strong>
+        All positioning uses trigger node as the anchor point
+      </div>
+      <div class="rule-item">
+        <strong>Quick Actions:</strong>
+        Use same smart positioning rules for consistency
+      </div>
+    </div>
+    
+    <div class="benefits">
+      <h4>Benefits of Smart Placement</h4>
+      <ul>
+        <li>Predictable, organized workflow structure</li>
+        <li>Easy to follow main execution path</li>
+        <li>Clear visual separation of conditional branches</li>
+        <li>Consistent spacing and alignment</li>
+        <li>No more scattered, chaotic node placement</li>
+        <li>Professional workflow appearance</li>
+        <li>Scales well with complex workflows</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

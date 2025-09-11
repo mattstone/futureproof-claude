@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Branch Positioning & Connections</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .test-area { 
+      border: 2px solid #000; 
+      width: 800px; 
+      height: 600px; 
+      position: relative; 
+      background: #f9f9f9;
+      margin: 20px 0;
+    }
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .node { 
+      position: absolute; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 10px; 
+      border-radius: 4px; 
+      min-width: 100px;
+      text-align: center;
+    }
+    .trigger { background: #10b981; }
+    .condition { 
+      background: #8b5cf6;
+      width: 100px;
+      height: 60px;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .branch { background: #f59e0b; }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .coords {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      font-size: 10px;
+      background: yellow;
+      padding: 1px 3px;
+      color: black;
+    }
+    .log { 
+      background: #f3f4f6; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      font-family: monospace; 
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Branch Positioning & Connections</h1>
+  
+  <div>
+    <button onclick="testBranchCreation()">Test Branch Creation</button>
+    <button onclick="testConnections()">Test Connections</button>
+    <button onclick="clearTest()">Clear</button>
+  </div>
+  
+  <div class="test-area" id="testArea">
+    <div class="canvas-content" id="canvasContent">
+      <svg id="svg"></svg>
+    </div>
+  </div>
+  
+  <div id="log" class="log">Ready to test branch positioning...</div>
+  
+  <script>
+    let nodes = []
+    let connections = []
+    let nextId = 1
+    
+    function log(message) {
+      document.getElementById('log').innerHTML += message + '\n'
+      console.log(message)
+    }
+    
+    function testBranchCreation() {
+      clearTest()
+      log('=== TESTING BRANCH CREATION ===')
+      
+      // Create condition at center
+      const condition = {
+        id: nextId++,
+        type: 'condition',
+        x: 350, // Center of 800px canvas
+        y: 150
+      }
+      nodes.push(condition)
+      renderNode(condition)
+      log(`Created condition at (${condition.x}, ${condition.y})`)
+      
+      // Test the EXACT same logic from the main app
+      createConditionEndpoints(condition)
+      
+      log('=== BRANCH CREATION COMPLETE ===')
+    }
+    
+    function createConditionEndpoints(conditionNode) {
+      log(`createConditionEndpoints for condition ${conditionNode.id} at (${conditionNode.x}, ${conditionNode.y})`)
+      
+      // EXACT SAME LOGIC FROM MAIN APP
+      const horizontalExtension = 80 // Distance from center for left/right positioning
+      const verticalDrop = 120 // Distance below condition for both branches
+      
+      // Both branches at same Y level (horizontally aligned like Klaviyo)
+      const branchY = conditionNode.y + verticalDrop
+      log(`Branch Y level: ${conditionNode.y} + ${verticalDrop} = ${branchY}`)
+      
+      // Position branches so their CENTER aligns with connection line
+      // Connection line ends at: conditionNode.x ± horizontalExtension  
+      // So branch center should be at that X, meaning branch left edge is at center - nodeWidth/2
+      const nodeWidth = 180 // Actual CSS min-width from workflow nodes
+      
+      // Create No branch (left side) - center-aligned to NO connection line
+      const noConnectionX = conditionNode.x - horizontalExtension
+      const noBranchX = noConnectionX - (nodeWidth / 2) // Center the branch on connection line
+      log(`No connection X: ${conditionNode.x} - ${horizontalExtension} = ${noConnectionX}`)
+      log(`No branch X: ${noConnectionX} - ${nodeWidth/2} = ${noBranchX}`)
+      const noBranch = createNode('branch', noBranchX, branchY)
+      noBranch.label = 'No'
+      noBranch.branch_type = 'condition_no'
+      log(`Created NO branch at (${noBranchX}, ${branchY}) - center at ${noBranchX + nodeWidth/2}`)
+
+      // Create Yes branch (right side) - center-aligned to YES connection line
+      const yesConnectionX = conditionNode.x + horizontalExtension
+      const yesBranchX = yesConnectionX - (nodeWidth / 2) // Center the branch on connection line
+      log(`Yes connection X: ${conditionNode.x} + ${horizontalExtension} = ${yesConnectionX}`)
+      log(`Yes branch X: ${yesConnectionX} - ${nodeWidth/2} = ${yesBranchX}`)
+      const yesBranch = createNode('branch', yesBranchX, branchY)
+      yesBranch.label = 'Yes'
+      yesBranch.branch_type = 'condition_yes'
+      log(`Created YES branch at (${yesBranchX}, ${branchY}) - center at ${yesBranchX + nodeWidth/2}`)
+
+      // Auto-connect condition to both branches
+      createConnection(conditionNode.id, noBranch.id, 'no')
+      createConnection(conditionNode.id, yesBranch.id, 'yes')
+      log('Created connections from condition to both branches')
+      
+      return { yesBranch, noBranch }
+    }
+    
+    function createNode(type, x, y) {
+      const node = {
+        id: nextId++,
+        type: type,
+        x: x,
+        y: y
+      }
+      nodes.push(node)
+      renderNode(node)
+      return node
+    }
+    
+    function renderNode(node) {
+      const content = document.getElementById('canvasContent')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = `node ${node.type}`
+      nodeDiv.style.left = `${node.x}px`
+      nodeDiv.style.top = `${node.y}px`
+      nodeDiv.setAttribute('data-node-id', node.id)
+      
+      let label = node.type.toUpperCase()
+      if (node.label) label = node.label
+      if (node.type === 'condition') label = '?'
+      
+      nodeDiv.innerHTML = `
+        ${label}
+        <div class="coords">x=${node.x}, y=${node.y}</div>
+      `
+      
+      content.appendChild(nodeDiv)
+    }
+    
+    function createConnection(fromId, toId, label) {
+      const connection = {
+        from: fromId,
+        to: toId,
+        label: label
+      }
+      connections.push(connection)
+      log(`Created connection: ${fromId} -> ${toId} (${label || 'regular'})`)
+    }
+    
+    function testConnections() {
+      log('=== TESTING CONNECTION DRAWING ===')
+      
+      connections.forEach(conn => {
+        drawConnection(conn)
+      })
+      
+      log('=== CONNECTION DRAWING COMPLETE ===')
+    }
+    
+    function drawConnection(connection) {
+      const svg = document.getElementById('svg')
+      const fromNode = nodes.find(n => n.id === connection.from)
+      const toNode = nodes.find(n => n.id === connection.to)
+      
+      if (!fromNode || !toNode) {
+        log(`ERROR: Could not find nodes for connection ${connection.from} -> ${connection.to}`)
+        return
+      }
+      
+      log(`Drawing connection: ${fromNode.type}(${fromNode.id}) -> ${toNode.type}(${toNode.id}) [${connection.label || 'regular'}]`)
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      updateConnectionPath(path, fromNode, toNode, connection)
+      
+      const color = connection.label === 'yes' ? '#10b981' : connection.label === 'no' ? '#ef4444' : '#6366f1'
+      path.setAttribute('stroke', color)
+      path.setAttribute('stroke-width', '2')
+      path.setAttribute('fill', 'none')
+      
+      svg.appendChild(path)
+    }
+    
+    function updateConnectionPath(path, fromNode, toNode, connection) {
+      log(`updateConnectionPath: ${fromNode.type} -> ${toNode.type} (${connection.label || 'regular'})`)
+      
+      // Get actual node elements
+      const fromElement = document.querySelector(`[data-node-id="${fromNode.id}"]`)
+      const toElement = document.querySelector(`[data-node-id="${toNode.id}"]`)
+      
+      if (!fromElement || !toElement) {
+        log('ERROR: Could not find DOM elements for nodes')
+        return
+      }
+      
+      const testArea = document.getElementById('testArea')
+      const canvasContent = document.getElementById('canvasContent')
+      
+      const fromRect = fromElement.getBoundingClientRect()
+      const toRect = toElement.getBoundingClientRect()
+      const contentRect = canvasContent.getBoundingClientRect()
+      
+      log(`  fromRect: left=${fromRect.left}, top=${fromRect.top}, w=${fromRect.width}, h=${fromRect.height}`)
+      log(`  toRect: left=${toRect.left}, top=${toRect.top}, w=${toRect.width}, h=${toRect.height}`)
+      log(`  contentRect: left=${contentRect.left}, top=${contentRect.top}`)
+      
+      let startX, startY
+      
+      // EXACT SAME LOGIC FROM MAIN APP
+      if (fromNode.type === 'condition') {
+        const centerX = fromRect.left + fromRect.width / 2 - contentRect.left
+        const centerY = fromRect.top + fromRect.height / 2 - contentRect.top
+        
+        log(`  condition center: (${centerX}, ${centerY})`)
+        
+        if (connection.label === 'yes') {
+          startX = centerX + 50 // Right edge of diamond
+          startY = centerY
+          log(`  YES connection from right edge: (${startX}, ${startY})`)
+        } else if (connection.label === 'no') {
+          startX = centerX - 50 // Left edge of diamond
+          startY = centerY
+          log(`  NO connection from left edge: (${startX}, ${startY})`)
+        } else {
+          startX = centerX
+          startY = centerY - 30
+          log(`  Regular connection from top: (${startX}, ${startY})`)
+        }
+      } else {
+        startX = (fromRect.left + fromRect.width / 2 - contentRect.left)
+        startY = (fromRect.bottom - contentRect.top)
+        log(`  Regular node connection: (${startX}, ${startY})`)
+      }
+      
+      const endX = (toRect.left + toRect.width / 2 - contentRect.left)
+      const endY = (toRect.top - contentRect.top)
+      log(`  Target connection point: (${endX}, ${endY})`)
+      
+      let pathData
+      
+      if (connection.label === 'yes' || connection.label === 'no') {
+        const horizontalExtension = connection.label === 'yes' ? 80 : -80
+        const midX = startX + horizontalExtension
+        
+        log(`  Branch path: horizontal extension = ${horizontalExtension}, midX = ${midX}`)
+        pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY}`
+      } else {
+        pathData = `M ${startX} ${startY} L ${endX} ${endY}`
+      }
+      
+      log(`  Final path: ${pathData}`)
+      path.setAttribute('d', pathData)
+    }
+    
+    function clearTest() {
+      document.getElementById('canvasContent').innerHTML = '<svg id="svg"></svg>'
+      document.getElementById('log').innerHTML = 'Ready to test branch positioning...\n'
+      nodes = []
+      connections = []
+      nextId = 1
+    }
+    
+    // Auto-run test
+    setTimeout(() => {
+      testBranchCreation()
+      setTimeout(testConnections, 500)
+    }, 100)
+  </script>
+</body>
+</html>

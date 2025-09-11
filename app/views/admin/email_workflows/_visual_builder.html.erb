@@ -17,6 +17,8 @@
       <%= form.text_area :description, class: "form-textarea", rows: 2, placeholder: "Describe what this workflow does..." %>
     </div>
     
+    
+    
     <div class="form-group">
       <div class="form-checkbox">
         <%= form.check_box :active, class: "form-checkbox-input" %>
@@ -25,11 +27,12 @@
     </div>
   </div>
 
+
   <!-- Builder Header -->
   <div class="builder-header">
     <div class="builder-title">
       <h3>Visual Workflow Builder</h3>
-      <p>Drag components from the palette to create your workflow</p>
+      <p>Drag components, zoom (mouse wheel), pan (Shift+drag), and use keyboard shortcuts (+, -, 0, F)</p>
     </div>
     <div class="builder-actions">
       <button type="button" class="quick-action-btn" data-action="click->workflow-builder#addQuickEmail">
@@ -41,14 +44,37 @@
       <button type="button" class="quick-action-btn" data-action="click->workflow-builder#addQuickCondition">
         <i class="fas fa-code-branch"></i> Quick Condition
       </button>
+      
+      <!-- Zoom Controls -->
+      <div class="zoom-controls">
+        <button type="button" class="zoom-btn" data-action="click->workflow-builder#zoomOut" title="Zoom Out (-)">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="zoom-level">100%</span>
+        <button type="button" class="zoom-btn" data-action="click->workflow-builder#zoomIn" title="Zoom In (+)">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button type="button" class="zoom-btn" data-action="click->workflow-builder#resetZoom" title="Reset Zoom (0)">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </button>
+        <button type="button" class="zoom-btn" data-action="click->workflow-builder#fitToContent" title="Fit to Content (F)">
+          <i class="fas fa-compress-arrows-alt"></i>
+        </button>
+      </div>
     </div>
   </div>
 
   <div class="builder-workspace">
     
+    <!-- Left Panel Toggle -->
+    <button type="button" class="panel-toggle left-panel-toggle" data-action="click->workflow-builder#toggleLeftPanel" title="Hide Components Panel">
+      <span class="toggle-icon">◀</span>
+    </button>
+    
     <!-- Component Palette -->
     <div class="component-palette" data-workflow-builder-target="palette">
       <h4>Components</h4>
+      
       
       <div class="palette-section">
         <h5>Actions</h5>
@@ -88,11 +114,18 @@
     <!-- Workflow Canvas -->
     <div class="workflow-canvas" data-workflow-builder-target="canvas">
       <div class="canvas-grid"></div>
-      <div class="canvas-hint">
-        <i class="fas fa-mouse-pointer"></i>
-        <p>Drag components from the palette to get started</p>
+      <div class="canvas-content">
+        <div class="canvas-hint">
+          <i class="fas fa-mouse-pointer"></i>
+          <p>Drag components from the palette to get started</p>
+        </div>
       </div>
     </div>
+
+    <!-- Right Panel Toggle -->
+    <button type="button" class="panel-toggle right-panel-toggle" data-action="click->workflow-builder#toggleRightPanel" title="Hide Properties Panel">
+      <span class="toggle-icon">▶</span>
+    </button>
 
     <!-- Properties Panel -->
     <div class="properties-panel" data-workflow-builder-target="properties">
@@ -100,15 +133,16 @@
         <h4>Properties</h4>
       </div>
       <div class="panel-content">
-        <p class="no-selection">Click on a node to configure its properties</p>
+        <%= turbo_frame_tag "node-properties-frame" do %>
+          <p class="no-selection">Click on a node to configure its properties</p>
+        <% end %>
       </div>
     </div>
   </div>
   
 
       <!-- Hidden fields for visual builder data -->
-      <%= form.hidden_field :trigger_type %>
-      <%= form.hidden_field :trigger_conditions, value: workflow.trigger_conditions.to_json %>
+      <%= form.hidden_field :trigger_type, id: 'email_workflow_trigger_type' %>
       <%= hidden_field_tag :workflow_builder_data, '', id: 'workflow_builder_data' %>
       
       <!-- Workflow steps will be handled by the visual builder -->

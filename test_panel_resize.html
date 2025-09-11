@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Panel Resize - Connection Persistence</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .test-container {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      height: 500px;
+      border: 1px solid #ccc;
+      transition: grid-template-columns 0.3s ease;
+    }
+    
+    .test-container.left-collapsed {
+      grid-template-columns: 0px 1fr 300px;
+    }
+    
+    .test-container.right-collapsed {
+      grid-template-columns: 250px 1fr 0px;
+    }
+    
+    .left-panel {
+      background: #f3f4f6;
+      border-right: 1px solid #e5e7eb;
+      padding: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .left-panel.collapsed {
+      width: 0;
+      padding: 0;
+    }
+    
+    .right-panel {
+      background: #f8fafc;
+      border-left: 1px solid #e5e7eb;
+      padding: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .right-panel.collapsed {
+      width: 0;
+      padding: 0;
+    }
+    
+    .canvas {
+      position: relative;
+      background: white;
+      overflow: hidden;
+    }
+    
+    .node {
+      position: absolute;
+      background: #f0f9ff;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 100px;
+      text-align: center;
+    }
+    
+    .condition-node {
+      background: #f3f4f6;
+      border-color: #8b5cf6;
+    }
+    
+    .yes-node {
+      background: #ecfdf5;
+      border-color: #10b981;
+    }
+    
+    .no-node {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+    
+    .controls {
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background: #f9fafb;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connection Line Persistence Test</h1>
+  <p>Test whether connection lines survive panel resizing operations.</p>
+  
+  <div class="controls">
+    <button onclick="toggleLeftPanel()">Toggle Left Panel</button>
+    <button onclick="toggleRightPanel()">Toggle Right Panel</button>
+    <button onclick="redrawConnections()">Redraw Connections</button>
+  </div>
+  
+  <div class="test-container" id="container">
+    <div class="left-panel" id="leftPanel">
+      <h3>Left Panel</h3>
+      <p>Components palette would be here</p>
+    </div>
+    
+    <div class="canvas" id="canvas">
+      <!-- Condition Node -->
+      <div class="node condition-node" style="left: 200px; top: 100px;">
+        Check Status
+      </div>
+      
+      <!-- No Branch -->
+      <div class="node no-node" style="left: 50px; top: 100px;">
+        NO Branch
+      </div>
+      
+      <!-- Yes Branch -->
+      <div class="node yes-node" style="left: 350px; top: 100px;">
+        YES Branch
+      </div>
+      
+      <!-- SVG for connections -->
+      <svg id="svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+        <path id="noPath" d="M 200 130 L 140 130 L 140 130 L 150 130" stroke="#ef4444" stroke-width="2.5" fill="none"/>
+        <text x="175" y="125" font-size="12" font-weight="bold" fill="#dc2626" text-anchor="middle">NO</text>
+        
+        <path id="yesPath" d="M 300 130 L 360 130 L 360 130 L 350 130" stroke="#10b981" stroke-width="2.5" fill="none"/>
+        <text x="325" y="125" font-size="12" font-weight="bold" fill="#059669" text-anchor="middle">YES</text>
+      </svg>
+    </div>
+    
+    <div class="right-panel" id="rightPanel">
+      <h3>Right Panel</h3>
+      <p>Properties panel would be here</p>
+    </div>
+  </div>
+  
+  <div class="status" id="status">
+    <strong>Status:</strong> Ready to test. Click toggle buttons to test connection persistence.
+  </div>
+  
+  <script>
+    let leftCollapsed = false;
+    let rightCollapsed = false;
+    
+    function toggleLeftPanel() {
+      leftCollapsed = !leftCollapsed;
+      const container = document.getElementById('container');
+      const leftPanel = document.getElementById('leftPanel');
+      
+      if (leftCollapsed) {
+        container.classList.add('left-collapsed');
+        leftPanel.classList.add('collapsed');
+        updateStatus('Left panel collapsed - checking connections...');
+      } else {
+        container.classList.remove('left-collapsed');
+        leftPanel.classList.remove('collapsed');
+        updateStatus('Left panel expanded - checking connections...');
+      }
+      
+      // Redraw connections after animation
+      setTimeout(redrawConnections, 350);
+    }
+    
+    function toggleRightPanel() {
+      rightCollapsed = !rightCollapsed;
+      const container = document.getElementById('container');
+      const rightPanel = document.getElementById('rightPanel');
+      
+      if (rightCollapsed) {
+        container.classList.add('right-collapsed');
+        rightPanel.classList.add('collapsed');
+        updateStatus('Right panel collapsed - checking connections...');
+      } else {
+        container.classList.remove('right-collapsed');
+        rightPanel.classList.remove('collapsed');
+        updateStatus('Right panel expanded - checking connections...');
+      }
+      
+      // Redraw connections after animation
+      setTimeout(redrawConnections, 350);
+    }
+    
+    function redrawConnections() {
+      const canvas = document.getElementById('canvas');
+      const svg = document.getElementById('svg');
+      const noPath = document.getElementById('noPath');
+      const yesPath = document.getElementById('yesPath');
+      
+      // Update SVG dimensions
+      const canvasRect = canvas.getBoundingClientRect();
+      svg.style.width = canvasRect.width + 'px';
+      svg.style.height = canvasRect.height + 'px';
+      
+      // Redraw paths based on current layout - Klaviyo-style right angles
+      noPath.setAttribute('d', 'M 200 130 L 140 130 L 140 130 L 150 130');
+      yesPath.setAttribute('d', 'M 300 130 L 360 130 L 360 130 L 350 130');
+      
+      updateStatus('Connections redrawn successfully! ✅');
+    }
+    
+    function updateStatus(message) {
+      document.getElementById('status').innerHTML = '<strong>Status:</strong> ' + message;
+    }
+    
+    // Initial connection setup
+    setTimeout(redrawConnections, 100);
+  </script>
+</body>
+</html>

@@ -10,51 +10,9 @@ export default class extends Controller {
   }
   
   bindTriggerTypeChange() {
-    const triggerSelect = document.querySelector('[data-trigger-select="true"]')
-    if (triggerSelect) {
-      triggerSelect.addEventListener('change', (event) => {
-        this.updateTriggerConditions(event.target.value)
-      })
-    }
-  }
-  
-  updateTriggerConditions(triggerType) {
-    const conditionsContent = document.getElementById('trigger-conditions-content')
-    if (!conditionsContent) return
-    
-    // Get the workflow ID from the form or data attribute
-    const workflowData = document.querySelector('.workflow-form-data')
-    const workflowId = workflowData ? workflowData.dataset.workflowId : 'new'
-    
-    // Show loading state
-    conditionsContent.innerHTML = `
-      <div class="trigger-conditions-loading">
-        <i class="fas fa-spinner fa-spin"></i> Loading conditions...
-      </div>
-    `
-    
-    // Fetch updated trigger conditions
-    const url = `/admin/email_workflows/${workflowId}/trigger_conditions?trigger_type=${encodeURIComponent(triggerType)}`
-    
-    fetch(url, {
-      headers: {
-        'Accept': 'text/html',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.text())
-    .then(html => {
-      conditionsContent.innerHTML = html
-    })
-    .catch(error => {
-      console.error('Error loading trigger conditions:', error)
-      conditionsContent.innerHTML = `
-        <div class="trigger-conditions-error">
-          <i class="fas fa-exclamation-triangle"></i>
-          <p>Failed to load trigger conditions. Please try again.</p>
-        </div>
-      `
-    })
+    // Hotwire/Turbo handles trigger condition updates
+    // No JavaScript needed for business logic - only UI interactions
+    console.log("Trigger type change handling - using Hotwire for business logic")
   }
   
   switchTab(event) {

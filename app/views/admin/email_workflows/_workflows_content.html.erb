@@ -42,7 +42,7 @@
                 </td>
                 <td class="trigger-cell">
                   <span class="trigger-tag">
-                    <%= workflow.trigger_type.humanize %>
+                    <%= workflow.trigger_type&.humanize || 'Not Set' %>
                   </span>
                 </td>
                 <td class="steps-cell">

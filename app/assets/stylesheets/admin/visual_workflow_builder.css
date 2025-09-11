@@ -72,6 +72,147 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* Basic Fields Section */
+.basic-fields {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.basic-fields .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.basic-fields .form-group:first-child,
+.basic-fields .form-group:nth-child(2) {
+  grid-column: span 2;
+}
+
+.basic-fields .form-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+}
+
+.basic-fields .form-input,
+.basic-fields .form-textarea,
+.basic-fields .form-select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.basic-fields .form-input:focus,
+.basic-fields .form-textarea:focus,
+.basic-fields .form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.basic-fields .form-help {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.basic-fields .form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.basic-fields .form-checkbox-input {
+  width: 16px;
+  height: 16px;
+}
+
+.basic-fields .form-checkbox-label {
+  font-size: 0.875rem;
+  color: #374151;
+  margin: 0;
+}
+
+/* Trigger Conditions Section */
+.trigger-conditions-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.trigger-conditions-section .section-header h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.trigger-conditions-section .section-header p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+/* Workflow Mode Toggle */
+.builder-mode-toggle {
+  display: flex;
+  gap: 8px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  color: #374151;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.mode-btn.active {
+  background: white;
+  color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mode-btn i {
+  font-size: 1rem;
+}
+
+/* Mode Sections */
+.builder-mode {
+  margin-top: 24px;
+}
+
+.builder-mode.hidden {
+  display: none;
+}
+
 .builder-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -96,6 +237,7 @@
 .builder-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .quick-action-btn {
@@ -118,10 +260,109 @@
   transform: translateY(-1px);
 }
 
+/* Zoom Controls */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.zoom-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+}
+
+.zoom-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.zoom-level {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0 8px;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Panel Toggle Buttons */
+.panel-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  width: 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #9ca3af;
+}
+
+.panel-toggle:hover {
+  background: #f8fafc;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.left-panel-toggle {
+  left: 250px;
+  margin-left: -12px;
+}
+
+.right-panel-toggle {
+  right: 300px;
+  margin-right: -12px;
+}
+
+.left-panel-toggle.collapsed {
+  left: 0;
+  margin-left: -12px;
+}
+
+.right-panel-toggle.collapsed {
+  right: 0;
+  margin-right: -12px;
+}
+
 .builder-workspace {
   display: grid;
   grid-template-columns: 250px 1fr 300px;
   height: 600px;
+  position: relative;
+}
+
+/* Panel Collapse States */
+.builder-workspace.left-collapsed {
+  grid-template-columns: 0px 1fr 300px;
+}
+
+.builder-workspace.right-collapsed {
+  grid-template-columns: 250px 1fr 0px;
+}
+
+.builder-workspace.left-collapsed.right-collapsed {
+  grid-template-columns: 0px 1fr 0px;
 }
 
 /* Component Palette */
@@ -130,6 +371,27 @@
   border-right: 1px solid #e5e7eb;
   padding: 20px;
   overflow-y: auto;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure canvas and SVG update during transitions */
+.builder-workspace {
+  transition: grid-template-columns 0.3s ease;
+}
+
+.workflow-canvas {
+  transition: none; /* Prevent canvas from transitioning to avoid SVG issues */
+}
+
+
+
+.component-palette.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-right: none;
 }
 
 .component-palette h4 {
@@ -416,14 +678,48 @@
   color: white;
 }
 
-.node-condition .node-header {
+/* Flowchart Diamond Shape for Condition Nodes */
+.node-condition {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 0;
+  width: 100px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.node-condition .node-content {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.1;
+  max-width: 70px;
   color: white;
 }
 
-.node-condition .node-header i,
-.node-condition .node-title {
-  color: white;
+.node-condition .node-header,
+.node-condition .node-body {
+  display: none; /* Hide default structure for diamond */
+}
+
+/* Ensure connection points container doesn't interfere with clip-path */
+.node-condition .connection-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* But allow connection points themselves to be clickable */
+.node-condition .connection-point {
+  pointer-events: auto;
 }
 
 .node-update .node-header {
@@ -434,6 +730,25 @@
 .node-update .node-header i,
 .node-update .node-title {
   color: white;
+}
+
+.node-branch .node-header {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+}
+
+.node-branch .node-header i,
+.node-branch .node-title {
+  color: white;
+}
+
+/* Conditional Branch Styling */
+.node-branch[data-branch-type="condition_yes"] .node-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.node-branch[data-branch-type="condition_no"] .node-header {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 /* Connection Points */
@@ -485,6 +800,82 @@
   animation: pulse-connect 1.5s infinite;
 }
 
+/* Node Dragging */
+.workflow-node.dragging {
+  opacity: 0.8;
+  transform: scale(1.05);
+  cursor: grabbing !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.workflow-node .node-header {
+  cursor: grab;
+}
+
+.workflow-node.dragging .node-header {
+  cursor: grabbing;
+}
+
+/* Connection Mode */
+.workflow-canvas.connecting-mode .workflow-node:not(.connecting-from) {
+  opacity: 0.6;
+}
+
+.workflow-canvas.connecting-mode .workflow-node:not(.connecting-from):hover {
+  opacity: 1;
+  border-color: #3b82f6;
+}
+
+/* Connection Points */
+.connection-points {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.connection-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #6366f1;
+  border: 2px solid white;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 20;
+}
+
+.connection-point:hover {
+  transform: scale(1.3);
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.input-point {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.output-point {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Visual feedback during connection */
+.workflow-node.connecting-from .output-point {
+  background: #10b981;
+  animation: pulse-connect 1.5s infinite;
+}
+
+.connecting-mode .workflow-node:not(.connecting-from) .input-point {
+  background: #3b82f6;
+  animation: pulse-connect 1.5s infinite;
+}
+
 .workflow-node.connection-target {
   border-color: #f59e0b;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
@@ -494,6 +885,81 @@
   border-color: #f59e0b;
   background: #fbbf24;
   transform: translateY(-50%) scale(1.2);
+}
+
+/* Diamond Condition Node - Special Connection Points */
+.yes-output-point, .no-output-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 20;
+}
+
+/* Position connection points on true diamond edges */
+.node-condition .yes-output-point {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #10b981;
+  border-color: #059669;
+  z-index: 25;
+}
+
+.node-condition .no-output-point {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ef4444;
+  border-color: #dc2626;
+  z-index: 25;
+}
+
+.node-condition .input-point {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #6366f1;
+  border-color: #4f46e5;
+  z-index: 25;
+}
+
+.yes-output-point:hover {
+  transform: translateY(-50%) scale(1.3);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.no-output-point:hover {
+  transform: translateY(-50%) scale(1.3);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+.node-condition .input-point:hover {
+  transform: translateX(-50%) scale(1.3);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+/* Branch Node Styling */
+.node-branch {
+  min-width: 120px;
+  border-radius: 8px;
+}
+
+.node-branch .node-body {
+  padding: 8px 12px;
+}
+
+.node-branch .node-description {
+  font-size: 0.8rem;
+  text-align: center;
+  font-weight: 500;
 }
 
 @keyframes pulse-connect {
@@ -513,6 +979,69 @@
   pointer-events: stroke;
   cursor: pointer;
   transition: all 0.2s ease;
+  stroke-linejoin: round; /* Klaviyo-style rounded corners at angles */
+  stroke-linecap: round;
+}
+
+/* Conditional Connection Styling - Klaviyo-style */
+.connection-path[data-connection-label="yes"] {
+  stroke: #10b981;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.connection-path[data-connection-label="no"] {
+  stroke: #ef4444;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.connection-path[data-connection-label="yes"]:hover {
+  stroke: #059669;
+  stroke-width: 3;
+}
+
+.connection-path[data-connection-label="no"]:hover {
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+
+/* Connection Labels */
+.connection-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Klaviyo-style conditional flow visual indicators */
+.node-condition.has-branches {
+  position: relative;
+}
+
+.node-condition.has-branches::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 25%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid #8b5cf6;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.node-condition.has-branches::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 65%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid #8b5cf6;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
 }
 
 .connection-path:hover {
@@ -535,6 +1064,19 @@
   border-left: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+/* Force repaint during panel transitions */
+.builder-workspace.left-collapsed .workflow-canvas,
+.builder-workspace.right-collapsed .workflow-canvas {
+  transform: translateZ(0); /* Force hardware acceleration and repaint */
+}
+
+.properties-panel.collapsed {
+  width: 0;
+  overflow: hidden;
+  border-left: none;
 }
 
 .panel-header {
@@ -707,6 +1249,18 @@
   position: relative;
   overflow: hidden;
   min-height: 600px;
+  cursor: grab;
+}
+
+.canvas-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+}
+
+.workflow-canvas.panning {
+  cursor: grabbing;
 }
 
 .canvas-grid {

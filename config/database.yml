@@ -79,20 +79,17 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary: &primary_production
-    <<: *default
-    database: futureproof_production
-    username: futureproof
-    password: <%= ENV["FUTUREPROOF_DATABASE_PASSWORD"] %>
-  cache:
-    <<: *primary_production
-    database: futureproof_production_cache
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *primary_production
-    database: futureproof_production_queue
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *primary_production
-    database: futureproof_production_cable
-    migrations_paths: db/cable_migrate
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+
+queue:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+
+cable:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+
+cache:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>

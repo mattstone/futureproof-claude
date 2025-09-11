@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Zoom Connection Anchoring</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .test-area { 
+      border: 2px solid #000; 
+      width: 800px; 
+      height: 600px; 
+      position: relative; 
+      background: #f9f9f9;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+    }
+    .node { 
+      position: absolute; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 10px; 
+      border-radius: 4px; 
+      min-width: 100px;
+      text-align: center;
+    }
+    .trigger { background: #10b981; }
+    .condition { 
+      background: #8b5cf6;
+      width: 100px;
+      height: 60px;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .controls {
+      margin: 10px 0;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .log { 
+      background: #f3f4f6; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      font-family: monospace; 
+      white-space: pre;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Zoom Connection Anchoring</h1>
+  
+  <div class="controls">
+    <button onclick="setZoom(0.5)">Zoom 50%</button>
+    <button onclick="setZoom(1.0)">Zoom 100%</button>
+    <button onclick="setZoom(1.5)">Zoom 150%</button>
+    <button onclick="setZoom(2.0)">Zoom 200%</button>
+    <button onclick="testResize()">Test Resize</button>
+    <button onclick="clearTest()">Clear</button>
+  </div>
+  
+  <div id="zoomLevel">Zoom: 100%</div>
+  
+  <div class="test-area" id="testArea">
+    <div class="canvas-content" id="canvasContent">
+      <svg id="svg"></svg>
+    </div>
+  </div>
+  
+  <div id="log" class="log">Testing zoom connection anchoring...</div>
+  
+  <script>
+    let nodes = []
+    let connections = []
+    let zoomLevel = 1.0
+    let nextId = 1
+    
+    function log(message) {
+      document.getElementById('log').innerHTML += message + '\n'
+    }
+    
+    function createTestNodes() {
+      // Create trigger
+      const trigger = {
+        id: nextId++,
+        type: 'trigger',
+        x: 200,
+        y: 50
+      }
+      nodes.push(trigger)
+      renderNode(trigger)
+      
+      // Create condition
+      const condition = {
+        id: nextId++,
+        type: 'condition', 
+        x: 200,
+        y: 200
+      }
+      nodes.push(condition)
+      renderNode(condition)
+      
+      // Create yes branch
+      const yesBranch = {
+        id: nextId++,
+        type: 'branch',
+        x: 350,
+        y: 320
+      }
+      nodes.push(yesBranch)
+      renderNode(yesBranch)
+      
+      // Create no branch
+      const noBranch = {
+        id: nextId++,
+        type: 'branch', 
+        x: 50,
+        y: 320
+      }
+      nodes.push(noBranch)
+      renderNode(noBranch)
+      
+      // Create connections
+      connections.push({ from: trigger.id, to: condition.id, label: null })
+      connections.push({ from: condition.id, to: yesBranch.id, label: 'yes' })
+      connections.push({ from: condition.id, to: noBranch.id, label: 'no' })
+      
+      redrawConnections()
+      
+      log('Test nodes created with connections')
+    }
+    
+    function renderNode(node) {
+      const content = document.getElementById('canvasContent')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = `node ${node.type}`
+      nodeDiv.style.left = `${node.x}px`
+      nodeDiv.style.top = `${node.y}px`
+      nodeDiv.setAttribute('data-node-id', node.id)
+      
+      if (node.type === 'condition') {
+        nodeDiv.innerHTML = '?'
+      } else {
+        nodeDiv.innerHTML = node.type.toUpperCase()
+      }
+      
+      content.appendChild(nodeDiv)
+    }
+    
+    function setZoom(newZoom) {
+      zoomLevel = newZoom
+      const content = document.getElementById('canvasContent')
+      content.style.transform = `scale(${zoomLevel})`
+      
+      document.getElementById('zoomLevel').textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`
+      
+      log(`Zoom set to ${Math.round(zoomLevel * 100)}%`)
+      
+      // Redraw connections with new zoom
+      setTimeout(() => {
+        redrawConnections()
+        log('Connections redrawn after zoom')
+      }, 100)
+    }
+    
+    function testResize() {
+      const testArea = document.getElementById('testArea')
+      const currentWidth = testArea.style.width || '800px'
+      
+      if (currentWidth === '800px') {
+        testArea.style.width = '1200px'
+        testArea.style.height = '800px'
+        log('Resized to 1200x800')
+      } else {
+        testArea.style.width = '800px'
+        testArea.style.height = '600px'
+        log('Resized to 800x600')
+      }
+      
+      setTimeout(() => {
+        redrawConnections()
+        log('Connections redrawn after resize')
+      }, 100)
+    }
+    
+    function redrawConnections() {
+      const svg = document.getElementById('svg')
+      svg.innerHTML = '' // Clear existing paths
+      
+      connections.forEach(connection => {
+        drawConnection(connection)
+      })
+    }
+    
+    function drawConnection(connection) {
+      const svg = document.getElementById('svg')
+      const fromNode = nodes.find(n => n.id === connection.from)
+      const toNode = nodes.find(n => n.id === connection.to)
+      
+      if (!fromNode || !toNode) return
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      updateConnectionPath(path, fromNode, toNode, connection)
+      
+      path.setAttribute('stroke', connection.label === 'yes' ? '#10b981' : connection.label === 'no' ? '#ef4444' : '#6366f1')
+      path.setAttribute('stroke-width', '2')
+      path.setAttribute('fill', 'none')
+      
+      svg.appendChild(path)
+    }
+    
+    function updateConnectionPath(path, fromNode, toNode, connection) {
+      // Get actual node elements to calculate real dimensions
+      const fromElement = document.querySelector(`[data-node-id="${fromNode.id}"]`)
+      const toElement = document.querySelector(`[data-node-id="${toNode.id}"]`)
+      
+      if (!fromElement || !toElement) return
+      
+      // Force layout update
+      fromElement.offsetHeight
+      toElement.offsetHeight
+      
+      const testArea = document.getElementById('testArea')
+      const canvasContent = document.getElementById('canvasContent')
+      const testRect = testArea.getBoundingClientRect()
+      const contentRect = canvasContent.getBoundingClientRect()
+      
+      const fromRect = fromElement.getBoundingClientRect()
+      const toRect = toElement.getBoundingClientRect()
+      
+      log(`updateConnectionPath: zoom=${zoomLevel}, from=${fromNode.type}, to=${toNode.type}, label=${connection.label}`)
+      log(`  fromRect: ${fromRect.left}, ${fromRect.top}, ${fromRect.width}, ${fromRect.height}`)
+      log(`  contentRect: ${contentRect.left}, ${contentRect.top}`)
+      
+      let startX, startY
+      
+      // EXACT SAME LOGIC AS MAIN APP
+      if (fromNode.type === 'condition') {
+        const centerX = fromRect.left + fromRect.width / 2 - contentRect.left
+        const centerY = fromRect.top + fromRect.height / 2 - contentRect.top
+        
+        // Scale diamond connection offsets by current zoom level
+        const diamondHalfWidth = 50 * zoomLevel
+        const diamondHalfHeight = 30 * zoomLevel
+        
+        log(`  condition center: (${centerX}, ${centerY})`)
+        log(`  diamond offsets: halfWidth=${diamondHalfWidth}, halfHeight=${diamondHalfHeight}`)
+        
+        if (connection.label === 'yes') {
+          startX = centerX + diamondHalfWidth
+          startY = centerY
+        } else if (connection.label === 'no') {
+          startX = centerX - diamondHalfWidth
+          startY = centerY
+        } else {
+          startX = centerX
+          startY = centerY - diamondHalfHeight
+        }
+      } else {
+        startX = (fromRect.left + fromRect.width / 2 - contentRect.left)
+        startY = (fromRect.bottom - contentRect.top)
+      }
+      
+      const endX = (toRect.left + toRect.width / 2 - contentRect.left)
+      const endY = (toRect.top - contentRect.top)
+      
+      log(`  calculated start: (${startX}, ${startY})`)
+      log(`  calculated end: (${endX}, ${endY})`)
+      
+      let pathData
+      
+      if (connection.label === 'yes' || connection.label === 'no') {
+        const baseExtension = connection.label === 'yes' ? 80 : -80
+        const horizontalExtension = baseExtension * zoomLevel
+        const midX = startX + horizontalExtension
+        
+        log(`  branch extension: base=${baseExtension}, scaled=${horizontalExtension}, midX=${midX}`)
+        
+        pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY}`
+      } else {
+        pathData = `M ${startX} ${startY} L ${endX} ${endY}`
+      }
+      
+      path.setAttribute('d', pathData)
+      log(`  pathData: ${pathData}`)
+      log('---')
+    }
+    
+    function clearTest() {
+      document.getElementById('canvasContent').innerHTML = '<svg id="svg"></svg>'
+      document.getElementById('log').innerHTML = 'Testing zoom connection anchoring...\n'
+      nodes = []
+      connections = []
+      nextId = 1
+      zoomLevel = 1.0
+      setZoom(1.0)
+    }
+    
+    // Auto-create test nodes
+    setTimeout(createTestNodes, 100)
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 class Admin::EmailWorkflowsController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_workflow, only: [:show, :edit, :update, :destroy, :toggle_active, :preview, :duplicate, :trigger_conditions]
+  before_action :set_workflow, only: [:show, :edit, :update, :destroy, :toggle_active, :preview, :duplicate]
   
   def index
     @workflows = EmailWorkflow.includes(:created_by, :workflow_steps)
@@ -149,19 +149,6 @@ class Admin::EmailWorkflowsController < Admin::BaseController
     end
   end
   
-  def trigger_conditions
-    # Handle both existing workflows and new workflow creation
-    if @workflow.nil?
-      # This is for new workflow creation
-      @workflow = EmailWorkflow.new
-      @workflow.trigger_type = params[:trigger_type]
-    else
-      # Update the trigger type for existing workflow if provided
-      @workflow.trigger_type = params[:trigger_type] if params[:trigger_type].present?
-    end
-    
-    render partial: 'trigger_conditions', locals: { form: nil, workflow: @workflow }, layout: false
-  end
   
   # AJAX endpoint for adding workflow steps
   def add_step
@@ -173,6 +160,24 @@ class Admin::EmailWorkflowsController < Admin::BaseController
       format.js { render 'admin/email_workflows/add_step' }
     end
   end
+
+  def node_properties
+    @node_type = params[:node_type]
+    @node_config = params[:config] || {}
+    @email_templates = EmailTemplate.order(:template_type, :name)
+
+    respond_to do |format|
+      format.turbo_stream { 
+        render turbo_stream: turbo_stream.replace("node-properties-frame", 
+               partial: 'node_properties', 
+               locals: { node_type: @node_type, config: @node_config }) 
+      }
+      format.html { 
+        render 'node_properties', layout: false
+      }
+    end
+  end
+
   
   private
   

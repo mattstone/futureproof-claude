@@ -14,11 +14,7 @@ class EmailWorkflow < ApplicationRecord
     application_stuck_at_status: 'application_stuck_at_status',
     contract_status_changed: 'contract_status_changed',
     contract_stuck_at_status: 'contract_stuck_at_status',
-    user_registered: 'user_registered',
-    time_delay: 'time_delay',
-    document_uploaded: 'document_uploaded',
-    inactivity: 'inactivity',
-    contract_signed: 'contract_signed'
+    user_registered: 'user_registered'
   }
   
   # Validations

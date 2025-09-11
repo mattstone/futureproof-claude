@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Klaviyo-Style Right-Angled Connections</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+    
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .demo-container {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      height: 400px;
+      position: relative;
+    }
+    
+    .demo-title {
+      text-align: center;
+      margin: 0 0 20px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .old-style { border-color: #ef4444; }
+    .new-style { border-color: #10b981; }
+    
+    .node {
+      position: absolute;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 120px;
+      text-align: center;
+      font-size: 0.875rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .condition-node {
+      background: #f3f4f6;
+      border-color: #8b5cf6;
+      color: #7c3aed;
+      font-weight: 600;
+    }
+    
+    .yes-node {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #059669;
+      font-weight: 600;
+    }
+    
+    .no-node {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #dc2626;
+      font-weight: 600;
+    }
+    
+    .action-node {
+      background: #f0f9ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .curved-path {
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    
+    .right-angled-path {
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    
+    .connection-label {
+      font-weight: bold;
+      font-size: 11px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+    
+    .benefits {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .benefits h3 {
+      color: #1f2937;
+      margin-top: 0;
+    }
+    
+    .benefit-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    
+    .benefit-list li {
+      padding: 8px 12px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    
+    .benefit-list li::before {
+      content: "✓ ";
+      color: #10b981;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Klaviyo-Style Right-Angled Connections</h1>
+  <p>Comparison between curved connections and Klaviyo-style right-angled connections.</p>
+  
+  <div class="comparison">
+    <!-- Old curved style -->
+    <div class="demo-container old-style">
+      <h3 class="demo-title">❌ Old: Curved Connections</h3>
+      
+      <div class="node condition-node" style="left: 120px; top: 80px;">
+        Check Status
+      </div>
+      
+      <div class="node no-node" style="left: 30px; top: 160px;">
+        NO
+      </div>
+      
+      <div class="node yes-node" style="left: 210px; top: 160px;">
+        YES
+      </div>
+      
+      <div class="node action-node" style="left: 30px; top: 240px;">
+        Send Reminder
+      </div>
+      
+      <div class="node action-node" style="left: 210px; top: 240px;">
+        Send Welcome
+      </div>
+      
+      <svg>
+        <!-- Curved connections -->
+        <path d="M 120 110 Q 80 110 80 170" stroke="#ef4444" stroke-width="2.5" fill="none" class="curved-path" marker-end="url(#arrowhead-red)"/>
+        <text x="95" y="130" class="connection-label" fill="#dc2626">NO</text>
+        
+        <path d="M 220 110 Q 260 110 260 170" stroke="#10b981" stroke-width="2.5" fill="none" class="curved-path" marker-end="url(#arrowhead-green)"/>
+        <text x="245" y="130" class="connection-label" fill="#059669">YES</text>
+        
+        <path d="M 80 200 Q 80 220 80 240" stroke="#6366f1" stroke-width="2" fill="none" class="curved-path" marker-end="url(#arrowhead)"/>
+        <path d="M 260 200 Q 260 220 260 240" stroke="#6366f1" stroke-width="2" fill="none" class="curved-path" marker-end="url(#arrowhead)"/>
+        
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+          </marker>
+          <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+          </marker>
+          <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    
+    <!-- New right-angled style -->
+    <div class="demo-container new-style">
+      <h3 class="demo-title">✅ New: Klaviyo-Style Right-Angled</h3>
+      
+      <div class="node condition-node" style="left: 120px; top: 80px;">
+        Check Status
+      </div>
+      
+      <div class="node no-node" style="left: 30px; top: 160px;">
+        NO
+      </div>
+      
+      <div class="node yes-node" style="left: 210px; top: 160px;">
+        YES
+      </div>
+      
+      <div class="node action-node" style="left: 30px; top: 240px;">
+        Send Reminder
+      </div>
+      
+      <div class="node action-node" style="left: 210px; top: 240px;">
+        Send Welcome
+      </div>
+      
+      <svg>
+        <!-- Right-angled connections -->
+        <path d="M 120 110 L 60 110 L 60 170 L 80 170" stroke="#ef4444" stroke-width="2.5" fill="none" class="right-angled-path" marker-end="url(#arrowhead-red-2)"/>
+        <text x="90" y="125" class="connection-label" fill="#dc2626">NO</text>
+        
+        <path d="M 220 110 L 280 110 L 280 170 L 260 170" stroke="#10b981" stroke-width="2.5" fill="none" class="right-angled-path" marker-end="url(#arrowhead-green-2)"/>
+        <text x="250" y="125" class="connection-label" fill="#059669">YES</text>
+        
+        <path d="M 80 200 L 80 220 L 80 240" stroke="#6366f1" stroke-width="2" fill="none" class="right-angled-path" marker-end="url(#arrowhead-2)"/>
+        <path d="M 260 200 L 260 220 L 260 240" stroke="#6366f1" stroke-width="2" fill="none" class="right-angled-path" marker-end="url(#arrowhead-2)"/>
+        
+        <defs>
+          <marker id="arrowhead-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+          </marker>
+          <marker id="arrowhead-green-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+          </marker>
+          <marker id="arrowhead-red-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="benefits">
+    <h3>Why Klaviyo-Style Right-Angled Connections Are Better</h3>
+    <ul class="benefit-list">
+      <li>Familiar to Klaviyo users</li>
+      <li>Clearer visual hierarchy</li>
+      <li>Easier to trace connection paths</li>
+      <li>More professional appearance</li>
+      <li>Better for complex workflows</li>
+      <li>Consistent with industry standards</li>
+      <li>Improved readability at any zoom level</li>
+      <li>Clean geometric aesthetic</li>
+    </ul>
+  </div>
+  
+  <div class="benefits">
+    <h3>Implementation Details</h3>
+    <ul style="margin: 0; padding-left: 20px;">
+      <li><strong>Connection Logic:</strong> Horizontal extension first, then vertical alignment</li>
+      <li><strong>YES branches:</strong> Extend 60px right, then down/up to target</li>
+      <li><strong>NO branches:</strong> Extend 60px left, then down/up to target</li>
+      <li><strong>Styling:</strong> Rounded line joins and caps for smooth corners</li>
+      <li><strong>Colors:</strong> Green for YES (#10b981), Red for NO (#ef4444)</li>
+    </ul>
+  </div>
+</body>
+</html>

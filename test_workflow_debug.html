@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Workflow Builder Debug Test</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      margin: 20px;
+      background: #f8fafc;
+    }
+    
+    .test-container {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .canvas {
+      border: 1px solid #ccc;
+      height: 400px;
+      width: 100%;
+      position: relative;
+      background: white;
+      margin: 10px 0;
+    }
+    
+    .node {
+      position: absolute;
+      background: #3b82f6;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      min-width: 100px;
+      text-align: center;
+      font-size: 0.875rem;
+      border: 2px solid #1d4ed8;
+    }
+    
+    .trigger-node {
+      background: #10b981;
+      border-color: #059669;
+    }
+    
+    .condition-node {
+      background: #8b5cf6;
+      border: none;
+      width: 100px;
+      height: 60px;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .connection-point {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #6366f1;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+    
+    .input-point { top: -6px; left: 50%; transform: translateX(-50%); }
+    .output-point { bottom: -6px; left: 50%; transform: translateX(-50%); }
+    .yes-output-point { right: -5px; top: 50%; transform: translateY(-50%); background: #10b981; }
+    .no-output-point { left: -5px; top: 50%; transform: translateY(-50%); background: #ef4444; }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .log {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    
+    button:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <h1>Workflow Builder Debug Test</h1>
+  
+  <div class="test-container">
+    <h3>Test 1: Basic Node Creation</h3>
+    <button onclick="createTrigger()">Create Trigger</button>
+    <button onclick="createCondition()">Create Condition</button>
+    <button onclick="connectNodes()">Connect Nodes</button>
+    <button onclick="clearCanvas()">Clear</button>
+    
+    <div class="canvas" id="canvas">
+      <svg id="svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+          </marker>
+          <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+          </marker>
+          <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+  
+  <script>
+    let nodes = []
+    let connections = []
+    let nodeId = 1
+    
+    function log(message) {
+      const logDiv = document.getElementById('log')
+      const timestamp = new Date().toLocaleTimeString()
+      logDiv.innerHTML += `[${timestamp}] ${message}<br>`
+      logDiv.scrollTop = logDiv.scrollHeight
+      console.log(message)
+    }
+    
+    function createTrigger() {
+      log('Creating trigger node...')
+      const startTime = performance.now()
+      
+      const node = {
+        id: nodeId++,
+        type: 'trigger',
+        x: 100,
+        y: 50
+      }
+      
+      renderNode(node)
+      nodes.push(node)
+      
+      const endTime = performance.now()
+      log(`Trigger created in ${(endTime - startTime).toFixed(2)}ms`)
+    }
+    
+    function createCondition() {
+      log('Creating condition node...')
+      const startTime = performance.now()
+      
+      const node = {
+        id: nodeId++,
+        type: 'condition',
+        x: 100,
+        y: 200
+      }
+      
+      renderNode(node)
+      nodes.push(node)
+      
+      // Auto-connect if there's a previous node
+      if (nodes.length > 1) {
+        const prevNode = nodes[nodes.length - 2]
+        createConnection(prevNode.id, node.id)
+      }
+      
+      // Create YES/NO branches
+      createYesNoBranches(node)
+      
+      const endTime = performance.now()
+      log(`Condition created in ${(endTime - startTime).toFixed(2)}ms`)
+    }
+    
+    function renderNode(node) {
+      const canvas = document.getElementById('canvas')
+      const nodeElement = document.createElement('div')
+      
+      nodeElement.className = `node ${node.type}-node`
+      nodeElement.id = `node-${node.id}`
+      nodeElement.style.left = `${node.x}px`
+      nodeElement.style.top = `${node.y}px`
+      
+      if (node.type === 'trigger') {
+        nodeElement.innerHTML = `
+          🔥 Trigger
+          <div class="connection-point output-point"></div>
+        `
+      } else if (node.type === 'condition') {
+        nodeElement.innerHTML = `
+          Check?
+          <div class="connection-point input-point"></div>
+          <div class="connection-point yes-output-point"></div>
+          <div class="connection-point no-output-point"></div>
+        `
+      } else {
+        nodeElement.innerHTML = `
+          ${node.type.toUpperCase()}
+          <div class="connection-point input-point"></div>
+          <div class="connection-point output-point"></div>
+        `
+      }
+      
+      canvas.appendChild(nodeElement)
+      log(`Node ${node.id} (${node.type}) rendered at (${node.x}, ${node.y})`)
+    }
+    
+    function createConnection(fromId, toId, label = null) {
+      const connection = {
+        id: `conn-${fromId}-${toId}`,
+        from: fromId,
+        to: toId,
+        label: label
+      }
+      
+      connections.push(connection)
+      drawConnection(connection)
+      log(`Connection created: ${fromId} -> ${toId}${label ? ` (${label})` : ''}`)
+    }
+    
+    function drawConnection(connection) {
+      const svg = document.getElementById('svg')
+      const fromNode = nodes.find(n => n.id === connection.from)
+      const toNode = nodes.find(n => n.id === connection.to)
+      
+      if (!fromNode || !toNode) return
+      
+      let startX, startY, endX, endY
+      
+      if (fromNode.type === 'condition') {
+        const centerX = fromNode.x + 50
+        const centerY = fromNode.y + 30
+        
+        if (connection.label === 'yes') {
+          startX = centerX + 50
+          startY = centerY
+        } else if (connection.label === 'no') {
+          startX = centerX - 50
+          startY = centerY
+        } else {
+          startX = centerX
+          startY = centerY - 30
+        }
+      } else {
+        startX = fromNode.x + 50
+        startY = fromNode.y + 30
+      }
+      
+      endX = toNode.x + 50
+      endY = toNode.y
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      
+      if (connection.label) {
+        const midX = startX + (connection.label === 'yes' ? 60 : -60)
+        const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`
+        path.setAttribute('d', pathData)
+        
+        if (connection.label === 'yes') {
+          path.setAttribute('stroke', '#10b981')
+          path.setAttribute('marker-end', 'url(#arrowhead-green)')
+        } else {
+          path.setAttribute('stroke', '#ef4444')
+          path.setAttribute('marker-end', 'url(#arrowhead-red)')
+        }
+      } else {
+        const pathData = `M ${startX} ${startY} L ${endX} ${endY}`
+        path.setAttribute('d', pathData)
+        path.setAttribute('stroke', '#6366f1')
+        path.setAttribute('marker-end', 'url(#arrowhead)')
+      }
+      
+      path.setAttribute('stroke-width', '2')
+      path.setAttribute('fill', 'none')
+      
+      svg.appendChild(path)
+    }
+    
+    function createYesNoBranches(conditionNode) {
+      // Create YES branch
+      const yesNode = {
+        id: nodeId++,
+        type: 'yes-branch',
+        x: conditionNode.x + 200,
+        y: conditionNode.y + 50
+      }
+      renderNode(yesNode)
+      nodes.push(yesNode)
+      createConnection(conditionNode.id, yesNode.id, 'yes')
+      
+      // Create NO branch  
+      const noNode = {
+        id: nodeId++,
+        type: 'no-branch',
+        x: conditionNode.x - 150,
+        y: conditionNode.y + 50
+      }
+      renderNode(noNode)
+      nodes.push(noNode)
+      createConnection(conditionNode.id, noNode.id, 'no')
+    }
+    
+    function connectNodes() {
+      if (nodes.length >= 2) {
+        const from = nodes[nodes.length - 2]
+        const to = nodes[nodes.length - 1]
+        createConnection(from.id, to.id)
+      }
+    }
+    
+    function clearCanvas() {
+      document.getElementById('canvas').innerHTML = `
+        <svg id="svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+            </marker>
+            <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+            </marker>
+            <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+            </marker>
+          </defs>
+        </svg>
+      `
+      nodes = []
+      connections = []
+      nodeId = 1
+      log('Canvas cleared')
+    }
+    
+    // Auto-create trigger on load
+    window.addEventListener('load', () => {
+      log('Page loaded, creating trigger...')
+      createTrigger()
+    })
+  </script>
+</body>
+</html>

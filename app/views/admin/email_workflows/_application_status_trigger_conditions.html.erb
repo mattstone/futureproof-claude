@@ -1,0 +1,29 @@
+<div class="property-group">
+  <label>From Status <span class="required">*</span></label>
+  <select data-action="change->workflow-builder#updateNodeConfig" data-property="from_status" required>
+    <option value="">Select from status...</option>
+    <option value="created" <%= 'selected' if config['from_status'] == 'created' %>>Created</option>
+    <option value="user_details" <%= 'selected' if config['from_status'] == 'user_details' %>>User Details</option>
+    <option value="property_details" <%= 'selected' if config['from_status'] == 'property_details' %>>Property Details</option>
+    <option value="income_and_loan_options" <%= 'selected' if config['from_status'] == 'income_and_loan_options' %>>Income and Loan Options</option>
+    <option value="submitted" <%= 'selected' if config['from_status'] == 'submitted' %>>Submitted</option>
+    <option value="processing" <%= 'selected' if config['from_status'] == 'processing' %>>Processing</option>
+    <option value="rejected" <%= 'selected' if config['from_status'] == 'rejected' %>>Rejected</option>
+    <option value="accepted" <%= 'selected' if config['from_status'] == 'accepted' %>>Accepted</option>
+  </select>
+</div>
+
+<div class="property-group">
+  <label>To Status <span class="required">*</span></label>
+  <select data-action="change->workflow-builder#updateNodeConfig" data-property="to_status" required>
+    <option value="">Select to status...</option>
+    <option value="created" <%= 'selected' if config['to_status'] == 'created' %>>Created</option>
+    <option value="user_details" <%= 'selected' if config['to_status'] == 'user_details' %>>User Details</option>
+    <option value="property_details" <%= 'selected' if config['to_status'] == 'property_details' %>>Property Details</option>
+    <option value="income_and_loan_options" <%= 'selected' if config['to_status'] == 'income_and_loan_options' %>>Income and Loan Options</option>
+    <option value="submitted" <%= 'selected' if config['to_status'] == 'submitted' %>>Submitted</option>
+    <option value="processing" <%= 'selected' if config['to_status'] == 'processing' %>>Processing</option>
+    <option value="rejected" <%= 'selected' if config['to_status'] == 'rejected' %>>Rejected</option>
+    <option value="accepted" <%= 'selected' if config['to_status'] == 'accepted' %>>Accepted</option>
+  </select>
+</div>

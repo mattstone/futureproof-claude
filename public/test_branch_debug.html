@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug Branch Connection Alignment</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .test-area { 
+      border: 2px solid #000; 
+      width: 800px; 
+      height: 600px; 
+      position: relative; 
+      background: #f9f9f9;
+      margin: 20px 0;
+    }
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .node { 
+      position: absolute; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 10px; 
+      border-radius: 4px; 
+      min-width: 180px; /* Match actual CSS */
+      text-align: center;
+    }
+    .trigger { background: #10b981; }
+    .condition { 
+      background: #8b5cf6;
+      width: 100px;
+      height: 60px;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .branch { background: #f59e0b; }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .coords {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      font-size: 10px;
+      background: yellow;
+      padding: 1px 3px;
+      color: black;
+    }
+    .log { 
+      background: #f3f4f6; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      font-family: monospace; 
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .debug-line {
+      position: absolute;
+      background: red;
+      height: 2px;
+      z-index: 100;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Debug Branch Connection Alignment</h1>
+  
+  <div>
+    <button onclick="testProblem()">Test Current Problem</button>
+    <button onclick="testSolution()">Test Solution</button>
+    <button onclick="clearTest()">Clear</button>
+  </div>
+  
+  <div class="test-area" id="testArea">
+    <div class="canvas-content" id="canvasContent">
+      <svg id="svg"></svg>
+    </div>
+  </div>
+  
+  <div id="log" class="log">Ready to debug connection alignment...</div>
+  
+  <script>
+    let nodes = []
+    let connections = []
+    let nextId = 1
+    
+    function log(message) {
+      document.getElementById('log').innerHTML += message + '\n'
+      console.log(message)
+    }
+    
+    function testProblem() {
+      clearTest()
+      log('=== TESTING CURRENT PROBLEM ===')
+      
+      // Create condition at center
+      const condition = {
+        id: nextId++,
+        type: 'condition',
+        x: 350,
+        y: 150
+      }
+      nodes.push(condition)
+      renderNode(condition)
+      log(`Condition at (${condition.x}, ${condition.y})`)
+      
+      // Current BROKEN logic - positions branches for diamond connection points
+      const horizontalExtension = 80
+      const verticalDrop = 120
+      const nodeWidth = 180
+      const branchY = condition.y + verticalDrop
+      
+      // Diamond connection points are at condition.x ± 50 (diamond edge)
+      const diamondNoX = condition.x - 50  // Left edge of diamond
+      const diamondYesX = condition.x + 50 // Right edge of diamond
+      
+      log(`Diamond NO connection point: ${diamondNoX}`)
+      log(`Diamond YES connection point: ${diamondYesX}`)
+      
+      // But we extend horizontally by 80px from diamond edges
+      const noLineEndX = diamondNoX - horizontalExtension  // 300 - 80 = 220
+      const yesLineEndX = diamondYesX + horizontalExtension // 400 + 80 = 480
+      
+      log(`NO line should end at X: ${noLineEndX}`)
+      log(`YES line should end at X: ${yesLineEndX}`)
+      
+      // Position branches to center on these line endpoints
+      const noBranchX = noLineEndX - (nodeWidth / 2) // 220 - 90 = 130
+      const yesBranchX = yesLineEndX - (nodeWidth / 2) // 480 - 90 = 390
+      
+      log(`NO branch positioned at: ${noBranchX} (center: ${noBranchX + nodeWidth/2})`)
+      log(`YES branch positioned at: ${yesBranchX} (center: ${yesBranchX + nodeWidth/2})`)
+      
+      const noBranch = createNode('branch', noBranchX, branchY)
+      noBranch.label = 'No'
+      
+      const yesBranch = createNode('branch', yesBranchX, branchY)
+      yesBranch.label = 'Yes'
+      
+      // Create connections
+      createConnection(condition.id, noBranch.id, 'no')
+      createConnection(condition.id, yesBranch.id, 'yes')
+      
+      // Draw visual guides
+      drawDebugLines(condition, noBranch, yesBranch, diamondNoX, diamondYesX, noLineEndX, yesLineEndX)
+      
+      log('=== PROBLEM DEMO COMPLETE ===')
+    }
+    
+    function testSolution() {
+      clearTest()
+      log('=== TESTING SOLUTION ===')
+      
+      // This will show the corrected positioning
+      log('Solution: Position branches to align with actual connection line drop points')
+      testProblem() // For now, same as problem - will fix once we see the visual
+    }
+    
+    function drawDebugLines(condition, noBranch, yesBranch, diamondNoX, diamondYesX, noLineEndX, yesLineEndX) {
+      const content = document.getElementById('canvasContent')
+      
+      // Diamond edge vertical lines (red)
+      const noEdgeLine = document.createElement('div')
+      noEdgeLine.className = 'debug-line'
+      noEdgeLine.style.left = `${diamondNoX}px`
+      noEdgeLine.style.top = `${condition.y}px`
+      noEdgeLine.style.width = '2px'
+      noEdgeLine.style.height = '200px'
+      noEdgeLine.style.background = 'red'
+      content.appendChild(noEdgeLine)
+      
+      const yesEdgeLine = document.createElement('div')
+      yesEdgeLine.className = 'debug-line'
+      yesEdgeLine.style.left = `${diamondYesX}px`
+      yesEdgeLine.style.top = `${condition.y}px`
+      yesEdgeLine.style.width = '2px'
+      yesEdgeLine.style.height = '200px'
+      yesEdgeLine.style.background = 'red'
+      content.appendChild(yesEdgeLine)
+      
+      // Connection line drop points (blue)
+      const noDropLine = document.createElement('div')
+      noDropLine.className = 'debug-line'
+      noDropLine.style.left = `${noLineEndX}px`
+      noDropLine.style.top = `${condition.y + 60}px`
+      noDropLine.style.width = '2px'
+      noDropLine.style.height = '140px'
+      noDropLine.style.background = 'blue'
+      content.appendChild(noDropLine)
+      
+      const yesDropLine = document.createElement('div')
+      yesDropLine.className = 'debug-line'
+      yesDropLine.style.left = `${yesLineEndX}px`
+      yesDropLine.style.top = `${condition.y + 60}px`
+      yesDropLine.style.width = '2px'
+      yesDropLine.style.height = '140px'
+      yesDropLine.style.background = 'blue'
+      content.appendChild(yesDropLine)
+      
+      log('RED lines = Diamond edges, BLUE lines = Where connections should drop')
+    }
+    
+    function createNode(type, x, y) {
+      const node = {
+        id: nextId++,
+        type: type,
+        x: x,
+        y: y
+      }
+      nodes.push(node)
+      renderNode(node)
+      return node
+    }
+    
+    function renderNode(node) {
+      const content = document.getElementById('canvasContent')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = `node ${node.type}`
+      nodeDiv.style.left = `${node.x}px`
+      nodeDiv.style.top = `${node.y}px`
+      nodeDiv.setAttribute('data-node-id', node.id)
+      
+      let label = node.type.toUpperCase()
+      if (node.label) label = node.label
+      if (node.type === 'condition') label = '?'
+      
+      nodeDiv.innerHTML = `
+        ${label}
+        <div class="coords">x=${node.x}, y=${node.y}</div>
+      `
+      
+      content.appendChild(nodeDiv)
+    }
+    
+    function createConnection(fromId, toId, label) {
+      const connection = {
+        from: fromId,
+        to: toId,
+        label: label
+      }
+      connections.push(connection)
+      drawConnection(connection)
+    }
+    
+    function drawConnection(connection) {
+      const svg = document.getElementById('svg')
+      const fromNode = nodes.find(n => n.id === connection.from)
+      const toNode = nodes.find(n => n.id === connection.to)
+      
+      if (!fromNode || !toNode) return
+      
+      const fromElement = document.querySelector(`[data-node-id="${fromNode.id}"]`)
+      const toElement = document.querySelector(`[data-node-id="${toNode.id}"]`)
+      
+      const fromRect = fromElement.getBoundingClientRect()
+      const toRect = toElement.getBoundingClientRect()
+      const contentRect = document.getElementById('canvasContent').getBoundingClientRect()
+      
+      let startX, startY
+      
+      if (fromNode.type === 'condition') {
+        const centerX = fromRect.left + fromRect.width / 2 - contentRect.left
+        const centerY = fromRect.top + fromRect.height / 2 - contentRect.top
+        
+        if (connection.label === 'yes') {
+          startX = centerX + 50
+          startY = centerY
+        } else if (connection.label === 'no') {
+          startX = centerX - 50
+          startY = centerY
+        }
+      }
+      
+      const endX = (toRect.left + toRect.width / 2 - contentRect.left)
+      const endY = (toRect.top - contentRect.top)
+      
+      let pathData
+      if (connection.label === 'yes' || connection.label === 'no') {
+        const horizontalExtension = connection.label === 'yes' ? 80 : -80
+        const midX = startX + horizontalExtension
+        pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY}`
+      }
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      path.setAttribute('d', pathData)
+      
+      const color = connection.label === 'yes' ? '#10b981' : '#ef4444'
+      path.setAttribute('stroke', color)
+      path.setAttribute('stroke-width', '3')
+      path.setAttribute('fill', 'none')
+      
+      svg.appendChild(path)
+      
+      log(`Connection drawn: ${pathData}`)
+    }
+    
+    function clearTest() {
+      document.getElementById('canvasContent').innerHTML = '<svg id="svg"></svg>'
+      document.getElementById('log').innerHTML = 'Ready to debug connection alignment...\n'
+      nodes = []
+      connections = []
+      nextId = 1
+    }
+    
+    // Auto-run test
+    setTimeout(testProblem, 100)
+  </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Line vs Branch Alignment</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .test-area { 
+      border: 2px solid #000; 
+      width: 800px; 
+      height: 600px; 
+      position: relative; 
+      background: #f9f9f9;
+      margin: 20px 0;
+    }
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .node { 
+      position: absolute; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 10px; 
+      border-radius: 4px; 
+      min-width: 180px;
+      text-align: center;
+    }
+    .condition { 
+      background: #8b5cf6;
+      width: 100px;
+      height: 60px;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .branch { 
+      background: rgba(245, 158, 11, 0.8); 
+      border: 2px solid #f59e0b;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .vertical-guide {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: red;
+      opacity: 0.7;
+      z-index: 100;
+    }
+    .log { 
+      background: #f3f4f6; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      font-family: monospace; 
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Line vs Branch Alignment</h1>
+  
+  <div>
+    <button onclick="testAlignment()">Test Alignment</button>
+    <button onclick="clearTest()">Clear</button>
+  </div>
+  
+  <div class="test-area" id="testArea">
+    <div class="canvas-content" id="canvasContent">
+      <svg id="svg"></svg>
+    </div>
+  </div>
+  
+  <div id="log" class="log">Ready to test alignment...</div>
+  
+  <script>
+    let nodes = []
+    let connections = []
+    let nextId = 1
+    
+    function log(message) {
+      document.getElementById('log').innerHTML += message + '\n'
+      console.log(message)
+    }
+    
+    function testAlignment() {
+      clearTest()
+      log('=== TESTING LINE VS BRANCH ALIGNMENT ===')
+      
+      // Create condition at known position
+      const condition = {
+        id: nextId++,
+        type: 'condition',
+        x: 300, // Use 300 for cleaner math
+        y: 100
+      }
+      nodes.push(condition)
+      renderNode(condition)
+      log(`Condition positioned at (${condition.x}, ${condition.y})`)
+      
+      // Use EXACT same logic as main app
+      const horizontalExtension = 80
+      const verticalDrop = 120
+      const nodeWidth = 180
+      const branchY = condition.y + verticalDrop
+      
+      // Calculate where lines will drop (main app logic)
+      const diamondLeftEdgeX = condition.x - 50   // 250
+      const diamondRightEdgeX = condition.x + 50  // 350
+      const noLineDropX = diamondLeftEdgeX - horizontalExtension   // 250 - 80 = 170
+      const yesLineDropX = diamondRightEdgeX + horizontalExtension // 350 + 80 = 430
+      
+      log(`Diamond edges: Left=${diamondLeftEdgeX}, Right=${diamondRightEdgeX}`)
+      log(`Calculated line drops: NO=${noLineDropX}, YES=${yesLineDropX}`)
+      
+      // Position branches (main app logic)
+      const noBranchX = noLineDropX - (nodeWidth / 2)   // 170 - 90 = 80
+      const yesBranchX = yesLineDropX - (nodeWidth / 2) // 430 - 90 = 340
+      
+      log(`Branch positions: NO=${noBranchX}, YES=${yesBranchX}`)
+      log(`Branch centers: NO=${noBranchX + nodeWidth/2}, YES=${yesBranchX + nodeWidth/2}`)
+      
+      // Create branches
+      const noBranch = createNode('branch', noBranchX, branchY, 'NO')
+      const yesBranch = createNode('branch', yesBranchX, branchY, 'YES')
+      
+      // Create connections
+      createConnection(condition.id, noBranch.id, 'no')
+      createConnection(condition.id, yesBranch.id, 'yes')
+      
+      // Draw connections and see where they actually end up
+      drawConnections()
+      
+      // Add vertical guides at calculated drop points
+      addVerticalGuide(noLineDropX, 'red', 'NO calc')
+      addVerticalGuide(yesLineDropX, 'red', 'YES calc')
+      
+      log('=== ALIGNMENT TEST COMPLETE ===')
+      log('RED lines show calculated drop points')
+      log('Connection lines show actual drop points')
+    }
+    
+    function createNode(type, x, y, label) {
+      const node = {
+        id: nextId++,
+        type: type,
+        x: x,
+        y: y,
+        label: label
+      }
+      nodes.push(node)
+      renderNode(node)
+      return node
+    }
+    
+    function renderNode(node) {
+      const content = document.getElementById('canvasContent')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = `node ${node.type}`
+      nodeDiv.style.left = `${node.x}px`
+      nodeDiv.style.top = `${node.y}px`
+      nodeDiv.setAttribute('data-node-id', node.id)
+      
+      let label = node.type.toUpperCase()
+      if (node.label) label = node.label
+      if (node.type === 'condition') label = '?'
+      
+      nodeDiv.innerHTML = label
+      content.appendChild(nodeDiv)
+    }
+    
+    function createConnection(fromId, toId, label) {
+      connections.push({ from: fromId, to: toId, label: label })
+    }
+    
+    function drawConnections() {
+      connections.forEach(connection => {
+        const fromNode = nodes.find(n => n.id === connection.from)
+        const toNode = nodes.find(n => n.id === connection.to)
+        
+        if (!fromNode || !toNode) return
+        
+        const fromElement = document.querySelector(`[data-node-id="${fromNode.id}"]`)
+        const toElement = document.querySelector(`[data-node-id="${toNode.id}"]`)
+        
+        // Force layout
+        fromElement.offsetHeight
+        toElement.offsetHeight
+        
+        const fromRect = fromElement.getBoundingClientRect()
+        const toRect = toElement.getBoundingClientRect()
+        const contentRect = document.getElementById('canvasContent').getBoundingClientRect()
+        
+        // EXACT same connection logic as main app
+        let startX, startY
+        if (fromNode.type === 'condition') {
+          const centerX = fromRect.left + fromRect.width / 2 - contentRect.left
+          const centerY = fromRect.top + fromRect.height / 2 - contentRect.top
+          
+          if (connection.label === 'yes') {
+            startX = centerX + 50
+            startY = centerY
+          } else if (connection.label === 'no') {
+            startX = centerX - 50
+            startY = centerY
+          }
+        }
+        
+        const endX = (toRect.left + toRect.width / 2 - contentRect.left)
+        const endY = (toRect.top - contentRect.top)
+        
+        let pathData
+        if (connection.label === 'yes' || connection.label === 'no') {
+          const horizontalExtension = connection.label === 'yes' ? 80 : -80
+          const midX = startX + horizontalExtension
+          pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY}`
+          
+          // Log where line actually drops
+          log(`${connection.label.toUpperCase()} line actually drops at X: ${midX}`)
+          
+          // Add blue guide at actual drop point
+          addVerticalGuide(midX, 'blue', `${connection.label.toUpperCase()} actual`)
+        }
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        path.setAttribute('d', pathData)
+        path.setAttribute('stroke', connection.label === 'yes' ? '#10b981' : '#ef4444')
+        path.setAttribute('stroke-width', '3')
+        path.setAttribute('fill', 'none')
+        
+        document.getElementById('svg').appendChild(path)
+      })
+    }
+    
+    function addVerticalGuide(x, color, label) {
+      const content = document.getElementById('canvasContent')
+      const guide = document.createElement('div')
+      guide.className = 'vertical-guide'
+      guide.style.left = `${x}px`
+      guide.style.background = color
+      guide.title = label
+      content.appendChild(guide)
+    }
+    
+    function clearTest() {
+      document.getElementById('canvasContent').innerHTML = '<svg id="svg"></svg>'
+      document.getElementById('log').innerHTML = 'Ready to test alignment...\n'
+      nodes = []
+      connections = []
+      nextId = 1
+    }
+    
+    // Auto-run test
+    setTimeout(testAlignment, 100)
+  </script>
+</body>
+</html>

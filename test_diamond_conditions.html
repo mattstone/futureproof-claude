@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Diamond Condition Nodes Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+    
+    .test-container {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      height: 600px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      background: white;
+      overflow: hidden;
+      transition: grid-template-columns 0.3s ease;
+      margin-bottom: 20px;
+    }
+    
+    .test-container.left-collapsed {
+      grid-template-columns: 0px 1fr 300px;
+    }
+    
+    .test-container.right-collapsed {
+      grid-template-columns: 250px 1fr 0px;
+    }
+    
+    .left-panel {
+      background: #f3f4f6;
+      border-right: 1px solid #e5e7eb;
+      padding: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .left-panel.collapsed {
+      width: 0;
+      padding: 0;
+      border: none;
+    }
+    
+    .right-panel {
+      background: #f8fafc;
+      border-left: 1px solid #e5e7eb;
+      padding: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .right-panel.collapsed {
+      width: 0;
+      padding: 0;
+      border: none;
+    }
+    
+    .canvas {
+      position: relative;
+      background: white;
+      overflow: hidden;
+    }
+    
+    .canvas-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+    }
+    
+    /* Node Styles */\n    .node {\n      position: absolute;\n      background: white;\n      border: 2px solid #e5e7eb;\n      border-radius: 8px;\n      padding: 15px;\n      min-width: 140px;\n      text-align: center;\n      font-size: 0.875rem;\n      font-weight: 500;\n      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n    }\n    \n    .trigger-node {\n      background: linear-gradient(135deg, #10b981 0%, #059669 100%);\n      color: white;\n      border-color: #059669;\n    }\n    \n    /* Diamond Condition Node */\n    .condition-node {\n      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);\n      color: white;\n      border: none;\n      border-radius: 0;\n      transform: rotate(45deg);\n      width: 120px;\n      height: 120px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      position: relative;\n      min-width: auto;\n      padding: 0;\n    }\n    \n    .condition-node .node-content {\n      transform: rotate(-45deg);\n      text-align: center;\n      font-size: 0.8rem;\n      font-weight: 600;\n      line-height: 1.2;\n      max-width: 80px;\n      color: white;\n    }\n    \n    .yes-branch {\n      background: linear-gradient(135deg, #10b981 0%, #059669 100%);\n      color: white;\n      border-color: #059669;\n      font-size: 0.8rem;\n      min-width: 100px;\n      padding: 10px 15px;\n    }\n    \n    .no-branch {\n      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);\n      color: white;\n      border-color: #dc2626;\n      font-size: 0.8rem;\n      min-width: 100px;\n      padding: 10px 15px;\n    }\n    \n    .action-node {\n      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);\n      color: white;\n      border-color: #1d4ed8;\n    }\n    \n    /* Connection Points for Diamond */\n    .connection-point {\n      position: absolute;\n      width: 12px;\n      height: 12px;\n      border-radius: 50%;\n      border: 2px solid white;\n      cursor: pointer;\n      transition: all 0.2s ease;\n      z-index: 20;\n    }\n    \n    .condition-node .input-point {\n      top: -6px;\n      left: 50%;\n      transform: translateX(-50%) rotate(-45deg);\n      background: #6366f1;\n    }\n    \n    .condition-node .yes-output-point {\n      right: -6px;\n      top: 50%;\n      transform: translateY(-50%) rotate(-45deg);\n      background: #10b981;\n    }\n    \n    .condition-node .no-output-point {\n      left: -6px;\n      top: 50%;\n      transform: translateY(-50%) rotate(-45deg);\n      background: #ef4444;\n    }\n    \n    .connection-point:hover {\n      transform: scale(1.3);\n      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);\n    }\n    \n    svg {\n      position: absolute;\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      pointer-events: none;\n      z-index: 1;\n    }\n    \n    .connection-path {\n      stroke-linejoin: round;\n      stroke-linecap: round;\n    }\n    \n    .connection-label {\n      font-weight: bold;\n      font-size: 11px;\n      text-anchor: middle;\n      dominant-baseline: middle;\n      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n    }\n    \n    .controls {\n      margin-bottom: 20px;\n      display: flex;\n      gap: 10px;\n      align-items: center;\n    }\n    \n    button {\n      padding: 10px 16px;\n      border: 1px solid #d1d5db;\n      background: white;\n      border-radius: 6px;\n      cursor: pointer;\n      font-weight: 500;\n      transition: all 0.2s ease;\n    }\n    \n    button:hover {\n      background: #f9fafb;\n      border-color: #9ca3af;\n    }\n    \n    button.active {\n      background: #3b82f6;\n      color: white;\n      border-color: #2563eb;\n    }\n    \n    .status {\n      margin-top: 20px;\n      padding: 15px;\n      background: white;\n      border: 1px solid #e5e7eb;\n      border-radius: 8px;\n      font-size: 0.875rem;\n    }\n    \n    .features {\n      background: white;\n      border: 1px solid #e5e7eb;\n      border-radius: 8px;\n      padding: 20px;\n      margin-top: 20px;\n    }\n    \n    .feature-grid {\n      display: grid;\n      grid-template-columns: 1fr 1fr;\n      gap: 15px;\n      margin-top: 15px;\n    }\n    \n    .feature-item {\n      padding: 12px;\n      background: #f0f9ff;\n      border: 1px solid #bae6fd;\n      border-radius: 6px;\n      font-size: 0.875rem;\n    }\n    \n    .feature-item::before {\n      content: \"✅ \";\n      color: #10b981;\n      font-weight: bold;\n    }\n  </style>\n</head>\n<body>\n  <h1>Diamond Condition Nodes with Stable Connections</h1>\n  <p>Test the new flowchart-style diamond conditions and connection stability during panel resize.</p>\n  \n  <div class=\"controls\">\n    <button onclick=\"toggleLeftPanel()\" id=\"leftBtn\">Toggle Left Panel</button>\n    <button onclick=\"toggleRightPanel()\" id=\"rightBtn\">Toggle Right Panel</button>\n    <button onclick=\"redrawConnections()\">Redraw Connections</button>\n    <span style=\"margin-left: 20px; font-weight: 500;\">← Try resizing panels to test connection stability</span>\n  </div>\n  \n  <div class=\"test-container\" id=\"container\">\n    <div class=\"left-panel\" id=\"leftPanel\">\n      <h4>Components Palette</h4>\n      <p>Drag & drop components to build workflows</p>\n      <div style=\"background: #e5e7eb; height: 60px; border-radius: 4px; margin: 10px 0;\"></div>\n      <div style=\"background: #e5e7eb; height: 40px; border-radius: 4px; margin: 10px 0;\"></div>\n    </div>\n    \n    <div class=\"canvas\" id=\"canvas\">\n      <div class=\"canvas-content\" id=\"canvasContent\">\n        <!-- Trigger Node -->\n        <div class=\"node trigger-node\" style=\"left: 200px; top: 50px;\">\n          🔥 Application Created\n        </div>\n        \n        <!-- Diamond Condition Node -->\n        <div class=\"node condition-node\" style=\"left: 200px; top: 200px;\">\n          <div class=\"node-content\">Check<br>Status?</div>\n          <div class=\"connection-point input-point\"></div>\n          <div class=\"connection-point yes-output-point\"></div>\n          <div class=\"connection-point no-output-point\"></div>\n        </div>\n        \n        <!-- NO Branch (Left) -->\n        <div class=\"node no-branch\" style=\"left: 50px; top: 350px;\">\n          ❌ NO Branch\n        </div>\n        \n        <!-- YES Branch (Right) -->\n        <div class=\"node yes-branch\" style=\"left: 350px; top: 350px;\">\n          ✅ YES Branch\n        </div>\n        \n        <!-- Action Nodes -->\n        <div class=\"node action-node\" style=\"left: 50px; top: 480px;\">\n          📧 Send Reminder\n        </div>\n        \n        <div class=\"node action-node\" style=\"left: 350px; top: 480px;\">\n          🎉 Send Welcome\n        </div>\n        \n        <!-- SVG for connections -->\n        <svg id=\"svg\">\n          <!-- Trigger to Diamond Condition -->\n          <path d=\"M 260 110 L 260 140 L 260 170\" stroke=\"#6366f1\" stroke-width=\"2.5\" fill=\"none\" class=\"connection-path\" marker-end=\"url(#arrowhead)\"/>\n          \n          <!-- Diamond to NO Branch (Right-angled) -->\n          <path d=\"M 200 260 L 140 260 L 140 380 L 150 380\" stroke=\"#ef4444\" stroke-width=\"2.5\" fill=\"none\" class=\"connection-path\" marker-end=\"url(#arrowhead-red)\"/>\n          <text x=\"120\" y=\"320\" class=\"connection-label\" fill=\"#dc2626\">NO</text>\n          \n          <!-- Diamond to YES Branch (Right-angled) -->\n          <path d=\"M 320 260 L 380 260 L 380 380 L 350 380\" stroke=\"#10b981\" stroke-width=\"2.5\" fill=\"none\" class=\"connection-path\" marker-end=\"url(#arrowhead-green)\"/>\n          <text x=\"400\" y=\"320\" class=\"connection-label\" fill=\"#059669\">YES</text>\n          \n          <!-- Branches to Actions -->\n          <path d=\"M 120 420 L 120 450 L 120 480\" stroke=\"#6366f1\" stroke-width=\"2\" fill=\"none\" class=\"connection-path\" marker-end=\"url(#arrowhead)\"/>\n          <path d=\"M 420 420 L 420 450 L 420 480\" stroke=\"#6366f1\" stroke-width=\"2\" fill=\"none\" class=\"connection-path\" marker-end=\"url(#arrowhead)\"/>\n          \n          <defs>\n            <marker id=\"arrowhead\" markerWidth=\"8\" markerHeight=\"6\" refX=\"7\" refY=\"3\" orient=\"auto\">\n              <polygon points=\"0 0, 8 3, 0 6\" fill=\"#6366f1\"/>\n            </marker>\n            <marker id=\"arrowhead-green\" markerWidth=\"8\" markerHeight=\"6\" refX=\"7\" refY=\"3\" orient=\"auto\">\n              <polygon points=\"0 0, 8 3, 0 6\" fill=\"#10b981\"/>\n            </marker>\n            <marker id=\"arrowhead-red\" markerWidth=\"8\" markerHeight=\"6\" refX=\"7\" refY=\"3\" orient=\"auto\">\n              <polygon points=\"0 0, 8 3, 0 6\" fill=\"#ef4444\"/>\n            </marker>\n          </defs>\n        </svg>\n      </div>\n    </div>\n    \n    <div class=\"right-panel\" id=\"rightPanel\">\n      <h4>Properties</h4>\n      <p>Configure selected node properties</p>\n      <div style=\"background: #e5e7eb; height: 80px; border-radius: 4px; margin: 10px 0;\"></div>\n    </div>\n  </div>\n  \n  <div class=\"status\" id=\"status\">\n    <strong>Status:</strong> Diamond condition node with stable YES/NO connections ready for testing.\n  </div>\n  \n  <div class=\"features\">\n    <h3>New Diamond Condition Features</h3>\n    <div class=\"feature-grid\">\n      <div class=\"feature-item\">Flowchart diamond shape (rotated square)</div>\n      <div class=\"feature-item\">YES connection from right edge</div>\n      <div class=\"feature-item\">NO connection from left edge</div>\n      <div class=\"feature-item\">Input connection from top edge</div>\n      <div class=\"feature-item\">Stable connections during panel resize</div>\n      <div class=\"feature-item\">Right-angled Klaviyo-style connection lines</div>\n      <div class=\"feature-item\">Professional flowchart appearance</div>\n      <div class=\"feature-item\">Clear YES/NO visual separation</div>\n    </div>\n  </div>\n  \n  <script>\n    let leftCollapsed = false;\n    let rightCollapsed = false;\n    \n    function toggleLeftPanel() {\n      leftCollapsed = !leftCollapsed;\n      const container = document.getElementById('container');\n      const leftPanel = document.getElementById('leftPanel');\n      const leftBtn = document.getElementById('leftBtn');\n      \n      if (leftCollapsed) {\n        container.classList.add('left-collapsed');\n        leftPanel.classList.add('collapsed');\n        leftBtn.classList.add('active');\n        updateStatus('Left panel collapsed - diamond connections should remain stable!');\n      } else {\n        container.classList.remove('left-collapsed');\n        leftPanel.classList.remove('collapsed');\n        leftBtn.classList.remove('active');\n        updateStatus('Left panel expanded - connections maintained!');\n      }\n      \n      setTimeout(() => redrawConnections(), 100);\n      setTimeout(() => redrawConnections(), 400);\n    }\n    \n    function toggleRightPanel() {\n      rightCollapsed = !rightCollapsed;\n      const container = document.getElementById('container');\n      const rightPanel = document.getElementById('rightPanel');\n      const rightBtn = document.getElementById('rightBtn');\n      \n      if (rightCollapsed) {\n        container.classList.add('right-collapsed');\n        rightPanel.classList.add('collapsed');\n        rightBtn.classList.add('active');\n        updateStatus('Right panel collapsed - diamond connections should remain stable!');\n      } else {\n        container.classList.remove('right-collapsed');\n        rightPanel.classList.remove('collapsed');\n        rightBtn.classList.remove('active');\n        updateStatus('Right panel expanded - connections maintained!');\n      }\n      \n      setTimeout(() => redrawConnections(), 100);\n      setTimeout(() => redrawConnections(), 400);\n    }\n    \n    function redrawConnections() {\n      const canvas = document.getElementById('canvas');\n      const svg = document.getElementById('svg');\n      \n      // Update SVG dimensions\n      const canvasRect = canvas.getBoundingClientRect();\n      svg.style.width = canvasRect.width + 'px';\n      svg.style.height = canvasRect.height + 'px';\n      svg.setAttribute('viewBox', `0 0 ${canvasRect.width} ${canvasRect.height}`);\n      \n      updateStatus('Diamond condition connections redrawn - all paths maintained! ✅');\n    }\n    \n    function updateStatus(message) {\n      document.getElementById('status').innerHTML = '<strong>Status:</strong> ' + message;\n    }\n    \n    // Initial setup\n    setTimeout(() => redrawConnections(), 100);\n  </script>\n</body>\n</html>

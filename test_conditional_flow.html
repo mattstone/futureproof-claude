@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Conditional Flow</title>
+  <style>
+    .workflow-canvas {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #ccc;
+      position: relative;
+      background: white;
+    }
+    
+    .workflow-node {
+      position: absolute;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      min-width: 180px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .node-condition {
+      background: #f3f4f6;
+      border-color: #8b5cf6;
+    }
+    
+    .node-branch {
+      min-width: 120px;
+      border-radius: 8px;
+    }
+    
+    .node-branch[data-branch-type="condition_yes"] {
+      background: #ecfdf5;
+      border-color: #10b981;
+    }
+    
+    .node-branch[data-branch-type="condition_no"] {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+    
+    .connection-point {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #6366f1;
+      border: 2px solid white;
+      cursor: pointer;
+      z-index: 20;
+    }
+    
+    .yes-output-point {
+      right: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #10b981 !important;
+      border-color: #059669 !important;
+    }
+    
+    .no-output-point {
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444 !important;
+      border-color: #dc2626 !important;
+    }
+    
+    .output-point {
+      right: -7px;
+      top: 50%;
+    }
+    
+    .input-point {
+      left: -7px;
+      top: 50%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Klaviyo-style Conditional Flow Test</h1>
+  
+  <div class="workflow-canvas">
+    <!-- Condition Node (Center) -->
+    <div class="workflow-node node-condition" style="left: 350px; top: 200px;">
+      <div><strong>Check Application Status</strong></div>
+      <div class="no-output-point connection-point"></div>
+      <div class="yes-output-point connection-point"></div>
+    </div>
+    
+    <!-- No Branch (Left side) -->
+    <div class="workflow-node node-branch" data-branch-type="condition_no" style="left: 100px; top: 200px;">
+      <div style="color: #dc2626; font-weight: bold;">✗ NO</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- Yes Branch (Right side) -->
+    <div class="workflow-node node-branch" data-branch-type="condition_yes" style="left: 600px; top: 200px;">
+      <div style="color: #059669; font-weight: bold;">✓ YES</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- Follow-up nodes -->
+    <div class="workflow-node" style="left: 100px; top: 350px;">
+      <div>Send Reminder Email</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <div class="workflow-node" style="left: 600px; top: 350px;">
+      <div>Send Welcome Email</div>
+      <div class="input-point connection-point"></div>
+      <div class="output-point connection-point"></div>
+    </div>
+    
+    <!-- SVG for connection lines -->
+    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+      <!-- No path (left) - Klaviyo-style right angles -->
+      <path d="M 350 230 L 290 230 L 290 230 L 220 230" stroke="#ef4444" stroke-width="2.5" fill="none" marker-end="url(#arrowhead-red)"/>
+      <text x="285" y="220" font-size="12" font-weight="bold" fill="#dc2626" text-anchor="middle">NO</text>
+      
+      <!-- Yes path (right) - Klaviyo-style right angles -->
+      <path d="M 530 230 L 590 230 L 590 230 L 595 230" stroke="#10b981" stroke-width="2.5" fill="none" marker-end="url(#arrowhead-green)"/>
+      <text x="565" y="220" font-size="12" font-weight="bold" fill="#059669" text-anchor="middle">YES</text>
+      
+      <!-- Continue paths - right angles -->
+      <path d="M 180 280 L 180 315 L 180 315 L 180 345" stroke="#6366f1" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+      <path d="M 680 280 L 680 315 L 680 315 L 680 345" stroke="#6366f1" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+      
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1"/>
+        </marker>
+        <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+        </marker>
+        <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  
+  <div style="margin-top: 20px;">
+    <h2>Key Features Implemented:</h2>
+    <ul>
+      <li>✅ Condition nodes with dual YES/NO connection points</li>
+      <li>✅ <strong>NEW:</strong> NO branch originates from LEFT of condition</li>
+      <li>✅ <strong>NEW:</strong> YES branch originates from RIGHT of condition</li>
+      <li>✅ Color-coded branch nodes (green for YES, red for NO)</li>
+      <li>✅ <strong>NEW:</strong> Klaviyo-style right-angled connection paths (horizontal then vertical)</li>
+      <li>✅ Branching workflow that can continue after conditions</li>
+      <li>✅ Klaviyo-style visual design with right-angled connectors</li>
+      <li>✅ Intuitive left-to-right flow (negative outcomes left, positive right)</li>
+    </ul>
+  </div>
+</body>
+</html>
