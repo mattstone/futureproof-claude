@@ -820,6 +820,171 @@
   font-size: 13px;
 }
 
+/* Workflow System Custom Classes */
+.admin-filter-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-text-muted {
+  color: #6b7280;
+}
+
+.admin-info-box {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.admin-info-box-blue {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-info-text {
+  font-size: 0.875rem;
+  color: #1e40af;
+  margin-bottom: 0.75rem;
+}
+
+.admin-info-subtext {
+  font-size: 0.75rem;
+  color: #2563eb;
+  margin-top: 0.5rem;
+}
+
+.admin-button-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.admin-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.admin-page-subtitle {
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.admin-version-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-version-badge {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.admin-version-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e40af;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.admin-stat-content {
+  display: flex;
+  align-items: center;
+}
+
+.admin-stat-icon-container {
+  flex-shrink: 0;
+}
+
+.admin-stat-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-stat-icon-blue {
+  background: #3b82f6;
+}
+
+.admin-stat-icon-text {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.admin-stat-text {
+  margin-left: 1rem;
+}
+
+.admin-stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.admin-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Node Color Classes for Workflow System */
+.admin-node-trigger {
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.admin-node-email {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.admin-node-delay {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.admin-node-condition {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.admin-node-webhook {
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.admin-node-unknown {
+  color: #4b5563;
+  background: #f9fafb;
+}
+
 /* Professional Preview Container */
 .preview-container {
   background: white;
@@ -2781,6 +2946,36 @@
 
 .admin-nav-link span {
   font-weight: 500;
+}
+
+/* Admin Navigation Submenu */
+.admin-nav-submenu {
+  background-color: #1e293b;
+  border-left: 3px solid #06b6d4;
+  margin-left: 24px;
+}
+
+.admin-nav-sublink {
+  display: block;
+  padding: 8px 24px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.admin-nav-sublink:hover {
+  background-color: #334155;
+  color: white;
+}
+
+.admin-nav-sublink.active {
+  background-color: #0891b2;
+  color: white;
+}
+
+.admin-nav-sublink span {
+  font-weight: 400;
 }
 
 .admin-user-info {

@@ -32,18 +32,23 @@ This would be processed to include the contents of `_shared/csp_compliance.md`.
 
 ## Key Principles
 
-1. **CSP Compliance First**: All frontend code must be CSP-compliant
-2. **DRY**: Shared patterns prevent duplication
-3. **Consistency**: All agents follow the same standards
-4. **Maintainability**: Update patterns in one place
-5. **Security**: CSP compliance enforced at the prompt level
+1. **Integration Testing First**: All code must be tested with real HTTP requests
+2. **Custom CSS Only**: No Tailwind, Bootstrap, or external CSS frameworks
+3. **CSP Compliance**: All frontend code must be CSP-compliant
+4. **DRY**: Shared patterns prevent duplication
+5. **Consistency**: All agents follow the same standards
+6. **Maintainability**: Update patterns in one place
+7. **Security**: CSP compliance enforced at the prompt level
 
 ## Benefits
 
+- **Real Testing**: Integration tests prevent broken functionality reaching users
+- **Custom CSS**: Consistent styling using project's admin.css classes only
+- **No Framework Conflicts**: Eliminates CSS framework confusion and broken UI
 - **No Inline Code**: Prevents CSP violations that cause browser errors
 - **Stimulus-Only JavaScript**: Consistent interactive patterns
 - **External CSS**: Maintainable styling approach
-- **Testing Standards**: CSP compliance verification built into testing
+- **Testing Standards**: Mandatory integration testing with URL verification
 - **Rails Conventions**: Proper Rails patterns enforced
 
 This system ensures that all claude-on-rails generated code follows the project's strict CSP compliance requirements while maintaining Rails best practices.

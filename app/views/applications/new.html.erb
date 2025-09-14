@@ -106,9 +106,8 @@
             </div>
 
             <!-- Individual ownership: Show borrower age -->
-            <div class="form-group" 
-                 data-application-form-target="individualFields"
-                 style="display: <%= @application.ownership_status_individual? ? 'block' : 'none' %>;">
+            <div class="form-group <%= @application.ownership_status_individual? ? '' : 'js-hidden' %>"
+                 data-application-form-target="individualFields">
               <%= f.label :borrower_age, "Age of Borrower", class: "form-label" %>
               <div class="slider-container">
                 <%= f.range_field :borrower_age,
@@ -129,9 +128,8 @@
             </div>
 
             <!-- Joint ownership: Show borrower names and ages -->
-            <div class="form-group" 
-                 data-application-form-target="jointFields"
-                 style="display: <%= @application.ownership_status_joint? ? 'block' : 'none' %>;">
+            <div class="form-group <%= @application.ownership_status_joint? ? '' : 'js-hidden' %>"
+                 data-application-form-target="jointFields">
               <label class="form-label">Borrower Details</label>
               <div id="joint-borrowers">
                 <div class="joint-borrower-item">
@@ -161,14 +159,13 @@
                   </div>
                 </div>
               </div>
-              <button type="button" id="add-borrower" class="btn btn-secondary btn-sm" style="margin-top: 10px;">Add Another Borrower</button>
+              <button type="button" id="add-borrower" class="site-btn site-btn-secondary site-btn-sm site-mt-2">Add Another Borrower</button>
               <%= f.hidden_field :borrower_names, data: { "application-form-target": "borrowerNamesHidden" } %>
             </div>
 
             <!-- Lender ownership: Show lender name -->
-            <div class="form-group" 
-                 data-application-form-target="lenderFields"
-                 style="display: <%= @application.ownership_status_lender? ? 'block' : 'none' %>;">
+            <div class="form-group <%= @application.ownership_status_lender? ? '' : 'js-hidden' %>"
+                 data-application-form-target="lenderFields">
               <%= f.label :lender_name, "Lender Name", class: "form-label" %>
               <%= f.text_field :lender_name, 
                   class: "form-input", 
@@ -176,9 +173,8 @@
             </div>
 
             <!-- Superannuation ownership: Show super fund name -->
-            <div class="form-group" 
-                 data-application-form-target="superFields"
-                 style="display: <%= @application.ownership_status_super? ? 'block' : 'none' %>;">
+            <div class="form-group <%= @application.ownership_status_super? ? '' : 'js-hidden' %>"
+                 data-application-form-target="superFields">
               <%= f.label :super_fund_name, "Superannuation Fund Name", class: "form-label" %>
               <%= f.text_field :super_fund_name, 
                   class: "form-input", 
@@ -189,19 +185,20 @@
           <div class="form-section">
             <h3 class="form-section-title">Existing Mortgage</h3>
             
-            <div class="form-group checkbox-group">
-              <%= f.check_box :has_existing_mortgage, 
-                  class: "form-checkbox",
-                  data: { 
-                    "application-form-target": "mortgageCheckbox",
-                    "action": "change->application-form#toggleMortgageAmount"
-                  } %>
-              <%= f.label :has_existing_mortgage, "This property has an existing mortgage", class: "checkbox-label" %>
+            <div class="form-group checkbox-group checkbox-group-reverse">
+              <%= f.label :has_existing_mortgage, class: "checkbox-label" do %>
+                This property has an existing mortgage
+                <%= f.check_box :has_existing_mortgage,
+                    class: "form-checkbox",
+                    data: {
+                      "application-form-target": "mortgageCheckbox",
+                      "action": "change->application-form#toggleMortgageAmount"
+                    } %>
+              <% end %>
             </div>
 
-            <div class="form-group mortgage-amount-group" 
-                 data-application-form-target="mortgageAmountGroup"
-                 style="display: <%= @application.has_existing_mortgage? ? 'block' : 'none' %>;">
+            <div class="form-group mortgage-amount-group <%= @application.has_existing_mortgage? ? '' : 'js-hidden' %>"
+                 data-application-form-target="mortgageAmountGroup">
               <%= f.label :existing_mortgage_amount, "Outstanding Mortgage Amount", class: "form-label" %>
               <div class="slider-container">
                 <%= f.range_field :existing_mortgage_amount,
@@ -223,8 +220,8 @@
           </div>
 
           <div class="form-actions">
-            <%= f.submit "Continue to Step 3", class: "btn btn-primary btn-lg application-submit-btn" %>
-            <%= link_to "Back to Home", root_path, class: "btn btn-secondary" %>
+            <%= f.submit "Continue to Step 3", class: "site-btn site-btn-primary site-btn-lg application-submit-btn" %>
+            <%= link_to "Back to Home", root_path, class: "site-btn site-btn-secondary" %>
           </div>
         <% end %>
       </div>

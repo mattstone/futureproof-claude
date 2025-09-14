@@ -1,0 +1,34 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+acquisition:
+  process_type: acquisition
+  name: Customer Acquisition
+  description: Workflows for acquiring new customers
+  workflow_data: 
+    triggers: 
+      user_registration:
+        nodes: 
+          - id: trigger_1
+            type: trigger
+          - id: email_1
+            type: email
+        connections:
+          - from: trigger_1
+            to: email_1
+  active: true
+
+conversion:
+  process_type: conversion
+  name: Customer Conversion
+  description: Workflows for converting prospects to customers
+  workflow_data: 
+    triggers: {}
+  active: true
+
+standard_operations:
+  process_type: standard_operations
+  name: Standard Operations
+  description: Workflows for ongoing customer management
+  workflow_data: 
+    triggers: {}
+  active: true

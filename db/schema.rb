@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_161700) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_13_073250) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_161700) do
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "business_process_workflows", force: :cascade do |t|
+    t.string "process_type", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.json "workflow_data", default: {}
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_business_process_workflows_on_active"
+    t.index ["process_type"], name: "index_business_process_workflows_on_process_type", unique: true
+    t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying, 'conversion'::character varying, 'standard_operations'::character varying]::text[])", name: "check_process_type"
   end
 
   create_table "clause_positions", force: :cascade do |t|
@@ -545,6 +558,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_161700) do
     t.index ["step_id"], name: "index_scheduled_workflow_jobs_on_step_id"
   end
 
+  create_table "solid_cache_entries", force: :cascade do |t|
+    t.binary "key", null: false
+    t.binary "value", null: false
+    t.datetime "created_at", null: false
+    t.bigint "key_hash", null: false
+    t.integer "byte_size", null: false
+    t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
+    t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
+    t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
+  end
+
   create_table "terms_and_condition_versions", force: :cascade do |t|
     t.bigint "terms_and_condition_id", null: false
     t.bigint "user_id", null: false
@@ -657,8 +681,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_161700) do
     t.integer "terms_version"
     t.bigint "lender_id", null: false
     t.text "address"
+    t.boolean "is_test", default: false, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email", "lender_id"], name: "index_users_on_email_and_lender_id", unique: true
+    t.index ["is_test"], name: "index_users_on_is_test"
     t.index ["lender_id"], name: "index_users_on_lender_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["terms_version"], name: "index_users_on_terms_version"

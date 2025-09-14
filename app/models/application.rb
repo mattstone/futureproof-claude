@@ -106,7 +106,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_existing_mortgage_amount
-    return "N/A" unless has_existing_mortgage? && existing_mortgage_amount > 0
+    return "$0" unless has_existing_mortgage? && existing_mortgage_amount > 0
     ActionController::Base.helpers.number_to_currency(existing_mortgage_amount, precision: 0)
   end
 

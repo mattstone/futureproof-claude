@@ -15,7 +15,7 @@
         <div class="empty-state">
           <p>You haven't submitted any applications yet.</p>
           <div class="empty-state-actions">
-            <%= link_to "Start New Application", "/start-application", class: "btn btn-primary" %>
+            <%= link_to "Start New Application", "/start-application", class: "btn site-btn-primary" %>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
         <div class="empty-state">
           <p>You don't have any active contracts yet. Contracts will appear here once your applications are approved.</p>
           <div class="empty-state-actions">
-            <%= link_to "View Applications", dashboard_path(section: 'applications'), class: "btn btn-primary" %>
+            <%= link_to "View Applications", dashboard_path(section: 'applications'), class: "btn site-btn-primary" %>
           </div>
         </div>
       </div>
@@ -84,9 +84,9 @@
                 <div class="application-actions">
                   <% case @current_application.status %>
                   <% when 'property_details' %>
-                    <%= link_to "Continue Property Details", edit_application_path(@current_application), class: "btn btn-primary" %>
+                    <%= link_to "Continue Property Details", edit_application_path(@current_application), class: "btn site-btn-primary" %>
                   <% when 'income_and_loan_options' %>
-                    <%= link_to "Continue Income & Loan", income_and_loan_application_path(@current_application), class: "btn btn-primary" %>
+                    <%= link_to "Continue Income & Loan", income_and_loan_application_path(@current_application), class: "btn site-btn-primary" %>
                     <%= link_to "Review Summary", summary_application_path(@current_application), class: "btn btn-outline-primary" %>
                   <% else %>
                     <%= link_to "View Details", @current_application, class: "btn btn-outline-primary" %>

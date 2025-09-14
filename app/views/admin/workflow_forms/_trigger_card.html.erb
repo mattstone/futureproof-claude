@@ -1,0 +1,357 @@
+<div class="admin-card">
+  <div class="admin-card-header">
+    <div class="admin-card-title">
+      <h4><%= trigger_name.humanize %></h4>
+      <% if complexity == 'complex' %>
+        <span class="status-badge status-awaiting-funding">Complex</span>
+      <% else %>
+        <span class="status-badge status-ok">Simple</span>
+      <% end %>
+
+      <% if trigger_data['created_via'] == 'form_builder' %>
+        <span class="status-badge status-in-holiday">Form Built</span>
+      <% elsif trigger_data['source'] %>
+        <span class="status-badge status-awaiting-investment">Converted</span>
+      <% end %>
+    </div>
+
+    <div class="admin-card-actions">
+      <a href="<%= edit_trigger_admin_workflow_form_path(workflow, trigger_name: trigger_name) %>"
+         class="admin-btn admin-btn-sm admin-btn-primary">
+        Edit
+      </a>
+      <%= link_to "Remove",
+                  destroy_trigger_admin_workflow_form_path(workflow, trigger_name: trigger_name),
+                  method: :delete,
+                  data: {
+                    confirm: "Remove trigger '#{trigger_name}'? This cannot be undone.",
+                    turbo_method: :delete
+                  },
+                  class: "admin-btn admin-btn-sm admin-btn-danger" %>
+    </div>
+  </div>
+
+  <div class="admin-card-content">
+    <!-- Trigger Configuration -->
+    <% trigger_node = trigger_data['nodes']&.find { |n| n['type'] == 'trigger' } %>
+    <% if trigger_node %>
+      <div class="workflow-info-section">
+        <h5>Trigger Event</h5>
+        <p><strong>Event:</strong> <%= trigger_node.dig('config', 'event')&.humanize || 'Custom Event' %></p>
+        <% if trigger_node.dig('config', 'conditions')&.any? %>
+          <p><strong>Conditions:</strong></p>
+          <% trigger_node['config']['conditions'].each do |key, value| %>
+            <span class="status-badge status-complete">
+              <%= key.humanize %>: <%= value %>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Workflow Flow -->
+    <div class="workflow-info-section">
+      <h5>Workflow Flow</h5>
+
+      <% if complexity == 'simple' %>
+        <!-- Simple Linear Flow -->
+        <div class="workflow-flow-simple">
+          <% trigger_data['nodes']&.each_with_index do |node, index| %>
+            <div class="workflow-step">
+              <div class="workflow-step-content <%= node_color_class(node['type']) %>">
+                <strong><%= node['type']&.humanize || 'Step' %></strong>
+
+                <!-- Step Details -->
+                <% if node['config']&.any? %>
+                  <div class="workflow-step-details">
+                    <% case node['type'] %>
+                    <% when 'email', 'send_email' %>
+                      <% if node.dig('config', 'email_template_id') %>
+                        <small>Template #<%= node['config']['email_template_id'] %></small>
+                      <% elsif node.dig('config', 'subject') %>
+                        <small>"<%= truncate(node['config']['subject'], length: 30) %>"</small>
+                      <% end %>
+                    <% when 'delay' %>
+                      <small><%= node.dig('config', 'duration') %> <%= node.dig('config', 'unit') || 'units' %></small>
+                    <% when 'webhook' %>
+                      <small><%= truncate(node.dig('config', 'url') || 'Webhook', length: 25) %></small>
+                    <% when 'condition' %>
+                      <small><%= node.dig('config', 'condition_type')&.humanize %></small>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+              <% if index < (trigger_data['nodes']&.count || 0) - 1 %>
+                <div class="workflow-step-arrow">→</div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+      <% else %>
+        <!-- Complex Flow with Conditions -->
+        <div class="workflow-flow-complex">
+          <!-- Main Flow -->
+          <% main_nodes = trigger_data['nodes']&.reject { |n| ['condition'].include?(n['type']) } %>
+          <% if main_nodes&.any? %>
+            <div class="workflow-section">
+              <h6>Main Flow:</h6>
+              <div class="workflow-flow-simple">
+                <% main_nodes.each_with_index do |node, index| %>
+                  <div class="workflow-step-simple">
+                    <span class="status-badge status-complete"><%= node['type']&.humanize %></span>
+                    <% if index < main_nodes.count - 1 %>
+                      <span class="workflow-step-arrow">→</span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Conditions -->
+          <% condition_nodes = trigger_data['nodes']&.select { |n| n['type'] == 'condition' } %>
+          <% if condition_nodes&.any? %>
+            <% condition_nodes.each do |condition_node| %>
+              <div class="workflow-condition-section">
+                <h6>
+                  Condition: <%= condition_node.dig('config', 'condition_type')&.humanize %>
+                  <% if condition_node.dig('config', 'condition_value') %>
+                    = "<%= condition_node['config']['condition_value'] %>"
+                  <% end %>
+                </h6>
+
+                <!-- YES/NO Branches -->
+                <div class="workflow-branches">
+                  <% ['yes', 'no'].each do |branch_type| %>
+                    <% branch_nodes = get_branch_nodes(trigger_data, condition_node['id'], branch_type) %>
+                    <div class="workflow-branch workflow-branch-<%= branch_type %>">
+                      <div class="workflow-branch-header">
+                        <%= branch_type == 'yes' ? '✓ YES' : '✗ NO' %> Branch (<%= branch_nodes.count %> steps)
+                      </div>
+                      <% if branch_nodes.any? %>
+                        <div class="workflow-branch-content">
+                          <% branch_nodes.each do |node| %>
+                            <div class="workflow-branch-step">
+                              • <%= node['type']&.humanize %>
+                              <% if node['type'] == 'email' && node.dig('config', 'email_template_id') %>
+                                (Template #<%= node['config']['email_template_id'] %>)
+                              <% end %>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <div class="workflow-branch-empty">No actions</div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Metadata -->
+    <div class="workflow-metadata">
+      <p><strong>Steps:</strong> <%= trigger_data['nodes']&.count || 0 %> nodes, <%= trigger_data['connections']&.count || 0 %> connections</p>
+      <% if trigger_data['source'] %>
+        <p><strong>Source:</strong> <%= trigger_data['source']['name'] %> (EmailWorkflow #<%= trigger_data['source']['email_workflow_id'] %>)</p>
+      <% elsif trigger_data['created_via'] == 'form_builder' %>
+        <p><strong>Created:</strong> Form builder on <%= trigger_data['created_at']&.to_time&.strftime('%B %d, %Y') rescue 'Unknown' %></p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Workflow card specific styles */
+.admin-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-card-title h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-card-title .status-badge {
+  margin-left: 8px;
+}
+
+.admin-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-card-content {
+  padding: 16px;
+}
+
+.workflow-info-section {
+  margin-bottom: 24px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.workflow-info-section h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.workflow-info-section h6 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.workflow-flow-simple {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-step-content {
+  padding: 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 120px;
+}
+
+.workflow-step-details {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.workflow-step-arrow {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.workflow-step-simple {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-section {
+  margin-bottom: 16px;
+}
+
+.workflow-condition-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 6px;
+}
+
+.workflow-branches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.workflow-branch {
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.workflow-branch-yes {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.workflow-branch-no {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.workflow-branch-header {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.workflow-branch-yes .workflow-branch-header {
+  color: #166534;
+}
+
+.workflow-branch-no .workflow-branch-header {
+  color: #991b1b;
+}
+
+.workflow-branch-step {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.workflow-branch-yes .workflow-branch-step {
+  color: #166534;
+}
+
+.workflow-branch-no .workflow-branch-step {
+  color: #991b1b;
+}
+
+.workflow-branch-empty {
+  font-size: 12px;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.workflow-metadata {
+  font-size: 12px;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.workflow-metadata p {
+  margin: 4px 0;
+}
+
+@media (max-width: 768px) {
+  .workflow-branches {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .workflow-flow-simple {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>

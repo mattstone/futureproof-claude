@@ -36,14 +36,14 @@
       
       <div class="workflow-actions">
         <div class="action-buttons">
-          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn btn-secondary" do %>
+          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn site-btn-secondary" do %>
             <i class="fas fa-edit"></i> Edit Workflow
           <% end %>
-          <%= link_to preview_admin_email_workflow_path(@workflow), class: "btn btn-secondary" do %>
+          <%= link_to preview_admin_email_workflow_path(@workflow), class: "btn site-btn-secondary" do %>
             <i class="fas fa-eye"></i> Preview
           <% end %>
           <%= link_to toggle_active_admin_email_workflow_path(@workflow), 
-                     method: :patch, class: "btn btn-secondary toggle-btn" do %>
+                     method: :patch, class: "btn site-btn-secondary toggle-btn" do %>
             <i class="fas fa-<%= @workflow.active? ? 'pause' : 'play' %>"></i>
             <%= @workflow.active? ? 'Pause' : 'Activate' %>
           <% end %>
@@ -260,7 +260,7 @@
           </div>
           <h3>No Steps Configured</h3>
           <p>This workflow doesn't have any steps yet. Add some steps to define what happens when this workflow is triggered.</p>
-          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn btn-primary" do %>
+          <%= link_to edit_admin_email_workflow_path(@workflow), class: "btn site-btn-primary" do %>
             <i class="fas fa-plus"></i> Add Steps
           <% end %>
         </div>
@@ -529,19 +529,19 @@
   font-size: 0.875rem;
 }
 
-.btn-primary {
+.site-btn-primary {
   background: #1d4ed8;
   color: white;
   font-weight: 600;
 }
 
-.btn-primary:hover {
+.site-btn-primary:hover {
   background: #1e40af;
   transform: translateY(-1px);
   text-decoration: none;
 }
 
-.btn-secondary {
+.site-btn-secondary {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -549,7 +549,7 @@
   font-weight: 600;
 }
 
-.btn-secondary:hover {
+.site-btn-secondary:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);

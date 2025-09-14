@@ -45,8 +45,8 @@
           </td>
           <td class="actions-cell">
             <div class="admin-actions">
-              <%= link_to "View", admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-              <%= link_to "Edit", edit_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <%= link_to "View", admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-site-btn-secondary" %>
+              <%= link_to "Edit", edit_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-site-btn-primary" %>
               <%= link_to "Preview", preview_admin_email_template_path(template), class: "admin-btn admin-btn-sm admin-btn-info", target: "_blank" %>
               <% if template.is_active? %>
                 <%= link_to "Deactivate", 

@@ -29,7 +29,7 @@
             <i class="fas fa-eye"></i> View
           </button>
           <% if application.application_messages.any? %>
-            <button class="btn btn-primary btn-sm" 
+            <button class="btn site-btn-primary btn-sm" 
                     data-action="click->application-messages#toggleMessages"
                     data-application-id="<%= application.id %>">
               <i class="fas fa-comments"></i> Messages 
@@ -254,8 +254,8 @@
                       </div>
 
                       <div class="form-actions">
-                        <%= form.submit "Send Reply", class: "btn btn-primary" %>
-                        <button type="button" class="btn btn-secondary" 
+                        <%= form.submit "Send Reply", class: "btn site-btn-primary" %>
+                        <button type="button" class="btn site-btn-secondary" 
                                 data-action="click->application-messages#hideReplyForm"
                                 data-message-id="<%= message.id %>">
                           Cancel
@@ -265,7 +265,7 @@
                   </div>
                   
                   <div class="message-actions">
-                    <button class="btn btn-sm btn-primary" 
+                    <button class="btn btn-sm site-btn-primary" 
                             data-action="click->application-messages#showReplyForm"
                             data-message-id="<%= message.id %>">
                       <i class="fas fa-reply"></i> Reply

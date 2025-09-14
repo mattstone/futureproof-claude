@@ -1,0 +1,197 @@
+<% content_for :page_title, @workflow.name %>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <nav aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="<%= admin_workflow_forms_path %>">Form-Based Workflows</a>
+        </li>
+        <li>
+          <span><%= @workflow.name %></span>
+        </li>
+      </ol>
+    </nav>
+    <h1><%= @workflow.name %></h1>
+    <p><%= @workflow.description %></p>
+  </div>
+
+  <div class="admin-actions">
+    <span class="status-badge <%= @workflow.active? ? 'status-ok' : 'status-complete' %>">
+      <%= @workflow.active? ? 'Active' : 'Inactive' %>
+    </span>
+    <a href="<%= new_trigger_admin_workflow_form_path(@workflow) %>" class="admin-btn admin-btn-primary">
+      Add Trigger
+    </a>
+  </div>
+</div>
+
+<!-- Workflow Statistics -->
+<div class="admin-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Process Type</th>
+        <th>Total Triggers</th>
+        <th>Complex Triggers</th>
+        <th>Total Steps</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span class="status-badge status-awaiting-funding">
+            <%= @workflow.process_type.humanize %>
+          </span>
+        </td>
+        <td><strong><%= @trigger_stats[:total] %></strong></td>
+        <td>
+          <strong><%= @trigger_stats[:complex] %></strong>
+          <br>
+          <small>With conditions</small>
+        </td>
+        <td><strong><%= @trigger_stats[:total_steps] %></strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Triggers Section -->
+<% if @simple_triggers.any? %>
+  <!-- Simple Triggers -->
+  <div class="admin-section">
+    <div class="admin-section-header">
+      <h3>Simple Workflows (<%= @simple_triggers.count %>)</h3>
+      <small>Linear flow, no conditions</small>
+    </div>
+
+    <div class="admin-section-content">
+      <% @simple_triggers.each do |trigger_name, trigger_data| %>
+        <%= render 'trigger_card', trigger_name: trigger_name, trigger_data: trigger_data, workflow: @workflow, complexity: 'simple' %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<% if @complex_triggers.any? %>
+  <!-- Complex Triggers -->
+  <div class="admin-section">
+    <div class="admin-section-header">
+      <h3>Complex Workflows (<%= @complex_triggers.count %>)</h3>
+      <small>With conditional logic</small>
+    </div>
+
+    <div class="admin-section-content">
+      <% @complex_triggers.each do |trigger_name, trigger_data| %>
+        <%= render 'trigger_card', trigger_name: trigger_name, trigger_data: trigger_data, workflow: @workflow, complexity: 'complex' %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<% if @triggers.empty? %>
+  <!-- Empty State -->
+  <div class="empty-state">
+    <div class="empty-state-content">
+      <h3>No triggers configured</h3>
+      <p>This business process doesn't have any workflow triggers yet.</p>
+      <div class="empty-state-actions">
+        <a href="<%= new_trigger_admin_workflow_form_path(@workflow) %>"
+           class="admin-btn admin-btn-primary">
+          Create First Trigger
+        </a>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+/* Additional styles for workflow forms */
+.admin-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.admin-section-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8f9fa;
+}
+
+.admin-section-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-section-header small {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.admin-section-content {
+  padding: 16px;
+}
+
+.empty-state {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.empty-state-content p {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+}
+
+.empty-state-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* Breadcrumb navigation */
+nav ol {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav ol li {
+  display: flex;
+  align-items: center;
+}
+
+nav ol li:not(:last-child)::after {
+  content: '→';
+  margin-left: 8px;
+  color: #9ca3af;
+}
+
+nav ol li a {
+  color: #6b7280;
+  text-decoration: none;
+}
+
+nav ol li a:hover {
+  color: #374151;
+}
+
+nav ol li span {
+  color: #374151;
+  font-weight: 500;
+}
+</style>

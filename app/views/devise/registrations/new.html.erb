@@ -2,15 +2,15 @@
 
 <div class="auth-page">
   <div class="auth-container" data-controller="terms-modal">
-    <div class="auth-card">
+    <div class="auth-card" data-controller="auth-form">
       <div class="auth-header">
-        <h1 class="auth-title" data-auth-target="title">Create Account</h1>
-        <p class="auth-subtitle" data-auth-target="subtitle">Start your journey with Equity Preservation Mortgage®</p>
+        <h1 class="auth-title" data-auth-form-target="title">Create Account</h1>
+        <p class="auth-subtitle" data-auth-form-target="subtitle">Start your journey with Equity Preservation Mortgage®</p>
       </div>
 
-      <div class="form-toggle" data-controller="auth-form">
+      <div class="form-toggle">
         <!-- Registration Form -->
-        <div class="auth-form registration-form" data-auth-target="registrationForm">
+        <div class="auth-form registration-form" data-auth-form-target="registrationForm">
           <%= form_for(resource, as: resource_name, url: registration_path(resource_name), local: true, html: { class: "auth-form-inner" }) do |f| %>
             <%= render "devise/shared/error_messages", resource: resource %>
 
@@ -116,53 +116,55 @@
             <% end %>
 
             <div class="form-actions">
-              <%= f.submit "Create Account", class: "btn btn-primary btn-lg auth-submit-btn", disabled: true, style: "opacity: 0.5; cursor: not-allowed;" %>
+              <%= f.submit "Create Account", class: "site-btn site-btn-primary site-btn-lg auth-submit-btn site-btn-disabled", disabled: true %>
             </div>
           <% end %>
         </div>
 
         <!-- Login Form -->  
-        <div class="auth-form login-form" data-auth-target="loginForm" style="display: none;">
-          <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true, html: { class: "auth-form-inner" }) do |f| %>
+        <div class="auth-form login-form js-hidden" data-auth-form-target="loginForm">
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true, html: { class: "auth-form-inner", id: "login_form" }) do |f| %>
 
             <div class="form-group">
-              <%= f.label :email, class: "form-label" %>
-              <%= f.email_field :email, 
-                  class: "form-input", 
+              <%= f.label :email, class: "form-label", for: "login_user_email" %>
+              <%= f.email_field :email,
+                  class: "form-input",
                   placeholder: "Enter your email address",
+                  id: "login_user_email",
                   data: { "auth-form-target": "loginEmailInput" } %>
             </div>
 
             <div class="form-group">
-              <%= f.label :password, class: "form-label" %>
-              <%= f.password_field :password, 
-                  class: "form-input", 
+              <%= f.label :password, class: "form-label", for: "login_user_password" %>
+              <%= f.password_field :password,
+                  class: "form-input",
                   placeholder: "Enter your password",
+                  id: "login_user_password",
                   autocomplete: "current-password" %>
             </div>
 
             <% if devise_mapping.rememberable? %>
               <div class="form-group checkbox-group">
-                <%= f.check_box :remember_me, class: "form-checkbox" %>
-                <%= f.label :remember_me, "Remember me", class: "checkbox-label" %>
+                <%= f.check_box :remember_me, class: "form-checkbox", id: "login_user_remember_me" %>
+                <%= f.label :remember_me, "Remember me", class: "checkbox-label", for: "login_user_remember_me" %>
               </div>
             <% end %>
 
             <div class="form-actions">
-              <%= f.submit "Sign In", class: "btn btn-primary btn-lg auth-submit-btn" %>
+              <%= f.submit "Sign In", class: "site-btn site-btn-primary site-btn-lg auth-submit-btn" %>
             </div>
           <% end %>
         </div>
 
         <!-- Toggle Links -->
         <div class="auth-toggle">
-          <div class="toggle-to-login" data-auth-target="toggleToLogin" style="display: none;">
+          <div class="toggle-to-login js-hidden" data-auth-form-target="toggleToLogin">
             <p class="toggle-text">Already have an account? 
               <button type="button" class="toggle-link" data-action="click->auth-form#showLogin">Sign In</button>
             </p>
           </div>
           
-          <div class="toggle-to-register" data-auth-target="toggleToRegister" style="display: none;">
+          <div class="toggle-to-register js-hidden" data-auth-form-target="toggleToRegister">
             <p class="toggle-text">Don't have an account? 
               <button type="button" class="toggle-link" data-action="click->auth-form#showRegistration">Create Account</button>
             </p>
@@ -173,8 +175,8 @@
         <div class="auth-links">
           <div class="auth-links-row">
             <%= link_to "Forgot your password?", new_password_path(resource_name), class: "auth-link" %>
-            <span class="auth-links-separator" data-auth-target="linkSeparator" style="display: none;"> | </span>
-            <button type="button" class="auth-link-button" data-auth-target="createAccountLink" data-action="click->auth-form#showRegistration" style="display: none;">Create Account</button>
+            <span class="auth-links-separator js-hidden" data-auth-form-target="linkSeparator"> | </span>
+            <button type="button" class="auth-link-button js-hidden" data-auth-form-target="createAccountLink" data-action="click->auth-form#showRegistration">Create Account</button>
           </div>
         </div>
       </div>
@@ -201,8 +203,8 @@
           <div class="loading-spinner">Loading...</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-action="click->terms-modal#close">Close</button>
-          <button type="button" class="btn btn-primary" data-action="click->terms-modal#accept">Accept Terms</button>
+          <button type="button" class="site-btn site-btn-secondary" data-action="click->terms-modal#close">Close</button>
+          <button type="button" class="site-btn site-btn-primary" data-action="click->terms-modal#accept">Accept Terms</button>
         </div>
       </div>
     </div>

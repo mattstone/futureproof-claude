@@ -41,26 +41,26 @@ export default class extends Controller {
     // Update title and subtitle
     this.titleTarget.textContent = "Welcome Back"
     this.subtitleTarget.textContent = "Sign in to your Equity Preservation Mortgage® account"
-    
+
     // Hide registration form, show login form
-    this.registrationFormTarget.style.display = "none"
-    this.loginFormTarget.style.display = "block"
-    
+    this.registrationFormTarget.classList.add("js-hidden")
+    this.loginFormTarget.classList.remove("js-hidden")
+
     // Update toggle links
-    this.toggleToLoginTarget.style.display = "none"
-    this.toggleToRegisterTarget.style.display = "block"
-    
+    this.toggleToLoginTarget.classList.add("js-hidden")
+    this.toggleToRegisterTarget.classList.remove("js-hidden")
+
     // Show create account link next to forgot password
     if (this.hasLinkSeparatorTarget) {
-      this.linkSeparatorTarget.style.display = "inline"
+      this.linkSeparatorTarget.classList.remove("js-hidden")
     }
     if (this.hasCreateAccountLinkTarget) {
-      this.createAccountLinkTarget.style.display = "inline"
+      this.createAccountLinkTarget.classList.remove("js-hidden")
     }
-    
+
     // Clear email status
     this.clearEmailStatus()
-    
+
     // Copy email from registration to login if present
     if (this.emailInputTarget.value) {
       this.loginEmailInputTarget.value = this.emailInputTarget.value
@@ -71,23 +71,23 @@ export default class extends Controller {
     // Update title and subtitle
     this.titleTarget.textContent = "Create Account"
     this.subtitleTarget.textContent = "Start your journey with Equity Preservation Mortgage®"
-    
+
     // Show registration form, hide login form
-    this.registrationFormTarget.style.display = "block"
-    this.loginFormTarget.style.display = "none"
-    
+    this.registrationFormTarget.classList.remove("js-hidden")
+    this.loginFormTarget.classList.add("js-hidden")
+
     // Update toggle links
-    this.toggleToLoginTarget.style.display = "block"
-    this.toggleToRegisterTarget.style.display = "none"
-    
+    this.toggleToLoginTarget.classList.remove("js-hidden")
+    this.toggleToRegisterTarget.classList.add("js-hidden")
+
     // Hide create account link (only show when in login mode)
     if (this.hasLinkSeparatorTarget) {
-      this.linkSeparatorTarget.style.display = "none"
+      this.linkSeparatorTarget.classList.add("js-hidden")
     }
     if (this.hasCreateAccountLinkTarget) {
-      this.createAccountLinkTarget.style.display = "none"
+      this.createAccountLinkTarget.classList.add("js-hidden")
     }
-    
+
     // Copy email from login to registration if present
     if (this.hasLoginEmailInputTarget && this.loginEmailInputTarget.value) {
       this.emailInputTarget.value = this.loginEmailInputTarget.value
@@ -103,7 +103,7 @@ export default class extends Controller {
         </span>
       </div>
     `
-    this.toggleToLoginTarget.style.display = "block"
+    this.toggleToLoginTarget.classList.remove("js-hidden")
   }
 
   showEmailAvailableMessage() {

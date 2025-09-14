@@ -48,9 +48,9 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal '$1,500,000', @application.formatted_home_value
   end
 
-  test "formatted_existing_mortgage_amount should return N/A when no mortgage" do
+  test "formatted_existing_mortgage_amount should return $0 when no mortgage" do
     @application.has_existing_mortgage = false
-    assert_equal 'N/A', @application.formatted_existing_mortgage_amount
+    assert_equal '$0', @application.formatted_existing_mortgage_amount
   end
 
   test "formatted_existing_mortgage_amount should return currency when has mortgage" do

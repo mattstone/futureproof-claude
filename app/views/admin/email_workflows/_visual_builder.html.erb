@@ -163,7 +163,7 @@
       <div class="visual-form-actions">
         <div class="actions-left">
           <%= link_to workflow.persisted? ? admin_email_workflow_path(workflow) : admin_email_workflows_path, 
-                      class: "btn-secondary" do %>
+                      class: "site-btn-secondary" do %>
             <i class="fas fa-times"></i> Cancel
           <% end %>
         </div>
@@ -171,13 +171,13 @@
         <div class="actions-right">
           <% if workflow.persisted? %>
             <%= link_to preview_admin_email_workflow_path(workflow), 
-                       class: "btn-secondary", target: "_blank" do %>
+                       class: "site-btn-secondary", target: "_blank" do %>
               <i class="fas fa-eye"></i> Preview
             <% end %>
           <% end %>
           
           <%= form.submit workflow.persisted? ? "Update Workflow" : "Create Workflow", 
-                         class: "btn-primary workflow-save-btn" %>
+                         class: "site-btn-primary workflow-save-btn" %>
         </div>
       </div>
       

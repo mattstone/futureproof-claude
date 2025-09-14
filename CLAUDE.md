@@ -2,6 +2,8 @@
 
 You are working on Futureproof, a Rails application. Review the ClaudeOnRails context file at @.claude-on-rails/context.md
 
+**🚨 CRITICAL: Read @.claude-on-rails/context.md for mandatory testing and CSS framework rules 🚨**
+
 ## 🚨 UPDATED ARCHITECTURAL RULE 🚨
 
 **Stimulus Only, No AJAX/Turbo (PERMANENT & ENFORCEABLE)**

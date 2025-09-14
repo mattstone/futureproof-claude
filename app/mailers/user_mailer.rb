@@ -90,7 +90,7 @@ class UserMailer < ApplicationMailer
         user: @user,
         application: @application,
         mortgage: @application.mortgage
-      })
+      }, include_header_footer: false) # Skip header/footer since we use Rails mailer layout
       
       # Set instance variables for layout
       @email_content = rendered[:content].html_safe

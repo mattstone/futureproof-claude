@@ -10,6 +10,25 @@
     <h1>Create New Workflow</h1>
     <p>Build automated email sequences to engage customers throughout their lifecycle.</p>
     
+    <% if current_user&.admin? %>
+      <div class="admin-info-box admin-info-box-blue">
+        <p class="admin-info-text">
+          <strong>🚀 Try the New Business Process Workflow Systems:</strong>
+        </p>
+        <div class="admin-button-group">
+          <%= link_to admin_business_process_workflows_path, class: "admin-btn admin-site-btn-primary admin-btn-sm" do %>
+            🎨 Visual Builder (v2)
+          <% end %>
+          <%= link_to admin_workflow_forms_path, class: "admin-btn admin-btn-success admin-btn-sm" do %>
+            📝 Form Builder (Simple)
+          <% end %>
+        </div>
+        <p class="admin-info-subtext">
+          These new systems support complex conditional workflows with multiple triggers per business process.
+        </p>
+      </div>
+    <% end %>
+    
     <div class="builder-mode-toggle">
       <button type="button" class="mode-btn active" data-mode="visual" 
               data-workflow-mode-target="modeBtn" 

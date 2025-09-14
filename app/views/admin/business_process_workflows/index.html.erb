@@ -1,0 +1,170 @@
+<% content_for :title, "Business Process Workflows (v2)" %>
+
+<div class="site-mb-6">
+  <div class="admin-header-flex">
+    <div>
+      <h1 class="admin-page-title">Business Process Workflows</h1>
+      <p class="admin-page-subtitle">Manage your 3-workflow business process automation system</p>
+    </div>
+    
+    <% if @can_switch_version %>
+      <div class="admin-version-controls">
+        <div class="admin-version-badge">
+          <span class="admin-version-text">Version: <%= @current_version.upcase %></span>
+        </div>
+        <%= link_to admin_email_workflows_path, class: "admin-btn admin-site-btn-secondary" do %>
+          Switch to v1 (Classic)
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Workflow Stats -->
+<div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-content">
+      <div class="admin-stat-icon-container">
+        <div class="admin-stat-icon admin-stat-icon-blue">
+          <span class="admin-stat-icon-text">3</span>
+        </div>
+      </div>
+      <div class="admin-stat-text">
+        <p class="admin-stat-label">Total Workflows</p>
+        <p class="admin-stat-value"><%= @workflow_stats[:total_workflows] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="site-bg-white site-p-6 site-rounded-lg site-shadow site-border">
+    <div class="site-flex site-flex-start">
+      <div class="site-flex-shrink-0">
+        <div class="site-w-8 site-h-8 site-bg-green-500 site-rounded-lg site-flex site-flex-center">
+          <svg class="site-w-4 site-h-4 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="site-ml-4">
+        <p class="site-text-sm site-font-medium site-text-gray-600">Active</p>
+        <p class="site-text-2xl site-font-bold site-text-gray-900"><%= @workflow_stats[:active_workflows] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="site-bg-white site-p-6 site-rounded-lg site-shadow site-border">
+    <div class="site-flex site-flex-start">
+      <div class="site-flex-shrink-0">
+        <div class="site-w-8 site-h-8 site-bg-purple-500 site-rounded-lg site-flex site-flex-center">
+          <svg class="site-w-4 site-h-4 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="site-ml-4">
+        <p class="site-text-sm site-font-medium site-text-gray-600">Total Triggers</p>
+        <p class="site-text-2xl site-font-bold site-text-gray-900"><%= @workflow_stats[:total_triggers] %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="site-bg-white site-p-6 site-rounded-lg site-shadow site-border">
+    <div class="site-flex site-flex-start">
+      <div class="site-flex-shrink-0">
+        <div class="site-w-8 site-h-8 site-bg-orange-500 site-rounded-lg site-flex site-flex-center">
+          <svg class="site-w-4 site-h-4 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="site-ml-4">
+        <p class="site-text-sm site-font-medium site-text-gray-600">Process Types</p>
+        <p class="site-text-2xl site-font-bold site-text-gray-900">3</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Workflow Cards -->
+<div class="site-grid site-grid-responsive site-grid-gap-lg">
+  <% @workflows.each do |workflow| %>
+    <div class="site-bg-white site-rounded-lg site-shadow site-border site-overflow-hidden">
+      <div class="site-p-6">
+        <div class="site-flex site-justify-between site-mb-4">
+          <div class="site-flex site-flex-start">
+            <div class="site-w-10 site-h-10 <%= workflow.process_type == 'acquisition' ? 'site-bg-blue-500' : workflow.process_type == 'conversion' ? 'site-bg-green-500' : 'site-bg-purple-500' %> site-rounded-lg site-flex site-flex-center">
+              <% if workflow.process_type == 'acquisition' %>
+                <svg class="site-w-5 site-h-5 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                </svg>
+              <% elsif workflow.process_type == 'conversion' %>
+                <svg class="site-w-5 site-h-5 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                </svg>
+              <% else %>
+                <svg class="site-w-5 site-h-5 site-text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                </svg>
+              <% end %>
+            </div>
+            <div class="site-ml-3">
+              <h3 class="site-text-lg site-font-semibold site-text-gray-900"><%= workflow.name %></h3>
+              <p class="site-text-sm site-text-gray-500 capitalize"><%= workflow.process_type.humanize %></p>
+            </div>
+          </div>
+
+          <div class="site-flex site-flex-start site-space-x-2">
+            <span class="site-badge site-px-2_5 site-py-0_5 site-text-xs <%= workflow.active? ? 'site-bg-green-100 site-text-green-800' : 'site-bg-gray-100 site-text-gray-800' %>">
+              <%= workflow.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </div>
+        </div>
+        
+        <p class="site-text-gray-600 site-text-sm site-mb-4"><%= workflow.description %></p>
+
+        <div class="site-flex site-justify-between">
+          <div class="site-text-sm site-text-gray-500">
+            <span class="site-font-medium"><%= workflow.triggers.count %></span> triggers
+          </div>
+
+          <div class="site-flex site-flex-start site-space-x-2">
+            <a href="<%= admin_business_process_workflow_path(workflow) %>" class="site-text-blue-600 hover:site-text-blue-500 site-text-sm site-font-medium">
+              View
+            </a>
+            <a href="<%= edit_admin_business_process_workflow_path(workflow) %>" class="site-text-gray-600 hover:site-text-gray-500 site-text-sm site-font-medium">
+              Edit
+            </a>
+          </div>
+        </div>
+        
+        <% if workflow.triggers.any? %>
+          <div class="site-mt-4 site-pt-4 site-border-t site-border-gray-200">
+            <h4 class="site-text-sm site-font-medium site-text-gray-900 site-mb-2">Active Triggers:</h4>
+            <div class="site-flex site-flex-wrap site-grid-gap">
+              <% workflow.triggers.keys.first(3).each do |trigger_name| %>
+                <span class="site-inline-flex site-flex-start site-px-2 site-py-1 site-rounded site-text-xs site-font-medium site-bg-blue-50 site-text-blue-700">
+                  <%= trigger_name.humanize %>
+                </span>
+              <% end %>
+              <% if workflow.triggers.count > 3 %>
+                <span class="site-inline-flex site-flex-start site-px-2 site-py-1 site-rounded site-text-xs site-font-medium site-bg-gray-100 site-text-gray-600">
+                  +<%= workflow.triggers.count - 3 %> more
+                </span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @workflows.empty? %>
+  <div class="site-text-center site-py-12">
+    <svg class="site-mx-auto site-h-12 site-w-12 site-text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+      <path d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.713-3.714M14 40v-4c0-1.313.253-2.566.713-3.714m0 0A10.003 10.003 0 0124 26c4.21 0 7.813 2.602 9.288 6.286M30 14a6 6 0 11-12 0 6 6 0 0112 0zm12 6a4 4 0 11-8 0 4 4 0 018 0zm-28 0a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <h3 class="site-mt-2 site-text-sm site-font-medium site-text-gray-900">No workflows found</h3>
+    <p class="site-mt-1 site-text-sm site-text-gray-500">The 3 default business process workflows should be available.</p>
+  </div>
+<% end %>

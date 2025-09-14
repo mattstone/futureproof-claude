@@ -1,0 +1,89 @@
+<% content_for :page_title, "Form-Based Workflow Builder" %>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <h2>Simple, Reliable Workflow Creation</h2>
+    <p>Build business process automation using familiar forms - no complex drag & drop required.</p>
+  </div>
+
+  <div class="admin-actions">
+    <span class="status-badge status-ok">Form-Based (Simple)</span>
+    <%= link_to admin_business_process_workflows_path, class: "admin-btn admin-btn-secondary" do %>
+      🎨 Switch to Visual Interface
+    <% end %>
+  </div>
+</div>
+
+<div class="admin-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Business Process</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Triggers</th>
+        <th>Total Steps</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @workflows.each do |workflow| %>
+        <tr>
+          <td>
+            <div>
+              <strong><%= workflow.name %></strong>
+              <% if workflow.description.present? %>
+                <br>
+                <small style="color: #6b7280;"><%= truncate(workflow.description, length: 60) %></small>
+              <% end %>
+            </div>
+          </td>
+          <td>
+            <span class="status-badge status-<%= workflow.process_type == 'acquisition' ? 'awaiting-funding' : workflow.process_type == 'conversion' ? 'ok' : 'in-holiday' %>">
+              <%= workflow.process_type.humanize %>
+            </span>
+          </td>
+          <td>
+            <span class="status-badge <%= workflow.active? ? 'status-ok' : 'status-complete' %>">
+              <%= workflow.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </td>
+          <td>
+            <% if workflow.triggers.any? %>
+              <strong><%= workflow.triggers.count %></strong> triggers
+              <br>
+              <small style="color: #6b7280;">
+                <% simple_count = workflow.triggers.count { |_, data| !has_conditions?(data) } %>
+                <% complex_count = workflow.triggers.count { |_, data| has_conditions?(data) } %>
+                <%= simple_count %> simple, <%= complex_count %> complex
+              </small>
+            <% else %>
+              <span style="color: #9ca3af;">No triggers</span>
+            <% end %>
+          </td>
+          <td>
+            <% total_steps = workflow.triggers.sum { |_, data| (data['nodes'] || []).count } %>
+            <strong><%= total_steps %></strong> steps
+          </td>
+          <td>
+            <div class="admin-actions">
+              <%= link_to "Manage", admin_workflow_form_path(workflow), class: "admin-btn admin-btn-sm admin-btn-primary" %>
+              <% if workflow.triggers.empty? %>
+                <%= link_to "Add Trigger", new_trigger_admin_workflow_form_path(workflow), class: "admin-btn admin-btn-sm admin-btn-success" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @workflows.empty? %>
+    <div style="padding: 40px; text-align: center; color: #6b7280;">
+      <strong>No business processes found.</strong>
+      <br>
+      <small>Business processes need to be created first before adding workflow triggers.</small>
+    </div>
+  <% end %>
+</div>
+

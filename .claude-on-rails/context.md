@@ -26,6 +26,43 @@ When working on this project:
 - Extract complex business logic to service objects
 - Ensure proper database indexing for foreign keys and queries
 
+## 🚨 CRITICAL: MANDATORY INTEGRATION TESTING 🚨
+**EXPERT INTEGRATION TESTER PROTOCOL - NO EXCEPTIONS:**
+
+### MANDATORY 7-STEP TESTING PROCESS:
+1. **WRITE CODE** - Complete the implementation
+2. **WRITE INTEGRATION TEST** - Create test with actual HTTP requests
+3. **RUN INTEGRATION TEST** - Execute and verify it passes
+4. **TEST ACTUAL URLS** - Use curl or browser to test real routes
+5. **VERIFY HTML RENDERS** - Confirm no template/method errors
+6. **TEST USER INTERACTIONS** - Forms, links, buttons work
+7. **ONLY THEN CLAIM SUCCESS** - Never skip steps 1-6
+
+### FORBIDDEN FAKE TESTING:
+- ❌ Testing only data availability without page rendering
+- ❌ Testing only helper methods without full request cycle
+- ❌ Claiming "it should work" without URL verification
+- ❌ Assuming templates work without rendering them
+
+**Integration tests must use actual HTTP requests and verify HTML output.**
+
+## 🚨 CRITICAL: CSS FRAMEWORK RESTRICTIONS 🚨
+**THIS PROJECT USES 100% CUSTOM CSS - NO EXTERNAL FRAMEWORKS:**
+
+### FORBIDDEN CSS CLASSES:
+- ❌ **Tailwind**: `text-*`, `bg-*`, `flex`, `grid`, `space-*`, `gap-*`, `mb-*`, `px-*`, etc.
+- ❌ **Bootstrap**: `btn-primary`, `container`, `row`, `col-*`, `d-flex`, etc.
+- ❌ **ANY external CSS framework classes**
+
+### REQUIRED CUSTOM CSS CLASSES:
+- ✅ **Tables**: `admin-table`
+- ✅ **Buttons**: `admin-btn`, `admin-btn-primary`, `admin-btn-secondary`, etc.
+- ✅ **Status**: `status-badge`, `status-ok`, `status-complete`, etc.
+- ✅ **Layout**: `admin-actions-bar`, `admin-search`, `admin-actions`
+- ✅ **Forms**: `admin-form-*` classes
+
+**Check `/app/assets/stylesheets/admin.css` for available classes. Never assume external frameworks exist.**
+
 ## 🚨 CRITICAL: JavaScript/Hotwire Architectural Rule 🚨
 **MANDATORY SEPARATION OF CONCERNS - THIS RULE MUST ALWAYS BE ENFORCED:**
 

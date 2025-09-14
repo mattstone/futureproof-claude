@@ -148,6 +148,26 @@ Rails.application.routes.draw do
       end
     end
     
+    # New v2 business process workflows (visual interface)
+    resources :business_process_workflows do
+      member do
+        post :add_trigger
+        delete :remove_trigger
+        patch :update_trigger
+      end
+    end
+    
+    # Form-based workflow interface (alternative to visual)
+    resources :workflow_forms, only: [:index, :show] do
+      member do
+        get :new_trigger
+        post :create_trigger
+        get :edit_trigger
+        patch :update_trigger
+        delete :destroy_trigger
+      end
+    end
+    
     # Calculator
     resources :calculators, only: [:index] do
       collection do

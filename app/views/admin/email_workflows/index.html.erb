@@ -3,7 +3,7 @@
 
 <div class="workflow-manager" data-controller="email-workflows workflow-templates">
   <!-- Tabs Navigation -->
-  <div class="tab-navigation mb-6">
+  <div class="tab-navigation admin-mb-6">
     <div class="tab-buttons">
       <button class="tab-button active" data-email-workflows-target="tab" data-tab="workflows" data-action="click->email-workflows#switchTab">
         <i class="fas fa-project-diagram"></i> Workflows
@@ -38,18 +38,27 @@
         </div>
         
         <div class="workflow-actions">
-          <%= link_to new_admin_email_workflow_path, class: "btn-primary" do %>
+          <%= link_to new_admin_email_workflow_path, class: "site-btn site-btn-primary" do %>
             <i class="fas fa-plus"></i> New
+          <% end %>
+          
+          <% if current_user&.admin? %>
+            <%= link_to admin_business_process_workflows_path, class: "site-btn site-btn-secondary site-ml-2" do %>
+              <i class="fas fa-rocket"></i> Try v2 Visual
+            <% end %>
+            <%= link_to admin_workflow_forms_path, class: "site-btn site-btn-success site-ml-2" do %>
+              <i class="fas fa-edit"></i> Try Form Builder
+            <% end %>
           <% end %>
         </div>
       </div>
     </div>
 
   <!-- Filters -->
-  <div class="workflow-filters mb-6">
+  <div class="workflow-filters admin-mb-6">
     <%= form_with url: admin_email_workflows_path, method: :get, local: false, 
                   data: { turbo_frame: "workflows-content", controller: "auto-submit" },
-                  class: "filter-form flex items-center space-x-4" do |form| %>
+                  class: "filter-form admin-filter-form" do |form| %>
       <div class="filter-group">
         <%= form.select :trigger_type, 
                         options_for_select([['All Triggers', '']] + 
@@ -82,7 +91,7 @@
     <div class="templates-header">
       <div class="templates-header-content">
         <h3>Email Templates</h3>
-        <%= link_to new_admin_email_template_path, class: "admin-btn admin-btn-primary" do %>
+        <%= link_to new_admin_email_template_path, class: "admin-btn admin-site-btn-primary" do %>
           <i class="fas fa-plus"></i> New
         <% end %>
       </div>
@@ -99,9 +108,9 @@
 
   <!-- Template Library Tab -->
   <div class="tab-content" id="library-tab" data-email-workflows-target="tabContent">
-    <div class="library-header mb-6">
+    <div class="library-header admin-mb-6">
       <h3>Workflow Template Library</h3>
-      <p class="text-gray-600">Pre-built workflows for common customer lifecycle scenarios</p>
+      <p class="admin-text-muted">Pre-built workflows for common customer lifecycle scenarios</p>
     </div>
     
     <div class="library-loading">

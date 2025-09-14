@@ -1,0 +1,493 @@
+<% content_for :page_title, "Edit Trigger: #{params[:trigger_name]}" %>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <nav aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="<%= admin_workflow_forms_path %>">Form-Based Workflows</a>
+        </li>
+        <li>
+          <a href="<%= admin_workflow_form_path(@workflow) %>"><%= @workflow.name %></a>
+        </li>
+        <li>
+          <span>Edit Trigger: <%= params[:trigger_name].humanize %></span>
+        </li>
+      </ol>
+    </nav>
+    <h1>Edit Workflow Trigger</h1>
+    <p>Modify your existing workflow trigger configuration</p>
+  </div>
+
+  <div class="admin-actions">
+    <a href="<%= admin_workflow_form_path(@workflow) %>" class="admin-btn admin-btn-secondary">
+      Back to Workflow
+    </a>
+  </div>
+</div>
+
+<%= form_with url: update_trigger_admin_workflow_form_path(@workflow, trigger_name: params[:trigger_name]), method: :patch, local: true do |f| %>
+  <div class="admin-form-container">
+    <!-- Main Form -->
+    <div class="admin-form-main">
+
+      <!-- Trigger Information -->
+      <div class="admin-form-section">
+        <div class="admin-form-section-header">
+          <div class="admin-form-step-number">ℹ</div>
+          <h3>Trigger Information</h3>
+        </div>
+
+        <div class="admin-form-grid">
+          <div class="admin-form-field">
+            <label class="admin-form-label">Trigger Name</label>
+            <input type="text" value="<%= params[:trigger_name] %>" disabled class="admin-form-input admin-form-input-disabled">
+            <p class="admin-form-help">Trigger names cannot be changed after creation</p>
+          </div>
+
+          <div class="admin-form-field">
+            <%= f.label :event_type, "Event Type", class: "admin-form-label" %>
+            <%= f.select :event_type,
+                         options_for_select([
+                           ['User Registered', 'user_registered'],
+                           ['Application Created', 'application_created'],
+                           ['Application Status Changed', 'application_status_changed'],
+                           ['Contract Status Changed', 'contract_status_changed'],
+                           ['Document Uploaded', 'document_uploaded'],
+                           ['Email Verified', 'email_verified'],
+                           ['Custom Event', 'custom']
+                         ], @trigger_event_type),
+                         {},
+                         { class: "admin-form-select", required: true } %>
+          </div>
+        </div>
+
+        <div class="admin-form-field">
+          <%= f.label :conditions, "Trigger Conditions (Optional)", class: "admin-form-label" %>
+          <%= f.text_area :conditions,
+                          value: @trigger_conditions.to_json,
+                          rows: 3,
+                          placeholder: '{"user_type": "premium", "status": "active"}',
+                          class: "admin-form-textarea" %>
+          <p class="admin-form-help">JSON format for specific conditions (leave blank for all events)</p>
+        </div>
+      </div>
+
+      <!-- Current Workflow Steps -->
+      <div class="admin-form-section">
+        <div class="admin-form-section-header">
+          <div class="admin-form-step-number">📋</div>
+          <h3>Current Workflow Steps</h3>
+        </div>
+
+        <% if @trigger_nodes.any? %>
+          <div class="workflow-steps-display">
+            <% @trigger_nodes.each_with_index do |node, index| %>
+              <% next if node['type'] == 'trigger' %>
+              <div class="workflow-step-display">
+                <div class="workflow-step-number"><%= index %></div>
+                <div class="workflow-step-content">
+                  <div class="workflow-step-type <%= node_color_class(node['type']) %>">
+                    <strong><%= node['type']&.humanize || 'Step' %></strong>
+                  </div>
+                  <div class="workflow-step-details">
+                    <% case node['type'] %>
+                    <% when 'email', 'send_email' %>
+                      <% if node.dig('config', 'email_template_id') %>
+                        <p><strong>Template:</strong> #<%= node['config']['email_template_id'] %></p>
+                      <% end %>
+                      <% if node.dig('config', 'subject') %>
+                        <p><strong>Subject:</strong> <%= node['config']['subject'] %></p>
+                      <% end %>
+                      <% if node.dig('config', 'from_email') %>
+                        <p><strong>From:</strong> <%= node['config']['from_email'] %></p>
+                      <% end %>
+                    <% when 'delay' %>
+                      <% if node.dig('config', 'duration') %>
+                        <p><strong>Duration:</strong> <%= node['config']['duration'] %> <%= node['config']['unit'] || 'units' %></p>
+                      <% end %>
+                    <% when 'webhook' %>
+                      <% if node.dig('config', 'url') %>
+                        <p><strong>URL:</strong> <%= node['config']['url'] %></p>
+                      <% end %>
+                      <% if node.dig('config', 'method') %>
+                        <p><strong>Method:</strong> <%= node['config']['method'] %></p>
+                      <% end %>
+                    <% when 'condition' %>
+                      <% if node.dig('config', 'condition_type') %>
+                        <p><strong>Condition:</strong> <%= node['config']['condition_type'].humanize %></p>
+                      <% end %>
+                      <% if node.dig('config', 'condition_value') %>
+                        <p><strong>Value:</strong> <%= node['config']['condition_value'] %></p>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state-small">
+            <p>No workflow steps configured for this trigger.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Warning Section -->
+      <div class="admin-form-section admin-form-warning">
+        <div class="admin-form-section-header">
+          <div class="admin-form-step-number">⚠</div>
+          <h3>Advanced Editing</h3>
+        </div>
+
+        <div class="admin-form-warning-content">
+          <p><strong>Note:</strong> The form-based workflow builder currently supports basic trigger configuration editing only.</p>
+          <p>For complex workflow step modifications, consider:</p>
+          <ul>
+            <li>Recreating the trigger with the desired configuration</li>
+            <li>Using the visual workflow builder for advanced editing</li>
+            <li>Manually editing the workflow data (advanced users only)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="admin-form-actions">
+        <a href="<%= admin_workflow_form_path(@workflow) %>" class="admin-btn admin-btn-secondary">Cancel</a>
+        <input type="submit" value="Update Trigger" class="admin-btn admin-btn-primary">
+        <%= link_to "Delete Trigger",
+                    destroy_trigger_admin_workflow_form_path(@workflow, trigger_name: params[:trigger_name]),
+                    method: :delete,
+                    data: {
+                      confirm: "Are you sure you want to delete this trigger? This cannot be undone.",
+                      turbo_method: :delete
+                    },
+                    class: "admin-btn admin-btn-danger" %>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="admin-form-sidebar">
+      <div class="admin-help-section">
+        <h4>Editing Guidelines</h4>
+        <div class="admin-help-content">
+          <div class="admin-help-item">
+            <h5>Event Type</h5>
+            <p>Change when this workflow should be triggered.</p>
+          </div>
+
+          <div class="admin-help-item">
+            <h5>Conditions</h5>
+            <p>Modify the JSON conditions that filter when this trigger runs.</p>
+          </div>
+
+          <div class="admin-help-item">
+            <h5>Workflow Steps</h5>
+            <p>Currently view-only. Use the visual builder or recreate for step changes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-help-section">
+        <h4>Trigger Statistics</h4>
+        <div class="admin-help-content">
+          <div class="admin-help-stat">
+            <strong>Total Steps:</strong> <%= @trigger_nodes.count { |n| n['type'] != 'trigger' } %>
+          </div>
+          <div class="admin-help-stat">
+            <strong>Connections:</strong> <%= @trigger_connections.count %>
+          </div>
+          <div class="admin-help-stat">
+            <strong>Complexity:</strong>
+            <% if @trigger_nodes.any? { |n| n['type'] == 'condition' } %>
+              Complex (has conditions)
+            <% else %>
+              Simple (linear flow)
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+/* Edit trigger specific styles */
+.admin-form-input-disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.admin-form-warning {
+  border-color: #fbbf24;
+  background-color: #fefbf3;
+}
+
+.admin-form-warning-content {
+  color: #92400e;
+}
+
+.admin-form-warning-content ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.admin-form-warning-content li {
+  margin-bottom: 4px;
+}
+
+.workflow-steps-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workflow-step-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.workflow-step-number {
+  width: 32px;
+  height: 32px;
+  background: #6b7280;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.workflow-step-content {
+  flex: 1;
+}
+
+.workflow-step-type {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.workflow-step-details p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.empty-state-small {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+}
+
+.admin-help-stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.admin-help-stat strong {
+  color: #374151;
+}
+
+/* Form container and other styles inherited from new_trigger.html.erb */
+.admin-form-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.admin-form-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-form-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.admin-form-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-form-step-number {
+  width: 32px;
+  height: 32px;
+  background: #0891b2;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.admin-form-section-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.admin-form-input,
+.admin-form-select,
+.admin-form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.admin-form-input:focus,
+.admin-form-select:focus,
+.admin-form-textarea:focus {
+  outline: none;
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.admin-form-help {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-form-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-help-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.admin-help-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.admin-help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-help-item h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.admin-help-item p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Breadcrumb navigation */
+nav ol {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav ol li {
+  display: flex;
+  align-items: center;
+}
+
+nav ol li:not(:last-child)::after {
+  content: '→';
+  margin-left: 8px;
+  color: #9ca3af;
+}
+
+nav ol li a {
+  color: #6b7280;
+  text-decoration: none;
+}
+
+nav ol li a:hover {
+  color: #374151;
+}
+
+nav ol li span {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-form-container {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-actions {
+    justify-content: stretch;
+  }
+
+  .workflow-step-display {
+    flex-direction: column;
+  }
+}
+</style>

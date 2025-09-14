@@ -37,7 +37,7 @@ class EmailTemplate < ApplicationRecord
       'application_submitted' => {
         'user' => %w[first_name last_name full_name email mobile_number],
         'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at formatted_monthly_income_amount total_income_amount formatted_total_income_amount monthly_income_amount annuity_duration_years],
-        'mortgage' => %w[name lvr interest_rate mortgage_type_display]
+        'mortgage' => %w[name lvr formatted_lvr interest_rate mortgage_type_display]
       },
       'security_notification' => {
         'user' => %w[first_name last_name full_name email],
@@ -91,20 +91,25 @@ class EmailTemplate < ApplicationRecord
   end
   
   # Render template with data substitution and header/footer
-  def render_content(data = {})
+  def render_content(data = {}, include_header_footer: true)
     data ||= {}
-    
+
     # Use content_body if available (new system), otherwise fall back to content (backward compatibility)
     body_content = content_body.present? ? content_body.dup : content.dup
     rendered_subject = subject.dup
-    
+
     # Apply data substitutions to body content and subject
     body_content = apply_data_substitutions(body_content, data)
     rendered_subject = apply_data_substitutions(rendered_subject, data)
-    
-    # Generate complete email with header and footer
-    rendered_content = EmailHeaderFooterService.render_complete_email(email_category, body_content)
-    
+
+    # Generate complete email with header and footer only if requested
+    # (Skip when using Rails mailer layouts to avoid duplicate headers)
+    if include_header_footer
+      rendered_content = EmailHeaderFooterService.render_complete_email(email_category, body_content)
+    else
+      rendered_content = body_content
+    end
+
     {
       subject: rendered_subject,
       content: rendered_content
@@ -208,6 +213,7 @@ class EmailTemplate < ApplicationRecord
       mortgage = data[:mortgage]
       processed_text.gsub!(/{{mortgage\.name}}/i, safe_field_value(mortgage, :name))
       processed_text.gsub!(/{{mortgage\.lvr}}/i, safe_field_value(mortgage, :lvr))
+      processed_text.gsub!(/{{mortgage\.formatted_lvr}}/i, safe_field_value(mortgage, :formatted_lvr))
       processed_text.gsub!(/{{mortgage\.interest_rate}}/i, '7.45') # Static for now
       processed_text.gsub!(/{{mortgage\.mortgage_type_display}}/i, safe_field_value(mortgage, :mortgage_type_display))
     end

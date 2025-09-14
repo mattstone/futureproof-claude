@@ -75,55 +75,13 @@
           </div>
 
           <div class="form-section">
-            <h3 class="form-section-title">Loan Configuration</h3>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <%= f.label :loan_term, "Loan Term", class: "form-label" %>
-                <div class="slider-container">
-                  <%= f.range_field :loan_term,
-                      min: 10,
-                      max: 30,
-                      step: 5,
-                      value: @application.loan_term || 30,
-                      class: "value-slider",
-                      data: { 
-                        "income-loan-form-target": "loanTermSlider",
-                        "action": "input->income-loan-form#updateLoanTerm"
-                      } %>
-                  <div class="slider-value" data-income-loan-form-target="loanTermDisplay">
-                    <%= @application.loan_term || 30 %> years
-                  </div>
-                </div>
-                <div class="form-hint">Choose your loan repayment period</div>
-              </div>
-
-              <div class="form-group">
-                <%= f.label :income_payout_term, "Income Payout Term", class: "form-label" %>
-                <div class="slider-container">
-                  <%= f.range_field :income_payout_term,
-                      min: 10,
-                      max: 30,
-                      step: 5,
-                      value: @application.income_payout_term || 30,
-                      class: "value-slider",
-                      data: { 
-                        "income-loan-form-target": "incomePayoutSlider",
-                        "action": "input->income-loan-form#updateIncomePayout"
-                      } %>
-                  <div class="slider-value" data-income-loan-form-target="incomePayoutDisplay">
-                    <%= @application.income_payout_term || 30 %> years
-                  </div>
-                </div>
-                <div class="form-hint">Choose your income distribution period</div>
-              </div>
-            </div>
+            <h3 class="form-section-title">Equity Preservation Mortgage® Configuration</h3>
 
             <div class="form-group">
-              <label class="form-label">Mortgage Type</label>
+              <label class="form-label">Choose the Equity Preservation Mortgage® type that best fits your financial strategy</label>
               <div class="mortgage-type-cards">
                 <% Mortgage.all.each do |mortgage| %>
-                  <div class="mortgage-card <%= 'selected' if @application.mortgage_id == mortgage.id || (@application.mortgage_id.nil? && mortgage.mortgage_type_principal_and_interest?) %>" 
+                  <div class="mortgage-card <%= 'selected' if @application.mortgage_id == mortgage.id || (@application.mortgage_id.nil? && mortgage.mortgage_type_principal_and_interest?) %>"
                        data-mortgage-id="<%= mortgage.id %>"
                        data-income-loan-form-target="mortgageCard"
                        data-action="click->income-loan-form#selectMortgage">
@@ -134,7 +92,7 @@
                       <% if mortgage.mortgage_type_principal_and_interest? %>
                         <div class="mortgage-badge recommended">Recommended</div>
                       <% end %>
-                      
+
                       <div class="mortgage-income-display">
                         <div class="income-label">Estimated Monthly Income</div>
                         <div class="income-amount" data-income-loan-form-target="<%= mortgage.mortgage_type_interest_only? ? 'interestOnlyIncome' : 'principalInterestIncome' %>">
@@ -156,7 +114,48 @@
               </div>
               <%= f.hidden_field :mortgage_id, data: { "income-loan-form-target": "mortgageHidden" } %>
               <%= f.hidden_field :growth_rate, data: { "income-loan-form-target": "growthRateHidden" } %>
-              <div class="form-hint">Choose the Equity Preservation Mortgage® type that best fits your financial strategy</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <%= f.label :loan_term, "Loan Term", class: "form-label" %>
+                <div class="slider-container">
+                  <%= f.range_field :loan_term,
+                      min: 10,
+                      max: 30,
+                      step: 5,
+                      value: @application.loan_term || 30,
+                      class: "value-slider",
+                      data: {
+                        "income-loan-form-target": "loanTermSlider",
+                        "action": "input->income-loan-form#updateLoanTerm"
+                      } %>
+                  <div class="slider-value" data-income-loan-form-target="loanTermDisplay">
+                    <%= @application.loan_term || 30 %> years
+                  </div>
+                </div>
+                <div class="form-hint">Choose your loan repayment period</div>
+              </div>
+
+              <div class="form-group">
+                <%= f.label :income_payout_term, "Income Payout Term", class: "form-label" %>
+                <div class="slider-container">
+                  <%= f.range_field :income_payout_term,
+                      min: 10,
+                      max: 30,
+                      step: 5,
+                      value: @application.income_payout_term || 30,
+                      class: "value-slider",
+                      data: {
+                        "income-loan-form-target": "incomePayoutSlider",
+                        "action": "input->income-loan-form#updateIncomePayout"
+                      } %>
+                  <div class="slider-value" data-income-loan-form-target="incomePayoutDisplay">
+                    <%= @application.income_payout_term || 30 %> years
+                  </div>
+                </div>
+                <div class="form-hint">Choose your income distribution period</div>
+              </div>
             </div>
           </div>
 

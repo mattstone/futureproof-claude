@@ -2,9 +2,9 @@
 
 <div class="apply-page">
   <div class="apply-container">
-    <div class="demo-notice" style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
-      <p style="color: #dc2626; font-weight: bold; margin: 0 0 10px 0; font-size: 18px;">For demonstration purposes only</p>
-      <p style="color: #666; margin: 0; font-size: 16px; line-height: 1.4;">We are currently in pre-launch phase. Please complete your application and we will be in touch when we are ready to launch.</p>
+    <div class="site-demo-notice">
+      <p class="site-demo-notice-title">For demonstration purposes only</p>
+      <p class="site-demo-notice-text">We are currently in pre-launch phase. Please complete your application and we will be in touch when we are ready to launch.</p>
     </div>
     
     <div class="apply-header">
@@ -96,16 +96,16 @@
       <div class="apply-actions">
         <% if user_signed_in? %>
           <% if current_user.admin? %>
-            <div class="admin-notice" style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 16px; text-align: center;">
-              <p style="color: #dc2626; font-weight: bold; margin: 0 0 8px 0;">Admin Account</p>
-              <p style="color: #666; margin: 0; font-size: 14px;">Admin users cannot complete applications. This feature is for customers only.</p>
-              <p style="color: #666; margin: 8px 0 0 0; font-size: 14px;"><%= link_to "Go to Dashboard", dashboard_path, style: "color: #dc2626; font-weight: bold;" %></p>
+            <div class="site-admin-notice">
+              <p class="site-admin-notice-title">Admin Account</p>
+              <p class="site-admin-notice-text">Admin users cannot complete applications. This feature is for customers only.</p>
+              <p class="site-admin-notice-link"><%= link_to "Go to Dashboard", dashboard_path %></p>
             </div>
           <% else %>
-            <%= link_to "Start Your Application", new_application_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startApplication" } %>
+            <%= link_to "Start Your Application", new_application_path, class: "site-btn site-btn-primary site-btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startApplication" } %>
           <% end %>
         <% else %>
-          <%= link_to "Create Account to Start", new_user_registration_path, class: "btn btn-primary btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startRegistration" } %>
+          <%= link_to "Create Account to Start", new_user_registration_path, class: "site-btn site-btn-primary site-btn-lg start-application-btn", data: { controller: "apply-page", action: "click->apply-page#startRegistration" } %>
         <% end %>
         <%= link_to "← Back to Home", root_path, class: "back-link" %>
       </div>

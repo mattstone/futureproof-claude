@@ -1,0 +1,477 @@
+<% content_for :page_title, "Create New Trigger" %>
+
+<div class="admin-actions-bar">
+  <div class="admin-search">
+    <nav aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="<%= admin_workflow_forms_path %>">Form-Based Workflows</a>
+        </li>
+        <li>
+          <a href="<%= admin_workflow_form_path(@workflow) %>"><%= @workflow.name %></a>
+        </li>
+        <li>
+          <span>New Trigger</span>
+        </li>
+      </ol>
+    </nav>
+    <h1>Create New Workflow Trigger</h1>
+    <p>Build your workflow step-by-step using simple forms</p>
+  </div>
+</div>
+
+<%= form_with url: create_trigger_admin_workflow_form_path(@workflow), method: :post, local: true do |f| %>
+  <div class="admin-form-container">
+    <!-- Main Form -->
+    <div class="admin-form-main">
+
+      <!-- Step 1: Trigger Setup -->
+      <div class="admin-form-section">
+        <div class="admin-form-section-header">
+          <div class="admin-form-step-number">1</div>
+          <h3>Trigger Setup</h3>
+        </div>
+
+        <div class="admin-form-grid">
+          <div class="admin-form-field">
+            <%= f.label :trigger_name, "Trigger Name", class: "admin-form-label" %>
+            <%= f.text_field :trigger_name,
+                             placeholder: "e.g., welcome_sequence",
+                             class: "admin-form-input",
+                             required: true %>
+            <p class="admin-form-help">Use lowercase with underscores (no spaces)</p>
+          </div>
+
+          <div class="admin-form-field">
+            <%= f.label :event_type, "Event Type", class: "admin-form-label" %>
+            <%= f.select :event_type,
+                         options_for_select([
+                           ['Select Event Type', ''],
+                           ['User Registered', 'user_registered'],
+                           ['Application Created', 'application_created'],
+                           ['Application Status Changed', 'application_status_changed'],
+                           ['Contract Status Changed', 'contract_status_changed'],
+                           ['Document Uploaded', 'document_uploaded'],
+                           ['Email Verified', 'email_verified'],
+                           ['Custom Event', 'custom']
+                         ]),
+                         {},
+                         { class: "admin-form-select", required: true } %>
+          </div>
+        </div>
+
+        <div class="admin-form-field">
+          <%= f.label :conditions, "Trigger Conditions (Optional)", class: "admin-form-label" %>
+          <%= f.text_area :conditions,
+                          rows: 3,
+                          placeholder: '{"user_type": "premium", "status": "active"}',
+                          class: "admin-form-textarea" %>
+          <p class="admin-form-help">JSON format for specific conditions (leave blank for all events)</p>
+        </div>
+      </div>
+
+      <!-- Step 2: Workflow Steps -->
+      <div class="admin-form-section">
+        <div class="admin-form-section-header">
+          <div class="admin-form-step-number">2</div>
+          <h3>Workflow Steps</h3>
+        </div>
+
+        <div id="workflow-steps">
+          <!-- Initial Step -->
+          <div class="workflow-step-card" data-step-index="0">
+            <div class="workflow-step-header">
+              <h4>Step 1</h4>
+              <button type="button" class="admin-btn admin-btn-sm admin-btn-danger remove-step" style="display: none;">Remove</button>
+            </div>
+
+            <div class="admin-form-grid">
+              <div class="admin-form-field">
+                <%= label_tag "steps[0][type]", "Action Type", class: "admin-form-label" %>
+                <%= select_tag "steps[0][type]",
+                               options_for_select([
+                                 ['Send Email', 'email'],
+                                 ['Add Delay', 'delay'],
+                                 ['Call Webhook', 'webhook'],
+                                 ['Update User Data', 'update_user']
+                               ]),
+                               { class: "admin-form-select step-type-select", data: { target: "step-0" } } %>
+              </div>
+            </div>
+
+            <!-- Email Step Fields -->
+            <div class="step-fields email-fields" data-step-type="email">
+              <div class="admin-form-grid">
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][email_template_id]", "Email Template", class: "admin-form-label" %>
+                  <%= select_tag "steps[0][email_template_id]",
+                                 options_from_collection_for_select(@email_templates, :id, :name, nil),
+                                 { class: "admin-form-select", include_blank: "Select Template" } %>
+                </div>
+
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][subject]", "Subject Override", class: "admin-form-label" %>
+                  <%= text_field_tag "steps[0][subject]", "", class: "admin-form-input", placeholder: "Leave blank to use template subject" %>
+                </div>
+              </div>
+
+              <div class="admin-form-grid">
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][from_email]", "From Email", class: "admin-form-label" %>
+                  <%= email_field_tag "steps[0][from_email]", "", class: "admin-form-input", placeholder: "noreply@futureproof.com" %>
+                </div>
+
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][from_name]", "From Name", class: "admin-form-label" %>
+                  <%= text_field_tag "steps[0][from_name]", "", class: "admin-form-input", placeholder: "FutureProof Team" %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delay Step Fields -->
+            <div class="step-fields delay-fields" data-step-type="delay" style="display: none;">
+              <div class="admin-form-grid">
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][duration]", "Duration", class: "admin-form-label" %>
+                  <%= number_field_tag "steps[0][duration]", "", class: "admin-form-input", placeholder: "1", min: "1" %>
+                </div>
+
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][unit]", "Unit", class: "admin-form-label" %>
+                  <%= select_tag "steps[0][unit]",
+                                 options_for_select([
+                                   ['Minutes', 'minutes'],
+                                   ['Hours', 'hours'],
+                                   ['Days', 'days'],
+                                   ['Weeks', 'weeks']
+                                 ]),
+                                 { class: "admin-form-select" } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Webhook Step Fields -->
+            <div class="step-fields webhook-fields" data-step-type="webhook" style="display: none;">
+              <div class="admin-form-grid">
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][url]", "Webhook URL", class: "admin-form-label" %>
+                  <%= url_field_tag "steps[0][url]", "", class: "admin-form-input", placeholder: "https://api.example.com/webhook" %>
+                </div>
+
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][method]", "HTTP Method", class: "admin-form-label" %>
+                  <%= select_tag "steps[0][method]",
+                                 options_for_select([
+                                   ['POST', 'POST'],
+                                   ['PUT', 'PUT'],
+                                   ['PATCH', 'PATCH']
+                                 ]),
+                                 { class: "admin-form-select" } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Update User Step Fields -->
+            <div class="step-fields update-user-fields" data-step-type="update_user" style="display: none;">
+              <div class="admin-form-grid">
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][field]", "Field to Update", class: "admin-form-label" %>
+                  <%= text_field_tag "steps[0][field]", "", class: "admin-form-input", placeholder: "status" %>
+                </div>
+
+                <div class="admin-form-field">
+                  <%= label_tag "steps[0][value]", "New Value", class: "admin-form-label" %>
+                  <%= text_field_tag "steps[0][value]", "", class: "admin-form-input", placeholder: "active" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-step-actions">
+          <button type="button" id="add-step" class="admin-btn admin-btn-secondary">Add Another Step</button>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="admin-form-actions">
+        <a href="<%= admin_workflow_form_path(@workflow) %>" class="admin-btn admin-btn-secondary">Cancel</a>
+        <input type="submit" value="Create Trigger" class="admin-btn admin-btn-primary">
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="admin-form-sidebar">
+      <div class="admin-help-section">
+        <h4>Quick Guide</h4>
+        <div class="admin-help-content">
+          <div class="admin-help-item">
+            <h5>1. Trigger Setup</h5>
+            <p>Choose when your workflow should start and give it a unique name.</p>
+          </div>
+
+          <div class="admin-help-item">
+            <h5>2. Add Steps</h5>
+            <p>Create a sequence of actions that will run automatically.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-help-section">
+        <h4>Available Actions</h4>
+        <div class="admin-help-content">
+          <div class="admin-help-action">
+            <strong>Send Email</strong>
+            <p>Send an automated email using a template</p>
+          </div>
+          <div class="admin-help-action">
+            <strong>Add Delay</strong>
+            <p>Wait a specified amount of time before next action</p>
+          </div>
+          <div class="admin-help-action">
+            <strong>Call Webhook</strong>
+            <p>Send data to an external service via HTTP</p>
+          </div>
+          <div class="admin-help-action">
+            <strong>Update User Data</strong>
+            <p>Modify user profile or status information</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+/* Form-specific styles */
+.admin-form-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.admin-form-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-form-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.admin-form-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-form-step-number {
+  width: 32px;
+  height: 32px;
+  background: #0891b2;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.admin-form-section-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.admin-form-input,
+.admin-form-select,
+.admin-form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.admin-form-input:focus,
+.admin-form-select:focus,
+.admin-form-textarea:focus {
+  outline: none;
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.admin-form-help {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.workflow-step-card {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.workflow-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.workflow-step-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.workflow-step-actions {
+  margin-top: 16px;
+}
+
+.step-fields {
+  margin-top: 16px;
+}
+
+/* Sidebar */
+.admin-form-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-help-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.admin-help-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.admin-help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-help-item h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.admin-help-item p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.admin-help-action {
+  margin-bottom: 12px;
+}
+
+.admin-help-action strong {
+  display: block;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.admin-help-action p {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Breadcrumb navigation */
+nav ol {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav ol li {
+  display: flex;
+  align-items: center;
+}
+
+nav ol li:not(:last-child)::after {
+  content: '→';
+  margin-left: 8px;
+  color: #9ca3af;
+}
+
+nav ol li a {
+  color: #6b7280;
+  text-decoration: none;
+}
+
+nav ol li a:hover {
+  color: #374151;
+}
+
+nav ol li span {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-form-container {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-actions {
+    justify-content: stretch;
+  }
+}
+</style>

@@ -1,4 +1,4 @@
-<div class="homepage" style="margin: auto;">
+<div class="homepage site-margin-auto">
 
   <%= render 'shared/header' %>
 
@@ -23,7 +23,7 @@
               <span class="income-amount" data-calculator-target="incomeAmount">Calculating...</span>
               <span class="income-period">Estimated Monthly Annuity Range*</span>
             </div>
-            <%= link_to "Apply Now", apply_path, class: "btn btn-primary calculate-btn", data: { calculator_target: "applyButton", action: "click->calculator#applyNow" } %>
+            <%= link_to "Apply Now", apply_path, class: "btn site-btn-primary calculate-btn", data: { calculator_target: "applyButton", action: "click->calculator#applyNow" } %>
           </div>
         </div>
       </div>
@@ -189,7 +189,7 @@
         <% unless user_signed_in? %>
           <h2 class="footer-cta-title">Ready to Get Started?</h2>
           <p class="footer-cta-subtitle">Join FutureProof today and take control of your financial future</p>
-          <%= link_to "Sign Up Now", new_user_registration_path, class: "btn btn-primary btn-lg" %>
+          <%= link_to "Sign Up Now", new_user_registration_path, class: "btn site-btn-primary btn-lg" %>
         <% end %>
       </div>
     </div>
