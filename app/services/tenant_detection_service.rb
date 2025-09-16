@@ -11,10 +11,7 @@ class TenantDetectionService
       Lender.lender_type_futureproof.first
     when 'localhost', '127.0.0.1', '::1'
       # For development/testing, use the futureproof lender
-      Lender.find_or_create_by(name: 'Futureproof Financial') do |lender|
-        lender.lender_type = 'futureproof'
-        lender.contact_email = 'admin@futureproofinancial.co'
-      end
+      Lender.lender_type_futureproof.first
     else
       # Default to futureproof lender for unknown domains
       Lender.lender_type_futureproof.first
