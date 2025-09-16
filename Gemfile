@@ -30,6 +30,13 @@ gem 'csv'
 # Use Devise for authentication [https://github.com/plataformatec/devise]
 gem "devise"
 
+# SSO authentication
+gem "omniauth"
+gem "omniauth-rails_csrf_protection"
+gem "omniauth-saml"
+gem "omniauth-google-oauth2"
+gem "omniauth-entra-id"
+
 # Google reCAPTCHA for spam protection
 gem "recaptcha"
 

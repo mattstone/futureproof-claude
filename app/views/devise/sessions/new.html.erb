@@ -40,6 +40,30 @@
           </div>
         <% end %>
 
+        <!-- SSO Login Options -->
+        <% if User.available_omniauth_providers.any? %>
+          <div class="auth-divider">
+            <span class="divider-text">Or sign in with</span>
+          </div>
+
+          <div class="sso-buttons">
+            <% User.available_omniauth_providers.each do |provider| %>
+              <%= link_to "/users/auth/#{provider}",
+                  method: :post,
+                  class: "site-btn site-btn-secondary sso-btn" do %>
+                <% case provider %>
+                <% when :entra_id %>
+                  🏢 Sign in with Microsoft
+                <% when :google_oauth2 %>
+                  🔍 Sign in with Google
+                <% when :saml %>
+                  🔐 Sign in with SSO
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+
         <!-- Toggle Links -->
         <div class="auth-toggle">
           <p class="toggle-text">Don't have an account? 

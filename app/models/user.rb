@@ -5,7 +5,8 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   # Note: removed :validatable to implement custom scoped email validation
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :timeoutable
+         :recoverable, :rememberable, :timeoutable, :omniauthable,
+         omniauth_providers: [:saml]
 
   # Associations
   belongs_to :lender
@@ -344,9 +345,103 @@ class User < ApplicationRecord
 
   def valid_mobile_phone_number
     return if mobile_number.blank? # Skip validation if mobile number is blank
-    
+
     unless valid_mobile_phone?
       errors.add(:mobile_number, "is not a valid phone number for the selected country")
     end
+  end
+
+  # SSO Methods
+  def self.from_omniauth(auth, lender, is_admin_domain = false)
+    # Find existing user by SSO credentials within the lender scope
+    user = where(sso_provider: auth.provider, sso_uid: auth.uid, lender: lender).first
+
+    if user
+      # Update user info from SSO
+      user.update_from_sso(auth)
+      user
+    else
+      # Check if user exists by email within this lender
+      existing_user = where(email: auth.info.email, lender: lender).first
+
+      if existing_user
+        # Link existing account to SSO
+        existing_user.update!(
+          sso_provider: auth.provider,
+          sso_uid: auth.uid
+        )
+        existing_user.update_from_sso(auth)
+        existing_user
+      else
+        # Create new user for this lender
+        create_from_sso(auth, lender, is_admin_domain)
+      end
+    end
+  end
+
+  def self.create_from_sso(auth, lender, is_admin_domain = false)
+    # Extract name parts from auth (SAML specific)
+    first_name = auth.info.first_name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname')&.first
+    last_name = auth.info.last_name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname')&.first
+    display_name = auth.info.name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname')&.first
+
+    # Fallback to parsing display name if first/last not available
+    if first_name.blank? && display_name.present?
+      name_parts = display_name.split(' ')
+      first_name = name_parts.first
+      last_name = name_parts[1..-1]&.join(' ')
+    end
+
+    create!(
+      email: auth.info.email,
+      first_name: first_name || 'SAML',
+      last_name: last_name || 'User',
+      lender: lender,
+      sso_provider: auth.provider,
+      sso_uid: auth.uid,
+      admin: is_admin_domain, # Auto-assign admin for futureproofinancial.co
+      confirmed_at: Time.current, # SSO users are pre-verified
+      country_of_residence: 'United States', # Default for SSO users
+      terms_accepted: true, # SSO implies terms acceptance
+      terms_version: TermsOfUse.current&.version,
+      password: Devise.friendly_token[0, 20] # Random password for SSO users
+    )
+  end
+
+  def update_from_sso(auth)
+    # Update name if provided and current values are empty/default
+    updates = { last_sign_in_at: Time.current }
+
+    if auth.info.first_name.present? && (first_name == 'SSO' || first_name.blank?)
+      updates[:first_name] = auth.info.first_name
+    end
+
+    if auth.info.last_name.present? && (last_name == 'User' || last_name.blank?)
+      updates[:last_name] = auth.info.last_name
+    end
+
+    # Parse name if first/last not available but name is
+    if auth.info.name.present? && (first_name == 'SSO' || last_name == 'User')
+      name_parts = auth.info.name.split(' ')
+      updates[:first_name] = name_parts.first if first_name == 'SSO'
+      updates[:last_name] = name_parts[1..-1]&.join(' ') if last_name == 'User'
+    end
+
+    update!(updates)
+  end
+
+  def sso_user?
+    sso_provider.present? && sso_uid.present?
+  end
+
+  # Class method to determine available omniauth providers based on environment
+  def self.available_omniauth_providers
+    providers = []
+
+    # Add SAML - always available (Microsoft SAML SSO)
+    # In production, SAML will work once MICROSOFT_SAML_SSO_URL is configured
+    providers << :saml
+
+    providers
   end
 end

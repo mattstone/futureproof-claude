@@ -8,7 +8,8 @@ Rails.application.routes.draw do
   end
   devise_for :users, controllers: {
     registrations: 'users/registrations',
-    sessions: 'users/sessions'
+    sessions: 'users/sessions',
+    omniauth_callbacks: 'users/omniauth_callbacks'
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -279,6 +280,13 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # Debug routes
+  get 'diagnostic/sso_debug', to: 'diagnostic#sso_debug'
+  get 'diagnostic/sso_public', to: 'diagnostic#sso_debug_public'
+
+  # SAML metadata route
+  get 'saml/metadata', to: 'saml#metadata'
 
   # Defines the root path route ("/")
   root "pages#index"

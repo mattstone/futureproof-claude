@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_13_073250) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_15_021440) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -682,11 +682,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_13_073250) do
     t.bigint "lender_id", null: false
     t.text "address"
     t.boolean "is_test", default: false, null: false
+    t.string "sso_provider"
+    t.string "sso_uid"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email", "lender_id"], name: "index_users_on_email_and_lender_id", unique: true
     t.index ["is_test"], name: "index_users_on_is_test"
     t.index ["lender_id"], name: "index_users_on_lender_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["sso_provider", "sso_uid", "lender_id"], name: "index_users_on_sso_and_lender", unique: true
     t.index ["terms_version"], name: "index_users_on_terms_version"
   end
 
