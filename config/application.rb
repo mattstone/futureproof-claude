@@ -31,12 +31,12 @@ module Futureproof
     config.force_ssl = Rails.env.production?
     
     # Session security
-    config.session_store :cookie_store, 
+    config.session_store :cookie_store,
       key: '_futureproof_session',
       secure: Rails.env.production?,
       httponly: true,
       expire_after: 24.hours,
-      same_site: :strict
+      same_site: :lax  # Changed from :strict to :lax to allow SAML redirects
     
   end
 end
