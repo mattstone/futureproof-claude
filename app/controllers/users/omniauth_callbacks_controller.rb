@@ -18,8 +18,9 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @user = User.from_omniauth(auth, @current_lender, TenantDetectionService.admin_domain?(request.host))
 
     if @user&.persisted?
-      sign_in_and_redirect @user, event: :authentication
+      sign_in @user, event: :authentication
       set_flash_message(:notice, :success, kind: provider.humanize) if is_navigational_format?
+      redirect_to after_sign_in_path_for(@user)
     else
       session["devise.#{provider}_data"] = auth.except(:extra)
       redirect_to new_user_registration_url, alert: 'Failed to authenticate. Please try again.'
