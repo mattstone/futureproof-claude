@@ -14,26 +14,14 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def handle_omniauth_callback(provider)
     auth = request.env["omniauth.auth"]
-    Rails.logger.info "[SSO_DEBUG] Starting #{provider} callback for email: #{auth&.info&.email}, host: #{request.host}"
 
     @user = User.from_omniauth(auth, @current_lender, TenantDetectionService.admin_domain?(request.host))
-    Rails.logger.info "[SSO_DEBUG] User created/found: ID=#{@user&.id}, email=#{@user&.email}, admin=#{@user&.admin?}, persisted=#{@user&.persisted?}"
 
     if @user&.persisted?
-      Rails.logger.info "[SSO_DEBUG] Before sign_in: current_user=#{current_user&.id}, user_signed_in=#{user_signed_in?}"
-
       sign_in @user, event: :authentication
-
-      Rails.logger.info "[SSO_DEBUG] After sign_in: current_user=#{current_user&.id}, user_signed_in=#{user_signed_in?}, session_id=#{session.id}"
-      Rails.logger.info "[SSO_DEBUG] Session contents: #{session.to_hash.except('session_id', '_csrf_token')}"
-
-      redirect_path = after_sign_in_path_for(@user)
-      Rails.logger.info "[SSO_DEBUG] Redirecting to: #{redirect_path}"
-
       set_flash_message(:notice, :success, kind: provider.humanize) if is_navigational_format?
-      redirect_to redirect_path
+      redirect_to after_sign_in_path_for(@user)
     else
-      Rails.logger.warn "[SSO_DEBUG] User not persisted, redirecting to registration"
       session["devise.#{provider}_data"] = auth.except(:extra)
       redirect_to new_user_registration_url, alert: 'Failed to authenticate. Please try again.'
     end
