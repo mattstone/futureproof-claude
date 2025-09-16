@@ -1,4 +1,5 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
+  protect_from_forgery except: [:saml]
   before_action :set_current_lender
 
   def saml
