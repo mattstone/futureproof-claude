@@ -16,6 +16,13 @@ class TenantDetectionService
   end
 
   def self.admin_domain?(domain)
-    ['futureproofinancial.co', 'www.futureproofinancial.co', 'demo.futureproofinancial.co', 'demo.futureprooffinancial.co'].include?(domain)
+    admin_domains = ['futureproofinancial.co', 'www.futureproofinancial.co', 'demo.futureproofinancial.co', 'demo.futureprooffinancial.co']
+
+    # Include localhost for development testing
+    if Rails.env.development?
+      admin_domains += ['localhost', '127.0.0.1', '::1']
+    end
+
+    admin_domains.include?(domain)
   end
 end

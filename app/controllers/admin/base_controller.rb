@@ -18,9 +18,14 @@ class Admin::BaseController < ApplicationController
   private
 
   def ensure_admin
+    Rails.logger.info "[SSO_DEBUG] Admin check - current_user: #{current_user&.id}, email: #{current_user&.email}, admin: #{current_user&.admin?}, user_signed_in: #{user_signed_in?}"
+    Rails.logger.info "[SSO_DEBUG] Session ID: #{session.id}, Session contents: #{session.to_hash.except('session_id', '_csrf_token')}"
+
     unless current_user&.admin?
       Rails.logger.warn "[SECURITY] Unauthorized admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Path: #{request.fullpath}"
       redirect_to root_path, alert: 'Access denied. Admin privileges required.'
+    else
+      Rails.logger.info "[SSO_DEBUG] Admin access granted for user: #{current_user.email}"
     end
   end
   

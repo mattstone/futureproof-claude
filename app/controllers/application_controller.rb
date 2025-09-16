@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   # Security headers
   before_action :set_security_headers
   
+  before_action :debug_session_state
   before_action :authenticate_user!
   before_action :ensure_email_verified!
   before_action :configure_permitted_parameters, if: :devise_controller?
@@ -18,6 +19,15 @@ class ApplicationController < ActionController::Base
   skip_before_action :ensure_email_verified!, if: :verification_or_devise_controller?
 
   private
+
+  def debug_session_state
+    return unless request.path.include?('/admin') || request.path.include?('/users/auth/')
+
+    Rails.logger.info "[SSO_DEBUG] Request: #{request.method} #{request.fullpath}"
+    Rails.logger.info "[SSO_DEBUG] Session state - current_user: #{current_user&.id}, email: #{current_user&.email}, admin: #{current_user&.admin?}"
+    Rails.logger.info "[SSO_DEBUG] user_signed_in?: #{user_signed_in?}, session_id: #{session.id}"
+    Rails.logger.info "[SSO_DEBUG] Session keys: #{session.to_hash.keys}"
+  end
 
   def ensure_email_verified!
     return unless user_signed_in?

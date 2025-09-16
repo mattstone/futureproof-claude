@@ -254,10 +254,17 @@ class User < ApplicationRecord
 
       if existing_user
         # Link existing account to SSO
-        existing_user.update!(
+        updates = {
           sso_provider: auth.provider,
           sso_uid: auth.uid
-        )
+        }
+
+        # Grant admin privileges if linking on admin domain
+        if is_admin_domain && !existing_user.admin?
+          updates[:admin] = true
+        end
+
+        existing_user.update!(updates)
         existing_user.update_from_sso(auth)
         existing_user
       else
