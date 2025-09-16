@@ -298,7 +298,7 @@ class User < ApplicationRecord
 
   def update_from_sso(auth)
     # Update name if provided and current values are empty/default
-    updates = { last_sign_in_at: Time.current }
+    updates = {}
 
     if auth.info.first_name.present? && (first_name == 'SSO' || first_name.blank?)
       updates[:first_name] = auth.info.first_name
