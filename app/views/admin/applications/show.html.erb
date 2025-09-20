@@ -37,13 +37,25 @@
         <div class="detail-row">
           <strong>Address:</strong>
           <%= @application.address %>
+          <% if @application.property_id.present? %>
+            <br>
+            <small class="property-id">Property ID: <%= @application.property_id %></small>
+          <% end %>
         </div>
-        
+
         <div class="detail-row">
           <strong>Home Value:</strong>
           <span class="admin-badge admin-badge-user">
             <%= @application.formatted_home_value %>
           </span>
+          <% if @application.has_property_valuation? %>
+            <br>
+            <small class="valuation-info">
+              CoreLogic Valuation: <%= @application.formatted_property_valuation_middle %>
+              <br>
+              <em>Range: <%= @application.formatted_property_valuation_range %></em>
+            </small>
+          <% end %>
         </div>
         
         <div class="detail-row">
@@ -124,6 +136,19 @@
           <strong>Last Updated:</strong>
           <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
         </div>
+
+        <% if @application.property_images_array.any? %>
+          <div class="detail-row">
+            <strong>Property Images:</strong>
+            <div class="property-images-grid">
+              <% @application.property_images_array.each_with_index do |image_url, index| %>
+                <div class="property-image-item">
+                  <img src="<%= image_url %>" alt="Property image <%= index + 1 %>" class="property-image" loading="lazy">
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
 

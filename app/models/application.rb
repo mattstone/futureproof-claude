@@ -225,6 +225,47 @@ class Application < ApplicationRecord
   def formatted_growth_rate
     "#{growth_rate || 2.0}%"
   end
+
+  # CoreLogic property methods
+  def property_images_array
+    return [] unless property_images.present?
+    begin
+      JSON.parse(property_images)
+    rescue JSON::ParserError
+      []
+    end
+  end
+
+  def corelogic_property_data
+    return {} unless corelogic_data.present?
+    begin
+      JSON.parse(corelogic_data)
+    rescue JSON::ParserError
+      {}
+    end
+  end
+
+  def has_property_valuation?
+    property_valuation_middle.present? && property_valuation_middle > 0
+  end
+
+  def formatted_property_valuation_range
+    if property_valuation_low.present? && property_valuation_high.present?
+      low = ActionController::Base.helpers.number_to_currency(property_valuation_low, precision: 0)
+      high = ActionController::Base.helpers.number_to_currency(property_valuation_high, precision: 0)
+      "#{low} - #{high}"
+    else
+      "Not available"
+    end
+  end
+
+  def formatted_property_valuation_middle
+    if property_valuation_middle.present?
+      ActionController::Base.helpers.number_to_currency(property_valuation_middle, precision: 0)
+    else
+      "Not available"
+    end
+  end
   
   def contract_display_name
     "#{user.display_name} - #{address[0..50]}"
@@ -466,7 +507,10 @@ class Application < ApplicationRecord
   def assign_demo_address
     return if address.present? && address != "Placeholder - to be updated by user"
 
-    # Random Sydney addresses for demonstration purposes
+    # Don't assign demo address anymore - users should enter real addresses via CoreLogic
+    return
+
+    # Random Sydney addresses for demonstration purposes (disabled)
     sydney_addresses = [
       "15 Circular Quay West, Sydney NSW 2000",
       "42 Kent Street, Sydney NSW 2000",

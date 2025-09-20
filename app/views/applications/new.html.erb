@@ -32,9 +32,11 @@
       </div>
 
       <div class="application-form">
-        <%= form_with model: @application, local: true, html: { 
+        <%= form_with model: @application, local: true, html: {
               class: "application-form-inner",
-              data: { controller: "application-form application-value" }
+              data: { controller: "application-form application-value property-autocomplete",
+                      property_autocomplete_url_value: autocomplete_applications_path,
+                      property_autocomplete_min_chars_value: 3 }
             } do |f| %>
           
           <%= render "shared/error_messages", resource: @application %>
@@ -44,11 +46,32 @@
             
             <div class="form-group">
               <%= f.label :address, "Property Address", class: "form-label" %>
-              <div class="demo-address-display">
-                <%= @application.address.presence || "Address will be assigned for demonstration purposes" %>
-                <small class="demo-note">This is a demonstration system - address is randomly assigned</small>
+              <div class="autocomplete-container">
+                <%= f.text_field :address,
+                    placeholder: "Start typing a property address (3+ characters for suggestions)...",
+                    class: "form-input autocomplete-input",
+                    data: {
+                      property_autocomplete_target: "input",
+                      action: "input->property-autocomplete#input keydown->property-autocomplete#keydown"
+                    },
+                    value: @application.address,
+                    autocomplete: "off" %>
+
+                <div class="autocomplete-suggestions"
+                     data-property-autocomplete-target="suggestions"
+                     data-action="click->property-autocomplete#clickItem">
+                </div>
               </div>
-              <%= f.hidden_field :address %>
+              <small class="form-hint">Type 3 or more characters to see dynamic property suggestions</small>
+
+              <!-- Hidden fields for CoreLogic data -->
+              <%= f.hidden_field :property_id, data: { property_autocomplete_target: "propertyId" } %>
+              <%= f.hidden_field :property_type, data: { field: "property_type" } %>
+              <%= f.hidden_field :property_images, data: { field: "property_images" } %>
+              <%= f.hidden_field :property_valuation_low, data: { field: "property_valuation_low" } %>
+              <%= f.hidden_field :property_valuation_middle, data: { field: "property_valuation_middle" } %>
+              <%= f.hidden_field :property_valuation_high, data: { field: "property_valuation_high" } %>
+              <%= f.hidden_field :corelogic_data, data: { field: "corelogic_data" } %>
             </div>
 
             <div class="form-group">
@@ -60,9 +83,10 @@
                     step: 50000,
                     value: @application.home_value || 1500000,
                     class: "value-slider",
-                    data: { 
+                    data: {
                       "application-form-target": "homeValueSlider",
                       "application-value-target": "homeValueSlider",
+                      "property-autocomplete-target": "homeValue",
                       "action": "input->application-form#updateHomeValue"
                     } %>
                 <div class="slider-value" data-application-form-target="homeValueDisplay" data-application-value-target="homeValueDisplay">

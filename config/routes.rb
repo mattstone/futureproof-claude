@@ -175,7 +175,16 @@ Rails.application.routes.draw do
         post :calculate
       end
     end
-    
+
+    # CoreLogic API Test
+    resources :core_logic_test, only: [:index] do
+      collection do
+        get :search
+        get :property_details
+        get :autocomplete
+      end
+    end
+
     # Error notification testing (production only, futureproof admins only)
     if Rails.env.production?
       resource :error_test, only: [:show] do
@@ -234,6 +243,10 @@ Rails.application.routes.draw do
 
   # Application routes
   resources :applications, except: [:index, :destroy] do
+    collection do
+      get :autocomplete
+      get :get_property_details
+    end
     member do
       get :income_and_loan
       patch :update_income_and_loan

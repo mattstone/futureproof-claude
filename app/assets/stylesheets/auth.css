@@ -694,3 +694,30 @@
         padding: 16px 20px;
     }
 }
+
+/* Checkbox text styling to keep terms on one line */
+.terms-checkbox-fix .terms-inline {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    width: auto !important;
+}
+
+.terms-checkbox-fix .checkbox-text {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    display: inline !important;
+}
+
+/* Force center alignment for reCAPTCHA */
+.auth-form .recaptcha-group {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 40px 0 36px 0 !important;
+}
+
+.auth-form .recaptcha-group .g-recaptcha {
+    margin: 0 auto !important;
+}

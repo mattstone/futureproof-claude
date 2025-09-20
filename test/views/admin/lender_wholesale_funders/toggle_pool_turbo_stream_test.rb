@@ -1,8 +1,8 @@
 require "test_helper"
 
-class Admin::LenderWholesaleFunders::TogglePoolTurboStreamTest < ActionView::TestCase
+class Admin::LenderWholesaleFundersTogglePoolTurboStreamTest < ActionView::TestCase
   setup do
-    @lender = lenders(:one)
+    @lender = lenders(:futureproof)
     @funder_pool = funder_pools(:one)
     @relationship = LenderFunderPool.create!(
       lender: @lender,

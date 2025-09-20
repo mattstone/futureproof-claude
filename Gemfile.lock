@@ -213,6 +213,10 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashie (5.0.0)
+    httparty (0.23.1)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.2.2)
@@ -587,6 +591,7 @@ DEPENDENCIES
   devise
   dockerfile-rails (>= 1.7)
   exception_notification
+  httparty
   importmap-rails
   jbuilder
   kamal

@@ -1,0 +1,121 @@
+<% content_for :page_title, "CoreLogic API Test" %>
+
+<% if Rails.env.development? %>
+  <div class="alert alert-info">
+    <strong>Development Mode:</strong> This interface tests the CoreLogic API integration.
+    Real API calls will be made when possible, but mock data will be shown if API access is restricted.
+    Authentication is working: ✅
+  </div>
+<% end %>
+
+<div class="dashboard-card">
+  <div class="card-header">
+    <h3>CoreLogic Property Search Test</h3>
+    <small style="color: #6b7280; font-weight: normal;">Test the CoreLogic API integration</small>
+  </div>
+  <div class="card-content">
+    <div data-controller="core-logic-autocomplete"
+         data-core-logic-autocomplete-url-value="<%= autocomplete_admin_core_logic_test_index_path %>"
+         data-core-logic-autocomplete-min-chars-value="3"
+         data-details-url="<%= property_details_admin_core_logic_test_index_path %>">
+
+      <%= form_with url: search_admin_core_logic_test_index_path, method: :get, local: true, class: "admin-form" do |f| %>
+        <div class="admin-form-group">
+          <%= f.label :query, "Search for a property address:", class: "admin-form-label" %>
+          <div class="autocomplete-container">
+            <%= f.text_field :query,
+                placeholder: "Start typing an address (3+ characters for suggestions)...",
+                class: "admin-form-input autocomplete-input",
+                data: {
+                  core_logic_autocomplete_target: "input",
+                  action: "input->core-logic-autocomplete#input keydown->core-logic-autocomplete#keydown"
+                },
+                autocomplete: "off" %>
+
+            <div class="autocomplete-suggestions"
+                 data-core-logic-autocomplete-target="suggestions"
+                 data-action="click->core-logic-autocomplete#clickItem">
+            </div>
+          </div>
+          <small class="admin-form-help">Type 3 or more characters to see dynamic suggestions</small>
+        </div>
+
+        <!-- Hidden field to store selected property ID -->
+        <%= f.hidden_field :property_id, data: { core_logic_autocomplete_target: "selectedId" } %>
+
+        <div class="admin-actions">
+          <%= f.submit "Search Properties", class: "admin-btn admin-btn-primary" %>
+          <button type="button"
+                  class="admin-btn admin-btn-secondary"
+                  data-action="click->core-logic-autocomplete#viewDetails">
+            View Selected Property Details
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if params[:query].present? %>
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Search Results for "<%= params[:query] %>"</h3>
+    </div>
+    <div class="card-content">
+      <% if @suggestions && @suggestions.is_a?(Array) && @suggestions.any? %>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Property Suggestion</th>
+                <th>Property ID</th>
+                <th>Type</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @suggestions.each do |suggestion| %>
+                <tr>
+                  <td>
+                    <strong><%= suggestion['suggestion'] %></strong>
+                  </td>
+                  <td>
+                    <code><%= suggestion['property_id'] || suggestion['propertyId'] %></code>
+                  </td>
+                  <td>
+                    <span class="status-badge">
+                      <%= suggestion['suggestion_type'] || suggestion['suggestionType'] || 'Property' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% is_active = suggestion['is_active_property'] || suggestion['isActiveProperty'] %>
+                    <span class="status-badge <%= is_active ? 'status-active' : 'status-inactive' %>">
+                      <%= is_active ? 'Active' : 'Inactive' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% property_id = suggestion['property_id'] || suggestion['propertyId'] %>
+                    <% if property_id %>
+                      <%= link_to "View Details",
+                          property_details_admin_core_logic_test_index_path(property_id: property_id),
+                          class: "admin-btn admin-btn-secondary" %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% elsif @suggestions && @suggestions.is_a?(Hash) && @suggestions['error'] %>
+        <div class="alert alert-error">
+          <strong>Error:</strong> <%= @suggestions['error'] %>
+        </div>
+      <% else %>
+        <div class="alert alert-info">
+          No property suggestions found for "<%= params[:query] %>".
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

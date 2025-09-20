@@ -16,7 +16,7 @@ class UserMailer < ApplicationMailer
         user: user,
         verification_code: user.verification_code,
         expires_at: user.verification_code_expires_at
-      })
+      }, include_header_footer: false) # Skip header/footer since we use Rails mailer layout
       
       # Set instance variables for layout
       @email_content = rendered[:content].html_safe
@@ -58,7 +58,7 @@ class UserMailer < ApplicationMailer
         device_type: extract_device_type(browser_info),
         os_info: extract_os_info(browser_info),
         risk_level: 'Low'
-      })
+      }, include_header_footer: false) # Skip header/footer since we use Rails mailer layout
       
       # Set instance variables for layout
       @email_content = rendered[:content].html_safe

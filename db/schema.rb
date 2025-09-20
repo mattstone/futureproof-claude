@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_021440) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_19_065703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -106,6 +106,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_021440) do
     t.integer "income_payout_term"
     t.bigint "mortgage_id"
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
+    t.string "property_id"
+    t.string "property_type"
+    t.text "property_images"
+    t.integer "property_valuation_low"
+    t.integer "property_valuation_middle"
+    t.integer "property_valuation_high"
+    t.text "corelogic_data"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
   end

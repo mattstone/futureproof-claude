@@ -1,0 +1,287 @@
+<% content_for :page_title, "Property Details - #{@property_id}" %>
+
+<div class="admin-actions-bar">
+  <%= link_to "← Back to Search", admin_core_logic_test_index_path, class: "admin-btn admin-btn-secondary" %>
+</div>
+
+<% if @property_details && !@property_details['error'] %>
+
+  <!-- Property Address -->
+  <% if @property_details[:address] && !@property_details[:address]['error'] %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>📍 Property Address</h3>
+        <small>Property ID: <code><%= @property_id %></code></small>
+      </div>
+      <div class="card-content">
+        <% address = @property_details[:address] %>
+        <div class="property-details-grid">
+          <div class="property-detail">
+            <strong>Full Address:</strong>
+            <span><%= address['single_line'] || address['singleLine'] || 'Not available' %></span>
+          </div>
+
+          <% if address['street'] %>
+            <div class="property-detail">
+              <strong>Street:</strong>
+              <span><%= address['street']['name_and_number'] || address['street']['nameAndNumber'] || 'Not available' %></span>
+            </div>
+          <% end %>
+
+          <% if address['locality'] %>
+            <div class="property-detail">
+              <strong>Locality:</strong>
+              <span><%= address['locality']['name'] || 'Not available' %></span>
+            </div>
+          <% end %>
+
+          <% if address['postcode'] %>
+            <div class="property-detail">
+              <strong>Postcode:</strong>
+              <span><%= address['postcode']['name'] || 'Not available' %></span>
+            </div>
+          <% end %>
+
+          <div class="property-detail">
+            <strong>State:</strong>
+            <span><%= address['state'] || 'Not available' %></span>
+          </div>
+
+          <% if address['council_area'] || address['councilArea'] %>
+            <div class="property-detail">
+              <strong>Council Area:</strong>
+              <span><%= address['council_area'] || address['councilArea'] %></span>
+            </div>
+          <% end %>
+
+          <% if address['longitude'] && address['latitude'] %>
+            <div class="property-detail">
+              <strong>Coordinates:</strong>
+              <span><%= address['latitude'] %>, <%= address['longitude'] %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Property Attributes -->
+  <% if @property_details[:attributes] && !@property_details[:attributes]['error'] %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>🏠 Property Attributes</h3>
+      </div>
+      <div class="card-content">
+        <% attributes = @property_details[:attributes] %>
+        <div class="property-details-grid">
+          <div class="property-detail">
+            <strong>Property Type:</strong>
+            <span><%= attributes['property_type'] || attributes['propertyType'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Property Sub Type:</strong>
+            <span><%= attributes['property_sub_type'] || attributes['propertySubType'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Bedrooms:</strong>
+            <span><%= attributes['beds'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Bathrooms:</strong>
+            <span><%= attributes['baths'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Car Spaces:</strong>
+            <span><%= attributes['car_spaces'] || attributes['carSpaces'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Lock-up Garages:</strong>
+            <span><%= attributes['lock_up_garages'] || attributes['lockUpGarages'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Land Area (sqm):</strong>
+            <span>
+              <%= attributes['land_area'] || attributes['landArea'] || 'Not available' %>
+              <% if attributes['is_calculated_land_area'] || attributes['isCalculatedLandArea'] %>
+                <em>(calculated)</em>
+              <% end %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Property Valuation -->
+  <% if @property_details[:valuation] && !@property_details[:valuation]['error'] %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>💰 Property Valuation</h3>
+      </div>
+      <div class="card-content">
+        <% valuation = @property_details[:valuation] %>
+        <div class="property-details-grid">
+          <div class="property-detail">
+            <strong>Estimated Value:</strong>
+            <span class="valuation-estimate">
+              <% if valuation['estimate'] %>
+                $<%= number_with_delimiter(valuation['estimate']) %>
+              <% else %>
+                Not available
+              <% end %>
+            </span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Low Estimate:</strong>
+            <span>
+              <% if valuation['low_estimate'] || valuation['lowEstimate'] %>
+                $<%= number_with_delimiter(valuation['low_estimate'] || valuation['lowEstimate']) %>
+              <% else %>
+                Not available
+              <% end %>
+            </span>
+          </div>
+
+          <div class="property-detail">
+            <strong>High Estimate:</strong>
+            <span>
+              <% if valuation['high_estimate'] || valuation['highEstimate'] %>
+                $<%= number_with_delimiter(valuation['high_estimate'] || valuation['highEstimate']) %>
+              <% else %>
+                Not available
+              <% end %>
+            </span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Confidence:</strong>
+            <span><%= valuation['confidence'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>FSD:</strong>
+            <span><%= valuation['fsd'] || 'Not available' %></span>
+          </div>
+
+          <div class="property-detail">
+            <strong>Valuation Date:</strong>
+            <span>
+              <% if valuation['valuation_date'] || valuation['valuationDate'] %>
+                <%= Date.parse(valuation['valuation_date'] || valuation['valuationDate']).strftime('%d %B %Y') rescue 'Invalid date' %>
+              <% else %>
+                Not available
+              <% end %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Property Images -->
+  <% if @property_details[:images] && (@property_details[:images].is_a?(Array) || (@property_details[:images].is_a?(Hash) && !@property_details[:images]['error'])) %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>📸 Property Images</h3>
+      </div>
+      <div class="card-content">
+        <% images = @property_details[:images] %>
+        <% if images.is_a?(Array) && images.any? %>
+          <div class="property-images-grid">
+            <% images.each_with_index do |image, index| %>
+              <div class="property-image-card">
+                <% if image['medium_photo_url'] || image['mediumPhotoUrl'] %>
+                  <img src="<%= image['medium_photo_url'] || image['mediumPhotoUrl'] %>"
+                       alt="Property image <%= index + 1 %>"
+                       loading="lazy"
+                       class="property-image">
+                <% elsif image['thumbnail_photo_url'] || image['thumbnailPhotoUrl'] %>
+                  <img src="<%= image['thumbnail_photo_url'] || image['thumbnailPhotoUrl'] %>"
+                       alt="Property image <%= index + 1 %>"
+                       loading="lazy"
+                       class="property-image">
+                <% end %>
+
+                <div class="property-image-info">
+                  <p><strong>Type:</strong> <%= image['digital_asset_type'] || image['digitalAssetType'] || 'Image' %></p>
+                  <% if image['scan_date'] || image['scanDate'] %>
+                    <p><strong>Scan Date:</strong>
+                      <%= Date.parse(image['scan_date'] || image['scanDate']).strftime('%d %B %Y') rescue 'Invalid date' %>
+                    </p>
+                  <% end %>
+
+                  <div class="image-links">
+                    <% if image['large_photo_url'] || image['largePhotoUrl'] %>
+                      <%= link_to "View Large", (image['large_photo_url'] || image['largePhotoUrl']),
+                          target: "_blank", class: "admin-btn admin-btn-secondary" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% elsif images.is_a?(Hash) %>
+          <!-- Single image object -->
+          <div class="property-images-grid">
+            <div class="property-image-card">
+              <% if images['medium_photo_url'] || images['mediumPhotoUrl'] %>
+                <img src="<%= images['medium_photo_url'] || images['mediumPhotoUrl'] %>"
+                     alt="Property image"
+                     loading="lazy"
+                     class="property-image">
+              <% elsif images['thumbnail_photo_url'] || images['thumbnailPhotoUrl'] %>
+                <img src="<%= images['thumbnail_photo_url'] || images['thumbnailPhotoUrl'] %>"
+                     alt="Property image"
+                     loading="lazy"
+                     class="property-image">
+              <% end %>
+
+              <div class="property-image-info">
+                <p><strong>Type:</strong> <%= images['digital_asset_type'] || images['digitalAssetType'] || 'Image' %></p>
+                <% if images['scan_date'] || images['scanDate'] %>
+                  <p><strong>Scan Date:</strong>
+                    <%= Date.parse(images['scan_date'] || images['scanDate']).strftime('%d %B %Y') rescue 'Invalid date' %>
+                  </p>
+                <% end %>
+
+                <div class="image-links">
+                  <% if images['large_photo_url'] || images['largePhotoUrl'] %>
+                    <%= link_to "View Large", (images['large_photo_url'] || images['largePhotoUrl']),
+                        target: "_blank", class: "admin-btn admin-btn-secondary" %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="alert alert-info">
+            No images available for this property.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+<% else %>
+  <div class="dashboard-card">
+    <div class="card-header">
+      <h3>Error Loading Property Details</h3>
+    </div>
+    <div class="card-content">
+      <div class="alert alert-error">
+        <% if @property_details && @property_details['error'] %>
+          <strong>Error:</strong> <%= @property_details['error'] %>
+        <% else %>
+          Unable to load property details for Property ID: <code><%= @property_id %></code>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

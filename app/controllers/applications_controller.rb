@@ -8,11 +8,11 @@ class ApplicationsController < ApplicationController
   def new
     # Get or create application
     @application = current_user.applications.status_created.first || current_user.applications.build
-    
+
     # Set defaults
     @application.ownership_status = :individual
     @application.borrower_age = 60 if @application.borrower_age.to_i < 18
-    
+
     # Pre-populate home value if passed from home page calculator
     if params[:home_value].present?
       @application.home_value = params[:home_value].to_i
@@ -157,19 +157,69 @@ class ApplicationsController < ApplicationController
       @application.application_messages
                   .where(message_type: 'admin_to_customer', status: 'sent')
                   .update_all(status: 'read')
-      
+
       # Get updated total unread count across all applications
       unread_count = current_user.applications.joins(:application_messages)
         .where(application_messages: { message_type: 'admin_to_customer', status: 'sent' })
         .count('application_messages.id')
 
-      render json: { 
-        success: true, 
+      render json: {
+        success: true,
         unread_count: unread_count,
-        message: 'All messages marked as read' 
+        message: 'All messages marked as read'
       }
     else
       render json: { success: false, error: 'Unauthorized' }, status: :forbidden
+    end
+  end
+
+  def autocomplete
+    query = params[:query]
+
+    if query.blank? || query.length < 3
+      render json: []
+      return
+    end
+
+    begin
+      # Get suggestions from CoreLogic API
+      service = CoreLogicService.new
+      suggestions = service.get_property_suggestions(query)
+
+      # Format for autocomplete display
+      formatted_suggestions = suggestions.map do |suggestion|
+        {
+          id: suggestion['property_id'] || suggestion['propertyId'],
+          text: suggestion['suggestion'],
+          property_type: suggestion['suggestion_type'] || suggestion['suggestionType'] || 'Property',
+          is_active: suggestion['is_active_property'] || suggestion['isActiveProperty'],
+          is_unit: (suggestion['suggestion_type'] || suggestion['suggestionType'])&.downcase&.include?('unit')
+        }
+      end
+
+      render json: formatted_suggestions
+    rescue => e
+      Rails.logger.error "CoreLogic autocomplete error: #{e.message}"
+      render json: { error: 'Unable to fetch suggestions' }, status: :service_unavailable
+    end
+  end
+
+  def get_property_details
+    property_id = params[:property_id]
+
+    if property_id.blank?
+      render json: { error: 'Property ID is required' }, status: :bad_request
+      return
+    end
+
+    begin
+      service = CoreLogicService.new
+      property_details = service.get_complete_property_details(property_id)
+
+      render json: property_details
+    rescue => e
+      Rails.logger.error "CoreLogic property details error: #{e.message}"
+      render json: { error: 'Unable to fetch property details' }, status: :service_unavailable
     end
   end
 
@@ -187,17 +237,25 @@ class ApplicationsController < ApplicationController
 
   def application_params
     params.require(:application).permit(
-      :home_value, 
-      :ownership_status, 
-      :property_state, 
-      :has_existing_mortgage, 
+      :address,
+      :home_value,
+      :ownership_status,
+      :property_state,
+      :has_existing_mortgage,
       :existing_mortgage_amount,
       :status,
       :rejected_reason,
       :borrower_age,
       :borrower_names,
       :company_name,
-      :super_fund_name
+      :super_fund_name,
+      :property_id,
+      :property_type,
+      :property_images,
+      :property_valuation_low,
+      :property_valuation_middle,
+      :property_valuation_high,
+      :corelogic_data
     )
   end
 
