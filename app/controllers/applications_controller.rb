@@ -7,15 +7,27 @@ class ApplicationsController < ApplicationController
 
   def new
     # Get or create application
-    @application = current_user.applications.status_created.first || current_user.applications.build
+    @application = current_user.applications.status_created.first
 
-    # Set defaults
-    @application.ownership_status = :individual
+    unless @application
+      # Create a new application and save it so it has an ID for auto-save
+      @application = current_user.applications.build(
+        status: :created,
+        ownership_status: :individual,
+        borrower_age: 60,
+        home_value: 1000000 # Default value
+      )
+      @application.save!
+    end
+
+    # Set defaults if not already set
+    @application.ownership_status = :individual if @application.ownership_status.blank?
     @application.borrower_age = 60 if @application.borrower_age.to_i < 18
 
     # Pre-populate home value if passed from home page calculator
     if params[:home_value].present?
       @application.home_value = params[:home_value].to_i
+      @application.save! # Save the updated home value
     end
   end
 
@@ -51,18 +63,24 @@ class ApplicationsController < ApplicationController
   def update
     # Update status to property_details when updating property details
     @application.assign_attributes(application_params)
-    
+
     # If no existing mortgage checkbox is unchecked, clear the mortgage amount
     unless @application.has_existing_mortgage?
       @application.existing_mortgage_amount = 0
     end
-    
+
     @application.status = :property_details
-    
+
     if @application.save
-      redirect_to income_and_loan_application_path(@application), notice: 'Property details updated successfully!'
+      respond_to do |format|
+        format.html { redirect_to income_and_loan_application_path(@application), notice: 'Property details updated successfully!' }
+        format.json { render json: { status: 'success', message: 'Property details saved' } }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { status: 'error', errors: @application.errors } }
+      end
     end
   end
 
@@ -243,6 +261,7 @@ class ApplicationsController < ApplicationController
       :property_state,
       :has_existing_mortgage,
       :existing_mortgage_amount,
+      :existing_mortgage_lender,
       :status,
       :rejected_reason,
       :borrower_age,

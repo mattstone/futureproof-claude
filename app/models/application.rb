@@ -34,7 +34,7 @@ class Application < ApplicationRecord
   }, prefix: true
 
   # Validations
-  validates :address, presence: true, length: { maximum: 255 }
+  validates :address, presence: true, length: { maximum: 255 }, unless: :status_created?
   validates :home_value, presence: true, numericality: {
     greater_than: 0,
     less_than_or_equal_to: 50_000_000,
@@ -243,6 +243,11 @@ class Application < ApplicationRecord
     rescue JSON::ParserError
       {}
     end
+  end
+
+  # Alias for backwards compatibility with view templates
+  def corelogic_data_hash
+    corelogic_property_data
   end
 
   def has_property_valuation?

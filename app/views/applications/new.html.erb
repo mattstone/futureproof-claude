@@ -64,6 +64,105 @@
               </div>
               <small class="form-hint">Type 3 or more characters to see dynamic property suggestions</small>
 
+              <!-- Property Details Preview (shown when CoreLogic data is available) -->
+              <div class="property-preview <%= @application.corelogic_data_hash.present? ? 'visible' : '' %>"
+                   data-property-autocomplete-target="propertyPreview">
+
+                <div class="property-preview-header">
+                  <h4 class="property-preview-title">Property Information</h4>
+                  <div class="property-preview-subtitle"><%= @application.property_type.present? ? @application.property_type.humanize : 'Property' %></div>
+                </div>
+
+                <div class="property-preview-content">
+                  <!-- Property Images Gallery -->
+                  <% if @application.property_images_array.any? %>
+                    <div class="property-images-section">
+                      <div class="property-images-gallery">
+                        <div class="property-image-main">
+                          <img src="<%= @application.property_images_array.first %>"
+                               alt="Property main image"
+                               class="property-image-primary"
+                               data-property-autocomplete-target="primaryImage">
+                        </div>
+                        <% if @application.property_images_array.length > 1 %>
+                          <div class="property-image-thumbnails">
+                            <% @application.property_images_array.each_with_index do |image_url, index| %>
+                              <div class="property-image-thumb <%= index == 0 ? 'active' : '' %>"
+                                   data-action="click->property-autocomplete#selectImage"
+                                   data-index="<%= index %>"
+                                   data-image-url="<%= image_url %>">
+                                <img src="<%= image_url %>" alt="Property image <%= index + 1 %>">
+                              </div>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Property Details -->
+                  <div class="property-details-section">
+                    <div class="property-details-grid">
+                      <% if @application.has_property_valuation? %>
+                        <div class="property-detail-item">
+                          <div class="property-detail-label">Valuation</div>
+                          <div class="property-detail-value primary-value">
+                            <%= @application.formatted_property_valuation_middle %>
+                          </div>
+                          <div class="property-detail-range">
+                            Range: <%= @application.formatted_property_valuation_range %>
+                          </div>
+                        </div>
+                      <% end %>
+
+
+                      <% if @application.corelogic_data_hash['land_area'].present? %>
+                        <div class="property-detail-item">
+                          <div class="property-detail-label">Land Area</div>
+                          <div class="property-detail-value">
+                            <%= @application.corelogic_data_hash['land_area'] %> m²
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <% if @application.corelogic_data_hash['building_area'].present? %>
+                        <div class="property-detail-item">
+                          <div class="property-detail-label">Building Area</div>
+                          <div class="property-detail-value">
+                            <%= @application.corelogic_data_hash['building_area'] %> m²
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <% if @application.corelogic_data_hash['year_built'].present? %>
+                        <div class="property-detail-item">
+                          <div class="property-detail-label">Year Built</div>
+                          <div class="property-detail-value">
+                            <%= @application.corelogic_data_hash['year_built'] %>
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <% if @application.property_type.present? %>
+                        <div class="property-detail-item">
+                          <div class="property-detail-label">Property Type</div>
+                          <div class="property-detail-value">
+                            <%= @application.property_type.humanize %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+
+                    <div class="property-valuation-notice">
+                      <svg class="property-notice-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                      </svg>
+                      <span>Property value has been set to the average valuation for this property. You may change this value, however a 3rd party property valuation will be required.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Hidden fields for CoreLogic data -->
               <%= f.hidden_field :property_id, data: { property_autocomplete_target: "propertyId" } %>
               <%= f.hidden_field :property_type, data: { field: "property_type" } %>
@@ -103,15 +202,14 @@
                     options_for_select([
                       ['Individual', 'individual'],
                       ['Joint Ownership', 'joint'],
-                      ['Lender', 'lender'],
                       ['Superannuation Fund', 'super']
                     ], @application.ownership_status),
                     {},
-                    { 
+                    {
                       class: "form-select",
-                      data: { 
+                      data: {
                         "application-form-target": "ownershipSelect",
-                        "action": "change->application-form#toggleOwnershipFields"
+                        "action": "change->application-form#toggleOwnershipFields change->application-form#autoSave"
                       }
                     } %>
               </div>
@@ -129,9 +227,14 @@
               </div>
             </div>
 
-            <!-- Individual ownership: Show borrower age -->
-            <div class="form-group <%= @application.ownership_status_individual? ? '' : 'js-hidden' %>"
+            <!-- Individual ownership: Show borrower name and age -->
+            <div class="form-group <%= @application.ownership_status.to_s == 'individual' ? '' : 'js-hidden' %>"
                  data-application-form-target="individualFields">
+              <%= f.label :borrower_names, "Borrower Name", class: "form-label" %>
+              <%= f.text_field :borrower_names,
+                  class: "form-input",
+                  placeholder: "Enter borrower name" %>
+
               <%= f.label :borrower_age, "Age of Borrower", class: "form-label" %>
               <div class="slider-container">
                 <%= f.range_field :borrower_age,
@@ -140,7 +243,7 @@
                     step: 1,
                     value: @application.borrower_age || 60,
                     class: "value-slider",
-                    data: { 
+                    data: {
                       "application-form-target": "borrowerAgeSlider",
                       "action": "input->application-form#updateBorrowerAge"
                     } %>
@@ -152,7 +255,7 @@
             </div>
 
             <!-- Joint ownership: Show borrower names and ages -->
-            <div class="form-group <%= @application.ownership_status_joint? ? '' : 'js-hidden' %>"
+            <div class="form-group <%= @application.ownership_status.to_s == 'joint' ? '' : 'js-hidden' %>"
                  data-application-form-target="jointFields">
               <label class="form-label">Borrower Details</label>
               <div id="joint-borrowers">
@@ -187,17 +290,9 @@
               <%= f.hidden_field :borrower_names, data: { "application-form-target": "borrowerNamesHidden" } %>
             </div>
 
-            <!-- Lender ownership: Show lender name -->
-            <div class="form-group <%= @application.ownership_status_lender? ? '' : 'js-hidden' %>"
-                 data-application-form-target="lenderFields">
-              <%= f.label :lender_name, "Lender Name", class: "form-label" %>
-              <%= f.text_field :lender_name, 
-                  class: "form-input", 
-                  placeholder: "Enter the lender name" %>
-            </div>
 
             <!-- Superannuation ownership: Show super fund name -->
-            <div class="form-group <%= @application.ownership_status_super? ? '' : 'js-hidden' %>"
+            <div class="form-group <%= @application.ownership_status.to_s == 'super' ? '' : 'js-hidden' %>"
                  data-application-form-target="superFields">
               <%= f.label :super_fund_name, "Superannuation Fund Name", class: "form-label" %>
               <%= f.text_field :super_fund_name, 
@@ -216,7 +311,7 @@
                     class: "form-checkbox",
                     data: {
                       "application-form-target": "mortgageCheckbox",
-                      "action": "change->application-form#toggleMortgageAmount"
+                      "action": "change->application-form#toggleMortgageAmount change->application-form#autoSave"
                     } %>
               <% end %>
             </div>
@@ -231,7 +326,7 @@
                     step: 10000,
                     value: @application.has_existing_mortgage? ? (@application.existing_mortgage_amount || 500000) : 0,
                     class: "value-slider",
-                    data: { 
+                    data: {
                       "application-form-target": "mortgageSlider",
                       "action": "input->application-form#updateMortgageAmount"
                     } %>
@@ -240,6 +335,14 @@
                 </div>
               </div>
               <div class="form-hint">Adjust the slider to set your outstanding mortgage balance</div>
+            </div>
+
+            <div class="form-group <%= @application.has_existing_mortgage? ? '' : 'js-hidden' %>"
+                 data-application-form-target="mortgageLenderGroup">
+              <%= f.label :existing_mortgage_lender, "Current Mortgage Lender", class: "form-label" %>
+              <%= f.text_field :existing_mortgage_lender,
+                  class: "form-input",
+                  placeholder: "Enter your current mortgage lender name" %>
             </div>
           </div>
 

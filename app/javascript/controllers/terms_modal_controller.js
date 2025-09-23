@@ -67,16 +67,20 @@ export default class extends Controller {
   updateButtonState() {
     const checkbox = this.getTermsCheckbox()
     const submitButton = this.getSubmitButton()
-    
+
     if (checkbox && submitButton) {
       if (checkbox.checked) {
+        // Enable the button and remove disabled styling
         submitButton.disabled = false
-        submitButton.style.opacity = "1"
-        submitButton.style.cursor = "pointer"
+        submitButton.classList.remove('site-btn-disabled')
+        submitButton.style.opacity = ""  // Clear inline opacity to let CSS take over
+        submitButton.style.cursor = ""   // Clear inline cursor to let CSS take over
       } else {
+        // Disable the button and add disabled styling
         submitButton.disabled = true
-        submitButton.style.opacity = "0.5"
-        submitButton.style.cursor = "not-allowed"
+        submitButton.classList.add('site-btn-disabled')
+        submitButton.style.opacity = ""  // Clear inline opacity to let CSS take over
+        submitButton.style.cursor = ""   // Clear inline cursor to let CSS take over
       }
     }
   }

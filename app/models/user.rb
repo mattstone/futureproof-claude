@@ -9,7 +9,7 @@ class User < ApplicationRecord
          omniauth_providers: [:saml]
 
   # Associations
-  belongs_to :lender
+  belongs_to :lender, optional: true
   has_many :applications, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
@@ -28,6 +28,7 @@ class User < ApplicationRecord
   
   # Callbacks for change tracking
   after_create :log_creation
+  after_create :create_initial_application, unless: :admin?
   after_update :log_update
 
   # Validations
@@ -36,8 +37,8 @@ class User < ApplicationRecord
   validates :email, uniqueness: { scope: :lender_id, message: "is already taken for this lender" }
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
   
-  # Lender scoping validation
-  validates :lender, presence: true
+  # Lender scoping validation - only required for admin users
+  validates :lender, presence: true, if: :admin?
   
   # Existing validations
   validates :first_name, presence: true, length: { maximum: 50 }
@@ -166,6 +167,26 @@ class User < ApplicationRecord
         # Note: address will be auto-assigned by the Application model callback
       )
     end
+  end
+
+  def create_initial_application
+    # Create an application with "created" status for customer users during registration
+    return if applications.exists?
+
+    # Use pending_home_value if available, otherwise use default
+    home_val = pending_home_value.present? ? pending_home_value.to_i : 1000000
+
+    applications.create!(
+      status: :created,
+      home_value: home_val,
+      ownership_status: :individual, # Default - to be updated by user
+      property_state: :primary_residence, # Default - to be updated by user
+      has_existing_mortgage: false, # Default - to be updated by user
+      existing_mortgage_amount: 0, # Default - will be updated if has_existing_mortgage is true
+      growth_rate: 2.0, # Default growth rate
+      borrower_age: 60 # Default age for form display
+      # Note: address is optional for created status applications
+    )
   end
 
   def confirmed?

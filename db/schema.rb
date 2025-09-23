@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_19_065703) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_19_065703) do
     t.integer "property_valuation_middle"
     t.integer "property_valuation_high"
     t.text "corelogic_data"
+    t.string "existing_mortgage_lender"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["user_id"], name: "index_applications_on_user_id"
   end
@@ -686,7 +687,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_19_065703) do
     t.string "mobile_number"
     t.boolean "terms_accepted", default: false, null: false
     t.integer "terms_version"
-    t.bigint "lender_id", null: false
+    t.bigint "lender_id"
     t.text "address"
     t.boolean "is_test", default: false, null: false
     t.string "sso_provider"

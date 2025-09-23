@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["mortgageCheckbox", "mortgageAmountGroup", "homeValueSlider", "homeValueDisplay", "mortgageSlider", "mortgageAmountDisplay", "ownershipSelect", "individualFields", "jointFields", "companyFields", "superFields", "borrowerNamesHidden", "borrowerAgeSlider", "borrowerAgeDisplay"]
+  static targets = ["mortgageCheckbox", "mortgageAmountGroup", "mortgageLenderGroup", "homeValueSlider", "homeValueDisplay", "mortgageSlider", "mortgageAmountDisplay", "ownershipSelect", "individualFields", "jointFields", "superFields", "borrowerNamesHidden", "borrowerAgeSlider", "borrowerAgeDisplay"]
 
   connect() {
     this.toggleMortgageAmount()
@@ -15,9 +15,15 @@ export default class extends Controller {
 
   toggleMortgageAmount() {
     if (this.mortgageCheckboxTarget.checked) {
-      this.mortgageAmountGroupTarget.style.display = "block"
+      this.mortgageAmountGroupTarget.classList.remove("js-hidden")
+      if (this.hasMortgageLenderGroupTarget) {
+        this.mortgageLenderGroupTarget.classList.remove("js-hidden")
+      }
     } else {
-      this.mortgageAmountGroupTarget.style.display = "none"
+      this.mortgageAmountGroupTarget.classList.add("js-hidden")
+      if (this.hasMortgageLenderGroupTarget) {
+        this.mortgageLenderGroupTarget.classList.add("js-hidden")
+      }
       // Reset the mortgage slider when hiding
       if (this.hasMortgageSliderTarget) {
         this.mortgageSliderTarget.value = 500000
@@ -60,42 +66,34 @@ export default class extends Controller {
     if (!this.hasOwnershipSelectTarget) return
 
     const ownershipType = this.ownershipSelectTarget.value
-    
+
     // Hide all ownership-specific fields
     if (this.hasIndividualFieldsTarget) {
-      this.individualFieldsTarget.style.display = "none"
+      this.individualFieldsTarget.classList.add("js-hidden")
     }
     if (this.hasJointFieldsTarget) {
-      this.jointFieldsTarget.style.display = "none"
-    }
-    if (this.hasCompanyFieldsTarget) {
-      this.companyFieldsTarget.style.display = "none"
+      this.jointFieldsTarget.classList.add("js-hidden")
     }
     if (this.hasSuperFieldsTarget) {
-      this.superFieldsTarget.style.display = "none"
+      this.superFieldsTarget.classList.add("js-hidden")
     }
 
     // Show the appropriate fields based on ownership type
     switch(ownershipType) {
       case 'individual':
         if (this.hasIndividualFieldsTarget) {
-          this.individualFieldsTarget.style.display = "block"
+          this.individualFieldsTarget.classList.remove("js-hidden")
         }
         break
       case 'joint':
         if (this.hasJointFieldsTarget) {
-          this.jointFieldsTarget.style.display = "block"
+          this.jointFieldsTarget.classList.remove("js-hidden")
         }
         this.updateBorrowerNamesField()
         break
-      case 'company':
-        if (this.hasCompanyFieldsTarget) {
-          this.companyFieldsTarget.style.display = "block"
-        }
-        break
       case 'super':
         if (this.hasSuperFieldsTarget) {
-          this.superFieldsTarget.style.display = "block"
+          this.superFieldsTarget.classList.remove("js-hidden")
         }
         break
     }
@@ -259,12 +257,38 @@ export default class extends Controller {
     const slider = event.target
     const borrowerIndex = slider.getAttribute('data-borrower-index')
     const ageDisplay = document.querySelector(`[data-age-display="${borrowerIndex}"]`)
-    
+
     if (ageDisplay) {
       ageDisplay.textContent = `${slider.value} years`
     }
-    
+
     // Update the borrower names field with new age data
     this.updateBorrowerNamesField()
+  }
+
+  async autoSave() {
+    try {
+      const form = this.element
+      const formData = new FormData(form)
+      const action = form.action
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+
+      const response = await fetch(`${action}.json`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-Token': csrfToken
+        }
+      })
+
+      if (response.ok) {
+        console.log('Auto-save successful')
+      }
+    } catch (error) {
+      console.log('Auto-save failed:', error)
+    }
   }
 }

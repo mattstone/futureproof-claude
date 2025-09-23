@@ -250,19 +250,19 @@ class CoreLogicService
     [
       {
         'digital_asset_type' => 'Image',
-        'base_photo_url' => 'https://via.placeholder.com/400x300/0066CC/FFFFFF?text=Property+Image+1',
-        'medium_photo_url' => 'https://via.placeholder.com/400x300/0066CC/FFFFFF?text=Property+Image+1',
-        'large_photo_url' => 'https://via.placeholder.com/800x600/0066CC/FFFFFF?text=Property+Image+1',
-        'thumbnail_photo_url' => 'https://via.placeholder.com/150x150/0066CC/FFFFFF?text=Thumb+1',
+        'base_photo_url' => 'https://picsum.photos/400/300?random=1',
+        'medium_photo_url' => 'https://picsum.photos/400/300?random=1',
+        'large_photo_url' => 'https://picsum.photos/800/600?random=1',
+        'thumbnail_photo_url' => 'https://picsum.photos/150/150?random=1',
         'scan_date' => Date.current.to_s,
         'is_active_property' => true
       },
       {
         'digital_asset_type' => 'Image',
-        'base_photo_url' => 'https://via.placeholder.com/400x300/006633/FFFFFF?text=Property+Image+2',
-        'medium_photo_url' => 'https://via.placeholder.com/400x300/006633/FFFFFF?text=Property+Image+2',
-        'large_photo_url' => 'https://via.placeholder.com/800x600/006633/FFFFFF?text=Property+Image+2',
-        'thumbnail_photo_url' => 'https://via.placeholder.com/150x150/006633/FFFFFF?text=Thumb+2',
+        'base_photo_url' => 'https://picsum.photos/400/300?random=2',
+        'medium_photo_url' => 'https://picsum.photos/400/300?random=2',
+        'large_photo_url' => 'https://picsum.photos/800/600?random=2',
+        'thumbnail_photo_url' => 'https://picsum.photos/150/150?random=2',
         'scan_date' => Date.current.to_s,
         'is_active_property' => true
       }
