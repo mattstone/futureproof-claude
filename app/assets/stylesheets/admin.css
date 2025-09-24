@@ -1,6 +1,449 @@
 /* Admin Panel Styles */
 @import url("admin_dashboard.css");
 
+/* Admin CoreLogic Property Data Styles */
+.detail-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.detail-section h4 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 0.5rem;
+}
+
+.admin-property-images {
+  margin-top: 0.5rem;
+}
+
+.admin-property-image {
+  max-width: 300px;
+  max-height: 200px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+.property-image-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.property-image-thumb img {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+}
+
+.property-image-thumb.active img {
+  border-color: #3b82f6;
+  border-width: 2px;
+}
+
+.property-valuation-details {
+  margin-top: 0.5rem;
+}
+
+.valuation-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.valuation-type {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.valuation-range {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.property-id {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+}
+
+/* Professional Valuation Editor Styles */
+.valuation-editor-section {
+  margin: 2rem 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.valuation-editor-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.valuation-editor-header h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.valuation-editor-subtitle {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.875rem;
+}
+
+.valuation-editor-content {
+  padding: 2rem;
+}
+
+.valuation-editor-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.valuation-editor .slider-container {
+  margin: 1rem 0;
+}
+
+.valuation-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.valuation-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.valuation-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.valuation-editor .slider-value {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-top: 0.5rem;
+}
+
+.valuation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.valuation-display-section {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.valuation-current, .income-current {
+  flex: 1;
+  min-width: 200px;
+}
+
+.valuation-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.mortgage-type-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+  font-style: italic;
+}
+
+.valuation-amount, .income-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #059669;
+  padding: 0.75rem 1rem;
+  background: #ecfdf5;
+  border: 2px solid #a7f3d0;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-section {
+  margin-top: 1rem;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.slider-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.current-valuation {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #059669;
+  padding: 0.25rem 0.5rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.valuation-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+}
+
+.valuation-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.valuation-slider::-webkit-slider-thumb:hover {
+  background: #5a67d8;
+  transform: scale(1.1);
+}
+
+.valuation-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.valuation-slider::-moz-range-thumb:hover {
+  background: #5a67d8;
+  transform: scale(1.1);
+}
+
+.slider-range-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.explanation-section {
+  margin-top: 1.5rem;
+}
+
+.explanation-section .form-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.explanation-section .form-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.explanation-section .form-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.explanation-section .form-hint {
+  display: block;
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.valuation-editor-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@media (max-width: 768px) {
+  .valuation-display-section {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .valuation-current, .income-current {
+    min-width: 100%;
+  }
+
+  .valuation-amount, .income-amount {
+    font-size: 1.5rem;
+  }
+
+  .valuation-editor-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .admin-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.valuation-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.alert-success {
+  background-color: #d1fae5;
+  border: 1px solid #10b981;
+  border-radius: 6px;
+  color: #065f46;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #991b1b;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.alert-info {
+  background-color: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  color: #1e40af;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-hint {
+  display: block;
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.valuation-editor .form-group {
+  margin: 1rem 0;
+}
+
 /* CoreLogic Test Page Styles */
 .property-details-grid {
   display: grid;

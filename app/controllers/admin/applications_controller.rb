@@ -105,23 +105,45 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def update
     @application.current_user = current_user # Track who updated it
-    
+
     params_to_update = application_params
     old_status = @application.status
-    
+    old_valuation = @application.property_valuation_middle
+
+    # Check if this is a valuation change
+    valuation_change = params[:valuation_change] == 'true'
+
     # Clear rejected_reason if changing from rejected status to a non-rejected status
     if @application.status == 'rejected' && params_to_update[:status] && params_to_update[:status] != 'rejected'
       params_to_update[:rejected_reason] = nil
     end
-    
+
     respond_to do |format|
       if @application.update(params_to_update)
+        # Track valuation changes in application history
+        if valuation_change && old_valuation != @application.property_valuation_middle
+          new_valuation = @application.property_valuation_middle
+          explanation = params[:valuation_explanation].present? ? params[:valuation_explanation] : "No reason provided"
+
+          @application.application_versions.create!(
+            user: current_user,
+            action: 'valuation_updated',
+            change_details: "Property valuation changed from #{ActionController::Base.helpers.number_to_currency(old_valuation, precision: 0)} to #{ActionController::Base.helpers.number_to_currency(new_valuation, precision: 0)} by #{current_user.display_name}. Reason: #{explanation}"
+          )
+        end
+
         # Check if status changed to accepted for Hotwire removal
         status_changed_to_accepted = old_status != 'accepted' && @application.status == 'accepted'
-        
-        format.html { redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.' }
-        format.turbo_stream { 
-          flash.now[:notice] = 'Application status was successfully updated.'
+
+        if valuation_change
+          format.json { render json: { success: true, message: 'Valuation updated successfully' } }
+          format.html { redirect_to edit_admin_application_path(@application), notice: 'Property valuation was successfully updated.' }
+        else
+          format.html { redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.' }
+        end
+
+        format.turbo_stream {
+          flash.now[:notice] = valuation_change ? 'Property valuation was successfully updated.' : 'Application status was successfully updated.'
           @status_changed_to_accepted = status_changed_to_accepted
           render :status_updated
         }
@@ -131,6 +153,8 @@ class Admin::ApplicationsController < Admin::BaseController
         @new_message = @application.application_messages.build
         @ai_agents = AiAgent.active.order(:name)
         @suggested_agent = AiAgent.suggest_for_application(@application)
+
+        format.json { render json: { success: false, errors: @application.errors.full_messages }, status: :unprocessable_entity }
         format.html { render :edit, status: :unprocessable_entity }
         format.turbo_stream { render :status_update_error }
       end
@@ -303,9 +327,9 @@ class Admin::ApplicationsController < Admin::BaseController
   end
 
   def application_params
-    # Only allow status and rejected_reason to be updated by admins
-    permitted_params = params.require(:application).permit(:status, :rejected_reason)
-    
+    # Allow status, rejected_reason, and property_valuation_middle to be updated by admins
+    permitted_params = params.require(:application).permit(:status, :rejected_reason, :property_valuation_middle)
+
     # Validate that status is one of the allowed values
     # Note: submitted status changes are now handled by the advance_to_processing_with_checklist! method
     if permitted_params[:status].present?
@@ -315,12 +339,21 @@ class Admin::ApplicationsController < Admin::BaseController
         permitted_params.delete(:status)
       end
     end
-    
+
     # Only include rejected_reason if status is 'rejected', otherwise remove it from params
     if permitted_params[:status] != 'rejected'
       permitted_params.delete(:rejected_reason)
     end
-    
+
+    # Validate property_valuation_middle if present
+    if permitted_params[:property_valuation_middle].present?
+      valuation = permitted_params[:property_valuation_middle].to_i
+      if valuation < 100000 || valuation > 50000000
+        # Remove invalid valuation
+        permitted_params.delete(:property_valuation_middle)
+      end
+    end
+
     permitted_params
   end
 

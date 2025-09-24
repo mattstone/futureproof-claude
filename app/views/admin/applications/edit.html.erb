@@ -55,7 +55,191 @@
           <strong>Property State:</strong>
           <%= @application.property_state_display %>
         </div>
-        
+
+        <!-- Property Data Section -->
+        <% if @application.corelogic_data_hash.present? %>
+          <div class="detail-section">
+            <h4>Property Information</h4>
+
+            <!-- Property Images Gallery -->
+            <% if @application.property_images_array.any? %>
+              <div class="detail-row">
+                <strong>Property Images:</strong>
+                <div class="property-images-gallery admin-property-images" data-controller="admin-property-gallery">
+                  <div class="property-image-main">
+                    <img src="<%= @application.property_images_array.first %>"
+                         alt="Property main image"
+                         class="property-image-primary admin-property-image"
+                         data-admin-property-gallery-target="primaryImage">
+                  </div>
+                  <% if @application.property_images_array.length > 1 %>
+                    <div class="property-image-thumbnails">
+                      <% @application.property_images_array.each_with_index do |image_url, index| %>
+                        <div class="property-image-thumb <%= index == 0 ? 'active' : '' %>"
+                             data-admin-property-gallery-target="thumbnail"
+                             data-action="click->admin-property-gallery#selectImage"
+                             data-image-url="<%= image_url %>">
+                          <img src="<%= image_url %>" alt="Property image <%= index + 1 %>">
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Property Valuation Details -->
+            <% if @application.has_property_valuation? %>
+              <div class="detail-row">
+                <strong>Property Valuation:</strong>
+                <div class="property-valuation-details">
+                  <div class="valuation-primary">
+                    <span class="admin-badge admin-badge-success" data-admin-valuation-editor-target="originalValue">
+                      <%= @application.formatted_property_valuation_middle %>
+                    </span>
+                    <span class="valuation-type">Current Valuation</span>
+                  </div>
+                  <div class="valuation-range">
+                    Original Range: <%= @application.formatted_property_valuation_range %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Valuation Editor (Full Width) -->
+              <div class="valuation-editor-section"
+                   data-controller="admin-valuation-editor"
+                   data-admin-valuation-editor-application-id-value="<%= @application.id %>"
+                   data-admin-valuation-editor-original-valuation-value="<%= @application.property_valuation_middle %>"
+                   <% if @application.mortgage.present? %>
+                     data-admin-valuation-editor-loan-term-value="<%= @application.loan_term || 30 %>"
+                     data-admin-valuation-editor-income-term-value="<%= @application.income_payout_term || 30 %>"
+                     data-admin-valuation-editor-mortgage-type-value="<%= @application.mortgage.mortgage_type %>"
+                   <% end %>>
+
+                <div class="valuation-editor-header">
+                  <h4>Property Valuation Editor</h4>
+                  <p class="valuation-editor-subtitle">Adjust the property valuation and see the impact on monthly income</p>
+                </div>
+
+                <div class="valuation-editor-content">
+                  <div class="valuation-editor-main">
+                    <div class="valuation-controls">
+                      <% if @application.mortgage.present? %>
+                        <div class="valuation-display-section">
+                          <div class="income-current">
+                            <label class="valuation-label">Monthly Income Available</label>
+                            <div class="mortgage-type-info"><%= @application.mortgage.mortgage_type_display %></div>
+                            <div class="income-amount" data-admin-valuation-editor-target="monthlyIncomeDisplay">
+                              <%= @application.formatted_monthly_income_amount %>
+                            </div>
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <div class="slider-section">
+                        <div class="slider-header">
+                          <label class="slider-label">Adjust Valuation</label>
+                          <span class="current-valuation" data-admin-valuation-editor-target="display">
+                            <%= @application.formatted_property_valuation_middle %>
+                          </span>
+                        </div>
+                        <input type="range"
+                               min="<%= [@application.property_valuation_low, 500000].compact.min %>"
+                               max="<%= [@application.property_valuation_high, 10000000].compact.max %>"
+                               step="50000"
+                               value="<%= @application.property_valuation_middle %>"
+                               class="valuation-slider"
+                               data-admin-valuation-editor-target="slider"
+                               data-action="input->admin-valuation-editor#updateDisplay">
+                        <div class="slider-range-labels">
+                          <span><%= ActionController::Base.helpers.number_to_currency([@application.property_valuation_low, 500000].compact.min, precision: 0) %></span>
+                          <span><%= ActionController::Base.helpers.number_to_currency([@application.property_valuation_high, 10000000].compact.max, precision: 0) %></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="explanation-section">
+                      <label class="form-label">Reason for Valuation Change</label>
+                      <textarea class="form-textarea"
+                                rows="3"
+                                placeholder="Explain why the valuation is being changed..."
+                                data-admin-valuation-editor-target="explanation"></textarea>
+                      <small class="form-hint">This explanation will be recorded in the application history</small>
+                    </div>
+
+                    <div class="valuation-editor-actions">
+                      <button type="button"
+                              class="admin-btn admin-btn-primary"
+                              data-action="click->admin-valuation-editor#confirmAndSave">
+                        Update Valuation
+                      </button>
+                      <button type="button"
+                              class="admin-btn admin-btn-secondary"
+                              data-action="click->admin-valuation-editor#resetToOriginal">
+                        Reset to Original
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Property Type -->
+            <% if @application.property_type.present? %>
+              <div class="detail-row">
+                <strong>Property Type:</strong>
+                <span class="admin-badge admin-badge-secondary">
+                  <%= @application.property_type.humanize %>
+                </span>
+              </div>
+            <% end %>
+
+
+            <!-- Additional Property Data -->
+            <% if @application.corelogic_data_hash['land_area'].present? %>
+              <div class="detail-row">
+                <strong>Land Area:</strong>
+                <%= @application.corelogic_data_hash['land_area'] %> m²
+              </div>
+            <% end %>
+
+            <% if @application.corelogic_data_hash['building_area'].present? %>
+              <div class="detail-row">
+                <strong>Building Area:</strong>
+                <%= @application.corelogic_data_hash['building_area'] %> m²
+              </div>
+            <% end %>
+
+            <% if @application.corelogic_data_hash['year_built'].present? %>
+              <div class="detail-row">
+                <strong>Year Built:</strong>
+                <%= @application.corelogic_data_hash['year_built'] %>
+              </div>
+            <% end %>
+
+            <% if @application.corelogic_data_hash['bedrooms'].present? %>
+              <div class="detail-row">
+                <strong>Bedrooms:</strong>
+                <%= @application.corelogic_data_hash['bedrooms'] %>
+              </div>
+            <% end %>
+
+            <% if @application.corelogic_data_hash['bathrooms'].present? %>
+              <div class="detail-row">
+                <strong>Bathrooms:</strong>
+                <%= @application.corelogic_data_hash['bathrooms'] %>
+              </div>
+            <% end %>
+
+            <% if @application.corelogic_data_hash['parking_spaces'].present? %>
+              <div class="detail-row">
+                <strong>Parking Spaces:</strong>
+                <%= @application.corelogic_data_hash['parking_spaces'] %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
         <% if @application.has_existing_mortgage? %>
           <div class="detail-row">
             <strong>Existing Mortgage:</strong>
