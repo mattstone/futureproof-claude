@@ -82,15 +82,15 @@ class WholesaleFunder < ApplicationRecord
   end
 
   def formatted_total_capital
-    "$#{total_capital.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(total_capital, precision: 0)
   end
 
   def formatted_total_allocated
-    "$#{total_allocated.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(total_allocated, precision: 0)
   end
 
   def formatted_total_available
-    "$#{total_available.to_f.round(2).to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    ActionController::Base.helpers.number_to_currency(total_available, precision: 0)
   end
 
   def capital_allocation_percentage

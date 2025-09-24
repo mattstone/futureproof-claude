@@ -272,6 +272,25 @@
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+/* Responsive font sizing for large numbers - prevent wrapping */
+.stat-value.capital-amount,
+.stat-value.allocated-amount {
+  font-size: clamp(10px, 2.5vw, 18px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* For very large numbers, use even smaller font but no wrapping */
+@media (max-width: 768px) {
+  .stat-value.capital-amount,
+  .stat-value.allocated-amount {
+    font-size: clamp(8px, 2vw, 12px);
+  }
 }
 
 .stat-label {
@@ -326,6 +345,7 @@
 .available-amount {
   color: #059669;
   font-weight: 600;
+  font-size: clamp(11px, 2vw, 12px);
 }
 
 .meta-section {
@@ -387,6 +407,11 @@
 .amount-cell {
   text-align: right;
   font-weight: 600;
+  font-size: clamp(10px, 2vw, 14px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 100px;
 }
 
 .amount-total {
