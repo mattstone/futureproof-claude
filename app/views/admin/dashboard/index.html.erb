@@ -45,25 +45,25 @@
   <div class="metric-card pool-capacity">
     <div class="metric-icon pool-icon">🏦</div>
     <div class="metric-content">
-      <h3><%= number_to_currency(@total_pool_capacity, precision: 0) %></h3>
+      <h3><%= abbreviated_currency(@total_pool_capacity) %></h3>
       <p>Total Pool Capacity</p>
       <span class="metric-change"><%= @total_pools %> active pool<%= 's' if @total_pools != 1 %></span>
     </div>
   </div>
-  
+
   <div class="metric-card pool-allocated">
     <div class="metric-icon allocated-icon">💰</div>
     <div class="metric-content">
-      <h3><%= number_to_currency(@total_allocated, precision: 0) %></h3>
+      <h3><%= abbreviated_currency(@total_allocated) %></h3>
       <p>Allocated Capital</p>
       <span class="metric-percentage"><%= format_percentage(@pool_utilization) %>% utilization</span>
     </div>
   </div>
-  
+
   <div class="metric-card pool-available">
     <div class="metric-icon available-icon">💵</div>
     <div class="metric-content">
-      <h3><%= number_to_currency(@total_available, precision: 0) %></h3>
+      <h3><%= abbreviated_currency(@total_available) %></h3>
       <p>Available Capital</p>
       <span class="metric-change"><%= @active_contracts %> active contract<%= 's' if @active_contracts != 1 %></span>
     </div>
@@ -98,10 +98,10 @@
       <div class="capital-allocation-chart">
         <div class="allocation-overview">
           <div class="allocation-segment allocated-segment" style="width: <%= @pool_utilization %>%">
-            <span class="segment-label">Allocated: <%= number_to_currency(@total_allocated, precision: 0) %></span>
+            <span class="segment-label">Allocated: <%= abbreviated_currency(@total_allocated) %></span>
           </div>
           <div class="allocation-segment available-segment" style="width: <%= 100 - @pool_utilization %>%">
-            <span class="segment-label">Available: <%= number_to_currency(@total_available, precision: 0) %></span>
+            <span class="segment-label">Available: <%= abbreviated_currency(@total_available) %></span>
           </div>
         </div>
         <div class="allocation-legend">
@@ -131,8 +131,8 @@
               <div class="pool-info">
                 <span class="pool-name"><%= pool[:name].truncate(25) %></span>
                 <span class="pool-stats">
-                  <%= number_to_currency(pool[:allocated], precision: 0) %> / 
-                  <%= number_to_currency(pool[:total], precision: 0) %>
+                  <%= abbreviated_currency(pool[:allocated]) %> /
+                  <%= abbreviated_currency(pool[:total]) %>
                 </span>
               </div>
               <div class="pool-progress">
@@ -164,7 +164,7 @@
             <div class="growth-fill fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
             <div class="growth-label">
               <span><%= month %></span>
-              <strong><%= number_to_currency(amount, precision: 0) %></strong>
+              <strong><%= abbreviated_currency(amount) %></strong>
             </div>
           </div>
         <% end %>
@@ -185,7 +185,7 @@
             <div class="growth-fill cumulative-fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
             <div class="growth-label">
               <span><%= month %></span>
-              <strong><%= number_to_currency(amount, precision: 0) %></strong>
+              <strong><%= abbreviated_currency(amount) %></strong>
             </div>
           </div>
         <% end %>

@@ -37,10 +37,6 @@
         <div class="detail-row">
           <strong>Address:</strong>
           <%= @application.address %>
-          <% if @application.property_id.present? %>
-            <br>
-            <small class="property-id">Property ID: <%= @application.property_id %></small>
-          <% end %>
         </div>
 
         <div class="detail-row">
@@ -51,12 +47,74 @@
           <% if @application.has_property_valuation? %>
             <br>
             <small class="valuation-info">
-              CoreLogic Valuation: <%= @application.formatted_property_valuation_middle %>
+              Property Valuation: <%= @application.formatted_property_valuation_middle %>
               <br>
               <em>Range: <%= @application.formatted_property_valuation_range %></em>
             </small>
           <% end %>
         </div>
+
+        <% if @application.corelogic_data_hash.present? %>
+          <div class="detail-row">
+            <strong>Property Details:</strong>
+            <div class="property-details-grid property-details-compact">
+              <% if @application.property_type.present? %>
+                <div class="property-detail-item">
+                  <span class="admin-badge admin-badge-secondary">
+                    <%= @application.property_type.humanize %>
+                  </span>
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['bedrooms'].present? %>
+                <div class="property-detail-item">
+                  <strong><%= @application.corelogic_data_hash['bedrooms'] %></strong> bedrooms
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['bathrooms'].present? %>
+                <div class="property-detail-item">
+                  <strong><%= @application.corelogic_data_hash['bathrooms'] %></strong> bathrooms
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['parking_spaces'].present? %>
+                <div class="property-detail-item">
+                  <strong><%= @application.corelogic_data_hash['parking_spaces'] %></strong> parking
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['land_area'].present? %>
+                <div class="property-detail-item">
+                  <strong><%= @application.corelogic_data_hash['land_area'] %></strong> m² land
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['building_area'].present? %>
+                <div class="property-detail-item">
+                  <strong><%= @application.corelogic_data_hash['building_area'] %></strong> m² building
+                </div>
+              <% end %>
+              <% if @application.corelogic_data_hash['year_built'].present? %>
+                <div class="property-detail-item">
+                  Built <strong><%= @application.corelogic_data_hash['year_built'] %></strong>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @application.property_images_array.any? %>
+          <div class="detail-row" data-controller="image-lightbox">
+            <strong>Property Images:</strong>
+            <div class="property-images-grid">
+              <% @application.property_images_array.each_with_index do |image_url, index| %>
+                <div class="property-image-item">
+                  <img src="<%= image_url %>"
+                       alt="Property image <%= index + 1 %>"
+                       class="property-image"
+                       loading="lazy"
+                       data-action="click->image-lightbox#show">
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
         
         <div class="detail-row">
           <strong>Ownership Status:</strong>
@@ -110,11 +168,26 @@
           <strong>Borrower Age:</strong>
           <%= @application.borrower_age %> years
         </div>
-        
-        <% if @application.has_borrower_names? %>
+
+        <% if @application.ownership_status_individual? %>
+          <div class="detail-row">
+            <strong>Borrower Name:</strong>
+            <div class="borrower-name-display"><%= @application.user.display_name %></div>
+          </div>
+        <% elsif @application.ownership_status_joint? && @application.has_borrower_names? %>
           <div class="detail-row">
             <strong>Borrower Names:</strong>
             <div class="borrower-names-display"><%= @application.formatted_borrower_names %></div>
+          </div>
+        <% elsif @application.ownership_status_super? && @application.super_fund_name.present? %>
+          <div class="detail-row">
+            <strong>Superannuation Fund Name:</strong>
+            <div class="super-fund-display"><%= @application.super_fund_name %></div>
+          </div>
+        <% elsif @application.ownership_status_lender? && @application.company_name.present? %>
+          <div class="detail-row">
+            <strong>Company Name:</strong>
+            <div class="company-name-display"><%= @application.company_name %></div>
           </div>
         <% end %>
         
@@ -136,19 +209,6 @@
           <strong>Last Updated:</strong>
           <%= @application.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
         </div>
-
-        <% if @application.property_images_array.any? %>
-          <div class="detail-row">
-            <strong>Property Images:</strong>
-            <div class="property-images-grid">
-              <% @application.property_images_array.each_with_index do |image_url, index| %>
-                <div class="property-image-item">
-                  <img src="<%= image_url %>" alt="Property image <%= index + 1 %>" class="property-image" loading="lazy">
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
       </div>
     </div>
 

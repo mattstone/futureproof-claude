@@ -36,62 +36,6 @@
   font-size: 28px;
   font-weight: 700;
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Auto-scaling for metric numbers - NO TEXT WRAPPING */
-.metric-content h3[data-length="7"],
-.metric-content h3[data-length="8"] { 
-  font-size: 26px; 
-}
-
-.metric-content h3[data-length="9"],
-.metric-content h3[data-length="10"] { 
-  font-size: 24px; 
-}
-
-.metric-content h3[data-length="11"],
-.metric-content h3[data-length="12"] { 
-  font-size: 22px; 
-}
-
-.metric-content h3[data-length="13"],
-.metric-content h3[data-length="14"] { 
-  font-size: 20px; 
-}
-
-.metric-content h3[data-length="15"],
-.metric-content h3[data-length="16"],
-.metric-content h3[data-length="17"],
-.metric-content h3[data-length="18"] { 
-  font-size: 18px; 
-}
-
-.metric-content h3[data-length="19"],
-.metric-content h3[data-length="20"],
-.metric-content h3[data-length="21"],
-.metric-content h3[data-length="22"] { 
-  font-size: 16px; 
-}
-
-/* For extremely long numbers */
-.metric-content h3[data-length="23"],
-.metric-content h3[data-length="24"],
-.metric-content h3[data-length="25"],
-.metric-content h3[data-length="26"],
-.metric-content h3[data-length="27"],
-.metric-content h3[data-length="28"] { 
-  font-size: 14px; 
-}
-
-/* Even longer numbers */
-.metric-content h3[data-length="29"],
-.metric-content h3[data-length="30"],
-.metric-content h3[data-length="31"],
-.metric-content h3[data-length="32"] { 
-  font-size: 12px; 
 }
 
 .metric-content p {
