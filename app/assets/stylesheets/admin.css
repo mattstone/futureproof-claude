@@ -1830,6 +1830,113 @@
 }
 
 /* ========================================
+   D3 Chart Styles
+   ======================================== */
+
+.d3-chart {
+  width: 100%;
+  min-height: 300px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.d3-chart svg {
+  width: 100%;
+  height: auto;
+  font-family: 'Inter', sans-serif;
+}
+
+.d3-chart .bar {
+  transition: opacity 0.2s ease;
+}
+
+.d3-chart .bar:hover {
+  opacity: 0.8;
+}
+
+.d3-chart text {
+  font-size: 11px;
+  fill: #374151;
+}
+
+.d3-chart .axis {
+  color: #6b7280;
+}
+
+.d3-chart .axis line,
+.d3-chart .axis path {
+  stroke: #e5e7eb;
+  stroke-width: 1;
+}
+
+.d3-chart .grid-line {
+  stroke: #f3f4f6;
+  stroke-width: 1;
+  stroke-dasharray: 2,2;
+}
+
+.d3-chart .tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* D3 Chart Colors - CSP Compliant */
+.d3-bar-blue { fill: #3b82f6; }
+.d3-bar-green { fill: #10b981; }
+.d3-bar-purple { fill: #8b5cf6; }
+.d3-bar-orange { fill: #f59e0b; }
+.d3-bar-red { fill: #dc2626; }
+
+.d3-bar-created { fill: #94a3b8; }
+.d3-bar-user-details { fill: #64748b; }
+.d3-bar-property-details { fill: #475569; }
+.d3-bar-income-loan { fill: #334155; }
+.d3-bar-submitted { fill: #3b82f6; }
+.d3-bar-processing { fill: #f59e0b; }
+.d3-bar-rejected { fill: #dc2626; }
+.d3-bar-accepted { fill: #10b981; }
+
+.d3-util-high { fill: #dc2626; }
+.d3-util-medium { fill: #f59e0b; }
+.d3-util-low { fill: #10b981; }
+
+
+.d3-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.d3-line-orange { stroke: #f59e0b; }
+
+.d3-dot { opacity: 1; }
+.d3-dot-orange { fill: #f59e0b; }
+.d3-dot-hidden { opacity: 0; }
+
+.d3-area-gradient { fill: url(#area-gradient); }
+.d3-area-hidden { opacity: 0; }
+
+.d3-bg-bar { fill: #f3f4f6; rx: 4; }
+
+/* Responsive chart styles */
+@media (max-width: 768px) {
+  .d3-chart {
+    min-height: 250px;
+  }
+
+  .d3-chart text {
+    font-size: 10px;
+  }
+}
+
+/* ========================================
    Admin Applications Index Page Styles
    ======================================== */
 
@@ -3873,6 +3980,15 @@
 .admin-actions {
   display: flex;
   gap: 12px;
+}
+
+.admin-actions-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-text-muted {
+  color: #6b7280;
 }
 
 .admin-link {
@@ -7144,4 +7260,14 @@
 .admin-form-control[rows] {
   font-family: monospace;
   line-height: 1.5;
+}
+
+
+.admin-spacer-20 {
+  margin-bottom: 20px;
+}
+
+.admin-header-primary {
+  background-color: #0891b2;
+  color: white;
 }

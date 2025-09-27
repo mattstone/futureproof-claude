@@ -596,8 +596,8 @@
   background: #fef2f2;
   border: 2px solid #dc2626;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: 16px 20px;
+  margin: 0 24px 12px 24px;
   text-align: center;
 }
 

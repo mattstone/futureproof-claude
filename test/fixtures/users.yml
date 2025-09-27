@@ -5,7 +5,7 @@ admin_user:
   first_name: Futureproof
   last_name: Admin
   country_of_residence: Australia
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  encrypted_password: $2a$12$V.TO7EaRAmA3NJpHwxIcceIWuLzCgzSAq9.KlkQIY6rdDa3tAWYIu
   confirmed_at: <%= 1.week.ago %>
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.day.ago %>
@@ -18,7 +18,7 @@ regular_user:
   first_name: Regular
   last_name: User
   country_of_residence: Australia
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  encrypted_password: $2a$12$V.TO7EaRAmA3NJpHwxIcceIWuLzCgzSAq9.KlkQIY6rdDa3tAWYIu
   confirmed_at: <%= 1.week.ago %>
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.day.ago %>
@@ -31,7 +31,7 @@ john:
   first_name: John
   last_name: Smith
   country_of_residence: Australia
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  encrypted_password: $2a$12$968uCAkj6B9IU8oUr9kgqOp5LXspKWcfK4IoV4FP1Vg87ftPVOsM6
   confirmed_at: <%= 1.week.ago %>
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.day.ago %>
@@ -44,7 +44,7 @@ jane:
   first_name: Jane
   last_name: Smith
   country_of_residence: Australia
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  encrypted_password: $2a$12$968uCAkj6B9IU8oUr9kgqOp5LXspKWcfK4IoV4FP1Vg87ftPVOsM6
   confirmed_at: <%= 1.week.ago %>
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.day.ago %>

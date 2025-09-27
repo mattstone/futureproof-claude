@@ -115,21 +115,21 @@
       <!-- Pagination -->
       <% if @audit_history.respond_to?(:current_page) && @audit_history.total_pages > 1 %>
         <div class="admin-audit-pagination">
-          <div class="flex items-center justify-center space-x-2">
+          <div class="admin-actions admin-actions-center">
             <% if @audit_history.prev_page %>
               <%= link_to "← Previous", 
                   admin_terms_and_condition_path(@terms_and_condition, page: @audit_history.prev_page), 
-                  class: "px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors" %>
+                  class: "admin-btn admin-btn-secondary" %>
             <% end %>
             
-            <span class="px-3 py-2 text-gray-600">
+            <span class="admin-text-muted">
               Page <%= @audit_history.current_page %> of <%= @audit_history.total_pages %>
             </span>
             
             <% if @audit_history.next_page %>
               <%= link_to "Next →", 
                   admin_terms_and_condition_path(@terms_and_condition, page: @audit_history.next_page), 
-                  class: "px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors" %>
+                  class: "admin-btn admin-btn-secondary" %>
             <% end %>
           </div>
         </div>

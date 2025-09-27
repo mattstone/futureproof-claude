@@ -4,6 +4,15 @@ You are working on Futureproof, a Rails application. Review the ClaudeOnRails co
 
 **🚨 CRITICAL: Read @.claude-on-rails/context.md for mandatory testing and CSS framework rules 🚨**
 
+## 📐 DESIGN PRINCIPLES
+
+**Visual Consistency Guidelines**: See @DESIGN_PRINCIPLES.md for established design patterns and styling principles.
+
+- Component spacing and width constraints
+- Color palette and typography standards
+- Alert/notice component best practices
+- Integration testing for visual changes
+
 ## 🚨 UPDATED ARCHITECTURAL RULE 🚨
 
 **Stimulus Only, No AJAX/Turbo (PERMANENT & ENFORCEABLE)**

@@ -15,7 +15,7 @@
     <%= form.text_field :title, class: "admin-form-input", placeholder: "e.g., Terms and Conditions" %>
   </div>
 
-  <div class="mb-20"></div>
+  <div class="admin-spacer-20"></div>
 
   <div class="admin-form-group">
     <% if @terms_and_condition.persisted? %>
@@ -31,7 +31,7 @@
     <% end %>
   </div>
 
-  <div class="mb-20"></div>
+  <div class="admin-spacer-20"></div>
 
   <div class="admin-form-group">
     <%= form.label :content, "Content (using simple markup)", class: "admin-form-label" %>

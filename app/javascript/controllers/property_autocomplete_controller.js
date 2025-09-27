@@ -18,20 +18,20 @@ export default class extends Controller {
     this.handleClickOutside = this.handleClickOutside.bind(this)
     document.addEventListener("click", this.handleClickOutside)
 
-    // Check if there's existing CoreLogic data to display
+    // Check if there's existing property data to display
     this.checkExistingData()
   }
 
-  // Check if there's existing CoreLogic data and display it
+  // Check if there's existing property data and display it
   checkExistingData() {
     const corelogicDataField = this.element.querySelector('[data-field="corelogic_data"]')
     if (corelogicDataField && corelogicDataField.value) {
       try {
         const existingData = JSON.parse(corelogicDataField.value)
-        console.log('📋 Found existing CoreLogic data, displaying preview')
+        console.log('📋 Found existing property data, displaying preview')
         this.showPropertyPreview(existingData)
       } catch (e) {
-        console.log('📋 No valid existing CoreLogic data found')
+        console.log('📋 No valid existing property data found')
       }
     }
   }
@@ -498,7 +498,7 @@ export default class extends Controller {
     const summaryElement = this.propertyPreviewTarget.querySelector('.property-preview-summary')
     if (!summaryElement) return
 
-    // Update the subtitle to show property type instead of "Data from CoreLogic"
+    // Update the subtitle to show property type instead of "Searching property values"
     const subtitleElement = this.propertyPreviewTarget.querySelector('.property-preview-subtitle')
     if (subtitleElement && propertyData.attributes && propertyData.attributes.property_type) {
       subtitleElement.textContent = propertyData.attributes.property_type
@@ -715,7 +715,7 @@ export default class extends Controller {
     const header = this.propertyPreviewTarget.querySelector('.property-preview-subtitle')
     if (header) {
       const originalText = header.textContent
-      header.textContent = 'Data from CoreLogic • Saved ✓'
+      header.textContent = 'Searching property values • Saved ✓'
       header.classList.add('save-success')
 
       setTimeout(() => {

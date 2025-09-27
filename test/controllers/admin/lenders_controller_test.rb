@@ -1,11 +1,13 @@
 require "test_helper"
 
 class Admin::LendersControllerTest < ActionDispatch::IntegrationTest
+  fixtures :lenders, :users
+
   setup do
     @admin_user = users(:admin_user)
     sign_in @admin_user
-    @lender = lenders(:broker_lender)
-    @master_lender = lenders(:futureproof_financial)
+    @lender = lenders(:broker)
+    @master_lender = lenders(:futureproof)
   end
 
   # === Index Tests ===

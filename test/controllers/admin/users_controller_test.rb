@@ -1,10 +1,22 @@
 require 'test_helper'
 
 class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
-  fixtures :users
+  fixtures :users, :lenders
 
   def setup
-    @admin = users(:admin_user)
+    @lender = lenders(:futureproof)
+    @admin = User.create!(
+      email: 'test_admin@futureproof.com',
+      password: 'password123',
+      password_confirmation: 'password123',
+      first_name: 'Test',
+      last_name: 'Admin',
+      country_of_residence: 'Australia',
+      admin: true,
+      terms_accepted: true,
+      lender: @lender,
+      confirmed_at: 1.week.ago
+    )
     @user = users(:john)
     sign_in @admin
   end
