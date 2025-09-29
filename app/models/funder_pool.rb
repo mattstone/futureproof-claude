@@ -110,7 +110,7 @@ class FunderPool < ApplicationRecord
   # Recalculate allocated amount based on actual contracts
   def recalculate_allocation!
     actual_allocated = contracts.sum(:allocated_amount)
-    update!(allocated: actual_allocated)
+    update_column(:allocated, actual_allocated)
   end
   
   private

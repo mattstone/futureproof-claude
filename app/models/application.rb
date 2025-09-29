@@ -36,7 +36,7 @@ class Application < ApplicationRecord
   # Validations
   validates :address, presence: true, length: { maximum: 255 }, unless: :status_created?
   validates :home_value, presence: true, numericality: {
-    greater_than: 0,
+    greater_than_or_equal_to: 100_000, # Reasonable minimum property value
     less_than_or_equal_to: 50_000_000,
     only_integer: true
   }

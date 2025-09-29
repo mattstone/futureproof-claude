@@ -100,18 +100,22 @@ class WholesaleFunder < ApplicationRecord
 
   # Count unique lenders that are using any of this wholesale funder's pools
   def lenders_count
-    Lender.joins(lender_funder_pools: :funder_pool)
-          .where(funder_pools: { wholesale_funder_id: id })
-          .distinct
-          .count
+    Rails.cache.fetch("wholesale_funder_#{id}_lenders_count", expires_in: 1.hour) do
+      Lender.joins(lender_funder_pools: :funder_pool)
+            .where(funder_pools: { wholesale_funder_id: id })
+            .distinct
+            .count
+    end
   end
 
   # Count active lenders only
   def active_lenders_count
-    Lender.joins(lender_funder_pools: :funder_pool)
-          .where(funder_pools: { wholesale_funder_id: id })
-          .where(lender_funder_pools: { active: true })
-          .distinct
-          .count
+    Rails.cache.fetch("wholesale_funder_#{id}_active_lenders_count", expires_in: 1.hour) do
+      Lender.joins(lender_funder_pools: :funder_pool)
+            .where(funder_pools: { wholesale_funder_id: id })
+            .where(lender_funder_pools: { active: true })
+            .distinct
+            .count
+    end
   end
 end

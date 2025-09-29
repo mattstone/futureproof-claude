@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_29_225020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,9 +58,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
     t.datetime "updated_at", null: false
     t.bigint "ai_agent_id"
     t.index ["ai_agent_id"], name: "index_application_messages_on_ai_agent_id"
+    t.index ["application_id", "status"], name: "index_application_messages_on_application_id_and_status"
     t.index ["application_id"], name: "index_application_messages_on_application_id"
     t.index ["parent_message_id"], name: "index_application_messages_on_parent_message_id"
     t.index ["sender_type", "sender_id"], name: "index_application_messages_on_sender"
+    t.index ["status", "message_type"], name: "index_application_messages_on_status_and_message_type"
   end
 
   create_table "application_versions", force: :cascade do |t|
@@ -114,7 +116,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
     t.integer "property_valuation_high"
     t.text "corelogic_data"
     t.string "existing_mortgage_lender"
+    t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
+    t.index ["user_id", "status"], name: "index_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
   end
 
@@ -185,9 +189,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["ai_agent_id"], name: "index_contract_messages_on_ai_agent_id"
+    t.index ["contract_id", "status"], name: "index_contract_messages_on_contract_id_and_status"
     t.index ["contract_id"], name: "index_contract_messages_on_contract_id"
     t.index ["parent_message_id"], name: "index_contract_messages_on_parent_message_id"
     t.index ["sender_type", "sender_id"], name: "index_contract_messages_on_sender"
+    t.index ["status", "message_type"], name: "index_contract_messages_on_status_and_message_type"
   end
 
   create_table "contract_versions", force: :cascade do |t|
@@ -695,6 +701,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_21_062514) do
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email", "lender_id"], name: "index_users_on_email_and_lender_id", unique: true
     t.index ["is_test"], name: "index_users_on_is_test"
+    t.index ["lender_id", "admin"], name: "index_users_on_lender_id_and_admin"
     t.index ["lender_id"], name: "index_users_on_lender_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["sso_provider", "sso_uid", "lender_id"], name: "index_users_on_sso_and_lender", unique: true

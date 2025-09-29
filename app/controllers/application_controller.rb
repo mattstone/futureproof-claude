@@ -67,10 +67,15 @@ class ApplicationController < ActionController::Base
   
   def load_unread_message_count
     return unless user_signed_in?
-    
-    @unread_message_count = current_user.applications.joins(:application_messages)
-      .where(application_messages: { message_type: 'admin_to_customer', status: 'sent' })
-      .count('application_messages.id')
+
+    cache_key = "user_#{current_user.id}_unread_message_count"
+    @unread_message_count = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+      ApplicationMessage.where(
+        application_id: current_user.application_ids,
+        message_type: 'admin_to_customer',
+        status: 'sent'
+      ).count
+    end
   end
   
   def set_security_headers

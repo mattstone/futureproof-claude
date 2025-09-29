@@ -52,10 +52,12 @@ module Messageable
   def mark_as_read!
     return if read?
     update!(status: 'read', read_at: Time.current)
+    clear_unread_message_cache
   end
-  
+
   def mark_as_replied!
     update!(status: 'replied')
+    clear_unread_message_cache
   end
 
   # Thread helpers
@@ -218,5 +220,14 @@ module Messageable
 
   def send_message!
     raise NotImplementedError, "#{self.class} must implement #send_message!"
+  end
+
+  # Clear cached unread message count
+  def clear_unread_message_cache
+    user_id = get_user&.id
+    return unless user_id
+
+    cache_key = "user_#{user_id}_unread_message_count"
+    Rails.cache.delete(cache_key)
   end
 end
