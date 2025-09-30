@@ -1,0 +1,205 @@
+<div class="admin-form-container">
+  <h2><%= @stage_index ? 'Edit Stage' : 'Add New Stage' %></h2>
+
+  <%= form_with url: @stage_index ? update_stage_admin_agent_lifecycle_path(@agent, stage_index: @stage_index) : update_stage_admin_agent_lifecycle_path(@agent),
+                method: :post,
+                local: true do |f| %>
+
+    <div class="admin-form-section">
+      <h3>Stage Information</h3>
+
+      <div class="admin-form-group">
+        <label>Stage Name (Technical ID)</label>
+        <%= text_field_tag :stage_name, @stage['stage_name'],
+            class: 'admin-form-input',
+            placeholder: 'e.g., visitor_inquiry' %>
+        <small>Lowercase, no spaces (use underscores)</small>
+      </div>
+
+      <div class="admin-form-group">
+        <label>Stage Label (Display Name)</label>
+        <%= text_field_tag :stage_label, @stage['stage_label'],
+            class: 'admin-form-input',
+            placeholder: 'e.g., Initial Interest' %>
+      </div>
+
+      <div class="admin-form-group">
+        <label>Stage Description</label>
+        <%= text_area_tag :stage_description, @stage['stage_description'],
+            class: 'admin-form-textarea',
+            rows: 3,
+            placeholder: 'What happens during this stage?' %>
+      </div>
+
+      <div class="admin-form-row">
+        <div class="admin-form-group">
+          <label>Entry Trigger</label>
+          <%= select_tag :entry_trigger,
+              options_for_select([
+                ['User Registered', 'user_registered'],
+                ['Application Created', 'application_created'],
+                ['Application Started', 'application_started'],
+                ['Application Submitted', 'application_submitted'],
+                ['Status Changed', 'status_changed'],
+                ['Custom Event', 'custom']
+              ], @stage['entry_trigger']),
+              class: 'admin-form-select' %>
+        </div>
+
+        <div class="admin-form-group">
+          <label>Stage Color</label>
+          <%= select_tag :stage_color,
+              options_for_select([
+                ['Blue', 'blue'],
+                ['Green', 'green'],
+                ['Purple', 'purple'],
+                ['Orange', 'orange'],
+                ['Pink', 'pink'],
+                ['Teal', 'teal']
+              ], @stage['stage_color'] || 'blue'),
+              class: 'admin-form-select' %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automated Actions -->
+    <div class="admin-form-section">
+      <h3>Automated Actions</h3>
+      <p style="color: #666; margin-bottom: 16px;">
+        What should <%= @agent.name %> do when a customer enters this stage?
+      </p>
+
+      <div id="automated-actions">
+        <% (@stage['automated_actions'] || []).each_with_index do |action, index| %>
+          <%= render 'action_fields', action: action, index: index, email_templates: @email_templates %>
+        <% end %>
+      </div>
+
+      <button type="button" class="admin-btn admin-btn-secondary" onclick="addAction()">
+        ➕ Add Action
+      </button>
+    </div>
+
+    <!-- Handoff Rules -->
+    <div class="admin-form-section">
+      <h3>Handoff to Another Agent (Optional)</h3>
+
+      <div class="admin-form-group">
+        <label>Hand off to</label>
+        <%= select_tag :handoff_to,
+            options_for_select([
+              ['No Handoff', ''],
+              ['Rei (Operations)', 'rei'],
+              ['Yumi (Lifetime Management)', 'yumi']
+            ], @stage.dig('handoff_rules', 'handoff_to')),
+            class: 'admin-form-select' %>
+        <small>When this stage completes, transfer responsibility to another agent</small>
+      </div>
+    </div>
+
+    <div class="admin-form-actions">
+      <%= link_to 'Cancel', admin_agent_lifecycle_path(@agent), class: 'admin-btn admin-btn-secondary' %>
+      <%= submit_tag 'Save Stage', class: 'admin-btn admin-btn-primary' %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+let actionCount = <%= (@stage['automated_actions'] || []).length %>;
+
+function addAction() {
+  const container = document.getElementById('automated-actions');
+  const actionHtml = `
+    <div class="action-builder" data-action-index="${actionCount}">
+      <div class="admin-form-row">
+        <div class="admin-form-group">
+          <label>Action Type</label>
+          <select name="automated_actions[${actionCount}][action_type]" class="admin-form-select action-type-select" onchange="updateActionFields(${actionCount})">
+            <option value="">Select action...</option>
+            <option value="send_email">Send Email</option>
+            <option value="create_task">Create Task</option>
+            <option value="update_status">Update Status</option>
+            <option value="notify_admin">Notify Admin</option>
+          </select>
+        </div>
+
+        <div class="admin-form-group">
+          <label>Delay</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" name="automated_actions[${actionCount}][delay][duration]" class="admin-form-input" value="0" min="0" style="width: 100px;">
+            <select name="automated_actions[${actionCount}][delay][unit]" class="admin-form-select" style="width: 120px;">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+              <option value="days">Days</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-config" id="action-config-${actionCount}">
+        <!-- Dynamic config fields will be inserted here -->
+      </div>
+
+      <button type="button" class="admin-btn-small admin-btn-danger" onclick="removeAction(${actionCount})">
+        Remove Action
+      </button>
+      <hr style="margin: 20px 0;">
+    </div>
+  `;
+
+  container.insertAdjacentHTML('beforeend', actionHtml);
+  actionCount++;
+}
+
+function updateActionFields(index) {
+  const select = document.querySelector(`[data-action-index="${index}"] .action-type-select`);
+  const configDiv = document.getElementById(`action-config-${index}`);
+  const actionType = select.value;
+
+  let configHtml = '';
+
+  if (actionType === 'send_email') {
+    configHtml = `
+      <div class="admin-form-group">
+        <label>Email Template</label>
+        <select name="automated_actions[${index}][email_template_id]" class="admin-form-select">
+          <option value="">Select template...</option>
+          <% @email_templates.each do |template| %>
+            <option value="<%= template.id %>"><%= template.name %> (<%= template.template_type %>)</option>
+          <% end %>
+        </select>
+      </div>
+    `;
+  } else if (actionType === 'create_task') {
+    configHtml = `
+      <div class="admin-form-group">
+        <label>Task Type</label>
+        <input type="text" name="automated_actions[${index}][task_type]" class="admin-form-input" placeholder="e.g., Follow up call">
+      </div>
+    `;
+  } else if (actionType === 'update_status') {
+    configHtml = `
+      <div class="admin-form-group">
+        <label>New Status</label>
+        <input type="text" name="automated_actions[${index}][new_status]" class="admin-form-input" placeholder="e.g., processing">
+      </div>
+    `;
+  } else if (actionType === 'notify_admin') {
+    configHtml = `
+      <div class="admin-form-group">
+        <label>Notification Message</label>
+        <textarea name="automated_actions[${index}][message]" class="admin-form-textarea" rows="2" placeholder="Message for admin"></textarea>
+      </div>
+    `;
+  }
+
+  configDiv.innerHTML = configHtml;
+}
+
+function removeAction(index) {
+  const actionDiv = document.querySelector(`[data-action-index="${index}"]`);
+  if (actionDiv) {
+    actionDiv.remove();
+  }
+}
+</script>

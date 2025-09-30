@@ -1,0 +1,146 @@
+<div class="agent-lifecycle-container">
+  <!-- Agent Header -->
+  <div class="agent-header">
+    <%= image_tag @agent.avatar_path, class: 'agent-avatar', alt: @agent.name %>
+    <div class="agent-info">
+      <h1><%= @agent.name %>'s Customer Journey</h1>
+      <div class="agent-type"><%= @agent.role_title %></div>
+      <p class="agent-description"><%= @agent.description %></p>
+    </div>
+    <div style="margin-left: auto;">
+      <%= link_to 'Add Stage', add_stage_admin_agent_lifecycle_path(@agent),
+          class: 'admin-btn-primary', data: { turbo_frame: 'stage_form_modal' } %>
+    </div>
+  </div>
+
+  <% if @lifecycle_stages.empty? %>
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-state-icon">🎯</div>
+      <h3>No Lifecycle Stages Configured</h3>
+      <p><%= @agent.name %> doesn't have any lifecycle stages configured yet.</p>
+      <%= link_to 'Create First Stage', add_stage_admin_agent_lifecycle_path(@agent),
+          class: 'admin-btn-primary' %>
+    </div>
+  <% else %>
+    <!-- Visual Timeline -->
+    <div class="lifecycle-timeline">
+      <div class="timeline-connector"></div>
+
+      <% @lifecycle_stages.each_with_index do |stage, index| %>
+        <% stage_color = stage['stage_color'] || @stage_colors[stage['stage_name']] || 'blue' %>
+
+        <div class="lifecycle-stage">
+          <!-- Timeline Node -->
+          <div class="timeline-node" data-color="<%= stage_color %>"></div>
+
+          <!-- Stage Card -->
+          <div class="stage-card" data-color="<%= stage_color %>">
+            <div class="stage-header">
+              <div class="stage-title">
+                <h3><%= stage['stage_label'] || stage['stage_name'] %></h3>
+                <% if stage['entry_trigger'].present? %>
+                  <span class="stage-trigger">
+                    🎯 Triggered by: <%= stage['entry_trigger'].humanize %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+
+            <% if stage['stage_description'].present? %>
+              <p class="stage-description"><%= stage['stage_description'] %></p>
+            <% end %>
+
+            <!-- Automated Actions -->
+            <% if stage['automated_actions'].present? && stage['automated_actions'].any? %>
+              <div class="automated-actions">
+                <h4>Automated Actions</h4>
+                <div class="action-list">
+                  <% stage['automated_actions'].each do |action| %>
+                    <div class="action-item" data-action="<%= action['action_type'] %>">
+                      <span class="action-icon">
+                        <% case action['action_type'] %>
+                        <% when 'send_email' %>
+                          ✉️
+                        <% when 'create_task' %>
+                          📋
+                        <% when 'update_status' %>
+                          ✅
+                        <% when 'notify_admin' %>
+                          🔔
+                        <% else %>
+                          ⚡
+                        <% end %>
+                      </span>
+                      <div class="action-details">
+                        <div class="action-type"><%= action['action_type'].humanize %></div>
+                        <div class="action-description">
+                          <% case action['action_type'] %>
+                          <% when 'send_email' %>
+                            <% template = EmailTemplate.find_by(id: action['email_template_id']) %>
+                            <% if template %>
+                              Send "<%= template.name %>"
+                            <% else %>
+                              Email template not found
+                            <% end %>
+                          <% when 'create_task' %>
+                            Create task: <%= action['task_type'] %>
+                          <% when 'update_status' %>
+                            Update status to: <%= action['new_status'] %>
+                          <% when 'notify_admin' %>
+                            Notify: <%= action['message'] %>
+                          <% end %>
+                        </div>
+                      </div>
+                      <% if action['delay'] && action['delay']['duration'].to_i > 0 %>
+                        <span class="action-delay">
+                          ⏰ After <%= action['delay']['duration'] %> <%= action['delay']['unit'] %>
+                        </span>
+                      <% else %>
+                        <span class="action-delay">
+                          ⚡ Immediately
+                        </span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Handoff Indicator -->
+            <% if stage['handoff_rules'] && stage['handoff_rules']['handoff_to'].present? %>
+              <div class="handoff-indicator">
+                <span>🔄</span>
+                <div>
+                  <strong>Handoff to <%= stage['handoff_rules']['handoff_to'].capitalize %></strong>
+                  <% if stage['handoff_rules']['when'].present? %>
+                    when <%= stage['handoff_rules']['when'].inspect %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Stage Actions -->
+            <div class="stage-actions">
+              <%= link_to 'Edit Stage', edit_stage_admin_agent_lifecycle_path(@agent, stage_index: index),
+                  class: 'admin-btn-small' %>
+              <%= link_to 'Delete Stage', delete_stage_admin_agent_lifecycle_path(@agent, stage_index: index),
+                  method: :delete,
+                  data: { confirm: "Are you sure you want to delete '#{stage['stage_label']}'?" },
+                  class: 'admin-btn-small admin-btn-danger' %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Add Another Stage Button -->
+      <div class="add-stage-container">
+        <%= link_to '➕ Add Another Stage', add_stage_admin_agent_lifecycle_path(@agent),
+            class: 'admin-btn-primary' %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal for stage form (optional) -->
+<div id="stage_form_modal" data-turbo-frame="stage_form_modal"></div>

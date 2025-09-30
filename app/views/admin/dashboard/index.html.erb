@@ -157,38 +157,26 @@
       <small style="color: #6b7280; font-weight: normal;">New contract property values per month</small>
     </div>
     <div class="card-content">
-      <div class="growth-chart fum-chart">
-        <% max_value = [@monthly_fum_data.values.max, 1].max %>
-        <% @monthly_fum_data.each do |month, amount| %>
-          <div class="growth-bar">
-            <div class="growth-fill fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
-            <div class="growth-label">
-              <span><%= month %></span>
-              <strong><%= abbreviated_currency(amount) %></strong>
-            </div>
-          </div>
-        <% end %>
+      <div
+        data-controller="dashboard-chart"
+        data-dashboard-chart-data-value='<%= @monthly_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
+        data-dashboard-chart-type-value="bar"
+        style="min-height: 400px;">
       </div>
     </div>
   </div>
-  
+
   <div class="dashboard-card">
     <div class="card-header">
       <h3>Funds Under Management - Cumulative</h3>
       <small style="color: #6b7280; font-weight: normal;">Total property values under contract</small>
     </div>
     <div class="card-content">
-      <div class="growth-chart cumulative-fum-chart">
-        <% max_value = [@cumulative_fum_data.values.max, 1].max %>
-        <% @cumulative_fum_data.each do |month, amount| %>
-          <div class="growth-bar">
-            <div class="growth-fill cumulative-fum-fill" style="height: <%= (amount.to_f / max_value * 100).round(1) %>%"></div>
-            <div class="growth-label">
-              <span><%= month %></span>
-              <strong><%= abbreviated_currency(amount) %></strong>
-            </div>
-          </div>
-        <% end %>
+      <div
+        data-controller="dashboard-chart"
+        data-dashboard-chart-data-value='<%= @cumulative_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
+        data-dashboard-chart-type-value="area"
+        style="min-height: 400px;">
       </div>
     </div>
   </div>
@@ -199,40 +187,30 @@
   <div class="dashboard-card">
     <div class="card-header">
       <h3>Application Growth (Last 6 Months)</h3>
+      <small style="color: #6b7280; font-weight: normal;">Monthly application submissions</small>
     </div>
     <div class="card-content">
-      <div class="growth-chart">
-        <% max_value = [@application_growth_data.values.max, 1].max %>
-        <% @application_growth_data.each do |month, count| %>
-          <div class="growth-bar">
-            <div class="growth-fill" style="height: <%= (count.to_f / max_value * 100).round(1) %>%"></div>
-            <div class="growth-label">
-              <span><%= month %></span>
-              <strong><%= count %></strong>
-            </div>
-          </div>
-        <% end %>
+      <div
+        data-controller="dashboard-chart"
+        data-dashboard-chart-data-value='<%= @application_growth_data.map { |month, count| { label: month, value: count } }.to_json %>'
+        data-dashboard-chart-type-value="bar"
+        style="min-height: 400px;">
       </div>
     </div>
   </div>
-  
+
   <div class="dashboard-card">
     <div class="card-header">
       <h3>Conversion Rate (Last 6 Months)</h3>
       <small style="color: #6b7280; font-weight: normal;">% of new users who submit applications</small>
     </div>
     <div class="card-content">
-      <div class="growth-chart conversion-chart">
-        <% max_value = [@conversion_growth_data.values.max, 100].max %>
-        <% @conversion_growth_data.each do |month, rate| %>
-          <div class="growth-bar">
-            <div class="growth-fill conversion-fill" style="height: <%= (rate.to_f / max_value * 100).round(1) %>%"></div>
-            <div class="growth-label">
-              <span><%= month %></span>
-              <strong><%= rate %>%</strong>
-            </div>
-          </div>
-        <% end %>
+      <div
+        data-controller="dashboard-chart"
+        data-dashboard-chart-data-value='<%= @conversion_growth_data.map { |month, rate| { label: month, value: rate } }.to_json %>'
+        data-dashboard-chart-type-value="area"
+        data-dashboard-chart-max-value="100"
+        style="min-height: 400px;">
       </div>
     </div>
   </div>

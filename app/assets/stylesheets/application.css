@@ -21,6 +21,7 @@
 @import url("ai_agents.css");
 @import url("admin.css");
 @import url("admin/email_workflows.css");
+@import url("agent_lifecycle.css");
 
 /* HTML theme styles - moved from inline to fix CSP */
 html.theme-light {

@@ -168,7 +168,17 @@ Rails.application.routes.draw do
         delete :destroy_trigger
       end
     end
-    
+
+    # Agent Lifecycle Management (NEW - replaces complex workflow builders)
+    resources :agent_lifecycle, only: [:index, :show, :edit, :update] do
+      member do
+        get :add_stage
+        get :edit_stage
+        post :update_stage
+        delete :delete_stage
+      end
+    end
+
     # Calculator
     resources :calculators, only: [:index] do
       collection do

@@ -1,0 +1,81 @@
+<div class="agent-lifecycle-container">
+  <h1>AI Agent Lifecycle Management</h1>
+  <p style="color: #666; margin-bottom: 32px;">
+    Configure how your AI agents manage customer journeys through visual, color-coded stages.
+  </p>
+
+  <!-- Stats Overview -->
+  <div class="agent-stats">
+    <div class="stat-card">
+      <span class="stat-label">Total Agents:</span>
+      <span class="stat-value"><%= @agent_stats[:total_agents] %></span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Active Agents:</span>
+      <span class="stat-value"><%= @agent_stats[:active_agents] %></span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Lifecycle Stages:</span>
+      <span class="stat-value"><%= @agent_stats[:total_stages] %></span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Configured:</span>
+      <span class="stat-value"><%= @agent_stats[:configured_agents] %></span>
+    </div>
+  </div>
+
+  <!-- Agent Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+    <% @agents.each do |agent| %>
+      <div class="agent-card">
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+          <%= image_tag agent.avatar_path,
+              style: "width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" %>
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 4px 0;"><%= agent.name %></h3>
+            <div style="color: #666; font-size: 14px; margin-bottom: 8px;">
+              <%= agent.role_title %>
+            </div>
+            <div style="color: #888; font-size: 13px; line-height: 1.5;">
+              <%= agent.description %>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="color: #666; font-size: 14px;">Lifecycle Stages:</span>
+            <span style="font-weight: 600; color: #333;">
+              <%= (agent.lifecycle_stages || []).length %>
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <span style="color: #666; font-size: 14px;">Total Actions:</span>
+            <span style="font-weight: 600; color: #333;">
+              <%= (agent.lifecycle_stages || []).sum { |s| (s['automated_actions'] || []).length } %>
+            </span>
+          </div>
+
+          <%= link_to 'Configure Lifecycle →', admin_agent_lifecycle_path(agent),
+              class: 'admin-btn admin-btn-primary',
+              style: 'width: 100%; text-align: center;' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.agent-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.agent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+</style>

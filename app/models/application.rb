@@ -1,6 +1,5 @@
 class Application < ApplicationRecord
   # include InputSanitization  # Temporarily disabled for testing
-
   belongs_to :user
   belongs_to :mortgage, optional: true
   has_one :contract, dependent: :destroy
@@ -271,7 +270,7 @@ class Application < ApplicationRecord
       "Not available"
     end
   end
-  
+
   def contract_display_name
     "#{user.display_name} - #{address[0..50]}"
   end
@@ -426,11 +425,11 @@ class Application < ApplicationRecord
       change_details: "Admin #{user.display_name} viewed application"
     )
   end
-  
+
   # Checklist management methods
   def create_checklist!
     return if application_checklists.exists?
-    
+
     ApplicationChecklist::STANDARD_CHECKLIST_ITEMS.each_with_index do |item_name, index|
       application_checklists.create!(
         name: item_name,
@@ -439,12 +438,12 @@ class Application < ApplicationRecord
       )
     end
   end
-  
+
   def checklist_completed?
     return false unless application_checklists.exists?
     application_checklists.all?(&:completed?)
   end
-  
+
   def checklist_completion_percentage
     return 0 unless application_checklists.exists?
     completed_count = application_checklists.completed.count
@@ -452,12 +451,12 @@ class Application < ApplicationRecord
     return 0 if total_count.zero?
     (completed_count.to_f / total_count * 100).round
   end
-  
+
   def advance_to_processing_with_checklist!(user)
     transaction do
       create_checklist!
       update!(status: :processing)
-      
+
       # Log the status change and checklist creation
       application_versions.create!(
         user: user,
@@ -468,7 +467,7 @@ class Application < ApplicationRecord
       )
     end
   end
-  
+
 
   private
 
@@ -499,10 +498,10 @@ class Application < ApplicationRecord
   def checklist_completed_for_acceptance
     # Only validate if status is being changed to accepted
     return unless will_save_change_to_status? && status_accepted?
-    
+
     # Skip validation if no checklist exists (for applications that don't have checklists yet)
     return unless application_checklists.exists?
-    
+
     # Validate that all checklist items are completed
     unless checklist_completed?
       errors.add(:status, "cannot be set to accepted until all checklist items are completed")
@@ -598,13 +597,13 @@ class Application < ApplicationRecord
       )
     end
   end
-  
+
   def create_contract_if_accepted
     # Only create contract if status changed to accepted and no contract exists yet
     return unless saved_change_to_status?
     return unless status_accepted?
     return if contract.present?
-    
+
     # Get the lender - for now, use the first lender associated with the mortgage
     # In the future, this might be determined by the user's choice or application data
     lender = mortgage&.active_lenders&.first
@@ -612,27 +611,27 @@ class Application < ApplicationRecord
       Rails.logger.error "No active lender found for mortgage #{mortgage&.id} in application #{id}"
       raise StandardError, "No active lender available for this mortgage"
     end
-    
+
     # Get the lender's active funder pool
     funder_pool = lender.active_funder_pool
     if funder_pool.nil?
       Rails.logger.error "Lender #{lender.name} has no active funder pool for application #{id}"
       raise StandardError, "Lender #{lender.name} has no active funder pool available"
     end
-    
+
     # Check if the funder pool has sufficient capital
     if funder_pool.amount - funder_pool.allocated < home_value
       Rails.logger.error "Lender #{lender.name}'s funder pool has insufficient capital (need: #{home_value}, available: #{funder_pool.amount - funder_pool.allocated})"
       raise StandardError, "Insufficient funding available in lender's pool"
     end
-    
+
     # Get the active mortgage contract (the terms document)
     mortgage_contract = MortgageContract.current
     if mortgage_contract.nil?
       Rails.logger.error "No active mortgage contract found for application #{id}"
       raise StandardError, "No active mortgage contract available"
     end
-    
+
     # Create contract linking user, lender, terms, and funding
     contract = Contract.create!(
       application: self,
@@ -644,10 +643,10 @@ class Application < ApplicationRecord
       end_date: Date.current + (loan_term || 30).years,
       status: :awaiting_funding
     )
-    
+
     # Allocate the capital from the funder pool
     funder_pool.allocate_capital!(home_value)
-    
+
     Rails.logger.info "Contract created for application #{id}: User #{user.display_name} + Lender #{lender.name} + MortgageContract v#{mortgage_contract.version} + FunderPool #{funder_pool.id}"
   rescue => e
     Rails.logger.error "Failed to create contract for application #{id}: #{e.message}"
@@ -709,26 +708,26 @@ class Application < ApplicationRecord
     else ownership_value.to_s
     end
   end
-  
+
   def auto_create_checklist_on_submitted
     # Only trigger if status changed TO submitted and we have a current_user
     return unless saved_change_to_status?
     return unless current_user
     return unless status_submitted?
-    
+
     # Automatically advance to processing with checklist
     advance_to_processing_with_checklist!(current_user)
   end
-  
+
   def ensure_checklist_for_processing_and_beyond
     # Only trigger if status changed TO processing, rejected, or accepted
     return unless saved_change_to_status?
     return unless status_processing? || status_rejected? || status_accepted?
-    
+
     # If no checklist exists, create one
     if application_checklists.empty?
       create_checklist!
-      
+
       # Log the checklist creation if we have a current_user
       if current_user
         application_versions.create!(
@@ -739,22 +738,48 @@ class Application < ApplicationRecord
       end
     end
   end
-  
+
   def trigger_email_workflows
-    # Trigger workflows when application is created
+    # Trigger legacy email workflows
     if saved_change_to_id? # This means it's a new record
       trigger_workflows_for('application_created')
     end
-    
+
     # Trigger workflows when status changes
     if saved_change_to_status?
       old_status, new_status = saved_change_to_status
       trigger_workflows_for('application_status_changed', from_status: old_status, to_status: new_status)
     end
+
+    # Trigger agent lifecycle system
+    trigger_agent_lifecycle
   end
-  
+
+  def trigger_agent_lifecycle
+    # Trigger agent lifecycle when application is created
+    if saved_change_to_id?
+      AgentLifecycleService.new(self, 'application_created').execute!
+    end
+
+    # Trigger agent lifecycle when status changes
+    if saved_change_to_status?
+      old_status, new_status = saved_change_to_status
+
+      # Trigger status change event
+      AgentLifecycleService.new(self, 'status_changed', {
+        from_status: old_status,
+        to_status: new_status
+      }).execute!
+
+      # Trigger application submitted event when status becomes submitted
+      if new_status == 'submitted'
+        AgentLifecycleService.new(self, 'application_submitted').execute!
+      end
+    end
+  end
+
   private
-  
+
   def trigger_workflows_for(trigger_type, context = {})
     EmailWorkflow.active.for_trigger(trigger_type).find_each do |workflow|
       begin

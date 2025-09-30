@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_29_225020) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_29_234115) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,8 +25,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_225020) do
     t.string "greeting_style"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "lifecycle_stages", default: []
+    t.jsonb "business_rules", default: {}
+    t.jsonb "communication_style", default: {}
+    t.jsonb "handoff_rules", default: {}
+    t.jsonb "agent_config", default: {}
+    t.index ["agent_config"], name: "index_ai_agents_on_agent_config", using: :gin
     t.index ["agent_type"], name: "index_ai_agents_on_agent_type"
+    t.index ["business_rules"], name: "index_ai_agents_on_business_rules", using: :gin
     t.index ["is_active"], name: "index_ai_agents_on_is_active"
+    t.index ["lifecycle_stages"], name: "index_ai_agents_on_lifecycle_stages", using: :gin
   end
 
   create_table "application_checklists", force: :cascade do |t|
@@ -132,7 +140,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_225020) do
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_business_process_workflows_on_active"
     t.index ["process_type"], name: "index_business_process_workflows_on_process_type", unique: true
-    t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying, 'conversion'::character varying, 'standard_operations'::character varying]::text[])", name: "check_process_type"
+    t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying::text, 'conversion'::character varying::text, 'standard_operations'::character varying::text])", name: "check_process_type"
   end
 
   create_table "clause_positions", force: :cascade do |t|
