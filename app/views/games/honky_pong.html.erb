@@ -1,103 +1,136 @@
 <%= render 'shared/header' %>
 
-<div class="honky-pong-container" data-controller="honky-pong">
-  <!-- Professional Loading Screen -->
-  <div id="loadingScreen" class="game-loading" data-honky-pong-target="loadingScreen">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">🎮 HONKY PONG</div>
-      <div class="loading-subtitle">Initializing Professional Game Engine...</div>
-    </div>
+<div class="honky-pong-wrapper" data-controller="honky-pong">
+  <h1 class="game-title">🎮 Honky Pong</h1>
+  <p class="game-subtitle">Save the Princess from Honky Kong!</p>
+
+  <div class="game-stats">
+    <span>SCORE: <span id="score" data-honky-pong-target="score">000000</span></span>
+    <span>LIVES: <span id="lives" data-honky-pong-target="lives">3</span></span>
+    <span>LEVEL: <span id="level" data-honky-pong-target="level">1</span></span>
   </div>
 
-  <!-- Professional Performance Indicator -->
-  <div id="performanceIndicator" class="performance-indicator performance-indicator-hidden" data-honky-pong-target="performanceIndicator">
-    <div class="fps-counter">FPS: --</div>
-    <div class="memory-usage">Memory: --MB</div>
-    <div class="particle-count">Particles: --</div>
+  <!-- Game Container -->
+  <div id="gameContainer"
+       class="honky-pong-container"
+       data-honky-pong-target="container"
+       data-asset-donkey-kong="<%= asset_path('arcade/donkeykong/donkey-kong.png') %>"
+       data-asset-barril="<%= asset_path('arcade/donkeykong/barril-2.png') %>"
+       data-asset-barriles="<%= asset_path('arcade/donkeykong/barriles.png') %>"
+       data-asset-mario="<%= asset_path('arcade/donkeykong/mario.png') %>"
+       data-asset-mario-run="<%= asset_path('arcade/donkeykong/mario-run.png') %>"
+       data-asset-mario-run-2="<%= asset_path('arcade/donkeykong/mario-run-2.png') %>"
+       data-asset-mario-left="<%= asset_path('arcade/donkeykong/mario-left.png') %>"
+       data-asset-mario-left-run="<%= asset_path('arcade/donkeykong/mario-left-run.png') %>"
+       data-asset-mario-left-run-2="<%= asset_path('arcade/donkeykong/mario-left-run-2.png') %>"
+       data-asset-mario-up="<%= asset_path('arcade/donkeykong/mario-up-r.png') %>"
+       data-asset-escalera="<%= asset_path('arcade/donkeykong/escalera.png') %>"
+       data-asset-hammer="<%= asset_path('arcade/donkeykong/martillo.png') %>"
+       data-asset-hammer-run="<%= asset_path('arcade/donkeykong/run-martillo.png') %>"
+       data-asset-hammer-run-2="<%= asset_path('arcade/donkeykong/run-martillo-2.png') %>"
+       data-asset-peach="<%= asset_path('arcade/donkeykong/peach-no-floor.png') %>"
+       data-asset-piso="<%= asset_path('arcade/donkeykong/piso.png') %>"
+       data-asset-heart="<%= asset_path('arcade/donkeykong/heart.png') %>"
+       data-asset-game-over="<%= asset_path('arcade/donkeykong/game-over.png') %>">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
   </div>
-  <h1 class="game-title">🎮 Honky Pong</h1>
-  <p class="game-subtitle">Rescue the Princess from Honky Kong!</p>
-  
-  <div id="gameContainer" class="game-container">
-    <canvas id="gameCanvas" 
-            class="game-canvas" 
-            width="900" 
-            height="700" 
-            tabindex="0"
-            data-honky-pong-target="canvas"
-            data-mario-sprite="<%= asset_path('arcade/honkypong/sprites/mario.png') %>"
-            data-enemies-sprite="<%= asset_path('arcade/honkypong/sprites/enemies.png') %>"
-            data-pauline-sprite="<%= asset_path('arcade/honkypong/sprites/pauline.png') %>"
-            data-sound-bacmusic="<%= asset_path('arcade/honkypong/sounds/bacmusic.wav') %>"
-            data-sound-death="<%= asset_path('arcade/honkypong/sounds/death.wav') %>"
-            data-sound-hammer="<%= asset_path('arcade/honkypong/sounds/hammer.wav') %>"
-            data-sound-howhigh="<%= asset_path('arcade/honkypong/sounds/howhigh.wav') %>"
-            data-sound-intro="<%= asset_path('arcade/honkypong/sounds/intro1.wav') %>"
-            data-sound-intro-long="<%= asset_path('arcade/honkypong/sounds/intro1_long.wav') %>"
-            data-sound-itemget="<%= asset_path('arcade/honkypong/sounds/itemget.wav') %>"
-            data-sound-jump="<%= asset_path('arcade/honkypong/sounds/jump.wav') %>"
-            data-sound-jumpbar="<%= asset_path('arcade/honkypong/sounds/jumpbar.wav') %>"
-            data-sound-walking="<%= asset_path('arcade/honkypong/sounds/walking.wav') %>"
-            data-sound-win1="<%= asset_path('arcade/honkypong/sounds/win1.wav') %>"
-            data-sound-win2="<%= asset_path('arcade/honkypong/sounds/win2.wav') %>"
-            data-action="click->honky-pong#focusGame keydown@document->honky-pong#handleKeyDown keyup@document->honky-pong#handleKeyUp"></canvas>
-    <div id="gameInstructions" class="game-instructions">
-      🎮 Click on game area to focus • Arrow Keys: Move/Climb • Space: Jump • P: Pause
-    </div>
+
+  <!-- Instructions -->
+  <div class="game-instructions">
+    <p><strong>🎮 Controls:</strong></p>
+    <p>⬅️ ➡️ <strong>Arrow Keys:</strong> Move left and right</p>
+    <p>⬆️ <strong>Up Arrow:</strong> Jump / Climb ladders</p>
+    <p>⬇️ <strong>Down Arrow:</strong> Climb down ladders</p>
+    <p>🔨 <strong>Spacebar:</strong> Use hammer (when collected)</p>
+    <p>🎯 <strong>Goal:</strong> Reach Princess Peach at the top while avoiding barrels!</p>
   </div>
-  
-  <div id="gameControls" class="game-controls">
-    <div id="gameInfo" class="game-info">
-      <span class="score-item score-red">SCORE: <span id="score" data-honky-pong-target="score">000000</span></span>
-      <span class="score-item score-green">LIVES: <span id="lives" data-honky-pong-target="lives">3</span></span>
-      <span class="score-item score-yellow">LEVEL: <span id="level" data-honky-pong-target="level">1</span></span>
-      <span class="score-item score-purple">BONUS: <span id="bonus" data-honky-pong-target="bonus">5000</span></span>
-    </div>
-    
-    <div id="instructions" class="instructions">
-      <strong>Controls:</strong> ARROW KEYS to move, UP/DOWN to climb ladders, SPACEBAR to jump<br>
-      Collect hammers to smash barrels! Reach the Princess for bonus points!
-    </div>
-    
-    <button id="startButton" 
-            class="game-button start-button" 
-            data-honky-pong-target="startButton">
-      Start Game
-    </button>
-    
-    <button id="pauseButton" 
-            class="game-button pause-button" 
-            disabled
-            data-honky-pong-target="pauseButton">
-      Pause
-    </button>
-  </div>
-  
-  <div id="gameOver" 
-       class="game-over game-over-hidden" 
-       data-honky-pong-target="gameOver">
-    <h2 class="game-over-title">🎮 GAME OVER! 🎮</h2>
-    <p class="final-score">Final Score: <span id="finalScore" class="final-score-value" data-honky-pong-target="finalScore">000000</span></p>
-    <p class="game-over-message">🏆 Princess Pauline is still waiting for rescue!</p>
-    <div>
-      <button id="restartButton" 
-              class="restart-button"
-              data-honky-pong-target="restartButton">
-        🔄 Play Again
-      </button>
-      <p class="restart-hint">Press R key to restart quickly</p>
-    </div>
+
+  <div class="game-controls">
+    <button data-action="click->honky-pong#startGame" class="btn btn-primary">START GAME</button>
+    <button data-action="click->honky-pong#togglePause" class="btn btn-secondary">PAUSE</button>
   </div>
 
   <div class="back-link">
-    <%= link_to "← Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+    <%= link_to "← Back to Arcade", arcade_path, class="btn btn-secondary" %>
   </div>
 </div>
 
-<!-- Professional Accessibility Features -->
-<div class="visually-hidden" role="status" aria-live="polite" id="gameStatus">
-  Game initialized. Use arrow keys to move, space to jump.
-</div>
+<style>
+  .honky-pong-wrapper {
+    text-align: center;
+    padding: 20px;
+    background: #000;
+    min-height: 100vh;
+  }
+
+  .game-title {
+    color: #ff0000;
+    font-size: 48px;
+    margin: 20px 0;
+    text-shadow: 4px 4px 0 #000000, 6px 6px 0 #ffffff;
+    font-family: 'Arial Black', sans-serif;
+  }
+
+  .game-subtitle {
+    color: #ffff00;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .game-stats {
+    color: #ffffff;
+    font-size: 20px;
+    font-family: monospace;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .honky-pong-container {
+    display: inline-block;
+    margin: 20px auto;
+    border: 4px solid #ff0000;
+    background: #000;
+  }
+
+  #gameCanvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+
+  .game-instructions {
+    color: #ffffff;
+    margin: 30px auto;
+    max-width: 600px;
+    text-align: left;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #333;
+  }
+
+  .game-instructions p {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  .game-controls {
+    margin: 20px 0;
+  }
+
+  .game-controls button {
+    margin: 0 10px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .back-link {
+    margin: 30px 0;
+  }
+</style>
 
 <%= render 'shared/footer' %>

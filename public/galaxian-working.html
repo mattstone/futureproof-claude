@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxian - Enhanced</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ff0;
+            font-size: 48px;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #ff0, 0 0 40px #f80, 0 0 60px #f00;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+        @keyframes titlePulse {
+            0%, 100% { text-shadow: 0 0 20px #ff0, 0 0 40px #f80, 0 0 60px #f00; }
+            50% { text-shadow: 0 0 30px #ff0, 0 0 60px #f80, 0 0 90px #f00; }
+        }
+        .subtitle {
+            color: #0ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #0ff;
+        }
+        .stats {
+            font-size: 24px;
+            margin: 20px 0;
+            display: flex;
+            gap: 40px;
+            font-family: monospace;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+        }
+        canvas {
+            border: 4px solid #00f;
+            display: block;
+            margin: 20px;
+            background: #000;
+            box-shadow: 0 0 30px #00f, inset 0 0 20px rgba(0, 0, 255, 0.2);
+            image-rendering: crisp-edges;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0, #f80);
+            color: #000;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(255, 136, 0, 0.5);
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #fff, #ff0);
+            box-shadow: 0 0 30px rgba(255, 136, 0, 0.8);
+            transform: scale(1.05);
+        }
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 4px solid #ff0;
+            box-shadow: 0 0 50px #ff0;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+        .game-over.show { display: block; }
+        .instructions {
+            color: #0ff;
+            text-align: center;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>✨ GALAXIAN ✨</h1>
+    <p class="subtitle">Defend Against the Alien Fleet!</p>
+
+    <div class="stats">
+        <span>SCORE: <span id="score">0000</span></span>
+        <span>HIGH: <span id="highScore">0000</span></span>
+        <span>LIVES: <span id="lives">3</span></span>
+        <span>WAVE: <span id="level">1</span></span>
+    </div>
+
+    <canvas id="game" width="800" height="600"></canvas>
+
+    <div class="instructions">
+        <button id="startBtn">START GAME</button>
+        <p>← → Arrow Keys: Move | SPACE: Shoot</p>
+        <p>Watch for diving formations and flagship attacks!</p>
+    </div>
+
+    <div id="gameOver" class="game-over">
+        <h2>GAME OVER</h2>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <p>Wave Reached: <span id="finalLevel">1</span></p>
+        <button id="restartBtn">PLAY AGAIN</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = 'ready';
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('galaxianHigh') || '0');
+        let lives = 3;
+        let level = 1;
+        let keys = {};
+        let animFrame = 0;
+
+        // Player
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 70,
+            w: 40,
+            h: 35,
+            speed: 6,
+            shootCooldown: 0,
+            invincible: 0
+        };
+
+        // Game objects
+        let bullets = [];
+        let aliens = [];
+        let divingAliens = [];
+        let alienBullets = [];
+        let explosions = [];
+        let stars = [];
+        let trails = [];
+
+        // Formation
+        const FORMATION_COLS = 10;
+        const FORMATION_ROWS = 5;
+        const ALIEN_SPACING_X = 60;
+        const ALIEN_SPACING_Y = 50;
+        const FORMATION_START_X = 100;
+        const FORMATION_START_Y = 80;
+
+        // Create enhanced starfield
+        for (let i = 0; i < 150; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                speed: Math.random() * 1 + 0.3,
+                size: Math.random() * 2.5,
+                brightness: Math.random()
+            });
+        }
+
+        document.addEventListener('keydown', e => {
+            keys[e.key] = true;
+
+            // Prevent default for all arrow keys and space
+            if (e.key.startsWith('Arrow') || e.key === ' ') {
+                e.preventDefault();
+            }
+
+            if (e.key === ' ' && gameState === 'playing') {
+                shoot();
+            }
+        });
+
+        document.addEventListener('keyup', e => {
+            keys[e.key] = false;
+
+            // Prevent default for all arrow keys
+            if (e.key.startsWith('Arrow')) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('startBtn').onclick = startGame;
+        document.getElementById('restartBtn').onclick = restart;
+
+        function startGame() {
+            if (gameState === 'ready') {
+                gameState = 'playing';
+                initLevel();
+                gameLoop();
+            }
+        }
+
+        function restart() {
+            score = 0;
+            lives = 3;
+            level = 1;
+            player.x = canvas.width / 2 - 20;
+            player.invincible = 0;
+            bullets = [];
+            aliens = [];
+            divingAliens = [];
+            alienBullets = [];
+            explosions = [];
+            trails = [];
+            gameState = 'playing';
+            document.getElementById('gameOver').classList.remove('show');
+            initLevel();
+            updateHUD();
+        }
+
+        function initLevel() {
+            aliens = [];
+            divingAliens = [];
+            bullets = [];
+            alienBullets = [];
+            trails = [];
+
+            // Create formation with variety
+            for (let row = 0; row < FORMATION_ROWS; row++) {
+                for (let col = 0; col < FORMATION_COLS; col++) {
+                    let type, color, points;
+
+                    if (row === 0) {
+                        type = 'flagship';
+                        color = '#f00';
+                        points = 150;
+                    } else if (row < 3) {
+                        type = 'escort';
+                        color = col % 2 === 0 ? '#f0f' : '#f5f';
+                        points = 80;
+                    } else {
+                        type = 'grunt';
+                        color = col % 2 === 0 ? '#0ff' : '#5ff';
+                        points = 50;
+                    }
+
+                    aliens.push({
+                        formationX: col,
+                        formationY: row,
+                        x: FORMATION_START_X + col * ALIEN_SPACING_X,
+                        y: FORMATION_START_Y + row * ALIEN_SPACING_Y,
+                        targetX: FORMATION_START_X + col * ALIEN_SPACING_X,
+                        targetY: FORMATION_START_Y + row * ALIEN_SPACING_Y,
+                        type: type,
+                        points: points,
+                        color: color,
+                        animOffset: Math.random() * Math.PI * 2,
+                        inFormation: true,
+                        shootTimer: Math.random() * 180 + 60,
+                        scale: 1,
+                        rotation: 0
+                    });
+                }
+            }
+
+            formationOffset = 0;
+            formationDirection = 1;
+        }
+
+        let formationOffset = 0;
+        let formationDirection = 1;
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+
+            animFrame++;
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            // Player movement
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) {
+                player.x += player.speed;
+            }
+            if (keys['ArrowUp'] && player.y > canvas.height / 2) {
+                player.y -= player.speed;
+            }
+            if (keys['ArrowDown'] && player.y < canvas.height - player.h - 10) {
+                player.y += player.speed;
+            }
+
+            if (player.shootCooldown > 0) player.shootCooldown--;
+            if (player.invincible > 0) player.invincible--;
+
+            // Formation sway with smooth easing
+            formationOffset += 0.4 * formationDirection;
+            if (Math.abs(formationOffset) > 40) {
+                formationDirection *= -1;
+            }
+
+            // Update aliens in formation
+            aliens.forEach(alien => {
+                if (alien.inFormation) {
+                    const waveFactor = Math.sin(animFrame * 0.02 + alien.animOffset);
+                    alien.targetX = FORMATION_START_X + alien.formationX * ALIEN_SPACING_X + formationOffset;
+                    alien.targetY = FORMATION_START_Y + alien.formationY * ALIEN_SPACING_Y + waveFactor * 8;
+
+                    alien.x += (alien.targetX - alien.x) * 0.15;
+                    alien.y += (alien.targetY - alien.y) * 0.15;
+
+                    // Pulsing animation
+                    alien.scale = 1 + Math.sin(animFrame * 0.08 + alien.animOffset) * 0.1;
+                    alien.rotation = Math.sin(animFrame * 0.05 + alien.animOffset) * 0.1;
+
+                    // Random dive - more aggressive at higher levels
+                    alien.shootTimer--;
+                    if (alien.shootTimer <= 0 && divingAliens.length < 4) {
+                        const diveChance = 0.003 * (1 + level * 0.15);
+                        if (Math.random() < diveChance) {
+                            startDive(alien);
+                        } else {
+                            alien.shootTimer = Math.random() * 180 + 60;
+                        }
+                    }
+                }
+            });
+
+            // Update diving aliens with better AI
+            divingAliens.forEach((alien, i) => {
+                if (alien.divePhase === 'down') {
+                    // Swooping dive attack
+                    const targetX = player.x + player.w / 2;
+                    const targetY = player.y + 100;
+
+                    const dx = targetX - alien.x;
+                    const dy = targetY - alien.y;
+                    const angle = Math.atan2(dy, dx);
+
+                    alien.vx = Math.cos(angle) * (3 + level * 0.3);
+                    alien.vy = Math.sin(angle) * (3 + level * 0.3);
+
+                    alien.x += alien.vx;
+                    alien.y += alien.vy;
+
+                    // Rotation for visual effect
+                    alien.rotation = angle + Math.PI / 2;
+                    alien.scale = 1 + Math.sin(animFrame * 0.2) * 0.15;
+
+                    // Trail effect
+                    if (animFrame % 2 === 0) {
+                        trails.push({
+                            x: alien.x,
+                            y: alien.y,
+                            color: alien.color,
+                            life: 15
+                        });
+                    }
+
+                    // Shoot more during dive
+                    if (Math.random() < 0.025) {
+                        const bulletAngle = Math.atan2(player.y - alien.y, player.x - alien.x);
+                        alienBullets.push({
+                            x: alien.x,
+                            y: alien.y + 10,
+                            vx: Math.cos(bulletAngle) * 4,
+                            vy: Math.sin(bulletAngle) * 4,
+                            trail: []
+                        });
+                    }
+
+                    // Switch to return phase
+                    if (alien.y > canvas.height - 80 ||
+                        alien.x < -80 || alien.x > canvas.width + 80) {
+                        alien.divePhase = 'return';
+                        alien.returnDelay = 30;
+                    }
+                } else if (alien.divePhase === 'return') {
+                    if (alien.returnDelay > 0) {
+                        alien.returnDelay--;
+                        // Arc around
+                        alien.y -= 2;
+                        alien.x += alien.vx * 0.5;
+                    } else {
+                        // Return to formation with smooth curve
+                        const dx = alien.targetX - alien.x;
+                        const dy = alien.targetY - alien.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 15) {
+                            alien.inFormation = true;
+                            alien.divePhase = null;
+                            alien.shootTimer = Math.random() * 180 + 60;
+                            alien.rotation = 0;
+                            divingAliens.splice(i, 1);
+                        } else {
+                            alien.vx = (dx / dist) * 5;
+                            alien.vy = (dy / dist) * 5;
+                            alien.x += alien.vx;
+                            alien.y += alien.vy;
+                            alien.rotation += 0.1;
+                        }
+                    }
+                }
+            });
+
+            // Update bullets with trails
+            bullets.forEach((b, i) => {
+                b.y -= 10;
+
+                // Bullet trail
+                if (!b.trail) b.trail = [];
+                b.trail.push({ x: b.x, y: b.y, life: 8 });
+                b.trail = b.trail.filter(t => t.life-- > 0);
+
+                if (b.y < -10) bullets.splice(i, 1);
+            });
+
+            alienBullets.forEach((b, i) => {
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Enemy bullet trail
+                if (!b.trail) b.trail = [];
+                b.trail.push({ x: b.x, y: b.y, life: 6 });
+                b.trail = b.trail.filter(t => t.life-- > 0);
+
+                if (b.y > canvas.height + 10 || b.x < -10 || b.x > canvas.width + 10) {
+                    alienBullets.splice(i, 1);
+                }
+            });
+
+            // Update trails
+            trails.forEach((t, i) => {
+                t.life--;
+                if (t.life <= 0) trails.splice(i, 1);
+            });
+
+            // Update explosions with particles
+            explosions.forEach((e, i) => {
+                e.life--;
+                e.radius += 1;
+                e.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vx *= 0.95;
+                    p.vy *= 0.95;
+                });
+                if (e.life <= 0) explosions.splice(i, 1);
+            });
+
+            // Update stars with parallax
+            stars.forEach(star => {
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+                star.brightness = (Math.sin(animFrame * 0.05 + star.y) + 1) / 2;
+            });
+
+            // Collision detection with better feedback
+            bullets.forEach((bullet, bi) => {
+                [...aliens, ...divingAliens].forEach((alien, ai) => {
+                    if (collision(bullet, alien, 18)) {
+                        bullets.splice(bi, 1);
+
+                        // Remove alien
+                        if (alien.inFormation) {
+                            const idx = aliens.indexOf(alien);
+                            if (idx > -1) aliens.splice(idx, 1);
+                        } else {
+                            const idx = divingAliens.indexOf(alien);
+                            if (idx > -1) divingAliens.splice(idx, 1);
+                        }
+
+                        score += alien.points;
+                        if (score > highScore) {
+                            highScore = score;
+                            localStorage.setItem('galaxianHigh', highScore);
+                        }
+
+                        createExplosion(alien.x, alien.y, alien.color);
+                        updateHUD();
+                    }
+                });
+            });
+
+            // Alien bullets vs player
+            if (player.invincible === 0) {
+                alienBullets.forEach((bullet, bi) => {
+                    if (collision(bullet, player, 20)) {
+                        alienBullets.splice(bi, 1);
+                        loseLife();
+                    }
+                });
+
+                // Diving aliens vs player
+                divingAliens.forEach(alien => {
+                    if (collision(alien, player, 22)) {
+                        loseLife();
+
+                        // Destroy alien too
+                        const idx = divingAliens.indexOf(alien);
+                        if (idx > -1) divingAliens.splice(idx, 1);
+                        createExplosion(alien.x, alien.y, alien.color);
+                    }
+                });
+            }
+
+            // Check win
+            if (aliens.length === 0 && divingAliens.length === 0) {
+                level++;
+                score += 1000; // Bonus for completing wave
+                updateHUD();
+                setTimeout(() => initLevel(), 2000);
+            }
+        }
+
+        function startDive(alien) {
+            alien.inFormation = false;
+            alien.divePhase = 'down';
+            alien.vx = 0;
+            alien.vy = 0;
+            divingAliens.push(alien);
+
+            const idx = aliens.indexOf(alien);
+            if (idx > -1) aliens.splice(idx, 1);
+        }
+
+        function shoot() {
+            if (bullets.length < 3 && player.shootCooldown === 0) {
+                bullets.push({
+                    x: player.x + player.w / 2 - 2,
+                    y: player.y - 5,
+                    w: 4,
+                    h: 12,
+                    trail: []
+                });
+                player.shootCooldown = 15;
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            const particles = [];
+            for (let i = 0; i < 20; i++) {
+                const angle = (i / 20) * Math.PI * 2;
+                const speed = Math.random() * 3 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed
+                });
+            }
+
+            explosions.push({
+                x: x,
+                y: y,
+                radius: 5,
+                life: 25,
+                color: color,
+                particles: particles
+            });
+        }
+
+        function collision(a, b, radius) {
+            const ax = a.x + (a.w || 0) / 2;
+            const ay = a.y + (a.h || 0) / 2;
+            const bx = b.x + (b.w || 0) / 2;
+            const by = b.y + (b.h || 0) / 2;
+            const dx = ax - bx;
+            const dy = ay - by;
+            return Math.sqrt(dx * dx + dy * dy) < radius;
+        }
+
+        function loseLife() {
+            lives--;
+            updateHUD();
+
+            createExplosion(player.x + player.w / 2, player.y + player.h / 2, '#0ff');
+
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                player.x = canvas.width / 2 - 20;
+                player.invincible = 120;
+            }
+        }
+
+        function gameOver() {
+            gameState = 'gameover';
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('gameOver').classList.add('show');
+        }
+
+        function updateHUD() {
+            document.getElementById('score').textContent = score.toString().padStart(4, '0');
+            document.getElementById('highScore').textContent = highScore.toString().padStart(4, '0');
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('level').textContent = level;
+        }
+
+        function render() {
+            // Clear with slight fade for trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Stars with twinkling
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * 0.8})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+
+                // Glow
+                if (star.size > 1.5) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * 0.3})`;
+                    ctx.fillRect(star.x - 1, star.y - 1, star.size + 2, star.size + 2);
+                }
+            });
+
+            // Alien trails
+            trails.forEach(t => {
+                ctx.fillStyle = t.color;
+                ctx.globalAlpha = t.life / 15;
+                ctx.fillRect(t.x - 2, t.y - 2, 4, 4);
+            });
+            ctx.globalAlpha = 1;
+
+            // Player ship with enhanced graphics
+            if (player.invincible === 0 || Math.floor(animFrame / 5) % 2 === 0) {
+                ctx.save();
+                ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
+
+                // Glow
+                ctx.shadowColor = '#0ff';
+                ctx.shadowBlur = 15;
+
+                // Main body
+                ctx.fillStyle = '#0ff';
+                ctx.beginPath();
+                ctx.moveTo(0, -player.h / 2);
+                ctx.lineTo(-player.w / 2, player.h / 2);
+                ctx.lineTo(-player.w / 4, player.h / 3);
+                ctx.lineTo(player.w / 4, player.h / 3);
+                ctx.lineTo(player.w / 2, player.h / 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Cockpit
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wings
+                ctx.fillStyle = '#0aa';
+                ctx.fillRect(-player.w / 2 - 8, player.h / 4, 8, 10);
+                ctx.fillRect(player.w / 2, player.h / 4, 8, 10);
+
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            }
+
+            // Player bullets with glow
+            bullets.forEach(b => {
+                // Trail
+                b.trail.forEach((t, i) => {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${i / b.trail.length * 0.5})`;
+                    ctx.fillRect(t.x, t.y, 3, 6);
+                });
+
+                // Bullet
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 8;
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+                ctx.shadowBlur = 0;
+            });
+
+            // Draw aliens with enhanced graphics
+            const drawAlien = (alien) => {
+                ctx.save();
+                ctx.translate(alien.x, alien.y);
+                ctx.rotate(alien.rotation);
+                ctx.scale(alien.scale, alien.scale);
+
+                // Glow
+                ctx.shadowColor = alien.color;
+                ctx.shadowBlur = 12;
+
+                ctx.fillStyle = alien.color;
+
+                if (alien.type === 'flagship') {
+                    // Flagship - distinctive large design
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 18, Math.PI, 0);
+                    ctx.fill();
+
+                    ctx.fillRect(-24, 0, 48, 8);
+
+                    // Antennae
+                    ctx.fillStyle = '#ff0';
+                    ctx.fillRect(-20, -12, 4, 12);
+                    ctx.fillRect(16, -12, 4, 12);
+                    ctx.beginPath();
+                    ctx.arc(-18, -12, 3, 0, Math.PI * 2);
+                    ctx.arc(18, -12, 3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Details
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-4, -4, 8, 8);
+                } else if (alien.type === 'escort') {
+                    // Escort - medium with distinctive wings
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 14, Math.PI, 0);
+                    ctx.fill();
+
+                    ctx.fillRect(-18, 0, 36, 6);
+                    ctx.fillRect(-10, 6, 20, 4);
+
+                    // Wing details
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-16, 2, 6, 2);
+                    ctx.fillRect(10, 2, 6, 2);
+                } else {
+                    // Grunt - simple but colorful
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 11, Math.PI, 0);
+                    ctx.fill();
+
+                    ctx.fillRect(-14, 0, 28, 5);
+
+                    // Details
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-3, -2, 6, 4);
+                }
+
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            };
+
+            aliens.forEach(drawAlien);
+            divingAliens.forEach(drawAlien);
+
+            // Alien bullets with trails
+            alienBullets.forEach(b => {
+                // Trail
+                b.trail.forEach((t, i) => {
+                    ctx.fillStyle = `rgba(255, 0, 0, ${i / b.trail.length * 0.4})`;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Bullet
+                ctx.fillStyle = '#f00';
+                ctx.shadowColor = '#f00';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Explosions with particles
+            explosions.forEach(e => {
+                const alpha = e.life / 25;
+
+                // Expanding ring
+                ctx.strokeStyle = e.color;
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Particles
+                ctx.fillStyle = e.color;
+                e.particles.forEach(p => {
+                    ctx.globalAlpha = alpha * 0.8;
+                    ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+                });
+
+                ctx.globalAlpha = 1;
+            });
+
+            // HUD border with glow
+            ctx.strokeStyle = '#00f';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#00f';
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+            ctx.shadowBlur = 0;
+        }
+
+        updateHUD();
+    </script>
+</body>
+</html>

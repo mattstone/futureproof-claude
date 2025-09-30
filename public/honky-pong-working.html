@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honky Pong - Donkey Kong Clone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ff0000;
+            font-size: 48px;
+            margin: 20px 0;
+            text-shadow: 4px 4px 0 #000, 6px 6px 0 #fff;
+            font-family: 'Arial Black', sans-serif;
+        }
+        .subtitle {
+            color: #ffff00;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .game-stats {
+            font-family: monospace;
+            font-size: 20px;
+            margin: 20px 0;
+            display: flex;
+            gap: 40px;
+        }
+        canvas {
+            border: 4px solid #ff0000;
+            display: block;
+            margin: 20px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            background: #000;
+        }
+        .controls {
+            margin: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 0 10px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        .instructions {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #333;
+            max-width: 600px;
+            text-align: left;
+            margin: 20px;
+        }
+        .instructions p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 4px solid #ff0000;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+        .game-over.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Honky Pong</h1>
+    <p class="subtitle">Save the Princess from Honky Kong!</p>
+
+    <div class="game-stats">
+        <span>SCORE: <span id="score">000000</span></span>
+        <span>LIVES: <span id="lives">3</span></span>
+        <span>LEVEL: <span id="level">1</span></span>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div class="controls">
+        <button id="startBtn">START GAME</button>
+        <button id="pauseBtn">PAUSE</button>
+    </div>
+
+    <div class="instructions">
+        <p><strong>🎮 Controls:</strong></p>
+        <p>⬅️ ➡️ <strong>Arrow Keys:</strong> Move left and right</p>
+        <p>⬆️ <strong>Up Arrow:</strong> Jump / Climb ladders</p>
+        <p>⬇️ <strong>Down Arrow:</strong> Climb down ladders</p>
+        <p>🔨 <strong>Spacebar:</strong> Use hammer (when collected)</p>
+        <p>🎯 <strong>Goal:</strong> Reach Princess Peach at the top while avoiding barrels!</p>
+    </div>
+
+    <div id="gameOver" class="game-over">
+        <h2>🎮 GAME OVER 🎮</h2>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <button id="restartBtn">PLAY AGAIN</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameState = 'ready'; // ready, playing, paused, gameover
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let keys = {};
+        let animFrame = 0;
+        let paused = false;
+
+        // Constants
+        const GRAVITY = 0.5;
+        const JUMP_FORCE = -12;
+        const MOVE_SPEED = 3;
+        const CLIMB_SPEED = 2.5;
+
+        // Platforms (slanted like Donkey Kong)
+        const platforms = [
+            { x: 0, y: 560, w: 800, h: 40, slope: 0 },           // Ground
+            { x: 120, y: 460, w: 680, h: 20, slope: -0.02 },    // Level 1 (down right)
+            { x: 0, y: 360, w: 680, h: 20, slope: 0.02 },       // Level 2 (up right)
+            { x: 120, y: 260, w: 680, h: 20, slope: -0.02 },    // Level 3 (down right)
+            { x: 0, y: 160, w: 680, h: 20, slope: 0.02 },       // Level 4 (up right)
+            { x: 120, y: 80, w: 300, h: 20, slope: 0 }          // Top platform
+        ];
+
+        // Ladders
+        const ladders = [
+            { x: 700, y: 480, w: 30, h: 80 },   // Ground to L1
+            { x: 60, y: 380, w: 30, h: 80 },    // L1 to L2
+            { x: 700, y: 280, w: 30, h: 80 },   // L2 to L3
+            { x: 60, y: 180, w: 30, h: 80 },    // L3 to L4
+            { x: 700, y: 100, w: 30, h: 60 }    // L4 to Top
+        ];
+
+        // Mario
+        const mario = {
+            x: 50,
+            y: 520,
+            w: 28,
+            h: 32,
+            vx: 0,
+            vy: 0,
+            onGround: false,
+            onLadder: false,
+            facingRight: true,
+            hasHammer: false,
+            hammerTime: 0,
+            invincible: false,
+            invincibleTime: 0
+        };
+
+        // Donkey Kong
+        const donkey = {
+            x: 100,
+            y: 30,
+            w: 60,
+            h: 60,
+            throwTimer: 0
+        };
+
+        // Princess
+        const princess = {
+            x: 350,
+            y: 30,
+            w: 32,
+            h: 44
+        };
+
+        // Hammer powerup
+        const hammer = {
+            x: 400,
+            y: 240,
+            w: 24,
+            h: 24,
+            active: true
+        };
+
+        // Barrels
+        let barrels = [];
+
+        // Input handling
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' || e.key.startsWith('Arrow')) e.preventDefault();
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Button handlers
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('restartBtn').addEventListener('click', restart);
+
+        function startGame() {
+            if (gameState === 'ready') {
+                gameState = 'playing';
+                gameLoop();
+            }
+        }
+
+        function togglePause() {
+            if (gameState === 'playing') {
+                paused = !paused;
+                document.getElementById('pauseBtn').textContent = paused ? 'RESUME' : 'PAUSE';
+            }
+        }
+
+        function restart() {
+            score = 0;
+            lives = 3;
+            level = 1;
+            mario.x = 50;
+            mario.y = 520;
+            mario.hasHammer = false;
+            mario.invincible = false;
+            barrels = [];
+            hammer.active = true;
+            donkey.throwTimer = 0;
+            gameState = 'playing';
+            document.getElementById('gameOver').classList.remove('show');
+            updateHUD();
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+
+            animFrame++;
+
+            if (!paused) {
+                update();
+            }
+
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            updateMario();
+            updateBarrels();
+            updateDonkey();
+            checkCollisions();
+            checkWin();
+        }
+
+        function updateMario() {
+            // Horizontal movement
+            if (keys['ArrowLeft']) {
+                mario.vx = -MOVE_SPEED;
+                mario.facingRight = false;
+            } else if (keys['ArrowRight']) {
+                mario.vx = MOVE_SPEED;
+                mario.facingRight = true;
+            } else {
+                mario.vx = 0;
+            }
+
+            // Check ladder
+            mario.onLadder = checkOnLadder();
+
+            if (mario.onLadder) {
+                // Climbing
+                if (keys['ArrowUp']) {
+                    mario.vy = -CLIMB_SPEED;
+                    mario.onGround = false;
+                } else if (keys['ArrowDown']) {
+                    mario.vy = CLIMB_SPEED;
+                    mario.onGround = false;
+                } else if (mario.onGround) {
+                    mario.vy = 0;
+                }
+            } else {
+                // Gravity
+                mario.vy += GRAVITY;
+
+                // Jump
+                if (keys['ArrowUp'] && mario.onGround) {
+                    mario.vy = JUMP_FORCE;
+                    mario.onGround = false;
+                }
+            }
+
+            // Apply velocity
+            mario.x += mario.vx;
+            mario.y += mario.vy;
+
+            // Bounds
+            mario.x = Math.max(0, Math.min(mario.x, canvas.width - mario.w));
+
+            // Platform collision
+            mario.onGround = false;
+            for (const p of platforms) {
+                if (checkPlatformCollision(mario, p)) {
+                    mario.onGround = true;
+                    break;
+                }
+            }
+
+            // Hammer timer
+            if (mario.hasHammer) {
+                mario.hammerTime--;
+                if (mario.hammerTime <= 0) mario.hasHammer = false;
+            }
+
+            // Invincibility
+            if (mario.invincible) {
+                mario.invincibleTime--;
+                if (mario.invincibleTime <= 0) mario.invincible = false;
+            }
+        }
+
+        function checkOnLadder() {
+            for (const l of ladders) {
+                if (mario.x + mario.w > l.x && mario.x < l.x + l.w &&
+                    mario.y + mario.h > l.y && mario.y < l.y + l.h) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkPlatformCollision(obj, p) {
+            const centerX = obj.x + obj.w / 2;
+            const platformY = p.y + (centerX - p.x) * p.slope;
+
+            if (obj.x + obj.w > p.x && obj.x < p.x + p.w &&
+                obj.y + obj.h >= platformY &&
+                obj.y + obj.h <= platformY + p.h + 10 &&
+                obj.vy >= 0) {
+                obj.y = platformY - obj.h;
+                obj.vy = 0;
+                return true;
+            }
+            return false;
+        }
+
+        function updateBarrels() {
+            for (let i = barrels.length - 1; i >= 0; i--) {
+                const b = barrels[i];
+
+                b.vy += GRAVITY;
+                b.x += b.vx;
+                b.y += b.vy;
+                b.rotation += b.vx * 0.05;
+
+                // Platform collision
+                b.onGround = false;
+                for (const p of platforms) {
+                    if (checkPlatformCollision(b, p)) {
+                        b.onGround = true;
+                        b.vx = b.dir * 2;
+                        break;
+                    }
+                }
+
+                // Random ladder descent
+                if (b.onGround && Math.random() < 0.008) {
+                    for (const l of ladders) {
+                        if (b.x + b.w > l.x && b.x < l.x + l.w) {
+                            b.vx = 0;
+                            b.vy = 2;
+                            break;
+                        }
+                    }
+                }
+
+                // Remove off-screen barrels
+                if (b.y > 650 || b.x < -50 || b.x > 850) {
+                    barrels.splice(i, 1);
+                }
+            }
+        }
+
+        function updateDonkey() {
+            donkey.throwTimer--;
+
+            if (donkey.throwTimer <= 0) {
+                barrels.push({
+                    x: donkey.x + 30,
+                    y: donkey.y + 60,
+                    w: 24,
+                    h: 24,
+                    vx: 2,
+                    vy: 0,
+                    rotation: 0,
+                    dir: 1,
+                    onGround: false
+                });
+
+                donkey.throwTimer = 90 - level * 5; // Faster at higher levels
+                score += 10;
+                updateHUD();
+            }
+        }
+
+        function checkCollisions() {
+            // Barrel collisions
+            if (!mario.invincible) {
+                for (let i = barrels.length - 1; i >= 0; i--) {
+                    if (boxCollision(mario, barrels[i])) {
+                        if (mario.hasHammer) {
+                            barrels.splice(i, 1);
+                            score += 300;
+                            updateHUD();
+                        } else {
+                            marioHit();
+                        }
+                    }
+                }
+            }
+
+            // Hammer pickup
+            if (hammer.active && boxCollision(mario, hammer)) {
+                mario.hasHammer = true;
+                mario.hammerTime = 300; // 5 seconds
+                hammer.active = false;
+                score += 500;
+                updateHUD();
+
+                setTimeout(() => { hammer.active = true; }, 10000);
+            }
+        }
+
+        function boxCollision(a, b) {
+            return a.x < b.x + b.w &&
+                   a.x + a.w > b.x &&
+                   a.y < b.y + b.h &&
+                   a.y + a.h > b.y;
+        }
+
+        function checkWin() {
+            if (boxCollision(mario, princess)) {
+                score += 5000;
+                level++;
+                lives++;
+                mario.x = 50;
+                mario.y = 520;
+                barrels = [];
+                donkey.throwTimer = 0;
+                updateHUD();
+            }
+        }
+
+        function marioHit() {
+            lives--;
+            mario.invincible = true;
+            mario.invincibleTime = 120;
+
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                mario.x = 50;
+                mario.y = 520;
+                mario.vx = 0;
+                mario.vy = 0;
+                updateHUD();
+            }
+        }
+
+        function gameOver() {
+            gameState = 'gameover';
+            document.getElementById('finalScore').textContent = score.toString().padStart(6, '0');
+            document.getElementById('gameOver').classList.add('show');
+        }
+
+        function updateHUD() {
+            document.getElementById('score').textContent = score.toString().padStart(6, '0');
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('level').textContent = level;
+        }
+
+        function render() {
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Platforms
+            ctx.fillStyle = '#0088FF';
+            for (const p of platforms) {
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+            }
+
+            // Ladders
+            ctx.fillStyle = '#FF00FF';
+            for (const l of ladders) {
+                ctx.fillRect(l.x, l.y, l.w, l.h);
+
+                // Rungs
+                ctx.fillStyle = '#FF66FF';
+                for (let y = l.y; y < l.y + l.h; y += 10) {
+                    ctx.fillRect(l.x, y, l.w, 2);
+                }
+                ctx.fillStyle = '#FF00FF';
+            }
+
+            // Donkey Kong
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(donkey.x, donkey.y, donkey.w, donkey.h);
+            ctx.fillStyle = '#FFF';
+            ctx.font = '12px monospace';
+            ctx.fillText('🦍', donkey.x + 10, donkey.y + 40);
+
+            // Princess
+            ctx.fillStyle = '#FFB6C1';
+            ctx.fillRect(princess.x, princess.y, princess.w, princess.h);
+            ctx.fillStyle = '#FFF';
+            ctx.fillText('👸', princess.x + 5, princess.y + 30);
+
+            // Hammer powerup
+            if (hammer.active) {
+                ctx.fillStyle = '#FFFF00';
+                ctx.fillRect(hammer.x, hammer.y, hammer.w, hammer.h);
+                ctx.fillStyle = '#FFF';
+                ctx.fillText('🔨', hammer.x, hammer.y + 18);
+            }
+
+            // Barrels
+            ctx.fillStyle = '#D2691E';
+            for (const b of barrels) {
+                ctx.save();
+                ctx.translate(b.x + b.w / 2, b.y + b.h / 2);
+                ctx.rotate(b.rotation);
+                ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+                ctx.restore();
+            }
+
+            // Mario (flicker if invincible)
+            if (!mario.invincible || Math.floor(animFrame / 5) % 2 === 0) {
+                ctx.fillStyle = mario.hasHammer ? '#FFD700' : '#FF0000';
+                ctx.fillRect(mario.x, mario.y, mario.w, mario.h);
+
+                // Eyes
+                ctx.fillStyle = '#FFF';
+                const eyeX = mario.facingRight ? mario.x + 20 : mario.x + 8;
+                ctx.fillRect(eyeX, mario.y + 8, 4, 4);
+            }
+
+            // Hammer indicator
+            if (mario.hasHammer) {
+                ctx.fillStyle = '#FFFF00';
+                ctx.font = '14px monospace';
+                ctx.fillText(`HAMMER: ${Math.ceil(mario.hammerTime / 60)}s`, 10, 50);
+            }
+        }
+
+        // Initialize
+        updateHUD();
+    </script>
+</body>
+</html>
