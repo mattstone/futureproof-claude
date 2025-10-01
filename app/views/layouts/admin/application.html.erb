@@ -61,25 +61,10 @@
             <%= link_to admin_agent_lifecycle_index_path, class: "admin-nav-link #{'active' if controller_name == 'agent_lifecycle'}" do %>
               <span>🤖 AI Agents</span>
             <% end %>
+            <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
+              <span>📧 Email Templates</span>
+            <% end %>
             <%# Workflows hidden - replaced by AI Agents %>
-            <%#
-            <%= link_to admin_email_workflows_path, class: "admin-nav-link #{'active' if %w[email_workflows business_process_workflows workflow_forms].include?(controller_name)}" do %>
-              <%# <span>⚙️ Workflows</span> %>
-            <%# end %>
-            <%# if %w[email_workflows business_process_workflows workflow_forms].include?(controller_name) %>
-              <%# <div class="admin-nav-submenu"> %>
-                <%#= link_to admin_email_workflows_path, class: "admin-nav-sublink #{'active' if controller_name == 'email_workflows'}" do %>
-                  <%# <span>📧 Email Workflows (v1)</span> %>
-                <%# end %>
-                <%#= link_to admin_business_process_workflows_path, class: "admin-nav-sublink #{'active' if controller_name == 'business_process_workflows'}" do %>
-                  <%# <span>🎨 Visual Builder (v2)</span> %>
-                <%# end %>
-                <%#= link_to admin_workflow_forms_path, class: "admin-nav-sublink #{'active' if controller_name == 'workflow_forms'}" do %>
-                  <%# <span>📝 Form Builder (Simple)</span> %>
-                <%# end %>
-              <%# </div> %>
-            <%# end %>
-            %>
             <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
               <span>🏠 Mortgages</span>
             <% end %>

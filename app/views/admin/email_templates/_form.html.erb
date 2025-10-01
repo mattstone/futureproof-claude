@@ -63,77 +63,34 @@
 
   <div class="admin-form-group">
     <%= form.label :content_body, "Email Content Body", class: "admin-form-label" %>
-    <div class="content-editor-section">
-      <div class="editor-tabs">
-        <button type="button" id="rich-tab" class="editor-tab active" 
-                data-email-template-editor-target="richTab"
-                data-action="click->email-template-editor#switchToRich">Rich Text Editor</button>
-        <button type="button" id="html-tab" class="editor-tab" 
-                data-email-template-editor-target="htmlTab"
-                data-action="click->email-template-editor#switchToHtml">HTML Source</button>
-        <button type="button" id="markup-tab" class="editor-tab"
-                data-email-template-editor-target="markupTab" 
-                data-action="click->email-template-editor#switchToMarkup">Markup Editor</button>
-      </div>
-      
-      <div class="field-helper-section">
-        <div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;"
-             data-email-template-editor-target="fieldHelper">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h4 style="margin: 0; color: #374151;">Available Field Placeholders</h4>
-            <button type="button" id="toggle-field-helper" class="admin-btn admin-btn-sm admin-btn-secondary"
-                    data-email-template-editor-target="toggleFieldHelper"
-                    data-action="click->email-template-editor#toggleFieldHelper">Hide Fields</button>
-          </div>
-          <div id="field-helper-content" data-email-template-editor-target="fieldHelperContent">
-            <p class="text-muted">Select a template type to see available fields</p>
-          </div>
+
+    <div class="field-helper-section">
+      <div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;"
+           data-email-template-editor-target="fieldHelper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h4 style="margin: 0; color: #374151;">Available Field Placeholders</h4>
+          <button type="button" id="toggle-field-helper" class="admin-btn admin-btn-sm admin-btn-secondary"
+                  data-email-template-editor-target="toggleFieldHelper"
+                  data-action="click->email-template-editor#toggleFieldHelper">Hide Fields</button>
         </div>
-      </div>
-      
-      <div class="editor-note" style="margin-bottom: 12px; padding: 12px; background: #e3f2fd; border: 1px solid #bae6fd; border-radius: 4px;">
-        <small class="text-muted" style="color: #0369a1;">
-          <strong>Note:</strong> This editor is for the main email content only. Standard headers and footers will be automatically added based on the email category selected above.
-        </small>
-      </div>
-      
-      <!-- Rich Text Editor -->
-      <div id="rich-editor-section" class="editor-section" data-email-template-editor-target="richSection" data-controller="tinymce">
-        <%= form.text_area :content_body, class: "admin-form-textarea rich-text-editor", rows: 15, 
-            placeholder: "Use the rich text editor to format your email content. Field placeholders like {{user.first_name}} can be inserted using the Fields button in the toolbar.",
-            id: "rich-content", 
-            "data-email-template-editor-target": "richContent",
-            "data-tinymce-target": "editor",
-            "data-action": "input->email-template-editor#contentChanged" %>
-      </div>
-      
-      <!-- HTML Editor -->
-      <div id="html-editor-section" class="editor-section" style="display: none;" data-email-template-editor-target="htmlSection">
-        <%= form.text_area :content_body, class: "admin-form-textarea email-editor", rows: 20, placeholder: "Email body content (HTML format, supports field placeholders)\n\nHeaders and footers will be automatically added based on email category.", 
-            id: "html-content", 
-            "data-email-template-editor-target": "htmlContent",
-            "data-action": "input->email-template-editor#contentChanged" %>
-      </div>
-      
-      <!-- Markup Editor -->
-      <div id="markup-editor-section" class="editor-section" style="display: none;" data-email-template-editor-target="markupSection">
-        <%= form.text_area :markup_content, class: "admin-form-textarea markup-editor", rows: 20, placeholder: "Use simplified markup for body content:\n\n## Section Title\nRegular paragraph text.\n\n### Subsection\n- Bullet point\n- Another bullet\n\n**Bold text**\n*Italic text*\n\nSupports all field placeholders like {{user.first_name}}\n\nHeaders and footers will be automatically added.", 
-            id: "markup-content",
-            "data-email-template-editor-target": "markupContent",
-            "data-action": "input->email-template-editor#contentChanged" %>
-        <div class="markup-help">
-          <small class="text-muted">
-            <strong>Markup Guide:</strong><br>
-            <code>## Title</code> = Large heading<br>
-            <code>### Subtitle</code> = Smaller heading<br>
-            <code>**bold text**</code> = <strong>Bold</strong><br>
-            <code>*italic text*</code> = <em>Italic</em><br>
-            <code>- item</code> = Bullet point<br>
-            Line breaks create paragraphs
-          </small>
+        <div id="field-helper-content" data-email-template-editor-target="fieldHelperContent">
+          <p class="text-muted">Select a template type to see available fields</p>
         </div>
       </div>
     </div>
+
+    <div class="editor-note" style="margin: 16px 0 12px 0; padding: 12px; background: #e3f2fd; border: 1px solid #bae6fd; border-radius: 4px;">
+      <small class="text-muted" style="color: #0369a1;">
+        <strong>Note:</strong> This editor is for the main email content only. Standard headers and footers will be automatically added based on the email category selected above. You can use field placeholders like {{user.first_name}} in your content.
+      </small>
+    </div>
+
+    <%= form.rich_text_area :content_body,
+        placeholder: "Use the rich text editor to format your email content...",
+        data: {
+          "email-template-editor-target": "richContent",
+          "action": "input->email-template-editor#contentChanged"
+        } %>
   </div>
 
   <!-- Hidden field for backward compatibility -->

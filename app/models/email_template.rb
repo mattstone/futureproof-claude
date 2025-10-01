@@ -1,13 +1,12 @@
 class EmailTemplate < ApplicationRecord
   has_many :email_template_versions, dependent: :destroy
-  
+  has_rich_text :content_body
+
   validates :name, presence: true, uniqueness: true
   validates :subject, presence: true
   validates :content, presence: true
   validates :template_type, presence: true, inclusion: { in: %w[verification application_submitted security_notification] }
   validates :email_category, presence: true, inclusion: { in: %w[operational marketing] }
-  validates :content_body, presence: true
-  validate :ensure_security_template_has_proper_padding
   
   # Virtual attribute for markup editor
   attr_accessor :markup_content
@@ -94,8 +93,14 @@ class EmailTemplate < ApplicationRecord
   def render_content(data = {}, include_header_footer: true)
     data ||= {}
 
-    # Use content_body if available (new system), otherwise fall back to content (backward compatibility)
-    body_content = content_body.present? ? content_body.dup : content.dup
+    # Use content_body if available (new system with ActionText), otherwise fall back to content (backward compatibility)
+    if content_body.present?
+      # ActionText returns an ActionText::RichText object, convert to HTML string
+      body_content = content_body.to_s
+    else
+      body_content = content.dup
+    end
+
     rendered_subject = subject.dup
 
     # Apply data substitutions to body content and subject
@@ -356,9 +361,9 @@ class EmailTemplate < ApplicationRecord
 
   # Custom validation to ensure security notification templates maintain proper padding
   def ensure_security_template_has_proper_padding
-    return unless template_type == 'security_notification' 
-    
-    content_to_check = content_body.present? ? content_body : content
+    return unless template_type == 'security_notification'
+
+    content_to_check = content_body.present? ? content_body.to_s : content
     return unless content_to_check.present?
     
     # Check for the specific pattern that was causing issues
@@ -384,19 +389,13 @@ class EmailTemplate < ApplicationRecord
   # Default content methods for cleaner code
   def self.verification_default_body
     <<~HTML
-      <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">Welcome to Futureproof!</h1>
-      </div>
+      <h2 style="margin: 0 0 24px 0; color: #374151; font-size: 24px; font-weight: 600; text-align: center;">Welcome to Futureproof!</h2>
 
-      <div style="text-align: center; margin-bottom: 24px;">
-        <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
-        
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px auto; width: 60%;">
-        
-        <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px;">
-          Thank you for creating your Futureproof account. To complete your registration, please verify your email address using the code below.
-        </p>
-      </div>
+      <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
+
+      <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+        Thank you for creating your Futureproof account. To complete your registration, please verify your email address using the code below.
+      </p>
 
       <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
         <tr>
@@ -449,19 +448,13 @@ class EmailTemplate < ApplicationRecord
   
   def self.security_notification_default_body
     <<~HTML
-      <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="margin: 0; color: #374151; font-size: 24px; font-weight: 600;">🔐 Security Alert</h1>
-      </div>
+      <h2 style="margin: 0 0 24px 0; color: #374151; font-size: 24px; font-weight: 600; text-align: center;">🔐 Security Alert</h2>
 
-      <div style="text-align: center; margin-bottom: 24px;">
-        <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
-        
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px auto; width: 60%;">
-        
-        <p style="margin: 16px 0 0 0; color: #6b7280; font-size: 14px;">
-          We detected a sign-in to your Futureproof account from a new browser or device.
-        </p>
-      </div>
+      <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
+
+      <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+        We detected a sign-in to your Futureproof account from a new browser or device.
+      </p>
 
       <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; margin: 32px 0;">
         <tr>

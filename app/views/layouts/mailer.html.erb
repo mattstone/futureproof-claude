@@ -104,34 +104,17 @@
         <!-- Main Email Table -->
         <table role="presentation" style="width: 600px; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
           
-          <!-- Header with Logo (White Background) -->
+          <!-- Header (Blue Background) -->
           <tr>
-            <td style="padding: 0; background-color: #ffffff;">
+            <td style="padding: 0; background: linear-gradient(135deg, #0891b2 0%, #0c4a6e 100%);">
               <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
                 <tr>
-                  <td align="center" style="padding: 32px 40px 24px 40px;">
-                    <img src="<%= image_url("futureproof-logo.png") %>" 
-                         alt="Futureproof Financial Group" 
-                         style="height: 60px; width: auto; display: block; margin: 0 auto;"
-                         width="auto"
-                         height="60" />
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          
-          <!-- Lender Name Section (Blue Background) -->
-          <tr>
-            <td style="padding: 0; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
-              <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
-                <tr>
-                  <td align="center" style="padding: 24px 40px 32px 40px;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; line-height: 1.2; text-align: center;">
-                      Futureproof Financial Group
+                  <td align="center" style="padding: 32px 40px;">
+                    <h1 style="margin: 0 0 8px 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.2; text-align: center; letter-spacing: -0.5px;">
+                      Futureproof
                     </h1>
-                    <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.5; text-align: center;">
-                      Equity Preservation Mortgage ®
+                    <p style="margin: 0; color: #bae6fd; font-size: 14px; line-height: 1.5; text-align: center;">
+                      Your Financial Future, Secured
                     </p>
                   </td>
                 </tr>
@@ -153,11 +136,10 @@
                 <tr>
                   <td style="padding: 32px 40px; text-align: center;">
                     
-                    <!-- Lender Info -->
+                    <!-- Contact Info -->
                     <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
-                      <strong style="color: #374151;">Futureproof Financial Group Limited</strong><br>
-                      Email: <a href="mailto:info@futureprooffinancial.app" style="color: #3b82f6; text-decoration: none;">info@futureprooffinancial.app</a><br>
-                      Website: <a href="<%= root_url %>" style="color: #3b82f6; text-decoration: none;">www.futureprooffinancial.app</a>
+                      Email: <a href="mailto:info@futureprooffinancial.app" style="color: #0891b2; text-decoration: none;">info@futureprooffinancial.app</a><br>
+                      Website: <a href="<%= root_url %>" style="color: #0891b2; text-decoration: none;">www.futureprooffinancial.app</a>
                     </p>
                     
                     <!-- Legal Links -->
@@ -168,12 +150,7 @@
                     
                     <!-- Copyright -->
                     <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 12px; line-height: 1.6;">
-                      &copy;<%= Date.current.year %> Futureproof Financial Group Limited | All Rights Reserved
-                    </p>
-                    
-                    <!-- Trademark -->
-                    <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 12px; line-height: 1.6;">
-                      Equity Preservation Mortgage ® is a registered trademark of Futureproof Financial Group Limited
+                      &copy;<%= Date.current.year %> Futureproof Financial Group | All Rights Reserved
                     </p>
                     
                     <!-- Disclaimer -->

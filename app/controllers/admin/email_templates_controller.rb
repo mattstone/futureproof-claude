@@ -102,10 +102,11 @@ class Admin::EmailTemplatesController < Admin::BaseController
       preview_data = { user: user }
     end
     
-    rendered = @email_template.render_content(preview_data)
-    
+    # Render content without header/footer since mailer layout will add them
+    rendered = @email_template.render_content(preview_data, include_header_footer: false)
+
     respond_to do |format|
-      format.html { 
+      format.html {
         # Set instance variables for mailer layout
         @email_content = rendered[:content].html_safe
         @email_title = rendered[:subject]
