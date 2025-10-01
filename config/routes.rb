@@ -231,6 +231,11 @@ Rails.application.routes.draw do
   
   # Apply page
   get "apply", to: "pages#apply"
+
+  # Hero design previews
+  get "hero-option-1", to: "pages#hero_option_1"
+  get "hero-option-2", to: "pages#hero_option_2"
+  get "hero-option-3", to: "pages#hero_option_3"
   
   # User dashboard
   get "dashboard", to: "dashboard#index"

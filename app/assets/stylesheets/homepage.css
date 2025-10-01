@@ -1,848 +1,522 @@
-/* Homepage Styles - Mirroring FutureProof Financial Design */
+/* Homepage Styles - New Modern Design */
 
 /* Color Variables */
-:root {
-    --primary-color: #0891b2;
-    --primary-hover: #0e7490;
-    --secondary-color: #64748b;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --background-light: #f8fafc;
-    --background-white: #ffffff;
-    --border-color: #e2e8f0;
-    --success-color: #10b981;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md:
-        0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg:
-        0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --border-radius-sm: 8px;
-    --border-radius-md: 12px;
-    --border-radius-lg: 16px;
-    --border-radius-xl: 24px;
+.homepage {
+  --primary: #0891b2;
+  --primary-dark: #0e7490;
+  --success: #10b981;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
+  --border: #e2e8f0;
 }
 
-/* Base Styles */
-* {
-    box-sizing: border-box;
+/* Fullscreen Hero */
+.hero-fullscreen {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
 }
 
-body {
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-        Arial, sans-serif;
-    line-height: 1.6;
-    color: var(--text-primary);
-    margin: 0;
-    padding: 0;
+.hero-fullscreen-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.homepage-main {
-    margin: 0;
-    padding: 0;
+.hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-/* Button Styles */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px;
-    border-radius: var(--border-radius-md);
-    font-weight: 600;
-    text-decoration: none;
-    border: 2px solid transparent;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    font-size: 16px;
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 145, 178, 0.85) 0%,
+    rgba(14, 116, 144, 0.75) 50%,
+    rgba(8, 145, 178, 0.85) 100%
+  );
 }
 
-.btn-lg {
-    padding: 16px 32px;
-    font-size: 18px;
+.hero-fullscreen-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+/* Two Column Layout */
+.hero-two-column {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 48px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+  min-height: auto;
 }
 
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+/* Left Column - Message */
+.hero-left-column {
+  color: white;
+  padding: 0;
 }
 
-.btn-secondary {
-    background-color: transparent;
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+.hero-main-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 24px 0;
 }
 
-.btn-secondary:hover {
-    background-color: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+.trademark {
+  font-size: 22px;
+  vertical-align: super;
 }
 
-/* Container Styles */
-.header-container,
-.hero-container,
-.unique-features-container,
-.detailed-features-container,
-.partners-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
+.hero-tagline {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 0 0 40px 0;
+  opacity: 0.95;
 }
 
-/* Header Section */
-.header-section {
-    background-color: var(--background-white);
-    padding: 16px 0 24px 0;
-    border-bottom: 1px solid var(--border-color);
+/* Right Column - Calculator */
+.hero-right-column {
+  padding: 0;
 }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
+.hero-calculator-card {
+  background: transparent;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
-.top-left-logo {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
+.calc-card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 20px 24px;
+  text-align: center;
 }
 
-.futureproof-logo {
-    height: 50px;
-    width: auto;
+.calc-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
 }
 
-.logo-title-wrapper {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 20px;
+.calc-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.85);
 }
 
-.company-logo {
-    height: 60px;
-    width: auto;
-    border-radius: 8px;
+/* Calculator Input */
+.calc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(248, 250, 252, 0.6);
+  padding: 20px;
+  border-radius: 16px;
 }
 
-.title-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.calc-input-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
-.main-title {
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1.2;
-    white-space: nowrap;
+.calc-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
 }
 
-.subtitle-text {
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.3;
+.calc-value-display {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  background: white;
+  padding: 6px 16px;
+  border-radius: 8px;
 }
 
-/* Header Auth */
-.header-auth {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    margin-left: auto;
+.calc-slider {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #0891b2 0%, #0891b2 50%, #e2e8f0 50%, #e2e8f0 100%);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
 }
 
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+.calc-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  cursor: grab;
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.5);
+  transition: all 0.2s ease;
 }
 
-.nav-user {
-    font-size: 12px;
-    color: var(--text-secondary);
-    font-weight: 500;
+.calc-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 6px 20px rgba(8, 145, 178, 0.6);
 }
 
-.nav-link {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: var(--border-radius-sm);
-    transition: all 0.2s ease;
+.calc-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.1);
 }
 
-.nav-link:hover {
-    background-color: var(--background-light);
-    color: var(--primary-color);
+.calc-slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  cursor: grab;
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.5);
+  transition: all 0.2s ease;
 }
 
-.nav-signin {
-    background-color: var(--primary-color);
-    color: white;
-    border: 2px solid var(--primary-color);
+.calc-slider::-moz-range-thumb:active {
+  cursor: grabbing;
 }
 
-.nav-signin:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
-    color: white;
+.calc-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+  margin-top: -8px;
 }
 
-/* Hero Section */
-.hero-section {
-    position: relative;
-    margin-bottom: 100px; /* Reduced from 150px to 100px */
+/* Result Display */
+.calc-result-display {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid #86efac;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
-.hero-background {
-    width: 100%;
-    height: 80vh;
-    min-height: 600px;
-    overflow: hidden;
-    position: relative;
+.calc-result-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
 }
 
-.hero-bg-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 70%;
-    display: block;
+.calc-result-amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--success);
+  margin-bottom: 8px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
 }
 
-.calculator-overlay {
-    position: absolute;
-    top: 35%; /* Reduced from 45% to 35% to move calculator up */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    width: 100%;
-    max-width: 600px;
-    padding: 0 24px;
+.calc-result-features {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  opacity: 0.8;
 }
 
-/* Calculator Card (now in hero overlay) */
-
-.calculator-card {
-    background: var(--background-white);
-    border-radius: var(--border-radius-xl);
-    padding: 40px;
-    box-shadow: var(--shadow-lg);
-    max-width: 600px;
-    margin: 0 auto;
+/* Apply Button */
+.calc-apply-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 18px 32px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.4);
 }
 
-.calculator-title {
-    font-size: 28px;
-    font-weight: 700;
-    text-align: center;
-    margin: 0 0 32px 0;
-    color: var(--text-primary);
+.calc-apply-button:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(8, 145, 178, 0.5);
 }
 
-.calculator-content {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+.calc-apply-button:active {
+  transform: translateY(-1px);
 }
 
-.calculator-input {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.button-arrow {
+  font-size: 24px;
+  transition: transform 0.3s ease;
 }
 
-.calculator-input label {
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    flex-shrink: 0;
+.calc-apply-button:hover .button-arrow {
+  transform: translateX(6px);
 }
 
-.slider-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-}
-
-.value-slider {
-    width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: var(--border-color);
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-}
-
-.value-slider::-webkit-slider-thumb {
-    appearance: none;
-    -webkit-appearance: none;
-    height: 24px;
-    width: 24px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.value-slider::-moz-range-thumb {
-    height: 24px;
-    width: 24px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.calculator-input .slider-value {
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    padding: 8px 16px;
-    background-color: var(--background-light);
-    border-radius: var(--border-radius-md);
-    border: 2px solid var(--border-color);
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-left: 12px;
-}
-
-.calculator-result {
-    text-align: center;
-    padding: 24px;
-    background-color: var(--background-light);
-    border-radius: var(--border-radius-lg);
-}
-
-.monthly-income {
-    margin-bottom: 24px;
-}
-
-.income-amount {
-    display: block;
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--success-color);
-    margin-bottom: 8px;
-}
-
-.income-period {
-    font-size: 16px;
-    color: var(--text-secondary);
-}
-
-.calculate-btn {
-    min-width: 180px; /* Increased from 150px */
-    padding: 16px 32px; /* Increased from default 12px 24px */
-    font-size: 18px; /* Increased from default 16px */
-    font-weight: 700; /* Increased from default 600 */
-}
-
-.calculate-btn:hover {
-    transform: translateY(-2px) scale(1.02); /* Added slight scale effect */
+.calc-disclaimer {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Unique Features Section */
-.unique-features-section {
-    padding: 60px 0; /* Reduced from 80px to 60px */
-    background-color: var(--background-white);
+.homepage .unique-features-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg-light) 100%);
 }
 
-.section-header {
-    text-align: center;
-    margin-bottom: 45px; /* Reduced from 60px to 45px */
+.homepage .unique-features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.section-title {
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
+.homepage .section-header {
+  text-align: center;
+  margin-bottom: 60px;
 }
 
-.unique-features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    justify-items: center;
+.homepage .section-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
 }
 
-.unique-feature-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 24px;
-    background: var(--background-light);
-    border-radius: var(--border-radius-lg);
-    border: 1px solid var(--border-color);
-    width: 100%;
-    max-width: 400px;
+.homepage .unique-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  justify-items: center;
 }
 
-.feature-check {
-    width: 32px;
-    height: 32px;
-    background-color: var(--success-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 18px;
-    flex-shrink: 0;
+.homepage .unique-feature-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 32px;
+  background: white;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  width: 100%;
+  max-width: 450px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.unique-feature-card .feature-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
+.homepage .unique-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(8, 145, 178, 0.15);
 }
 
-/* Detailed Features Section */
-.detailed-features-section {
-    padding: 80px 0;
-    background-color: var(--background-light);
+.homepage .feature-check {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.detailed-features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 32px;
-    justify-items: center;
-}
-
-.detailed-feature-card {
-    background: var(--background-white);
-    border-radius: var(--border-radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-    width: 100%;
-    max-width: 350px;
-}
-
-.detailed-feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-.feature-image {
-    height: 200px;
-    overflow: hidden;
-}
-
-.feature-placeholder {
-    width: 100%;
-    height: 100%;
-}
-
-.placeholder-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-.feature-content {
-    padding: 24px;
-}
-
-.detailed-feature-card .feature-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 12px 0;
-}
-
-.feature-description {
-    color: var(--text-secondary);
-    margin: 0 0 16px 0;
-    line-height: 1.6;
-}
-
-.feature-link {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s ease;
-}
-
-.feature-link:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
+.homepage .unique-feature-card .feature-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
 }
 
 /* Partners Section */
-.partners-section {
-    padding: 40px 0; /* Reduced from 60px to 40px */
-    background-color: var(--background-white);
-    border-top: 1px solid var(--border-color);
+.homepage .partners-section {
+  padding: 60px 0 80px;
+  background: var(--bg-light);
 }
 
-.partners-section .section-title {
-    font-size: 24px;
-    margin-bottom: 30px; /* Reduced from 40px to 30px */
+.homepage .partners-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.partners-logos {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.homepage .partners-section .section-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 48px;
+}
+
+.homepage .partners-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.homepage .partner-logo {
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.homepage .partner-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.homepage .partner-logo-img {
+  max-width: 140px;
+  max-height: 70px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.homepage .partner-logo:hover .partner-logo-img {
+  filter: grayscale(0%);
+}
+
+/* Mobile Responsive */
+@media (max-width: 968px) {
+  .hero-two-column {
+    grid-template-columns: 1fr;
     gap: 40px;
-    flex-wrap: wrap;
-}
+    padding: 40px 24px;
+    min-height: auto;
+  }
 
-.partner-logo {
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-}
+  .hero-left-column,
+  .hero-right-column {
+    padding: 0;
+  }
 
-.partner-logo:hover {
-    opacity: 1;
-}
+  .hero-main-title {
+    font-size: 42px;
+  }
 
-.logo-placeholder {
-    width: 120px;
-    height: 60px;
-}
-
-.logo-placeholder svg {
-    width: 100%;
-    height: 100%;
-}
-
-.partner-logo-img {
-    max-width: 120px;
-    max-height: 60px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    filter: grayscale(100%);
-    transition: filter 0.3s ease;
-}
-
-.partner-logo:hover .partner-logo-img {
-    filter: grayscale(0%);
-}
-
-/* Original Footer CTA Section - Commented Out */
-/*
-.footer-cta-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-    padding: 80px 0;
-    color: white;
-    text-align: center;
-}
-
-.footer-cta-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
-
-.footer-cta-content {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.footer-cta-title {
-    font-size: 36px;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-    line-height: 1.2;
-}
-
-.footer-cta-subtitle {
+  .hero-tagline {
     font-size: 18px;
-    margin: 0 0 32px 0;
-    opacity: 0.9;
-    line-height: 1.6;
+  }
+
+  .calc-card-body {
+    padding: 28px;
+  }
+
+  .calc-value-display {
+    font-size: 20px;
+  }
+
+  .calc-result-amount {
+    font-size: 32px;
+  }
+
+  .homepage .section-title {
+    font-size: 28px;
+  }
+
+  .homepage .unique-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .homepage .partners-logos {
+    gap: 20px;
+  }
 }
 
-.footer-cta-section .btn-primary {
-    background-color: white;
-    color: var(--primary-color);
-    border-color: white;
-}
+@media (max-width: 640px) {
+  .hero-two-column {
+    padding: 20px 16px;
+  }
 
-.footer-cta-section .btn-primary:hover {
-    background-color: var(--background-light);
-    border-color: var(--background-light);
-    color: var(--primary-color);
-}
-*/
+  .hero-main-title {
+    font-size: 32px;
+  }
 
-/* New Site Footer Section */
-.site-footer {
-    background-color: var(--background-white);
-    border-top: 1px solid var(--border-color);
-    padding: 40px 0 20px 0;
-    margin-top: 40px; /* Reduced from 60px to 40px */
-}
+  .hero-tagline {
+    font-size: 16px;
+  }
 
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
+  .hero-calculator-card {
+    border-radius: 16px;
+  }
 
-.footer-content {
-    display: flex;
+  .calc-card-header {
+    padding: 20px 24px;
+  }
+
+  .calc-card-title {
+    font-size: 20px;
+  }
+
+  .calc-card-body {
+    padding: 24px;
+  }
+
+  .calc-value-display {
+    font-size: 18px;
+  }
+
+  .calc-result-amount {
+    font-size: 28px;
+  }
+
+  .calc-apply-button {
+    padding: 16px 28px;
+    font-size: 16px;
+  }
+
+  .homepage .unique-feature-card {
     flex-direction: column;
-    align-items: center;
     text-align: center;
-    gap: 20px;
-}
+    align-items: center;
+  }
 
-.footer-copyright {
-    margin-bottom: 10px;
-}
-
-.footer-copyright p {
-    margin: 0 0 8px 0;
-    color: var(--text-secondary);
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.trademark-notice {
-    font-size: 12px !important;
-    color: var(--text-secondary);
-    opacity: 0.8;
-}
-
-.disclaimer {
-    font-size: 10px !important;
-    color: var(--text-secondary);
-    opacity: 0.8;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.footer-link {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.footer-link:hover {
-    color: var(--primary-color);
-    text-decoration: underline;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-    }
-
-    .top-left-logo {
-        position: static;
-        transform: none;
-        order: -1;
-    }
-
-    .logo-title-wrapper {
-        position: static;
-        transform: none;
-        left: auto;
-    }
-
-    .header-auth {
-        flex-direction: row;
-        gap: 12px;
-        margin-left: 0;
-    }
-
-    .nav-links {
-        gap: 12px;
-    }
-
-    .nav-user {
-        display: none;
-    }
-
-    .main-title {
-        font-size: 24px;
-    }
-
-    .subtitle-text {
-        font-size: 14px;
-    }
-
-    .company-logo {
-        height: 50px;
-    }
-
-    .logo-title-wrapper {
-        gap: 15px;
-    }
-
-    .hero-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .hero-section {
-        margin-bottom: 30px; /* Reduced from 50px to 30px */
-    }
-
-    .hero-background {
-        height: 60vh;
-        min-height: 400px;
-    }
-
-    .calculator-overlay {
-        position: static;
-        transform: none;
-        padding: 0 16px;
-        margin-top: 20px;
-    }
-
-    .calculator-card {
-        padding: 24px;
-    }
-
-    .calculator-title {
-        font-size: 24px;
-    }
-
-    .income-amount {
-        font-size: 28px;
-    }
-
-    .section-title {
-        font-size: 28px;
-    }
-
-    .unique-features-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .unique-feature-card {
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-    }
-
-    .detailed-features-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .partners-logos {
-        gap: 20px;
-    }
-
-    .footer-cta-title {
-        font-size: 28px;
-    }
-
-    .footer-cta-subtitle {
-        font-size: 16px;
-    }
-
-    .footer-links {
-        gap: 15px;
-    }
-
-    .footer-link {
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    .header-container,
-    .hero-container,
-    .unique-features-container,
-    .detailed-features-container,
-    .partners-container,
-    .footer-cta-container,
-    .footer-container {
-        padding: 0 16px;
-    }
-
-    .main-title {
-        font-size: 20px;
-    }
-
-    .subtitle-text {
-        font-size: 13px;
-    }
-
-    .company-logo {
-        height: 40px;
-    }
-
-    .logo-title-wrapper {
-        gap: 12px;
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .title-group {
-        text-align: center;
-    }
-
-    .footer-cta-title {
-        font-size: 24px;
-    }
-
-    .footer-cta-subtitle {
-        font-size: 15px;
-    }
-
-    .footer-links {
-        gap: 12px;
-        flex-direction: column;
-    }
-
-    .footer-link {
-        font-size: 12px;
-    }
-
-    .footer-copyright p {
-        font-size: 13px;
-    }
-
-    .trademark-notice {
-        font-size: 11px !important;
-    }
+  .homepage .partners-logos {
+    gap: 15px;
+  }
 }

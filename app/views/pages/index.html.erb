@@ -1,29 +1,78 @@
-<div class="homepage site-margin-auto">
+<%# HOMEPAGE: Full-Screen Hero with Calculator
+     Modern design with beautiful background image %>
 
+<div class="homepage">
   <%= render 'shared/header' %>
 
-  <!-- Hero Section with Calculator Overlay -->
-  <section class="hero-section">
-    <div class="hero-background">
-      <%= image_tag "hero.png", class: "hero-bg-image" %>
+  <!-- Hero: Full-Screen with Image Background -->
+  <section class="hero-fullscreen">
+    <!-- Background Image with Overlay -->
+    <div class="hero-fullscreen-bg">
+      <%= image_tag "smiling-couple.jpeg", class: "hero-bg-img", alt: "Happy retired couple" %>
+      <div class="hero-overlay"></div>
     </div>
-    <div class="calculator-overlay">
-      <div class="calculator-card" data-controller="calculator">
-        <h2 class="calculator-title">How much could you receive?</h2>
-        <div class="calculator-content">
-          <div class="calculator-input">
-            <label for="home-value">Home Value</label>
-            <div class="slider-container">
-              <input type="range" id="home-value" min="1000000" max="10000000" step="200000" value="1500000" class="value-slider" data-calculator-target="slider" data-action="input->calculator#updateValue">
+
+    <!-- Hero Content Overlay - Two Column Layout -->
+    <div class="hero-fullscreen-content">
+      <div class="hero-two-column">
+        <!-- Left Column: Message -->
+        <div class="hero-left-column">
+          <h1 class="hero-main-title">
+            Equity Preservation<br>
+            Mortgage<sup class="trademark">®</sup>
+          </h1>
+          <p class="hero-tagline">
+            The smarter way to fund your retirement—turn your home equity into
+            monthly income without selling your home or monthly repayments.
+          </p>
+        </div>
+
+        <!-- Right Column: Calculator -->
+        <div class="hero-right-column">
+          <div class="hero-calculator-card" data-controller="calculator">
+            <div class="calc-card-header">
+              <h2 class="calc-card-title">Calculate Your Monthly Income</h2>
             </div>
-            <div class="slider-value" data-calculator-target="value">$1,500,000</div>
-          </div>
-          <div class="calculator-result">
-            <div class="monthly-income">
-              <span class="income-amount" data-calculator-target="incomeAmount">Calculating...</span>
-              <span class="income-period">Estimated Monthly Annuity Range*</span>
+
+            <div class="calc-card-body">
+              <!-- Home Value Slider -->
+              <div class="calc-input-group">
+                <div class="calc-input-labels">
+                  <label class="calc-label">Your Home Value</label>
+                  <div class="calc-value-display" data-calculator-target="value">$1,500,000</div>
+                </div>
+
+                <input
+                  type="range"
+                  min="1000000"
+                  max="10000000"
+                  step="200000"
+                  value="1500000"
+                  class="calc-slider"
+                  data-calculator-target="slider"
+                  data-action="input->calculator#updateValue">
+
+                <div class="calc-range-labels">
+                  <span>$1M</span>
+                  <span>$10M</span>
+                </div>
+              </div>
+
+              <!-- Result Display -->
+              <div class="calc-result-display">
+                <div class="calc-result-label">Estimated Monthly Income*</div>
+                <div class="calc-result-amount" data-calculator-target="incomeAmount">$8,500 - $12,000</div>
+                <div class="calc-result-features">Tax-free • No repayments • Keep 100% equity</div>
+              </div>
+
+              <!-- Apply Button -->
+              <%= link_to apply_path, class: "calc-apply-button" do %>
+                <span>Apply Now</span>
+                <span class="button-arrow">→</span>
+              <% end %>
+
+              <p class="calc-disclaimer">*Based on 80% LVR. Actual amount determined after assessment.</p>
             </div>
-            <%= link_to "Apply Now", apply_path, class: "btn site-btn-primary calculate-btn", data: { calculator_target: "applyButton", action: "click->calculator#applyNow" } %>
           </div>
         </div>
       </div>
@@ -68,92 +117,9 @@
           <div class="feature-check">✓</div>
           <h3 class="feature-title">Equity preserved for wealth transfer</h3>
         </div>
-
-      </div>
-    </div>
-
-  </section>
-
-  <!-- Detailed Features Section - Commented Out -->
-  <!--
-  <section class="detailed-features-section">
-    <div class="detailed-features-container">
-      <div class="detailed-features-grid">
-        <div class="detailed-feature-card">
-          <div class="feature-image">
-            <div class="feature-placeholder">
-              <svg viewBox="0 0 300 200" class="placeholder-svg">
-                <rect width="300" height="200" fill="#e2e8f0"/>
-                <text x="150" y="100" text-anchor="middle" fill="#64748b">Flexibility</text>
-              </svg>
-            </div>
-          </div>
-          <div class="feature-content">
-            <h3 class="feature-title">Flexibility</h3>
-            <p class="feature-description">
-              Maintain control over your home while accessing its equity for retirement income.
-            </p>
-            <%= link_to "Learn more", "#", class: "feature-link" %>
-          </div>
-        </div>
-
-        <div class="detailed-feature-card">
-          <div class="feature-image">
-            <div class="feature-placeholder">
-              <svg viewBox="0 0 300 200" class="placeholder-svg">
-                <rect width="300" height="200" fill="#e2e8f0"/>
-                <text x="150" y="100" text-anchor="middle" fill="#64748b">Wealth</text>
-              </svg>
-            </div>
-          </div>
-          <div class="feature-content">
-            <h3 class="feature-title">Wealth</h3>
-            <p class="feature-description">
-              Preserve your home equity while generating steady monthly income for retirement.
-            </p>
-            <%= link_to "Learn more", "#", class: "feature-link" %>
-          </div>
-        </div>
-
-        <div class="detailed-feature-card">
-          <div class="feature-image">
-            <div class="feature-placeholder">
-              <svg viewBox="0 0 300 200" class="placeholder-svg">
-                <rect width="300" height="200" fill="#e2e8f0"/>
-                <text x="150" y="100" text-anchor="middle" fill="#64748b">Joy</text>
-              </svg>
-            </div>
-          </div>
-          <div class="feature-content">
-            <h3 class="feature-title">Joy</h3>
-            <p class="feature-description">
-              Enjoy your retirement with financial peace of mind and the security of your own home.
-            </p>
-            <%= link_to "Learn more", "#", class: "feature-link" %>
-          </div>
-        </div>
-
-        <div class="detailed-feature-card">
-          <div class="feature-image">
-            <div class="feature-placeholder">
-              <svg viewBox="0 0 300 200" class="placeholder-svg">
-                <rect width="300" height="200" fill="#e2e8f0"/>
-                <text x="150" y="100" text-anchor="middle" fill="#64748b">Inheritance</text>
-              </svg>
-            </div>
-          </div>
-          <div class="feature-content">
-            <h3 class="feature-title">Inheritance</h3>
-            <p class="feature-description">
-              Preserve your home equity for your heirs while enjoying retirement income today.
-            </p>
-            <%= link_to "Learn more", "#", class: "feature-link" %>
-          </div>
-        </div>
       </div>
     </div>
   </section>
-  -->
 
   <!-- Partner Logos Section -->
   <section class="partners-section">
@@ -181,21 +147,5 @@
     </div>
   </section>
 
-  <!-- Footer CTA Section - Commented Out -->
-  <!--
-  <footer class="footer-cta-section">
-    <div class="footer-cta-container">
-      <div class="footer-cta-content">
-        <% unless user_signed_in? %>
-          <h2 class="footer-cta-title">Ready to Get Started?</h2>
-          <p class="footer-cta-subtitle">Join FutureProof today and take control of your financial future</p>
-          <%= link_to "Sign Up Now", new_user_registration_path, class: "btn site-btn-primary btn-lg" %>
-        <% end %>
-      </div>
-    </div>
-  </footer>
-  -->
-
   <%= render 'shared/footer' %>
-
 </div>

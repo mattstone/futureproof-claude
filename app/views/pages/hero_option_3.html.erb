@@ -1,0 +1,994 @@
+<%# HERO OPTION 3: Video Background with Overlay CTA
+     Emotional storytelling with clear call-to-action
+     Modern design with step-by-step process %>
+
+<div class="hero-option-3">
+  <%= render 'shared/header' %>
+
+  <!-- Hero: Full-Screen with Image Background -->
+  <section class="hero-fullscreen">
+    <!-- Background Image with Overlay -->
+    <div class="hero-fullscreen-bg">
+      <%= image_tag "smiling-couple.jpeg", class: "hero-bg-img", alt: "Happy retired couple" %>
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Hero Content Overlay - Two Column Layout -->
+    <div class="hero-fullscreen-content">
+      <div class="hero-two-column">
+        <!-- Left Column: Message -->
+        <div class="hero-left-column">
+          <h1 class="hero-main-title">
+            Equity Preservation<br>
+            Mortgage<sup class="trademark">®</sup>
+          </h1>
+          <p class="hero-tagline">
+            The smarter way to fund your retirement—turn your home equity into
+            monthly income without selling your home or monthly repayments.
+          </p>
+        </div>
+
+        <!-- Right Column: Calculator -->
+        <div class="hero-right-column">
+          <div class="hero-calculator-card" data-controller="calculator">
+            <div class="calc-card-header">
+              <h2 class="calc-card-title">Calculate Your Monthly Income</h2>
+            </div>
+
+            <div class="calc-card-body">
+              <!-- Home Value Slider -->
+              <div class="calc-input-group">
+                <div class="calc-input-labels">
+                  <label class="calc-label">Your Home Value</label>
+                  <div class="calc-value-display" data-calculator-target="value">$1,500,000</div>
+                </div>
+
+                <input
+                  type="range"
+                  min="1000000"
+                  max="10000000"
+                  step="200000"
+                  value="1500000"
+                  class="calc-slider"
+                  data-calculator-target="slider"
+                  data-action="input->calculator#updateValue">
+
+                <div class="calc-range-labels">
+                  <span>$1M</span>
+                  <span>$10M</span>
+                </div>
+              </div>
+
+              <!-- Result Display -->
+              <div class="calc-result-display">
+                <div class="calc-result-label">Estimated Monthly Income*</div>
+                <div class="calc-result-amount" data-calculator-target="incomeAmount">$8,500 - $12,000</div>
+                <div class="calc-result-features">Tax-free • No repayments • Keep 100% equity</div>
+              </div>
+
+              <!-- Apply Button -->
+              <%= link_to apply_path, class: "calc-apply-button" do %>
+                <span>Apply Now</span>
+                <span class="button-arrow">→</span>
+              <% end %>
+
+              <p class="calc-disclaimer">*Based on 80% LVR. Actual amount determined after assessment.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unique Features Section -->
+  <br>
+  <section class="unique-features-section">
+    <div class="unique-features-container">
+      <div class="section-header">
+        <h2 class="section-title">Equity Preservation Mortgage ®</h2>
+      </div>
+
+      <div class="unique-features-grid">
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Tax-free monthly income</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">No property appreciation sharing</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">No depletion of home equity</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Interest paid on behalf</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Stay in your home longer</h3>
+        </div>
+
+        <div class="unique-feature-card">
+          <div class="feature-check">✓</div>
+          <h3 class="feature-title">Equity preserved for wealth transfer</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partner Logos Section -->
+  <section class="partners-section">
+    <div class="partners-container">
+      <div class="section-header">
+        <h2 class="section-title">Trusted Partners</h2>
+      </div>
+      <div class="partners-logos">
+        <div class="partner-logo">
+          <%= image_tag "partners/westpac-logo.png", alt: "Westpac", class: "partner-logo-img" %>
+        </div>
+        <div class="partner-logo">
+          <%= image_tag "partners/ing-logo.png", alt: "ING", class: "partner-logo-img" %>
+        </div>
+        <div class="partner-logo">
+          <%= image_tag "partners/ppr-logo.png", alt: "PPR", class: "partner-logo-img" %>
+        </div>
+        <div class="partner-logo">
+          <%= image_tag "partners/macquarie-logo.png", alt: "Macquarie", class: "partner-logo-img" %>
+        </div>
+        <div class="partner-logo">
+          <%= image_tag "partners/blackrock-logo.png", alt: "BlackRock", class: "partner-logo-img" %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%= render 'shared/footer' %>
+</div>
+
+<style>
+/* Hero Option 3 Styles */
+.hero-option-3 {
+  --primary: #0891b2;
+  --primary-dark: #0e7490;
+  --success: #10b981;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
+  --border: #e2e8f0;
+}
+
+/* Fullscreen Hero */
+.hero-fullscreen {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+}
+
+.hero-fullscreen-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 145, 178, 0.85) 0%,
+    rgba(14, 116, 144, 0.75) 50%,
+    rgba(8, 145, 178, 0.85) 100%
+  );
+}
+
+.hero-fullscreen-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+}
+
+/* Two Column Layout */
+.hero-two-column {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 48px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+  min-height: auto;
+}
+
+/* Left Column - Message */
+.hero-left-column {
+  color: white;
+  padding: 0;
+}
+
+.hero-super {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.95;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.hero-main-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 24px 0;
+}
+
+.trademark {
+  font-size: 22px;
+  vertical-align: super;
+}
+
+.hero-tagline {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 0 0 40px 0;
+  opacity: 0.95;
+}
+
+/* Trust Stats */
+.hero-trust-stats {
+  display: flex;
+  gap: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.trust-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trust-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+}
+
+.trust-stat-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+/* Right Column - Calculator */
+.hero-right-column {
+  padding: 0;
+}
+
+.hero-calculator-card {
+  background: transparent;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.calc-card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+.calc-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.calc-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Calculator Input */
+.calc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(248, 250, 252, 0.6);
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.calc-input-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.calc-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+.calc-value-display {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  background: white;
+  padding: 6px 16px;
+  border-radius: 8px;
+}
+
+.calc-slider {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #0891b2 0%, #0891b2 50%, #e2e8f0 50%, #e2e8f0 100%);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.calc-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  cursor: grab;
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.5);
+  transition: all 0.2s ease;
+}
+
+.calc-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 6px 20px rgba(8, 145, 178, 0.6);
+}
+
+.calc-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+.calc-slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  cursor: grab;
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.5);
+  transition: all 0.2s ease;
+}
+
+.calc-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+}
+
+.calc-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+  margin-top: -8px;
+}
+
+/* Result Display */
+.calc-result-display {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid #86efac;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.calc-result-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.calc-result-amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--success);
+  margin-bottom: 8px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+
+.calc-result-features {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Apply Button */
+.calc-apply-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 18px 32px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.4);
+}
+
+.calc-apply-button:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(8, 145, 178, 0.5);
+}
+
+.calc-apply-button:active {
+  transform: translateY(-1px);
+}
+
+.button-arrow {
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.calc-apply-button:hover .button-arrow {
+  transform: translateX(6px);
+}
+
+.calc-disclaimer {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* CTA Box - Calculator Inline */
+.hero-cta-box {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* Calculator Inline Styles */
+.hero-calc-inline {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.calc-inline-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.calc-inline-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+
+.calc-inline-subtitle {
+  font-size: 16px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.calc-inline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Input Section */
+.calc-inline-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calc-inline-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calc-inline-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.calc-inline-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.calc-inline-slider {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-light);
+  outline: none;
+  appearance: none;
+}
+
+.calc-inline-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+  transition: transform 0.2s;
+}
+
+.calc-inline-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.calc-inline-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+  transition: transform 0.2s;
+}
+
+.calc-inline-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Result Section */
+.calc-inline-result {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 28px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid #bbf7d0;
+}
+
+.calc-result-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.calc-result-value {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--success);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.calc-result-features {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* CTA Actions */
+.calc-inline-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.calc-cta-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.calc-cta-primary {
+  background: var(--primary);
+  color: white;
+  border: 2px solid var(--primary);
+}
+
+.calc-cta-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(8, 145, 178, 0.4);
+}
+
+.cta-arrow {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.calc-cta-primary:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+.calc-cta-secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.calc-cta-secondary:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.calc-inline-disclaimer {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* CTA Stats */
+.cta-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  opacity: 0.7;
+  animation: bounce 2s infinite;
+}
+
+.scroll-text {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* Unique Features Section */
+.unique-features-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg-light) 100%);
+}
+
+.unique-features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.unique-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  justify-items: center;
+}
+
+.unique-feature-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 32px;
+  background: white;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  width: 100%;
+  max-width: 450px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.unique-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(8, 145, 178, 0.15);
+}
+
+.feature-check {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.unique-feature-card .feature-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Partners Section */
+.partners-section {
+  padding: 60px 0 80px;
+  background: var(--bg-light);
+}
+
+.partners-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.partners-section .section-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 48px;
+}
+
+.partners-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.partner-logo {
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.partner-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.partner-logo-img {
+  max-width: 140px;
+  max-height: 70px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.partner-logo:hover .partner-logo-img {
+  filter: grayscale(0%);
+}
+
+/* Mobile Responsive */
+@media (max-width: 968px) {
+  .hero-two-column {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 40px 24px;
+    min-height: auto;
+  }
+
+  .hero-left-column,
+  .hero-right-column {
+    padding: 0;
+  }
+
+  .hero-main-title {
+    font-size: 42px;
+  }
+
+  .hero-tagline {
+    font-size: 18px;
+  }
+
+  .hero-trust-stats {
+    justify-content: space-between;
+  }
+
+  .trust-stat-value {
+    font-size: 24px;
+  }
+
+  .calc-card-body {
+    padding: 28px;
+  }
+
+  .calc-value-display {
+    font-size: 20px;
+  }
+
+  .calc-result-amount {
+    font-size: 32px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .unique-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .partners-logos {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-two-column {
+    padding: 20px 16px;
+  }
+
+  .hero-main-title {
+    font-size: 32px;
+  }
+
+  .hero-tagline {
+    font-size: 16px;
+  }
+
+  .hero-trust-stats {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .trust-stat-value {
+    font-size: 20px;
+  }
+
+  .hero-calculator-card {
+    border-radius: 16px;
+  }
+
+  .calc-card-header {
+    padding: 20px 24px;
+  }
+
+  .calc-card-title {
+    font-size: 20px;
+  }
+
+  .calc-card-body {
+    padding: 24px;
+  }
+
+  .calc-value-display {
+    font-size: 18px;
+  }
+
+  .calc-result-amount {
+    font-size: 28px;
+  }
+
+  .calc-apply-button {
+    padding: 16px 28px;
+    font-size: 16px;
+  }
+
+  .unique-feature-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .partners-logos {
+    gap: 15px;
+  }
+}
+</style>

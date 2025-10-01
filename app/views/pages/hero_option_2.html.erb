@@ -1,0 +1,575 @@
+<%# HERO OPTION 2: Centered Hero with Animated Calculator
+     Focus on the calculator with clear messaging
+     Modern, clean design with social proof %>
+
+<div class="hero-option-2">
+  <%= render 'shared/header' %>
+
+  <!-- Hero: Centered with Full-Width Background -->
+  <section class="hero-centered">
+    <div class="hero-centered-bg">
+      <div class="hero-gradient-overlay"></div>
+    </div>
+
+    <div class="hero-centered-container">
+      <!-- Top: Main Message -->
+      <div class="hero-centered-content">
+        <span class="hero-eyebrow">Equity Preservation Mortgage®</span>
+
+        <h1 class="hero-centered-title">
+          Access Your Home Equity<br>
+          Without Selling or Repayments
+        </h1>
+
+        <p class="hero-centered-description">
+          Australia's only mortgage that lets you receive tax-free monthly income
+          while keeping 100% of your home's appreciation and preserving equity for your family.
+        </p>
+
+        <!-- 3-Column Benefits Grid -->
+        <div class="hero-benefits-grid">
+          <div class="hero-benefit-col">
+            <div class="benefit-icon">💰</div>
+            <h3 class="benefit-heading">Tax-Free Income</h3>
+            <p class="benefit-desc">Monthly payments direct to your account</p>
+          </div>
+
+          <div class="hero-benefit-col">
+            <div class="benefit-icon">🏠</div>
+            <h3 class="benefit-heading">Keep Full Equity</h3>
+            <p class="benefit-desc">100% of property appreciation is yours</p>
+          </div>
+
+          <div class="hero-benefit-col">
+            <div class="benefit-icon">👨‍👩‍👧‍👦</div>
+            <h3 class="benefit-heading">Protect Inheritance</h3>
+            <p class="benefit-desc">Equity preserved for wealth transfer</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Interactive Calculator Card -->
+      <div class="hero-calc-card" data-controller="calculator">
+        <div class="calc-card-header">
+          <h2 class="calc-card-title">Calculate Your Monthly Income</h2>
+          <p class="calc-card-subtitle">Move the slider to see what you could receive</p>
+        </div>
+
+        <div class="calc-card-body">
+          <!-- Home Value Input -->
+          <div class="calc-input-section">
+            <div class="calc-input-header">
+              <label class="calc-input-label">Your Home Value</label>
+              <div class="calc-input-display" data-calculator-target="value">$1,500,000</div>
+            </div>
+
+            <input
+              type="range"
+              min="1000000"
+              max="10000000"
+              step="200000"
+              value="1500000"
+              class="calc-input-slider"
+              data-calculator-target="slider"
+              data-action="input->calculator#updateValue">
+
+            <div class="calc-input-range">
+              <span class="range-min">$1M</span>
+              <span class="range-max">$10M</span>
+            </div>
+          </div>
+
+          <!-- Result Display -->
+          <div class="calc-result-section">
+            <div class="calc-result-card">
+              <div class="result-label">Your Estimated Monthly Income*</div>
+              <div class="result-amount" data-calculator-target="incomeAmount">
+                <span class="amount-min">$8,500</span>
+                <span class="amount-separator">—</span>
+                <span class="amount-max">$12,000</span>
+              </div>
+              <div class="result-sublabel">Tax-free • No repayments • Keep equity</div>
+            </div>
+
+            <%= link_to apply_path, class: "calc-apply-btn" do %>
+              <span>Get Your Personalized Quote</span>
+              <span class="btn-arrow">→</span>
+            <% end %>
+
+            <p class="calc-fine-print">
+              *Based on 60% LVR. Your actual amount will be determined after property assessment.
+            </p>
+          </div>
+        </div>
+
+        <!-- Trust Bar -->
+        <div class="calc-trust-bar">
+          <div class="trust-item">
+            <strong>2,000+</strong> Retirees Helped
+          </div>
+          <div class="trust-divider"></div>
+          <div class="trust-item">
+            <strong>$3B+</strong> Equity Protected
+          </div>
+          <div class="trust-divider"></div>
+          <div class="trust-item">
+            <strong>4.9/5</strong> Client Rating
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Partner Logos -->
+      <div class="hero-partners-inline">
+        <span class="partners-label">Trusted by leading financial institutions</span>
+        <div class="partners-logos-inline">
+          <%= image_tag "partners/westpac-logo.png", class: "partner-logo-inline", alt: "Westpac" %>
+          <%= image_tag "partners/ing-logo.png", class: "partner-logo-inline", alt: "ING" %>
+          <%= image_tag "partners/macquarie-logo.png", class: "partner-logo-inline", alt: "Macquarie" %>
+          <%= image_tag "partners/blackrock-logo.png", class: "partner-logo-inline", alt: "BlackRock" %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rest of content... -->
+  <section class="unique-features-section">
+    <!-- Original features section -->
+  </section>
+
+  <%= render 'shared/footer' %>
+</div>
+
+<style>
+/* Hero Option 2 Styles */
+.hero-option-2 {
+  --primary: #0891b2;
+  --primary-dark: #0e7490;
+  --success: #10b981;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
+  --border: #e2e8f0;
+}
+
+/* Centered Hero */
+.hero-centered {
+  position: relative;
+  padding: 80px 0 100px;
+  overflow: hidden;
+}
+
+.hero-centered-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 50%, #ffffff 100%);
+  z-index: 0;
+}
+
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(8, 145, 178, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+}
+
+.hero-centered-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+/* Hero Content */
+.hero-centered-content {
+  text-align: center;
+  max-width: 800px;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+
+.hero-centered-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+  margin: 0 0 24px 0;
+}
+
+.hero-centered-description {
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin: 0 0 40px 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Benefits Grid */
+.hero-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.hero-benefit-col {
+  text-align: center;
+}
+
+.benefit-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.benefit-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+
+.benefit-desc {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Calculator Card */
+.hero-calc-card {
+  width: 100%;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+.calc-card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 32px;
+  text-align: center;
+}
+
+.calc-card-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.calc-card-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.calc-card-body {
+  padding: 40px;
+}
+
+/* Calculator Input */
+.calc-input-section {
+  margin-bottom: 40px;
+}
+
+.calc-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calc-input-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.calc-input-display {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.calc-input-slider {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-light);
+  outline: none;
+  appearance: none;
+  margin-bottom: 12px;
+}
+
+.calc-input-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+  transition: transform 0.2s;
+}
+
+.calc-input-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.calc-input-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Result Section */
+.calc-result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.calc-result-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+  border: 2px solid #bbf7d0;
+}
+
+.result-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.result-amount {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.amount-separator {
+  font-size: 32px;
+  opacity: 0.5;
+}
+
+.result-sublabel {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.calc-apply-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  padding: 20px 32px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.calc-apply-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(8, 145, 178, 0.3);
+}
+
+.btn-arrow {
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.calc-apply-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.calc-fine-print {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Trust Bar */
+.calc-trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 32px;
+  background: var(--bg-light);
+  border-top: 1px solid var(--border);
+}
+
+.trust-item {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.trust-item strong {
+  color: var(--primary);
+  font-weight: 700;
+  display: block;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.trust-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+}
+
+/* Partners Inline */
+.hero-partners-inline {
+  text-align: center;
+}
+
+.partners-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.partners-logos-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.partner-logo-inline {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.5;
+  filter: grayscale(100%);
+  transition: all 0.3s ease;
+}
+
+.partner-logo-inline:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .hero-centered {
+    padding: 60px 0 80px;
+  }
+
+  .hero-centered-title {
+    font-size: 40px;
+  }
+
+  .hero-centered-description {
+    font-size: 18px;
+  }
+
+  .hero-benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .calc-card-header,
+  .calc-card-body {
+    padding: 24px;
+  }
+
+  .calc-card-title {
+    font-size: 24px;
+  }
+
+  .result-amount {
+    font-size: 36px;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .amount-separator {
+    display: none;
+  }
+
+  .calc-trust-bar {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .trust-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .partners-logos-inline {
+    gap: 24px;
+  }
+
+  .partner-logo-inline {
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-centered-title {
+    font-size: 32px;
+  }
+
+  .hero-centered-description {
+    font-size: 16px;
+  }
+
+  .calc-input-display {
+    font-size: 24px;
+  }
+
+  .result-amount {
+    font-size: 32px;
+  }
+}
+</style>
