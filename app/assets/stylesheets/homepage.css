@@ -159,7 +159,7 @@ body {
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow: hidden;
   padding: 0;
@@ -200,7 +200,7 @@ body {
 .hero-two-column {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 48px 40px;
+  padding: 48px 48px 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
@@ -399,7 +399,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  width: 100%;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   padding: 18px 32px;
