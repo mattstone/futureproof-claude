@@ -27,6 +27,15 @@
   --border: #e2e8f0;
 }
 
+/* Base Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+}
+
 /* Header Section */
 .header-section {
   background-color: var(--background-white);
@@ -599,6 +608,56 @@
 
   .homepage .partners-logos {
     gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .top-left-logo {
+    position: static;
+    transform: none;
+    order: -1;
+  }
+
+  .logo-title-wrapper {
+    position: static;
+    transform: none;
+    left: auto;
+  }
+
+  .header-auth {
+    flex-direction: row;
+    gap: 12px;
+    margin-left: 0;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+
+  .nav-user {
+    display: none;
+  }
+
+  .main-title {
+    font-size: 24px;
+  }
+
+  .subtitle-text {
+    font-size: 14px;
+  }
+
+  .company-logo {
+    height: 50px;
+  }
+
+  .logo-title-wrapper {
+    gap: 15px;
   }
 }
 
