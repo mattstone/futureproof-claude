@@ -108,12 +108,21 @@ export default class extends Controller {
       thumb.classList.toggle("active", i === index)
     })
 
-    // Scroll thumbnail into view
-    if (this.thumbnailTargets[index]) {
-      this.thumbnailTargets[index].scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center"
+    // Scroll thumbnail into view within the track
+    if (this.thumbnailTargets[index] && this.hasCarouselTrackTarget) {
+      const track = this.carouselTrackTarget
+      const thumb = this.thumbnailTargets[index]
+      const thumbLeft = thumb.offsetLeft
+      const thumbWidth = thumb.offsetWidth
+      const trackWidth = track.offsetWidth
+      const trackScrollLeft = track.scrollLeft
+
+      // Calculate the center position for the thumbnail
+      const targetScroll = thumbLeft - (trackWidth / 2) + (thumbWidth / 2)
+
+      track.scrollTo({
+        left: Math.max(0, targetScroll),
+        behavior: "smooth"
       })
     }
   }
