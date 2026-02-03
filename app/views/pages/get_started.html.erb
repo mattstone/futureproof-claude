@@ -1,0 +1,429 @@
+<%# Get Started Page - React Webapp Replica
+    Matches https://www.futureprooffinancial.app/ EXACTLY %>
+
+<div class="gs-page" data-controller="get-started-calculator">
+  <!-- Header (sticky, matches React Header) -->
+  <header class="gs-header">
+    <div class="gs-alpha-banner">
+      <div class="gs-alpha-banner-inner">
+        <p class="gs-alpha-text">Alpha version</p>
+      </div>
+    </div>
+    <nav class="gs-header-nav">
+      <!-- Hamburger Menu Button (mobile) -->
+      <button type="button" class="gs-hamburger-btn" data-action="click->get-started-calculator#toggleMobileMenu" data-get-started-calculator-target="hamburgerBtn" aria-label="Menu">
+        <svg class="gs-hamburger-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path clip-rule="evenodd" d="M21 5.5H3V7h18zm0 5.75H3v1.5h18zM3 17h18v1.5H3z" fill-rule="evenodd"/>
+        </svg>
+      </button>
+
+      <%= link_to root_path, class: "gs-header-logo" do %>
+        <%= image_tag "futureproof-logo.png", class: "gs-header-logo-img", alt: "futureproof_logo", data: { testid: "futureproof-logo" } %>
+      <% end %>
+
+      <%= link_to demo_applications_path, class: "gs-header-btn", data: { testid: "calculate" } do %>
+        Calculate
+      <% end %>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu Drawer -->
+  <div class="gs-mobile-menu" data-get-started-calculator-target="mobileMenu">
+    <div class="gs-mobile-menu-header">
+      <%= link_to root_path, class: "gs-header-logo" do %>
+        <%= image_tag "futureproof-logo.png", class: "gs-header-logo-img", alt: "futureproof_logo" %>
+      <% end %>
+      <button type="button" class="gs-mobile-close-btn" data-action="click->get-started-calculator#closeMobileMenu" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <nav class="gs-mobile-nav">
+      <%= link_to "Home", root_path, class: "gs-mobile-nav-link" %>
+      <%= link_to "Calculator", get_started_path, class: "gs-mobile-nav-link" %>
+      <%= link_to "About EPM", "#", class: "gs-mobile-nav-link" %>
+      <%= link_to "Contact Us", "#", class: "gs-mobile-nav-link" %>
+    </nav>
+    <div class="gs-mobile-menu-footer">
+      <%= link_to "Privacy Policy", privacy_policy_path, class: "gs-mobile-footer-link" %>
+      <%= link_to "Terms of Use", terms_of_use_path, class: "gs-mobile-footer-link" %>
+    </div>
+  </div>
+  <div class="gs-mobile-overlay" data-get-started-calculator-target="mobileOverlay" data-action="click->get-started-calculator#closeMobileMenu"></div>
+
+  <!-- Main: negative margin pulls content up, hero fills width, calculator overlays hero -->
+  <main class="gs-main">
+    <!-- Hero: full-width image that content will overlay -->
+    <div class="gs-hero">
+      <%= image_tag "hero-homepage.png", class: "gs-hero-image", alt: "Next generation mortgage for a better retirement with the Equity Preservation Mortgage" %>
+    </div>
+
+    <!-- Content: pulls up over hero with negative margin, putting CTA above fold -->
+    <div class="gs-content">
+      <!-- Property Valuation Calculator Card -->
+      <div class="gs-calc-card" id="property-valuation-card">
+        <!-- Logo Header -->
+        <div class="gs-logo-header">
+          <%= image_tag "futureproof-financial-group-logo.jpeg", class: "gs-logo-img sm", alt: "financial group logo" %>
+          <div class="gs-logo-text">
+            <p class="gs-logo-subtitle">Next generation mortgage for a better retirement</p>
+            <p class="gs-logo-title">Equity Preservation Mortgage <span>&reg;</span></p>
+          </div>
+        </div>
+
+        <!-- Average Retiree Title with Help Icon -->
+        <div class="gs-avg-title-wrapper" id="average-receive-title">
+          <div class="gs-avg-title-text">
+            <p class="gs-avg-title">What is the maximum annuity income</p>
+            <p class="gs-avg-title">an average retiree can receive?</p>
+          </div>
+          <button type="button" class="gs-help-btn" data-action="click->get-started-calculator#openHelpModal" aria-label="More information">
+            <svg class="gs-help-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+            </svg>
+          </button>
+        </div>
+        <p class="gs-avg-subtitle">On a 30 year interest-only mortgage</p>
+
+        <!-- Values Display -->
+        <div class="gs-values-row">
+          <div class="gs-value-col">
+            <p class="gs-value-label">Your home value</p>
+            <p class="gs-value-amount" data-get-started-calculator-target="homeValue" data-testid="valuation-card-estimated-property-value">$1.5 M</p>
+            <button type="button" class="gs-change-btn" data-action="click->get-started-calculator#openModal" data-testid="change-estimated-property-value-btn">
+              Change
+            </button>
+          </div>
+
+          <div class="gs-value-col">
+            <p class="gs-value-label">You could receive up to</p>
+            <p class="gs-value-amount gs-success" data-get-started-calculator-target="monthlyIncome" data-testid="valuation-card-monthly-annuity-amount">$2,500</p>
+            <p class="gs-value-period" data-get-started-calculator-target="termDisplay" data-testid="annuity-term">Every month over 10 years*</p>
+          </div>
+        </div>
+
+        <!-- Annuity Term Slider -->
+        <div class="gs-slider-section">
+          <div class="gs-slider-container">
+            <div class="gs-slider-labels">
+              <span>10 years</span>
+              <span>30 years</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="30"
+              step="5"
+              value="10"
+              class="gs-slider"
+              data-get-started-calculator-target="termSlider"
+              data-action="input->get-started-calculator#updateTerm"
+              data-testid="annuity-term-slider">
+            <div class="gs-slider-steps">
+              <% [10, 15, 20, 25, 30].each do |year| %>
+                <span class="gs-slider-step<%= year == 10 ? ' active' : '' %>" data-year="<%= year %>"></span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="gs-cta-section">
+          <%= link_to "Calculate how much you could receive", demo_applications_path, class: "gs-cta-btn", data: { testid: "calculate-amount" } %>
+        </div>
+      </div>
+
+      <!-- EPM Promo Card -->
+      <div class="gs-promo-card">
+        <%= image_tag "old-couple-in-front-of-computer.jpeg", class: "gs-promo-image", alt: "Couple reviewing their finances" %>
+
+        <div class="gs-promo-content">
+          <div class="gs-logo-header left">
+            <%= image_tag "futureproof-financial-group-logo.jpeg", class: "gs-logo-img", alt: "financial group logo" %>
+            <div class="gs-logo-text">
+              <p class="gs-logo-subtitle">Unique features of</p>
+              <p class="gs-logo-title">Equity Preservation Mortgage <span>&reg;</span></p>
+            </div>
+          </div>
+
+          <div class="gs-features-list">
+            <div class="gs-feature-item">
+              <svg class="gs-feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p class="gs-feature-text">Receive tax-free monthly annuity income</p>
+            </div>
+            <div class="gs-feature-item">
+              <svg class="gs-feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p class="gs-feature-text">No depletion of home equity</p>
+            </div>
+            <div class="gs-feature-item">
+              <svg class="gs-feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p class="gs-feature-text">Interest paid on your behalf</p>
+            </div>
+            <div class="gs-feature-item">
+              <svg class="gs-feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p class="gs-feature-text">Equity preserved for intergenerational wealth transfer</p>
+            </div>
+            <div class="gs-feature-item">
+              <svg class="gs-feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p class="gs-feature-text">No sharing of property appreciation</p>
+            </div>
+          </div>
+
+          <div class="gs-promo-buttons">
+            <%= link_to "Learn more", "#", class: "gs-btn-outline", target: "_blank" %>
+            <%= link_to "Calculate now", demo_applications_path, class: "gs-btn-primary" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Freedom Cards -->
+      <div class="gs-freedom-cards">
+        <!-- Flexibility Card -->
+        <div class="gs-freedom-card" data-testid="freedom-card">
+          <%= image_tag "freedom.jpeg", class: "gs-freedom-image", alt: "Flexibility" %>
+          <div class="gs-freedom-content">
+            <h3 class="gs-freedom-subtitle">Flexibility</h3>
+            <p class="gs-freedom-title">Comfortably live in your own home or pay for aged care</p>
+            <div class="gs-freedom-cta">
+              <%= link_to "Learn more", "#", class: "gs-btn-cta", target: "_blank" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wealth Card -->
+        <div class="gs-freedom-card" data-testid="freedom-card">
+          <%= image_tag "wealth.jpeg", class: "gs-freedom-image", alt: "Wealth" %>
+          <div class="gs-freedom-content">
+            <h3 class="gs-freedom-subtitle">Wealth</h3>
+            <p class="gs-freedom-title">Preserve your home equity for your family</p>
+            <div class="gs-freedom-cta">
+              <%= link_to "Learn more", "#", class: "gs-btn-cta", target: "_blank" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Joy Card -->
+        <div class="gs-freedom-card" data-testid="freedom-card">
+          <%= image_tag "joy.jpeg", class: "gs-freedom-image", alt: "Joy" %>
+          <div class="gs-freedom-content">
+            <h3 class="gs-freedom-subtitle">Joy</h3>
+            <p class="gs-freedom-title">Live your best retirement without financial stress</p>
+            <div class="gs-freedom-cta">
+              <%= link_to "Learn more", "#", class: "gs-btn-cta", target: "_blank" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inheritance Card -->
+        <div class="gs-freedom-card" data-testid="freedom-card">
+          <%= image_tag "smiling-couple.jpeg", class: "gs-freedom-image", alt: "Inheritance" %>
+          <div class="gs-freedom-content">
+            <h3 class="gs-freedom-subtitle">Inheritance</h3>
+            <p class="gs-freedom-title">Leave a meaningful legacy for your loved ones</p>
+            <div class="gs-freedom-cta">
+              <%= link_to "Learn more", "#", class: "gs-btn-cta", target: "_blank" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final CTA -->
+      <%= link_to "Calculate how much you could receive", demo_applications_path, class: "gs-cta-btn" %>
+
+      <!-- Partners Banner -->
+      <div class="gs-partners">
+        <h2 class="gs-partners-title">Our trusted partners</h2>
+        <div class="gs-partners-wrapper">
+          <div class="gs-partners-scroll">
+            <% 10.times do %>
+              <div class="gs-partner-item">
+                <%= image_tag "partners/westpac-logo.png", class: "gs-partner-logo", alt: "Westpac" %>
+              </div>
+              <div class="gs-partner-item">
+                <%= image_tag "partners/ing-logo.png", class: "gs-partner-logo", alt: "ING" %>
+              </div>
+              <div class="gs-partner-item">
+                <%= image_tag "partners/ppr-logo.png", class: "gs-partner-logo", alt: "PPR" %>
+              </div>
+              <div class="gs-partner-item">
+                <%= image_tag "partners/macquarie-logo.png", class: "gs-partner-logo", alt: "Macquarie" %>
+              </div>
+              <div class="gs-partner-item">
+                <%= image_tag "partners/blackrock-logo.png", class: "gs-partner-logo", alt: "BlackRock" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Help Modal -->
+  <div class="gs-modal-overlay" data-get-started-calculator-target="helpModal" data-action="click->get-started-calculator#handleHelpModalClick">
+    <div class="gs-modal gs-help-modal">
+      <div class="gs-modal-header">
+        <h3 class="gs-modal-title">What an average retiree could receive</h3>
+        <button type="button" class="gs-modal-close" data-action="click->get-started-calculator#closeHelpModal">&times;</button>
+      </div>
+      <div class="gs-modal-body">
+        <p class="gs-help-description">Maximum annuity income for an average retiree</p>
+        <div class="gs-help-content">
+          <p>This calculator shows an estimate of the maximum monthly income you could receive through an Equity Preservation Mortgage based on:</p>
+          <ul class="gs-help-list">
+            <li>A 30-year interest-only mortgage</li>
+            <li>Your estimated property value</li>
+            <li>Your selected annuity term (10-30 years)</li>
+          </ul>
+          <p>The actual amount you receive may vary based on your specific circumstances, property valuation, and loan approval.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home Value Modal -->
+  <div class="gs-modal-overlay" data-get-started-calculator-target="modal" data-action="click->get-started-calculator#handleModalClick">
+    <div class="gs-modal">
+      <div class="gs-modal-header">
+        <h3 class="gs-modal-title">Set your own home valuation</h3>
+        <button type="button" class="gs-modal-close" data-action="click->get-started-calculator#closeModal">&times;</button>
+      </div>
+      <div class="gs-modal-body">
+        <div class="gs-input-group">
+          <label class="gs-input-label">Your valuation</label>
+          <input
+            type="text"
+            class="gs-input"
+            placeholder="Enter your valuation"
+            data-get-started-calculator-target="modalInput"
+            data-action="keyup->get-started-calculator#formatModalInput"
+            data-testid="estimated-property-value-input">
+          <span class="gs-input-hint">Minimum amount is $800,000</span>
+        </div>
+      </div>
+      <div class="gs-modal-footer">
+        <button type="button" class="gs-modal-save-btn" data-action="click->get-started-calculator#saveHomeValue" data-testid="estimated-property-value-save-btn">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Account Modal (matches React webapp /application/create-account) -->
+  <div class="gs-modal-overlay" data-get-started-calculator-target="emailModal" data-action="click->get-started-calculator#handleEmailModalClick">
+    <div class="gs-modal gs-email-modal">
+      <div class="gs-modal-header">
+        <h3 class="gs-modal-title gs-modal-title-lg">Let's begin</h3>
+        <button type="button" class="gs-modal-close" data-action="click->get-started-calculator#closeEmailModal">&times;</button>
+      </div>
+      <div class="gs-modal-body">
+        <p class="gs-modal-description">To access the calculator please enter your email address</p>
+
+        <form class="gs-email-form" data-action="submit->get-started-calculator#submitEmail">
+          <div class="gs-input-group">
+            <label class="gs-input-label" for="gs-email-input">Your email address</label>
+            <input
+              type="email"
+              id="gs-email-input"
+              class="gs-input"
+              placeholder="Your email address"
+              required
+              data-get-started-calculator-target="emailInput"
+              data-action="input->get-started-calculator#handleEmailInput"
+              data-testid="email-input">
+          </div>
+
+          <label class="gs-terms-checkbox" data-get-started-calculator-target="termsLabel">
+            <span class="gs-terms-text">
+              By checking this box you have read and agree to our
+              <%= link_to "terms and conditions", terms_of_use_path, class: "gs-terms-link", target: "_blank" %>
+            </span>
+            <input
+              type="checkbox"
+              class="gs-checkbox"
+              data-get-started-calculator-target="termsCheckbox"
+              data-action="change->get-started-calculator#updateContinueButton"
+              data-testid="custom-checkbox">
+          </label>
+
+          <button
+            type="submit"
+            class="gs-continue-btn"
+            disabled
+            data-get-started-calculator-target="continueButton"
+            data-testid="email-form-continue-button">
+            Continue
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer (matches React Footer component) -->
+  <footer class="gs-footer" id="footer">
+    <div class="gs-footer-main">
+      <div class="gs-footer-content">
+        <div class="gs-footer-info">
+          <%= image_tag "futureproof-logo.png", class: "gs-footer-logo", alt: "Futureproof" %>
+          <p class="gs-footer-disclaimer">
+            The Equity Preservation Mortgage is provided by Futureproof Financial Group Limited.
+            This calculator provides estimates only and does not constitute financial advice.
+            All calculations are based on current interest rates and market conditions which may change.
+          </p>
+          <p class="gs-footer-disclaimer">
+            *Monthly income amounts shown are estimates based on a 30-year loan term with interest-only payments.
+            Actual amounts may vary based on your specific circumstances, property valuation, and loan approval.
+          </p>
+        </div>
+
+        <div class="gs-footer-divider"></div>
+
+        <div class="gs-footer-grid">
+          <div class="gs-footer-menu">
+            <%= link_to "Home", root_path, class: "gs-footer-link" %>
+            <%= link_to "Calculator", get_started_path, class: "gs-footer-link" %>
+            <%= link_to "About EPM", "#", class: "gs-footer-link" %>
+            <%= link_to "Contact Us", "#", class: "gs-footer-link" %>
+          </div>
+          <div class="gs-footer-menu">
+            <%= link_to "Privacy Policy", privacy_policy_path, class: "gs-footer-link" %>
+            <%= link_to "Terms of use", terms_of_use_path, class: "gs-footer-link" %>
+            <%= link_to "FAQs", "#", class: "gs-footer-link" %>
+            <div class="gs-footer-social">
+              <a href="#" class="gs-footer-link">
+                <svg class="gs-footer-social-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <a href="#" class="gs-footer-link">
+                <svg class="gs-footer-social-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gs-footer-bottom">
+      <p class="gs-footer-copyright">
+        &copy;<%= Date.current.year %> Futureproof Financial Group Limited | All Rights Reserved "Equity Preservation Mortgage" is a registered trademark of Futureproof Financial Group Limited.
+      </p>
+    </div>
+  </footer>
+</div>

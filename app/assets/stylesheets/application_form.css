@@ -2256,3 +2256,334 @@
         flex-shrink: 0;
     }
 }
+
+/* ============================================
+   DEMO MODE STYLES
+   ============================================ */
+
+.demo-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1799E8 0%, #0d6ebd 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 12px 12px 0 0;
+    margin: -24px -24px 24px -24px;
+}
+
+.demo-banner-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Income Results Cards */
+.income-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.income-result-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.income-result-card.primary {
+    background: linear-gradient(135deg, #34C759 0%, #2da44e 100%);
+    border: none;
+    color: white;
+}
+
+.income-result-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.income-result-card.primary .income-result-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.income-result-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.income-result-card.primary .income-result-value {
+    color: white;
+}
+
+.income-result-note {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.income-result-card.primary .income-result-note {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Income Disclaimer */
+.income-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #fef3c7;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #92400e;
+}
+
+.income-disclaimer-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Mortgage Type Cards for Demo */
+.mortgage-type-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.mortgage-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mortgage-card:hover {
+    border-color: #1799E8;
+    box-shadow: 0 4px 12px rgba(23, 153, 232, 0.1);
+}
+
+.mortgage-card.selected {
+    border-color: #1799E8;
+    background: rgba(23, 153, 232, 0.05);
+}
+
+.mortgage-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.mortgage-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.mortgage-card-badge {
+    background: #34C759;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.mortgage-card-description {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.mortgage-card-features {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mortgage-card-features li {
+    font-size: 13px;
+    color: #475569;
+    padding: 4px 0 4px 20px;
+    position: relative;
+}
+
+.mortgage-card-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #34C759;
+    font-weight: 700;
+}
+
+/* Summary Review Styles */
+.summary-review {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.summary-review-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-review-row:last-child {
+    border-bottom: none;
+}
+
+.summary-review-label {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.summary-review-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Income Summary Highlight */
+.income-summary-highlight {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.income-highlight-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.income-highlight-icon {
+    width: 48px;
+    height: 48px;
+    background: #1799E8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.income-highlight-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.income-highlight-content {
+    flex: 1;
+}
+
+.income-highlight-label {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.income-highlight-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.income-highlight-note {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* Demo Completion Section */
+.demo-completion-section {
+    text-align: center;
+    padding: 32px 24px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 12px;
+    margin-top: 24px;
+}
+
+.demo-completion-icon {
+    width: 64px;
+    height: 64px;
+    background: #34C759;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.demo-completion-icon svg {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.demo-completion-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #15803d;
+    margin: 0 0 8px 0;
+}
+
+.demo-completion-text {
+    font-size: 16px;
+    color: #166534;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+.demo-next-steps {
+    background: white;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 16px;
+}
+
+.demo-next-steps h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.demo-next-steps p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Outline Button Style */
+.site-btn-outline {
+    background: transparent;
+    border: 2px solid #1799E8;
+    color: #1799E8;
+}
+
+.site-btn-outline:hover {
+    background: rgba(23, 153, 232, 0.1);
+}

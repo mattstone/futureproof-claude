@@ -1,0 +1,3276 @@
+/* Demo Webapp Styles - Replicating the React Webapp look */
+
+/* Base Layout */
+.demo-page {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.demo-container {
+  max-width: 576px;
+  margin: 0 auto;
+  padding: 24px 12px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .demo-container {
+    gap: 48px;
+  }
+}
+
+/* Section Header */
+.demo-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .demo-section-title {
+    font-size: 20px;
+  }
+}
+
+.demo-section-subtitle {
+  font-size: 16px;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Step Cards */
+.demo-step-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.demo-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 12px;
+  background: rgba(23, 153, 232, 0.05);
+  padding: 24px;
+}
+
+.demo-step-card-content {
+  display: flex;
+  gap: 24px;
+}
+
+.demo-step-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1799E8;
+  line-height: 1;
+}
+
+.demo-step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.demo-step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-step-description {
+  font-size: 14px;
+  color: #4a4a4a;
+  margin: 0;
+}
+
+.demo-step-highlight {
+  font-size: 14px;
+  font-weight: 600;
+  color: #10b981;
+  margin: 0;
+}
+
+/* Property Search Box */
+.demo-search-section {
+  margin-top: 32px;
+}
+
+.demo-search-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-search-input {
+  flex: 1;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px 0 0 8px;
+  font-size: 16px;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.demo-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.demo-search-input:focus {
+  outline: none;
+  border-color: #1799E8;
+}
+
+.demo-search-btn {
+  position: absolute;
+  right: 0;
+  height: 48px;
+  width: 48px;
+  background: #1799E8;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.demo-search-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #fff;
+}
+
+.demo-search-btn:hover {
+  background: #1580c7;
+}
+
+.demo-powered-by {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.demo-powered-by img {
+  height: 20px;
+}
+
+/* Property Card */
+.demo-property-card {
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.demo-property-image {
+  position: relative;
+  height: 320px;
+  background: #f1f5f9;
+}
+
+.demo-property-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-property-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f1f5f9;
+}
+
+.demo-property-image-placeholder svg {
+  width: 48px;
+  height: 48px;
+  color: #cbd5e1;
+}
+
+.demo-property-view-pill {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.demo-property-details {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-property-address {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-property-attributes {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.demo-property-attr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.demo-property-attr svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.demo-property-attr span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.demo-property-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+.demo-property-value-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-property-value-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-property-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 4px 0;
+}
+
+.demo-change-btn {
+  display: inline-flex;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.demo-change-btn:hover {
+  background: #f8fafc;
+}
+
+/* EPM Section in Property Card */
+.demo-epm-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.demo-epm-icon {
+  width: 64px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.demo-epm-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.demo-epm-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-epm-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-epm-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-epm-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-epm-value {
+  font-size: 30px;
+  font-weight: 600;
+  color: #10b981;
+  margin: 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.demo-epm-note {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+/* Slider Component */
+.demo-slider-section {
+  margin-top: 20px;
+}
+
+.demo-slider-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.demo-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.demo-slider-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.demo-slider-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.demo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  outline: none;
+}
+
+.demo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #1799E8;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(23, 153, 232, 0.3);
+}
+
+.demo-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #1799E8;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(23, 153, 232, 0.3);
+}
+
+.demo-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.demo-slider-tick {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Mortgage Type Selector */
+.demo-mortgage-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.demo-mortgage-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-mortgage-option:hover {
+  border-color: #1799E8;
+}
+
+.demo-mortgage-option.selected {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.05);
+}
+
+.demo-mortgage-radio {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-mortgage-option.selected .demo-mortgage-radio {
+  border-color: #1799E8;
+}
+
+.demo-mortgage-radio-inner {
+  width: 12px;
+  height: 12px;
+  background: #1799E8;
+  border-radius: 50%;
+  display: none;
+}
+
+.demo-mortgage-option.selected .demo-mortgage-radio-inner {
+  display: block;
+}
+
+.demo-mortgage-info {
+  flex: 1;
+}
+
+.demo-mortgage-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.demo-mortgage-desc {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Summary Card */
+.demo-summary-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 16px 24px;
+}
+
+.demo-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  border-bottom: 1px solid #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.demo-summary-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-summary-header-icon {
+  width: 24px;
+  height: 24px;
+  color: #94a3b8;
+}
+
+.demo-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 4px;
+}
+
+.demo-summary-label {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-summary-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+  text-align: right;
+}
+
+.demo-summary-value.success {
+  color: #10b981;
+}
+
+/* Use of Annuity Income */
+.demo-annuity-use {
+  margin-top: 36px;
+}
+
+.demo-annuity-use-header {
+  margin-bottom: 12px;
+}
+
+.demo-annuity-use-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.demo-annuity-use-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-checkbox-item:hover {
+  border-color: #1799E8;
+}
+
+.demo-checkbox-item.checked {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.05);
+}
+
+.demo-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-checkbox-item.checked .demo-checkbox {
+  background: #1799E8;
+  border-color: #1799E8;
+}
+
+.demo-checkbox-check {
+  display: none;
+  color: #fff;
+}
+
+.demo-checkbox-item.checked .demo-checkbox-check {
+  display: block;
+}
+
+.demo-checkbox-label {
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Continue Button */
+.demo-continue-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: #1799E8;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.demo-continue-btn:hover {
+  background: #1580c7;
+}
+
+.demo-continue-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Pre-Approved / Congratulations Page */
+.demo-preapproved-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1799E8 0%, #7dd3fc 100%);
+  padding-bottom: 0;
+}
+
+.demo-preapproved-container {
+  max-width: 576px;
+  margin: 0 auto;
+  padding: 24px 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .demo-preapproved-container {
+    padding-top: 48px;
+  }
+}
+
+.demo-preapproved-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.demo-preapproved-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .demo-preapproved-title {
+    font-size: 36px;
+  }
+}
+
+.demo-preapproved-subtitle {
+  font-size: 16px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.demo-preapproved-subtitle strong {
+  font-weight: 700;
+}
+
+.demo-preapproved-image {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 16px;
+}
+
+.demo-preapproved-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.demo-preapproved-cta {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 48px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.demo-preapproved-cta-text {
+  font-size: 18px;
+  color: #1799E8;
+  text-align: center;
+  margin: 0;
+}
+
+.demo-preapproved-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-preapproved-cta-btn:hover {
+  border-color: #1799E8;
+  color: #1799E8;
+}
+
+.demo-preapproved-cta-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* EPM Logo Component */
+.demo-epm-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-epm-logo-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.demo-epm-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-epm-logo-prefix {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.demo-epm-logo-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Income Display Card */
+.demo-income-display {
+  background: linear-gradient(135deg, #1799E8 0%, #0ea5e9 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  text-align: center;
+}
+
+.demo-income-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 8px 0;
+}
+
+.demo-income-amount {
+  font-size: 42px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.demo-income-period {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 8px 0 0 0;
+}
+
+/* Growth Rate Selector */
+.demo-growth-section {
+  margin-top: 24px;
+}
+
+.demo-growth-cards {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.demo-growth-card {
+  flex: 1;
+  padding: 16px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-growth-card:hover {
+  border-color: #1799E8;
+}
+
+.demo-growth-card.selected {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.05);
+}
+
+.demo-growth-card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-growth-card-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+/* Projected Value Display */
+.demo-projected-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.demo-projected-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.demo-projected-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.demo-projected-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.demo-projected-value.highlight {
+  color: #10b981;
+  font-size: 20px;
+}
+
+/* Ownership & Occupancy Options */
+.demo-options-section {
+  margin-top: 24px;
+}
+
+.demo-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.demo-option-card {
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-option-card:hover {
+  border-color: #1799E8;
+}
+
+.demo-option-card.selected {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.05);
+}
+
+.demo-option-card svg {
+  width: 32px;
+  height: 32px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.demo-option-card.selected svg {
+  color: #1799E8;
+}
+
+.demo-option-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Demo Mode Banner */
+.demo-mode-banner {
+  background: #fef3c7;
+  border-bottom: 1px solid #fcd34d;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.demo-mode-banner-text {
+  font-size: 14px;
+  color: #92400e;
+  margin: 0;
+}
+
+.demo-mode-banner-text strong {
+  font-weight: 600;
+}
+
+/* Loan Term Display */
+.demo-loan-term-display {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 16px;
+}
+
+.demo-loan-term-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.demo-loan-term-label {
+  font-size: 14px;
+  color: #166534;
+}
+
+.demo-loan-term-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #166534;
+}
+
+/* ============================================
+   V2 Styles - Matching Webapp Exactly
+   ============================================ */
+
+/* Property Search Card - Address input with CoreLogic branding */
+.demo-property-search-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 24px;
+}
+
+.demo-search-input-v2 {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.demo-search-input-v2::placeholder {
+  color: #94a3b8;
+}
+
+.demo-search-input-v2:focus {
+  outline: none;
+  border-color: #1799E8;
+  box-shadow: 0 0 0 3px rgba(23, 153, 232, 0.1);
+}
+
+.demo-powered-by-v2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.demo-corelogic-logo {
+  height: 18px;
+  width: auto;
+}
+
+.demo-check-value-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: #1799E8;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-check-value-btn:hover {
+  background: #1580c7;
+}
+
+/* Step Cards - Matching Webapp step-card.tsx */
+.demo-step-cards-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.demo-step-card-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 12px;
+  background: rgba(23, 153, 232, 0.05);
+  padding: 24px;
+}
+
+.demo-step-card-content {
+  display: flex;
+  gap: 24px;
+}
+
+.demo-step-number-v2 {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+  margin: 0;
+  min-width: 40px;
+}
+
+.demo-step-info-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.demo-step-title-v2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-step-description-v2 {
+  font-size: 14px;
+  color: #4a4a4a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.demo-step-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #10b981;
+  margin: 0;
+}
+
+/* Property Detail Card - Matching Webapp projected-property-value.tsx */
+.demo-property-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+}
+
+.demo-property-detail-image {
+  height: 96px;
+  width: 100%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-property-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-property-detail-image svg {
+  width: 24px;
+  height: 24px;
+  color: #cbd5e1;
+}
+
+.demo-property-hero-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.demo-property-detail-content {
+  padding: 8px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-property-detail-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-property-detail-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  margin: 0;
+}
+
+.demo-property-detail-subtitle span {
+  font-weight: 600;
+  color: #000;
+}
+
+.demo-property-projected-value {
+  font-size: 36px;
+  font-weight: 600;
+  color: #10b981;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.demo-property-detail-note {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a1a1a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Growth Rate Selector - Radio options */
+.demo-growth-rate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-radio-item:hover {
+  border-color: #1799E8;
+}
+
+.demo-radio-item.selected {
+  border-color: #1799E8;
+}
+
+.demo-radio-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-radio-item.selected .demo-radio-circle {
+  border-color: #1799E8;
+}
+
+.demo-radio-inner {
+  width: 10px;
+  height: 10px;
+  background: #1799E8;
+  border-radius: 50%;
+  display: none;
+}
+
+.demo-radio-item.selected .demo-radio-inner {
+  display: block;
+}
+
+.demo-radio-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Outstanding Mortgage Section */
+.demo-outstanding-mortgage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.demo-outstanding-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #eff6ff;
+  border-radius: 8px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.demo-currency-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.demo-currency-input:focus {
+  outline: none;
+  border-color: #1799E8;
+}
+
+/* Ownership Status - 2-column grid */
+.demo-ownership-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.demo-ownership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.demo-ownership-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-ownership-card:hover {
+  border-color: #1799E8;
+}
+
+.demo-ownership-card.selected {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.05);
+}
+
+.demo-ownership-icon {
+  width: 32px;
+  height: 32px;
+  color: #64748b;
+}
+
+.demo-ownership-card.selected .demo-ownership-icon {
+  color: #1799E8;
+}
+
+.demo-ownership-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* EPM Card with income display */
+.demo-epm-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.demo-epm-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  justify-content: center;
+}
+
+.demo-epm-icon-small {
+  width: 32px;
+  height: 32px;
+}
+
+.demo-epm-header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-epm-header-prefix {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.demo-epm-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.demo-epm-card-content {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-epm-receive-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  text-align: center;
+  margin: 0;
+}
+
+.demo-epm-income-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.demo-epm-income-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #10b981;
+  letter-spacing: -0.5px;
+}
+
+.demo-epm-income-period {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.demo-epm-term {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 8px 0 0 0;
+}
+
+/* Annuity Income Slider Section */
+.demo-annuity-slider-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-slider-container {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.demo-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.demo-slider-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.demo-slider-value-display {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.demo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, #1799E8 0%, #1799E8 var(--progress, 0%), #e2e8f0 var(--progress, 0%), #e2e8f0 100%);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.demo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #1799E8;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(23, 153, 232, 0.3);
+}
+
+.demo-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #1799E8;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(23, 153, 232, 0.3);
+}
+
+.demo-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.demo-slider-tick {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.demo-loan-term-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #166534;
+}
+
+/* Mortgage Type Selector - Payment options */
+.demo-mortgage-type-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-payment-option {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 8px 12px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-payment-option:hover {
+  border-color: #1799E8;
+}
+
+.demo-payment-option.selected {
+  border-color: #1799E8;
+}
+
+.demo-payment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-payment-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.demo-payment-check {
+  width: 24px;
+  height: 24px;
+  color: #cbd5e1;
+}
+
+.demo-payment-option.selected .demo-payment-check {
+  color: #1799E8;
+}
+
+.demo-payment-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.demo-payment-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.demo-payment-amount {
+  font-size: 30px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: -0.5px;
+}
+
+.demo-payment-option.selected .demo-payment-amount {
+  color: #10b981;
+}
+
+.demo-payment-period {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.demo-payment-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  margin: 0;
+}
+
+.demo-payment-note svg {
+  width: 16px;
+  height: 16px;
+  color: #1e293b;
+}
+
+/* Mortgage Summary Card - Matching Webapp */
+.demo-mortgage-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.demo-summary-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.demo-summary-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.demo-summary-logo-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.demo-summary-logo-text {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.demo-summary-logo-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.demo-summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px;
+}
+
+.demo-summary-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.demo-summary-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-summary-section-icon {
+  width: 24px;
+  height: 24px;
+  color: #94a3b8;
+}
+
+.demo-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 4px;
+}
+
+.demo-summary-row-label {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-summary-row-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+  text-align: right;
+}
+
+.demo-summary-row-value.success {
+  color: #10b981;
+}
+
+/* Use of Annuity Income Section */
+.demo-use-of-income {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-use-of-income-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-use-of-income-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-use-of-income-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-checkbox-item:hover {
+  border-color: #1799E8;
+}
+
+.demo-checkbox-item.checked {
+  border-color: #1799E8;
+  background: rgba(23, 153, 232, 0.02);
+}
+
+.demo-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-checkbox-item.checked .demo-checkbox-box {
+  background: #1799E8;
+  border-color: #1799E8;
+}
+
+.demo-checkbox-check-icon {
+  display: none;
+  width: 14px;
+  height: 14px;
+  color: #fff;
+}
+
+.demo-checkbox-item.checked .demo-checkbox-check-icon {
+  display: block;
+}
+
+.demo-checkbox-label {
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Apply Button - Full width primary */
+.demo-apply-btn {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  background: #1799E8;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.demo-apply-btn:hover {
+  background: #1580c7;
+}
+
+/* Pre-Approved Page - Matching Webapp exactly */
+.demo-preapproved-page {
+  min-height: 80vh;
+  background: linear-gradient(180deg, #1799E8 0%, #7dd3fc 100%);
+  padding-bottom: 48px;
+}
+
+.demo-preapproved-container {
+  max-width: 576px;
+  margin: 0 auto;
+  padding: 24px 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .demo-preapproved-container {
+    padding-top: 48px;
+  }
+}
+
+.demo-preapproved-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.demo-preapproved-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .demo-preapproved-title {
+    font-size: 36px;
+  }
+}
+
+.demo-preapproved-subtitle {
+  font-size: 16px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.demo-preapproved-subtitle strong {
+  font-weight: 700;
+}
+
+.demo-preapproved-image {
+  width: 100%;
+  max-width: 500px;
+}
+
+.demo-preapproved-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.demo-video-section {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: -40px;
+  position: relative;
+  z-index: 10;
+}
+
+.demo-video-placeholder {
+  background: #1e293b;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.demo-video-placeholder-content {
+  text-align: center;
+  color: #fff;
+}
+
+.demo-video-play-icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.demo-video-placeholder-text {
+  font-size: 14px;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.demo-preapproved-cta {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 48px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.demo-preapproved-cta-text {
+  font-size: 18px;
+  color: #1799E8;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.demo-preapproved-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-preapproved-cta-btn:hover {
+  border-color: #1799E8;
+  color: #1799E8;
+}
+
+.demo-preapproved-cta-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.demo-secondary-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.demo-secondary-btn {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.demo-secondary-btn:hover {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.demo-feedback-section {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 24px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.demo-feedback-text {
+  font-size: 18px;
+  color: #1799E8;
+  margin: 0 0 16px 0;
+}
+
+.demo-feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.demo-feedback-btn:hover {
+  border-color: #cbd5e1;
+}
+
+.demo-feedback-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Demo Example Property Card */
+.demo-example-property {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-example-property .demo-check-value-btn {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.demo-example-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+}
+
+.demo-notice-icon {
+  width: 20px;
+  height: 20px;
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.demo-example-notice p {
+  font-size: 14px;
+  color: #0369a1;
+  margin: 0;
+}
+
+.demo-example-property-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.demo-example-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.demo-example-details {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-example-details .demo-powered-by-v2 {
+  margin-top: 4px;
+}
+
+.demo-example-details .demo-check-value-btn {
+  margin-top: 4px;
+}
+
+.demo-example-address {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.demo-example-suburb {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+}
+
+.demo-example-value-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.demo-example-value-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.demo-example-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* ============================================
+   PropertyDetailCard V2 - Matching Webapp exactly
+   ============================================ */
+
+.demo-property-card-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+}
+
+.demo-property-card-image {
+  position: relative;
+  height: 320px;
+  background: #f1f5f9;
+}
+
+.demo-property-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-property-view-pill {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.demo-property-view-pill svg {
+  color: #64748b;
+}
+
+.demo-property-card-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-property-card-address-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-property-card-address {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-property-card-attributes {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 4px;
+}
+
+.demo-property-attr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.demo-property-attr svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.demo-property-attr span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.demo-property-card-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+.demo-property-card-value-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-property-card-value-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-property-card-value-amount {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 4px 0 0 0;
+}
+
+.demo-valuation-note {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  margin: 8px 0 0 0;
+}
+
+/* ============================================
+   ProjectedPropertyValue Card - Matching Webapp
+   ============================================ */
+
+.demo-projected-value-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+}
+
+.demo-projected-value-image {
+  height: 96px;
+  width: 100%;
+  background: #f1f5f9;
+}
+
+.demo-projected-value-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-projected-value-content {
+  padding: 0 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-projected-value-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-projected-value-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  margin: 0;
+}
+
+.demo-projected-value-years {
+  font-weight: 600;
+  color: #000;
+}
+
+.demo-projected-value-amount {
+  font-size: 36px;
+  font-weight: 600;
+  color: #10b981;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.demo-projected-value-note {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ============================================
+   Question Sections - Matching Webapp
+   ============================================ */
+
+.demo-question-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Questions Group - Groups multiple question sections with consistent spacing */
+.demo-questions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.demo-question-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ============================================
+   Demo Footer - Matching Webapp footer.tsx
+   ============================================ */
+
+/* Footer that follows demo-page */
+.demo-page + .site-footer {
+  margin-top: 96px;
+}
+
+/* Pre-approved page footer - no top margin since gradient extends to bottom */
+.demo-page:has(.demo-preapproved-page) + .site-footer {
+  margin-top: 0;
+}
+
+/* Main Footer Section (Dark Blue #033971) */
+.demo-page + .site-footer .footer-main {
+  background: #033971;
+  padding: 16px 12px;
+}
+
+.demo-page + .site-footer .footer-container {
+  max-width: 672px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.demo-page + .site-footer .footer-logo {
+  width: 192px;
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+
+.demo-page + .site-footer .footer-disclaimer {
+  font-size: 12px;
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.demo-page + .site-footer .footer-divider {
+  height: 1px;
+  background: #fff;
+}
+
+.demo-page + .site-footer .footer-nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.demo-page + .site-footer .footer-nav-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-page + .site-footer .footer-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.demo-page + .site-footer .footer-link:hover {
+  opacity: 0.8;
+}
+
+/* Copyright Section (Gray #1f2937) */
+.demo-page + .site-footer .footer-copyright-section {
+  background: #1f2937;
+  padding: 12px;
+}
+
+.demo-page + .site-footer .footer-copyright-text {
+  max-width: 672px;
+  margin: 0 auto;
+  font-size: 12px;
+  color: #fff;
+  line-height: 1.4;
+}
+
+/* ============================================
+   Pre-approved Subtitle Group
+   ============================================ */
+
+.demo-preapproved-subtitle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================
+   Step Indicator - Matching Webapp Screenshots
+   ============================================ */
+
+.demo-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.demo-step-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.demo-step-circles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #94a3b8;
+}
+
+.demo-step-circle.active {
+  background: #1799E8;
+  color: #fff;
+}
+
+/* ============================================
+   Numbered Section Header
+   ============================================ */
+
+.demo-section-header-numbered {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-section-title-numbered {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .demo-section-title-numbered {
+    font-size: 20px;
+  }
+}
+
+.demo-section-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ============================================
+   Property Card Image Toggles
+   ============================================ */
+
+.demo-property-image-toggles {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.demo-image-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-image-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.demo-image-toggle.active {
+  background: #1799E8;
+  color: #fff;
+}
+
+.demo-image-toggle.active svg {
+  stroke: #fff;
+}
+
+.demo-image-toggle svg {
+  stroke: #64748b;
+}
+
+/* ============================================
+   Change Property/Valuation Buttons
+   ============================================ */
+
+.demo-change-property-btn,
+.demo-change-valuation-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-change-property-btn:hover,
+.demo-change-valuation-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* ============================================
+   Dropdown Select (Ownership)
+   ============================================ */
+
+.demo-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.demo-select {
+  width: 100%;
+  height: 48px;
+  padding: 0 40px 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: border-color 0.2s ease;
+}
+
+.demo-select:focus {
+  outline: none;
+  border-color: #1799E8;
+}
+
+.demo-select:hover {
+  border-color: #cbd5e1;
+}
+
+.demo-select-arrow {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: #64748b;
+}
+
+/* ============================================
+   Section Header with Info Icon
+   ============================================ */
+
+.demo-section-header-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.demo-info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.demo-info-icon:hover {
+  color: #64748b;
+}
+
+/* ============================================
+   Set Your Own Growth Rate Button
+   ============================================ */
+
+.demo-set-growth-rate-btn {
+  align-self: flex-end;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-set-growth-rate-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+@media (min-width: 1024px) {
+  .demo-set-growth-rate-btn {
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   Slider Note Text
+   ============================================ */
+
+.demo-slider-note {
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 12px 0 0 0;
+  text-align: center;
+}
+
+.demo-slider-note strong {
+  font-weight: 600;
+}
+
+/* ============================================
+   Mortgage Option Cards - Matching Screenshot
+   ============================================ */
+
+.demo-mortgage-option-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.demo-mortgage-option-card:hover {
+  border-color: #cbd5e1;
+}
+
+.demo-mortgage-option-card.selected {
+  border-color: #1799E8;
+  background: #fff;
+}
+
+.demo-mortgage-option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-mortgage-option-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-mortgage-option-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+}
+
+.demo-mortgage-option-card.selected .demo-mortgage-option-check {
+  background: #1799E8;
+  color: #fff;
+}
+
+.demo-mortgage-option-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.demo-mortgage-option-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.demo-mortgage-option-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: -0.5px;
+}
+
+.demo-mortgage-option-card.selected .demo-mortgage-option-amount {
+  color: #10b981;
+}
+
+.demo-mortgage-option-period {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.demo-mortgage-option-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.demo-mortgage-option-note svg {
+  flex-shrink: 0;
+  color: #cbd5e1;
+}
+
+.demo-mortgage-option-card.selected .demo-mortgage-option-note svg {
+  color: #1799E8;
+}
+
+/* ============================================
+   Branded Continue Button (Futureproof)
+   ============================================ */
+
+.demo-continue-btn-branded {
+  background: #033971;
+  font-weight: 600;
+}
+
+.demo-continue-btn-branded:hover {
+  background: #022a54;
+}
+
+/* ============================================
+   Valuation Modal
+   ============================================ */
+
+.demo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.demo-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.demo-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.demo-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.demo-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.demo-modal-close:hover {
+  background: #f1f5f9;
+  color: #1a1a1a;
+}
+
+.demo-modal-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.demo-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-modal-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.demo-modal-estimate-row {
+  display: flex;
+  gap: 12px;
+}
+
+.demo-modal-estimate-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 48px;
+  padding: 0 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+.demo-modal-currency {
+  color: #94a3b8;
+}
+
+.demo-modal-apply-btn {
+  padding: 0 20px;
+  height: 48px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-modal-apply-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.demo-modal-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.demo-modal-input-prefix {
+  position: absolute;
+  left: 16px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+.demo-modal-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.demo-modal-input:focus {
+  outline: none;
+  border-color: #1799E8;
+  box-shadow: 0 0 0 3px rgba(23, 153, 232, 0.1);
+}
+
+.demo-modal-input::placeholder {
+  color: #94a3b8;
+}
+
+.demo-modal-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.demo-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.demo-modal-save-btn {
+  padding: 12px 48px;
+  background: #1799E8;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-modal-save-btn:hover {
+  background: #1580c7;
+}
+
+.demo-modal-save-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Image Gallery & Carousel
+   ============================================ */
+
+.demo-gallery-main {
+  position: relative;
+  height: 260px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+}
+
+.demo-gallery-main .demo-property-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.demo-gallery-main:hover .demo-gallery-expand-hint {
+  opacity: 1;
+}
+
+.demo-gallery-expand-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.demo-gallery-expand-hint svg {
+  color: #fff;
+}
+
+.demo-gallery-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px 4px;
+  background: #f8fafc;
+  gap: 4px;
+}
+
+.demo-gallery-nav {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.demo-gallery-nav:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.demo-gallery-nav svg {
+  color: #64748b;
+}
+
+.demo-gallery-track {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 0;
+}
+
+.demo-gallery-track::-webkit-scrollbar {
+  display: none;
+}
+
+.demo-gallery-thumb {
+  flex-shrink: 0;
+  width: 56px;
+  height: 42px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  transition: border-color 0.2s ease;
+}
+
+.demo-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-gallery-thumb:hover {
+  border-color: #cbd5e1;
+}
+
+.demo-gallery-thumb.active {
+  border-color: #1799E8;
+}
+
+/* Map View */
+.demo-property-map-view {
+  display: none;
+  height: 320px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+/* Ensure photo and map views have consistent height */
+.demo-property-card-image {
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-property-card-image .demo-gallery-main {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+.demo-map-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.demo-property-map-view iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   Lightbox Overlay
+   ============================================ */
+
+.demo-lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.demo-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.demo-lightbox-close svg {
+  color: #fff;
+}
+
+.demo-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.demo-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.demo-lightbox-nav svg {
+  color: #fff;
+}
+
+.demo-lightbox-prev {
+  left: 16px;
+}
+
+.demo-lightbox-next {
+  right: 16px;
+}
+
+.demo-lightbox-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 90vw;
+  max-height: 85vh;
+}
+
+.demo-lightbox-image {
+  max-width: 100%;
+  max-height: calc(85vh - 40px);
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.demo-lightbox-counter {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Mobile adjustments for lightbox */
+@media (max-width: 640px) {
+  .demo-lightbox-nav {
+    width: 44px;
+    height: 44px;
+  }
+
+  .demo-lightbox-nav svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .demo-lightbox-prev {
+    left: 8px;
+  }
+
+  .demo-lightbox-next {
+    right: 8px;
+  }
+
+  .demo-lightbox-close {
+    top: 8px;
+    right: 8px;
+  }
+}
+

@@ -4144,6 +4144,7 @@
   cursor: pointer;
   font-size: 14px;
   gap: 8px;
+  box-sizing: border-box;
 }
 
 .admin-btn-primary {
@@ -4404,6 +4405,229 @@
 
 .active-row td {
   padding-left: 12px; /* Compensate for border */
+}
+
+/* Stage Form Styles */
+.admin-form-section {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-form-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-form-section h3::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+.admin-form-section > p {
+  color: #64748b;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Action Builder Styles */
+.action-builder {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.action-builder:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.action-builder hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 20px 0;
+}
+
+.action-config {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+/* Enhanced Form Controls */
+.admin-form-section .admin-form-input,
+.admin-form-section .admin-form-select,
+.admin-form-section .admin-form-textarea {
+  background: white;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.admin-form-section .admin-form-input:focus,
+.admin-form-section .admin-form-select:focus,
+.admin-form-section .admin-form-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Add Action Button Enhancement */
+.admin-form-section .admin-btn-secondary {
+  background: white;
+  border: 2px dashed #cbd5e1;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.admin-form-section .admin-btn-secondary:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: #f0f9ff;
+}
+
+/* Form Actions Bar */
+.admin-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  margin: 0 -32px -32px -32px;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Header Enhancement */
+.admin-form-container h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Delay Input Group */
+.delay-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.delay-duration {
+  width: 100px;
+}
+
+.delay-unit {
+  width: 120px;
+}
+
+/* ========================================================================
+   STANDARD ADMIN FORM CONTROLS - Use these for ALL admin forms
+   ======================================================================== */
+.admin-form-input,
+.admin-form-select,
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  transition: all 0.2s ease;
+  color: #1f2937;
+}
+
+.admin-form-input:focus,
+.admin-form-select:focus,
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-form-input::placeholder,
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Standard form labels */
+.admin-form-group label,
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.admin-form-group small,
+.form-group small {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* Standard form row for multiple inputs */
+.admin-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Action Type Select Enhancement */
+.action-type-select {
+  font-weight: 500;
+}
+
+.action-type-select option[value="send_email"]::before {
+  content: '✉️ ';
+}
+
+.action-type-select option[value="create_task"]::before {
+  content: '📋 ';
+}
+
+.action-type-select option[value="update_status"]::before {
+  content: '✅ ';
+}
+
+.action-type-select option[value="notify_admin"]::before {
+  content: '🔔 ';
+}
+
+/* Remove Action Button Styling */
+.action-builder .admin-btn-danger {
+  margin-top: 16px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 2px solid #fecaca;
+  transition: all 0.2s ease;
+}
+
+.action-builder .admin-btn-danger:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
 }
 
 /* Status Badge Enhancements */

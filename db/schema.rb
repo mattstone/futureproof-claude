@@ -178,7 +178,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_30_212949) do
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_business_process_workflows_on_active"
     t.index ["process_type"], name: "index_business_process_workflows_on_process_type", unique: true
-    t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying, 'conversion'::character varying, 'standard_operations'::character varying]::text[])", name: "check_process_type"
+    t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying::text, 'conversion'::character varying::text, 'standard_operations'::character varying::text])", name: "check_process_type"
   end
 
   create_table "clause_positions", force: :cascade do |t|

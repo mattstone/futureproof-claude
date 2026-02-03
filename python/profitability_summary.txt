@@ -1,0 +1,10 @@
+EQUITY PRESERVATION MORTGAGE - PROFITABILITY SUMMARY
+================================================================================
+
+Total scenarios: 2,418
+Monte Carlo paths: 100 per scenario
+Mean CAGR: 10.78%
+Mean XIRR: 2.99%
+Mean Insurance Risk: 13.37%
+
+Viable scenarios (CAGR≥8%, Insurance<20%): 2,089 (86.4%)

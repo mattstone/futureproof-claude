@@ -1,0 +1,186 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="demo-banner">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="demo-banner-icon">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <span>Demo Mode - Experience the Equity Preservation Mortgage application flow</span>
+      </div>
+
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">2</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-label">Summary</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Income & Loan Options</h1>
+        <p class="application-subtitle">Configure your loan terms to calculate your potential monthly income</p>
+      </div>
+
+      <div class="application-form" data-controller="demo-income-loan" data-demo-income-loan-home-value-value="1500000">
+        <div class="form-section">
+          <h3 class="form-section-title">Property Summary</h3>
+
+          <div class="property-summary">
+            <div class="summary-title">Your Property Details</div>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Address:</span>
+                <span class="summary-value">123 Sample Street, Sydney NSW 2000</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Property Value:</span>
+                <span class="summary-value" data-demo-income-loan-target="homeValueDisplay">$1,500,000</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Ownership:</span>
+                <span class="summary-value">Individual</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Borrower Age:</span>
+                <span class="summary-value">65 years</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Loan Type</h3>
+
+          <div class="mortgage-type-cards">
+            <div class="mortgage-card selected"
+                 data-demo-income-loan-target="mortgageCard"
+                 data-mortgage-type="interest_only"
+                 data-action="click->demo-income-loan#selectMortgage">
+              <div class="mortgage-card-header">
+                <h4 class="mortgage-card-title">Interest Only</h4>
+                <span class="mortgage-card-badge">Most Popular</span>
+              </div>
+              <p class="mortgage-card-description">
+                Pay only the interest on your loan. Your equity is preserved as you receive monthly income while the principal remains unchanged.
+              </p>
+              <ul class="mortgage-card-features">
+                <li>Lower monthly payments</li>
+                <li>Maximum income preservation</li>
+                <li>Equity protected</li>
+              </ul>
+            </div>
+
+            <div class="mortgage-card"
+                 data-demo-income-loan-target="mortgageCard"
+                 data-mortgage-type="principal_and_interest"
+                 data-action="click->demo-income-loan#selectMortgage">
+              <div class="mortgage-card-header">
+                <h4 class="mortgage-card-title">Principal & Interest</h4>
+              </div>
+              <p class="mortgage-card-description">
+                Pay both principal and interest. Your loan balance reduces over time while you still receive monthly income.
+              </p>
+              <ul class="mortgage-card-features">
+                <li>Build equity faster</li>
+                <li>Lower total interest paid</li>
+                <li>Loan fully repaid at term end</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Loan Term</h3>
+
+          <div class="form-group">
+            <label class="form-label">Loan Duration</label>
+            <div class="slider-container">
+              <input type="range"
+                     min="10"
+                     max="30"
+                     step="5"
+                     value="30"
+                     class="value-slider"
+                     data-demo-income-loan-target="loanTerm"
+                     data-action="input->demo-income-loan#updateCalculations">
+              <div class="slider-value" data-demo-income-loan-target="loanTermDisplay">30 years</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Income Payout Term</label>
+            <div class="slider-container">
+              <input type="range"
+                     min="10"
+                     max="30"
+                     step="5"
+                     value="10"
+                     class="value-slider"
+                     data-demo-income-loan-target="incomeTerm"
+                     data-action="input->demo-income-loan#updateCalculations">
+              <div class="slider-value" data-demo-income-loan-target="incomeTermDisplay">10 years</div>
+            </div>
+            <div class="form-hint">How long you'll receive monthly income payments</div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Your Estimated Income</h3>
+
+          <div class="income-results">
+            <div class="income-result-card primary">
+              <div class="income-result-label">Monthly Income</div>
+              <div class="income-result-value" data-demo-income-loan-target="monthlyIncome">$2,500</div>
+              <div class="income-result-note">Tax-free annuity payment</div>
+            </div>
+
+            <div class="income-result-card">
+              <div class="income-result-label">Total Income Over Term</div>
+              <div class="income-result-value" data-demo-income-loan-target="totalIncome">$300,000</div>
+              <div class="income-result-note">Over 10 years</div>
+            </div>
+
+            <div class="income-result-card">
+              <div class="income-result-label">Loan Amount</div>
+              <div class="income-result-value" data-demo-income-loan-target="loanAmount">$1,200,000</div>
+              <div class="income-result-note">80% LVR</div>
+            </div>
+          </div>
+
+          <div class="income-disclaimer">
+            <svg viewBox="0 0 20 20" fill="currentColor" class="income-disclaimer-icon">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <span>These figures are estimates based on current market conditions. Final amounts will be confirmed during the approval process.</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Continue to Summary", demo_summary_applications_path,
+              class: "site-btn site-btn-primary site-btn-lg application-submit-btn" %>
+          <%= link_to "Back to Property Details", demo_applications_path, class: "site-btn site-btn-secondary" %>
+        </div>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * This is a demonstration only. No data is saved. To submit a real application, please create an account.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

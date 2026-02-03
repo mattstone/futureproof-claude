@@ -1,0 +1,135 @@
+<%= render 'shared/header' %>
+
+<div class="demo-page">
+  <div class="demo-container" data-controller="demo-webapp" data-demo-webapp-home-value-value="2500000">
+    <!-- Step Indicator -->
+    <div class="demo-step-indicator">
+      <span class="demo-step-text">Step 2 of 3</span>
+      <div class="demo-step-circles">
+        <div class="demo-step-circle">1</div>
+        <div class="demo-step-circle active">2</div>
+        <div class="demo-step-circle">3</div>
+      </div>
+    </div>
+
+    <!-- Section Header with numbering -->
+    <div class="demo-section-header-numbered">
+      <h1 class="demo-section-title-numbered">2. Set income and loan options</h1>
+      <p class="demo-section-subtitle">Details of annuity income and mortgage type</p>
+    </div>
+
+    <!-- Property Card - Same property as Step 1 -->
+    <div class="demo-property-card-v2">
+      <div class="demo-property-card-image">
+        <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-property-card-img" %>
+      </div>
+      <div class="demo-property-card-content">
+        <div class="demo-property-card-address-section">
+          <h3 class="demo-property-card-address">89 Florence Terrace, Scotland Island NSW 2105</h3>
+        </div>
+
+        <div class="demo-property-card-divider"></div>
+
+        <div class="demo-property-card-value-section">
+          <p class="demo-property-card-value-label">Estimated property value</p>
+          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue">$2,500,000</p>
+          <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Set Your Loan Term -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">Set your loan term</h3>
+      <div class="demo-select-wrapper">
+        <select class="demo-select" data-demo-webapp-target="loanTerm" data-action="change->demo-webapp#selectLoanTerm">
+          <option value="10">10 years</option>
+          <option value="15">15 years</option>
+          <option value="20">20 years</option>
+          <option value="25">25 years</option>
+          <option value="30" selected>30 years</option>
+        </select>
+        <svg class="demo-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Income Period Slider -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">Over what period would you like to receive tax-free income?</h3>
+      <div class="demo-slider-container">
+        <div class="demo-slider-header">
+          <span class="demo-slider-value-display" data-demo-webapp-target="incomeTermDisplay">10 years</span>
+          <span class="demo-slider-label">30 years</span>
+        </div>
+        <input type="range"
+               min="10"
+               max="30"
+               step="5"
+               value="10"
+               class="demo-slider"
+               data-demo-webapp-target="incomeTerm"
+               data-action="input->demo-webapp#updateCalculations">
+        <p class="demo-slider-note">Receive monthly income over <strong data-demo-webapp-target="incomeYears">30</strong> years.</p>
+      </div>
+    </div>
+
+    <!-- Mortgage Type Selector -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">Select your mortgage type</h3>
+
+      <!-- Interest-only option -->
+      <div class="demo-radio-group">
+        <div class="demo-mortgage-option-card selected" data-action="click->demo-webapp#selectMortgageType" data-mortgage-type="interest_only">
+          <div class="demo-mortgage-option-header">
+            <h4 class="demo-mortgage-option-title">Interest only</h4>
+            <div class="demo-mortgage-option-check">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+          <p class="demo-mortgage-option-label">Total income amount</p>
+          <div class="demo-mortgage-option-amount-row">
+            <span class="demo-mortgage-option-amount" data-demo-webapp-target="interestOnlyAmount">$3,405.59</span>
+            <span class="demo-mortgage-option-period">/month</span>
+          </div>
+          <div class="demo-mortgage-option-note">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            <span>Loan repayment at end-of-term <span data-demo-webapp-target="loanRepayment">$1,226,011.73</span></span>
+          </div>
+        </div>
+
+        <!-- Principal + Interest option -->
+        <div class="demo-mortgage-option-card" data-action="click->demo-webapp#selectMortgageType" data-mortgage-type="principal_and_interest">
+          <div class="demo-mortgage-option-header">
+            <h4 class="demo-mortgage-option-title">Principal + interest</h4>
+            <div class="demo-mortgage-option-check">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+          <p class="demo-mortgage-option-label">Total income amount</p>
+          <div class="demo-mortgage-option-amount-row">
+            <span class="demo-mortgage-option-amount" data-demo-webapp-target="principalInterestAmount">$2,622.82</span>
+            <span class="demo-mortgage-option-period">/month</span>
+          </div>
+          <div class="demo-mortgage-option-note">
+            <span>No loan repayment at end-of-term</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Continue Button -->
+    <%= link_to demo_funding_details_applications_path, class: "demo-continue-btn" do %>
+      Continue
+    <% end %>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

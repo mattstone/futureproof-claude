@@ -1,0 +1,32 @@
+#!/bin/bash
+# Restart development server and tail logs
+# Usage: script/restart
+
+set -e
+
+echo "Stopping any running Rails servers..."
+
+# Kill any running Puma/Rails server processes
+pkill -f "puma.*development" 2>/dev/null || true
+pkill -f "bin/rails server" 2>/dev/null || true
+pkill -f "ruby.*bin/rails" 2>/dev/null || true
+
+# Remove stale PID file if exists
+rm -f tmp/pids/server.pid 2>/dev/null || true
+
+# Wait a moment for processes to stop
+sleep 1
+
+echo "Starting development server..."
+
+# Start server in background
+bin/rails server -d 2>/dev/null || bin/rails server &
+
+# Wait for server to start
+sleep 2
+
+echo "Server started. Tailing development log (Ctrl+C to stop)..."
+echo "=============================================="
+
+# Tail the development log
+tail -f log/development.log

@@ -1,0 +1,75 @@
+<%= render 'shared/header' %>
+
+<div class="demo-page">
+<div class="demo-preapproved-page">
+  <div class="demo-preapproved-container">
+    <!-- Header Content - matching Webapp pre-approved page.tsx -->
+    <div class="demo-preapproved-header">
+      <h1 class="demo-preapproved-title">Congratulations!</h1>
+      <div class="demo-preapproved-subtitle-group">
+        <p class="demo-preapproved-subtitle">
+          Your <strong>Equity Preservation Mortgage®</strong> has been pre-approved
+        </p>
+      </div>
+    </div>
+
+    <!-- Happy Man Image - matching Webapp exactly -->
+    <div class="demo-preapproved-image">
+      <%= image_tag "bg-man-with-phone.png", alt: "Happy customer with phone" %>
+    </div>
+
+    <% if false # Video Placeholder - commented out for demo %>
+    <section class="demo-video-section">
+      <div class="demo-video-placeholder">
+        <div class="demo-video-placeholder-content">
+          <svg class="demo-video-play-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <p class="demo-video-placeholder-text">Video coming soon</p>
+        </div>
+      </div>
+    </section>
+    <% end %>
+
+    <% if false # CTA Card - commented out for demo %>
+    <div class="demo-preapproved-cta">
+      <p class="demo-preapproved-cta-text">
+        Ready to get started for real?<br>
+        Create an account to submit your actual application.
+      </p>
+      <%= link_to new_user_registration_path, class: "demo-preapproved-cta-btn" do %>
+        Create Account & Apply
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      <% end %>
+
+      <div class="demo-secondary-actions">
+        <%= link_to "Back to Calculator", get_started_path, class: "demo-secondary-btn" %>
+        <%= link_to "Start Demo Again", demo_applications_path, class: "demo-secondary-btn" %>
+      </div>
+    </div>
+    <% end %>
+
+    <% if false # Feedback Section - commented out for demo %>
+    <div class="demo-feedback-section">
+      <p class="demo-feedback-text">
+        We'd love your feedback - please fill in our 5 minute survey
+      </p>
+      <a href="#" class="demo-feedback-btn">
+        Provide feedback
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </a>
+    </div>
+    <% end %>
+  </div>
+</div>
+</div>
+
+<%= render 'shared/footer' %>

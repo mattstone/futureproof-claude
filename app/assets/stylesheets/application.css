@@ -18,10 +18,12 @@
 @import url("auth.css");
 @import url("apply.css");
 @import url("legal.css");
+@import url("get_started.css");
 @import url("ai_agents.css");
 @import url("admin.css");
 @import url("admin/email_workflows.css");
 @import url("agent_lifecycle.css");
+@import url("demo_webapp.css");
 
 /* HTML theme styles - moved from inline to fix CSP */
 html.theme-light {

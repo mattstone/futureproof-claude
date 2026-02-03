@@ -1,0 +1,10 @@
+EQUITY PRESERVATION MORTGAGE - 10K MONTE CARLO SUMMARY
+================================================================================
+
+Total scenarios: 2,730
+Monte Carlo paths: 10,000 per scenario
+Mean CAGR: 10.92%
+Mean XIRR: 2.97%
+Mean Insurance Risk: 12.46%
+
+Viable scenarios (CAGR≥8%, Insurance<20%): 2,444 (89.5%)

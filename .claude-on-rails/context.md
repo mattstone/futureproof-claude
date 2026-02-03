@@ -59,8 +59,9 @@ When working on this project:
 - ✅ **Buttons**: `admin-btn`, `admin-btn-primary`, `admin-btn-secondary`, etc.
 - ✅ **Status**: `status-badge`, `status-ok`, `status-complete`, etc.
 - ✅ **Layout**: `admin-actions-bar`, `admin-search`, `admin-actions`
-- ✅ **Forms**: `admin-form-*` classes
+- ✅ **Forms**: `admin-form-input`, `admin-form-select`, `admin-form-textarea`, `admin-form-group`, `admin-form-row`, `admin-form-section`, `admin-form-container`, `admin-form-actions`
 
+**📋 MANDATORY: See `.claude-on-rails/admin-styling-standards.md` for complete admin styling requirements.**
 **Check `/app/assets/stylesheets/admin.css` for available classes. Never assume external frameworks exist.**
 
 ## 🚨 CRITICAL: JavaScript/Hotwire Architectural Rule 🚨

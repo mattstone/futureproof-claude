@@ -188,4 +188,33 @@ class Admin::AgentLifecycleIntegrationTest < ActionDispatch::IntegrationTest
     # Verify the navigation link exists
     assert_select 'a[href=?]', admin_agent_lifecycle_index_path, text: /AI Agents/
   end
+
+  test "admin can edit existing stage" do
+    sign_in @admin
+    get edit_stage_admin_agent_lifecycle_path(@motoko, stage_index: 0)
+    assert_response :success
+    assert_select 'form'
+    assert_select 'input[name="stage_name"][value="visitor_inquiry"]'
+    assert_select 'input[name="stage_label"][value="Initial Interest"]'
+  end
+
+  test "admin can edit stage with automated actions" do
+    sign_in @admin
+
+    # First add an automated action to the stage
+    @motoko.lifecycle_stages[0]['automated_actions'] = [
+      {
+        'action_type' => 'send_email',
+        'email_template_id' => '1',
+        'delay' => { 'duration' => 5, 'unit' => 'minutes' }
+      }
+    ]
+    @motoko.save!
+
+    get edit_stage_admin_agent_lifecycle_path(@motoko, stage_index: 0)
+    assert_response :success
+    assert_select 'form'
+    assert_select '.action-builder', count: 1
+    assert_select 'select[name*="action_type"]'
+  end
 end

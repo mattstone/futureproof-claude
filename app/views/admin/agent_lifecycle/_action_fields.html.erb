@@ -1,0 +1,79 @@
+<div class="action-builder" data-action-index="<%= index %>">
+  <div class="admin-form-row">
+    <div class="admin-form-group">
+      <label>Action Type</label>
+      <%= select_tag "automated_actions[#{index}][action_type]",
+          options_for_select([
+            ['Select action...', ''],
+            ['Send Email', 'send_email'],
+            ['Create Task', 'create_task'],
+            ['Update Status', 'update_status'],
+            ['Notify Admin', 'notify_admin']
+          ], action['action_type']),
+          class: 'admin-form-select action-type-select',
+          onchange: "updateActionFields(#{index})" %>
+    </div>
+
+    <div class="admin-form-group">
+      <label>Delay</label>
+      <div class="delay-input-group">
+        <%= number_field_tag "automated_actions[#{index}][delay][duration]",
+            action.dig('delay', 'duration') || 0,
+            class: 'admin-form-input delay-duration',
+            min: 0 %>
+        <%= select_tag "automated_actions[#{index}][delay][unit]",
+            options_for_select([
+              ['Minutes', 'minutes'],
+              ['Hours', 'hours'],
+              ['Days', 'days']
+            ], action.dig('delay', 'unit') || 'minutes'),
+            class: 'admin-form-select delay-unit' %>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-config" id="action-config-<%= index %>">
+    <% case action['action_type'] %>
+    <% when 'send_email' %>
+      <div class="admin-form-group">
+        <label>Email Template</label>
+        <%= select_tag "automated_actions[#{index}][email_template_id]",
+            options_for_select(
+              [['Select template...', '']] + email_templates.map { |t| ["#{t.name} (#{t.template_type})", t.id] },
+              action['email_template_id']
+            ),
+            class: 'admin-form-select' %>
+      </div>
+    <% when 'create_task' %>
+      <div class="admin-form-group">
+        <label>Task Type</label>
+        <%= text_field_tag "automated_actions[#{index}][task_type]",
+            action['task_type'],
+            class: 'admin-form-input',
+            placeholder: 'e.g., Follow up call' %>
+      </div>
+    <% when 'update_status' %>
+      <div class="admin-form-group">
+        <label>New Status</label>
+        <%= text_field_tag "automated_actions[#{index}][new_status]",
+            action['new_status'],
+            class: 'admin-form-input',
+            placeholder: 'e.g., processing' %>
+      </div>
+    <% when 'notify_admin' %>
+      <div class="admin-form-group">
+        <label>Notification Message</label>
+        <%= text_area_tag "automated_actions[#{index}][message]",
+            action['message'],
+            class: 'admin-form-textarea',
+            rows: 2,
+            placeholder: 'Message for admin' %>
+      </div>
+    <% end %>
+  </div>
+
+  <button type="button" class="admin-btn-small admin-btn-danger" onclick="removeAction(<%= index %>)">
+    🗑️ Remove Action
+  </button>
+  <hr>
+</div>

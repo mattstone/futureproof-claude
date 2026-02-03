@@ -232,6 +232,9 @@ Rails.application.routes.draw do
   # Apply page
   get "apply", to: "pages#apply"
 
+  # React webapp replica (get started flow with inline registration)
+  get "get-started", to: "pages#get_started", as: :get_started
+
   # Hero design previews
   get "hero-option-1", to: "pages#hero_option_1"
   get "hero-option-2", to: "pages#hero_option_2"
@@ -261,6 +264,15 @@ Rails.application.routes.draw do
     collection do
       get :autocomplete
       get :get_property_details
+      # Demo routes (no authentication required) - Webapp replica flow
+      get :demo
+      get :demo_property_details
+      get :demo_mortgage_details
+      get :demo_funding_details
+      get :demo_preapproved
+      # Legacy demo routes (redirect)
+      get :demo_income_loan
+      get :demo_summary
     end
     member do
       get :income_and_loan
@@ -317,5 +329,5 @@ Rails.application.routes.draw do
   get 'saml/metadata', to: 'saml#metadata'
 
   # Defines the root path route ("/")
-  root "pages#index"
+  root "pages#get_started"
 end

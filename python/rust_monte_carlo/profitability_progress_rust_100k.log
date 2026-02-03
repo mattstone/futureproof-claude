@@ -1,0 +1,18 @@
+Rust-Powered Profitability Sweep Started: 2025-10-10 13:30:51.168106
+Parameters: 100,000 paths per scenario
+================================================================================
+
+[2025-10-10 13:30:51] Starting RUST-POWERED profitability sweep with 100,000 Monte Carlo paths
+[2025-10-10 13:30:51] Total combinations to test: 2,730
+[2025-10-10 13:30:51] Estimated time: Much faster than Python! 🚀
+[2025-10-10 13:32:50] Progress: 10/2730 (0.4%) | Rate: 0.08 sims/sec | ETA: 540.6 min | Last: Principal+Interest HV=$1,000,000 LD=10y AD=30y XIRR=N/A (⚡ Rust: 18.35s)
+[2025-10-10 13:36:23] Progress: 20/2730 (0.7%) | Rate: 0.06 sims/sec | ETA: 749.4 min | Last: Principal+Interest HV=$1,000,000 LD=20y AD=20y XIRR=N/A (⚡ Rust: 29.57s)
+[2025-10-10 13:51:25] Progress: 30/2730 (1.1%) | Rate: 0.02 sims/sec | ETA: 1851.9 min | Last: Principal+Interest HV=$1,000,000 LD=30y AD=30y XIRR=N/A (⚡ Rust: 152.53s)
+[2025-10-10 13:53:06] Progress: 40/2730 (1.5%) | Rate: 0.03 sims/sec | ETA: 1496.9 min | Last: Principal+Interest HV=$1,100,000 LD=10y AD=30y XIRR=N/A (⚡ Rust: 12.76s)
+[2025-10-10 13:56:31] Progress: 50/2730 (1.8%) | Rate: 0.03 sims/sec | ETA: 1376.2 min | Last: Principal+Interest HV=$1,100,000 LD=20y AD=20y XIRR=N/A (⚡ Rust: 29.43s)
+[2025-10-10 14:15:07] Progress: 60/2730 (2.2%) | Rate: 0.02 sims/sec | ETA: 1970.2 min | Last: Principal+Interest HV=$1,100,000 LD=30y AD=30y XIRR=N/A (⚡ Rust: 190.15s)
+[2025-10-10 14:18:06] Progress: 70/2730 (2.6%) | Rate: 0.02 sims/sec | ETA: 1795.4 min | Last: Principal+Interest HV=$1,200,000 LD=10y AD=30y XIRR=N/A (⚡ Rust: 13.33s)
+[2025-10-10 14:21:53] Progress: 80/2730 (2.9%) | Rate: 0.03 sims/sec | ETA: 1690.5 min | Last: Principal+Interest HV=$1,200,000 LD=20y AD=20y XIRR=N/A (⚡ Rust: 34.34s)
+[2025-10-10 14:38:05] Progress: 90/2730 (3.3%) | Rate: 0.02 sims/sec | ETA: 1972.5 min | Last: Principal+Interest HV=$1,200,000 LD=30y AD=30y XIRR=N/A (⚡ Rust: 142.39s)
+[2025-10-10 14:39:30] Progress: 100/2730 (3.7%) | Rate: 0.02 sims/sec | ETA: 1805.4 min | Last: Principal+Interest HV=$1,300,000 LD=10y AD=30y XIRR=N/A (⚡ Rust: 11.46s)
+[2025-10-10 14:42:45] Progress: 110/2730 (4.0%) | Rate: 0.03 sims/sec | ETA: 1712.5 min | Last: Principal+Interest HV=$1,300,000 LD=20y AD=20y XIRR=N/A (⚡ Rust: 23.49s)

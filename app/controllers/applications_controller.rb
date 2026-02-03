@@ -1,9 +1,12 @@
 class ApplicationsController < ApplicationController
-  before_action :authenticate_user!, except: [:messages]
+  DEMO_ACTIONS = [:demo, :demo_property_details, :demo_mortgage_details, :demo_funding_details, :demo_preapproved, :demo_income_loan, :demo_summary]
+
+  before_action :authenticate_user!, except: [:messages, :autocomplete, :get_property_details] + DEMO_ACTIONS
   before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
   before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
-  before_action :prevent_admin_access, except: [:messages]
+  before_action :prevent_admin_access, except: [:messages] + DEMO_ACTIONS
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message, :mark_all_messages_as_read]
+  before_action :load_demo_application, only: DEMO_ACTIONS
 
   def new
     # Get or create application
@@ -119,6 +122,46 @@ class ApplicationsController < ApplicationController
 
   def congratulations
     # Show congratulations page after submission
+  end
+
+  # =====================================================
+  # DEMO MODE - No authentication required
+  # For investors and interested parties to experience the EPM flow
+  # Replicates the React Webapp application flow
+  # =====================================================
+
+  def demo
+    # Step 1: Property Search - "Calculate in minutes" intro page
+    render :demo
+  end
+
+  def demo_property_details
+    # Step 2: Property Details - ownership, occupancy, mortgage info
+    render :demo_property_details
+  end
+
+  def demo_mortgage_details
+    # Step 3: Mortgage Details - annuity income term, mortgage type
+    render :demo_mortgage_details
+  end
+
+  def demo_funding_details
+    # Step 4: Funding Details - summary + use of annuity income
+    render :demo_funding_details
+  end
+
+  def demo_preapproved
+    # Step 5: Pre-Approved - Congratulations page with happy man
+    render :demo_preapproved
+  end
+
+  # Legacy demo routes - redirect to new flow
+  def demo_income_loan
+    redirect_to demo_mortgage_details_applications_path
+  end
+
+  def demo_summary
+    redirect_to demo_funding_details_applications_path
   end
 
   def messages
@@ -247,6 +290,20 @@ class ApplicationsController < ApplicationController
     if current_user&.admin?
       redirect_to dashboard_path, alert: 'Admin users cannot complete applications. This feature is for customers only.'
     end
+  end
+
+  def load_demo_application
+    # Create a virtual application object for demo mode (not persisted)
+    @application = Application.new(
+      home_value: session[:demo_home_value] || 1_500_000,
+      ownership_status: session[:demo_ownership_status] || :individual,
+      borrower_age: session[:demo_borrower_age] || 65,
+      address: session[:demo_address] || '',
+      loan_term: session[:demo_loan_term] || 30,
+      income_payout_term: session[:demo_income_payout_term] || 10,
+      growth_rate: session[:demo_growth_rate] || 3.0
+    )
+    @demo_mode = true
   end
 
   def set_application

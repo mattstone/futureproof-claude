@@ -65,7 +65,7 @@
     <!-- Automated Actions -->
     <div class="admin-form-section">
       <h3>Automated Actions</h3>
-      <p style="color: #666; margin-bottom: 16px;">
+      <p>
         What should <%= @agent.name %> do when a customer enters this stage?
       </p>
 
@@ -125,9 +125,9 @@ function addAction() {
 
         <div class="admin-form-group">
           <label>Delay</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="number" name="automated_actions[${actionCount}][delay][duration]" class="admin-form-input" value="0" min="0" style="width: 100px;">
-            <select name="automated_actions[${actionCount}][delay][unit]" class="admin-form-select" style="width: 120px;">
+          <div class="delay-input-group">
+            <input type="number" name="automated_actions[${actionCount}][delay][duration]" class="admin-form-input delay-duration" value="0" min="0">
+            <select name="automated_actions[${actionCount}][delay][unit]" class="admin-form-select delay-unit">
               <option value="minutes">Minutes</option>
               <option value="hours">Hours</option>
               <option value="days">Days</option>
@@ -141,9 +141,9 @@ function addAction() {
       </div>
 
       <button type="button" class="admin-btn-small admin-btn-danger" onclick="removeAction(${actionCount})">
-        Remove Action
+        🗑️ Remove Action
       </button>
-      <hr style="margin: 20px 0;">
+      <hr>
     </div>
   `;
 

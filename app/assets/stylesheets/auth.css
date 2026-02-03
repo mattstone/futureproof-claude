@@ -523,8 +523,8 @@
     font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* Terms Modal Styles */
-.modal-overlay {
+/* Terms Modal Styles - Namespaced to prevent conflicts with admin modals */
+.auth-page .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -536,21 +536,25 @@
     justify-content: center;
     z-index: 1000;
     padding: 20px;
+    overflow-y: auto;
 }
 
-.modal-content {
+.auth-page .modal-content {
     background: white;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-xl);
     width: 100%;
     max-width: 800px;
-    max-height: 90vh;
+    max-height: 85vh;
+    min-height: 400px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin: auto;
+    position: relative;
 }
 
-.modal-header {
+.auth-page .modal-header {
     padding: 24px 32px;
     border-bottom: 1px solid var(--border-color);
     background: var(--background-light);
@@ -559,14 +563,14 @@
     justify-content: space-between;
 }
 
-.modal-title {
+.auth-page .modal-title {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-.modal-close {
+.auth-page .modal-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -583,21 +587,23 @@
     height: 40px;
 }
 
-.modal-close:hover {
+.auth-page .modal-close:hover {
     background-color: var(--background-light);
     color: var(--text-primary);
 }
 
-.modal-body {
+.auth-page .modal-body {
     flex: 1;
     overflow-y: auto;
     padding: 32px;
     font-size: 14px;
     line-height: 1.6;
     color: var(--text-primary);
+    min-height: 200px;
+    max-height: calc(85vh - 180px);
 }
 
-.modal-footer {
+.auth-page .modal-footer {
     padding: 24px 32px;
     border-top: 1px solid var(--border-color);
     background: var(--background-light);
@@ -606,7 +612,7 @@
     justify-content: flex-end;
 }
 
-.modal-footer .btn {
+.auth-page .modal-footer .btn {
     min-width: 100px;
 }
 
@@ -665,48 +671,48 @@
 
 /* Modal responsive design */
 @media (max-width: 768px) {
-    .modal-overlay {
+    .auth-page .modal-overlay {
         padding: 10px;
     }
-    
-    .modal-content {
+
+    .auth-page .modal-content {
         max-height: 95vh;
     }
-    
-    .modal-header {
+
+    .auth-page .modal-header {
         padding: 20px 24px;
     }
-    
-    .modal-title {
+
+    .auth-page .modal-title {
         font-size: 18px;
     }
-    
-    .modal-body {
+
+    .auth-page .modal-body {
         padding: 24px;
     }
-    
-    .modal-footer {
+
+    .auth-page .modal-footer {
         padding: 20px 24px;
         flex-direction: column;
     }
-    
-    .modal-footer .btn {
+
+    .auth-page .modal-footer .btn {
         width: 100%;
         min-width: auto;
     }
 }
 
 @media (max-width: 480px) {
-    .modal-header {
+    .auth-page .modal-header {
         padding: 16px 20px;
     }
-    
-    .modal-body {
+
+    .auth-page .modal-body {
         padding: 20px;
         font-size: 13px;
     }
-    
-    .modal-footer {
+
+    .auth-page .modal-footer {
         padding: 16px 20px;
     }
 }

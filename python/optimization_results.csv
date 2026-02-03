@@ -1,0 +1,13 @@
+Scenario,Lending Margin %,Additional Margin %,Total CoF %,Insurance Cost %,Annual Income $,Income %,Total Cost Drag %,Holidays Enter %,Holidays Exit %,Avg Holidays,% Time Holiday,Insurance Risk %,CAGR %,Viable?
+Zero Margins (Charity Model),0.0,0.0,4.0,0.0,20000,1.0,5.25,1000,1000,78.0,97.5,4.0,9.04,YES
+Ultra-Aggressive: Minimal Everything,1.0,0.0,5.0,0.5,16000,0.8,6.5,1000,1000,78.0,97.6,12.0,9.01,YES
+Aggressive: All Low + No Holidays,1.5,0.5,6.0,0.5,20000,1.0,7.75,1000,1000,78.0,97.6,22.0,8.98,NO
+No Payment Holidays,3.0,1.0,8.0,2.0,30000,1.5,11.88,1000,1000,78.2,97.7,68.0,8.75,NO
+Combined: Low Margins + Low Insurance,1.5,0.5,6.0,0.5,30000,1.5,8.38,90,140,27.1,33.9,56.0,4.19,NO
+Old Holiday Rules,3.0,1.0,8.0,2.0,30000,1.5,11.88,135,195,49.2,61.6,90.0,3.84,NO
+Combined: Low Income + Low Insurance,3.0,1.0,8.0,0.5,20000,1.0,9.75,90,140,29.5,36.8,58.0,3.83,NO
+Combined: Low Margins + Low Income,1.5,0.5,6.0,2.0,20000,1.0,9.25,90,140,30.6,38.3,76.0,3.45,NO
+Reduce Insurance to 0.5%,3.0,1.0,8.0,0.5,30000,1.5,10.38,90,140,34.8,43.5,74.0,2.9,NO
+Reduce Income to 1%,3.0,1.0,8.0,2.0,20000,1.0,11.25,90,140,38.9,48.6,92.0,2.09,NO
+Reduce Total Margins to 2%,1.5,0.5,6.0,2.0,30000,1.5,9.88,90,140,39.5,49.3,96.0,2.04,NO
+Baseline (Current),3.0,1.0,8.0,2.0,30000,1.5,11.88,90,140,48.8,61.0,98.0,1.08,NO

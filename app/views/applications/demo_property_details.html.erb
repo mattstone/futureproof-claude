@@ -1,0 +1,268 @@
+<%= render 'shared/header' %>
+
+<%
+  # Define gallery image names (without path prefix)
+  gallery_image_names = [
+    "demo/hero.jpg",
+    "demo/image.jpg",
+    "demo/image (1).jpg",
+    "demo/image (2).jpg",
+    "demo/image (3).jpg",
+    "demo/image (5).jpg",
+    "demo/image (6).jpg",
+    "demo/image (7).jpg",
+    "demo/image (8).jpg",
+    "demo/Floorplan.jpg"
+  ]
+  # Convert to full asset URLs for JavaScript
+  gallery_image_urls = gallery_image_names.map { |name| asset_path(name) }
+%>
+
+<div class="demo-page" data-controller="demo-gallery"
+     data-demo-gallery-images-value="<%= gallery_image_urls.to_json %>"
+     data-demo-gallery-latitude-value="-33.6398101"
+     data-demo-gallery-longitude-value="151.2946272">
+  <div class="demo-container" data-controller="demo-webapp"
+       data-demo-webapp-home-value-value="2500000">
+    <!-- Step Indicator -->
+    <div class="demo-step-indicator">
+      <span class="demo-step-text">Step 1 of 3</span>
+      <div class="demo-step-circles">
+        <div class="demo-step-circle active">1</div>
+        <div class="demo-step-circle">2</div>
+        <div class="demo-step-circle">3</div>
+      </div>
+    </div>
+
+    <!-- Section Header with numbering -->
+    <div class="demo-section-header-numbered">
+      <h1 class="demo-section-title-numbered">1. Property details</h1>
+      <p class="demo-section-subtitle">Used to calculate your maximum borrowing amount</p>
+    </div>
+
+    <!-- PropertyDetailCard -->
+    <div class="demo-property-card-v2">
+      <!-- Photo View -->
+      <div class="demo-property-card-image" data-demo-gallery-target="photoView">
+        <!-- Main Image (clickable for lightbox) -->
+        <div class="demo-gallery-main" data-action="click->demo-gallery#openLightbox">
+          <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-property-card-img", data: { demo_gallery_target: "mainImage" } %>
+          <div class="demo-gallery-expand-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <polyline points="15 3 21 3 21 9"/>
+              <polyline points="9 21 3 21 3 15"/>
+              <line x1="21" y1="3" x2="14" y2="10"/>
+              <line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Thumbnail Carousel -->
+        <div class="demo-gallery-carousel">
+          <button class="demo-gallery-nav demo-gallery-nav-prev" data-action="click->demo-gallery#prevImage" aria-label="Previous image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="demo-gallery-track" data-demo-gallery-target="carouselTrack">
+            <% gallery_image_names.each_with_index do |img_name, index| %>
+              <button class="demo-gallery-thumb <%= 'active' if index == 0 %>"
+                      data-action="click->demo-gallery#selectImage"
+                      data-demo-gallery-target="thumbnail"
+                      data-index="<%= index %>">
+                <%= image_tag img_name, alt: "Photo #{index + 1}" %>
+              </button>
+            <% end %>
+          </div>
+          <button class="demo-gallery-nav demo-gallery-nav-next" data-action="click->demo-gallery#nextImage" aria-label="Next image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Map View (hidden by default) -->
+      <div class="demo-property-map-view" data-demo-gallery-target="mapView">
+        <div class="demo-map-loading">Loading map...</div>
+      </div>
+
+      <!-- View Toggle Buttons (outside photo/map views so always visible) -->
+      <div class="demo-property-image-toggles">
+        <button class="demo-image-toggle active" data-action="click->demo-gallery#showPhotos" data-demo-gallery-target="photoToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <%= gallery_image_names.length %> Photos
+        </button>
+        <button class="demo-image-toggle" data-action="click->demo-gallery#showMap" data-demo-gallery-target="mapToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          Map
+        </button>
+      </div>
+      <div class="demo-property-card-content">
+        <div class="demo-property-card-address-section">
+          <h3 class="demo-property-card-address">89 Florence Terrace, Scotland Island NSW 2105</h3>
+        </div>
+
+        <div class="demo-property-card-divider"></div>
+
+        <div class="demo-property-card-value-section">
+          <p class="demo-property-card-value-label">Estimated property value</p>
+          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue">$2,500,000</p>
+          <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ownership Structure Dropdown -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">Ownership structure</h3>
+      <div class="demo-select-wrapper">
+        <select class="demo-select" data-action="change->demo-webapp#selectOwnership">
+          <option value="">Select ownership status</option>
+          <option value="sole">I am the sole owner</option>
+          <option value="joint">Joint owners (e.g., spouse, partner)</option>
+        </select>
+        <svg class="demo-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Outstanding Mortgage -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">Is there an outstanding mortgage on your property?</h3>
+      <div class="demo-radio-group">
+        <div class="demo-radio-item selected" data-action="click->demo-webapp#selectMortgageStatus" data-has-mortgage="false">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">No</span>
+        </div>
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectMortgageStatus" data-has-mortgage="true">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">Yes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Occupancy Status -->
+    <div class="demo-question-section">
+      <h3 class="demo-question-title">What is the current state of occupancy?</h3>
+      <div class="demo-radio-group">
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectOccupancy" data-occupancy="primary">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">This property is my primary residence</span>
+        </div>
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectOccupancy" data-occupancy="investment">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">This is an investment property</span>
+        </div>
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectOccupancy" data-occupancy="holiday">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">This is a holiday home</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Growth Rate Selector -->
+    <div class="demo-growth-rate-section">
+      <div class="demo-section-header-with-icon">
+        <h2 class="demo-question-title">Estimate your long-term property appreciation</h2>
+        <button class="demo-info-icon" aria-label="More information">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="demo-radio-group">
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectGrowthRate" data-growth-rate="2">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">Low growth - 2% per year</span>
+        </div>
+        <div class="demo-radio-item selected" data-action="click->demo-webapp#selectGrowthRate" data-growth-rate="4">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">Medium growth - 4% per year</span>
+        </div>
+        <div class="demo-radio-item" data-action="click->demo-webapp#selectGrowthRate" data-growth-rate="6">
+          <div class="demo-radio-circle">
+            <div class="demo-radio-inner"></div>
+          </div>
+          <span class="demo-radio-label">High growth - 6% per year</span>
+        </div>
+      </div>
+      <%# Commented out for demo - reduce decision points
+      <button class="demo-set-growth-rate-btn">Set your own growth rate</button>
+      %>
+    </div>
+
+    <!-- Projected Property Value -->
+    <div class="demo-projected-value-card">
+      <div class="demo-projected-value-image">
+        <%= image_tag "demo/hero.jpg", alt: "Property", class: "demo-projected-value-img" %>
+      </div>
+      <div class="demo-projected-value-content">
+        <h4 class="demo-projected-value-title">Your home, your equity preserved</h4>
+        <p class="demo-projected-value-subtitle">
+          In <span class="demo-projected-value-years">30 years</span>, the estimated value of your property is projected to reach
+        </p>
+        <p class="demo-projected-value-amount" data-demo-webapp-target="projectedValue">$10,784,296.72</p>
+        <p class="demo-projected-value-note">
+          Fully preserved equity is based on <span data-demo-webapp-target="growthRateDisplay">4</span> % annual growth rate
+        </p>
+      </div>
+    </div>
+
+    <!-- Continue Button -->
+    <%= link_to demo_mortgage_details_applications_path, class: "demo-continue-btn" do %>
+      Continue
+    <% end %>
+  </div>
+
+  <!-- Lightbox Overlay -->
+  <div class="demo-lightbox" data-demo-gallery-target="lightbox" data-action="click->demo-gallery#lightboxBackdropClick">
+    <button class="demo-lightbox-close" data-action="click->demo-gallery#closeLightbox" aria-label="Close lightbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <button class="demo-lightbox-nav demo-lightbox-prev" data-action="click->demo-gallery#lightboxPrev" aria-label="Previous image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="demo-lightbox-content">
+      <img src="" alt="Property photo" class="demo-lightbox-image" data-demo-gallery-target="lightboxImage">
+      <div class="demo-lightbox-counter" data-demo-gallery-target="lightboxCounter">1 / 10</div>
+    </div>
+
+    <button class="demo-lightbox-nav demo-lightbox-next" data-action="click->demo-gallery#lightboxNext" aria-label="Next image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

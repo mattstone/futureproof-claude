@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""
+Profitability sweep using Rust Monte Carlo engine
+
+This is the ONLY production version - uses optimized integrated path generation.
+Old versions are archived as .bak files.
+
+Usage:
+    python3 profitability_sweep.py [num_paths]
+
+Examples:
+    python3 profitability_sweep.py           # Default: 10,000 paths
+    python3 profitability_sweep.py 100000    # 100,000 paths
+    python3 profitability_sweep.py 1000000   # 1,000,000 paths
+
+Performance:
+    10K paths:   ~18 sims/sec (~2 minutes for full sweep)
+    100K paths:  ~3.5 sims/sec (~13 minutes for full sweep)
+    1M paths:    ~0.35 sims/sec (~2 hours for full sweep)
+"""
+
+import sys
+import csv
+import time
+from datetime import datetime
+
+# Import the Rust module
+import monte_carlo_engine
+
+# Parse command line arguments
+if len(sys.argv) > 1:
+    try:
+        MONTE_CARLO_PATHS = int(sys.argv[1])
+        if MONTE_CARLO_PATHS <= 0:
+            print("Error: Number of paths must be positive")
+            sys.exit(1)
+    except ValueError:
+        print(f"Error: Invalid number of paths: {sys.argv[1]}")
+        print("Usage: python3 profitability_sweep_optimized.py [num_paths]")
+        sys.exit(1)
+else:
+    MONTE_CARLO_PATHS = 10_000
+
+# Generate output filenames based on number of paths
+if MONTE_CARLO_PATHS >= 1_000_000:
+    paths_suffix = f"{MONTE_CARLO_PATHS // 1_000_000}m"
+elif MONTE_CARLO_PATHS >= 1_000:
+    paths_suffix = f"{MONTE_CARLO_PATHS // 1_000}k"
+else:
+    paths_suffix = str(MONTE_CARLO_PATHS)
+
+OUTPUT_FILE = f'profitability_results_{paths_suffix}.csv'
+PROGRESS_LOG = f'profitability_progress_{paths_suffix}.log'
+
+# Parameter ranges
+HOUSE_VALUES = range(1_000_000, 10_100_000, 100_000)
+LOAN_DURATIONS = [10, 15, 20, 25, 30]
+ANNUITY_DURATIONS = [10, 15, 20, 25, 30]
+LOAN_TYPES = ['Interest Only', 'Principal+Interest']
+
+# Fixed parameters (from single_real_data.py)
+LOAN_TO_VALUE = 0.8
+ANNUAL_INCOME_FRACTION = 0.015  # 1.5% of house value
+INSURER_PROFIT_MARGIN = 0.5
+INSURANCE_PROFIT_MARGIN = 1.0 + INSURER_PROFIT_MARGIN
+WHOLESALE_LENDING_MARGIN = 0.03
+ADDITIONAL_LOAN_MARGINS = 0.012
+HOLIDAY_ENTER_FRACTION = 0.9  # UPDATED: More lenient (was 1.35)
+HOLIDAY_EXIT_FRACTION = 1.4   # UPDATED: More lenient (was 1.95)
+SUBPERFORM_LOAN_THRESHOLD_QUARTERS = 6
+SUPERPAY_START_FACTOR = 1.0
+MAX_SUPERPAY_FACTOR = 1.5
+INSURANCE_COST_PA = 0.25  # UPDATED: 25% annually (was 0.5%)
+YEAR0 = 2000
+HEDGED = True
+HEDGING_MAX_LOSS = 0.2
+HEDGING_CAP = 0.4
+HEDGING_COST_PA = 0.005
+
+# Monte Carlo parameters
+EQUITY_RETURN = 0.10
+VOLATILITY = 0.12
+S0 = 100.0
+CASH_RATE = 0.031  # Historical average fed funds rate (1988-2024: 3.1%)
+
+
+def metrics_to_dict(metrics_rust):
+    """Convert Rust MetricsResult to dictionary"""
+    return {
+        'mean_reinvestment': metrics_rust.mean_reinvestment,
+        'std_reinvestment': metrics_rust.std_reinvestment,
+        'p10_reinvestment': metrics_rust.p10_reinvestment,
+        'p25_reinvestment': metrics_rust.p25_reinvestment,
+        'p50_reinvestment': metrics_rust.p50_reinvestment,
+        'p75_reinvestment': metrics_rust.p75_reinvestment,
+        'p90_reinvestment': metrics_rust.p90_reinvestment,
+        'mean_deficit': metrics_rust.mean_deficit,
+        'total_holiday_quarters': metrics_rust.total_holiday_quarters,
+        'pct_quarters_holiday': metrics_rust.pct_quarters_holiday,
+        'mean_funder_earned': metrics_rust.mean_funder_earned,
+        'mean_funder_profit_share': metrics_rust.mean_funder_profit_share,
+        'mean_net_position': metrics_rust.mean_net_position,
+        'mean_cagr': metrics_rust.mean_cagr,
+        'xirr': metrics_rust.xirr,
+        'prob_insurance_payout': metrics_rust.prob_insurance_payout,
+        'mean_insurance_payout_npv': metrics_rust.mean_insurance_payout_npv,
+    }
+
+
+def log_progress(message):
+    """Log progress to both console and file"""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    log_message = f"[{timestamp}] {message}"
+    print(log_message)
+    with open(PROGRESS_LOG, 'a') as f:
+        f.write(log_message + '\n')
+
+
+def run_profitability_sweep():
+    """Main function to run parameter sweep using optimized Rust engine"""
+
+    start_time = time.time()
+
+    # Calculate total combinations
+    total_combinations = sum(1 for hv in HOUSE_VALUES
+                            for ld in LOAN_DURATIONS
+                            for ad in ANNUITY_DURATIONS
+                            for lt in LOAN_TYPES
+                            if ad >= ld)
+
+    log_progress(f"Starting Rust profitability sweep with {MONTE_CARLO_PATHS:,} Monte Carlo paths")
+    log_progress(f"Total combinations to test: {total_combinations:,}")
+    log_progress(f"Using optimized integrated path generation 🚀")
+
+    # Prepare CSV output
+    fieldnames = [
+        'loan_type', 'house_value', 'loan_duration', 'annuity_duration', 'loan_amount', 'reinvest_fraction',
+        'mean_reinvestment', 'std_reinvestment',
+        'p10_reinvestment', 'p25_reinvestment', 'p50_reinvestment', 'p75_reinvestment', 'p90_reinvestment',
+        'mean_deficit', 'total_holiday_quarters', 'pct_quarters_holiday',
+        'mean_funder_earned', 'mean_funder_profit_share', 'mean_net_position',
+        'mean_cagr', 'xirr', 'prob_insurance_payout', 'mean_insurance_payout_npv',
+        'simulation_time_sec'
+    ]
+
+    with open(OUTPUT_FILE, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        completed = 0
+
+        for house_value in HOUSE_VALUES:
+            for loan_duration in LOAN_DURATIONS:
+                for annuity_duration in ANNUITY_DURATIONS:
+                    for loan_type in LOAN_TYPES:
+
+                        # Skip invalid combinations
+                        if annuity_duration < loan_duration:
+                            continue
+
+                        completed += 1
+                        sim_start = time.time()
+
+                        # Calculate derived parameters
+                        total_loan = house_value * LOAN_TO_VALUE
+                        annual_income = house_value * ANNUAL_INCOME_FRACTION
+                        reinvest_fraction = 1 - (annuity_duration * annual_income) / total_loan
+                        insurance_cost = INSURANCE_COST_PA * total_loan * loan_duration
+                        principal_repayment = (loan_type == 'Principal+Interest')
+
+                        # OPTIMIZED: Generate paths and simulate in one call (no memory overhead!)
+                        results = monte_carlo_engine.single_mortgage_integrated(
+                            total_loan,
+                            reinvest_fraction,
+                            loan_duration,
+                            annual_income,
+                            annuity_duration,
+                            INSURANCE_PROFIT_MARGIN,
+                            insurance_cost,
+                            CASH_RATE,
+                            WHOLESALE_LENDING_MARGIN,
+                            ADDITIONAL_LOAN_MARGINS,
+                            HOLIDAY_ENTER_FRACTION,
+                            HOLIDAY_EXIT_FRACTION,
+                            SUBPERFORM_LOAN_THRESHOLD_QUARTERS,
+                            MONTE_CARLO_PATHS,
+                            EQUITY_RETURN,
+                            VOLATILITY,
+                            S0,
+                            principal_repayment,
+                            HEDGED,
+                            HEDGING_MAX_LOSS,
+                            HEDGING_CAP,
+                            HEDGING_COST_PA
+                        )
+
+                        # Calculate metrics in Rust (fast!)
+                        metrics_rust = monte_carlo_engine.calculate_metrics(
+                            results, total_loan, reinvest_fraction, loan_duration,
+                            annual_income, annuity_duration, CASH_RATE
+                        )
+
+                        # Convert to dict for CSV writing
+                        metrics = metrics_to_dict(metrics_rust)
+
+                        sim_time = time.time() - sim_start
+
+                        # Write row to CSV
+                        row = {
+                            'loan_type': loan_type,
+                            'house_value': house_value,
+                            'loan_duration': loan_duration,
+                            'annuity_duration': annuity_duration,
+                            'loan_amount': total_loan,
+                            'reinvest_fraction': reinvest_fraction,
+                            'simulation_time_sec': sim_time,
+                            **metrics
+                        }
+                        writer.writerow(row)
+                        csvfile.flush()
+
+                        # Progress logging every 10 combinations
+                        if completed % 10 == 0:
+                            elapsed = time.time() - start_time
+                            rate = completed / elapsed
+                            remaining = total_combinations - completed
+                            eta = remaining / rate if rate > 0 else 0
+
+                            xirr_str = f"{metrics['xirr']:.4f}" if metrics['xirr'] is not None else 'N/A'
+                            log_progress(
+                                f"Progress: {completed}/{total_combinations} ({100*completed/total_combinations:.1f}%) "
+                                f"| Rate: {rate:.2f} sims/sec | ETA: {eta/60:.1f} min | "
+                                f"Last: {loan_type} HV=${house_value:,} LD={loan_duration}y AD={annuity_duration}y "
+                                f"XIRR={xirr_str} (⚡ Rust: {sim_time:.2f}s)"
+                            )
+
+    total_time = time.time() - start_time
+    log_progress(f"Completed! Total time: {total_time/60:.1f} minutes ({total_time/3600:.2f} hours)")
+    log_progress(f"Results saved to: {OUTPUT_FILE}")
+    log_progress(f"Average time per simulation: {total_time/total_combinations:.2f} seconds")
+    log_progress(f"🚀 Rust acceleration successful!")
+
+
+if __name__ == "__main__":
+    # Clear previous log
+    with open(PROGRESS_LOG, 'w') as f:
+        f.write(f"Rust Profitability Sweep Started: {datetime.now()}\n")
+        f.write(f"Parameters: {MONTE_CARLO_PATHS:,} paths per scenario\n")
+        f.write(f"Method: Optimized integrated path generation\n")
+        f.write(f"Cash Rate: {CASH_RATE*100:.1f}% (historical average)\n")
+        f.write(f"Interest Rate Bug Fix: Applied (correct quarterly calculation)\n")
+        f.write("="*80 + "\n\n")
+
+    run_profitability_sweep()

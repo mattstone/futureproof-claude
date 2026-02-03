@@ -1,0 +1,163 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="demo-banner">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="demo-banner-icon">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <span>Demo Mode - Experience the Equity Preservation Mortgage application flow</span>
+      </div>
+
+      <div class="application-header">
+        <div class="step-indicator">
+          <div class="step-progress">
+            <div class="step-item completed">
+              <div class="step-number">1</div>
+              <div class="step-label">Property Details</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item completed">
+              <div class="step-number">2</div>
+              <div class="step-label">Income & Loan</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item active">
+              <div class="step-number">3</div>
+              <div class="step-label">Summary</div>
+            </div>
+          </div>
+        </div>
+        <h1 class="application-title">Application Summary</h1>
+        <p class="application-subtitle">Review your Equity Preservation Mortgage details</p>
+      </div>
+
+      <div class="application-form">
+        <div class="form-section">
+          <h3 class="form-section-title">Property Details</h3>
+          <div class="summary-review">
+            <div class="summary-review-row">
+              <span class="summary-review-label">Property Address</span>
+              <span class="summary-review-value">123 Sample Street, Sydney NSW 2000</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Property Value</span>
+              <span class="summary-review-value">$1,500,000</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Ownership Type</span>
+              <span class="summary-review-value">Individual</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Borrower Age</span>
+              <span class="summary-review-value">65 years</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Loan Configuration</h3>
+          <div class="summary-review">
+            <div class="summary-review-row">
+              <span class="summary-review-label">Loan Type</span>
+              <span class="summary-review-value">Interest Only</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Loan Term</span>
+              <span class="summary-review-value">30 years</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Income Payout Term</span>
+              <span class="summary-review-value">10 years</span>
+            </div>
+            <div class="summary-review-row">
+              <span class="summary-review-label">Loan Amount (80% LVR)</span>
+              <span class="summary-review-value">$1,200,000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Your Income Summary</h3>
+          <div class="income-summary-highlight">
+            <div class="income-highlight-card">
+              <div class="income-highlight-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="income-highlight-content">
+                <div class="income-highlight-label">Monthly Income</div>
+                <div class="income-highlight-value">$2,500</div>
+                <div class="income-highlight-note">Tax-free for 10 years</div>
+              </div>
+            </div>
+
+            <div class="income-highlight-card">
+              <div class="income-highlight-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="income-highlight-content">
+                <div class="income-highlight-label">Total Income</div>
+                <div class="income-highlight-value">$300,000</div>
+                <div class="income-highlight-note">Over the payout term</div>
+              </div>
+            </div>
+
+            <div class="income-highlight-card">
+              <div class="income-highlight-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <div class="income-highlight-content">
+                <div class="income-highlight-label">Equity Preserved</div>
+                <div class="income-highlight-value">100%</div>
+                <div class="income-highlight-note">Your home equity is protected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-completion-section">
+          <div class="demo-completion-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3 class="demo-completion-title">Demo Complete!</h3>
+          <p class="demo-completion-text">
+            You've experienced the Equity Preservation Mortgage application flow.
+            In a real application, this is where you would submit for pre-approval.
+          </p>
+
+          <div class="demo-next-steps">
+            <h4>Ready to get started for real?</h4>
+            <p>Create an account to submit your actual application and receive a personalized quote.</p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Create Account & Apply", new_user_registration_path,
+              class: "site-btn site-btn-primary site-btn-lg application-submit-btn" %>
+          <%= link_to "Back to Calculator", get_started_path, class: "site-btn site-btn-secondary" %>
+          <%= link_to "Start Demo Again", demo_applications_path, class: "site-btn site-btn-outline" %>
+        </div>
+      </div>
+
+      <div class="application-footer">
+        <p class="form-disclaimer">
+          * This demonstration used sample data. Your actual income and loan terms will be calculated based on your specific property and circumstances.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

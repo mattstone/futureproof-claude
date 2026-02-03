@@ -8,8 +8,8 @@ Bundler.require(*Rails.groups)
 
 module Futureproof
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    # Initialize configuration defaults for Rails 8.1
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -23,13 +23,13 @@ module Futureproof
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    
+
     # Enable Rack::Attack for rate limiting and security
     config.middleware.use Rack::Attack
-    
+
     # Force SSL in production
     config.force_ssl = Rails.env.production?
-    
+
     # Session security
     config.session_store :cookie_store,
       key: '_futureproof_session',
@@ -37,6 +37,5 @@ module Futureproof
       httponly: true,
       expire_after: 24.hours,
       same_site: :lax  # Changed from :strict to :lax to allow SAML redirects
-    
   end
 end

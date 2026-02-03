@@ -1,0 +1,78 @@
+<%= render 'shared/header' %>
+
+<div class="demo-page">
+  <div class="demo-container" data-controller="demo-webapp">
+    <!-- Section Header - matching Webapp section-header.tsx -->
+    <div class="demo-section-header">
+      <h1 class="demo-section-title">Calculate in minutes</h1>
+      <p class="demo-section-subtitle">Only 3 easy steps and we save your progress as you go</p>
+    </div>
+
+    <!-- Demo Property Card -->
+    <div class="demo-example-property">
+      <div class="demo-example-notice">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="demo-notice-icon">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        <p>For demonstration purposes, we're using an example property</p>
+      </div>
+
+      <div class="demo-example-property-card">
+        <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-example-image" %>
+        <div class="demo-example-details">
+          <h3 class="demo-example-address">89 Florence Terrace</h3>
+          <p class="demo-example-suburb">Scotland Island, NSW 2105</p>
+          <div class="demo-example-value-row">
+            <span class="demo-example-value-label">Estimated value</span>
+            <span class="demo-example-value">$2,500,000</span>
+          </div>
+          <div class="demo-powered-by-v2">
+            <%= image_tag "core-logic.png", alt: "CoreLogic Australia", class: "demo-corelogic-logo" %>
+            <span>Powered by CoreLogic Australia</span>
+          </div>
+          <%= link_to demo_property_details_applications_path, class: "demo-check-value-btn" do %>
+            Continue with this property
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Cards - matching Webapp step-card.tsx with bg-primary/5 -->
+    <div class="demo-step-cards-v2">
+      <div class="demo-step-card-v2">
+        <div class="demo-step-card-content">
+          <p class="demo-step-number-v2">1</p>
+          <div class="demo-step-info-v2">
+            <h2 class="demo-step-title-v2">Property details</h2>
+            <p class="demo-step-description-v2">Used to calculate your maximum borrowing amount</p>
+            <p class="demo-step-time">2 minutes to complete</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-step-card-v2">
+        <div class="demo-step-card-content">
+          <p class="demo-step-number-v2">2</p>
+          <div class="demo-step-info-v2">
+            <h2 class="demo-step-title-v2">Select income and loan options</h2>
+            <p class="demo-step-description-v2">Details of annuity income and mortgage type</p>
+            <p class="demo-step-time">1 minute to complete</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-step-card-v2">
+        <div class="demo-step-card-content">
+          <p class="demo-step-number-v2">3</p>
+          <div class="demo-step-info-v2">
+            <h2 class="demo-step-title-v2">Apply for loan pre-approval</h2>
+            <p class="demo-step-description-v2">Final approval subject to property valuation</p>
+            <p class="demo-step-time">1 minute to complete</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

@@ -26,10 +26,11 @@
 
             <div class="form-group">
               <%= f.label :email, class: "form-label" %>
-              <%= f.email_field :email, 
-                  class: "form-input", 
+              <%= f.email_field :email,
+                  class: "form-input",
                   placeholder: "Enter your email address",
-                  data: { 
+                  value: params[:email] || resource.email,
+                  data: {
                     "auth-form-target": "emailInput",
                     "action": "blur->auth-form#checkEmail change->auth-form#checkEmail"
                   } %>

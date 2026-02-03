@@ -592,6 +592,42 @@
   margin: auto;
 }
 
+/* Demo Badge - Integrated into page headers */
+.site-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #fff7ed;
+  border: 2px solid #f97316;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c2410c;
+  margin-left: 12px;
+  vertical-align: middle;
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.15);
+}
+
+.site-demo-badge svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Demo context text - subtle explanation below headers */
+.site-demo-context {
+  background: #fff7ed;
+  border-left: 4px solid #f97316;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 12px 0 20px 0;
+  font-size: 14px;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+/* Legacy demo notice styles - kept for backward compatibility */
 .site-demo-notice {
   background: #fef2f2;
   border: 2px solid #dc2626;

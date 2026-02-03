@@ -1,6 +1,6 @@
 require "application_system_test_case"
 
-class Admin::WholesaleFunderManagementTest < ApplicationSystemTestCase
+class Admin::WholesaleFunderManagementSystemTest < ApplicationSystemTestCase
   setup do
     @lender = lenders(:one)
     @wholesale_funder = wholesale_funders(:one)

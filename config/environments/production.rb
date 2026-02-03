@@ -61,9 +61,9 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   # This should be updated to match your production domain
-  config.action_mailer.default_url_options = { 
-    host: ENV.fetch("RAILS_HOST", "futureprooffinancial.co"), 
-    protocol: "https" 
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("RAILS_HOST", "futureprooffinancial.co"),
+    protocol: "https"
   }
 
   # Configure SMTP for email delivery

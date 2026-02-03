@@ -23,7 +23,9 @@ class EmailTemplate < ApplicationRecord
   
   # Get the active template for a specific type
   def self.for_type(template_type)
-    active.by_type(template_type).first || create_default_for_type(template_type)
+    active.by_type(template_type).first
+    # Removed auto-create to allow fallback to .html.erb templates
+    # || create_default_for_type(template_type)
   end
   
   # Available field placeholders for different template types
