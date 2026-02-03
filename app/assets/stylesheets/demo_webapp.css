@@ -667,6 +667,11 @@
   cursor: not-allowed;
 }
 
+/* Continue Button inside Property Card */
+.demo-continue-btn-card {
+  margin-top: 16px;
+}
+
 /* Pre-Approved / Congratulations Page */
 .demo-preapproved-page {
   min-height: 100vh;

@@ -6,30 +6,59 @@
 
   # Market-specific property data
   if market == 'au'
-    property_address_line1 = "89 Florence Terrace"
-    property_address_line2 = "Scotland Island, NSW 2105"
+    property_address = "89 Florence Terrace, Scotland Island NSW 2105"
     property_value = 2500000
-    hero_image = "demo/AU/hero.jpg"
+    latitude = -33.6398101
+    longitude = 151.2946272
+    gallery_image_names = [
+      "demo/AU/hero.jpg",
+      "demo/AU/image.jpg",
+      "demo/AU/image (1).jpg",
+      "demo/AU/image (2).jpg",
+      "demo/AU/image (3).jpg",
+      "demo/AU/image (5).jpg",
+      "demo/AU/image (6).jpg",
+      "demo/AU/image (7).jpg",
+      "demo/AU/image (8).jpg",
+      "demo/AU/Floorplan.jpg"
+    ]
     data_provider = "CoreLogic Australia"
     data_provider_logo = "core-logic.png"
     other_market_label = "Switch to US Demo"
     other_market_path = demo_applications_path(market: 'us')
   else
     # US (default)
-    property_address_line1 = "21659 Ocean Vista Dr #20"
-    property_address_line2 = "Laguna Beach, CA 92651"
+    property_address = "21659 Ocean Vista Dr #20, Laguna Beach, CA 92651"
     property_value = 2450000
-    hero_image = "demo/US/hero.webp"
+    latitude = 33.5168
+    longitude = -117.7573
+    gallery_image_names = [
+      "demo/US/hero.webp",
+      "demo/US/image_1.webp",
+      "demo/US/image_2.webp",
+      "demo/US/image_3.webp",
+      "demo/US/image_4.webp",
+      "demo/US/image_5.webp",
+      "demo/US/image_6.webp",
+      "demo/US/image_7.webp",
+      "demo/US/image_8.webp",
+      "demo/US/image_9.webp"
+    ]
     data_provider = "Zillow"
-    data_provider_logo = nil  # No logo for now
+    data_provider_logo = nil
     other_market_label = "Switch to AU Demo"
     other_market_path = demo_applications_path(market: 'au')
   end
 
+  # Convert to full asset URLs for JavaScript
+  gallery_image_urls = gallery_image_names.map { |name| asset_path(name) }
   formatted_value = number_to_currency(property_value, precision: 0)
 %>
 
-<div class="demo-page">
+<div class="demo-page" data-controller="demo-gallery"
+     data-demo-gallery-images-value="<%= gallery_image_urls.to_json %>"
+     data-demo-gallery-latitude-value="<%= latitude %>"
+     data-demo-gallery-longitude-value="<%= longitude %>">
   <div class="demo-container" data-controller="demo-webapp"
        data-demo-webapp-home-value-value="<%= property_value %>"
        data-demo-webapp-market-value="<%= market %>">
@@ -61,26 +90,95 @@
         <p>For demonstration purposes, we're using an example property</p>
       </div>
 
-      <div class="demo-example-property-card">
-        <%= image_tag hero_image, alt: property_address_line1, class: "demo-example-image" %>
-        <div class="demo-example-details">
-          <h3 class="demo-example-address"><%= property_address_line1 %></h3>
-          <p class="demo-example-suburb"><%= property_address_line2 %></p>
-          <div class="demo-example-value-row">
-            <span class="demo-example-value-label">Estimated value</span>
-            <span class="demo-example-value"><%= formatted_value %></span>
+      <!-- Property Card with Gallery and Map -->
+      <div class="demo-property-card-v2">
+        <!-- Photo View -->
+        <div class="demo-property-card-image" data-demo-gallery-target="photoView">
+          <!-- Main Image (clickable for lightbox) -->
+          <div class="demo-gallery-main" data-action="click->demo-gallery#openLightbox">
+            <%= image_tag gallery_image_names.first, alt: property_address, class: "demo-property-card-img", data: { demo_gallery_target: "mainImage" } %>
+            <div class="demo-gallery-expand-hint">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <polyline points="15 3 21 3 21 9"/>
+                <polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </div>
           </div>
-          <% if data_provider_logo %>
-            <div class="demo-powered-by-v2">
-              <%= image_tag data_provider_logo, alt: data_provider, class: "demo-corelogic-logo" %>
-              <span>Powered by <%= data_provider %></span>
+
+          <!-- Thumbnail Carousel -->
+          <div class="demo-gallery-carousel">
+            <button class="demo-gallery-nav demo-gallery-nav-prev" data-action="click->demo-gallery#prevImage" aria-label="Previous image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <div class="demo-gallery-track" data-demo-gallery-target="carouselTrack">
+              <% gallery_image_names.each_with_index do |img_name, index| %>
+                <button class="demo-gallery-thumb <%= 'active' if index == 0 %>"
+                        data-action="click->demo-gallery#selectImage"
+                        data-demo-gallery-target="thumbnail"
+                        data-index="<%= index %>">
+                  <%= image_tag img_name, alt: "Photo #{index + 1}" %>
+                </button>
+              <% end %>
             </div>
-          <% else %>
-            <div class="demo-powered-by-v2">
-              <span>Powered by <%= data_provider %></span>
-            </div>
-          <% end %>
-          <%= link_to demo_property_details_applications_path(market: market), class: "demo-check-value-btn" do %>
+            <button class="demo-gallery-nav demo-gallery-nav-next" data-action="click->demo-gallery#nextImage" aria-label="Next image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Map View (hidden by default) -->
+        <div class="demo-property-map-view" data-demo-gallery-target="mapView">
+          <div class="demo-map-loading">Loading map...</div>
+        </div>
+
+        <!-- View Toggle Buttons (outside photo/map views so always visible) -->
+        <div class="demo-property-image-toggles">
+          <button class="demo-image-toggle active" data-action="click->demo-gallery#showPhotos" data-demo-gallery-target="photoToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <%= gallery_image_names.length %> Photos
+          </button>
+          <button class="demo-image-toggle" data-action="click->demo-gallery#showMap" data-demo-gallery-target="mapToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Map
+          </button>
+        </div>
+
+        <div class="demo-property-card-content">
+          <div class="demo-property-card-address-section">
+            <h3 class="demo-property-card-address"><%= property_address %></h3>
+          </div>
+
+          <div class="demo-property-card-divider"></div>
+
+          <div class="demo-property-card-value-section">
+            <p class="demo-property-card-value-label">Estimated property value</p>
+            <p class="demo-property-card-value-amount"><%= formatted_value %></p>
+            <% if data_provider_logo %>
+              <div class="demo-powered-by-v2">
+                <%= image_tag data_provider_logo, alt: data_provider, class: "demo-corelogic-logo" %>
+                <span>Powered by <%= data_provider %></span>
+              </div>
+            <% else %>
+              <div class="demo-powered-by-v2">
+                <span>Powered by <%= data_provider %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <%= link_to demo_property_details_applications_path(market: market), class: "demo-continue-btn demo-continue-btn-card" do %>
             Continue with this property
           <% end %>
         </div>
@@ -122,6 +220,33 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Lightbox Overlay -->
+  <div class="demo-lightbox" data-demo-gallery-target="lightbox" data-action="click->demo-gallery#lightboxBackdropClick">
+    <button class="demo-lightbox-close" data-action="click->demo-gallery#closeLightbox" aria-label="Close lightbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <button class="demo-lightbox-nav demo-lightbox-prev" data-action="click->demo-gallery#lightboxPrev" aria-label="Previous image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="demo-lightbox-content">
+      <img src="" alt="Property photo" class="demo-lightbox-image" data-demo-gallery-target="lightboxImage">
+      <div class="demo-lightbox-counter" data-demo-gallery-target="lightboxCounter">1 / 10</div>
+    </div>
+
+    <button class="demo-lightbox-nav demo-lightbox-next" data-action="click->demo-gallery#lightboxNext" aria-label="Next image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
   </div>
 </div>
 
