@@ -1,6 +1,13 @@
 <%# Get Started Page - React Webapp Replica
     Matches https://www.futureprooffinancial.app/ EXACTLY %>
 
+<%
+  # Pass through market (geo-detected or from params) and model params to demo links
+  demo_params = {}
+  demo_params[:market] = @detected_market if @detected_market.present?
+  demo_params[:model] = params[:model] if params[:model].present?
+%>
+
 <div class="gs-page" data-controller="get-started-calculator">
   <!-- Header (sticky, matches React Header) -->
   <header class="gs-header">
@@ -21,7 +28,7 @@
         <%= image_tag "futureproof-logo.png", class: "gs-header-logo-img", alt: "futureproof_logo", data: { testid: "futureproof-logo" } %>
       <% end %>
 
-      <%= link_to demo_applications_path, class: "gs-header-btn", data: { testid: "calculate" } do %>
+      <%= link_to demo_spa_applications_path(demo_params), class: "gs-header-btn", data: { testid: "calculate" } do %>
         Calculate
       <% end %>
     </nav>
@@ -130,7 +137,7 @@
 
         <!-- CTA Button -->
         <div class="gs-cta-section">
-          <%= link_to "Calculate how much you could receive", demo_applications_path, class: "gs-cta-btn", data: { testid: "calculate-amount" } %>
+          <%= link_to "Calculate how much you could receive", demo_spa_applications_path(demo_params), class: "gs-cta-btn", data: { testid: "calculate-amount" } %>
         </div>
       </div>
 
@@ -187,7 +194,7 @@
 
           <div class="gs-promo-buttons">
             <%= link_to "Learn more", "#", class: "gs-btn-outline", target: "_blank" %>
-            <%= link_to "Calculate now", demo_applications_path, class: "gs-btn-primary" %>
+            <%= link_to "Calculate now", demo_spa_applications_path(demo_params), class: "gs-btn-primary" %>
           </div>
         </div>
       </div>
@@ -244,7 +251,7 @@
       </div>
 
       <!-- Final CTA -->
-      <%= link_to "Calculate how much you could receive", demo_applications_path, class: "gs-cta-btn" %>
+      <%= link_to "Calculate how much you could receive", demo_spa_applications_path(demo_params), class: "gs-cta-btn" %>
 
       <!-- Partners Banner -->
       <div class="gs-partners">

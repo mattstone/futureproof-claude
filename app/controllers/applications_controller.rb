@@ -1,5 +1,5 @@
 class ApplicationsController < ApplicationController
-  DEMO_ACTIONS = [:demo, :demo_property_details, :demo_mortgage_details, :demo_funding_details, :demo_preapproved, :demo_income_loan, :demo_summary]
+  DEMO_ACTIONS = [:demo, :demo_spa, :demo_property_details, :demo_mortgage_details, :demo_funding_details, :demo_preapproved, :demo_income_loan, :demo_summary]
 
   before_action :authenticate_user!, except: [:messages, :autocomplete, :get_property_details] + DEMO_ACTIONS
   before_action :verify_secure_token, only: [:messages], if: -> { params[:token].present? }
@@ -133,6 +133,12 @@ class ApplicationsController < ApplicationController
   def demo
     # Step 1: Property Search - "Calculate in minutes" intro page
     render :demo
+  end
+
+  def demo_spa
+    # Single Page Application version of demo flow
+    # All steps rendered on one page with smooth transitions
+    render :demo_spa
   end
 
   def demo_property_details

@@ -141,7 +141,7 @@ class Api::QuotesApiTest < ActionDispatch::IntegrationTest
   # ====================================================
 
   test "original model returns correct values for base property" do
-    # Test interest-only for $1.5M property
+    # Test interest-only for $1.5M property (Tom's model values)
     get api_quotes_path, params: {
       home_value: 1_500_000,
       term: 10,
@@ -151,9 +151,9 @@ class Api::QuotesApiTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     json = JSON.parse(response.body)
-    assert_equal 1536, json['result']['monthly_income']
+    assert_equal 2500, json['result']['monthly_income']
 
-    # Test P+I for $1.5M property
+    # Test P+I for $1.5M property (~77% of IO)
     get api_quotes_path, params: {
       home_value: 1_500_000,
       term: 10,
@@ -163,7 +163,7 @@ class Api::QuotesApiTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     json = JSON.parse(response.body)
-    assert_equal 1183, json['result']['monthly_income']
+    assert_equal 1925, json['result']['monthly_income']
   end
 
   test "original model scales correctly with property value" do
@@ -177,8 +177,8 @@ class Api::QuotesApiTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     json = JSON.parse(response.body)
-    # 1536 * 2 = 3072
-    assert_equal 3072, json['result']['monthly_income']
+    # 2500 * 2 = 5000
+    assert_equal 5000, json['result']['monthly_income']
   end
 
   # ====================================================

@@ -75,11 +75,11 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
     assert_select ".demo-preapproved-title", text: "Congratulations!"
   end
 
-  test "get_started page links to demo instead of email modal" do
+  test "get_started page links to demo SPA instead of email modal" do
     get get_started_path
     assert_response :success
-    # Calculate buttons should link to demo
-    assert_select "a[href='#{demo_applications_path}']", minimum: 1
+    # Calculate buttons should link to demo SPA (with market param)
+    assert_select "a[href*='applications/demo_spa']", minimum: 1
     # Should NOT have email modal open actions
     assert_select "[data-action*='openEmailModal']", count: 0
   end
@@ -96,5 +96,69 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
   test "legacy demo_summary redirects to demo_funding_details" do
     get demo_summary_applications_path
     assert_redirected_to demo_funding_details_applications_path
+  end
+
+  # ====================================================
+  # Demo SPA Tests - Single Page Application
+  # ====================================================
+
+  test "demo SPA page is accessible without authentication" do
+    get demo_spa_applications_path
+    assert_response :success
+    # Landing step content
+    assert_select "h1.demo-section-title", text: "Calculate in minutes"
+    # All steps are present in the DOM
+    assert_select ".demo-step", count: 5
+    # Progress bar elements
+    assert_select ".demo-spa-progress-step", count: 3
+    assert_select ".demo-spa-progress-line", count: 2
+  end
+
+  test "demo SPA contains all step content" do
+    get demo_spa_applications_path
+    assert_response :success
+
+    # Step 0: Landing
+    assert_select ".demo-step-cards-v2", count: 1
+    assert_select ".demo-step-card-v2", count: 3
+
+    # Step 1: Property Details
+    assert_select ".demo-projected-value-card", count: 1
+    assert_select "[data-growth-rate]", minimum: 3
+
+    # Step 2: Mortgage Details
+    assert_select ".demo-mortgage-option-card", count: 2
+    assert_select ".demo-slider", count: 1
+
+    # Step 3: Funding Summary
+    assert_select ".demo-summary-card", count: 1
+    assert_select ".demo-summary-section", count: 4
+
+    # Step 4: Congratulations
+    assert_select ".demo-preapproved-title", text: "Congratulations!"
+    assert_select "img[src*='bg-man-with-phone']", count: 1
+  end
+
+  test "demo SPA works with Australian market parameter" do
+    get demo_spa_applications_path(market: 'au')
+    assert_response :success
+    # Check AU property address is shown
+    assert_select ".demo-property-card-address", text: /Scotland Island/
+  end
+
+  test "demo SPA works with US market parameter" do
+    get demo_spa_applications_path(market: 'us')
+    assert_response :success
+    # Check US property address is shown
+    assert_select ".demo-property-card-address", text: /Laguna Beach/
+  end
+
+  test "demo SPA has Stimulus controller attributes" do
+    get demo_spa_applications_path
+    assert_response :success
+    # Main container has demo-spa controller
+    assert_select "[data-controller*='demo-spa']", count: 1
+    # Step navigation buttons exist
+    assert_select "[data-action*='demo-spa#goToStep']", minimum: 4
   end
 end

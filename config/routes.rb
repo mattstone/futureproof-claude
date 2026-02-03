@@ -271,6 +271,7 @@ Rails.application.routes.draw do
       get :get_property_details
       # Demo routes (no authentication required) - Webapp replica flow
       get :demo
+      get :demo_spa  # Single Page Application version with animations
       get :demo_property_details
       get :demo_mortgage_details
       get :demo_funding_details

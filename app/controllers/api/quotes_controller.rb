@@ -139,26 +139,28 @@ class Api::QuotesController < ApplicationController
 
   private
 
-  # Original model - matches demo_webapp_controller.js lookup tables
+  # Original model - matches demo_webapp_controller.js lookup tables (Tom's model)
   def calculate_original(home_value, term, mortgage_type)
     base_property_value = 1_500_000.0
     multiplier = home_value / base_property_value
 
-    # Lookup tables from demo_webapp_controller.js
+    # Lookup tables from demo_webapp_controller.js - based on Tom's model (ReferenceTableV2.csv)
+    # Values derived from total_income: 10yr=$300K, 15yr=$410K, 20yr=$443K, 25yr=$498K, 30yr=$553K
     interest_only_lookup = {
-      10 => { monthly: 1536, loan_balance: 553088 },
-      15 => { monthly: 1367, loan_balance: 553088 },
-      20 => { monthly: 1107, loan_balance: 553088 },
-      25 => { monthly: 996, loan_balance: 553088 },
-      30 => { monthly: 922, loan_balance: 553088 }
+      10 => { monthly: 2500, loan_balance: 553088 },   # $300,000 / 10 / 12 = $2,500
+      15 => { monthly: 2280, loan_balance: 553088 },   # $410,468 / 15 / 12 = $2,280
+      20 => { monthly: 1847, loan_balance: 553088 },   # $443,306 / 20 / 12 = $1,847
+      25 => { monthly: 1662, loan_balance: 553088 },   # $498,478 / 25 / 12 = $1,662
+      30 => { monthly: 1536, loan_balance: 553088 }    # $553,088 / 30 / 12 = $1,536
     }
 
+    # Principal + Interest: ~77% of interest-only values
     principal_interest_lookup = {
-      10 => { monthly: 1183, loan_balance: 0 },
-      15 => { monthly: 1052, loan_balance: 0 },
-      20 => { monthly: 853, loan_balance: 0 },
-      25 => { monthly: 767, loan_balance: 0 },
-      30 => { monthly: 710, loan_balance: 0 }
+      10 => { monthly: 1925, loan_balance: 0 },
+      15 => { monthly: 1756, loan_balance: 0 },
+      20 => { monthly: 1422, loan_balance: 0 },
+      25 => { monthly: 1280, loan_balance: 0 },
+      30 => { monthly: 1183, loan_balance: 0 }
     }
 
     lookup = mortgage_type == 'principal_and_interest' ? principal_interest_lookup : interest_only_lookup

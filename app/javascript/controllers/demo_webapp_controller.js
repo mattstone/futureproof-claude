@@ -29,34 +29,81 @@ export default class extends Controller {
     market: { type: String, default: 'us' }
   }
 
-  // Lookup tables matching the QuoteService (Tom's model)
-  // Monthly income amounts for a $1.5M property based on income term
-  // We scale these values based on the actual property value
+  // =============================================================================
+  // CALCULATION MODELS
+  // Switch between models using URL parameter: ?model=tom or ?model=pavel
+  // Default is 'tom' (matches React Webapp)
+  // =============================================================================
 
-  // Interest-only: Higher monthly income, loan balance remains
-  interestOnlyLookup = {
-    10: { monthly: 1536, loanBalance: 553088 },
-    15: { monthly: 1367, loanBalance: 553088 },
-    20: { monthly: 1107, loanBalance: 553088 },
-    25: { monthly: 996, loanBalance: 553088 },
-    30: { monthly: 922, loanBalance: 553088 }
+  // Tom's model (from ReferenceTableV2.csv) - DEFAULT
+  // Source: Total income values from loan-lookup-table.tsx / (term * 12)
+  tomInterestOnlyLookup = {
+    10: { monthly: 2500, loanBalance: 553088 },   // $300,000 / 10 / 12 = $2,500
+    15: { monthly: 2280, loanBalance: 553088 },   // $410,468 / 15 / 12 = $2,280
+    20: { monthly: 1847, loanBalance: 553088 },   // $443,306 / 20 / 12 = $1,847
+    25: { monthly: 1662, loanBalance: 553088 },   // $498,478 / 25 / 12 = $1,662
+    30: { monthly: 1536, loanBalance: 553088 }    // $553,088 / 30 / 12 = $1,536
   }
 
-  // Principal + Interest: Lower monthly income, no loan balance at end
-  principalInterestLookup = {
-    10: { monthly: 1183, loanBalance: 0 },
-    15: { monthly: 1052, loanBalance: 0 },
-    20: { monthly: 853, loanBalance: 0 },
-    25: { monthly: 767, loanBalance: 0 },
-    30: { monthly: 710, loanBalance: 0 }
+  tomPrincipalInterestLookup = {
+    10: { monthly: 1925, loanBalance: 0 },   // 2500 * 0.77
+    15: { monthly: 1756, loanBalance: 0 },   // 2280 * 0.77
+    20: { monthly: 1422, loanBalance: 0 },   // 1847 * 0.77
+    25: { monthly: 1280, loanBalance: 0 },   // 1662 * 0.77
+    30: { monthly: 1183, loanBalance: 0 }    // 1536 * 0.77
+  }
+
+  // Pavel's model (annuity rate based, from QuoteService)
+  pavelInterestOnlyLookup = {
+    10: { monthly: 1875, loanBalance: 553088 },
+    15: { monthly: 1713, loanBalance: 553088 },
+    20: { monthly: 1563, loanBalance: 553088 },
+    25: { monthly: 1438, loanBalance: 553088 },
+    30: { monthly: 1313, loanBalance: 553088 }
+  }
+
+  pavelPrincipalInterestLookup = {
+    10: { monthly: 1444, loanBalance: 0 },   // 1875 * 0.77
+    15: { monthly: 1319, loanBalance: 0 },   // 1713 * 0.77
+    20: { monthly: 1204, loanBalance: 0 },   // 1563 * 0.77
+    25: { monthly: 1107, loanBalance: 0 },   // 1438 * 0.77
+    30: { monthly: 1011, loanBalance: 0 }    // 1313 * 0.77
   }
 
   basePropertyValue = 1500000  // Used for scaling calculations
 
+  // Get the active lookup tables based on selected model
+  get interestOnlyLookup() {
+    return this.currentModel === 'pavel' ? this.pavelInterestOnlyLookup : this.tomInterestOnlyLookup
+  }
+
+  get principalInterestLookup() {
+    return this.currentModel === 'pavel' ? this.pavelPrincipalInterestLookup : this.tomPrincipalInterestLookup
+  }
+
   connect() {
+    // Load calculation model from URL parameter or sessionStorage
+    this.loadModel()
     // Load any saved values from sessionStorage
     this.loadSavedData()
     this.updateCalculations()
+  }
+
+  // Load the calculation model (tom or pavel) from URL or sessionStorage
+  // Set via URL param on home page: /applications/demo?model=pavel
+  // Carried forward via sessionStorage through the flow
+  loadModel() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlModel = urlParams.get('model')
+
+    if (urlModel && (urlModel === 'tom' || urlModel === 'pavel')) {
+      // URL parameter takes precedence - sets the model for this session
+      this.currentModel = urlModel
+      sessionStorage.setItem('demo_model', urlModel)
+    } else {
+      // Fall back to sessionStorage or default to 'tom'
+      this.currentModel = sessionStorage.getItem('demo_model') || 'tom'
+    }
   }
 
   loadSavedData() {

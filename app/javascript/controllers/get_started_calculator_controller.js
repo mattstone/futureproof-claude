@@ -40,6 +40,15 @@ export default class extends Controller {
     this.currentTerm = 10
     this.updateDisplay()
     this.updateSliderTrack()
+
+    // Set timezone cookie for geo-detection (helps identify AU/NZ visitors)
+    this.setTimezoneCookie()
+  }
+
+  // Set a cookie with the browser's timezone offset for server-side geo-detection
+  setTimezoneCookie() {
+    const offset = new Date().getTimezoneOffset()
+    document.cookie = `tz_offset=${offset};path=/;max-age=86400;SameSite=Lax`
   }
 
   // Calculate monthly annuity amount (matches React app exactly)

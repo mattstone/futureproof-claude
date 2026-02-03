@@ -19,6 +19,47 @@ class PagesController < ApplicationController
     @default_property_value = 1_500_000
     @min_property_value = 800_000
     @max_property_value = 10_000_000
+
+    # Detect market from params, or geo-detect from IP/headers
+    @detected_market = params[:market].presence || detect_market_from_request
+  end
+
+  private
+
+  # Detect market based on IP geolocation or browser hints
+  # Returns 'au' for Australia/New Zealand, 'us' for everywhere else
+  def detect_market_from_request
+    # 1. Check CloudFlare's country header (if behind CF)
+    cf_country = request.headers['CF-IPCountry']
+    if cf_country.present?
+      return 'au' if %w[AU NZ].include?(cf_country.upcase)
+      return 'us'
+    end
+
+    # 2. Check Fly.io's country header (if deployed on Fly)
+    fly_country = request.headers['Fly-Client-Country']
+    if fly_country.present?
+      return 'au' if %w[AU NZ].include?(fly_country.upcase)
+      return 'us'
+    end
+
+    # 3. Check Accept-Language header for AU/NZ locale hints
+    accept_language = request.headers['Accept-Language'].to_s.downcase
+    if accept_language.include?('en-au') || accept_language.include?('en-nz')
+      return 'au'
+    end
+
+    # 4. Check timezone offset from cookie (set by JavaScript)
+    # Australian timezones are typically UTC+8 to UTC+11
+    tz_offset = cookies[:tz_offset].to_i
+    if tz_offset != 0 && tz_offset >= -660 && tz_offset <= -480
+      # Negative because JS getTimezoneOffset returns minutes behind UTC
+      # Australia is UTC+8 to UTC+11, so offset is -480 to -660 minutes
+      return 'au'
+    end
+
+    # Default to US
+    'us'
   end
 
   def privacy_policy

@@ -1,0 +1,759 @@
+<%= render 'shared/demo_header' %>
+
+<%
+  # Determine market from params or default to US
+  market = params[:market]&.downcase || 'us'
+
+  # Market-specific property data
+  if market == 'au'
+    property_address = "89 Florence Terrace, Scotland Island NSW 2105"
+    property_value = 2500000
+    latitude = -33.6398101
+    longitude = 151.2946272
+    gallery_image_names = [
+      "demo/AU/hero.jpg",
+      "demo/AU/image.jpg",
+      "demo/AU/image (1).jpg",
+      "demo/AU/image (2).jpg",
+      "demo/AU/image (3).jpg",
+      "demo/AU/image (5).jpg",
+      "demo/AU/image (6).jpg",
+      "demo/AU/image (7).jpg",
+      "demo/AU/image (8).jpg",
+      "demo/AU/Floorplan.jpg"
+    ]
+    data_provider = "CoreLogic Australia"
+    data_provider_logo = "core-logic.png"
+    other_market_label = "Switch to US Demo"
+    other_market_param = 'us'
+  else
+    # US (default)
+    property_address = "21659 Ocean Vista Dr #20, Laguna Beach, CA 92651"
+    property_value = 2450000
+    latitude = 33.5168
+    longitude = -117.7573
+    gallery_image_names = [
+      "demo/US/hero.webp",
+      "demo/US/image_1.webp",
+      "demo/US/image_2.webp",
+      "demo/US/image_3.webp",
+      "demo/US/image_4.webp",
+      "demo/US/image_5.webp",
+      "demo/US/image_6.webp",
+      "demo/US/image_7.webp",
+      "demo/US/image_8.webp",
+      "demo/US/image_9.webp"
+    ]
+    data_provider = "Zillow"
+    data_provider_logo = nil
+    other_market_label = "Switch to AU Demo"
+    other_market_param = 'au'
+  end
+
+  # Convert to full asset URLs for JavaScript
+  gallery_image_urls = gallery_image_names.map { |name| asset_path(name) }
+  formatted_value = number_to_currency(property_value, precision: 0)
+%>
+
+<%= stylesheet_link_tag "demo_spa_animations", media: "all" %>
+
+<div class="demo-page demo-spa-page"
+     data-controller="demo-spa demo-gallery"
+     data-demo-gallery-images-value="<%= gallery_image_urls.to_json %>"
+     data-demo-gallery-latitude-value="<%= latitude %>"
+     data-demo-gallery-longitude-value="<%= longitude %>"
+     data-demo-spa-home-value-value="<%= property_value %>"
+     data-demo-spa-market-value="<%= market %>"
+     data-demo-spa-property-address-value="<%= property_address %>"
+     data-demo-spa-other-market-value="<%= other_market_param %>">
+
+  <div class="demo-container demo-spa-container">
+
+    <!-- Progress Bar (shown for steps 1-3) -->
+    <div class="demo-spa-progress" data-demo-spa-target="progressBar">
+      <div class="demo-spa-progress-step" data-demo-spa-target="progressStep" data-step="1">1</div>
+      <div class="demo-spa-progress-line" data-demo-spa-target="progressLine"></div>
+      <div class="demo-spa-progress-step" data-demo-spa-target="progressStep" data-step="2">2</div>
+      <div class="demo-spa-progress-line" data-demo-spa-target="progressLine"></div>
+      <div class="demo-spa-progress-step" data-demo-spa-target="progressStep" data-step="3">3</div>
+    </div>
+
+    <!-- =====================================================
+         STEP 0: Landing / Property Search
+         ===================================================== -->
+    <div class="demo-step active" data-demo-spa-target="step" data-step="0">
+      <div class="demo-section-header">
+        <h1 class="demo-section-title demo-animate-in">Calculate in minutes</h1>
+        <p class="demo-section-subtitle demo-animate-in">Only 3 easy steps and we save your progress as you go</p>
+      </div>
+
+      <!-- Demo Property Card -->
+      <div class="demo-example-property demo-animate-in">
+        <div class="demo-example-notice">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="demo-notice-icon">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          <p>For demonstration purposes, we're using an example property</p>
+        </div>
+
+        <!-- Property Card with Gallery -->
+        <div class="demo-property-card-v2">
+          <!-- Photo View -->
+          <div class="demo-property-card-image" data-demo-gallery-target="photoView">
+            <div class="demo-gallery-main" data-action="click->demo-gallery#openLightbox">
+              <%= image_tag gallery_image_names.first, alt: property_address, class: "demo-property-card-img", data: { demo_gallery_target: "mainImage" } %>
+              <div class="demo-gallery-expand-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <polyline points="15 3 21 3 21 9"/>
+                  <polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Thumbnail Carousel -->
+            <div class="demo-gallery-carousel">
+              <button class="demo-gallery-nav demo-gallery-nav-prev" data-action="click->demo-gallery#prevImage" aria-label="Previous image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <div class="demo-gallery-track" data-demo-gallery-target="carouselTrack">
+                <% gallery_image_names.each_with_index do |img_name, index| %>
+                  <button class="demo-gallery-thumb <%= 'active' if index == 0 %>"
+                          data-action="click->demo-gallery#selectImage"
+                          data-demo-gallery-target="thumbnail"
+                          data-index="<%= index %>">
+                    <%= image_tag img_name, alt: "Photo #{index + 1}" %>
+                  </button>
+                <% end %>
+              </div>
+              <button class="demo-gallery-nav demo-gallery-nav-next" data-action="click->demo-gallery#nextImage" aria-label="Next image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Map View -->
+          <div class="demo-property-map-view" data-demo-gallery-target="mapView">
+            <div class="demo-map-loading">Loading map...</div>
+          </div>
+
+          <!-- View Toggle Buttons -->
+          <div class="demo-property-image-toggles">
+            <button class="demo-image-toggle active" data-action="click->demo-gallery#showPhotos" data-demo-gallery-target="photoToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <%= gallery_image_names.length %> Photos
+            </button>
+            <button class="demo-image-toggle" data-action="click->demo-gallery#showMap" data-demo-gallery-target="mapToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              Map
+            </button>
+          </div>
+
+          <div class="demo-property-card-content">
+            <div class="demo-property-card-address-section">
+              <h3 class="demo-property-card-address"><%= property_address %></h3>
+            </div>
+            <div class="demo-property-card-divider"></div>
+            <div class="demo-property-card-value-section">
+              <p class="demo-property-card-value-label">Estimated property value</p>
+              <p class="demo-property-card-value-amount"><%= formatted_value %></p>
+              <% if data_provider_logo %>
+                <div class="demo-powered-by-v2">
+                  <%= image_tag data_provider_logo, alt: data_provider, class: "demo-corelogic-logo" %>
+                  <span>Powered by <%= data_provider %></span>
+                </div>
+              <% else %>
+                <div class="demo-powered-by-v2">
+                  <span>Powered by <%= data_provider %></span>
+                </div>
+              <% end %>
+            </div>
+
+            <button class="demo-continue-btn demo-continue-btn-card" data-action="click->demo-spa#goToStep" data-step="1">
+              Continue with this property
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Cards -->
+      <div class="demo-step-cards-v2 demo-animate-in">
+        <div class="demo-step-card-v2">
+          <div class="demo-step-card-content">
+            <p class="demo-step-number-v2">1</p>
+            <div class="demo-step-info-v2">
+              <h2 class="demo-step-title-v2">Property details</h2>
+              <p class="demo-step-description-v2">Used to calculate your maximum borrowing amount</p>
+              <p class="demo-step-time">2 minutes to complete</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-step-card-v2">
+          <div class="demo-step-card-content">
+            <p class="demo-step-number-v2">2</p>
+            <div class="demo-step-info-v2">
+              <h2 class="demo-step-title-v2">Select income and loan options</h2>
+              <p class="demo-step-description-v2">Details of annuity income and mortgage type</p>
+              <p class="demo-step-time">1 minute to complete</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-step-card-v2">
+          <div class="demo-step-card-content">
+            <p class="demo-step-number-v2">3</p>
+            <div class="demo-step-info-v2">
+              <h2 class="demo-step-title-v2">Apply for loan pre-approval</h2>
+              <p class="demo-step-description-v2">Final approval subject to property valuation</p>
+              <p class="demo-step-time">1 minute to complete</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         STEP 1: Property Details
+         ===================================================== -->
+    <div class="demo-step" data-demo-spa-target="step" data-step="1">
+      <div class="demo-section-header-numbered">
+        <h1 class="demo-section-title-numbered demo-animate-in">1. Property details</h1>
+        <p class="demo-section-subtitle demo-animate-in">Used to calculate your maximum borrowing amount</p>
+      </div>
+
+      <!-- Property Card (compact view) -->
+      <div class="demo-property-card-v2 demo-animate-in">
+        <div class="demo-property-card-image">
+          <%= image_tag gallery_image_names.first, alt: property_address, class: "demo-property-card-img" %>
+        </div>
+        <div class="demo-property-card-content">
+          <div class="demo-property-card-address-section">
+            <h3 class="demo-property-card-address"><%= property_address %></h3>
+          </div>
+          <div class="demo-property-card-divider"></div>
+          <div class="demo-property-card-value-section">
+            <p class="demo-property-card-value-label">Estimated property value</p>
+            <p class="demo-property-card-value-amount" data-demo-spa-target="propertyValue"><%= formatted_value %></p>
+            <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ownership Structure -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">Ownership structure</h3>
+        <div class="demo-select-wrapper">
+          <select class="demo-select" data-action="change->demo-spa#selectOwnership" data-demo-spa-target="ownership">
+            <option value="">Select ownership status</option>
+            <option value="sole">I am the sole owner</option>
+            <option value="joint">Joint owners (e.g., spouse, partner)</option>
+          </select>
+          <svg class="demo-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Outstanding Mortgage -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">Is there an outstanding mortgage on your property?</h3>
+        <div class="demo-radio-group">
+          <div class="demo-radio-item selected" data-action="click->demo-spa#selectMortgageStatus" data-has-mortgage="false">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">No</span>
+          </div>
+          <div class="demo-radio-item" data-action="click->demo-spa#selectMortgageStatus" data-has-mortgage="true">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">Yes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Occupancy Status -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">What is the current state of occupancy?</h3>
+        <div class="demo-radio-group">
+          <div class="demo-radio-item" data-action="click->demo-spa#selectOccupancy" data-occupancy="primary">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">This property is my primary residence</span>
+          </div>
+          <div class="demo-radio-item" data-action="click->demo-spa#selectOccupancy" data-occupancy="investment">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">This is an investment property</span>
+          </div>
+          <div class="demo-radio-item" data-action="click->demo-spa#selectOccupancy" data-occupancy="holiday">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">This is a holiday home</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Growth Rate Selector -->
+      <div class="demo-growth-rate-section demo-animate-in">
+        <div class="demo-section-header-with-icon">
+          <h2 class="demo-question-title">Estimate your long-term property appreciation</h2>
+          <button class="demo-info-icon" aria-label="More information">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="demo-radio-group">
+          <div class="demo-radio-item" data-action="click->demo-spa#selectGrowthRate" data-growth-rate="2">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">Low growth - 2% per year</span>
+          </div>
+          <div class="demo-radio-item selected" data-action="click->demo-spa#selectGrowthRate" data-growth-rate="4">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">Medium growth - 4% per year</span>
+          </div>
+          <div class="demo-radio-item" data-action="click->demo-spa#selectGrowthRate" data-growth-rate="6">
+            <div class="demo-radio-circle">
+              <div class="demo-radio-inner"></div>
+            </div>
+            <span class="demo-radio-label">High growth - 6% per year</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projected Property Value -->
+      <div class="demo-projected-value-card demo-animate-in">
+        <div class="demo-projected-value-image">
+          <%= image_tag gallery_image_names.first, alt: "Property", class: "demo-projected-value-img" %>
+        </div>
+        <div class="demo-projected-value-content">
+          <h4 class="demo-projected-value-title">Your home, your equity preserved</h4>
+          <p class="demo-projected-value-subtitle">
+            In <span class="demo-projected-value-years">30 years</span>, the estimated value of your property is projected to reach
+          </p>
+          <p class="demo-projected-value-amount" data-demo-spa-target="projectedValue">$10,784,296.72</p>
+          <p class="demo-projected-value-note">
+            Fully preserved equity is based on <span data-demo-spa-target="growthRateDisplay">4</span>% annual growth rate
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="demo-spa-nav-buttons demo-animate-in">
+        <button class="demo-spa-back-btn" data-action="click->demo-spa#goToStep" data-step="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+        <button class="demo-continue-btn" data-action="click->demo-spa#goToStep" data-step="2">
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         STEP 2: Mortgage Details
+         ===================================================== -->
+    <div class="demo-step" data-demo-spa-target="step" data-step="2">
+      <div class="demo-section-header-numbered">
+        <h1 class="demo-section-title-numbered demo-animate-in">2. Set income and loan options</h1>
+        <p class="demo-section-subtitle demo-animate-in">Details of annuity income and mortgage type</p>
+      </div>
+
+      <!-- Property Card (compact) -->
+      <div class="demo-property-card-v2 demo-animate-in">
+        <div class="demo-property-card-image">
+          <%= image_tag gallery_image_names.first, alt: property_address, class: "demo-property-card-img" %>
+        </div>
+        <div class="demo-property-card-content">
+          <div class="demo-property-card-address-section">
+            <h3 class="demo-property-card-address"><%= property_address %></h3>
+          </div>
+          <div class="demo-property-card-divider"></div>
+          <div class="demo-property-card-value-section">
+            <p class="demo-property-card-value-label">Estimated property value</p>
+            <p class="demo-property-card-value-amount" data-demo-spa-target="propertyValueStep2"><%= formatted_value %></p>
+            <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Set Your Loan Term -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">Set your loan term</h3>
+        <div class="demo-select-wrapper">
+          <select class="demo-select" data-demo-spa-target="loanTerm" data-action="change->demo-spa#updateCalculations">
+            <option value="10">10 years</option>
+            <option value="15">15 years</option>
+            <option value="20">20 years</option>
+            <option value="25">25 years</option>
+            <option value="30" selected>30 years</option>
+          </select>
+          <svg class="demo-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Income Period Slider -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">Over what period would you like to receive tax-free income?</h3>
+        <div class="demo-slider-container">
+          <div class="demo-slider-header">
+            <span class="demo-slider-value-display" data-demo-spa-target="incomeTermDisplay">10 years</span>
+            <span class="demo-slider-label">30 years</span>
+          </div>
+          <input type="range"
+                 min="10"
+                 max="30"
+                 step="5"
+                 value="10"
+                 class="demo-slider"
+                 data-demo-spa-target="incomeTerm"
+                 data-action="input->demo-spa#updateCalculations">
+          <p class="demo-slider-note">Receive monthly income over <strong data-demo-spa-target="incomeYears">30</strong> years.</p>
+        </div>
+      </div>
+
+      <!-- Mortgage Type Selector -->
+      <div class="demo-question-section demo-animate-in">
+        <h3 class="demo-question-title">Select your mortgage type</h3>
+
+        <div class="demo-radio-group">
+          <!-- Interest-only option -->
+          <div class="demo-mortgage-option-card selected" data-action="click->demo-spa#selectMortgageType" data-mortgage-type="interest_only">
+            <div class="demo-mortgage-option-header">
+              <h4 class="demo-mortgage-option-title">Interest only</h4>
+              <div class="demo-mortgage-option-check">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="demo-mortgage-option-label">Total income amount</p>
+            <div class="demo-mortgage-option-amount-row">
+              <span class="demo-mortgage-option-amount" data-demo-spa-target="interestOnlyAmount">$3,405.59</span>
+              <span class="demo-mortgage-option-period">/month</span>
+            </div>
+            <div class="demo-mortgage-option-note">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              <span>Loan repayment at end-of-term <span data-demo-spa-target="loanRepayment">$1,226,011.73</span></span>
+            </div>
+          </div>
+
+          <!-- Principal + Interest option -->
+          <div class="demo-mortgage-option-card" data-action="click->demo-spa#selectMortgageType" data-mortgage-type="principal_and_interest">
+            <div class="demo-mortgage-option-header">
+              <h4 class="demo-mortgage-option-title">Principal + interest</h4>
+              <div class="demo-mortgage-option-check">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="demo-mortgage-option-label">Total income amount</p>
+            <div class="demo-mortgage-option-amount-row">
+              <span class="demo-mortgage-option-amount" data-demo-spa-target="principalInterestAmount">$2,622.82</span>
+              <span class="demo-mortgage-option-period">/month</span>
+            </div>
+            <div class="demo-mortgage-option-note">
+              <span>No loan repayment at end-of-term</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="demo-spa-nav-buttons demo-animate-in">
+        <button class="demo-spa-back-btn" data-action="click->demo-spa#goToStep" data-step="1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+        <button class="demo-continue-btn" data-action="click->demo-spa#goToStep" data-step="3">
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         STEP 3: Funding Details / Summary
+         ===================================================== -->
+    <div class="demo-step" data-demo-spa-target="step" data-step="3">
+      <div class="demo-section-header-numbered">
+        <h1 class="demo-section-title-numbered demo-animate-in">3. Funding details</h1>
+        <p class="demo-section-subtitle demo-animate-in">Review your loan summary and confirm</p>
+      </div>
+
+      <!-- Mortgage Summary -->
+      <div class="demo-mortgage-summary demo-animate-in">
+        <div class="demo-summary-card">
+          <!-- EPM Logo -->
+          <div class="demo-summary-logo">
+            <%= image_tag "home-picture.png", alt: "EPM", class: "demo-summary-logo-icon" %>
+            <div>
+              <span class="demo-summary-logo-text">With the</span>
+              <span class="demo-summary-logo-title">Equity Preservation Mortgage®</span>
+            </div>
+          </div>
+
+          <!-- Loan Summary Section -->
+          <div class="demo-summary-section">
+            <div class="demo-summary-section-header">
+              <h5 class="demo-summary-section-title">Loan summary</h5>
+              <svg class="demo-summary-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Mortgage type</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryMortgageType">Interest-only</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">LVR</span>
+              <span class="demo-summary-row-value">80%</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Interest rate</span>
+              <span class="demo-summary-row-value">7.45%</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Loan term</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryLoanTerm">30 years</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Loan amount</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryLoanAmount">$2,000,000</span>
+            </div>
+          </div>
+
+          <!-- Property Summary Section -->
+          <div class="demo-summary-section">
+            <div class="demo-summary-section-header">
+              <h5 class="demo-summary-section-title">Property summary</h5>
+              <svg class="demo-summary-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              </svg>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Current home value</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryHomeValue">$2,500,000</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Your projected annual growth</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryGrowthRate">4%</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Home value at end of loan term</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryFutureValue">$10,804,820</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Home equity preserved</span>
+              <span class="demo-summary-row-value success" data-demo-spa-target="summaryEquityPreserved">$10,804,820</span>
+            </div>
+          </div>
+
+          <!-- Payment Summary Section -->
+          <div class="demo-summary-section">
+            <div class="demo-summary-section-header">
+              <h5 class="demo-summary-section-title">Payment summary</h5>
+              <svg class="demo-summary-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Interest paid on your behalf</span>
+              <span class="demo-summary-row-value success" data-demo-spa-target="summaryInterestPaid">$5,947,740</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Repayment at end of the loan term</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryRepaymentAmount">$2,660,000</span>
+            </div>
+          </div>
+
+          <!-- Annuity Income Summary Section -->
+          <div class="demo-summary-section">
+            <div class="demo-summary-section-header">
+              <h5 class="demo-summary-section-title">Annuity income summary</h5>
+              <svg class="demo-summary-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Total income amount</span>
+              <span class="demo-summary-row-value success" data-demo-spa-target="summaryTotalIncome">$408,670</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Monthly income</span>
+              <span class="demo-summary-row-value success" data-demo-spa-target="summaryMonthlyIncome">$3,405.59</span>
+            </div>
+            <div class="demo-summary-row">
+              <span class="demo-summary-row-label">Annuity duration</span>
+              <span class="demo-summary-row-value" data-demo-spa-target="summaryAnnuityDuration">10 years</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Use of Annuity Income -->
+      <div class="demo-use-of-income demo-animate-in">
+        <div class="demo-use-of-income-header">
+          <h2 class="demo-use-of-income-title">How will you use your annuity income?</h2>
+          <p class="demo-use-of-income-subtitle">Select all that apply</p>
+        </div>
+        <div class="demo-checkbox-group">
+          <div class="demo-checkbox-item checked" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Day-to-day living expenses</p>
+          </div>
+          <div class="demo-checkbox-item" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Home renovations and improvements</p>
+          </div>
+          <div class="demo-checkbox-item" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Travel and leisure</p>
+          </div>
+          <div class="demo-checkbox-item" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Healthcare and medical expenses</p>
+          </div>
+          <div class="demo-checkbox-item" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Helping family members</p>
+          </div>
+          <div class="demo-checkbox-item" data-action="click->demo-spa#toggleCheckbox">
+            <div class="demo-checkbox-box">
+              <svg class="demo-checkbox-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="demo-checkbox-label">Other</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="demo-spa-nav-buttons demo-animate-in">
+        <button class="demo-spa-back-btn" data-action="click->demo-spa#goToStep" data-step="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+        <button class="demo-apply-btn" data-action="click->demo-spa#goToStep" data-step="4">
+          Apply for loan pre-approval
+        </button>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         STEP 4: Congratulations / Pre-Approved
+         ===================================================== -->
+    <div class="demo-step demo-step-congratulations" data-demo-spa-target="step" data-step="4">
+      <div class="demo-preapproved-page">
+        <div class="demo-preapproved-container">
+          <!-- Header Content -->
+          <div class="demo-preapproved-header">
+            <h1 class="demo-preapproved-title">Congratulations!</h1>
+            <div class="demo-preapproved-subtitle-group">
+              <p class="demo-preapproved-subtitle">
+                Your <strong>Equity Preservation Mortgage®</strong> has been pre-approved
+              </p>
+            </div>
+          </div>
+
+          <!-- Happy Man Image -->
+          <div class="demo-preapproved-image">
+            <%= image_tag "bg-man-with-phone.png", alt: "Happy customer with phone" %>
+          </div>
+
+          <!-- CTA to start again -->
+          <div class="demo-spa-nav-buttons" style="margin-top: 32px;">
+            <button class="demo-continue-btn" data-action="click->demo-spa#goToStep" data-step="0">
+              Start Demo Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Lightbox Overlay -->
+  <div class="demo-lightbox" data-demo-gallery-target="lightbox" data-action="click->demo-gallery#lightboxBackdropClick">
+    <button class="demo-lightbox-close" data-action="click->demo-gallery#closeLightbox" aria-label="Close lightbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <button class="demo-lightbox-nav demo-lightbox-prev" data-action="click->demo-gallery#lightboxPrev" aria-label="Previous image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="demo-lightbox-content">
+      <img src="" alt="Property photo" class="demo-lightbox-image" data-demo-gallery-target="lightboxImage">
+      <div class="demo-lightbox-counter" data-demo-gallery-target="lightboxCounter">1 / 10</div>
+    </div>
+
+    <button class="demo-lightbox-nav demo-lightbox-next" data-action="click->demo-gallery#lightboxNext" aria-label="Next image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>
