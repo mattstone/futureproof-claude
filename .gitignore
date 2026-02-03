@@ -48,3 +48,4 @@ claude-swarm.log
 /config/credentials/test.key
 # Rust build artifacts
 python/rust_monte_carlo/target/
+python/__pycache__/

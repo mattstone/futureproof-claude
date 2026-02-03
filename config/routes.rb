@@ -214,6 +214,11 @@ Rails.application.routes.draw do
     get 'mortgage_estimate', to: 'calculations#mortgage_estimate'
     get 'monthly_income', to: 'calculations#monthly_income'
     get 'check_email', to: 'calculations#check_email'
+
+    # Quote API - supports multiple calculation models
+    get 'quotes', to: 'quotes#show'
+    get 'quotes/compare', to: 'quotes#compare'
+    get 'quotes/models', to: 'quotes#models'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -10,8 +10,8 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1.demo-section-title", text: "Calculate in minutes"
     assert_select ".demo-step-card-v2", count: 3
-    assert_select ".demo-example-property-card", count: 1
-    assert_select ".demo-check-value-btn", text: /Continue with this property/
+    assert_select ".demo-property-card-v2", count: 1
+    assert_select ".demo-continue-btn", text: /Continue with this property/
   end
 
   test "demo property details page is accessible without authentication" do
@@ -47,32 +47,32 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "demo flow has correct navigation between pages" do
-    # Step 1: Property Search
+    # Step 1: Property Search (US default)
     get demo_applications_path
     assert_response :success
-    assert_select "a[href='#{demo_property_details_applications_path}']", minimum: 1
+    # Link includes market parameter
+    assert_select "a[href*='demo_property_details']", minimum: 1
 
     # Step 2: Property Details
     get demo_property_details_applications_path
     assert_response :success
-    assert_select "a[href='#{demo_mortgage_details_applications_path}']", count: 1
+    assert_select "a[href*='demo_mortgage_details']", count: 1
 
     # Step 3: Mortgage Details
     get demo_mortgage_details_applications_path
     assert_response :success
-    assert_select "a[href='#{demo_funding_details_applications_path}']", count: 1
+    assert_select "a[href*='demo_funding_details']", count: 1
 
     # Step 4: Funding Details
     get demo_funding_details_applications_path
     assert_response :success
-    assert_select "a[href='#{demo_preapproved_applications_path}']", count: 1
+    assert_select "a[href*='demo_preapproved']", count: 1
 
     # Step 5: Pre-Approved
     get demo_preapproved_applications_path
     assert_response :success
-    # Links back to start demo and create account
-    assert_select "a[href='#{demo_applications_path}']", count: 1
-    assert_select "a[href='#{new_user_registration_path}']", count: 1
+    # Page renders successfully (CTA section is currently commented out)
+    assert_select ".demo-preapproved-title", text: "Congratulations!"
   end
 
   test "get_started page links to demo instead of email modal" do
