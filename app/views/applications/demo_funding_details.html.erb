@@ -1,7 +1,21 @@
 <%= render 'shared/header' %>
 
+<%
+  # Determine market from params or default to US
+  market = params[:market]&.downcase || 'us'
+
+  # Market-specific default values
+  if market == 'au'
+    default_home_value = 2500000
+  else
+    default_home_value = 2450000
+  end
+%>
+
 <div class="demo-page">
-  <div class="demo-container" data-controller="demo-funding">
+  <div class="demo-container" data-controller="demo-funding"
+       data-demo-funding-market-value="<%= market %>"
+       data-demo-funding-default-home-value-value="<%= default_home_value %>">
     <!-- Step Indicator -->
     <div class="demo-step-indicator">
       <span class="demo-step-text">Step 3 of 3</span>

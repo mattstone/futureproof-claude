@@ -1,7 +1,51 @@
 <%= render 'shared/header' %>
 
+<%
+  # Determine market from params or default to US
+  market = params[:market]&.downcase || 'us'
+
+  # Market-specific property data
+  if market == 'au'
+    property_address_line1 = "89 Florence Terrace"
+    property_address_line2 = "Scotland Island, NSW 2105"
+    property_value = 2500000
+    hero_image = "demo/AU/hero.jpg"
+    data_provider = "CoreLogic Australia"
+    data_provider_logo = "core-logic.png"
+    other_market_label = "Switch to US Demo"
+    other_market_path = demo_applications_path(market: 'us')
+  else
+    # US (default)
+    property_address_line1 = "21659 Ocean Vista Dr #20"
+    property_address_line2 = "Laguna Beach, CA 92651"
+    property_value = 2450000
+    hero_image = "demo/US/hero.webp"
+    data_provider = "Zillow"
+    data_provider_logo = nil  # No logo for now
+    other_market_label = "Switch to AU Demo"
+    other_market_path = demo_applications_path(market: 'au')
+  end
+
+  formatted_value = number_to_currency(property_value, precision: 0)
+%>
+
 <div class="demo-page">
-  <div class="demo-container" data-controller="demo-webapp">
+  <div class="demo-container" data-controller="demo-webapp"
+       data-demo-webapp-home-value-value="<%= property_value %>"
+       data-demo-webapp-market-value="<%= market %>">
+
+    <!-- Market Switcher -->
+    <div class="demo-market-switcher">
+      <%= link_to other_market_path, class: "demo-market-switch-link" do %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <%= other_market_label %>
+      <% end %>
+    </div>
+
     <!-- Section Header - matching Webapp section-header.tsx -->
     <div class="demo-section-header">
       <h1 class="demo-section-title">Calculate in minutes</h1>
@@ -18,19 +62,25 @@
       </div>
 
       <div class="demo-example-property-card">
-        <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-example-image" %>
+        <%= image_tag hero_image, alt: property_address_line1, class: "demo-example-image" %>
         <div class="demo-example-details">
-          <h3 class="demo-example-address">89 Florence Terrace</h3>
-          <p class="demo-example-suburb">Scotland Island, NSW 2105</p>
+          <h3 class="demo-example-address"><%= property_address_line1 %></h3>
+          <p class="demo-example-suburb"><%= property_address_line2 %></p>
           <div class="demo-example-value-row">
             <span class="demo-example-value-label">Estimated value</span>
-            <span class="demo-example-value">$2,500,000</span>
+            <span class="demo-example-value"><%= formatted_value %></span>
           </div>
-          <div class="demo-powered-by-v2">
-            <%= image_tag "core-logic.png", alt: "CoreLogic Australia", class: "demo-corelogic-logo" %>
-            <span>Powered by CoreLogic Australia</span>
-          </div>
-          <%= link_to demo_property_details_applications_path, class: "demo-check-value-btn" do %>
+          <% if data_provider_logo %>
+            <div class="demo-powered-by-v2">
+              <%= image_tag data_provider_logo, alt: data_provider, class: "demo-corelogic-logo" %>
+              <span>Powered by <%= data_provider %></span>
+            </div>
+          <% else %>
+            <div class="demo-powered-by-v2">
+              <span>Powered by <%= data_provider %></span>
+            </div>
+          <% end %>
+          <%= link_to demo_property_details_applications_path(market: market), class: "demo-check-value-btn" do %>
             Continue with this property
           <% end %>
         </div>

@@ -725,12 +725,16 @@
   width: 100%;
   max-width: 500px;
   margin-top: 16px;
+  position: relative;
 }
 
 .demo-preapproved-image img {
   width: 100%;
   height: auto;
   object-fit: cover;
+  /* Fade out the bottom edge using mask */
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
 }
 
 .demo-preapproved-cta {
@@ -1881,12 +1885,16 @@
 .demo-preapproved-image {
   width: 100%;
   max-width: 500px;
+  position: relative;
 }
 
 .demo-preapproved-image img {
   width: 100%;
   height: auto;
   object-fit: cover;
+  /* Fade out the bottom edge using mask */
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
 }
 
 .demo-video-section {
@@ -3274,3 +3282,32 @@
   }
 }
 
+
+/* Market Switcher */
+.demo-market-switcher {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -16px;
+}
+
+.demo-market-switch-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #1799E8;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(23, 153, 232, 0.08);
+  transition: background 0.2s ease;
+}
+
+.demo-market-switch-link:hover {
+  background: rgba(23, 153, 232, 0.15);
+  text-decoration: none;
+}
+
+.demo-market-switch-link svg {
+  flex-shrink: 0;
+}

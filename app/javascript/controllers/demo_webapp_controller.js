@@ -25,7 +25,8 @@ export default class extends Controller {
   ]
 
   static values = {
-    homeValue: { type: Number, default: 2500000 }
+    homeValue: { type: Number, default: 2500000 },
+    market: { type: String, default: 'us' }
   }
 
   // Lookup tables matching the QuoteService (Tom's model)
@@ -59,6 +60,21 @@ export default class extends Controller {
   }
 
   loadSavedData() {
+    // Check if market has changed - if so, reset values for the new market
+    const savedMarket = sessionStorage.getItem('demo_market')
+    const currentMarket = this.marketValue
+
+    if (savedMarket !== currentMarket) {
+      // Market has changed - clear old values and use new defaults
+      sessionStorage.setItem('demo_market', currentMarket)
+      sessionStorage.setItem('demo_home_value', this.homeValueValue)
+      // Clear other values so they reset to defaults
+      sessionStorage.removeItem('demo_growth_rate')
+      sessionStorage.removeItem('demo_income_term')
+      sessionStorage.removeItem('demo_loan_term')
+      sessionStorage.removeItem('demo_mortgage_type')
+    }
+
     const savedHomeValue = sessionStorage.getItem('demo_home_value')
     if (savedHomeValue) {
       this.homeValueValue = parseInt(savedHomeValue)

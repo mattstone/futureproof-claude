@@ -1,29 +1,78 @@
 <%= render 'shared/header' %>
 
 <%
-  # Define gallery image names (without path prefix)
-  gallery_image_names = [
-    "demo/hero.jpg",
-    "demo/image.jpg",
-    "demo/image (1).jpg",
-    "demo/image (2).jpg",
-    "demo/image (3).jpg",
-    "demo/image (5).jpg",
-    "demo/image (6).jpg",
-    "demo/image (7).jpg",
-    "demo/image (8).jpg",
-    "demo/Floorplan.jpg"
-  ]
+  # Determine market from params or default to US
+  market = params[:market]&.downcase || 'us'
+
+  # Market-specific property data
+  if market == 'au'
+    property_address = "89 Florence Terrace, Scotland Island NSW 2105"
+    property_value = 2500000
+    currency_symbol = "$"
+    latitude = -33.6398101
+    longitude = 151.2946272
+    gallery_image_names = [
+      "demo/AU/hero.jpg",
+      "demo/AU/image.jpg",
+      "demo/AU/image (1).jpg",
+      "demo/AU/image (2).jpg",
+      "demo/AU/image (3).jpg",
+      "demo/AU/image (5).jpg",
+      "demo/AU/image (6).jpg",
+      "demo/AU/image (7).jpg",
+      "demo/AU/image (8).jpg",
+      "demo/AU/Floorplan.jpg"
+    ]
+    other_market_label = "Switch to US Demo"
+    other_market_path = demo_property_details_applications_path(market: 'us')
+  else
+    # US (default)
+    property_address = "21659 Ocean Vista Dr #20, Laguna Beach, CA 92651"
+    property_value = 2450000
+    currency_symbol = "$"
+    latitude = 33.5168
+    longitude = -117.7573
+    gallery_image_names = [
+      "demo/US/hero.webp",
+      "demo/US/image_1.webp",
+      "demo/US/image_2.webp",
+      "demo/US/image_3.webp",
+      "demo/US/image_4.webp",
+      "demo/US/image_5.webp",
+      "demo/US/image_6.webp",
+      "demo/US/image_7.webp",
+      "demo/US/image_8.webp",
+      "demo/US/image_9.webp"
+    ]
+    other_market_label = "Switch to AU Demo"
+    other_market_path = demo_property_details_applications_path(market: 'au')
+  end
+
   # Convert to full asset URLs for JavaScript
   gallery_image_urls = gallery_image_names.map { |name| asset_path(name) }
+  formatted_value = number_to_currency(property_value, precision: 0)
 %>
 
 <div class="demo-page" data-controller="demo-gallery"
      data-demo-gallery-images-value="<%= gallery_image_urls.to_json %>"
-     data-demo-gallery-latitude-value="-33.6398101"
-     data-demo-gallery-longitude-value="151.2946272">
+     data-demo-gallery-latitude-value="<%= latitude %>"
+     data-demo-gallery-longitude-value="<%= longitude %>">
   <div class="demo-container" data-controller="demo-webapp"
-       data-demo-webapp-home-value-value="2500000">
+       data-demo-webapp-home-value-value="<%= property_value %>"
+       data-demo-webapp-market-value="<%= market %>">
+
+    <!-- Market Switcher -->
+    <div class="demo-market-switcher">
+      <%= link_to other_market_path, class: "demo-market-switch-link" do %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <%= other_market_label %>
+      <% end %>
+    </div>
+
     <!-- Step Indicator -->
     <div class="demo-step-indicator">
       <span class="demo-step-text">Step 1 of 3</span>
@@ -46,7 +95,7 @@
       <div class="demo-property-card-image" data-demo-gallery-target="photoView">
         <!-- Main Image (clickable for lightbox) -->
         <div class="demo-gallery-main" data-action="click->demo-gallery#openLightbox">
-          <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-property-card-img", data: { demo_gallery_target: "mainImage" } %>
+          <%= image_tag gallery_image_names.first, alt: property_address, class: "demo-property-card-img", data: { demo_gallery_target: "mainImage" } %>
           <div class="demo-gallery-expand-hint">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
               <polyline points="15 3 21 3 21 9"/>
@@ -107,14 +156,14 @@
       </div>
       <div class="demo-property-card-content">
         <div class="demo-property-card-address-section">
-          <h3 class="demo-property-card-address">89 Florence Terrace, Scotland Island NSW 2105</h3>
+          <h3 class="demo-property-card-address"><%= property_address %></h3>
         </div>
 
         <div class="demo-property-card-divider"></div>
 
         <div class="demo-property-card-value-section">
           <p class="demo-property-card-value-label">Estimated property value</p>
-          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue">$2,500,000</p>
+          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue"><%= formatted_value %></p>
           <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
         </div>
       </div>
@@ -217,7 +266,7 @@
     <!-- Projected Property Value -->
     <div class="demo-projected-value-card">
       <div class="demo-projected-value-image">
-        <%= image_tag "demo/hero.jpg", alt: "Property", class: "demo-projected-value-img" %>
+        <%= image_tag gallery_image_names.first, alt: "Property", class: "demo-projected-value-img" %>
       </div>
       <div class="demo-projected-value-content">
         <h4 class="demo-projected-value-title">Your home, your equity preserved</h4>
@@ -232,7 +281,7 @@
     </div>
 
     <!-- Continue Button -->
-    <%= link_to demo_mortgage_details_applications_path, class: "demo-continue-btn" do %>
+    <%= link_to demo_mortgage_details_applications_path(market: market), class: "demo-continue-btn" do %>
       Continue
     <% end %>
   </div>

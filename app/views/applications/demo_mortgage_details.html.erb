@@ -1,7 +1,28 @@
 <%= render 'shared/header' %>
 
+<%
+  # Determine market from params or default to US
+  market = params[:market]&.downcase || 'us'
+
+  # Market-specific property data
+  if market == 'au'
+    property_address = "89 Florence Terrace, Scotland Island NSW 2105"
+    property_value = 2500000
+    hero_image = "demo/AU/hero.jpg"
+  else
+    # US (default)
+    property_address = "21659 Ocean Vista Dr #20, Laguna Beach, CA 92651"
+    property_value = 2450000
+    hero_image = "demo/US/hero.webp"
+  end
+
+  formatted_value = number_to_currency(property_value, precision: 0)
+%>
+
 <div class="demo-page">
-  <div class="demo-container" data-controller="demo-webapp" data-demo-webapp-home-value-value="2500000">
+  <div class="demo-container" data-controller="demo-webapp"
+       data-demo-webapp-home-value-value="<%= property_value %>"
+       data-demo-webapp-market-value="<%= market %>">
     <!-- Step Indicator -->
     <div class="demo-step-indicator">
       <span class="demo-step-text">Step 2 of 3</span>
@@ -21,18 +42,18 @@
     <!-- Property Card - Same property as Step 1 -->
     <div class="demo-property-card-v2">
       <div class="demo-property-card-image">
-        <%= image_tag "demo/hero.jpg", alt: "89 Florence Terrace, Scotland Island", class: "demo-property-card-img" %>
+        <%= image_tag hero_image, alt: property_address, class: "demo-property-card-img" %>
       </div>
       <div class="demo-property-card-content">
         <div class="demo-property-card-address-section">
-          <h3 class="demo-property-card-address">89 Florence Terrace, Scotland Island NSW 2105</h3>
+          <h3 class="demo-property-card-address"><%= property_address %></h3>
         </div>
 
         <div class="demo-property-card-divider"></div>
 
         <div class="demo-property-card-value-section">
           <p class="demo-property-card-value-label">Estimated property value</p>
-          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue">$2,500,000</p>
+          <p class="demo-property-card-value-amount" data-demo-webapp-target="propertyValue"><%= formatted_value %></p>
           <p class="demo-valuation-note">This is indicative only. An independent valuation will be conducted.</p>
         </div>
       </div>
@@ -126,7 +147,7 @@
     </div>
 
     <!-- Continue Button -->
-    <%= link_to demo_funding_details_applications_path, class: "demo-continue-btn" do %>
+    <%= link_to demo_funding_details_applications_path(market: market), class: "demo-continue-btn" do %>
       Continue
     <% end %>
   </div>

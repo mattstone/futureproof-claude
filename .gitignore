@@ -46,3 +46,5 @@ claude-swarm.log
 /config/credentials/production.key
 
 /config/credentials/test.key
+# Rust build artifacts
+python/rust_monte_carlo/target/

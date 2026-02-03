@@ -18,9 +18,14 @@ export default class extends Controller {
     "annuityDuration"
   ]
 
+  static values = {
+    market: { type: String, default: 'us' },
+    defaultHomeValue: { type: Number, default: 2450000 }
+  }
+
   // Default values (matching demo_property_details defaults)
   defaults = {
-    homeValue: 2500000,
+    homeValue: 2450000,  // Will be overridden by market-specific value
     loanTerm: 30,
     incomeTerm: 10,
     growthRate: 4,
@@ -53,8 +58,11 @@ export default class extends Controller {
   }
 
   loadAndDisplayValues() {
+    // Use market-specific default home value
+    const defaultHomeValue = this.hasDefaultHomeValueValue ? this.defaultHomeValueValue : this.defaults.homeValue
+
     // Load saved values from sessionStorage
-    const homeValue = parseInt(sessionStorage.getItem('demo_home_value')) || this.defaults.homeValue
+    const homeValue = parseInt(sessionStorage.getItem('demo_home_value')) || defaultHomeValue
     const loanTerm = parseInt(sessionStorage.getItem('demo_loan_term')) || this.defaults.loanTerm
     const incomeTerm = parseInt(sessionStorage.getItem('demo_income_term')) || this.defaults.incomeTerm
     const growthRate = parseFloat(sessionStorage.getItem('demo_growth_rate')) || this.defaults.growthRate
