@@ -1,13 +1,25 @@
-<%= render 'shared/header' %>
+<%= render 'shared/demo_header' %>
 
 <div class="legal-page">
   <div class="legal-container">
-    <h1><%= @terms_of_use.title %></h1>
-    <p class="last-updated">Last updated: <%= @terms_of_use.formatted_last_updated %></p>
+    <% if @terms_of_use %>
+      <h1><%= @terms_of_use.title %></h1>
+      <p class="last-updated">Last updated: <%= @terms_of_use.formatted_last_updated %></p>
 
-    <div class="legal-content">
-      <%= raw @terms_of_use.rendered_content %>
-    </div>
+      <div class="legal-content">
+        <%= raw @terms_of_use.rendered_content %>
+      </div>
+    <% else %>
+      <h1>Terms of Use</h1>
+      <p class="last-updated">Last updated: January 31, 2025</p>
+
+      <div class="legal-content">
+        <section class="legal-section">
+          <h2>Terms of Use Coming Soon</h2>
+          <p>Our terms of use are currently being updated. Please check back soon.</p>
+        </section>
+      </div>
+    <% end %>
 
     <div class="legal-footer">
       <%= link_to "← Back to Home", root_path, class: "back-link" %>
@@ -15,4 +27,4 @@
   </div>
 </div>
 
-<%= render 'shared/footer' %>
+<%= render 'shared/demo_footer' %>

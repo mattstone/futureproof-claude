@@ -1,0 +1,41 @@
+<!-- Demo Footer - Simplified navigation -->
+<footer class="site-footer">
+  <!-- Main Footer Section (Dark Blue) -->
+  <div class="footer-main">
+    <div class="footer-container">
+      <!-- Logo -->
+      <%= image_tag "futureproof-logo.png", alt: "Futureproof", class: "footer-logo" %>
+
+      <!-- Disclaimers -->
+      <p class="footer-disclaimer">
+        *Calculations are not a loan approval. Applications are subject to final property valuations and ownership search. Full terms and conditions will be set out in the Equity Preservation Mortgage® offer.
+      </p>
+
+      <p class="footer-disclaimer">
+        All Equity Preservation Mortgages® are secured by registered first mortgage over a residential property and subject to independent valuation of your property. Financial results shown are true only for the examples given and do not include lender's fees and charges. Different mortgage types, loan amounts and loan terms may result in a different total annuity income amounts and annuity durations.
+      </p>
+
+      <!-- Divider -->
+      <div class="footer-divider"></div>
+
+      <!-- Navigation Links - 2 column grid -->
+      <div class="footer-nav">
+        <div class="footer-nav-column">
+          <%= link_to "Privacy Policy", privacy_policy_path, class: "footer-link" %>
+          <%= link_to "Terms of Use", terms_of_use_path, class: "footer-link" %>
+        </div>
+        <div class="footer-nav-column">
+          <%= link_to "Contact Us", "mailto:info@futureprooffinancial.co", class: "footer-link" %>
+          <span class="footer-link footer-link-disabled">FAQs - Coming Soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copyright Section (Gray) -->
+  <div class="footer-copyright-section">
+    <p class="footer-copyright-text">
+      &copy;<%= Date.current.year %> Futureproof Financial Group Limited | All Rights Reserved. "Equity Preservation Mortgage" is a registered trademark of Futureproof Financial Group Limited.
+    </p>
+  </div>
+</footer>
