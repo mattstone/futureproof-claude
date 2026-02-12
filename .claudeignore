@@ -1,0 +1,10 @@
+tmp/
+log/
+storage/
+vendor/
+.git/
+public/assets/
+db/*.sqlite3
+coverage/
+node_modules/
+.claude-on-rails/prompts/
