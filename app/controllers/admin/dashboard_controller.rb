@@ -115,7 +115,78 @@ class Admin::DashboardController < Admin::BaseController
     end
   end
 
+  def business
+    # Capital Overview
+    @total_capital_raised = FunderPool.sum(:amount)
+    @capital_deployed = Contract.sum(:allocated_amount)
+    @capital_utilisation = @total_capital_raised > 0 ? ((@capital_deployed / @total_capital_raised) * 100).round(1) : 0
+    
+    # Weighted avg cost of capital
+    total_weighted = FunderPool.sum('amount * (benchmark_rate + margin_rate)')
+    @wacc = @total_capital_raised > 0 ? (total_weighted / @total_capital_raised).round(2) : 0
+
+    # Portfolio Summary
+    @total_contracts = Contract.count
+    @active_contracts_count = Contract.where(status: [:ok, :in_holiday]).count
+    @total_monthly_outflows = Contract.where(status: [:ok, :in_holiday]).sum(:monthly_payment)
+    
+    # All contracts for P&L
+    @contracts = Contract.includes(:application, :lender, :funder_pool, application: :user).order(:start_date)
+    @portfolio_pl = @contracts.sum { |c| contract_net_pl(c) }
+
+    # Wholesale Funders
+    @wholesale_funders = WholesaleFunder.includes(funder_pools: :contracts).all
+
+    # Funder Pools
+    @funder_pools = FunderPool.includes(:wholesale_funder, :contracts).all
+
+    # Account Balances
+    @total_offset = Contract.sum(:offset_balance)
+    @total_investment = Contract.sum(:investment_balance)
+    @total_account_value = @total_offset + @total_investment
+    
+    # Weighted avg investment return
+    total_inv = Contract.where('investment_balance > 0').sum(:investment_balance)
+    weighted_return = Contract.where('investment_balance > 0').sum('investment_balance * investment_return_rate')
+    @avg_investment_return = total_inv > 0 ? (weighted_return / total_inv).round(2) : 0
+
+    # Monthly P&L trend data (last 24 months)
+    @monthly_pl_data = generate_monthly_pl_data(24)
+  end
+
   private
+
+  def contract_net_pl(c)
+    months_active = c.start_date ? [(Date.today - c.start_date).to_i / 30.0, 0].max : 0
+    investment_gain = c.investment_balance.to_f * (c.investment_return_rate.to_f / 100.0)
+    cost_of_capital = c.allocated_amount.to_f * (c.cost_of_capital_rate.to_f / 100.0) * (months_active / 12.0)
+    investment_gain - c.total_payments_made.to_f - cost_of_capital
+  end
+  helper_method :contract_net_pl
+
+  def generate_monthly_pl_data(months)
+    data = {}
+    cumulative = 0
+    contracts = Contract.where.not(status: :awaiting_funding).where('start_date <= ?', Date.today)
+    
+    months.times do |i|
+      month_date = (months - 1 - i).months.ago.beginning_of_month.to_date
+      month_end = month_date.end_of_month
+      
+      # Contracts active during this month
+      active = contracts.where('start_date <= ?', month_end)
+      monthly_pl = active.sum { |c|
+        # Proportional monthly P&L
+        months_active = [(month_end - c.start_date).to_i / 30.0, 0].max
+        inv_gain_monthly = c.investment_balance.to_f * (c.investment_return_rate.to_f / 100.0) / [months_active, 1].max
+        cost_monthly = c.allocated_amount.to_f * (c.cost_of_capital_rate.to_f / 100.0) / 12.0
+        inv_gain_monthly - c.monthly_payment.to_f - cost_monthly
+      }
+      cumulative += monthly_pl
+      data[month_date.strftime('%b %Y')] = { monthly: monthly_pl.round(0), cumulative: cumulative.round(0) }
+    end
+    data
+  end
 
   def build_attention_items(applications_scope)
     items = []

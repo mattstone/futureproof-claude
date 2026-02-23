@@ -51,6 +51,7 @@ Rails.application.routes.draw do
     # Direct access to all funder pools
     resources :funder_pools, only: [:index]
     resources :dashboard, only: [:index]
+    get 'business', to: 'dashboard#business'
     resources :users
     resources :mortgages do
       resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do

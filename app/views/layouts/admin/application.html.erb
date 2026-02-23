@@ -29,8 +29,11 @@
         </div>
         
         <nav class="admin-nav">
-          <%= link_to admin_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard'}" do %>
+          <%= link_to admin_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard' && action_name == 'index'}" do %>
             <span>📊 Dashboard</span>
+          <% end %>
+          <%= link_to admin_business_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard' && action_name == 'business'}" do %>
+            <span>💼 Business</span>
           <% end %>
 
           <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %>>

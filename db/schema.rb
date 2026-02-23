@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_101945) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_132023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -303,13 +303,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_101945) do
   create_table "contracts", force: :cascade do |t|
     t.decimal "allocated_amount", precision: 15, scale: 2
     t.bigint "application_id", null: false
+    t.decimal "cost_of_capital_rate", precision: 8, scale: 4, default: "0.0"
     t.datetime "created_at", null: false
     t.date "end_date", null: false
     t.bigint "funder_pool_id"
+    t.decimal "investment_balance", precision: 12, scale: 2, default: "0.0"
+    t.decimal "investment_return_rate", precision: 8, scale: 4, default: "0.0"
     t.bigint "lender_id"
+    t.decimal "monthly_payment", precision: 10, scale: 2, default: "0.0"
     t.bigint "mortgage_contract_id"
+    t.decimal "offset_balance", precision: 12, scale: 2, default: "0.0"
     t.date "start_date", null: false
     t.integer "status", default: 0, null: false
+    t.decimal "total_payments_made", precision: 12, scale: 2, default: "0.0"
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_contracts_on_application_id", unique: true
     t.index ["funder_pool_id"], name: "index_contracts_on_funder_pool_id"

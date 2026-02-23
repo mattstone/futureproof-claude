@@ -1,0 +1,282 @@
+<% content_for :page_title, "Business Dashboard" %>
+
+<!-- Section 1: Capital Overview -->
+<h2 class="section-title">💰 Capital Overview</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-label">Total Capital Raised</div>
+    <div class="metric-value"><%= number_to_currency(@total_capital_raised, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Capital Deployed</div>
+    <div class="metric-value"><%= number_to_currency(@capital_deployed, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Capital Utilisation</div>
+    <div class="metric-value"><%= @capital_utilisation %>%</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Weighted Avg Cost of Capital</div>
+    <div class="metric-value"><%= @wacc %>%</div>
+  </div>
+</div>
+
+<!-- Section 2: Portfolio Summary -->
+<h2 class="section-title">📈 Portfolio Summary</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-label">Total Contracts</div>
+    <div class="metric-value"><%= @total_contracts %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Active Contracts</div>
+    <div class="metric-value"><%= @active_contracts_count %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Total Monthly Outflows</div>
+    <div class="metric-value"><%= number_to_currency(@total_monthly_outflows, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Portfolio P&L</div>
+    <div class="metric-value <%= @portfolio_pl >= 0 ? 'business-profit' : 'business-loss' %>">
+      <%= number_to_currency(@portfolio_pl, precision: 0) %>
+    </div>
+  </div>
+</div>
+
+<!-- Section 7: Account Balances Summary -->
+<h2 class="section-title">🏦 Account Balances</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-label">Total Offset Balances</div>
+    <div class="metric-value"><%= number_to_currency(@total_offset, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Total Investment Balances</div>
+    <div class="metric-value"><%= number_to_currency(@total_investment, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Total Account Value</div>
+    <div class="metric-value"><%= number_to_currency(@total_account_value, precision: 0) %></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Avg Investment Return</div>
+    <div class="metric-value <%= @avg_investment_return >= 0 ? 'business-profit' : 'business-loss' %>">
+      <%= @avg_investment_return %>%
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Wholesale Funders -->
+<h2 class="section-title">🏢 Wholesale Funders</h2>
+<div class="business-table-wrapper">
+  <table class="business-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Currency</th>
+        <th>Pools</th>
+        <th>Capital Committed</th>
+        <th>Capital Deployed</th>
+        <th>Utilisation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @wholesale_funders.each do |funder| %>
+        <% committed = funder.funder_pools.sum(&:amount) %>
+        <% deployed = funder.funder_pools.sum(&:allocated) %>
+        <% util = committed > 0 ? ((deployed / committed) * 100).round(1) : 0 %>
+        <tr>
+          <td><strong><%= funder.name %></strong></td>
+          <td><%= funder.country %></td>
+          <td><%= funder.currency %></td>
+          <td><%= funder.funder_pools.size %></td>
+          <td><%= number_to_currency(committed, precision: 0) %></td>
+          <td><%= number_to_currency(deployed, precision: 0) %></td>
+          <td><%= util %>%</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 4: Funder Pools -->
+<h2 class="section-title">🏊 Funder Pools</h2>
+<div class="business-table-wrapper">
+  <table class="business-table">
+    <thead>
+      <tr>
+        <th>Pool Name</th>
+        <th>Funder</th>
+        <th>Amount</th>
+        <th>Allocated</th>
+        <th>Available</th>
+        <th>Benchmark</th>
+        <th>Margin</th>
+        <th>Effective</th>
+        <th>Contracts</th>
+        <th>Pool P&L</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @funder_pools.each do |pool| %>
+        <% available = pool.amount - pool.allocated %>
+        <% effective = pool.benchmark_rate + pool.margin_rate %>
+        <% pool_pl = pool.contracts.sum { |c| contract_net_pl(c) } %>
+        <tr>
+          <td><strong><%= pool.name %></strong></td>
+          <td><%= pool.wholesale_funder.name %></td>
+          <td><%= number_to_currency(pool.amount, precision: 0) %></td>
+          <td><%= number_to_currency(pool.allocated, precision: 0) %></td>
+          <td><%= number_to_currency(available, precision: 0) %></td>
+          <td><%= pool.benchmark_rate %>%</td>
+          <td><%= pool.margin_rate %>%</td>
+          <td><%= effective.round(2) %>%</td>
+          <td><%= pool.contracts.size %></td>
+          <td class="<%= pool_pl >= 0 ? 'business-profit' : 'business-loss' %>">
+            <%= number_to_currency(pool_pl, precision: 0) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 5: Contract Profitability -->
+<h2 class="section-title">📊 Contract Profitability</h2>
+<div class="business-table-wrapper">
+  <table class="business-table" id="contract-profitability-table">
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Borrower</th>
+        <th>Lender</th>
+        <th>Start Date</th>
+        <th>Status</th>
+        <th>Allocated</th>
+        <th>Offset</th>
+        <th>Investment</th>
+        <th>Monthly Pmt</th>
+        <th>Total Paid</th>
+        <th>Inv Return</th>
+        <th>Cost of Capital</th>
+        <th>Net P&L</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @contracts.sort_by { |c| -contract_net_pl(c).abs }.each do |contract| %>
+        <% months_active = contract.start_date ? [(Date.today - contract.start_date).to_i / 30.0, 0].max : 0 %>
+        <% inv_return = contract.investment_balance.to_f * (contract.investment_return_rate.to_f / 100.0) %>
+        <% cost_cap = contract.allocated_amount.to_f * (contract.cost_of_capital_rate.to_f / 100.0) * (months_active / 12.0) %>
+        <% net_pl = contract_net_pl(contract) %>
+        <tr class="<%= net_pl >= 0 ? 'row-profit' : 'row-loss' %>">
+          <td>#<%= contract.id %></td>
+          <td><%= contract.application.user.display_name rescue 'N/A' %></td>
+          <td><%= contract.lender&.name || 'N/A' %></td>
+          <td><%= contract.start_date.strftime('%d %b %Y') %></td>
+          <td><span class="status-badge status-<%= contract.status %>"><%= contract.status.humanize %></span></td>
+          <td><%= number_to_currency(contract.allocated_amount, precision: 0) %></td>
+          <td><%= number_to_currency(contract.offset_balance, precision: 0) %></td>
+          <td><%= number_to_currency(contract.investment_balance, precision: 0) %></td>
+          <td><%= number_to_currency(contract.monthly_payment, precision: 0) %></td>
+          <td><%= number_to_currency(contract.total_payments_made, precision: 0) %></td>
+          <td class="<%= inv_return >= 0 ? 'business-profit' : 'business-loss' %>">
+            <%= number_to_currency(inv_return, precision: 0) %>
+          </td>
+          <td class="business-loss"><%= number_to_currency(cost_cap, precision: 0) %></td>
+          <td class="<%= net_pl >= 0 ? 'business-profit' : 'business-loss' %>" style="font-weight: 700;">
+            <%= number_to_currency(net_pl, precision: 0) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 6: Profitability Over Time Chart -->
+<h2 class="section-title">📉 Profitability Over Time</h2>
+<div class="business-chart-container">
+  <div id="pl-chart" style="width: 100%; height: 350px;"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const data = <%= raw @monthly_pl_data.to_json %>;
+  const labels = Object.keys(data);
+  const monthlyValues = labels.map(k => data[k].monthly);
+  const cumulativeValues = labels.map(k => data[k].cumulative);
+  
+  const container = document.getElementById('pl-chart');
+  if (!container || labels.length === 0) return;
+  
+  const width = container.clientWidth;
+  const height = 350;
+  const padding = { top: 30, right: 80, bottom: 60, left: 80 };
+  const chartW = width - padding.left - padding.right;
+  const chartH = height - padding.top - padding.bottom;
+  
+  const allValues = monthlyValues.concat(cumulativeValues);
+  const minVal = Math.min(...allValues);
+  const maxVal = Math.max(...allValues);
+  const range = maxVal - minVal || 1;
+  
+  const scaleX = (i) => padding.left + (i / (labels.length - 1)) * chartW;
+  const scaleY = (v) => padding.top + chartH - ((v - minVal) / range) * chartH;
+  
+  let svg = `<svg width="${width}" height="${height}" style="font-family: -apple-system, sans-serif;">`;
+  
+  // Zero line
+  if (minVal < 0 && maxVal > 0) {
+    const y0 = scaleY(0);
+    svg += `<line x1="${padding.left}" y1="${y0}" x2="${width - padding.right}" y2="${y0}" stroke="#94a3b8" stroke-dasharray="4,4"/>`;
+  }
+  
+  // Bars for monthly P&L
+  const barW = Math.max(chartW / labels.length * 0.6, 4);
+  monthlyValues.forEach((v, i) => {
+    const x = scaleX(i) - barW/2;
+    const y0 = scaleY(0);
+    const yv = scaleY(v);
+    const barH = Math.abs(yv - y0);
+    const y = v >= 0 ? yv : y0;
+    const color = v >= 0 ? '#059669' : '#dc2626';
+    svg += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${color}" opacity="0.6" rx="2"/>`;
+  });
+  
+  // Cumulative line
+  let path = `M ${scaleX(0)} ${scaleY(cumulativeValues[0])}`;
+  for (let i = 1; i < labels.length; i++) {
+    path += ` L ${scaleX(i)} ${scaleY(cumulativeValues[i])}`;
+  }
+  svg += `<path d="${path}" fill="none" stroke="#2563eb" stroke-width="2.5"/>`;
+  cumulativeValues.forEach((v, i) => {
+    svg += `<circle cx="${scaleX(i)}" cy="${scaleY(v)}" r="3" fill="#2563eb"/>`;
+  });
+  
+  // X labels
+  labels.forEach((label, i) => {
+    if (i % Math.ceil(labels.length / 12) === 0) {
+      svg += `<text x="${scaleX(i)}" y="${height - 10}" text-anchor="middle" font-size="11" fill="#64748b">${label}</text>`;
+    }
+  });
+  
+  // Y labels
+  const steps = 5;
+  for (let i = 0; i <= steps; i++) {
+    const val = minVal + (range / steps) * i;
+    const y = scaleY(val);
+    svg += `<text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#64748b">$${(val/1000).toFixed(0)}k</text>`;
+    svg += `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+  }
+  
+  // Legend
+  svg += `<rect x="${width - 200}" y="5" width="12" height="12" fill="#059669" opacity="0.6" rx="2"/>`;
+  svg += `<text x="${width - 184}" y="15" font-size="11" fill="#334155">Monthly P&L</text>`;
+  svg += `<line x1="${width - 200}" y1="30" x2="${width - 188}" y2="30" stroke="#2563eb" stroke-width="2.5"/>`;
+  svg += `<text x="${width - 184}" y="34" font-size="11" fill="#334155">Cumulative P&L</text>`;
+  
+  svg += '</svg>';
+  container.innerHTML = svg;
+});
+</script>
