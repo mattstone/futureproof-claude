@@ -33,7 +33,7 @@
             <span>📊 Dashboard</span>
           <% end %>
 
-          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %> open>
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %>>
             <summary class="admin-nav-group-header">Operations</summary>
             <div class="admin-nav-group-items">
               <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
@@ -49,7 +49,7 @@
           </details>
 
           <% if current_user&.lender&.lender_type_futureproof? %>
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %> open>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %>>
               <summary class="admin-nav-group-header">AI Agents</summary>
               <div class="admin-nav-group-items">
                 <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}" do %>
@@ -61,7 +61,7 @@
               </div>
             </details>
 
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders wholesale_funders calculators]) %> open>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders wholesale_funders calculators]) %>>
               <summary class="admin-nav-group-header">Products</summary>
               <div class="admin-nav-group-items">
                 <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
@@ -79,7 +79,7 @@
               </div>
             </details>
 
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[terms_of_uses privacy_policies terms_and_conditions core_logic_test]) %> open>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[terms_of_uses privacy_policies terms_and_conditions core_logic_test]) %>>
               <summary class="admin-nav-group-header">Configuration</summary>
               <div class="admin-nav-group-items">
                 <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
@@ -130,5 +130,27 @@
         </div>
       </main>
     </div>
+    <script>
+      // Scroll active nav item into view on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.admin-nav');
+        const active = sidebar && sidebar.querySelector('.admin-nav-link.active');
+        if (active && sidebar) {
+          // Use saved scroll position if available, otherwise scroll to active item
+          const saved = sessionStorage.getItem('admin-nav-scroll');
+          if (saved) {
+            sidebar.scrollTop = parseInt(saved, 10);
+          } else {
+            active.scrollIntoView({ block: 'center', behavior: 'instant' });
+          }
+        }
+        // Save scroll position on nav clicks
+        if (sidebar) {
+          sidebar.addEventListener('scroll', function() {
+            sessionStorage.setItem('admin-nav-scroll', sidebar.scrollTop);
+          });
+        }
+      });
+    </script>
   </body>
 </html>
