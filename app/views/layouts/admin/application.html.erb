@@ -61,6 +61,9 @@
             <%= link_to admin_agent_lifecycle_index_path, class: "admin-nav-link #{'active' if controller_name == 'agent_lifecycle'}" do %>
               <span>🤖 AI Agents</span>
             <% end %>
+            <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'agent_dashboard'}" do %>
+              <span>📊 Agent Activity</span>
+            <% end %>
             <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
               <span>📧 Email Templates</span>
             <% end %>

@@ -1,5 +1,7 @@
 class AiAgent < ApplicationRecord
   has_many :application_messages, dependent: :nullify
+  has_many :agent_actions, dependent: :destroy
+  has_many :agent_actions, dependent: :destroy
   
   validates :name, presence: true, uniqueness: true
   validates :agent_type, presence: true, inclusion: { in: %w[applications backoffice investment] }

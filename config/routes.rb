@@ -87,6 +87,16 @@ Rails.application.routes.draw do
         patch :advance_to_processing
         patch :update_checklist_item
       end
+      resources :documents, controller: 'application_documents', only: [:index, :create, :destroy] do
+        member do
+          patch :verify
+          patch :reject
+          post :auto_verify
+        end
+        collection do
+          post :request_all
+        end
+      end
     end
     resources :contracts do
       collection do
@@ -166,6 +176,13 @@ Rails.application.routes.draw do
         get :edit_trigger
         patch :update_trigger
         delete :destroy_trigger
+      end
+    end
+
+    # Agent Action Dashboard
+    resources :agent_dashboard, only: [:index, :show] do
+      collection do
+        get :timeline
       end
     end
 

@@ -35,3 +35,39 @@ support_specialist:
   is_active: true
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.week.ago %>
+
+motoko:
+  name: "Motoko"
+  agent_type: "applications"
+  description: "Acquisition agent - handles new users and applications"
+  avatar_filename: "Motoko.png"
+  role_title: "Acquisition Specialist"
+  specialties: "New applications, onboarding"
+  greeting_style: "friendly"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+rei:
+  name: "Rei"
+  agent_type: "backoffice"
+  description: "Operations agent - handles processing and review"
+  avatar_filename: "Rie.png"
+  role_title: "Operations Specialist"
+  specialties: "Application processing, document review"
+  greeting_style: "professional"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+yumi:
+  name: "Yumi"
+  agent_type: "investment"
+  description: "Contracts agent - handles acceptance and lifetime management"
+  avatar_filename: "Yumi.png"
+  role_title: "Contract Specialist"
+  specialties: "Contracts, funding, acceptance"
+  greeting_style: "professional"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>

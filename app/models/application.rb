@@ -6,6 +6,9 @@ class Application < ApplicationRecord
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
   has_many :application_checklists, class_name: 'ApplicationChecklist', dependent: :destroy
+  has_many :agent_actions, as: :actionable, dependent: :destroy
+  has_many :application_documents, dependent: :destroy
+  has_many :application_documents, dependent: :destroy
 
   # Enums
   enum :ownership_status, {
@@ -424,6 +427,34 @@ class Application < ApplicationRecord
       action: 'viewed',
       change_details: "Admin #{user.display_name} viewed application"
     )
+  end
+
+  # Document management methods
+  def documents_complete_for?(stage)
+    required = case stage.to_s
+               when "submission" then ApplicationDocument::REQUIRED_FOR_SUBMISSION
+               when "processing" then ApplicationDocument::REQUIRED_FOR_PROCESSING
+               when "acceptance" then ApplicationDocument::REQUIRED_FOR_ACCEPTANCE
+               else return false
+               end
+
+    required.all? do |doc_type|
+      application_documents.where(document_type: doc_type, status: "verified").exists?
+    end
+  end
+
+  def create_document_requests!
+    ApplicationDocument::DOCUMENT_TYPES.each do |doc_type|
+      application_documents.find_or_create_by!(document_type: doc_type) do |doc|
+        doc.status = :pending
+        doc.name = doc_type.humanize
+        doc.requested_at = Time.current
+      end
+    end
+  end
+
+  def outstanding_documents
+    application_documents.outstanding
   end
 
   # Checklist management methods

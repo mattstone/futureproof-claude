@@ -220,6 +220,58 @@
 
   <!-- Right Column - Checklist and Messages -->
   <div class="admin-right-column" id="admin-right-column">
+    <!-- Documents Section -->
+    <div class="admin-form">
+      <div class="application-header">
+        <h3>Documents</h3>
+        <%= button_to "Request All Documents", request_all_admin_application_documents_path(@application), method: :post, class: "admin-btn admin-btn-secondary", style: "font-size: 0.85rem; padding: 0.3rem 0.8rem;" %>
+      </div>
+
+      <% if @application.application_documents.any? %>
+        <div class="application-details">
+          <% @application.application_documents.order(:document_type).each do |doc| %>
+            <div class="detail-row" style="align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <strong style="min-width: 140px;"><%= doc.display_name %></strong>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <% badge_class = case doc.status
+                   when "pending" then "admin-badge-secondary"
+                   when "uploaded" then "admin-badge-info"
+                   when "verified" then "admin-badge-success"
+                   when "rejected" then "admin-badge-danger"
+                   when "expired" then "admin-badge-secondary"
+                   else "admin-badge-secondary"
+                   end %>
+                <span class="admin-badge <%= badge_class %>"><%= doc.status.capitalize %></span>
+
+                <% if doc.verified_by.present? %>
+                  <small>by <%= doc.verified_by %></small>
+                <% end %>
+
+                <% if doc.uploaded? %>
+                  <%= button_to "Verify", verify_admin_application_document_path(@application, doc), method: :patch, class: "admin-btn admin-btn-primary", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+                  <%= button_to "Reject", reject_admin_application_document_path(@application, doc), method: :patch, params: { reason: "Does not meet requirements" }, class: "admin-btn admin-btn-secondary", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+                  <%= button_to "Auto-Verify", auto_verify_admin_application_document_path(@application, doc), method: :post, class: "admin-btn admin-btn-secondary", style: "font-size: 0.75rem; padding: 0.2rem 0.5rem;" %>
+                <% end %>
+
+                <% if doc.rejected? && doc.rejection_reason.present? %>
+                  <small class="text-danger"><%= doc.rejection_reason %></small>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">
+          <strong>Summary:</strong>
+          <%= @application.application_documents.where(status: "verified").count %> verified,
+          <%= @application.application_documents.where(status: "uploaded").count %> awaiting review,
+          <%= @application.application_documents.outstanding.count %> outstanding
+        </div>
+      <% else %>
+        <p style="color: #6c757d; padding: 1rem 0;">No documents requested yet. Click "Request All Documents" to begin.</p>
+      <% end %>
+    </div>
+
     <!-- Application Processing Checklist -->
     <%= render 'checklist', editable: false %>
     
