@@ -38,14 +38,13 @@
     <% @actions.each do |action| %>
       <div class="timeline-entry" data-agent="<%= action.ai_agent.name %>" data-action-type="<%= action.action_type %>" data-decision="<%= action.decision %>"
            style="position: relative; margin-bottom: 16px; padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <div style="position: absolute; left: -29px; top: 20px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #d1d5db;
-          <% case action.decision %>
-          <% when 'approve' %> background: #16a34a;
-          <% when 'flag' %> background: #eab308;
-          <% when 'reject' %> background: #dc2626;
-          <% else %> background: #6366f1;
-          <% end %>
-        "></div>
+        <% dot_color = case action.decision
+          when 'approve' then '#16a34a'
+          when 'flag' then '#eab308'
+          when 'reject' then '#dc2626'
+          else '#6366f1'
+          end %>
+        <div style="position: absolute; left: -29px; top: 20px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #d1d5db; background: <%= dot_color %>;"></div>
 
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
           <%= image_tag action.ai_agent.avatar_path,
@@ -53,14 +52,13 @@
           <strong style="font-size: 14px;"><%= action.ai_agent.name %></strong>
           <span style="background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;"><%= action.action_type %></span>
           <% if action.decision %>
-            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;
-              <% case action.decision %>
-              <% when 'approve' %> background: #dcfce7; color: #16a34a;
-              <% when 'flag' %> background: #fef9c3; color: #ca8a04;
-              <% when 'reject' %> background: #fecaca; color: #dc2626;
-              <% else %> background: #e0e7ff; color: #4338ca;
-              <% end %>
-            "><%= action.decision %></span>
+            <% decision_style = case action.decision
+              when 'approve' then 'background: #dcfce7; color: #16a34a;'
+              when 'flag' then 'background: #fef9c3; color: #ca8a04;'
+              when 'reject' then 'background: #fecaca; color: #dc2626;'
+              else 'background: #e0e7ff; color: #4338ca;'
+              end %>
+            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; <%= decision_style %>"><%= action.decision %></span>
           <% end %>
           <% if action.confidence %>
             <span style="font-size: 12px; color: #666;">Confidence: <strong><%= (action.confidence * 100).round(0) %>%</strong></span>

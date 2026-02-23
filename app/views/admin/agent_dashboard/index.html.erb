@@ -64,14 +64,13 @@
             <strong style="font-size: 13px;"><%= action.ai_agent.name %></strong>
             <span style="background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;"><%= action.action_type %></span>
             <% if action.decision %>
-              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;
-                <% case action.decision %>
-                <% when 'approve' %> background: #dcfce7; color: #16a34a;
-                <% when 'flag' %> background: #fef9c3; color: #ca8a04;
-                <% when 'reject' %> background: #fecaca; color: #dc2626;
-                <% else %> background: #e0e7ff; color: #4338ca;
-                <% end %>
-              "><%= action.decision %></span>
+              <% decision_style = case action.decision
+                when 'approve' then 'background: #dcfce7; color: #16a34a;'
+                when 'flag' then 'background: #fef9c3; color: #ca8a04;'
+                when 'reject' then 'background: #fecaca; color: #dc2626;'
+                else 'background: #e0e7ff; color: #4338ca;'
+                end %>
+              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; <%= decision_style %>"><%= action.decision %></span>
             <% end %>
             <% if action.actionable_type.present? %>
               <span style="color: #888; font-size: 12px;"><%= action.actionable_type %> #<%= action.actionable_id %></span>
