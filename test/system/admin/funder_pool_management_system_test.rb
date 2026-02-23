@@ -7,9 +7,8 @@ class Admin::FunderPoolManagementSystemTest < ApplicationSystemTestCase
     # Use actual production-like data setup
     @admin = User.create!(
       email: 'system_test_admin@test.com',
-      password: 'password123',
+      password: 'password',
       password_confirmation: 'password123',
-      verified: true,
       user_type: 'futureproof_admin'
     )
     

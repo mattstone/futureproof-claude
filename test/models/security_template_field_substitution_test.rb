@@ -6,7 +6,7 @@ class SecurityTemplateFieldSubstitutionTest < ActiveSupport::TestCase
       first_name: 'John',
       last_name: 'Smith',
       email: 'john.smith@example.com',
-      password: 'password123',
+      password: 'password',
       password_confirmation: 'password123',
       country_of_residence: 'Australia',
       mobile_country_code: '+61',

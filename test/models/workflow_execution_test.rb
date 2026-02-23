@@ -12,7 +12,7 @@ class WorkflowExecutionTest < ActiveSupport::TestCase
     
     @user = User.create!(
       email: "test@example.com",
-      password: "password123",
+      password: "password",
       first_name: "Test",
       last_name: "User",
       lender: @lender,
@@ -75,7 +75,7 @@ class WorkflowExecutionTest < ActiveSupport::TestCase
     # Create target user for execution
     @target_user = User.create!(
       email: "target@example.com",
-      password: "password123", 
+      password: "password", 
       first_name: "Target",
       last_name: "User",
       lender: @lender,

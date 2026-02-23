@@ -16,7 +16,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Valid",
       last_name: "Customer",
       email: "unit.customer@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       admin: false
@@ -39,7 +39,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Customer",
       last_name: "User",
       email: "unit.customer@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       admin: false,
@@ -52,7 +52,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Admin",
       last_name: "User",
       email: "unit.admin@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       admin: true,
@@ -69,7 +69,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
         first_name: "Callback",
         last_name: "Customer",
         email: "model.test@test.com",
-        password: "password123",
+        password: "password",
         country_of_residence: "Australia",
         terms_accepted: true,
         admin: false
@@ -96,7 +96,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Address",
       last_name: "Test",
       email: "address.validation@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true
     )
@@ -128,7 +128,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Defaults",
       last_name: "Test",
       email: "defaults.test@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true
     )
@@ -157,7 +157,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Validation",
       last_name: "Test",
       email: "validation.test@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true
     )
@@ -189,7 +189,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "First",
       last_name: "User",
       email: "duplicate@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       lender: nil
@@ -201,7 +201,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Second",
       last_name: "User",
       email: "duplicate@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       lender: nil
@@ -217,7 +217,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Relationship",
       last_name: "Test",
       email: "relationship.test@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true
     )
@@ -244,7 +244,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
       first_name: "Customer",
       last_name: "User",
       email: "customer.admin.test@test.com",
-      password: "password123",
+      password: "password",
       country_of_residence: "Australia",
       terms_accepted: true,
       admin: false

@@ -7,7 +7,7 @@ class Admin::MortgageContractsBrowserTest < ApplicationSystemTestCase
       first_name: "Admin",
       last_name: "User", 
       email: "admin@futureproof.app",
-      password: "password123",
+      password: "password",
       password_confirmation: "password123",
       admin: true,
       terms_accepted: true,

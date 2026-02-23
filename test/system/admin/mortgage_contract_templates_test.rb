@@ -2,7 +2,7 @@ require 'application_system_test_case'
 
 class Admin::MortgageContractTemplatesTest < ApplicationSystemTestCase
   # Don't load fixtures to avoid foreign key issues
-  fixtures :none
+  fixtures :all
   setup do
     # Create test data without fixtures
     User.delete_all
@@ -14,7 +14,7 @@ class Admin::MortgageContractTemplatesTest < ApplicationSystemTestCase
       first_name: "Admin",
       last_name: "User",
       email: "admin@futureproof.app",
-      password: "password123",
+      password: "password",
       password_confirmation: "password123",
       admin: true,
       terms_accepted: true,
@@ -35,7 +35,7 @@ class Admin::MortgageContractTemplatesTest < ApplicationSystemTestCase
       first_name: "John",
       last_name: "Smith",
       email: "john@example.com",
-      password: "password123",
+      password: "password",
       password_confirmation: "password123",
       admin: false,
       terms_accepted: true,
@@ -233,7 +233,7 @@ class Admin::MortgageContractTemplatesTest < ApplicationSystemTestCase
       first_name: "Jane",
       last_name: "Doe", 
       email: "jane@example.com",
-      password: "password123",
+      password: "password",
       password_confirmation: "password123",
       admin: false,
       terms_accepted: true,

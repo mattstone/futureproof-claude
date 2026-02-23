@@ -4,7 +4,7 @@ class OwnershipFieldDisplaySystemTest < ApplicationSystemTestCase
   def setup
     @user = User.create!(
       email: 'ownership_test@example.com',
-      password: 'password123',
+      password: 'password',
       password_confirmation: 'password123',
       first_name: 'Ownership',
       last_name: 'Test',

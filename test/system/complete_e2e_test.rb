@@ -196,18 +196,18 @@ class CompleteE2ETest < ApplicationSystemTestCase
 
   test "admin can access admin dashboard" do
     sign_in_as(@admin)
-    visit admin_dashboard_index_path
+    visit admin_dashboard_path
 
-    assert_current_path admin_dashboard_index_path
+    assert_current_path admin_dashboard_path
     assert_selector "body"
   end
 
   test "non-admin cannot access admin dashboard" do
     sign_in_as(@regular_user)
-    visit admin_dashboard_index_path
+    visit admin_dashboard_path
 
     # Should be redirected or show forbidden
-    assert_no_current_path admin_dashboard_index_path
+    assert_no_current_path admin_dashboard_path
   end
 
   test "admin can view applications list" do
@@ -315,7 +315,7 @@ class CompleteE2ETest < ApplicationSystemTestCase
 
   test "admin navigation works" do
     sign_in_as(@admin)
-    visit admin_dashboard_index_path
+    visit admin_dashboard_path
 
     # Check admin navigation
     if page.has_link?("Applications", wait: 2)

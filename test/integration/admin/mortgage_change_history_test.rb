@@ -5,7 +5,7 @@ class Admin::MortgageChangeHistoryTest < ActionDispatch::IntegrationTest
   
   def setup
     @admin = users(:admin_user)
-    @mortgage = mortgages(:basic_mortgage)
+    @mortgage = mortgages(:interest_only)
   end
 
   test "LVR changes appear in mortgage change history" do
@@ -157,7 +157,7 @@ class Admin::MortgageChangeHistoryTest < ActionDispatch::IntegrationTest
 
   def admin_sign_in
     post user_session_path, params: {
-      user: { email: @admin.email, password: 'password123' }
+      user: { email: @admin.email, password: 'password' }
     }
     follow_redirect!
   end

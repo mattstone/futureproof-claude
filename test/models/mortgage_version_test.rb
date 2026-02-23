@@ -4,7 +4,7 @@ class MortgageVersionTest < ActiveSupport::TestCase
   fixtures :users, :mortgages
   
   def setup
-    @mortgage = mortgages(:basic_mortgage)
+    @mortgage = mortgages(:interest_only)
     @admin = users(:admin_user)
   end
 

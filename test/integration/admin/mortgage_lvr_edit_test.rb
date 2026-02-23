@@ -5,7 +5,7 @@ class Admin::MortgageLvrEditTest < ActionDispatch::IntegrationTest
   
   def setup
     @admin = users(:admin_user)
-    @mortgage = mortgages(:basic_mortgage)
+    @mortgage = mortgages(:interest_only)
   end
 
   test "admin can edit mortgage LVR field" do
@@ -248,7 +248,7 @@ class Admin::MortgageLvrEditTest < ActionDispatch::IntegrationTest
 
   def admin_sign_in
     post user_session_path, params: {
-      user: { email: @admin.email, password: 'password123' }
+      user: { email: @admin.email, password: 'password' }
     }
     follow_redirect!
   end
