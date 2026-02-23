@@ -3957,6 +3957,85 @@
   font-weight: 400;
 }
 
+/* Sidebar Nav Groups */
+.admin-nav-group {
+  border-bottom: 1px solid #334155;
+}
+
+.admin-nav-group summary {
+  list-style: none;
+}
+
+.admin-nav-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-nav-group-header {
+  display: block;
+  padding: 12px 24px 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.admin-nav-group-header:hover {
+  color: #94a3b8;
+}
+
+.admin-nav-group-header::after {
+  content: "▸";
+  float: right;
+  font-size: 0.625rem;
+  transition: transform 0.2s ease;
+}
+
+.admin-nav-group[open] > .admin-nav-group-header::after {
+  transform: rotate(90deg);
+}
+
+.admin-nav-group-items {
+  padding-bottom: 4px;
+}
+
+.admin-nav-group-items .admin-nav-link {
+  padding: 8px 24px 8px 28px;
+  font-size: 0.9rem;
+}
+
+/* Admin Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.admin-tab {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.admin-tab:hover {
+  color: #374151;
+  border-bottom-color: #d1d5db;
+}
+
+.admin-tab.active {
+  color: #0891b2;
+  border-bottom-color: #0891b2;
+}
+
 .admin-user-info {
   padding: 24px;
   border-top: 1px solid #334155;
@@ -7495,3 +7574,28 @@
   background-color: #0891b2;
   color: white;
 }
+
+/* Application Show Page Tabs */
+.admin-tabs { margin-top: 20px; }
+.admin-tab-nav { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; }
+.admin-tab-nav .admin-tab { padding: 12px 20px; color: #6b7280; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; font-size: 14px; transition: color 0.2s; }
+.admin-tab-nav .admin-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+.admin-tab-nav .admin-tab:hover { color: #1d4ed8; }
+.tab-badge { background: #ef4444; color: white; font-size: 11px; padding: 1px 6px; border-radius: 10px; margin-left: 6px; }
+.tab-badge:empty { display: none; }
+
+/* Agent Activity Timeline */
+.agent-activity-timeline { display: flex; flex-direction: column; gap: 16px; }
+.agent-action-item { padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fafafa; }
+.agent-action-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.agent-avatar-sm { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.agent-action-reasoning { color: #374151; font-size: 14px; line-height: 1.5; margin-bottom: 8px; padding: 8px; background: white; border-radius: 4px; border-left: 3px solid #2563eb; }
+.agent-action-meta { display: flex; gap: 12px; align-items: center; font-size: 13px; color: #6b7280; flex-wrap: wrap; }
+.agent-action-override { margin-top: 10px; display: flex; gap: 8px; }
+.agent-action-override-info { margin-top: 8px; padding: 6px 10px; background: #fef3c7; border-radius: 4px; font-size: 13px; }
+.action-time { color: #9ca3af; font-size: 13px; margin-left: auto; }
+.decision-badge-approve { background-color: #10b981 !important; color: white !important; }
+.decision-badge-reject { background-color: #ef4444 !important; color: white !important; }
+.decision-badge-flag { background-color: #f59e0b !important; color: white !important; }
+.decision-badge-advance { background-color: #3b82f6 !important; color: white !important; }
+.decision-badge-request_info { background-color: #8b5cf6 !important; color: white !important; }

@@ -10,10 +10,17 @@
   </div>
 </div>
 
-<div class="admin-two-column-layout">
-  <!-- Left Column - Application Details and Change History Only -->
-  <div class="admin-left-column">
-    <!-- Application Details Section -->
+<div class="admin-tabs">
+  <nav class="admin-tab-nav">
+    <a href="#details" class="admin-tab active" data-tab="details">Details</a>
+    <a href="#documents" class="admin-tab" data-tab="documents">Documents <span class="tab-badge"><%= @outstanding_docs_count if @outstanding_docs_count.to_i > 0 %></span></a>
+    <a href="#messages" class="admin-tab" data-tab="messages">Messages <span class="tab-badge"><%= @unread_messages_count if @unread_messages_count.to_i > 0 %></span></a>
+    <a href="#agent-activity" class="admin-tab" data-tab="agent-activity">Agent Activity <span class="tab-badge"><%= @agent_actions.size if @agent_actions.present? && @agent_actions.size > 0 %></span></a>
+    <a href="#history" class="admin-tab" data-tab="history">History</a>
+  </nav>
+
+  <!-- Tab 1: Details -->
+  <div class="admin-tab-content" id="details">
     <div class="admin-form">
       <div class="application-header">
         <h2>Application #<%= @application.id %></h2>
@@ -211,16 +218,10 @@
         </div>
       </div>
     </div>
-
-    <!-- Change History Section -->
-    <div class="form-actions">
-      <%= render 'shared/change_history', versions: @application_versions %>
-    </div>
   </div>
 
-  <!-- Right Column - Checklist and Messages -->
-  <div class="admin-right-column" id="admin-right-column">
-    <!-- Documents Section -->
+  <!-- Tab 2: Documents -->
+  <div class="admin-tab-content" id="documents" style="display:none">
     <div class="admin-form">
       <div class="application-header">
         <h3>Documents</h3>
@@ -271,13 +272,94 @@
         <p style="color: #6c757d; padding: 1rem 0;">No documents requested yet. Click "Request All Documents" to begin.</p>
       <% end %>
     </div>
+  </div>
 
+  <!-- Tab 3: Messages -->
+  <div class="admin-tab-content" id="messages" style="display:none">
+    <%= render 'shared/messaging/messaging_interface' %>
+  </div>
+
+  <!-- Tab 4: Agent Activity -->
+  <div class="admin-tab-content" id="agent-activity" style="display:none">
+    <div class="admin-form">
+      <h3>Agent Activity Timeline</h3>
+      <% if @agent_actions.present? && @agent_actions.any? %>
+        <div class="agent-activity-timeline">
+          <% @agent_actions.each do |action| %>
+            <div class="agent-action-item">
+              <div class="agent-action-header">
+                <% if action.ai_agent %>
+                  <img src="<%= action.ai_agent.avatar_path %>" alt="<%= action.ai_agent.name %>" class="agent-avatar-sm">
+                  <strong><%= action.ai_agent.name %></strong>
+                <% else %>
+                  <strong>Unknown Agent</strong>
+                <% end %>
+                <span class="admin-badge admin-badge-secondary"><%= action.action_type %></span>
+                <% if action.decision.present? %>
+                  <span class="admin-badge decision-badge-<%= action.decision %>"><%= action.decision %></span>
+                <% end %>
+                <span class="action-time"><%= time_ago_in_words(action.created_at) %> ago</span>
+              </div>
+              <% if action.reasoning.present? %>
+                <div class="agent-action-reasoning"><%= action.reasoning %></div>
+              <% end %>
+              <div class="agent-action-meta">
+                <% if action.confidence.present? %>
+                  <span>Confidence: <strong><%= (action.confidence * 100).round(0) %>%</strong></span>
+                <% end %>
+                <% if action.result.is_a?(Hash) && action.result['risk_score'].present? %>
+                  <span>Risk Score: <strong><%= action.result['risk_score'] %></strong></span>
+                <% end %>
+                <span class="admin-badge admin-badge-<%= action.status == 'completed' ? 'success' : 'secondary' %>"><%= action.status %></span>
+              </div>
+              <% if action.decision == 'flag' && action.status != 'overridden' %>
+                <div class="agent-action-override">
+                  <%= button_to "Override — Approve", "#", class: "admin-btn admin-btn-primary", style: "font-size: 0.8rem; padding: 0.3rem 0.8rem;", disabled: true, title: "Coming soon" %>
+                  <%= button_to "Override — Reject", "#", class: "admin-btn admin-btn-secondary", style: "font-size: 0.8rem; padding: 0.3rem 0.8rem;", disabled: true, title: "Coming soon" %>
+                </div>
+              <% end %>
+              <% if action.status == 'overridden' && action.override_reason.present? %>
+                <div class="agent-action-override-info">
+                  <small>Overridden by <%= action.overridden_by %>: <%= action.override_reason %></small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p style="color: #6c757d; padding: 1rem 0;">No agent activity recorded for this application yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Tab 5: History -->
+  <div class="admin-tab-content" id="history" style="display:none">
     <!-- Application Processing Checklist -->
     <%= render 'checklist', editable: false %>
     
-    <!-- Messages and Communication -->
-    <%= render 'shared/messaging/messaging_interface' %>
+    <!-- Change History Section -->
+    <div class="form-actions">
+      <%= render 'shared/change_history', versions: @application_versions %>
+    </div>
   </div>
 </div>
 
 <%= render 'shared/messaging/messaging_assets' %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.admin-tab-nav .admin-tab').forEach(function(tab) {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      var targetId = this.getAttribute('data-tab');
+      // Deactivate all tabs
+      document.querySelectorAll('.admin-tab-nav .admin-tab').forEach(function(t) { t.classList.remove('active'); });
+      // Hide all panels
+      document.querySelectorAll('.admin-tab-content').forEach(function(p) { p.style.display = 'none'; });
+      // Activate clicked tab and show panel
+      this.classList.add('active');
+      document.getElementById(targetId).style.display = 'block';
+    });
+  });
+});
+</script>

@@ -1,28 +1,32 @@
-<% content_for :page_title, "Agent Activity Timeline" %>
+<% content_for :page_title, "Agent Overview — Timeline" %>
 
-<div style="margin-bottom: 16px;">
-  <%= link_to "← Back to Command Center", admin_agent_dashboard_index_path, style: "color: #2563eb; font-size: 14px;" %>
+<div class="agent-page-header">
+  <h1>🤖 Agent Overview</h1>
+  <p>Full chronological log of all AI agent actions.</p>
 </div>
 
-<h1 style="margin-bottom: 8px;">📋 Agent Activity Timeline</h1>
-<p style="color: #666; margin-bottom: 24px;">Full chronological log of all AI agent actions.</p>
+<div class="admin-tabs">
+  <%= link_to "Activity", admin_agent_dashboard_index_path, class: "admin-tab" %>
+  <%= link_to "Configuration", admin_agent_lifecycle_index_path, class: "admin-tab" %>
+  <%= link_to "Timeline", timeline_admin_agent_dashboard_index_path, class: "admin-tab active" %>
+</div>
 
 <!-- Filters -->
-<div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-  <span style="font-weight: 600; font-size: 14px;">Filter:</span>
-  <select id="filter-agent" onchange="filterTimeline()" style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;">
+<div class="agent-filter-bar">
+  <span class="agent-filter-label">Filter:</span>
+  <select id="filter-agent" onchange="filterTimeline()" class="agent-filter-select">
     <option value="">All Agents</option>
     <% @agents.each do |agent| %>
       <option value="<%= agent.name %>"><%= agent.name %></option>
     <% end %>
   </select>
-  <select id="filter-action-type" onchange="filterTimeline()" style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;">
+  <select id="filter-action-type" onchange="filterTimeline()" class="agent-filter-select">
     <option value="">All Action Types</option>
     <% AgentAction::ACTION_TYPES.each do |t| %>
       <option value="<%= t %>"><%= t.titleize %></option>
     <% end %>
   </select>
-  <select id="filter-decision" onchange="filterTimeline()" style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;">
+  <select id="filter-decision" onchange="filterTimeline()" class="agent-filter-select">
     <option value="">All Decisions</option>
     <% AgentAction::DECISIONS.each do |d| %>
       <option value="<%= d %>"><%= d.titleize %></option>
@@ -31,52 +35,54 @@
 </div>
 
 <!-- Timeline -->
-<div style="position: relative; padding-left: 40px;">
-  <div style="position: absolute; left: 19px; top: 0; bottom: 0; width: 2px; background: #e5e7eb;"></div>
+<div class="timeline-container">
+  <div class="timeline-line"></div>
 
   <% if @actions.any? %>
     <% @actions.each do |action| %>
-      <div class="timeline-entry" data-agent="<%= action.ai_agent.name %>" data-action-type="<%= action.action_type %>" data-decision="<%= action.decision %>"
-           style="position: relative; margin-bottom: 16px; padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <% dot_color = case action.decision
-          when 'approve' then '#16a34a'
-          when 'flag' then '#eab308'
-          when 'reject' then '#dc2626'
-          else '#6366f1'
-          end %>
-        <div style="position: absolute; left: -29px; top: 20px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #d1d5db; background: <%= dot_color %>;"></div>
+      <% dot_class = case action.decision
+        when 'approve' then 'timeline-dot-approve'
+        when 'flag' then 'timeline-dot-flag'
+        when 'reject' then 'timeline-dot-reject'
+        else 'timeline-dot-other'
+        end %>
+      <div class="timeline-entry" data-agent="<%= action.ai_agent.name %>" data-action-type="<%= action.action_type %>" data-decision="<%= action.decision %>">
+        <div class="timeline-dot <%= dot_class %>"></div>
 
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-          <%= image_tag action.ai_agent.avatar_path,
-              style: "width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" %>
-          <strong style="font-size: 14px;"><%= action.ai_agent.name %></strong>
-          <span style="background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;"><%= action.action_type %></span>
+        <div class="timeline-entry-header">
+          <%= image_tag action.ai_agent.avatar_path, class: "avatar-sm" %>
+          <strong class="timeline-entry-name"><%= action.ai_agent.name %></strong>
+          <span class="action-type-badge"><%= action.action_type %></span>
           <% if action.decision %>
-            <% decision_style = case action.decision
-              when 'approve' then 'background: #dcfce7; color: #16a34a;'
-              when 'flag' then 'background: #fef9c3; color: #ca8a04;'
-              when 'reject' then 'background: #fecaca; color: #dc2626;'
-              else 'background: #e0e7ff; color: #4338ca;'
+            <% decision_class = case action.decision
+              when 'approve' then 'decision-approve'
+              when 'flag' then 'decision-flag'
+              when 'reject' then 'decision-reject'
+              else 'decision-other'
               end %>
-            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; <%= decision_style %>"><%= action.decision %></span>
+            <span class="decision-badge <%= decision_class %>"><%= action.decision %></span>
           <% end %>
           <% if action.confidence %>
-            <span style="font-size: 12px; color: #666;">Confidence: <strong><%= (action.confidence * 100).round(0) %>%</strong></span>
+            <span class="timeline-entry-confidence">Confidence: <strong><%= (action.confidence * 100).round(0) %>%</strong></span>
           <% end %>
-          <span style="margin-left: auto; color: #999; font-size: 12px;"><%= time_ago_in_words(action.created_at) %> ago</span>
+          <span class="timeline-entry-time"><%= time_ago_in_words(action.created_at) %> ago</span>
         </div>
 
         <% if action.reasoning.present? %>
-          <div style="font-size: 13px; color: #666; line-height: 1.5;"><%= truncate(action.reasoning, length: 200) %></div>
+          <div class="timeline-entry-reasoning"><%= truncate(action.reasoning, length: 200) %></div>
         <% end %>
 
         <% if action.actionable_type.present? %>
-          <div style="font-size: 12px; color: #999; margin-top: 6px;"><%= action.actionable_type %> #<%= action.actionable_id %></div>
+          <div class="timeline-entry-entity"><%= action.actionable_type %> #<%= action.actionable_id %></div>
         <% end %>
       </div>
     <% end %>
   <% else %>
-    <p style="color: #999; text-align: center; padding: 40px 0;">No agent actions recorded yet.</p>
+    <div class="agent-empty-state">
+      <div class="agent-empty-state-icon">📜</div>
+      <div class="agent-empty-state-title">No timeline entries</div>
+      <div class="agent-empty-state-text">Agent actions will appear here chronologically as they occur.</div>
+    </div>
   <% end %>
 </div>
 

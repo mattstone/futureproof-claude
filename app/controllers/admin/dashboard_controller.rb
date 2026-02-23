@@ -3,6 +3,12 @@ class Admin::DashboardController < Admin::BaseController
     # Get scoped data based on admin type
     users_scope = scoped_users
     applications_scope = scoped_applications
+
+    # === Priority Inbox — Needs Attention ===
+    @attention_items = build_attention_items(applications_scope)
+
+    # === Agent Performance ===
+    @agent_performance = build_agent_performance
     
     # User statistics
     @total_users = users_scope.count
@@ -106,6 +112,104 @@ class Admin::DashboardController < Admin::BaseController
   end
 
   private
+
+  def build_attention_items(applications_scope)
+    items = []
+
+    # Agent flags/escalations needing review
+    flagged_actions = AgentAction.includes(:ai_agent, :actionable)
+                                 .where(action_type: 'decide', decision: %w[flag reject], status: 'completed')
+                                 .where.not(status: 'overridden')
+                                 .order(created_at: :desc)
+                                 .limit(10)
+    flagged_actions.each do |action|
+      next unless action.actionable.present?
+      items << {
+        type: :agent_flag,
+        icon: '⚠️',
+        title: "Agent Flagged: #{action.actionable.class.name.titleize} ##{action.actionable.id}",
+        subtitle: "#{action.ai_agent&.name || 'Agent'} flagged as #{action.decision}. Confidence: #{(action.confidence.to_f * 100).round(0)}%",
+        detail: action.reasoning.to_s.truncate(120),
+        url_helper: -> { action.actionable.is_a?(Application) ? admin_application_path(action.actionable) : '#' },
+        action_id: action.id,
+        created_at: action.created_at
+      }
+    end
+
+    # Documents awaiting verification
+    pending_docs = ApplicationDocument.includes(:application)
+                                      .where(status: %w[uploaded pending])
+                                      .order(created_at: :desc)
+    if pending_docs.any?
+      grouped = pending_docs.group_by { |d| d.application_id }
+      grouped.each do |app_id, docs|
+        app = docs.first.application
+        next unless app
+        doc_names = docs.map { |d| d.document_type.to_s.humanize }.join(', ')
+        items << {
+          type: :document_review,
+          icon: '📄',
+          title: "Document Review: #{docs.size} document#{'s' if docs.size != 1} awaiting verification",
+          subtitle: "Application ##{app_id}: #{doc_names.truncate(80)}",
+          detail: nil,
+          url_helper: -> { admin_application_path(app) },
+          action_id: nil,
+          created_at: docs.map(&:created_at).max
+        }
+      end
+    end
+
+    # Applications needing review
+    review_apps = applications_scope.where(status: %w[submitted processing]).order(created_at: :asc).limit(5)
+    review_apps.each do |app|
+      items << {
+        type: :application_review,
+        icon: '📋',
+        title: "Application Review: ##{app.id} — #{app.status.humanize}",
+        subtitle: "#{app.user&.display_name || 'Unknown'} — submitted #{ActionController::Base.helpers.time_ago_in_words(app.created_at)} ago",
+        detail: nil,
+        url_helper: -> { admin_application_path(app) },
+        action_id: nil,
+        created_at: app.created_at
+      }
+    end
+
+    # Contracts awaiting funding
+    funding_contracts = Contract.includes(:application).where(status: %w[awaiting_funding awaiting_investment]).order(created_at: :asc).limit(5)
+    funding_contracts.each do |contract|
+      home_value = contract.application&.home_value
+      items << {
+        type: :funding_required,
+        icon: '💰',
+        title: "Funding Required: Contract ##{contract.id} — #{contract.status.humanize}",
+        subtitle: home_value.to_i > 0 ? "Amount: #{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}" : "Awaiting capital allocation",
+        detail: nil,
+        url_helper: -> { admin_contracts_path },
+        action_id: nil,
+        created_at: contract.created_at
+      }
+    end
+
+    items.sort_by { |i| i[:created_at] || Time.at(0) }.reverse.first(10)
+  rescue => e
+    Rails.logger.error("Dashboard attention items error: #{e.message}")
+    []
+  end
+
+  def build_agent_performance
+    {
+      total_today: AgentAction.where('created_at >= ?', Time.current.beginning_of_day).count,
+      total_week: AgentAction.where('created_at >= ?', 1.week.ago).count,
+      total_all: AgentAction.count,
+      avg_confidence: AgentAction.where.not(confidence: nil).average(:confidence)&.round(2) || 0,
+      flags_count: AgentAction.where(decision: 'flag', status: 'completed').count,
+      escalations_count: AgentAction.where(action_type: 'escalate', status: 'completed').count,
+      decision_distribution: AgentAction.where(action_type: 'decide').group(:decision).count
+    }
+  rescue => e
+    Rails.logger.error("Dashboard agent performance error: #{e.message}")
+    { total_today: 0, total_week: 0, total_all: 0, avg_confidence: 0, flags_count: 0, escalations_count: 0, decision_distribution: {} }
+  end
 
   def generate_growth_data(scope, months)
     data = {}

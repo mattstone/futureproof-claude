@@ -32,51 +32,70 @@
           <%= link_to admin_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard'}" do %>
             <span>📊 Dashboard</span>
           <% end %>
-          <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
-            <span>📋 Applications</span>
-          <% end %>
-          <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}" do %>
-            <span>📄 Contracts</span>
-          <% end %>
-          <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
-            <span>👥 Users</span>
-          <% end %>
-          
+
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %> open>
+            <summary class="admin-nav-group-header">Operations</summary>
+            <div class="admin-nav-group-items">
+              <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
+                <span>📋 Applications</span>
+              <% end %>
+              <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}" do %>
+                <span>📄 Contracts</span>
+              <% end %>
+              <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
+                <span>👥 Users</span>
+              <% end %>
+            </div>
+          </details>
+
           <% if current_user&.lender&.lender_type_futureproof? %>
-            <%= link_to admin_calculators_path, class: "admin-nav-link #{'active' if controller_name == 'calculators'}" do %>
-              <span>🧮 Calculator</span>
-            <% end %>
-            <%= link_to admin_core_logic_test_index_path, class: "admin-nav-link #{'active' if controller_name == 'core_logic_test'}" do %>
-              <span>🏠 CoreLogic API Test</span>
-            <% end %>
-            <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
-              <span>📄 Terms of Use</span>
-            <% end %>
-            <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
-              <span>🔒 Privacy Policies</span>
-            <% end %>
-            <%= link_to admin_terms_and_conditions_path, class: "admin-nav-link #{'active' if controller_name == 'terms_and_conditions'}" do %>
-              <span>📋 Terms & Conditions</span>
-            <% end %>
-            <%= link_to admin_agent_lifecycle_index_path, class: "admin-nav-link #{'active' if controller_name == 'agent_lifecycle'}" do %>
-              <span>🤖 AI Agents</span>
-            <% end %>
-            <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'agent_dashboard'}" do %>
-              <span>📊 Agent Activity</span>
-            <% end %>
-            <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
-              <span>📧 Email Templates</span>
-            <% end %>
-            <%# Workflows hidden - replaced by AI Agents %>
-            <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
-              <span>🏠 Mortgages</span>
-            <% end %>
-            <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}" do %>
-              <span>🏢 Lenders</span>
-            <% end %>
-            <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}" do %>
-              <span>💰 Wholesale Funders</span>
-            <% end %>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %> open>
+              <summary class="admin-nav-group-header">AI Agents</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}" do %>
+                  <span>🤖 Agent Overview</span>
+                <% end %>
+                <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
+                  <span>📧 Email Templates</span>
+                <% end %>
+              </div>
+            </details>
+
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders wholesale_funders calculators]) %> open>
+              <summary class="admin-nav-group-header">Products</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
+                  <span>🏠 Mortgages</span>
+                <% end %>
+                <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}" do %>
+                  <span>🏢 Lenders</span>
+                <% end %>
+                <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}" do %>
+                  <span>💰 Wholesale Funders</span>
+                <% end %>
+                <%= link_to admin_calculators_path, class: "admin-nav-link #{'active' if controller_name == 'calculators'}" do %>
+                  <span>🧮 Calculator</span>
+                <% end %>
+              </div>
+            </details>
+
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[terms_of_uses privacy_policies terms_and_conditions core_logic_test]) %> open>
+              <summary class="admin-nav-group-header">Configuration</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
+                  <span>📄 Terms of Use</span>
+                <% end %>
+                <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
+                  <span>🔒 Privacy Policies</span>
+                <% end %>
+                <%= link_to admin_terms_and_conditions_path, class: "admin-nav-link #{'active' if controller_name == 'terms_and_conditions'}" do %>
+                  <span>📋 Terms & Conditions</span>
+                <% end %>
+                <%= link_to admin_core_logic_test_index_path, class: "admin-nav-link #{'active' if controller_name == 'core_logic_test'}" do %>
+                  <span>🏠 CoreLogic API Test</span>
+                <% end %>
+              </div>
+            </details>
           <% end %>
         </nav>
         

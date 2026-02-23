@@ -19,6 +19,42 @@ class Admin::AgentDashboardController < Admin::BaseController
     @rejections_count = @agent.agent_actions.where(decision: 'reject').count
   end
 
+  def override
+    @action = AgentAction.find(params[:id])
+    @action.override!(
+      by: current_user.email,
+      reason: params[:reason].presence || "Manual override by #{current_user.display_name}"
+    )
+
+    if @action.actionable_type == 'Application' && params[:decision].present?
+      application = Application.find(@action.actionable_id)
+      case params[:decision]
+      when 'approve'
+        AgentAction.create!(
+          ai_agent: @action.ai_agent,
+          actionable: application,
+          action_type: 'decide',
+          decision: 'approve',
+          confidence: 1.0,
+          reasoning: "Manually approved by #{current_user.display_name}: #{params[:reason]}",
+          status: 'completed'
+        )
+      when 'reject'
+        AgentAction.create!(
+          ai_agent: @action.ai_agent,
+          actionable: application,
+          action_type: 'decide',
+          decision: 'reject',
+          confidence: 1.0,
+          reasoning: "Manually rejected by #{current_user.display_name}: #{params[:reason]}",
+          status: 'completed'
+        )
+      end
+    end
+
+    redirect_to admin_agent_dashboard_index_path, notice: "Decision overridden successfully."
+  end
+
   def timeline
     @actions = AgentAction.includes(:ai_agent).order(created_at: :desc).limit(100)
     @agents = AiAgent.active.order(:name)

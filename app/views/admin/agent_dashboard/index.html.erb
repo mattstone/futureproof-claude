@@ -1,100 +1,136 @@
-<% content_for :page_title, "Agent Command Center" %>
+<% content_for :page_title, "Agent Overview" %>
 
-<h1 style="margin-bottom: 8px;">🤖 Agent Command Center</h1>
-<p style="color: #666; margin-bottom: 32px;">Monitor AI agent decisions, confidence scores, and activity across the platform.</p>
+<div class="agent-page-header">
+  <h1>🤖 Agent Overview</h1>
+  <p>Monitor AI agent decisions, confidence scores, and activity across the platform.</p>
+</div>
+
+<div class="admin-tabs">
+  <%= link_to "Activity", admin_agent_dashboard_index_path, class: "admin-tab #{'active' unless params[:tab]}" %>
+  <%= link_to "Configuration", admin_agent_lifecycle_index_path, class: "admin-tab" %>
+  <%= link_to "Timeline", timeline_admin_agent_dashboard_index_path, class: "admin-tab" %>
+</div>
+
+<!-- Flagged Items Requiring Human Review -->
+<% flagged_actions = AgentAction.where(decision: ['flag', 'escalate']).where(status: 'completed').includes(:ai_agent).order(created_at: :desc).limit(10) %>
+<% if flagged_actions.any? %>
+  <div class="flagged-items-panel">
+    <h2>⚠️ Requires Human Review (<%= flagged_actions.count %>)</h2>
+    <% flagged_actions.each do |action| %>
+      <div class="flagged-item">
+        <div class="flagged-item-header">
+          <img src="<%= action.ai_agent.avatar_path %>" class="avatar-sm">
+          <strong><%= action.ai_agent.name %></strong> flagged
+          <% if action.actionable_type == 'Application' %>
+            <a href="<%= admin_application_path(action.actionable_id) %>">
+              <%= action.actionable_type %> #<%= action.actionable_id %>
+            </a>
+          <% else %>
+            <%= action.actionable_type %> #<%= action.actionable_id %>
+          <% end %>
+        </div>
+        <div class="flagged-item-reasoning"><%= action.reasoning %></div>
+        <div class="flagged-item-meta">
+          Confidence: <%= (action.confidence * 100).round(0) %>% ·
+          Risk Score: <%= action.result&.dig('risk_score') || 'N/A' %> ·
+          <%= time_ago_in_words(action.created_at) %> ago
+        </div>
+        <div class="flagged-item-actions">
+          <%= button_to "✅ Override — Approve", override_admin_agent_dashboard_path(action),
+              method: :patch, params: { decision: 'approve', reason: '' },
+              class: "btn-override btn-override-approve",
+              data: { confirm: "Override this decision to APPROVE?" } %>
+          <%= button_to "❌ Override — Reject", override_admin_agent_dashboard_path(action),
+              method: :patch, params: { decision: 'reject', reason: '' },
+              class: "btn-override btn-override-reject",
+              data: { confirm: "Override this decision to REJECT?" } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
 <!-- Agent Cards -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
+<div class="agent-cards-grid">
   <% @agents.each do |agent| %>
     <% agent_stats = @stats[agent.id] || { total: 0, approval_rate: 0, avg_confidence: 0, flags: 0, rejections: 0, last_action_at: nil } %>
     <div class="agent-card">
-      <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
-        <%= image_tag agent.avatar_path,
-            style: "width: 56px; height: 56px; border-radius: 50%; object-fit: cover;" %>
+      <div class="agent-card-header">
+        <%= image_tag agent.avatar_path, class: "avatar-lg" %>
         <div>
-          <h3 style="margin: 0 0 2px 0;"><%= agent.name %></h3>
-          <div style="color: #666; font-size: 13px;"><%= agent.agent_type.titleize %> Agent</div>
+          <h3><%= agent.name %></h3>
+          <div class="agent-card-subtitle"><%= agent.agent_type.titleize %> Agent</div>
+          <% if agent.respond_to?(:description) && agent.description.present? %>
+            <div class="agent-card-description"><%= truncate(agent.description, length: 80) %></div>
+          <% end %>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-        <div style="background: #f8f9fa; padding: 10px 12px; border-radius: 8px;">
-          <div style="font-size: 22px; font-weight: 700; color: #333;"><%= agent_stats[:total] %></div>
-          <div style="font-size: 11px; color: #888; text-transform: uppercase;">Actions</div>
+      <div class="agent-stat-grid">
+        <div class="agent-stat-item agent-stat-item-neutral">
+          <div class="agent-stat-value"><%= agent_stats[:total] %></div>
+          <div class="agent-stat-label">Actions</div>
         </div>
-        <div style="background: #f0fdf4; padding: 10px 12px; border-radius: 8px;">
-          <div style="font-size: 22px; font-weight: 700; color: #16a34a;"><%= agent_stats[:approval_rate] %>%</div>
-          <div style="font-size: 11px; color: #888; text-transform: uppercase;">Approval Rate</div>
+        <div class="agent-stat-item agent-stat-item-success">
+          <div class="agent-stat-value agent-stat-value-success"><%= agent_stats[:approval_rate] %>%</div>
+          <div class="agent-stat-label">Approval Rate</div>
         </div>
-        <div style="background: #eff6ff; padding: 10px 12px; border-radius: 8px;">
-          <div style="font-size: 22px; font-weight: 700; color: #2563eb;"><%= agent_stats[:avg_confidence] %></div>
-          <div style="font-size: 11px; color: #888; text-transform: uppercase;">Avg Confidence</div>
+        <div class="agent-stat-item agent-stat-item-info">
+          <div class="agent-stat-value agent-stat-value-info"><%= agent_stats[:avg_confidence] %></div>
+          <div class="agent-stat-label">Avg Confidence</div>
         </div>
-        <div style="background: #fef2f2; padding: 10px 12px; border-radius: 8px;">
-          <div style="font-size: 22px; font-weight: 700; color: #dc2626;"><%= agent_stats[:flags] + agent_stats[:rejections] %></div>
-          <div style="font-size: 11px; color: #888; text-transform: uppercase;">Flags + Rejects</div>
+        <div class="agent-stat-item agent-stat-item-danger">
+          <div class="agent-stat-value agent-stat-value-danger"><%= agent_stats[:flags] + agent_stats[:rejections] %></div>
+          <div class="agent-stat-label">Flags + Rejects</div>
         </div>
       </div>
 
-      <div style="font-size: 12px; color: #999; margin-bottom: 12px;">
+      <div class="agent-card-meta">
         Last action: <%= agent_stats[:last_action_at] ? time_ago_in_words(agent_stats[:last_action_at]) + " ago" : "No actions yet" %>
       </div>
 
-      <%= link_to "View Details →", admin_agent_dashboard_path(agent),
-          class: "admin-btn admin-btn-primary",
-          style: "width: 100%; text-align: center;" %>
+      <%= link_to "View Details →", admin_agent_dashboard_path(agent), class: "agent-view-link" %>
     </div>
   <% end %>
 </div>
 
 <!-- Recent Activity -->
-<div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2 style="margin: 0;">Recent Activity</h2>
-    <%= link_to "View Full Timeline →", timeline_admin_agent_dashboard_index_path, style: "color: #2563eb; font-size: 14px;" %>
+<div class="agent-panel">
+  <div class="agent-panel-header">
+    <h2>Recent Activity</h2>
+    <%= link_to "View Full Timeline →", timeline_admin_agent_dashboard_index_path, class: "agent-panel-link" %>
   </div>
 
   <% if @recent_actions.any? %>
-    <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div class="activity-feed">
       <% @recent_actions.first(20).each do |action| %>
-        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: #f8f9fa;">
-          <%= image_tag action.ai_agent.avatar_path,
-              style: "width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" %>
-          <div style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <strong style="font-size: 13px;"><%= action.ai_agent.name %></strong>
-            <span style="background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;"><%= action.action_type %></span>
+        <div class="activity-feed-item">
+          <%= image_tag action.ai_agent.avatar_path, class: "avatar-md" %>
+          <div class="activity-feed-content">
+            <strong class="activity-feed-name"><%= action.ai_agent.name %></strong>
+            <span class="action-type-badge"><%= action.action_type %></span>
             <% if action.decision %>
-              <% decision_style = case action.decision
-                when 'approve' then 'background: #dcfce7; color: #16a34a;'
-                when 'flag' then 'background: #fef9c3; color: #ca8a04;'
-                when 'reject' then 'background: #fecaca; color: #dc2626;'
-                else 'background: #e0e7ff; color: #4338ca;'
+              <% decision_class = case action.decision
+                when 'approve' then 'decision-approve'
+                when 'flag' then 'decision-flag'
+                when 'reject' then 'decision-reject'
+                else 'decision-other'
                 end %>
-              <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; <%= decision_style %>"><%= action.decision %></span>
+              <span class="decision-badge <%= decision_class %>"><%= action.decision %></span>
             <% end %>
             <% if action.actionable_type.present? %>
-              <span style="color: #888; font-size: 12px;"><%= action.actionable_type %> #<%= action.actionable_id %></span>
+              <span class="activity-feed-entity"><%= action.actionable_type %> #<%= action.actionable_id %></span>
             <% end %>
           </div>
-          <span style="color: #999; font-size: 12px; white-space: nowrap;"><%= time_ago_in_words(action.created_at) %> ago</span>
+          <span class="activity-feed-time"><%= time_ago_in_words(action.created_at) %> ago</span>
         </div>
       <% end %>
     </div>
   <% else %>
-    <p style="color: #999; text-align: center; padding: 40px 0;">No agent actions recorded yet.</p>
+    <div class="agent-empty-state">
+      <div class="agent-empty-state-icon">🔍</div>
+      <div class="agent-empty-state-title">No activity yet</div>
+      <div class="agent-empty-state-text">Agent actions will appear here once your AI agents start processing applications.</div>
+    </div>
   <% end %>
 </div>
-
-<style>
-.agent-card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.agent-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-</style>

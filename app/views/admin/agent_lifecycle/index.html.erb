@@ -1,8 +1,14 @@
 <div class="agent-lifecycle-container">
-  <h1>AI Agent Lifecycle Management</h1>
-  <p style="color: #666; margin-bottom: 32px;">
+  <h1>🤖 Agent Overview</h1>
+  <p style="color: #666; margin-bottom: 16px;">
     Configure how your AI agents manage customer journeys through visual, color-coded stages.
   </p>
+
+  <div class="admin-tabs">
+    <%= link_to "Activity", admin_agent_dashboard_index_path, class: "admin-tab" %>
+    <%= link_to "Configuration", admin_agent_lifecycle_index_path, class: "admin-tab active" %>
+    <%= link_to "Timeline", timeline_admin_agent_dashboard_index_path, class: "admin-tab" %>
+  </div>
 
   <!-- Stats Overview -->
   <div class="agent-stats">

@@ -1,26 +1,23 @@
 <% content_for :page_title, "#{@agent.name} — Agent Detail" %>
 
-<div style="margin-bottom: 16px;">
-  <%= link_to "← Back to Command Center", admin_agent_dashboard_index_path, style: "color: #2563eb; font-size: 14px;" %>
-</div>
+<%= link_to "← Back to Command Center", admin_agent_dashboard_index_path, class: "agent-back-link" %>
 
 <!-- Agent Profile -->
-<div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 24px;">
-  <div style="display: flex; gap: 20px; align-items: center;">
-    <%= image_tag @agent.avatar_path,
-        style: "width: 72px; height: 72px; border-radius: 50%; object-fit: cover;" %>
+<div class="agent-panel agent-panel-mb">
+  <div class="agent-profile-header">
+    <%= image_tag @agent.avatar_path, class: "avatar-xl" %>
     <div>
-      <h1 style="margin: 0 0 4px 0;"><%= @agent.name %></h1>
-      <div style="color: #666; font-size: 14px; margin-bottom: 4px;"><%= @agent.agent_type.titleize %> Agent</div>
+      <h1><%= @agent.name %></h1>
+      <div class="agent-profile-subtitle"><%= @agent.agent_type.titleize %> Agent</div>
       <% if @agent.respond_to?(:description) && @agent.description.present? %>
-        <div style="color: #888; font-size: 13px;"><%= @agent.description %></div>
+        <div class="agent-profile-description"><%= @agent.description %></div>
       <% end %>
     </div>
   </div>
 </div>
 
 <!-- Stats Cards -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px;">
+<div class="agent-stats-row">
   <div class="metric-card">
     <div class="metric-content">
       <h3><%= @total_actions %></h3>
@@ -29,67 +26,66 @@
   </div>
   <div class="metric-card">
     <div class="metric-content">
-      <h3 style="color: #16a34a;"><%= @approval_rate %>%</h3>
+      <h3 class="agent-stat-value-success"><%= @approval_rate %>%</h3>
       <p>Approval Rate</p>
     </div>
   </div>
   <div class="metric-card">
     <div class="metric-content">
-      <h3 style="color: #2563eb;"><%= @avg_confidence %></h3>
+      <h3 class="agent-stat-value-info"><%= @avg_confidence %></h3>
       <p>Avg Confidence</p>
     </div>
   </div>
   <div class="metric-card">
     <div class="metric-content">
-      <h3 style="color: #ca8a04;"><%= @flags_count %></h3>
+      <h3 class="agent-stat-value-warning"><%= @flags_count %></h3>
       <p>Flags</p>
     </div>
   </div>
   <div class="metric-card">
     <div class="metric-content">
-      <h3 style="color: #dc2626;"><%= @rejections_count %></h3>
+      <h3 class="agent-stat-value-danger"><%= @rejections_count %></h3>
       <p>Rejections</p>
     </div>
   </div>
 </div>
 
 <!-- Decision Breakdown -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-  <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-    <h3 style="margin: 0 0 16px 0;">Decisions</h3>
+<div class="agent-breakdown-grid">
+  <div class="agent-panel">
+    <h3>Decisions</h3>
     <% @decision_breakdown.each do |decision, count| %>
       <% next if decision.nil? %>
       <% pct = @total_actions > 0 ? (count.to_f / @total_actions * 100).round(1) : 0 %>
-      <div style="margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-          <span style="text-transform: capitalize;"><%= decision %></span>
+      <div class="agent-breakdown-item">
+        <div class="agent-breakdown-label">
+          <span><%= decision %></span>
           <span><%= count %> (<%= pct %>%)</span>
         </div>
-        <div style="background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden;">
-          <div style="height: 100%; border-radius: 4px; width: <%= pct %>%;
-            <% case decision %>
-            <% when 'approve' %> background: #16a34a;
-            <% when 'flag' %> background: #eab308;
-            <% when 'reject' %> background: #dc2626;
-            <% else %> background: #6366f1;
-            <% end %>
-          "></div>
+        <div class="agent-progress-track">
+          <% progress_class = case decision
+            when 'approve' then 'agent-progress-approve'
+            when 'flag' then 'agent-progress-flag'
+            when 'reject' then 'agent-progress-reject'
+            else 'agent-progress-other'
+            end %>
+          <div class="agent-progress-bar <%= progress_class %>" style="width: <%= pct %>%;"></div>
         </div>
       </div>
     <% end %>
   </div>
 
-  <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-    <h3 style="margin: 0 0 16px 0;">Action Types</h3>
+  <div class="agent-panel">
+    <h3>Action Types</h3>
     <% @action_type_breakdown.each do |action_type, count| %>
       <% pct = @total_actions > 0 ? (count.to_f / @total_actions * 100).round(1) : 0 %>
-      <div style="margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-          <span style="text-transform: capitalize;"><%= action_type %></span>
+      <div class="agent-breakdown-item">
+        <div class="agent-breakdown-label">
+          <span><%= action_type %></span>
           <span><%= count %> (<%= pct %>%)</span>
         </div>
-        <div style="background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden;">
-          <div style="height: 100%; border-radius: 4px; width: <%= pct %>%; background: #6366f1;"></div>
+        <div class="agent-progress-track">
+          <div class="agent-progress-bar agent-progress-other" style="width: <%= pct %>%;"></div>
         </div>
       </div>
     <% end %>
@@ -97,70 +93,80 @@
 </div>
 
 <!-- Action Log Table -->
-<div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-  <h3 style="margin: 0 0 16px 0;">Action Log</h3>
+<div class="agent-panel">
+  <h3>Action Log</h3>
 
   <% if @actions.any? %>
-    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+    <table class="agent-action-table">
       <thead>
-        <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;">
-          <th style="padding: 8px 12px;">Time</th>
-          <th style="padding: 8px 12px;">Action</th>
-          <th style="padding: 8px 12px;">Entity</th>
-          <th style="padding: 8px 12px;">Decision</th>
-          <th style="padding: 8px 12px;">Confidence</th>
-          <th style="padding: 8px 12px;">Reasoning</th>
-          <th style="padding: 8px 12px;">Status</th>
+        <tr>
+          <th>Time</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Decision</th>
+          <th>Confidence</th>
+          <th>Reasoning</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
         <% @actions.each do |action| %>
-          <tr style="border-bottom: 1px solid #f3f4f6;" title="<%= action.reasoning %>">
-            <td style="padding: 8px 12px; white-space: nowrap; color: #666;"><%= action.created_at.strftime("%b %d, %H:%M") %></td>
-            <td style="padding: 8px 12px;">
-              <span style="background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;"><%= action.action_type %></span>
+          <tr title="<%= action.reasoning %>">
+            <td class="cell-time"><%= action.created_at.strftime("%b %d, %H:%M") %></td>
+            <td>
+              <span class="action-type-badge"><%= action.action_type %></span>
             </td>
-            <td style="padding: 8px 12px; color: #666;">
+            <td class="cell-entity">
               <% if action.actionable_type.present? %>
                 <%= action.actionable_type %> #<%= action.actionable_id %>
               <% else %>
                 —
               <% end %>
             </td>
-            <td style="padding: 8px 12px;">
+            <td>
               <% if action.decision %>
-                <% decision_style = case action.decision
-                  when 'approve' then 'background: #dcfce7; color: #16a34a;'
-                  when 'flag' then 'background: #fef9c3; color: #ca8a04;'
-                  when 'reject' then 'background: #fecaca; color: #dc2626;'
-                  else 'background: #e0e7ff; color: #4338ca;'
+                <% decision_class = case action.decision
+                  when 'approve' then 'decision-approve'
+                  when 'flag' then 'decision-flag'
+                  when 'reject' then 'decision-reject'
+                  else 'decision-other'
                   end %>
-                <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; <%= decision_style %>"><%= action.decision %></span>
+                <span class="decision-badge <%= decision_class %>"><%= action.decision %></span>
               <% end %>
             </td>
-            <td style="padding: 8px 12px;">
+            <td>
               <% if action.confidence %>
-                <span style="font-weight: 600; color: <%= action.confidence >= 0.8 ? '#16a34a' : action.confidence >= 0.6 ? '#ca8a04' : '#dc2626' %>;"><%= (action.confidence * 100).round(0) %>%</span>
+                <% conf_class = if action.confidence >= 0.8
+                    'confidence-high'
+                  elsif action.confidence >= 0.6
+                    'confidence-medium'
+                  else
+                    'confidence-low'
+                  end %>
+                <span class="<%= conf_class %>"><%= (action.confidence * 100).round(0) %>%</span>
               <% else %>
                 —
               <% end %>
             </td>
-            <td style="padding: 8px 12px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666;"><%= truncate(action.reasoning || "—", length: 60) %></td>
-            <td style="padding: 8px 12px;">
-              <span style="font-size: 11px; text-transform: uppercase;
-                <% case action.status %>
-                <% when 'completed' %> color: #16a34a;
-                <% when 'overridden' %> color: #ca8a04;
-                <% when 'failed' %> color: #dc2626;
-                <% else %> color: #666;
-                <% end %>
-              "><%= action.status %></span>
+            <td class="cell-reasoning"><%= truncate(action.reasoning || "—", length: 60) %></td>
+            <td>
+              <% status_class = case action.status
+                when 'completed' then 'status-completed'
+                when 'overridden' then 'status-overridden'
+                when 'failed' then 'status-failed'
+                else 'status-default'
+                end %>
+              <span class="<%= status_class %>"><%= action.status %></span>
             </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
-    <p style="color: #999; text-align: center; padding: 40px 0;">No actions recorded for this agent yet.</p>
+    <div class="agent-empty-state">
+      <div class="agent-empty-state-icon">📋</div>
+      <div class="agent-empty-state-title">No actions recorded</div>
+      <div class="agent-empty-state-text">This agent hasn't performed any actions yet. Actions will appear here once <%= @agent.name %> starts processing.</div>
+    </div>
   <% end %>
 </div>

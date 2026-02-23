@@ -80,6 +80,9 @@ class Admin::ApplicationsController < Admin::BaseController
   end
 
   def show
+    @agent_actions = @application.agent_actions.includes(:ai_agent).order(created_at: :desc)
+    @outstanding_docs_count = @application.application_documents.where(status: ['pending', 'rejected']).count
+    @unread_messages_count = @application.unread_customer_messages_count
   end
 
   def new

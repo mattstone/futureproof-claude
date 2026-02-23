@@ -181,6 +181,9 @@ Rails.application.routes.draw do
 
     # Agent Action Dashboard
     resources :agent_dashboard, only: [:index, :show] do
+      member do
+        patch :override
+      end
       collection do
         get :timeline
       end
