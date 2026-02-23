@@ -1,8 +1,8 @@
-<% content_for :page_title, "Back Office Dashboard" %>
+<% content_for :page_title, "Agent Command Centre" %>
 <div data-controller="admin-dashboard">
 
-<!-- Priority Inbox — Needs Attention -->
-<div class="priority-inbox needs-attention">
+<!-- Priority Inbox — Agent Escalations Only -->
+<div class="priority-inbox <%= @attention_items.any? ? 'needs-attention' : '' %>">
   <% if @attention_items.any? %>
     <div class="priority-inbox-header">
       <div class="priority-inbox-title">
@@ -32,14 +32,97 @@
     <div class="priority-inbox-header priority-inbox-clear">
       <div class="priority-inbox-title">
         <span class="priority-inbox-icon">✅</span>
-        <h2>All Clear</h2>
+        <h2>All Clear — Agents Are Handling Everything</h2>
       </div>
-      <span class="priority-inbox-status">Nothing needs your attention right now</span>
+      <span class="priority-inbox-status">No escalations, flags, or low-confidence decisions need review</span>
     </div>
   <% end %>
 </div>
 
-<!-- Key Business Metrics -->
+<!-- Agent Status Cards -->
+<% if @agents_with_stats.present? %>
+  <div class="agent-command-section">
+    <h2 class="section-title">🤖 Agent Status</h2>
+    <div class="agent-cards-grid">
+      <% @agents_with_stats.each do |data| %>
+        <% agent = data[:agent] %>
+        <div class="dashboard-card agent-status-card">
+          <div class="card-content">
+            <div class="agent-card-header">
+              <%= image_tag(agent.avatar_path, size: "56x56", class: "avatar-lg", alt: agent.name) rescue '' %>
+              <div>
+                <h3 style="margin: 0 0 2px 0; font-size: 18px;">
+                  <%= agent.name %>
+                  <span class="agent-status-indicator <%= data[:active] ? 'agent-active' : 'agent-idle' %>">
+                    <%= data[:active] ? '● Active' : '○ Idle' %>
+                  </span>
+                </h3>
+                <div class="agent-card-subtitle"><%= agent.role_description %></div>
+              </div>
+            </div>
+            <div class="agent-stat-grid">
+              <div class="agent-stat-item agent-stat-item-neutral">
+                <div class="agent-stat-value"><%= data[:today] %> / <%= data[:week] %></div>
+                <div class="agent-stat-label">Today / This Week</div>
+              </div>
+              <div class="agent-stat-item agent-stat-item-success">
+                <div class="agent-stat-value agent-stat-value-success"><%= data[:approval_rate] %>%</div>
+                <div class="agent-stat-label">Approval Rate</div>
+              </div>
+              <div class="agent-stat-item agent-stat-item-info">
+                <div class="agent-stat-value agent-stat-value-info"><%= (data[:avg_confidence] * 100).round(0) %>%</div>
+                <div class="agent-stat-label">Avg Confidence</div>
+              </div>
+              <div class="agent-stat-item agent-stat-item-neutral">
+                <div class="agent-stat-value" style="font-size: 14px;">
+                  <%= data[:last_action_at] ? time_ago_in_words(data[:last_action_at]) + ' ago' : 'No actions yet' %>
+                </div>
+                <div class="agent-stat-label">Last Action</div>
+              </div>
+            </div>
+            <%= link_to "View Details →", admin_agent_dashboard_path(agent), class: "agent-view-link" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<!-- Agent Performance Metrics -->
+<div class="metrics-grid metrics-grid-3 agent-performance">
+  <div class="metric-card">
+    <div class="metric-card-top">
+      <span class="metric-label">Agent Actions</span>
+      <span class="metric-badge metric-badge-blue">AI</span>
+    </div>
+    <div class="metric-value"><%= number_with_delimiter(@agent_performance[:total_all]) %></div>
+    <div class="metric-trend-group">
+      <span class="metric-trend-item"><%= @agent_performance[:total_today] %> today</span>
+      <span class="metric-trend-sep">·</span>
+      <span class="metric-trend-item"><%= @agent_performance[:total_week] %> this week</span>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-card-top">
+      <span class="metric-label">Avg Confidence Score</span>
+      <span class="metric-badge metric-badge-green">Agents</span>
+    </div>
+    <div class="metric-value"><%= (@agent_performance[:avg_confidence] * 100).round(0) %>%</div>
+    <div class="metric-trend">Across all agent decisions</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-card-top">
+      <span class="metric-label">Human Interventions</span>
+      <span class="metric-badge metric-badge-yellow">Review</span>
+    </div>
+    <div class="metric-value"><%= @agent_performance[:flags_count] + @agent_performance[:escalations_count] %></div>
+    <div class="metric-trend"><%= @agent_performance[:flags_count] %> flags · <%= @agent_performance[:escalations_count] %> escalations</div>
+  </div>
+</div>
+
+<!-- Key Business Metrics (secondary context) -->
 <div class="metrics-grid metrics-grid-4">
   <div class="metric-card">
     <div class="metric-card-top">
@@ -81,210 +164,169 @@
   </div>
 </div>
 
-<!-- Agent Performance Metrics -->
-<div class="metrics-grid metrics-grid-3 agent-performance">
-  <div class="metric-card">
-    <div class="metric-card-top">
-      <span class="metric-label">Agent Actions</span>
-      <span class="metric-badge metric-badge-blue">AI</span>
-    </div>
-    <div class="metric-value"><%= number_with_delimiter(@agent_performance[:total_all]) %></div>
-    <div class="metric-trend-group">
-      <span class="metric-trend-item"><%= @agent_performance[:total_today] %> today</span>
-      <span class="metric-trend-sep">·</span>
-      <span class="metric-trend-item"><%= @agent_performance[:total_week] %> this week</span>
-    </div>
-  </div>
+<!-- Agent Decision Distribution + Charts -->
+<%
+  has_fum_data = @monthly_fum_data.values.any? { |v| v > 0 } || @cumulative_fum_data.values.any? { |v| v > 0 }
+  has_pool_data = @pool_allocation_data.present? && @pool_allocation_data.any?
+  has_decision_data = @agent_performance[:decision_distribution].any?
+  has_any_chart_data = has_fum_data || has_pool_data || has_decision_data
+%>
 
-  <div class="metric-card">
-    <div class="metric-card-top">
-      <span class="metric-label">Avg Confidence Score</span>
-      <span class="metric-badge metric-badge-green">Agents</span>
-    </div>
-    <div class="metric-value"><%= (@agent_performance[:avg_confidence] * 100).round(0) %>%</div>
-    <div class="metric-trend">Across all agent decisions</div>
-  </div>
-
-  <div class="metric-card">
-    <div class="metric-card-top">
-      <span class="metric-label">Human Interventions</span>
-      <span class="metric-badge metric-badge-yellow">Review</span>
-    </div>
-    <div class="metric-value"><%= @agent_performance[:flags_count] + @agent_performance[:escalations_count] %></div>
-    <div class="metric-trend"><%= @agent_performance[:flags_count] %> flags · <%= @agent_performance[:escalations_count] %> escalations</div>
-  </div>
-</div>
-
-<!-- Charts Row: FUM + Agent Decision Distribution -->
-<div class="dashboard-grid">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Funds Under Management — Monthly</h3>
-    </div>
-    <div class="card-content">
-      <% if @monthly_fum_data.values.any? { |v| v > 0 } %>
-        <div
-          data-controller="dashboard-chart"
-          data-dashboard-chart-data-value='<%= @monthly_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
-          data-dashboard-chart-type-value="bar"
-          class="chart-container">
+<% if has_any_chart_data %>
+  <div class="dashboard-grid">
+    <% if has_decision_data %>
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3>Agent Decision Distribution</h3>
         </div>
-      <% else %>
-        <div class="chart-empty-state">
-          <span class="chart-empty-icon">📊</span>
-          <p>No FUM data yet</p>
-          <span class="chart-empty-hint">Data will appear as contracts are created</span>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Agent Decision Distribution</h3>
-    </div>
-    <div class="card-content">
-      <% dist = @agent_performance[:decision_distribution] %>
-      <% if dist.any? %>
-        <div class="decision-distribution">
-          <% total_decisions = dist.values.sum.to_f %>
-          <% decision_colors = { 'approve' => '#16a34a', 'flag' => '#eab308', 'reject' => '#dc2626', 'advance' => '#2563eb', 'request_info' => '#8b5cf6' } %>
-          <div class="decision-bar-track">
-            <% dist.each do |decision, count| %>
-              <div class="decision-bar-segment" style="width: <%= (count / total_decisions * 100).round(1) %>%; background-color: <%= decision_colors[decision] || '#94a3b8' %>;"></div>
-            <% end %>
-          </div>
-          <div class="decision-legend">
-            <% dist.each do |decision, count| %>
-              <div class="decision-legend-item">
-                <span class="decision-legend-dot" style="background-color: <%= decision_colors[decision] || '#94a3b8' %>;"></span>
-                <span class="decision-legend-label"><%= decision.humanize %></span>
-                <span class="decision-legend-count"><%= count %></span>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% else %>
-        <div class="chart-empty-state">
-          <span class="chart-empty-icon">🤖</span>
-          <p>No agent decisions yet</p>
-          <span class="chart-empty-hint">Agent decisions will appear here once processed</span>
-        </div>
-      <% end %>
-    </div>
-  </div>
-</div>
-
-<!-- Capital Allocation + Cumulative FUM -->
-<div class="dashboard-grid">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Capital Allocation Overview</h3>
-    </div>
-    <div class="card-content">
-      <div class="capital-allocation-chart">
-        <div class="allocation-overview">
-          <div class="allocation-segment allocated-segment" style="width: <%= @pool_utilization || 0 %>%">
-            <span class="segment-label">Allocated: <%= abbreviated_currency(@total_allocated || 0) %></span>
-          </div>
-          <div class="allocation-segment available-segment" style="width: <%= 100 - (@pool_utilization || 0) %>%">
-            <span class="segment-label">Available: <%= abbreviated_currency(@total_available || 0) %></span>
-          </div>
-        </div>
-        <div class="allocation-legend">
-          <div class="legend-item">
-            <div class="legend-color allocated-color"></div>
-            <span>Allocated (<%= format_percentage(@pool_utilization || 0) %>%)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color available-color"></div>
-            <span>Available (<%= format_percentage((100 - (@pool_utilization || 0)).round(1)) %>%)</span>
+        <div class="card-content">
+          <% dist = @agent_performance[:decision_distribution] %>
+          <div class="decision-distribution">
+            <% total_decisions = dist.values.sum.to_f %>
+            <% decision_colors = { 'approve' => '#16a34a', 'flag' => '#eab308', 'reject' => '#dc2626', 'advance' => '#2563eb', 'request_info' => '#8b5cf6' } %>
+            <div class="decision-bar-track">
+              <% dist.each do |decision, count| %>
+                <div class="decision-bar-segment" style="width: <%= (count / total_decisions * 100).round(1) %>%; background-color: <%= decision_colors[decision] || '#94a3b8' %>;"></div>
+              <% end %>
+            </div>
+            <div class="decision-legend">
+              <% dist.each do |decision, count| %>
+                <div class="decision-legend-item">
+                  <span class="decision-legend-dot" style="background-color: <%= decision_colors[decision] || '#94a3b8' %>;"></span>
+                  <span class="decision-legend-label"><%= decision.humanize %></span>
+                  <span class="decision-legend-count"><%= count %> (<%= (count / total_decisions * 100).round(0) %>%)</span>
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    <% end %>
+
+    <% if @monthly_fum_data.values.any? { |v| v > 0 } %>
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3>Funds Under Management — Monthly</h3>
+        </div>
+        <div class="card-content">
+          <div
+            data-controller="dashboard-chart"
+            data-dashboard-chart-data-value='<%= @monthly_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
+            data-dashboard-chart-type-value="bar"
+            data-dashboard-chart-format-value="currency"
+            class="chart-container">
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Funds Under Management — Cumulative</h3>
-    </div>
-    <div class="card-content">
-      <% if @cumulative_fum_data.values.any? { |v| v > 0 } %>
-        <div
-          data-controller="dashboard-chart"
-          data-dashboard-chart-data-value='<%= @cumulative_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
-          data-dashboard-chart-type-value="area"
-          class="chart-container">
+  <% if has_pool_data || @cumulative_fum_data.values.any? { |v| v > 0 } %>
+    <div class="dashboard-grid">
+      <% if has_pool_data %>
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Capital Allocation Overview</h3>
+          </div>
+          <div class="card-content">
+            <div class="capital-allocation-chart">
+              <div class="allocation-overview">
+                <div class="allocation-segment allocated-segment" style="width: <%= @pool_utilization || 0 %>%">
+                  <span class="segment-label">Allocated: <%= abbreviated_currency(@total_allocated || 0) %></span>
+                </div>
+                <div class="allocation-segment available-segment" style="width: <%= 100 - (@pool_utilization || 0) %>%">
+                  <span class="segment-label">Available: <%= abbreviated_currency(@total_available || 0) %></span>
+                </div>
+              </div>
+              <div class="allocation-legend">
+                <div class="legend-item">
+                  <div class="legend-color allocated-color"></div>
+                  <span>Allocated (<%= format_percentage(@pool_utilization || 0) %>%)</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color available-color"></div>
+                  <span>Available (<%= format_percentage((100 - (@pool_utilization || 0)).round(1)) %>%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      <% else %>
-        <div class="chart-empty-state">
-          <span class="chart-empty-icon">📈</span>
-          <p>No cumulative data yet</p>
-          <span class="chart-empty-hint">Cumulative FUM will appear as contracts are created</span>
+      <% end %>
+
+      <% if @cumulative_fum_data.values.any? { |v| v > 0 } %>
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Funds Under Management — Cumulative</h3>
+          </div>
+          <div class="card-content">
+            <div
+              data-controller="dashboard-chart"
+              data-dashboard-chart-data-value='<%= @cumulative_fum_data.map { |month, amount| { label: month, value: amount } }.to_json %>'
+              data-dashboard-chart-type-value="area"
+              data-dashboard-chart-format-value="currency"
+              class="chart-container">
+            </div>
+          </div>
         </div>
       <% end %>
     </div>
+  <% end %>
+<% else %>
+  <div class="dashboard-card" style="margin-bottom: 40px;">
+    <div class="card-content" style="text-align: center; padding: 40px;">
+      <span style="font-size: 32px;">📊</span>
+      <p style="color: #64748b; font-size: 15px; margin: 12px 0 0 0;">Charts will populate as contracts are created and agents process decisions</p>
+    </div>
   </div>
-</div>
+<% end %>
 
 <!-- Growth Charts -->
 <div class="dashboard-grid">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Application Growth (Last 6 Months)</h3>
-    </div>
-    <div class="card-content">
-      <% if @application_growth_data.values.any? { |v| v > 0 } %>
+  <% if @application_growth_data.values.any? { |v| v > 0 } %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>Application Growth (Last 6 Months)</h3>
+      </div>
+      <div class="card-content">
         <div
           data-controller="dashboard-chart"
           data-dashboard-chart-data-value='<%= @application_growth_data.map { |month, count| { label: month, value: count } }.to_json %>'
           data-dashboard-chart-type-value="bar"
+          data-dashboard-chart-format-value="number"
           class="chart-container">
         </div>
-      <% else %>
-        <div class="chart-empty-state">
-          <span class="chart-empty-icon">📊</span>
-          <p>No application data yet</p>
-          <span class="chart-empty-hint">Monthly growth will appear as applications are submitted</span>
-        </div>
-      <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Conversion Rate (Last 6 Months)</h3>
-    </div>
-    <div class="card-content">
-      <% if @conversion_growth_data.values.any? { |v| v > 0 } %>
+  <% if @conversion_growth_data.values.any? { |v| v > 0 } %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>Conversion Rate (Last 6 Months)</h3>
+      </div>
+      <div class="card-content">
         <div
           data-controller="dashboard-chart"
           data-dashboard-chart-data-value='<%= @conversion_growth_data.map { |month, rate| { label: month, value: rate } }.to_json %>'
           data-dashboard-chart-type-value="area"
           data-dashboard-chart-max-value="100"
+          data-dashboard-chart-format-value="percentage"
           class="chart-container">
         </div>
-      <% else %>
-        <div class="chart-empty-state">
-          <span class="chart-empty-icon">📈</span>
-          <p>No conversion data yet</p>
-          <span class="chart-empty-hint">Conversion rates will show as users submit applications</span>
-        </div>
-      <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
-<!-- Pool Utilization by Funder -->
+<!-- Pool Utilization + Application Status Distribution -->
 <div class="dashboard-grid">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <h3>Pool Utilization by Funder</h3>
-    </div>
-    <div class="card-content">
-      <div class="pool-utilization-chart">
-        <% if @pool_allocation_data.any? %>
+  <% if @pool_allocation_data.present? && @pool_allocation_data.any? %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>Pool Utilization by Funder</h3>
+      </div>
+      <div class="card-content">
+        <div class="pool-utilization-chart">
           <% @pool_allocation_data.each do |pool| %>
             <div class="pool-bar">
               <div class="pool-info">
@@ -300,12 +342,10 @@
               </div>
             </div>
           <% end %>
-        <% else %>
-          <p class="no-data">No funder pools configured</p>
-        <% end %>
+        </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Application Status Distribution -->
   <div class="dashboard-card">
@@ -442,7 +482,7 @@
           <% end %>
         </div>
       <% else %>
-        <p class="no-data">No recent applications</p>
+        <p class="no-data">No applications in the pipeline</p>
       <% end %>
     </div>
   </div>

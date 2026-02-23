@@ -5,7 +5,8 @@ export default class extends Controller {
   static values = {
     data: Array,
     type: String,
-    max: Number
+    max: Number,
+    format: { type: String, default: "currency" }
   }
 
   connect() {
@@ -413,12 +414,20 @@ export default class extends Controller {
   }
 
   formatCurrency(value) {
-    if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`
-    } else if (value >= 1000) {
-      return `$${(value / 1000).toFixed(0)}K`
+    const fmt = this.formatValue
+    if (fmt === "percentage") {
+      return `${value.toFixed(0)}%`
+    } else if (fmt === "number") {
+      return value >= 1000 ? `${(value / 1000).toFixed(1)}K` : `${Math.round(value)}`
     } else {
-      return `$${value.toFixed(0)}`
+      // currency
+      if (value >= 1000000) {
+        return `$${(value / 1000000).toFixed(1)}M`
+      } else if (value >= 1000) {
+        return `$${(value / 1000).toFixed(0)}K`
+      } else {
+        return `$${value.toFixed(0)}`
+      }
     }
   }
 }

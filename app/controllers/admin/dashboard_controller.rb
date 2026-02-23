@@ -9,6 +9,9 @@ class Admin::DashboardController < Admin::BaseController
 
     # === Agent Performance ===
     @agent_performance = build_agent_performance
+
+    # === Agent Status Cards ===
+    @agents_with_stats = build_agent_cards
     
     # User statistics
     @total_users = users_scope.count
@@ -74,8 +77,9 @@ class Admin::DashboardController < Admin::BaseController
       @status_distribution[status] = raw_status_distribution[status] || 0
     end
     
-    # Recent applications for quick access (scoped)
+    # Recent applications for quick access (scoped) — actionable pipeline items only
     @recent_applications = applications_scope.includes(:user)
+                                           .where(status: %w[submitted processing accepted rejected])
                                            .order(updated_at: :desc)
                                            .limit(5)
     
@@ -118,7 +122,7 @@ class Admin::DashboardController < Admin::BaseController
 
     # Agent flags/escalations needing review
     flagged_actions = AgentAction.includes(:ai_agent, :actionable)
-                                 .where(action_type: 'decide', decision: %w[flag reject], status: 'completed')
+                                 .where(decision: %w[flag reject], status: 'completed')
                                  .where.not(status: 'overridden')
                                  .order(created_at: :desc)
                                  .limit(10)
@@ -136,7 +140,29 @@ class Admin::DashboardController < Admin::BaseController
       }
     end
 
-    # Documents awaiting verification
+    # Low-confidence decisions (below 70%)
+    low_confidence_actions = AgentAction.includes(:ai_agent, :actionable)
+                                        .where(status: 'completed')
+                                        .where.not(confidence: nil)
+                                        .where('confidence < ?', 0.7)
+                                        .where.not(id: flagged_actions.map(&:id))
+                                        .order(created_at: :desc)
+                                        .limit(5)
+    low_confidence_actions.each do |action|
+      next unless action.actionable.present?
+      items << {
+        type: :low_confidence,
+        icon: '🔍',
+        title: "Low Confidence: #{action.action_type.humanize} on #{action.actionable.class.name.titleize} ##{action.actionable.id}",
+        subtitle: "#{action.ai_agent&.name || 'Agent'} — #{(action.confidence.to_f * 100).round(0)}% confidence (#{action.decision || 'no decision'})",
+        detail: action.reasoning.to_s.truncate(120),
+        url_helper: -> { action.actionable.is_a?(Application) ? admin_application_path(action.actionable) : '#' },
+        action_id: action.id,
+        created_at: action.created_at
+      }
+    end
+
+    # Documents that agents couldn't verify automatically
     pending_docs = ApplicationDocument.includes(:application)
                                       .where(status: %w[uploaded pending])
                                       .order(created_at: :desc)
@@ -149,7 +175,7 @@ class Admin::DashboardController < Admin::BaseController
         items << {
           type: :document_review,
           icon: '📄',
-          title: "Document Review: #{docs.size} document#{'s' if docs.size != 1} awaiting verification",
+          title: "Unverified Documents: #{docs.size} document#{'s' if docs.size != 1} need manual review",
           subtitle: "Application ##{app_id}: #{doc_names.truncate(80)}",
           detail: nil,
           url_helper: -> { admin_application_path(app) },
@@ -157,37 +183,6 @@ class Admin::DashboardController < Admin::BaseController
           created_at: docs.map(&:created_at).max
         }
       end
-    end
-
-    # Applications needing review
-    review_apps = applications_scope.where(status: %w[submitted processing]).order(created_at: :asc).limit(5)
-    review_apps.each do |app|
-      items << {
-        type: :application_review,
-        icon: '📋',
-        title: "Application Review: ##{app.id} — #{app.status.humanize}",
-        subtitle: "#{app.user&.display_name || 'Unknown'} — submitted #{ActionController::Base.helpers.time_ago_in_words(app.created_at)} ago",
-        detail: nil,
-        url_helper: -> { admin_application_path(app) },
-        action_id: nil,
-        created_at: app.created_at
-      }
-    end
-
-    # Contracts awaiting funding
-    funding_contracts = Contract.includes(:application).where(status: %w[awaiting_funding awaiting_investment]).order(created_at: :asc).limit(5)
-    funding_contracts.each do |contract|
-      home_value = contract.application&.home_value
-      items << {
-        type: :funding_required,
-        icon: '💰',
-        title: "Funding Required: Contract ##{contract.id} — #{contract.status.humanize}",
-        subtitle: home_value.to_i > 0 ? "Amount: #{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}" : "Awaiting capital allocation",
-        detail: nil,
-        url_helper: -> { admin_contracts_path },
-        action_id: nil,
-        created_at: contract.created_at
-      }
     end
 
     items.sort_by { |i| i[:created_at] || Time.at(0) }.reverse.first(10)
@@ -204,11 +199,36 @@ class Admin::DashboardController < Admin::BaseController
       avg_confidence: AgentAction.where.not(confidence: nil).average(:confidence)&.round(2) || 0,
       flags_count: AgentAction.where(decision: 'flag', status: 'completed').count,
       escalations_count: AgentAction.where(action_type: 'escalate', status: 'completed').count,
-      decision_distribution: AgentAction.where(action_type: 'decide').group(:decision).count
+      decision_distribution: AgentAction.where.not(decision: nil).group(:decision).count
     }
   rescue => e
     Rails.logger.error("Dashboard agent performance error: #{e.message}")
     { total_today: 0, total_week: 0, total_all: 0, avg_confidence: 0, flags_count: 0, escalations_count: 0, decision_distribution: {} }
+  end
+
+  def build_agent_cards
+    AiAgent.active.order(:name).map do |agent|
+      actions = agent.agent_actions
+      total = actions.count
+      approvals = actions.where(decision: 'approve').count
+      today_count = actions.where('created_at >= ?', Time.current.beginning_of_day).count
+      week_count = actions.where('created_at >= ?', 1.week.ago).count
+      avg_conf = actions.where.not(confidence: nil).average(:confidence)&.round(2) || 0
+      last_action = actions.maximum(:created_at)
+      {
+        agent: agent,
+        total: total,
+        today: today_count,
+        week: week_count,
+        approval_rate: total > 0 ? (approvals.to_f / total * 100).round(1) : 0,
+        avg_confidence: avg_conf,
+        last_action_at: last_action,
+        active: last_action.present? && last_action > 1.hour.ago
+      }
+    end
+  rescue => e
+    Rails.logger.error("Dashboard agent cards error: #{e.message}")
+    []
   end
 
   def generate_growth_data(scope, months)
