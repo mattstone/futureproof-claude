@@ -378,7 +378,7 @@
         <div class="logo-section">
             <div class="logo-text">
                 <h1>FutureProof</h1>
-                <p>Equity Partnering Model — Technical Architecture</p>
+                <p>Income from Property Equity — Technical Architecture</p>
             </div>
         </div>
         <div class="header-actions">
@@ -390,14 +390,14 @@
         <!-- Title Page -->
         <div class="section" style="text-align: center; padding: 40px 60px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; page-break-after: always; border-bottom: none;">
             <h1 style="font-size: 48px; font-weight: 900; color: var(--fp-dark); margin: 0 0 20px 0;">FutureProof EPM</h1>
-            <p style="font-size: 24px; color: var(--fp-main); font-weight: 600; margin: 0 0 60px 0;">Equity Partnering Model — Technical Architecture</p>
+            <p style="font-size: 24px; color: var(--fp-main); font-weight: 600; margin: 0 0 60px 0;">Income from Property Equity — Technical Architecture</p>
             
             <div style="max-width: 700px; margin-bottom: 100px; text-align: center;">
                 <p style="font-size: 16px; color: #5f6368; line-height: 1.9;">A comprehensive guide to the platform architecture, agents, workflows, and compliance systems that power monthly income distribution for equity-partnered homeowners.</p>
             </div>
 
             <div style="border-top: 1px solid #ddd; padding-top: 60px; margin-top: auto;">
-                <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Document Version 4.0</p>
+                <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Document Version 4.2</p>
                 <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Internal Use Only</p>
                 <p style="font-size: 12px; color: #9aa0a6; margin: 0;">© 2026 FutureProof Financial Group Limited</p>
             </div>
@@ -413,7 +413,7 @@
                 </div>
             </div>
 
-            <p>FutureProof's Equity Partnering Model (EPM) is a fund-based income solution that transforms home equity into sustainable monthly income. The model connects four stakeholders through a sophisticated distribution system powered by monthly rebalancing and performance monitoring.</p>
+            <p>FutureProof's Income from Property Equity solution is a fund-based income product that transforms home equity into sustainable monthly income. The model connects four stakeholders through a sophisticated distribution system powered by monthly rebalancing and performance monitoring.</p>
 
             <h3>The Four Stakeholders</h3>
 
@@ -433,8 +433,8 @@
                     </tr>
                     <tr>
                         <td><strong>Investment Partner</strong></td>
-                        <td>Manages invested capital (S&P 500 ETFs)</td>
-                        <td>Generates daily returns; manages fund performance and rebalancing</td>
+                        <td>Manages invested capital</td>
+                        <td>Generates returns; manages fund performance and rebalancing</td>
                     </tr>
                     <tr>
                         <td><strong>Lender</strong></td>
@@ -451,9 +451,9 @@
 
             <h3>Monthly Distribution Flow</h3>
 
-            <p><strong>Daily Fund Returns:</strong> Investment Partner's ETF holdings generate daily returns (on average 10% p.a. over 30 years, tracked to S&P 500).</p>
+            <p><strong>Fund Returns:</strong> Investment Partner's holdings generate returns that are aggregated and tracked monthly (on average 10% p.a. over 30 years).</p>
 
-            <p><strong>Monthly Distribution:</strong> System aggregates daily returns and calculates monthly payout amounts based on:</p>
+            <p><strong>Monthly Distribution:</strong> System calculates monthly payout amounts based on:</p>
             <ul>
                 <li>Customer's equity percentage (typically 2% of home value)</li>
                 <li>Fund performance month-to-date</li>
@@ -592,29 +592,29 @@
 
             <h3>Core Platform</h3>
 
-            <p><strong>Rails 8.1 + Hotwire + Stimulus:</strong> Single monolithic Rails application with real-time updates via Hotwire (Turbo) for seamless user interactions and Stimulus controllers for client-side interactivity.</p>
+            <p><strong>Rails 8.1 + Hotwire + Stimulus:</strong> Single monolithic Rails application with real-time updates via Hotwire (Turbo) for seamless user interactions and Stimulus controllers for client-side interactivity. Hotwire enables live dashboard updates (fund performance, distribution status, holiday triggers) without requiring WebSocket complexity—server-side changes automatically broadcast to clients via Turbo Streams.</p>
 
-            <p><strong>PostgreSQL Database:</strong> Single source of truth for all customer, transaction, and account data with full audit trails.</p>
+            <p><strong>PostgreSQL Database:</strong> Single source of truth for all customer, transaction, and account data with full audit trails. Uses JSON columns for flexible fund metadata storage, materialized views for performance metrics aggregation, and database triggers to enforce compliance rules automatically. Partitioned by customer ID for horizontal scaling.</p>
 
-            <p><strong>Kafka Event Queue:</strong> Asynchronous event streaming for agent coordination and system-wide notifications.</p>
+            <p><strong>Kafka Event Queue:</strong> Asynchronous event streaming for agent coordination and system-wide notifications. Agents subscribe to topics: <code>distributions.*</code>, <code>holidays.*</code>, <code>compliance.*</code>, <code>deals.*</code>. Ensures exactly-once processing with idempotent subscriber logic; dead-letter queues capture processing failures for manual remediation.</p>
 
-            <p><strong>Redis Cache:</strong> Session management, rate limiting, and temporary computation caching.</p>
+            <p><strong>Redis Cache:</strong> Session management, rate limiting, and temporary computation caching. Used for: customer session state, monthly distribution calculations (staged before final commit), Bloom filters for fraud detection (quick checking of known patterns), and cache-aside pattern for frequently accessed data (fund performance metrics, holiday thresholds).</p>
 
-            <p><strong>S3 Storage:</strong> Document archival, statements, and audit logs.</p>
+            <p><strong>S3 Storage:</strong> Document archival, statements, and audit logs with versioning enabled. Uses server-side encryption (SSE-S3). Lifecycle policies archive logs after 90 days to Glacier, delete after 7 years (compliance requirement).</p>
 
             <h3>Core Services</h3>
 
-            <p><strong>Distribution Engine:</strong> Calculates monthly distributions based on fund returns, applies margins, and initiates payments.</p>
+            <p><strong>Distribution Engine:</strong> Microservice (Ruby + Sidekiq) that runs on 1st-5th of month. Pulls monthly fund returns from Investment Partner, calculates per-customer distributions using formula: <code>customer_equity_pct × fund_return × (1 - lender_margin) × (1 - funder_margin) × (1 - fp_margin)</code>. Stages calculations in Redis for audit, executes ACH/bank transfers (via Stripe), publishes <code>distribution.executed</code> event. Implements retry logic with exponential backoff for payment failures; failed payments trigger lender alerts for manual intervention.</p>
 
-            <p><strong>Compliance Engine:</strong> Enforces regulatory rules, tracks audit trail, and validates all transactions.</p>
+            <p><strong>Compliance Engine:</strong> Real-time service that validates every transaction against 20+ regulatory rules (KYC/AML, responsible lending, distribution accuracy, fund audits, data privacy). Writes audit trail to PostgreSQL with immutable event log table. Implements Change Data Capture (CDC) via database triggers—any mutation to customer/transaction tables triggers audit record creation. Violations escalate via Kafka topic <code>compliance.violation</code> to ops dashboard.</p>
 
-            <p><strong>Fraud Detection:</strong> Real-time pattern matching against known fraud scenarios and automated alerts.</p>
+            <p><strong>Fraud Detection:</strong> Machine learning pipeline (offline) trained on historical transaction patterns. Real-time scorer deployed as REST service checks each transaction/login against: (1) known fraud patterns (Bloom filter in Redis), (2) behavioral anomalies (isolation forest model), (3) rule-based checks (impossible geography, velocity limits). Assigns fraud score 0-100; scores >70 trigger manual review, >90 block transaction automatically.</p>
 
-            <p><strong>Interest Holiday Logic:</strong> Monitors fund performance and triggers automated holidays when thresholds breached.</p>
+            <p><strong>Interest Holiday Logic:</strong> Scheduled job runs monthly (after distributions finalize). Queries fund performance history (stored in materialized view), calculates rolling 12-month returns, compares against entry threshold (0.90) and exit threshold (1.458). State machine manages transitions: <code>normal</code> → <code>holiday_pending</code> → <code>holiday_active</code> → <code>recovery_in_progress</code> → <code>normal</code>. Publishes state change events for customer notification.</p>
 
-            <p><strong>Notification Service:</strong> Sends customer statements, alerts, and lender/funder reports via email and SMS.</p>
+            <p><strong>Notification Service:</strong> Async job queue (Sidekiq) with multiple channels: email (SendGrid), SMS (Twilio), in-app notifications (database + Hotwire broadcast). Implements delivery guarantees: stores pending notifications in database with idempotent keys, retries failed sends with backoff, marks as delivered only after provider confirmation. Respects customer notification preferences (stored as JSON array in user record).</p>
 
-            <p><strong>Document Engine:</strong> Generates contracts, disclosures, and monthly statements.</p>
+            <p><strong>Document Engine:</strong> Server-side rendered (ERB templates) + Prawn gem for PDF generation. Stores templates in database for versioning/audit. Generates: loan documents (auto-filled with customer data), investment agreements (region-specific legal terms), monthly statements (tabular layout with performance charts), disclosures. All outputs digitally signed via AWS Signer service, archived to S3 with immutable version IDs.</p>
         </div>
 
         <!-- Section 4: Four-Agent System -->
@@ -674,14 +674,14 @@
                         <td><strong>Investment Agent</strong></td>
                         <td>Fund performance monitoring & interest holidays</td>
                         <td>
-                            • Monitor daily fund returns<br>
+                            • Monitor fund performance<br>
                             • Calculate rolling metrics<br>
                             • Determine holiday eligibility<br>
                             • Trigger/release holidays<br>
                             • Alert lenders to changes
                         </td>
                         <td>
-                            • Daily closing prices<br>
+                            • Monthly performance updates<br>
                             • Rolling threshold breach<br>
                             • Recovery confirmation
                         </td>
@@ -731,7 +731,7 @@
 
             <h3>How Holidays Work</h3>
 
-            <p>Interest holidays provide borrowers protection during market downturns. The Investment Agent monitors rolling fund performance against dynamic thresholds.</p>
+            <p>Interest holidays provide borrowers protection during market downturns. The Investment Agent monitors rolling fund performance against dynamic thresholds on a monthly basis.</p>
 
             <table>
                 <thead>
@@ -938,53 +938,78 @@
 
             <div class="two-col">
                 <div>
-                    <h4>Backend</h4>
+                    <h4>Backend & Processing</h4>
                     <ul>
-                        <li>Rails 8.1 (Ruby 3.4)</li>
-                        <li>PostgreSQL 16</li>
-                        <li>Redis 7 (caching)</li>
-                        <li>Kafka 3.6 (events)</li>
+                        <li>Rails 8.1 (Ruby 3.4.8)</li>
+                        <li>Sidekiq 7.x (background jobs, 4 workers)</li>
+                        <li>ruby-kafka gem (event streaming)</li>
+                        <li>Puma web server (3 threads, auto-scaling)</li>
                     </ul>
                 </div>
                 <div>
-                    <h4>Frontend</h4>
+                    <h4>Data & Persistence</h4>
                     <ul>
-                        <li>Hotwire (Turbo)</li>
-                        <li>Stimulus JS</li>
-                        <li>Tailwind CSS</li>
-                        <li>HTML Templates</li>
+                        <li>PostgreSQL 16 (primary + read replica)</li>
+                        <li>Redis 7 (caching + session store)</li>
+                        <li>Kafka 3.6 (event log, 3 replicas)</li>
+                        <li>PgBouncer (connection pooling)</li>
                     </ul>
                 </div>
             </div>
 
             <div class="two-col">
                 <div>
-                    <h4>Storage & Infrastructure</h4>
+                    <h4>Frontend & UI</h4>
                     <ul>
-                        <li>AWS S3 (documents)</li>
-                        <li>AWS RDS (backups)</li>
-                        <li>Fly.io (deployment)</li>
-                        <li>GitHub Actions (CI/CD)</li>
+                        <li>Hotwire (Turbo Streams + Drive)</li>
+                        <li>Stimulus JS (lightweight controllers)</li>
+                        <li>Tailwind CSS (utility-first styling)</li>
+                        <li>ERB templates (server-rendered)</li>
+                        <li>Chart.js (performance visualization)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Storage & CDN</h4>
+                    <ul>
+                        <li>AWS S3 (documents, versioned)</li>
+                        <li>AWS CloudFront (CDN for static assets)</li>
+                        <li>S3 Glacier (archive logs after 90 days)</li>
+                        <li>Fly.io Volumes (persistent storage)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div>
+                    <h4>Infrastructure & Deployment</h4>
+                    <ul>
+                        <li>Fly.io (managed Postgres + Docker)</li>
+                        <li>GitHub Actions (CI/CD pipeline)</li>
+                        <li>Docker (containerized Rails app)</li>
+                        <li>Terraform (IaC for infra setup)</li>
                     </ul>
                 </div>
                 <div>
                     <h4>Monitoring & Security</h4>
                     <ul>
-                        <li>Sentry (error tracking)</li>
-                        <li>CloudWatch (logs)</li>
-                        <li>Rails security standards</li>
-                        <li>HTTPS/TLS encryption</li>
+                        <li>Sentry (error tracking, source maps)</li>
+                        <li>CloudWatch (structured JSON logs)</li>
+                        <li>Grafana (dashboards + alerts)</li>
+                        <li>PagerDuty (incident escalation)</li>
+                        <li>HTTPS/TLS, WAF, CSP headers</li>
                     </ul>
                 </div>
             </div>
 
             <h3>Architecture Notes</h3>
 
-            <p><strong>Monolithic Rails App:</strong> Single codebase simplifies deployment, testing, and debugging. Real-time features powered by Hotwire (Turbo Streams) enable dashboard updates without JavaScript complexity.</p>
+            <p><strong>Monolithic Rails App:</strong> Single codebase simplifies deployment, testing, and debugging. Uses Rails concerns for code organization (e.g., <code>Distributable</code> concern shared across models). Real-time features powered by Hotwire (Turbo Streams) enable dashboard updates without JavaScript complexity—when a holiday is triggered, server broadcasts HTML fragment to connected clients. Health checks (Rails endpoint returning JSON) monitored by Fly.io load balancer; failed instances auto-replaced.</p>
 
-            <p><strong>Event-Driven Agents:</strong> Agents implemented as background jobs (Sidekiq/Resque) listening to Kafka topics. Decouples origination, distribution, monitoring, and compliance workflows.</p>
+            <p><strong>Event-Driven Agents:</strong> Agents implemented as background jobs (Sidekiq with 4 worker processes per pod) listening to Kafka topics. Each agent is a Rails service class (e.g., <code>DealAgent::OnboardingService</code>) with single responsibility. Kafka Consumer Group ensures horizontal scalability—multiple agent instances process partitions in parallel. Implements distributed tracing via OpenTelemetry; each event tagged with trace ID for end-to-end visibility.</p>
 
-            <p><strong>PostgreSQL as Single Source of Truth:</strong> All customer, transaction, and account data stored in single database. Full audit trail via database triggers.</p>
+            <p><strong>PostgreSQL as Single Source of Truth:</strong> All customer, transaction, and account data stored in single database with logical replication enabled (standby in secondary region for disaster recovery). Audit trail implemented as immutable event log—no UPDATE/DELETE allowed, only INSERT. Uses SERIAL ID for ordering, JSON data for flexible schema evolution. Connection pooling (PgBouncer) limits database load; idle connections recycled after 30 minutes.</p>
+
+            <p><strong>Caching Strategy:</strong> Three-tier: (1) Database query cache (Rails fragment caching for dashboard components, 1-hour TTL), (2) Redis session cache (customer login state, 7-day rolling expiry), (3) Application-level cache (monthly metrics computed once, stored in Redis, invalidated on new distribution). Implements cache-aside pattern with lazy loading.</p>
         </div>
 
         <!-- Section 9: Deployment & Testing -->
@@ -1011,25 +1036,27 @@
 
             <h3>Continuous Deployment</h3>
 
-            <p><strong>GitHub Actions:</strong> Automated tests run on every PR. Tests must pass before merge to main.</p>
+            <p><strong>GitHub Actions:</strong> Automated tests run on every PR: RSpec (unit/integration, 200+ specs), Rubocop (linting), Brakeman (security), database migrations validated. Tests must pass + code review approval before merge to main. Deploys require second approval from ops team.</p>
 
-            <p><strong>Staging Environment:</strong> Deployed automatically from main branch. Manual smoke tests before production release.</p>
+            <p><strong>Staging Environment:</strong> Deployed automatically from main branch using Fly.io's staging app (same infra as production, 1 instance instead of 3). Runs against production-replica database (encrypted, daily sanitized PII removal). Manual smoke tests performed: login, distribution calculation, payment processing, fraud alert generation. Staging data refreshed nightly from production (read-only copy).</p>
 
-            <p><strong>Production Release:</strong> Blue-green deployment on Fly.io. Automatic rollback if health checks fail within 5 minutes.</p>
+            <p><strong>Production Release:</strong> Blue-green deployment on Fly.io. Traffic gradually shifted 10% → 50% → 100% to new version over 10 minutes (canary rollout). Health checks verify: (1) Rails boot successful, (2) database connection working, (3) Kafka topics reachable, (4) core endpoints respond with <200ms latency. Automatic rollback if health checks fail within 5 minutes or if error rate spikes >2% above baseline.</p>
+
+            <p><strong>Database Migrations:</strong> Zero-downtime migrations using strong_migrations gem (prevents destructive migrations). Tests run against production-replica before execution. Deployments include pre-deployment (create columns, indexes) and post-deployment (backfill data, drop old columns) steps with manual approval gates.</p>
 
             <h3>Monitoring & Alerting</h3>
 
-            <p><strong>Sentry:</strong> Real-time error tracking. Critical errors trigger PagerDuty alerts.</p>
+            <p><strong>Sentry:</strong> Real-time error tracking with source map support (debuggable minified JavaScript). Groups errors by fingerprint, alerting on new/regressed errors. Critical errors (distribution failures, fraud detection timeouts) trigger PagerDuty escalations (→ on-call engineer) within 2 minutes of occurrence.</p>
 
-            <p><strong>CloudWatch Logs:</strong> Full transaction logs, agent activity, performance metrics.</p>
+            <p><strong>CloudWatch Logs:</strong> Structured JSON logging (via Rails lograge gem). Each request logs: trace_id, user_id, duration_ms, database_queries, external_api_calls. Stores in CloudWatch with retention policy (90 days hot, archival to S3 after 90 days). Custom metrics: distribution execution time, payment success rate, fraud detection latency.</p>
 
-            <p><strong>Dashboard:</strong> Real-time visibility into system health: agent status, transaction volume, error rates, margin collections.</p>
+            <p><strong>Dashboard (Grafana):</strong> Real-time visibility into: (1) System health (CPU, memory, disk usage per pod), (2) Application metrics (requests/sec, error rate, p95 latency), (3) Business metrics (distributions executed, total payments, customer count, revenue per month), (4) Agent health (processing lag per Kafka topic, dead-letter queue size), (5) Database health (connection pool usage, replication lag). Alerts fire when: error rate >1%, distribution latency >60s, Kafka lag >1000 messages, database replication lag >30s.</p>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <strong>FutureProof EPM Technical Architecture</strong>
-            Document version 4.1 (Corrected) · Internal use only<br>
+            <strong>FutureProof Income from Property Equity — Technical Architecture</strong>
+            Document version 4.2 (Enhanced) · Internal use only<br>
             © 2026 FutureProof Financial Group Limited. All rights reserved.
         </div>
     </div>
