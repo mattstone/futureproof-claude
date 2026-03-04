@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_132023) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -218,6 +218,47 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_132023) do
     t.index ["active"], name: "index_business_process_workflows_on_active"
     t.index ["process_type"], name: "index_business_process_workflows_on_process_type", unique: true
     t.check_constraint "process_type::text = ANY (ARRAY['acquisition'::character varying::text, 'conversion'::character varying::text, 'standard_operations'::character varying::text])", name: "check_process_type"
+  end
+
+  create_table "chat_agents", force: :cascade do |t|
+    t.string "agent_type", null: false
+    t.string "avatar_emoji", default: "🤖"
+    t.jsonb "capabilities", default: {}
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.jsonb "region_support", default: ["us", "au", "nz", "uk"]
+    t.string "status", default: "active"
+    t.text "system_prompt"
+    t.datetime "updated_at", null: false
+    t.index ["agent_type"], name: "index_chat_agents_on_agent_type"
+    t.index ["status"], name: "index_chat_agents_on_status"
+  end
+
+  create_table "chat_conversations", force: :cascade do |t|
+    t.bigint "chat_agent_id"
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "region", default: "us"
+    t.string "status", default: "active"
+    t.string "subject"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["chat_agent_id"], name: "index_chat_conversations_on_chat_agent_id"
+    t.index ["region"], name: "index_chat_conversations_on_region"
+    t.index ["status"], name: "index_chat_conversations_on_status"
+    t.index ["user_id"], name: "index_chat_conversations_on_user_id"
+  end
+
+  create_table "chat_messages", force: :cascade do |t|
+    t.bigint "chat_conversation_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "role", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_conversation_id"], name: "index_chat_messages_on_chat_conversation_id"
+    t.index ["role"], name: "index_chat_messages_on_role"
   end
 
   create_table "clause_positions", force: :cascade do |t|
@@ -921,6 +962,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_132023) do
   add_foreign_key "application_versions", "users"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "users"
+  add_foreign_key "chat_conversations", "chat_agents"
+  add_foreign_key "chat_conversations", "users"
+  add_foreign_key "chat_messages", "chat_conversations"
   add_foreign_key "contract_clause_usages", "clause_positions"
   add_foreign_key "contract_clause_usages", "lender_clauses"
   add_foreign_key "contract_clause_usages", "mortgage_contracts"

@@ -244,6 +244,12 @@ Rails.application.routes.draw do
     # Region-aware quote (uses CalculationEngine)
     get 'quotes/regional', to: 'quotes#regional'
     get 'regions', to: 'quotes#regions'
+
+    # AI Chat API
+    post 'chat', to: 'chat#create'
+    post 'chat/guest', to: 'chat#guest_message'
+    get 'chat/conversations', to: 'chat#conversations'
+    get 'chat/conversations/:id/messages', to: 'chat#messages'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
