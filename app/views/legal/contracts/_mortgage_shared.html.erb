@@ -1,0 +1,148 @@
+<% details = legal_details(region) %>
+<% config = RegionHelper.region_config(region) %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Equity Preservation Mortgage Contract</h1>
+    <p class="legal-jurisdiction"><%= config["name"] %> — <%= config["code"] %></p>
+    <p class="legal-version">Version <%= legal_version %> | Effective: <%= legal_date %></p>
+    <p class="legal-regulated">Regulated by: <%= details[:regulator] %></p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. PARTIES</h2>
+    <p><strong>1.1 The Lender:</strong> [Lender Name], licensed under <%= details[:licensing_act] %>, (<%= details[:company_registration] %>: [Number]), of [Registered Address] (the "<strong>Lender</strong>").</p>
+    <p><strong>1.2 The Borrower:</strong> [Borrower Full Legal Name], of [Borrower Address], date of birth [DOB] (the "<strong>Borrower</strong>").</p>
+    <p><strong>1.3 The Platform:</strong> FutureProof Financial Pty Ltd / Inc / Ltd (as applicable), operating the FutureProof EPM Platform (the "<strong>Platform</strong>").</p>
+
+    <h2>2. DEFINITIONS</h2>
+    <p><strong>"EPM"</strong> means Equity Preservation Mortgage, a mortgage product where the loan proceeds are invested to generate income for the Borrower while preserving 100% of the property equity.</p>
+    <p><strong>"Property"</strong> means the real property located at [Property Address], being the security for this mortgage.</p>
+    <p><strong>"Loan Amount"</strong> means the principal sum of <%= config["currency_symbol"] %>[Amount] advanced under this contract.</p>
+    <p><strong>"LTV Ratio"</strong> means the Loan-to-Value ratio, being [XX]% of the independently assessed market value of the Property, not exceeding <%= (config["max_ltv"].to_f * 100).to_i %>%.</p>
+    <p><strong>"Investment Portfolio"</strong> means the portfolio of investments (primarily S&P 500 ETF index funds) managed by the appointed Investment Manager.</p>
+    <p><strong>"Monthly Income"</strong> means the regular monthly payment made to the Borrower from investment returns, currently estimated at <%= config["currency_symbol"] %>[Amount]/month.</p>
+    <p><strong>"Term"</strong> means the period of [XX] years from the date of this contract.</p>
+
+    <h2>3. LOAN TERMS</h2>
+    <p><strong>3.1</strong> The Lender agrees to advance the Loan Amount to the Borrower, secured by a first-ranking mortgage over the Property.</p>
+    <p><strong>3.2</strong> The Loan Amount shall not exceed <%= (config["max_ltv"].to_f * 100).to_i %>% of the independently assessed market value of the Property.</p>
+    <p><strong>3.3</strong> The minimum property value for eligibility is <%= config["currency_symbol"] %><%= number_with_delimiter(config["min_home_value"]) %>.</p>
+    <p><strong>3.4</strong> The Borrower must be aged 18 years or older at the date of this contract.</p>
+
+    <h2>4. EQUITY PRESERVATION GUARANTEE</h2>
+    <p><strong>4.1</strong> The fundamental feature of this EPM is the preservation of 100% of the Borrower's property equity throughout the Term.</p>
+    <p><strong>4.2</strong> Unlike traditional reverse mortgages where debt compounds and equity depletes, the EPM structure ensures:</p>
+    <ul>
+      <li>(a) All mortgage interest payments are made from the Investment Portfolio returns;</li>
+      <li>(b) The Loan Amount remains static (no compounding interest on the principal);</li>
+      <li>(c) The Borrower's equity in the Property is maintained at 100% of the property value less the original Loan Amount;</li>
+      <li>(d) Upon sale or settlement, the Borrower (or estate) receives the full property value less only the original Loan Amount.</li>
+    </ul>
+
+    <h2>5. INVESTMENT STRUCTURE</h2>
+    <p><strong>5.1</strong> The Loan Amount shall be allocated as follows:</p>
+    <ul>
+      <li>(a) Approximately 30% to an Annuity Portion, providing guaranteed income;</li>
+      <li>(b) Approximately 70% to a Reinvestment Portion, invested in diversified index funds (primarily S&P 500 ETFs).</li>
+    </ul>
+    <p><strong>5.2</strong> Investment returns from the Portfolio shall be applied in the following priority:</p>
+    <ul>
+      <li>(a) First, to pay all mortgage interest due to the Lender;</li>
+      <li>(b) Second, to pay the Monthly Income to the Borrower;</li>
+      <li>(c) Third, any surplus to be reinvested in the Portfolio.</li>
+    </ul>
+
+    <h2>6. INTEREST RATE AND PAYMENTS</h2>
+    <p><strong>6.1</strong> The interest rate applicable to the Loan shall be disclosed as the <%= details[:interest_disclosure] %>.</p>
+    <p><strong>6.2</strong> All interest payments shall be made from the Investment Portfolio. The Borrower is not personally liable for interest payments except in the event of default under clause 12.</p>
+    <p><strong>6.3</strong> The Platform shall provide quarterly statements showing interest accrued, interest paid, and the Investment Portfolio balance.</p>
+
+    <h2>7. MONTHLY INCOME</h2>
+    <p><strong>7.1</strong> The Borrower shall receive Monthly Income payments calculated as approximately 1.5% per annum of the property value, paid monthly in arrears.</p>
+    <p><strong>7.2</strong> <%= config["tax_note"] %></p>
+    <p><strong>7.3</strong> Monthly Income payments are guaranteed by the Insurance/Pool Coverage mechanism described in clause 8.</p>
+
+    <h2>8. INSURANCE AND POOL COVERAGE</h2>
+    <p><strong>8.1</strong> Lenders Mortgage Insurance (LMI) shall be obtained at an upfront premium of 2% of the Loan Amount.</p>
+    <p><strong>8.2</strong> The Pool Coverage mechanism provides additional protection against investment shortfalls, ensuring:</p>
+    <ul>
+      <li>(a) The Borrower's Monthly Income is maintained regardless of short-term market fluctuations;</li>
+      <li>(b) Interest payments to the Lender are guaranteed;</li>
+      <li>(c) The Borrower's equity preservation is not compromised.</li>
+    </ul>
+
+    <h2>9. BORROWER'S OBLIGATIONS</h2>
+    <p><strong>9.1</strong> The Borrower shall:</p>
+    <ul>
+      <li>(a) Maintain the Property in good repair and condition;</li>
+      <li>(b) Keep the Property adequately insured against fire, flood, and other standard perils;</li>
+      <li>(c) Not create any additional security interest over the Property without the Lender's written consent;</li>
+      <li>(d) Pay all rates, taxes, and levies associated with the Property when due;</li>
+      <li>(e) Notify the Platform and Lender of any material change in circumstances.</li>
+    </ul>
+
+    <h2>10. EARLY REPAYMENT</h2>
+    <p><strong>10.1</strong> The Borrower may repay the Loan in full at any time, subject to:</p>
+    <ul>
+      <li>(a) [XX] days' written notice to the Lender;</li>
+      <li>(b) Payment of any break costs as disclosed in the Loan Schedule;</li>
+      <li>(c) Settlement of all outstanding interest and fees.</li>
+    </ul>
+    <p><strong>10.2</strong> Upon early repayment, the Investment Portfolio shall be liquidated and any surplus returned to the Borrower.</p>
+
+    <h2>11. COOLING-OFF PERIOD</h2>
+    <p><strong>11.1</strong> The Borrower has a cooling-off period of <%= details[:cooling_off] %> from the date of signing this contract, during which they may cancel without penalty.</p>
+    <p><strong>11.2</strong> To exercise the cooling-off right, the Borrower must provide written notice to the Platform.</p>
+
+    <h2>12. DEFAULT</h2>
+    <p><strong>12.1</strong> An event of default occurs if the Borrower:</p>
+    <ul>
+      <li>(a) Fails to maintain adequate property insurance;</li>
+      <li>(b) Creates an additional security interest without consent;</li>
+      <li>(c) Allows the Property to fall into material disrepair;</li>
+      <li>(d) Provides false or misleading information in the application;</li>
+      <li>(e) Becomes bankrupt or enters insolvency proceedings.</li>
+    </ul>
+
+    <h2>13. DISPUTE RESOLUTION</h2>
+    <p><strong>13.1</strong> Any dispute arising under this contract shall first be referred to the Platform's internal complaints process.</p>
+    <p><strong>13.2</strong> If the dispute is not resolved within 30 days, either party may refer the matter to <%= details[:dispute_resolution] %>.</p>
+    <p><strong>13.3</strong> Complaints may also be lodged with <%= details[:complaint_body] %>.</p>
+
+    <h2>14. COMPLIANCE</h2>
+    <p><strong>14.1</strong> This contract is issued in compliance with <%= details[:consumer_credit_act] %>.</p>
+    <p><strong>14.2</strong> The Lender holds appropriate licensing under <%= details[:licensing_act] %>.</p>
+    <p><strong>14.3</strong> All parties comply with anti-money laundering obligations under <%= details[:aml_act] %>.</p>
+
+    <h2>15. PRIVACY</h2>
+    <p><strong>15.1</strong> Personal information collected under this contract is handled in accordance with <%= details[:privacy_act] %>.</p>
+    <p><strong>15.2</strong> The Platform's Privacy Policy is available at futureprooffinancial.co/legal/privacy/<%= region %>.</p>
+
+    <h2>16. GOVERNING LAW</h2>
+    <p><strong>16.1</strong> This contract is governed by and shall be construed in accordance with <%= details[:governing_law] %>.</p>
+    <p><strong>16.2</strong> The parties submit to the exclusive jurisdiction of <%= details[:courts] %>.</p>
+
+    <h2>17. EXECUTION</h2>
+    <p>Executed as a deed on this [Day] day of [Month] [Year].</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the LENDER:</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Title: ___________________________</p>
+        <p>Signature: ___________________________</p>
+        <p>Date: ___________________________</p>
+      </div>
+
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the BORROWER:</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Signature: ___________________________</p>
+        <p>Date: ___________________________</p>
+        <p>Witness Name: ___________________________</p>
+        <p>Witness Signature: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>

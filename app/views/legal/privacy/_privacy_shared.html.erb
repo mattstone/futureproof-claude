@@ -1,0 +1,125 @@
+<% details = legal_details(region) %>
+<% config = RegionHelper.region_config(region) %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Privacy Policy</h1>
+    <p class="legal-jurisdiction"><%= config["name"] %> — <%= config["code"] %></p>
+    <p class="legal-version">Version <%= legal_version %> | Last Updated: <%= legal_date %></p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. INTRODUCTION</h2>
+    <p><strong>1.1</strong> FutureProof Financial ("we", "us", "our") is committed to protecting your personal information in accordance with <%= details[:privacy_act] %>.</p>
+    <p><strong>1.2</strong> This Privacy Policy explains how we collect, use, store, disclose, and protect your personal information when you use the FutureProof Platform.</p>
+    <p><strong>1.3</strong> Our <%= details[:data_protection_officer] %> can be contacted at privacy@futureprooffinancial.co.</p>
+
+    <h2>2. INFORMATION WE COLLECT</h2>
+    <p><strong>2.1 Personal Information:</strong></p>
+    <ul>
+      <li>(a) Identity: Full name, date of birth, government-issued ID numbers;</li>
+      <li>(b) Contact: Email address, phone number, postal address;</li>
+      <li>(c) Financial: Income, assets, liabilities, bank account details;</li>
+      <li>(d) Property: Address, ownership details, valuation data;</li>
+      <li>(e) Employment: Occupation, employer details (if applicable).</li>
+    </ul>
+    <p><strong>2.2 Technical Information:</strong></p>
+    <ul>
+      <li>(a) Device information (browser type, operating system);</li>
+      <li>(b) IP address and approximate location;</li>
+      <li>(c) Usage data (pages visited, features used, time spent);</li>
+      <li>(d) Cookie and tracking data (see Cookie Policy).</li>
+    </ul>
+
+    <h2>3. HOW WE USE YOUR INFORMATION</h2>
+    <p><strong>3.1</strong> We use your personal information to:</p>
+    <ul>
+      <li>(a) Process your EPM application and manage your account;</li>
+      <li>(b) Conduct identity verification and anti-money laundering checks as required by <%= details[:aml_act] %>;</li>
+      <li>(c) Assess your eligibility for EPM products;</li>
+      <li>(d) Provide customer support and respond to enquiries;</li>
+      <li>(e) Send transactional communications (application updates, statements);</li>
+      <li>(f) Improve our products and services;</li>
+      <li>(g) Comply with legal and regulatory obligations.</li>
+    </ul>
+
+    <h2>4. LEGAL BASIS FOR PROCESSING</h2>
+    <% if region == "uk" %>
+    <p><strong>4.1</strong> Under the UK GDPR, we process your data on the following bases:</p>
+    <ul>
+      <li>(a) <strong>Contract:</strong> Processing necessary for our contract with you;</li>
+      <li>(b) <strong>Legal obligation:</strong> Compliance with AML, FCA, and HMRC requirements;</li>
+      <li>(c) <strong>Legitimate interest:</strong> Fraud prevention, service improvement;</li>
+      <li>(d) <strong>Consent:</strong> Marketing communications (you can withdraw at any time).</li>
+    </ul>
+    <% else %>
+    <p><strong>4.1</strong> We collect and process your information in accordance with the purposes described above and as permitted by <%= details[:privacy_act] %>.</p>
+    <% end %>
+
+    <h2>5. DATA SHARING</h2>
+    <p><strong>5.1</strong> We may share your information with:</p>
+    <ul>
+      <li>(a) <strong>Lenders:</strong> To process your EPM application;</li>
+      <li>(b) <strong>Investment Managers:</strong> To manage your investment portfolio;</li>
+      <li>(c) <strong>Valuers:</strong> For property valuation services;</li>
+      <li>(d) <strong>Identity verification providers:</strong> For KYC/AML compliance;</li>
+      <li>(e) <strong>Insurers:</strong> For Lenders Mortgage Insurance;</li>
+      <li>(f) <strong>Regulators:</strong> As required by <%= details[:regulator] %>;</li>
+      <li>(g) <strong>Professional advisors:</strong> Legal, accounting, and audit firms.</li>
+    </ul>
+    <p><strong>5.2</strong> We do not sell your personal information to third parties.</p>
+
+    <h2>6. DATA SECURITY</h2>
+    <p><strong>6.1</strong> We protect your information using:</p>
+    <ul>
+      <li>(a) AES-256 encryption for data at rest;</li>
+      <li>(b) TLS 1.3 encryption for data in transit;</li>
+      <li>(c) Multi-factor authentication for account access;</li>
+      <li>(d) Role-based access controls;</li>
+      <li>(e) Regular security assessments and penetration testing;</li>
+      <li>(f) SOC 2 Type II compliance (in progress).</li>
+    </ul>
+
+    <h2>7. DATA RETENTION</h2>
+    <p><strong>7.1</strong> We retain your personal information for:</p>
+    <ul>
+      <li>(a) Active accounts: Duration of account plus 7 years;</li>
+      <li>(b) Closed accounts: 7 years from closure;</li>
+      <li>(c) Unsuccessful applications: 2 years from decision;</li>
+      <li>(d) Marketing data: Until consent is withdrawn.</li>
+    </ul>
+
+    <h2>8. YOUR RIGHTS</h2>
+    <p><strong>8.1</strong> You have the right to:</p>
+    <ul>
+      <li>(a) <strong>Access:</strong> Request a copy of your personal information;</li>
+      <li>(b) <strong>Correction:</strong> Request correction of inaccurate information;</li>
+      <li>(c) <strong>Deletion:</strong> Request deletion of your information (subject to legal obligations);</li>
+      <% if region == "uk" %>
+      <li>(d) <strong>Portability:</strong> Receive your data in a machine-readable format;</li>
+      <li>(e) <strong>Restriction:</strong> Request restriction of processing;</li>
+      <li>(f) <strong>Objection:</strong> Object to processing based on legitimate interest;</li>
+      <% end %>
+      <li>(g) <strong>Withdraw consent:</strong> Withdraw consent for marketing at any time;</li>
+      <li>(h) <strong>Complaint:</strong> Lodge a complaint with <%= details[:complaint_body] %>.</li>
+    </ul>
+
+    <h2>9. COOKIES</h2>
+    <p><strong>9.1</strong> We use essential cookies for Platform functionality and analytics cookies to improve our services.</p>
+    <p><strong>9.2</strong> You can manage cookie preferences through your browser settings.</p>
+
+    <h2>10. INTERNATIONAL TRANSFERS</h2>
+    <p><strong>10.1</strong> Your data may be processed in countries where our service providers operate.</p>
+    <p><strong>10.2</strong> We ensure appropriate safeguards are in place for any international data transfers, including standard contractual clauses where applicable.</p>
+
+    <h2>11. CHILDREN</h2>
+    <p><strong>11.1</strong> The Platform is not intended for use by persons under 18 years of age. We do not knowingly collect data from minors.</p>
+
+    <h2>12. CHANGES TO THIS POLICY</h2>
+    <p><strong>12.1</strong> We may update this Privacy Policy from time to time. Material changes will be notified via email.</p>
+
+    <h2>13. CONTACT</h2>
+    <p><strong>13.1</strong> For privacy enquiries, contact our <%= details[:data_protection_officer] %> at privacy@futureprooffinancial.co.</p>
+    <p><strong>13.2</strong> You may also contact <%= details[:complaint_body] %>.</p>
+  </div>
+</div>

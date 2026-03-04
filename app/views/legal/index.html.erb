@@ -1,0 +1,27 @@
+<div class="legal-index">
+  <h1>FutureProof Legal Documents</h1>
+  <p class="legal-subtitle">Select your region to view applicable legal documents.</p>
+
+  <% RegionHelper.all_regions.each do |code, config| %>
+    <div class="legal-region-card">
+      <h2><%= config["name"] %> (<%= config["code"] %>)</h2>
+      <p class="legal-regulatory">Regulated by: <%= config["regulatory_body"] %></p>
+
+      <div class="legal-document-list">
+        <h3>Contracts & Agreements</h3>
+        <ul>
+          <li><%= link_to "Mortgage Contract", legal_mortgage_contract_path(region: code) %></li>
+          <li><%= link_to "Wholesale Funder Agreement", legal_wholesale_funder_path(region: code) %></li>
+          <li><%= link_to "Investment Management Agreement", legal_investment_management_path(region: code) %></li>
+          <li><%= link_to "Referral Partner Agreement", legal_referral_partner_path(region: code) %></li>
+        </ul>
+
+        <h3>Policies</h3>
+        <ul>
+          <li><%= link_to "Terms & Conditions", legal_terms_path(region: code) %></li>
+          <li><%= link_to "Privacy Policy", legal_privacy_path(region: code) %></li>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>

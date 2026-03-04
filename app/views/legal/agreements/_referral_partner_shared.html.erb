@@ -1,0 +1,82 @@
+<% details = legal_details(region) %>
+<% config = RegionHelper.region_config(region) %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Referral Partner Agreement</h1>
+    <p class="legal-jurisdiction"><%= config["name"] %> — <%= config["code"] %></p>
+    <p class="legal-version">Version <%= legal_version %> | Effective: <%= legal_date %></p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. PARTIES</h2>
+    <p><strong>1.1 The Referral Partner:</strong> [Partner Name], [Professional Registration/License Number], of [Address] (the "<strong>Partner</strong>").</p>
+    <p><strong>1.2 The Platform:</strong> FutureProof Financial (the "<strong>Platform</strong>").</p>
+
+    <h2>2. APPOINTMENT</h2>
+    <p><strong>2.1</strong> The Platform appoints the Partner as a non-exclusive referral partner for the introduction of potential EPM borrowers.</p>
+    <p><strong>2.2</strong> The Partner may be a mortgage broker, accountant, lawyer, financial planner, or other qualified professional.</p>
+
+    <h2>3. REFERRAL PROCESS</h2>
+    <p><strong>3.1</strong> The Partner shall submit referrals through the Platform's Referral Partner Portal.</p>
+    <p><strong>3.2</strong> Each referral must include: customer name, contact details, estimated property value, and customer consent to proceed.</p>
+    <p><strong>3.3</strong> The Platform will acknowledge receipt within 2 business days and provide status updates through the Portal.</p>
+
+    <h2>4. COMMISSION STRUCTURE</h2>
+    <p><strong>4.1</strong> The Partner shall receive commission as follows:</p>
+    <ul>
+      <li>(a) Upfront commission: [X]% of the settled loan amount, paid within [30] days of loan settlement;</li>
+      <li>(b) Trail commission: [X]% per annum of the outstanding loan balance, paid quarterly in arrears.</li>
+    </ul>
+    <p><strong>4.2</strong> Commission is payable only on loans that settle and remain active for a minimum of [12] months.</p>
+    <p><strong>4.3</strong> Clawback provision: If a loan is repaid within [12] months of settlement, the upfront commission shall be refunded on a pro-rata basis.</p>
+
+    <h2>5. PARTNER OBLIGATIONS</h2>
+    <p><strong>5.1</strong> The Partner shall:</p>
+    <ul>
+      <li>(a) Maintain all required professional licences and registrations;</li>
+      <li>(b) Comply with all applicable regulations including <%= details[:consumer_credit_act] %>;</li>
+      <li>(c) Not make any representations about the EPM product that are misleading or deceptive;</li>
+      <li>(d) Obtain informed consent from customers before submitting referrals;</li>
+      <li>(e) Complete the Platform's training module within [30] days of appointment.</li>
+    </ul>
+
+    <h2>6. PORTAL ACCESS</h2>
+    <p><strong>6.1</strong> The Partner shall have access to the Referral Partner Portal providing:</p>
+    <ul>
+      <li>(a) Referral submission and tracking;</li>
+      <li>(b) Commission statements (pending, paid, total);</li>
+      <li>(c) Marketing materials and product information;</li>
+      <li>(d) Training resources;</li>
+      <li>(e) Performance dashboard (conversion rates, leaderboard).</li>
+    </ul>
+
+    <h2>7. CONFIDENTIALITY</h2>
+    <p><strong>7.1</strong> The Partner shall maintain strict confidentiality of all customer data and Platform information.</p>
+    <p><strong>7.2</strong> Customer data shall be handled in accordance with <%= details[:privacy_act] %>.</p>
+
+    <h2>8. TERMINATION</h2>
+    <p><strong>8.1</strong> Either party may terminate upon [30] days' written notice.</p>
+    <p><strong>8.2</strong> Trail commission on existing settled loans continues post-termination.</p>
+
+    <h2>9. DISPUTE RESOLUTION</h2>
+    <p><strong>9.1</strong> Disputes shall be resolved through <%= details[:dispute_resolution] %>.</p>
+
+    <h2>10. GOVERNING LAW</h2>
+    <p><strong>10.1</strong> This Agreement is governed by <%= details[:governing_law] %>.</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the REFERRAL PARTNER:</strong></p>
+        <p>Name: ___________________________ Title: ___________________________</p>
+        <p>Licence/Registration: ___________________________</p>
+        <p>Signature: ___________________________ Date: ___________________________</p>
+      </div>
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the PLATFORM:</strong></p>
+        <p>Name: ___________________________ Title: ___________________________</p>
+        <p>Signature: ___________________________ Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>

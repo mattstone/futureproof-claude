@@ -1,0 +1,90 @@
+<% details = legal_details(region) %>
+<% config = RegionHelper.region_config(region) %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Investment Management Agreement</h1>
+    <p class="legal-jurisdiction"><%= config["name"] %> — <%= config["code"] %></p>
+    <p class="legal-version">Version <%= legal_version %> | Effective: <%= legal_date %></p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. PARTIES</h2>
+    <p><strong>1.1 The Investment Manager:</strong> [Investment Manager Name], of [Registered Address] (the "<strong>Manager</strong>").</p>
+    <p><strong>1.2 The Platform:</strong> FutureProof Financial, operating the FutureProof EPM Platform (the "<strong>Platform</strong>").</p>
+
+    <h2>2. APPOINTMENT</h2>
+    <p><strong>2.1</strong> The Platform appoints the Manager to manage the Investment Portfolios established under the EPM program.</p>
+    <p><strong>2.2</strong> The Manager accepts the appointment and agrees to manage the portfolios in accordance with the Investment Mandate described in clause 4.</p>
+
+    <h2>3. INVESTMENT OBJECTIVES</h2>
+    <p><strong>3.1</strong> The primary objective is to generate sufficient returns to:</p>
+    <ul>
+      <li>(a) Pay all mortgage interest obligations to Lenders;</li>
+      <li>(b) Pay Monthly Income to Borrowers;</li>
+      <li>(c) Maintain the Pool Coverage fund;</li>
+      <li>(d) Generate surplus for reinvestment and platform sustainability.</li>
+    </ul>
+
+    <h2>4. INVESTMENT MANDATE</h2>
+    <p><strong>4.1</strong> The Manager shall invest the portfolios as follows:</p>
+    <ul>
+      <li>(a) Reinvestment Portion (~70%): Primarily S&P 500 index ETFs (e.g., iShares Core S&P 500 ETF), with diversification across major global indices;</li>
+      <li>(b) Annuity Portion (~30%): Government bonds, treasury ladders, and investment-grade fixed income;</li>
+      <li>(c) Cash buffer: Minimum 5% liquid cash for operational payments.</li>
+    </ul>
+    <p><strong>4.2</strong> The Manager shall rebalance portfolios quarterly or when allocation drift exceeds 5%.</p>
+
+    <h2>5. FEES</h2>
+    <p><strong>5.1</strong> Management Fee: [X]% per annum of assets under management, calculated daily and paid quarterly.</p>
+    <p><strong>5.2</strong> No performance fees apply unless separately agreed.</p>
+
+    <h2>6. REPORTING</h2>
+    <p><strong>6.1</strong> The Manager shall provide:</p>
+    <ul>
+      <li>(a) Daily NAV calculations;</li>
+      <li>(b) Monthly portfolio performance reports;</li>
+      <li>(c) Quarterly attribution analysis;</li>
+      <li>(d) Annual audited portfolio statements;</li>
+      <li>(e) Real-time API data feed for Platform integration.</li>
+    </ul>
+
+    <h2>7. CASH FLOWS</h2>
+    <p><strong>7.1</strong> The Manager shall process the following automated cash flows:</p>
+    <ul>
+      <li>(a) Receive new loan funding from Lenders (within 2 business days of settlement);</li>
+      <li>(b) Remit monthly income payments to the Platform for distribution to Borrowers;</li>
+      <li>(c) Remit quarterly interest payments to Lenders;</li>
+      <li>(d) Process redemptions upon loan maturity or early repayment.</li>
+    </ul>
+
+    <h2>8. RISK MANAGEMENT</h2>
+    <p><strong>8.1</strong> The Manager shall implement hedging strategies to protect against:</p>
+    <ul>
+      <li>(a) Equity market downturns (put options, protective collars);</li>
+      <li>(b) Interest rate movements (interest rate swaps);</li>
+      <li>(c) Currency risk (for international investments).</li>
+    </ul>
+    <p><strong>8.2</strong> Maximum drawdown tolerance: 20% from peak portfolio value.</p>
+
+    <h2>9. COMPLIANCE</h2>
+    <p><strong>9.1</strong> The Manager shall comply with all applicable regulations including <%= details[:consumer_credit_act] %>.</p>
+    <p><strong>9.2</strong> Data protection in accordance with <%= details[:privacy_act] %>.</p>
+
+    <h2>10. GOVERNING LAW</h2>
+    <p><strong>10.1</strong> This Agreement is governed by <%= details[:governing_law] %>.</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the INVESTMENT MANAGER:</strong></p>
+        <p>Name: ___________________________ Title: ___________________________</p>
+        <p>Signature: ___________________________ Date: ___________________________</p>
+      </div>
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the PLATFORM:</strong></p>
+        <p>Name: ___________________________ Title: ___________________________</p>
+        <p>Signature: ___________________________ Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>

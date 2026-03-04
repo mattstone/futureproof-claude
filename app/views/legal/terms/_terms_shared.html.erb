@@ -1,0 +1,80 @@
+<% details = legal_details(region) %>
+<% config = RegionHelper.region_config(region) %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Terms & Conditions</h1>
+    <p class="legal-jurisdiction"><%= config["name"] %> — <%= config["code"] %></p>
+    <p class="legal-version">Version <%= legal_version %> | Last Updated: <%= legal_date %></p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. INTRODUCTION</h2>
+    <p><strong>1.1</strong> These Terms and Conditions ("Terms") govern your use of the FutureProof Financial platform ("Platform") and the Equity Preservation Mortgage ("EPM") products and services offered through it.</p>
+    <p><strong>1.2</strong> By using the Platform or applying for an EPM, you agree to be bound by these Terms.</p>
+    <p><strong>1.3</strong> The Platform is operated by FutureProof Financial and regulated by <%= details[:regulator] %>.</p>
+
+    <h2>2. ELIGIBILITY</h2>
+    <p><strong>2.1</strong> To use the Platform and apply for an EPM, you must:</p>
+    <ul>
+      <li>(a) Be at least 18 years of age;</li>
+      <li>(b) Be a legal resident of <%= config["name"] %>;</li>
+      <li>(c) Own real property with a minimum value of <%= config["currency_symbol"] %><%= number_with_delimiter(config["min_home_value"]) %>;</li>
+      <li>(d) Have legal capacity to enter into a mortgage contract;</li>
+      <li>(e) Not be an undischarged bankrupt or subject to insolvency proceedings.</li>
+    </ul>
+
+    <h2>3. ACCOUNT REGISTRATION</h2>
+    <p><strong>3.1</strong> You must create an account to access Platform services. You agree to provide accurate, complete information.</p>
+    <p><strong>3.2</strong> You are responsible for maintaining the security of your account credentials.</p>
+    <p><strong>3.3</strong> Multi-factor authentication may be required for certain transactions.</p>
+
+    <h2>4. EPM PRODUCT</h2>
+    <p><strong>4.1</strong> The EPM is a mortgage product that allows you to convert home equity into tax-advantaged retirement income while preserving 100% of your property equity.</p>
+    <p><strong>4.2</strong> Key features:</p>
+    <ul>
+      <li>(a) Maximum Loan-to-Value: <%= (config["max_ltv"].to_f * 100).to_i %>%;</li>
+      <li>(b) Loan terms: 10, 15, 20, 25, or 30 years;</li>
+      <li>(c) Monthly income from investment returns;</li>
+      <li>(d) 100% equity preservation;</li>
+      <li>(e) Insurance/pool coverage for shortfalls.</li>
+    </ul>
+    <p><strong>4.3</strong> All quotes are estimates only and subject to property valuation, credit assessment, and lender approval.</p>
+
+    <h2>5. FEES AND CHARGES</h2>
+    <p><strong>5.1</strong> The following fees may apply:</p>
+    <ul>
+      <li>(a) Application fee: <%= config["currency_symbol"] %>[Amount];</li>
+      <li>(b) Valuation fee: <%= config["currency_symbol"] %>[Amount];</li>
+      <li>(c) Legal/settlement fee: <%= config["currency_symbol"] %>[Amount];</li>
+      <li>(d) Lenders Mortgage Insurance: 2% of loan amount;</li>
+      <li>(e) Annual platform fee: [X]% per annum.</li>
+    </ul>
+    <p><strong>5.2</strong> All fees are disclosed in full before you commit to the application.</p>
+
+    <h2>6. CONSUMER PROTECTIONS</h2>
+    <p><strong>6.1</strong> Your rights are protected under <%= details[:consumer_credit_act] %>.</p>
+    <p><strong>6.2</strong> You have a cooling-off period of <%= details[:cooling_off] %> after signing any contract.</p>
+    <p><strong>6.3</strong> You have the right to receive clear, accurate information about all fees, charges, and risks.</p>
+
+    <h2>7. COMPLAINTS</h2>
+    <p><strong>7.1</strong> If you are dissatisfied with any aspect of our service, please contact our internal complaints team first.</p>
+    <p><strong>7.2</strong> If we cannot resolve your complaint, you may escalate to <%= details[:complaint_body] %>.</p>
+
+    <h2>8. LIMITATION OF LIABILITY</h2>
+    <p><strong>8.1</strong> The Platform does not guarantee specific investment returns or income amounts. All projections are estimates based on historical data and modelling.</p>
+    <p><strong>8.2</strong> To the maximum extent permitted by law, the Platform's liability is limited to the fees paid by you.</p>
+
+    <h2>9. INTELLECTUAL PROPERTY</h2>
+    <p><strong>9.1</strong> All content, design, and technology on the Platform are the property of FutureProof Financial.</p>
+    <p><strong>9.2</strong> You may not reproduce, distribute, or modify any Platform content without prior written consent.</p>
+
+    <h2>10. AMENDMENTS</h2>
+    <p><strong>10.1</strong> We may update these Terms from time to time. Material changes will be notified to you via email or Platform notification.</p>
+    <p><strong>10.2</strong> Continued use of the Platform after notification constitutes acceptance of the updated Terms.</p>
+
+    <h2>11. GOVERNING LAW</h2>
+    <p><strong>11.1</strong> These Terms are governed by <%= details[:governing_law] %>.</p>
+    <p><strong>11.2</strong> The parties submit to the jurisdiction of <%= details[:courts] %>.</p>
+  </div>
+</div>

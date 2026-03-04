@@ -265,6 +265,17 @@ Rails.application.routes.draw do
     get "/", to: "pages#get_started", as: :regional_root
   end
 
+  # Legal document routes (region-specific contracts, agreements, terms, privacy)
+  scope "/legal" do
+    get "/", to: "legal#index", as: :legal_index
+    get "/contracts/mortgage/:region", to: "legal#mortgage_contract", as: :legal_mortgage_contract
+    get "/contracts/wholesale_funder/:region", to: "legal#wholesale_funder_agreement", as: :legal_wholesale_funder
+    get "/contracts/investment_management/:region", to: "legal#investment_management_agreement", as: :legal_investment_management
+    get "/contracts/referral_partner/:region", to: "legal#referral_partner_agreement", as: :legal_referral_partner
+    get "/terms/:region", to: "legal#terms", as: :legal_terms
+    get "/privacy/:region", to: "legal#privacy", as: :legal_privacy
+  end
+
   # Default (US) legal pages
   get "privacy-policy", to: "pages#privacy_policy"
   get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
