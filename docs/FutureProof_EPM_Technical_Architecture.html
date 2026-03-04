@@ -26,23 +26,26 @@
             --accent-red: #c5221f;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
-            color: var(--fp-gray-dark);
-            background: white;
+        html, body {
             margin: 0;
             padding: 0;
         }
 
-        .page-header {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.8;
+            color: var(--fp-gray-dark);
             background: white;
-            border-bottom: 3px solid var(--fp-main);
-            padding: 20px 40px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--fp-main) 0%, var(--fp-dark) 100%);
+            border-bottom: 4px solid var(--fp-main);
+            padding: 30px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 82, 163, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 82, 163, 0.2);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -51,26 +54,21 @@
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .logo-section img {
-            height: 40px;
-            width: auto;
+            gap: 20px;
         }
 
         .logo-text h1 {
             margin: 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--fp-dark);
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
             letter-spacing: -0.5px;
         }
 
         .logo-text p {
-            margin: 2px 0 0 0;
-            font-size: 11px;
-            color: var(--fp-light);
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             letter-spacing: 0.5px;
         }
@@ -81,21 +79,21 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--fp-main) 0%, var(--fp-dark) 100%);
-            color: white;
+            background: white;
+            color: var(--fp-main);
             border: none;
-            padding: 10px 18px;
+            padding: 12px 24px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 13px;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 82, 163, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(0, 82, 163, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
         }
 
         .no-print {
@@ -109,65 +107,70 @@
             body {
                 background: white;
                 padding: 0;
+                margin: 0;
             }
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 40px;
+            padding: 60px 50px;
+            background: white;
         }
 
         .section {
-            margin-bottom: 50px;
+            margin-bottom: 80px;
             page-break-inside: avoid;
         }
 
         .section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 25px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--fp-main);
+            gap: 16px;
+            margin-bottom: 35px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--fp-main);
         }
 
         .section-number {
-            background: var(--fp-main);
+            background: linear-gradient(135deg, var(--fp-main) 0%, var(--fp-dark) 100%);
             color: white;
-            width: 38px;
-            height: 38px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 800;
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
         .section-header h2 {
             margin: 0;
             color: var(--fp-dark);
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .section-header p {
             margin: 0;
             color: #5f6368;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
+            margin-top: 4px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 30px 0;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            page-break-inside: avoid;
         }
 
         thead {
@@ -176,19 +179,19 @@
         }
 
         th {
-            padding: 14px 16px;
+            padding: 18px 16px;
             text-align: left;
             font-weight: 700;
             font-size: 13px;
             letter-spacing: 0.3px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
         }
 
         td {
-            padding: 12px 16px;
+            padding: 16px;
             border-bottom: 1px solid var(--fp-border);
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.7;
         }
 
         tbody tr:hover {
@@ -201,41 +204,44 @@
 
         h3 {
             color: var(--fp-dark);
-            font-size: 16px;
-            font-weight: 700;
-            margin: 25px 0 12px 0;
-            margin-top: 30px;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            margin-top: 40px;
         }
 
         h4 {
             color: var(--fp-main);
-            font-size: 14px;
-            font-weight: 700;
-            margin: 20px 0 10px 0;
+            font-size: 13px;
+            font-weight: 800;
+            margin: 24px 0 12px 0;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         p {
-            margin: 12px 0;
-            line-height: 1.6;
+            margin: 16px 0;
+            line-height: 1.8;
+            font-size: 14px;
         }
 
         ul, ol {
-            margin: 12px 0 12px 24px;
-            line-height: 1.7;
+            margin: 16px 0 16px 28px;
+            line-height: 1.9;
+            font-size: 14px;
         }
 
         li {
-            margin: 6px 0;
+            margin: 10px 0;
         }
 
         .highlight {
-            background: rgba(26, 115, 232, 0.1);
-            padding: 20px;
-            border-left: 4px solid var(--fp-light);
-            border-radius: 4px;
-            margin: 20px 0;
+            background: rgba(26, 115, 232, 0.08);
+            padding: 24px;
+            border-left: 5px solid var(--fp-main);
+            border-radius: 6px;
+            margin: 28px 0;
+            page-break-inside: avoid;
         }
 
         .highlight strong {
@@ -244,100 +250,125 @@
 
         svg {
             display: block;
-            margin: 20px auto;
+            margin: 30px auto;
             max-width: 100%;
             background: white;
             border: 1px solid var(--fp-border);
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 15px;
+            page-break-inside: avoid;
         }
 
         .timeline {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin: 30px 0;
+            gap: 28px;
+            margin: 35px 0;
         }
 
         .timeline-item {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             page-break-inside: avoid;
         }
 
         .timeline-marker {
             flex-shrink: 0;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: var(--fp-main);
-            border: 3px solid white;
+            border: 4px solid white;
             box-shadow: 0 0 0 2px var(--fp-main);
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         .timeline-content {
             flex: 1;
             background: var(--fp-gray-lighter);
-            padding: 16px;
-            border-radius: 6px;
-            border-left: 3px solid var(--fp-main);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--fp-main);
         }
 
         .timeline-content h4 {
-            margin: 0 0 8px 0;
+            margin: 0 0 12px 0;
             color: var(--fp-dark);
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: none;
             letter-spacing: 0;
         }
 
         .timeline-content p {
-            margin: 4px 0;
+            margin: 8px 0;
             font-size: 13px;
+            line-height: 1.7;
         }
 
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 20px 0;
+            gap: 40px;
+            margin: 28px 0;
         }
 
         @media (max-width: 900px) {
             .two-col {
                 grid-template-columns: 1fr;
+                gap: 28px;
             }
         }
 
         .footer {
-            margin-top: 60px;
-            padding: 30px;
+            margin-top: 80px;
+            padding: 40px;
             background: var(--fp-gray-lighter);
-            border-top: 2px solid var(--fp-main);
+            border-top: 3px solid var(--fp-main);
             text-align: center;
             color: #5f6368;
             font-size: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
+            page-break-inside: avoid;
         }
 
         .footer strong {
             color: var(--fp-dark);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 40px 30px;
             }
             .page-header {
-                padding: 15px 20px;
+                padding: 20px 30px;
                 flex-direction: column;
-                gap: 15px;
+                gap: 20px;
             }
             .section-header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        @media print {
+            .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            .section {
+                page-break-after: auto;
             }
         }
     </style>
@@ -345,9 +376,8 @@
 <body>
     <div class="page-header no-print">
         <div class="logo-section">
-            <img src="/Users/zen/projects/futureproof/futureproof/app/assets/images/futureproof-logo.png" alt="FutureProof Logo">
             <div class="logo-text">
-                <h1>FutureProof EPM</h1>
+                <h1>FutureProof</h1>
                 <p>Equity Partnering Model — Technical Architecture</p>
             </div>
         </div>
@@ -579,7 +609,7 @@
                     <h2>Four-Agent Architecture</h2>
                     <p>Autonomous agents managing workflows and monitoring</p>
                 </div>
-            </section>
+            </div>
 
             <h3>Agent Responsibilities</h3>
 
@@ -662,83 +692,15 @@
 
             <h3>Agent Communication Flow</h3>
 
-            <svg width="100%" height="350" viewBox="0 0 1000 350" xmlns="http://www.w3.org/2000/svg">
-                <!-- Deal Agent -->
-                <g>
-                    <rect x="50" y="80" width="180" height="100" fill="#0052a3" stroke="#003d7a" stroke-width="2" rx="6"/>
-                    <text x="140" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Deal Agent</text>
-                    <text x="140" y="140" text-anchor="middle" fill="white" font-size="11">Origination</text>
-                    <text x="140" y="160" text-anchor="middle" fill="white" font-size="11">Onboarding</text>
-                </g>
+            <p>All agents publish events to Kafka; others subscribe to relevant events and react asynchronously. This decouples the four workflows and enables real-time coordination without tight coupling.</p>
 
-                <!-- Distribution Agent -->
-                <g>
-                    <rect x="280" y="80" width="180" height="100" fill="#0052a3" stroke="#003d7a" stroke-width="2" rx="6"/>
-                    <text x="370" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Distribution Agent</text>
-                    <text x="370" y="140" text-anchor="middle" fill="white" font-size="11">Monthly Returns</text>
-                    <text x="370" y="160" text-anchor="middle" fill="white" font-size="11">Payments</text>
-                </g>
+            <p><strong>Deal Agent</strong> publishes <code>deal.created</code> when customer onboarded. <strong>Distribution Agent</strong> and <strong>Compliance Agent</strong> subscribe to initiate workflows.</p>
 
-                <!-- Investment Agent -->
-                <g>
-                    <rect x="510" y="80" width="180" height="100" fill="#0052a3" stroke="#003d7a" stroke-width="2" rx="6"/>
-                    <text x="600" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Investment Agent</text>
-                    <text x="600" y="140" text-anchor="middle" fill="white" font-size="11">Fund Monitoring</text>
-                    <text x="600" y="160" text-anchor="middle" fill="white" font-size="11">Interest Holidays</text>
-                </g>
+            <p><strong>Distribution Agent</strong> publishes <code>distribution.monthly</code> on cutoff date. <strong>Lender</strong> and <strong>Wholesale Funder</strong> receive payments.</p>
 
-                <!-- Compliance Agent -->
-                <g>
-                    <rect x="740" y="80" width="180" height="100" fill="#0052a3" stroke="#003d7a" stroke-width="2" rx="6"/>
-                    <text x="830" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Compliance Agent</text>
-                    <text x="830" y="140" text-anchor="middle" fill="white" font-size="11">Monitoring</text>
-                    <text x="830" y="160" text-anchor="middle" fill="white" font-size="11">Enforcement</text>
-                </g>
+            <p><strong>Investment Agent</strong> publishes <code>holiday.triggered</code> or <code>holiday.released</code>. <strong>Distribution Agent</strong> adjusts payment calculations.</p>
 
-                <!-- Kafka Event Bus -->
-                <rect x="50" y="250" width="870" height="35" fill="#1a73e8" stroke="#0052a3" stroke-width="2" rx="4"/>
-                <text x="485" y="273" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Kafka Event Bus (Asynchronous Message Queue)</text>
-
-                <!-- Event Flows Down -->
-                <line x1="140" y1="180" x2="140" y2="250" stroke="#188038" stroke-width="2" marker-end="url(#arrowhead-green)"/>
-                <text x="145" y="220" font-size="11" fill="#188038" font-weight="bold">deal.created</text>
-
-                <line x1="370" y1="180" x2="370" y2="250" stroke="#d97706" stroke-width="2" marker-end="url(#arrowhead-orange)"/>
-                <text x="375" y="220" font-size="11" fill="#d97706" font-weight="bold">distribution.monthly</text>
-
-                <line x1="600" y1="180" x2="600" y2="250" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowhead-purple)"/>
-                <text x="605" y="220" font-size="11" fill="#7c3aed" font-weight="bold">holiday.triggered</text>
-
-                <line x1="830" y1="180" x2="830" y2="250" stroke="#c5221f" stroke-width="2" marker-end="url(#arrowhead-red)"/>
-                <text x="835" y="220" font-size="11" fill="#c5221f" font-weight="bold">fraud.detected</text>
-
-                <!-- Subscriptions (cross-talk) -->
-                <path d="M 230 300 Q 300 320 370 300" stroke="#0052a3" stroke-width="1.5" stroke-dasharray="3,3" fill="none" marker-end="url(#arrowhead-blue-small)"/>
-                <text x="290" y="318" font-size="10" fill="#0052a3">subscribes to:</text>
-
-                <path d="M 460 300 Q 530 320 600 300" stroke="#0052a3" stroke-width="1.5" stroke-dasharray="3,3" fill="none" marker-end="url(#arrowhead-blue-small)"/>
-
-                <!-- Legend -->
-                <text x="50" y="330" font-size="11" font-weight="bold" fill="#202124">All agents publish events to Kafka; others subscribe to relevant events and react asynchronously.</text>
-
-                <defs>
-                    <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <polygon points="0 0, 10 3, 0 6" fill="#188038"/>
-                    </marker>
-                    <marker id="arrowhead-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <polygon points="0 0, 10 3, 0 6" fill="#d97706"/>
-                    </marker>
-                    <marker id="arrowhead-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <polygon points="0 0, 10 3, 0 6" fill="#7c3aed"/>
-                    </marker>
-                    <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <polygon points="0 0, 10 3, 0 6" fill="#c5221f"/>
-                    </marker>
-                    <marker id="arrowhead-blue-small" markerWidth="8" markerHeight="8" refX="8" refY="2" orient="auto">
-                        <polygon points="0 0, 8 2, 0 4" fill="#0052a3"/>
-                    </marker>
-                </defs>
-            </svg>
+            <p><strong>Compliance Agent</strong> publishes <code>fraud.detected</code> or <code>rule.violation</code>. System escalates to lender/admin for review.</p>
         </div>
 
         <!-- Section 5: Interest Holiday Logic -->
@@ -749,7 +711,7 @@
                     <h2>Interest Holiday Mechanism</h2>
                     <p>Dynamic payment suspension based on fund performance</p>
                 </div>
-            </section>
+            </div>
 
             <h3>How Holidays Work</h3>
 
@@ -776,7 +738,7 @@
                     </tr>
                     <tr>
                         <td><strong>Maximum Duration</strong></td>
-                        <td>N months</td>
+                        <td>Variable</td>
                         <td>Holiday automatically expires if conditions not met within timeframe</td>
                     </tr>
                     <tr>
@@ -793,7 +755,7 @@
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>Month 1-10: Normal Operations</h4>
+                        <h4>Months 1–10: Normal Operations</h4>
                         <p>Fund performing well. Customer receives monthly distributions. Investment Agent monitors thresholds daily.</p>
                     </div>
                 </div>
@@ -809,7 +771,7 @@
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>Month 12-18: Holiday Active</h4>
+                        <h4>Months 12–18: Holiday Active</h4>
                         <p>Customer payments suspended. Fund continues generating returns (but not distributed). Lender notified. Monthly statements track holiday status.</p>
                     </div>
                 </div>
@@ -832,7 +794,7 @@
                     <h2>Compliance & Fraud Detection</h2>
                     <p>Regulatory adherence and system safeguards</p>
                 </div>
-            </section>
+            </div>
 
             <h3>Compliance Rules</h3>
 
@@ -878,16 +840,15 @@
                 </tbody>
             </table>
 
-            <h3>Fraud Detection Patterns</h3>
+            <h3>Real-Time Fraud Monitoring</h3>
 
-            <p>Compliance Agent monitors for suspicious activity in real-time:</p>
+            <p><strong>Account Access Anomalies:</strong> Logins from unusual locations, rapid device changes, after-hours access patterns.</p>
 
-            <ul>
-                <li><strong>Account Access Anomalies:</strong> Logins from unusual locations, rapid device changes, after-hours access patterns</li>
-                <li><strong>Unusual Transaction Patterns:</strong> Multiple withdrawals same day, requests immediately after distribution, systematic holiday manipulation</li>
-                <li><strong>Data Inconsistencies:</strong> Mismatches between reported and actual fund values, distribution calculation errors, lender margin discrepancies</li>
-                <li><strong>Regulatory Violations:</strong> KYC/AML failures, interest rate cap breaches, undisclosed conflicts of interest</li>
-            </ul>
+            <p><strong>Unusual Transaction Patterns:</strong> Multiple withdrawals same day, requests immediately after distribution, systematic holiday manipulation.</p>
+
+            <p><strong>Data Inconsistencies:</strong> Mismatches between reported and actual fund values, distribution calculation errors, lender margin discrepancies.</p>
+
+            <p><strong>Regulatory Violations:</strong> KYC/AML failures, undisclosed conflicts of interest, unauthorized fund transfers.</p>
 
             <p>Alerts are automatically escalated to lenders and funders. Critical incidents require manual review.</p>
 
@@ -897,7 +858,7 @@
 
             <p><strong>Monthly Reporting:</strong> Lenders and wholesale funders receive automated reports on portfolio health, margin collections, and default scenarios.</p>
 
-            <p><strong>Annual Compliance Certification:</strong> To be performed by external auditor (TBD). Covers all regulatory requirements across Australia, UK, and US jurisdictions.</p>
+            <p><strong>Annual Compliance Certification:</strong> To be performed by external auditor. Covers all regulatory requirements across Australia, UK, and US jurisdictions.</p>
         </div>
 
         <!-- Section 7: Customer Journey -->
@@ -908,7 +869,7 @@
                     <h2>Customer Journey</h2>
                     <p>Three phases from origination to exit</p>
                 </div>
-            </section>
+            </div>
 
             <h3>Three Phases</h3>
 
@@ -916,7 +877,7 @@
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>PHASE 1: ORIGINATION (Weeks 1-4)</h4>
+                        <h4>PHASE 1: ORIGINATION (Weeks 1–4)</h4>
                         <p><strong>Customer applies:</strong> Provides property details, equity percentage, income expectations through portal.</p>
                         <p><strong>Deal Agent processes:</strong> KYC/AML checks, property valuation, risk tier assignment, document generation.</p>
                         <p><strong>e-Signature:</strong> Customer reviews and signs loan documents, investment agreement.</p>
@@ -927,7 +888,7 @@
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>PHASE 2: ONGOING SERVICING (Months 1-30+)</h4>
+                        <h4>PHASE 2: ONGOING SERVICING (Months 1–30+)</h4>
                         <p><strong>Monthly distributions:</strong> Distribution Agent calculates returns every month. Customer receives payment on fixed date.</p>
                         <p><strong>Performance monitoring:</strong> Investment Agent tracks fund daily. Generates rolling metrics visible on customer dashboard.</p>
                         <p><strong>Interest holidays:</strong> If performance drops, holiday automatically triggered. Customer notified of status change.</p>
@@ -957,7 +918,7 @@
                     <h2>Technology Stack</h2>
                     <p>Core platform and infrastructure</p>
                 </div>
-            </section>
+            </div>
 
             <div class="two-col">
                 <div>
@@ -1010,65 +971,15 @@
             <p><strong>PostgreSQL as Single Source of Truth:</strong> All customer, transaction, and account data stored in single database. Full audit trail via database triggers.</p>
         </div>
 
-        <!-- Section 9: Fraud Detection -->
+        <!-- Section 9: Deployment & Testing -->
         <div class="section">
             <div class="section-header">
                 <div class="section-number">9</div>
                 <div>
-                    <h2>Real-Time Fraud Monitoring</h2>
-                    <p>Compliance Agent detection mechanisms</p>
-                </div>
-            </section>
-
-            <h3>Detection Rules</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fraud Type</th>
-                        <th>Detection Method</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Account Takeover</strong></td>
-                        <td>Geolocation changes, device fingerprint mismatches, rapid login attempts</td>
-                        <td>Challenge with 2FA; notify customer via SMS; freeze account pending review</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Synthetic Identity</strong></td>
-                        <td>KYC validation failures, SSN mismatches, property ownership gaps</td>
-                        <td>Block onboarding; flag for investigation; escalate to lender</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Payment Fraud</strong></td>
-                        <td>Unusual withdrawal patterns, requests for alternate banking details</td>
-                        <td>Hold payment; manual review; notify lender within 24 hours</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Holiday Manipulation</strong></td>
-                        <td>Systematic requests following specific patterns, rapid entry/exit cycling</td>
-                        <td>Flag for lender review; require manual approval for future holidays</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Data Tampering</strong></td>
-                        <td>Unauthorized database access, transaction reversal anomalies</td>
-                        <td>Immediate alert; disable user account; forensic investigation</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Section 10: Deployment & Testing -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-number">10</div>
-                <div>
                     <h2>Deployment & Quality Assurance</h2>
                     <p>Release process and testing strategy</p>
                 </div>
-            </section>
+            </div>
 
             <h3>Testing Strategy</h3>
 
@@ -1097,22 +1008,12 @@
             <p><strong>CloudWatch Logs:</strong> Full transaction logs, agent activity, performance metrics.</p>
 
             <p><strong>Dashboard:</strong> Real-time visibility into system health: agent status, transaction volume, error rates, margin collections.</p>
-
-            <h3>Post-Deploy Verification</h3>
-
-            <p><strong>Customer Functions:</strong> Can login, view dashboard, download statements.</p>
-
-            <p><strong>Lender Functions:</strong> Can view portfolio, download reports, approve requests.</p>
-
-            <p><strong>Agent Health:</strong> All four agents reporting heartbeats, no delayed events in Kafka queue.</p>
-
-            <p><strong>Data Integrity:</strong> Spot-check distributions match expected calculations, no orphaned transactions.</p>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <strong>FutureProof EPM Technical Architecture</strong><br>
-            Document version 4.1 (Corrected) • Internal use only<br>
+            <strong>FutureProof EPM Technical Architecture</strong>
+            Document version 4.1 (Corrected) · Internal use only<br>
             © 2026 FutureProof Financial Group Limited. All rights reserved.
         </div>
     </div>
@@ -1121,11 +1022,11 @@
         function downloadPDF() {
             const element = document.querySelector('.container');
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: [15, 15, 15, 15],
                 filename: 'FutureProof_EPM_Technical_Architecture.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { format: 'a4', orientation: 'portrait' }
+                html2canvas: { scale: 2, allowTaint: true, useCORS: true },
+                jsPDF: { format: 'a4', orientation: 'portrait', compress: true }
             };
             html2pdf().set(opt).from(element).save();
         }
