@@ -1,0 +1,76 @@
+regions:
+  us:
+    code: US
+    name: United States
+    currency: USD
+    currency_symbol: "$"
+    timezone: America/New_York
+    locale: en-US
+    legislation: us
+    default: true
+    property_term: "home"
+    min_home_value: 500000
+    max_home_value: 10000000
+    max_ltv: 0.80
+    regulatory_body: "Consumer Financial Protection Bureau (CFPB)"
+    licensing: "NMLS (Nationwide Multistate Licensing System)"
+    tax_note: "Income from EPM investments may be tax-advantaged under IRS guidelines"
+    phone_format: "+1 (XXX) XXX-XXXX"
+    date_format: "%m/%d/%Y"
+
+  au:
+    code: AU
+    name: Australia
+    currency: AUD
+    currency_symbol: "A$"
+    timezone: Australia/Sydney
+    locale: en-AU
+    legislation: au
+    default: false
+    property_term: "property"
+    min_home_value: 500000
+    max_home_value: 10000000
+    max_ltv: 0.80
+    regulatory_body: "Australian Securities and Investments Commission (ASIC)"
+    licensing: "Australian Financial Services Licence (AFSL)"
+    tax_note: "EPM income is generally tax-free as it is a return of capital under ATO guidelines"
+    phone_format: "+61 X XXXX XXXX"
+    date_format: "%d/%m/%Y"
+
+  nz:
+    code: NZ
+    name: New Zealand
+    currency: NZD
+    currency_symbol: "NZ$"
+    timezone: Pacific/Auckland
+    locale: en-NZ
+    legislation: nz
+    default: false
+    property_term: "property"
+    min_home_value: 500000
+    max_home_value: 10000000
+    max_ltv: 0.80
+    regulatory_body: "Financial Markets Authority (FMA)"
+    licensing: "Financial Advice Provider Licence (FAP)"
+    tax_note: "EPM income treatment under IRD guidelines — consult your tax advisor"
+    phone_format: "+64 XX XXX XXXX"
+    date_format: "%d/%m/%Y"
+
+  uk:
+    code: UK
+    name: United Kingdom
+    currency: GBP
+    currency_symbol: "£"
+    timezone: Europe/London
+    locale: en-GB
+    legislation: uk
+    default: false
+    property_term: "property"
+    min_home_value: 300000
+    max_home_value: 10000000
+    max_ltv: 0.80
+    regulatory_body: "Financial Conduct Authority (FCA)"
+    licensing: "FCA Authorisation"
+    tax_note: "EPM income may qualify for tax relief under HMRC guidelines — consult your tax advisor"
+    phone_format: "+44 XXXX XXXXXX"
+    date_format: "%d/%m/%Y"

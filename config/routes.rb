@@ -250,7 +250,18 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Legal pages
+  # Region-scoped customer-facing routes (AU, NZ, UK)
+  # Root (/) defaults to US; /au, /nz, /uk for other regions
+  scope "/:region", constraints: { region: /au|nz|uk/ } do
+    get "privacy-policy", to: "pages#privacy_policy", as: :regional_privacy_policy
+    get "terms-of-use", to: "pages#terms_of_use", as: :regional_terms_of_use
+    get "terms-and-conditions", to: "pages#terms_and_conditions", as: :regional_terms_and_conditions
+    get "apply", to: "pages#apply", as: :regional_apply
+    get "get-started", to: "pages#get_started", as: :regional_get_started
+    get "/", to: "pages#get_started", as: :regional_root
+  end
+
+  # Default (US) legal pages
   get "privacy-policy", to: "pages#privacy_policy"
   get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
   get "terms-and-conditions", to: "pages#terms_and_conditions", as: :terms_and_conditions

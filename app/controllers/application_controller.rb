@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include RegionHelper
+
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
   
@@ -7,6 +9,7 @@ class ApplicationController < ActionController::Base
   
   # Security headers
   before_action :set_security_headers
+  before_action :set_region
   
   before_action :authenticate_user!
   before_action :ensure_email_verified!
@@ -78,6 +81,11 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  def set_region
+    @current_region = current_region
+    @region_config = region_config
+  end
+
   def set_security_headers
     # Prevent clickjacking attacks
     response.headers['X-Frame-Options'] = 'DENY'
