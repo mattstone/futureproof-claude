@@ -397,7 +397,7 @@
             </div>
 
             <div style="border-top: 1px solid #ddd; padding-top: 60px; margin-top: auto;">
-                <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Document Version 4.2</p>
+                <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Document Version 4.3</p>
                 <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Internal Use Only</p>
                 <p style="font-size: 12px; color: #9aa0a6; margin: 0;">© 2026 FutureProof Financial Group Limited</p>
             </div>
@@ -615,6 +615,22 @@
             <p><strong>Notification Service:</strong> Async job queue (Sidekiq) with multiple channels: email (SendGrid), SMS (Twilio), in-app notifications (database + Hotwire broadcast). Implements delivery guarantees: stores pending notifications in database with idempotent keys, retries failed sends with backoff, marks as delivered only after provider confirmation. Respects customer notification preferences (stored as JSON array in user record).</p>
 
             <p><strong>Document Engine:</strong> Server-side rendered (ERB templates) + Prawn gem for PDF generation. Stores templates in database for versioning/audit. Generates: loan documents (auto-filled with customer data), investment agreements (region-specific legal terms), monthly statements (tabular layout with performance charts), disclosures. All outputs digitally signed via AWS Signer service, archived to S3 with immutable version IDs.</p>
+
+            <h3>Agent Technology Implementation</h3>
+
+            <p><strong>Framework:</strong> Four agents implemented as Rails service classes (e.g., <code>DealAgent::OnboardingService</code>, <code>DistributionAgent::ProcessingService</code>). Each agent runs as a Sidekiq background job (worker pool, 4 workers per pod). Agents are horizontally scalable—add more Sidekiq pods to increase throughput.</p>
+
+            <p><strong>Event Subscription (Kafka):</strong> Each agent subscribes to relevant Kafka topics using ruby-kafka gem. Consumer groups enable automatic partitioning—if 4 agent pods are running, 4 consume partitions in parallel, automatically rebalancing if a pod dies. Dead-letter queues capture processing failures (poison pill messages, timeouts); operations team investigates manually.</p>
+
+            <p><strong>Idempotency & Retry Logic:</strong> Agents implement idempotent handlers—processing same event twice produces same result (no duplicate charges, no double-distributions). Uses database unique constraints + transactional locks. Failed agent tasks auto-retry with exponential backoff (1s → 2s → 4s → 8s → 16s), then escalate to dead-letter queue.</p>
+
+            <p><strong>Distributed Tracing:</strong> Every event gets trace_id (UUID) from source. As event flows through agents (Deal Agent → Compliance Agent → Distribution Agent), each writes logs tagged with trace_id. Enables end-to-end visibility: search CloudWatch by trace_id to see entire customer journey (from application submit → KYC check → funds release → first distribution).</p>
+
+            <p><strong>State Management:</strong> Deal workflow uses state machine (AASM gem): <code>draft</code> → <code>submitted</code> → <code>kyc_pending</code> → <code>approved</code> → <code>funded</code> → <code>active</code>. Holiday logic uses similar state machine: <code>normal</code> → <code>holiday_pending</code> → <code>holiday_active</code> → <code>recovery_in_progress</code> → <code>normal</code>. State transitions trigger events; dependent agents react. Example: when Deal Agent transitions deal to <code>approved</code>, publishes <code>deal.approved</code> event; Distribution Agent subscribes and prepares to execute initial payment.</p>
+
+            <p><strong>Call Center Integration (Twilio Flex):</strong> When human escalation needed (payment failure, KYC issue, customer calls), ops team receives ticket in Twilio Flex dashboard. Agent clicks customer, Flex dials phone via Twilio, logs call recording automatically. Call notes stored in customer account (alongside audit trail). If customer calls in (1-800-FUTUREPROOF), Flex IVR routes to available agent. Agent sees customer profile, recent interactions, account balance. Customer support ticket closed when agent resolves issue (update bank account, explain holiday, etc.).</p>
+
+            <p><strong>Synchronous vs. Asynchronous:</strong> Agent actions default to async (publish event, job queued, returns immediately). Synchronous calls used only when timeout is critical and timeout is short: (a) Stripe payment processing (5-second timeout), (b) IDology KYC check (10-second timeout), (c) property valuation lookup (15-second timeout). All synchronous calls wrapped in circuit breaker pattern—if 3rd party times out, fallback to manual review (escalate to human).</p>
         </div>
 
         <!-- Section 4: Four-Agent System -->
@@ -658,11 +674,11 @@
                         <td><strong>Distribution Agent</strong></td>
                         <td>Monthly returns calculation & payment</td>
                         <td>
-                            • Aggregate daily fund returns<br>
                             • Calculate customer distributions<br>
                             • Deduct lender/funder margins<br>
                             • Execute payments<br>
-                            • Generate statements
+                            • Generate statements<br>
+                            • Handle payment failures & retries
                         </td>
                         <td>
                             • Monthly cutoff date<br>
@@ -717,6 +733,64 @@
             <p><strong>Investment Agent</strong> publishes <code>holiday.triggered</code> or <code>holiday.released</code>. <strong>Distribution Agent</strong> adjusts payment calculations.</p>
 
             <p><strong>Compliance Agent</strong> publishes <code>fraud.detected</code> or <code>rule.violation</code>. System escalates to lender/admin for review.</p>
+
+            <h3>Agent Autonomy & Human Interaction Points</h3>
+
+            <p><strong>Fully Autonomous (No Human Needed):</strong></p>
+            <ul>
+                <li><strong>Deal Agent:</strong> Customer applies through portal → KYC/AML automated checks via third-party (IDology) → Property valuation via Zillow API → Risk tier auto-assigned based on LTV ratio → Loan documents auto-generated and e-signed (DocuSign) → Funds released automatically once both parties signed. Human only needed if: KYC fails (flagged for manual review), property value can't be determined (research property details manually), customer disputes risk tier (escalation to lender).</li>
+                
+                <li><strong>Distribution Agent:</strong> Monthly cutoff date arrives → Pulls fund performance data from Investment Partner → Calculates customer distributions (deterministic formula) → Stages payments in Redis → Executes ACH transfers to customer bank accounts (via Stripe) → Generates statements and archives to S3. Human only needed if: Payment fails 3 times (retry backoff exhausted, manual bank reconciliation required), margin discrepancy detected by Compliance Agent (audit investigation), customer bank account invalid (call customer to update).</li>
+                
+                <li><strong>Investment Agent:</strong> Nightly, queries fund performance metrics → Calculates rolling 12-month returns → Compares to thresholds (0.90 entry, 1.458 exit) → Updates holiday flags in database → Publishes <code>holiday.triggered</code> or <code>holiday.released</code> events → Lender dashboard updates in real-time via Hotwire. Human only needed if: Fund data missing/delayed from Investment Partner (escalate to partner), threshold breach looks suspicious (audit historical data), customer disputes holiday status (support team explains via call center).</li>
+                
+                <li><strong>Compliance Agent:</strong> Every transaction triggers real-time compliance check → Fraud score computed (ML model) → Rule violations flagged automatically → Suspicious activities escalated to dashboard (red alert). Human only needed if: High-confidence fraud detected (>90 score, block + investigate), potential regulatory violation found (escalate to legal), audit findings need remediation (remediation plan + implementation).</li>
+            </ul>
+
+            <p><strong>Required Human Interactions (Escalation Points):</strong></p>
+            <ul>
+                <li><strong>Customer Support:</strong> Customers call/chat when: account questions (balance, distribution amount), payment failed (reroute to different bank account), early exit request (requires lender approval), fraud alert on account (verification call), holiday status confusion (explain via call center agent).</li>
+                
+                <li><strong>Lender Review & Approval:</strong> Lender dashboard shows: pending loan applications (KYC failed), customers requesting early exit, high-risk accounts flagged by Compliance Agent, distribution payment failures, holiday status changes for their portfolio. Lender clicks "Approve" or "Reject"—system executes next step autonomously.</li>
+                
+                <li><strong>Wholesale Funder Operations:</strong> Funder dashboard tracks: portfolio health metrics (yield, default rate), new lender tier requests, funding line increases, concentration risk alerts. Funder approves funding requests; system automatically updates lender credit lines in database.</li>
+                
+                <li><strong>Investment Partner Reconciliation:</strong> Investment Partner delivers monthly fund performance data. System auto-validates against Compliance Agent rules (reconciliation job compares reported returns vs. ETF market data). If mismatch >0.1%, triggers manual audit (query Investment Partner, investigate data quality).</li>
+                
+                <li><strong>Ops & Monitoring:</strong> Dashboard alerts: failed ACH transfers (manual bank reconciliation), high fraud scores requiring review, Kafka lag >1000 messages (investigate agent slowdown), Sentry errors (developer investigation), monthly compliance reporting (internal audit team reviews logs).</li>
+            </ul>
+
+            <h3>Example: Autonomous Distribution Month</h3>
+
+            <p><strong>Day 1 (Cutoff Date, 9 AM Sydney):</strong></p>
+            <ol>
+                <li>Distribution Agent wakes (scheduled job via Sidekiq)</li>
+                <li>Queries accounts table: 5,000 customers with <code>deleted_at IS NULL</code></li>
+                <li>Pulls fund_performance materialized view for this month</li>
+                <li>For each account: calculates customer_payout (formula: fund_return × (1 - margins) × holiday_adjustment)</li>
+                <li>Stages all 5,000 distributions in Redis transaction (atomic)</li>
+                <li>Publishes <code>distribution.stage_complete</code> event</li>
+                <li>Compliance Agent subscribes: validates 5,000 distributions against rules (no negative payouts, margins correct, no duplicate processing)</li>
+                <li>If all pass: Distribution Agent commits to database (INSERT into distributions table, immutable)</li>
+                <li>No human needed yet — fully automated</li>
+            </ol>
+
+            <p><strong>Day 2-3 (Payment Execution, 6 PM):</strong></p>
+            <ol>
+                <li>Distribution Agent wakes for payment batch</li>
+                <li>Queries distributions table WHERE payment_status = 'staged'</li>
+                <li>Initiates Stripe ACH transfers for all 5,000 customers (batch mode, lower fees)</li>
+                <li>Stripe returns charge IDs and status</li>
+                <li>Updates payments table with stripe_charge_id and status</li>
+                <li>4,950 succeed, 50 fail (invalid account, insufficient funds, account closed)</li>
+                <li>Distribution Agent publishes <code>distribution.payment_partial_failure</code> event</li>
+                <li><strong>HUMAN ESCALATION TRIGGERED:</strong> Alerts go to: (a) Lender dashboard (red alert: "50 payment failures for your customers"), (b) Ops team via PagerDuty, (c) Customer support queue (create tickets for affected 50 customers)</li>
+                <li>Lender manually reviews failed customers, contacts them via call center to update bank details</li>
+                <li>Customer updates account via self-service portal or calls support</li>
+                <li>Distribution Agent retries failed payments next day (automatically, no human action needed)</li>
+            </ol>
+
+            <p><strong>Key Principle:</strong> Agents execute deterministic workflows autonomously. Human interaction is minimal and targeted—only when exceptions occur, approvals are needed, or customers initiate actions. This keeps operational costs low while maintaining compliance oversight.</p>
         </div>
 
         <!-- Section 5: Interest Holiday Logic -->
@@ -981,6 +1055,29 @@
 
             <div class="two-col">
                 <div>
+                    <h4>Agent & Workflow Technology</h4>
+                    <ul>
+                        <li>Sidekiq (async job execution)</li>
+                        <li>Kafka (event pub/sub, 4 topic streams)</li>
+                        <li>OpenTelemetry (distributed tracing, trace ID tagging)</li>
+                        <li>Dead-letter queues (failure handling)</li>
+                        <li>State machines (holiday logic, deal workflow)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Customer Communication</h4>
+                    <ul>
+                        <li>SendGrid (transactional email)</li>
+                        <li>Twilio (SMS + voice calls)</li>
+                        <li>Twilio Flex (call center platform)</li>
+                        <li>WebRTC (in-app video calls)</li>
+                        <li>DocuSign (e-signature, document workflows)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div>
                     <h4>Infrastructure & Deployment</h4>
                     <ul>
                         <li>Fly.io (managed Postgres + Docker)</li>
@@ -1165,7 +1262,7 @@
         <!-- Footer -->
         <div class="footer">
             <strong>FutureProof Income from Property Equity — Technical Architecture</strong>
-            Document version 4.2 (Enhanced) · Internal use only<br>
+            Document version 4.3 (Agent Implementation & Voice Integration) · Internal use only<br>
             © 2026 FutureProof Financial Group Limited. All rights reserved.
         </div>
     </div>
