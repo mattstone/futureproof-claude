@@ -772,7 +772,7 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Months 1–10: Normal Operations</h4>
-                        <p>Fund performing well. Customer receives monthly distributions. Investment Agent monitors thresholds daily.</p>
+                        <p>Fund performing well. Customer receives monthly distributions. Investment Agent monitors thresholds monthly.</p>
                     </div>
                 </div>
 
@@ -780,23 +780,23 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Month 11: Market Downturn</h4>
-                        <p>Fund value drops to 88% of starting value. Entry threshold (90%) breached. Investment Agent triggers holiday.</p>
+                        <p>Fund value drops to 88% of starting value. Entry threshold (90%) breached. Investment Agent flags interest holiday status in customer account.</p>
                     </div>
                 </div>
 
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>Months 12–18: Holiday Active</h4>
-                        <p>Customer payments suspended. Fund continues generating returns (but not distributed). Lender notified. Monthly statements track holiday status.</p>
+                        <h4>Months 12–18: Holiday Flagged</h4>
+                        <p>Interest holiday flag remains active. Customer continues receiving monthly distributions. Lender monitoring alert active. Monthly statements indicate holiday status.</p>
                     </div>
                 </div>
 
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h4>Month 19: Recovery Begins</h4>
-                        <p>Fund recovers to 145.8% threshold. Investment Agent triggers exit. Payments resume gradually over 12 months.</p>
+                        <h4>Month 19: Recovery Confirmed</h4>
+                        <p>Fund recovers to 145.8% threshold. Investment Agent removes holiday flag. Status returns to normal operations.</p>
                     </div>
                 </div>
             </div>
@@ -906,9 +906,9 @@
                     <div class="timeline-content">
                         <h4>PHASE 2: ONGOING SERVICING (Months 1–30+)</h4>
                         <p><strong>Monthly distributions:</strong> Distribution Agent calculates returns every month. Customer receives payment on fixed date.</p>
-                        <p><strong>Performance monitoring:</strong> Investment Agent tracks fund daily. Generates rolling metrics visible on customer dashboard.</p>
-                        <p><strong>Interest holidays:</strong> If performance drops, holiday automatically triggered. Customer notified of status change.</p>
-                        <p><strong>Statements & reports:</strong> Monthly statements show distribution amount, margins paid, fund performance. Accessible via portal.</p>
+                        <p><strong>Performance monitoring:</strong> Investment Agent tracks fund performance. Generates rolling metrics visible on customer dashboard.</p>
+                        <p><strong>Interest holidays:</strong> If performance drops, holiday flag automatically triggered. Holiday status visible on customer statements and dashboard.</p>
+                        <p><strong>Statements & reports:</strong> Monthly statements show distribution amount, margins paid, fund performance, and holiday status. Accessible via portal.</p>
                         <p><strong>Account management:</strong> Customer can request early exit, modify settings. Lender reviews requests within 5 business days.</p>
                     </div>
                 </div>
@@ -1012,10 +1012,119 @@
             <p><strong>Caching Strategy:</strong> Three-tier: (1) Database query cache (Rails fragment caching for dashboard components, 1-hour TTL), (2) Redis session cache (customer login state, 7-day rolling expiry), (3) Application-level cache (monthly metrics computed once, stored in Redis, invalidated on new distribution). Implements cache-aside pattern with lazy loading.</p>
         </div>
 
-        <!-- Section 9: Deployment & Testing -->
+        <!-- Section 9: Database Schema -->
         <div class="section">
             <div class="section-header">
                 <div class="section-number">9</div>
+                <div>
+                    <h2>Database Schema</h2>
+                    <p>Core tables and data relationships</p>
+                </div>
+            </div>
+
+            <h3>Core Tables</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Purpose</th>
+                        <th>Key Fields</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>customers</strong></td>
+                        <td>Homeowners enrolled in income partnership</td>
+                        <td>id, email, phone, kyc_status, aml_status, risk_tier, created_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>properties</strong></td>
+                        <td>Residential properties with equity partnerships</td>
+                        <td>id, customer_id, address, property_value, equity_percentage, loan_amount, created_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>accounts</strong></td>
+                        <td>Customer investment accounts (one per property)</td>
+                        <td>id, customer_id, property_id, account_number, starting_balance, current_balance, holiday_flagged, holiday_entry_date, created_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>fund_performance</strong></td>
+                        <td>Monthly fund metrics (materialized view)</td>
+                        <td>account_id, month, starting_value, ending_value, return_pct, rolling_12m_return</td>
+                    </tr>
+                    <tr>
+                        <td><strong>distributions</strong></td>
+                        <td>Monthly customer distributions (immutable)</td>
+                        <td>id, account_id, distribution_month, fund_return_amount, lender_margin, funder_margin, fp_margin, customer_payout, payment_status, executed_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>payments</strong></td>
+                        <td>ACH/bank transfer records (immutable)</td>
+                        <td>id, distribution_id, customer_id, amount, bank_account_id, status, stripe_charge_id, executed_at, failed_reason</td>
+                    </tr>
+                    <tr>
+                        <td><strong>audit_log</strong></td>
+                        <td>Immutable event log for compliance (append-only)</td>
+                        <td>id, entity_type, entity_id, action, changes_json, user_id, timestamp, trace_id</td>
+                    </tr>
+                    <tr>
+                        <td><strong>fraud_alerts</strong></td>
+                        <td>Detected suspicious patterns</td>
+                        <td>id, customer_id, alert_type, fraud_score, details_json, status, reviewed_by, created_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>lenders</strong></td>
+                        <td>Loan originators & servicers</td>
+                        <td>id, name, tier, max_funding_line, current_balance, margin_rate, created_at</td>
+                    </tr>
+                    <tr>
+                        <td><strong>wholesale_funders</strong></td>
+                        <td>Capital providers to lenders</td>
+                        <td>id, name, funding_capacity, current_deployed, margin_rate, created_at</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Key Design Patterns</h3>
+
+            <p><strong>Immutable Logs:</strong> <code>distributions</code>, <code>payments</code>, and <code>audit_log</code> tables have no UPDATE/DELETE permissions. All changes recorded as INSERT-only events with timestamps. Ensures regulatory compliance and audit trail integrity.</p>
+
+            <p><strong>Soft Deletes:</strong> <code>customers</code> and <code>accounts</code> include <code>deleted_at</code> column (nullable). Logical deletion preserves historical data; queries filter <code>WHERE deleted_at IS NULL</code>. Allows account reinstatement without data loss.</p>
+
+            <p><strong>JSON Columns:</strong> <code>audit_log.changes_json</code> stores before/after values (flexible schema). <code>fraud_alerts.details_json</code> stores detection model output, thresholds, and matching rules. <code>accounts.metadata_json</code> stores region-specific terms, holiday parameters, customer preferences.</p>
+
+            <p><strong>Materialized Views:</strong> <code>fund_performance</code> refreshed nightly (expensive aggregation of historical returns). Queries use view instead of computing on-the-fly. Improves dashboard load times (sub-100ms queries). <code>monthly_margins_summary</code> pre-aggregates margins by lender/funder for reporting.</p>
+
+            <p><strong>Partitioning:</strong> <code>distributions</code> and <code>payments</code> tables partitioned by <code>created_at</code> (monthly partitions). Improves query performance for range scans (e.g., "all distributions in March"). Partitions older than 1 year moved to cold storage (S3).</p>
+
+            <p><strong>Indexes:</strong> Composite indexes on common queries: <code>(customer_id, created_at)</code> for customer history lookups, <code>(account_id, distribution_month)</code> for account statements, <code>(status, created_at)</code> for failed payment recovery. Foreign key indexes auto-created on <code>customer_id</code>, <code>account_id</code>, <code>lender_id</code>.</p>
+
+            <h3>Example: Monthly Distribution Query</h3>
+
+            <p><strong>Scenario:</strong> Calculate customer's March 2026 distribution.</p>
+
+            <p style="background: #f1f3f5; padding: 16px; border-radius: 6px; font-family: monospace; font-size: 12px; margin: 16px 0;">
+                SELECT<br>
+                &nbsp;&nbsp;a.customer_id,<br>
+                &nbsp;&nbsp;a.current_balance,<br>
+                &nbsp;&nbsp;fp.return_pct,<br>
+                &nbsp;&nbsp;(a.current_balance * fp.return_pct) AS gross_return,<br>
+                &nbsp;&nbsp;(a.current_balance * fp.return_pct * (1 - l.margin_rate) * (1 - wf.margin_rate) * 0.9975) AS customer_payout<br>
+                FROM accounts a<br>
+                JOIN fund_performance fp ON a.id = fp.account_id AND fp.month = '2026-03'<br>
+                JOIN lenders l ON a.lender_id = l.id<br>
+                JOIN wholesale_funders wf ON l.funder_id = wf.id<br>
+                WHERE a.customer_id = $1 AND a.deleted_at IS NULL;
+            </p>
+
+            <p>Result fed to Distribution Agent for payment execution. All calculations recorded in audit_log for compliance.</p>
+        </div>
+
+        <!-- Section 10: Deployment & Testing -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">10</div>
                 <div>
                     <h2>Deployment & Quality Assurance</h2>
                     <p>Release process and testing strategy</p>
