@@ -137,6 +137,40 @@ class Api::QuotesController < ApplicationController
     }
   end
 
+  # GET /api/quotes/regional
+  # Region-aware quote using CalculationEngine
+  def regional
+    home_value = params[:home_value]&.to_f || 1_500_000
+    term = params[:term]&.to_i || 10
+    region = params[:region]&.downcase || "us"
+    model = params[:model]&.to_sym || :pavel
+
+    begin
+      engine = CalculationEngine.new(
+        home_value: home_value,
+        term: term,
+        region: region,
+        model: model
+      )
+
+      render json: { success: true, data: engine.calculate }
+    rescue ArgumentError => e
+      render json: { success: false, error: e.message }, status: :unprocessable_entity
+    rescue => e
+      Rails.logger.error "Regional quote failed: #{e.message}"
+      render json: { success: false, error: "Calculation error" }, status: :internal_server_error
+    end
+  end
+
+  # GET /api/regions
+  # List supported regions and their configurations
+  def regions
+    render json: {
+      success: true,
+      regions: RegionHelper::VALID_REGION_CODES.map { |code| CalculationEngine.for_region(code) }
+    }
+  end
+
   private
 
   # Original model - matches demo_webapp_controller.js lookup tables (Tom's model)

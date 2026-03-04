@@ -240,6 +240,10 @@ Rails.application.routes.draw do
     get 'quotes', to: 'quotes#show'
     get 'quotes/compare', to: 'quotes#compare'
     get 'quotes/models', to: 'quotes#models'
+
+    # Region-aware quote (uses CalculationEngine)
+    get 'quotes/regional', to: 'quotes#regional'
+    get 'regions', to: 'quotes#regions'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
