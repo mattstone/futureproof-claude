@@ -1,0 +1,332 @@
+/* ========================================
+   FutureProof Mobile-First Responsive CSS
+   ======================================== */
+
+/* Base: Mobile (375px+) */
+
+/* Typography - ensure readable on mobile */
+body {
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Touch targets - minimum 48px */
+a, button, input[type="submit"], input[type="button"],
+.admin-btn, .admin-btn-primary, .admin-btn-secondary {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tables - horizontal scroll on mobile */
+.admin-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========================================
+   Mobile (max-width: 767px)
+   ======================================== */
+@media (max-width: 767px) {
+  /* Hide desktop sidebar, show mobile nav */
+  .admin-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .admin-sidebar.sidebar-open {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  /* Main content full width */
+  .admin-main, .main-content, .content-area {
+    margin-left: 0 !important;
+    padding: 16px;
+  }
+
+  /* Stack grid layouts */
+  .agent-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .agent-grid-and-stream {
+    grid-template-columns: 1fr;
+  }
+
+  /* Forms - single column */
+  .admin-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .admin-form-row > * {
+    width: 100%;
+  }
+
+  .admin-form-group {
+    margin-bottom: 16px;
+  }
+
+  .admin-form-input,
+  .admin-form-select,
+  .admin-form-textarea {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    padding: 12px;
+  }
+
+  /* Action bars - stack buttons */
+  .admin-actions-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-actions-bar .admin-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Cards - full width */
+  .dashboard-card,
+  .admin-card {
+    margin-bottom: 12px;
+  }
+
+  /* Tables */
+  .admin-table {
+    font-size: 13px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 6px;
+  }
+
+  /* Hide less important columns on mobile */
+  .admin-table .hide-mobile {
+    display: none;
+  }
+
+  /* Agent dashboard */
+  .agent-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .agent-current-task {
+    width: 100%;
+  }
+
+  /* Activity stream */
+  .activity-stream {
+    max-height: 250px;
+  }
+
+  /* Legal documents */
+  .legal-document {
+    padding: 16px;
+  }
+
+  .legal-signatures {
+    flex-direction: column;
+  }
+
+  .legal-signature-block {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  /* Homepage hero */
+  .hero-section {
+    padding: 40px 16px;
+  }
+
+  .hero-section h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .hero-section .hero-subtitle {
+    font-size: 16px;
+  }
+
+  /* Calculator */
+  .calculator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Application form steps */
+  .step-indicator {
+    font-size: 12px;
+  }
+
+  .step-indicator .step-label {
+    display: none;
+  }
+
+  /* Chat widget */
+  .chat-widget {
+    width: calc(100% - 32px);
+    right: 16px;
+    bottom: 16px;
+    max-height: 60vh;
+  }
+
+  /* Metric cards */
+  .metric-value {
+    font-size: 22px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+  }
+
+  /* Modal dialogs */
+  .modal-content {
+    width: 95%;
+    margin: 16px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* ========================================
+   Tablet (768px - 1023px)
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-sidebar {
+    width: 220px;
+  }
+
+  .admin-main, .main-content, .content-area {
+    margin-left: 220px;
+    padding: 20px;
+  }
+
+  .agent-metrics-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .agent-grid-and-stream {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-row {
+    flex-wrap: wrap;
+  }
+
+  .calculator-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .legal-document {
+    padding: 24px;
+  }
+}
+
+/* ========================================
+   Desktop (1024px+)
+   ======================================== */
+@media (min-width: 1024px) {
+  .admin-main, .main-content, .content-area {
+    padding: 24px 32px;
+  }
+
+  .agent-grid-and-stream {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .calculator-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========================================
+   Large Desktop (1440px+)
+   ======================================== */
+@media (min-width: 1440px) {
+  .admin-main, .main-content, .content-area {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 32px 48px;
+  }
+}
+
+/* ========================================
+   Mobile Hamburger Menu Toggle
+   ======================================== */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1001;
+  background: #007AFF;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+/* ========================================
+   Print Styles (for legal docs / reports)
+   ======================================== */
+@media print {
+  .admin-sidebar,
+  .mobile-menu-toggle,
+  .chat-widget,
+  .admin-actions-bar,
+  .live-indicator {
+    display: none !important;
+  }
+
+  .admin-main, .main-content, .content-area {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .legal-document {
+    box-shadow: none;
+    border: none;
+  }
+}
