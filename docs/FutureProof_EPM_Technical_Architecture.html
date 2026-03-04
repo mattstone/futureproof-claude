@@ -497,23 +497,23 @@
                     <tr>
                         <td><strong>Lender</strong></td>
                         <td>
-                            • Monthly distribution schedule<br>
-                            • Margin received<br>
-                            • Customer payment status<br>
+                            • Monthly margin received<br>
                             • Portfolio performance<br>
-                            • Default scenarios
+                            • Customer count by tier<br>
+                            • Default scenarios<br>
+                            • Funding line utilization
                         </td>
                         <td>
-                            • Approve interest holiday triggers<br>
-                            • View customer profiles<br>
-                            • Adjust risk tier<br>
-                            • Monitor portfolio health
+                            • View portfolio by risk tier<br>
+                            • Monitor margin collections<br>
+                            • Adjust lending tiers<br>
+                            • Approve individual customers
                         </td>
                         <td>
-                            • Systematic holiday requests<br>
-                            • Unusual pattern changes<br>
-                            • Distribution delays<br>
-                            • Sudden customer exits
+                            • Margin collection delays<br>
+                            • Unusual default clustering<br>
+                            • Portfolio yield compression<br>
+                            • Funding line strain
                         </td>
                     </tr>
                     <tr>
@@ -543,21 +543,21 @@
                         <td>
                             • Portfolio yield metrics<br>
                             • Default & recovery rates<br>
-                            • Margin collections<br>
-                            • Lender tier performance<br>
-                            • Risk metrics
+                            • Capital deployed per lender<br>
+                            • Lender financial health<br>
+                            • Fund allocation
                         </td>
                         <td>
-                            • Approve lender tiers<br>
+                            • Allocate funding to lenders<br>
                             • Adjust funding line limits<br>
-                            • Initiate risk reviews<br>
+                            • Initiate lender reviews<br>
                             • Approve new lender partners
                         </td>
                         <td>
                             • Yield compression<br>
-                            • Concentration risk<br>
-                            • Lender financial strain<br>
-                            • Unusual default clustering
+                            • Concentration by lender<br>
+                            • Lender financial distress<br>
+                            • Unusual default patterns
                         </td>
                     </tr>
                 </tbody>
@@ -594,7 +594,7 @@
 
             <p><strong>Fraud Detection:</strong> Real-time pattern matching against known fraud scenarios and automated alerts.</p>
 
-            <p><strong>Interest Holiday Logic:</strong> Monitors fund performance and triggers automated holidays when thresholds breached.</p>
+            <p><strong>Interest Holiday Logic:</strong> Monitors fund performance and triggers automated holidays when thresholds breached. FutureProof makes all holiday decisions (entry/exit). Customers are not notified. During holiday, customer income continues; lender margin is accrued to loan term instead.</p>
 
             <p><strong>Notification Service:</strong> Sends customer statements, alerts, and lender/funder reports via email and SMS.</p>
 
@@ -700,6 +700,8 @@
 
             <p><strong>Investment Agent</strong> publishes <code>holiday.triggered</code> or <code>holiday.released</code>. <strong>Distribution Agent</strong> adjusts payment calculations.</p>
 
+            <p><strong>Investment Agent</strong> publishes <code>holiday.triggered</code> or <code>holiday.released</code> when fund thresholds breached. FutureProof makes decision; customer is unaware.</p>
+
             <p><strong>Compliance Agent</strong> publishes <code>fraud.detected</code> or <code>rule.violation</code>. System escalates to lender/admin for review.</p>
         </div>
 
@@ -715,7 +717,9 @@
 
             <h3>How Holidays Work</h3>
 
-            <p>Interest holidays provide borrowers protection during market downturns. The Investment Agent monitors rolling fund performance against dynamic thresholds.</p>
+            <p><strong>FutureProof Decision Authority:</strong> FutureProof (not the lender) determines when a customer enters and exits an interest holiday. This is an automated decision based on rolling fund performance thresholds. Customers are unaware holidays are active—there is no notification.</p>
+
+            <p><strong>How It Works:</strong> During a holiday, the customer continues to receive their full monthly income as normal. However, the accrued interest (lender's margin) is added to the loan term rather than paid out. This extends the loan maturity date automatically.</p>
 
             <table>
                 <thead>
@@ -742,9 +746,9 @@
                         <td>Holiday automatically expires if conditions not met within timeframe</td>
                     </tr>
                     <tr>
-                        <td><strong>Repayment Schedule</strong></td>
-                        <td>Gradual step-down</td>
-                        <td>Once recovery begins, payments resume gradually rather than lump-sum</td>
+                        <td><strong>Effect</strong></td>
+                        <td>Loan extension</td>
+                        <td>Accrued interest added to loan term, extending maturity date</td>
                     </tr>
                 </tbody>
             </table>
@@ -756,7 +760,7 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Months 1–10: Normal Operations</h4>
-                        <p>Fund performing well. Customer receives monthly distributions. Investment Agent monitors thresholds daily.</p>
+                        <p>Fund performing well. Customer receives monthly distributions. FutureProof monitors thresholds daily.</p>
                     </div>
                 </div>
 
@@ -764,7 +768,7 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Month 11: Market Downturn</h4>
-                        <p>Fund value drops to 88% of starting value. Entry threshold (90%) breached. Investment Agent triggers holiday.</p>
+                        <p>Fund value drops to 88% of starting value. Entry threshold (90%) breached. FutureProof automatically triggers holiday (customer unaware).</p>
                     </div>
                 </div>
 
@@ -772,7 +776,7 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Months 12–18: Holiday Active</h4>
-                        <p>Customer payments suspended. Fund continues generating returns (but not distributed). Lender notified. Monthly statements track holiday status.</p>
+                        <p>Customer still receives full monthly income. Lender's margin is NOT paid out but instead accrued and added to loan principal. Loan maturity extends. Customer has no notification of holiday status.</p>
                     </div>
                 </div>
 
@@ -780,7 +784,7 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Month 19: Recovery Begins</h4>
-                        <p>Fund recovers to 145.8% threshold. Investment Agent triggers exit. Payments resume gradually over 12 months.</p>
+                        <p>Fund recovers to 145.8% threshold. FutureProof automatically releases holiday. Accrued interest locked in; loan term now 31 years instead of 30. Normal margin payments resume.</p>
                     </div>
                 </div>
             </div>
