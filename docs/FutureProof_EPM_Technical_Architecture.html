@@ -469,7 +469,56 @@
             <p><strong>FutureProof Margin:</strong> Platform takes its cut (0.25%) for ongoing management.</p>
         </div>
 
-        <!-- Section 2: Stakeholder Account Views -->
+<!-- Section 2: Customer Journey -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div>
+                    <h2>Customer Journey</h2>
+                    <p>Three phases from origination to exit</p>
+                </div>
+            </div>
+
+            <h3>Three Phases</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>PHASE 1: ORIGINATION (Weeks 1–4)</h4>
+                        <p><strong>Customer applies:</strong> Provides property details, equity percentage, income expectations through portal.</p>
+                        <p><strong>Deal Agent processes:</strong> KYC/AML checks, property valuation, risk tier assignment, document generation.</p>
+                        <p><strong>e-Signature:</strong> Customer reviews and signs loan documents, investment agreement.</p>
+                        <p><strong>Funding confirmation:</strong> Lender & Wholesale Funder approve. Capital transferred. Account activated.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>PHASE 2: ONGOING SERVICING (Months 1–30+)</h4>
+                        <p><strong>Monthly distributions:</strong> Distribution Agent calculates returns every month. Customer receives payment on fixed date.</p>
+                        <p><strong>Performance monitoring:</strong> Investment Agent tracks fund performance. Generates rolling metrics visible on customer dashboard.</p>
+                        <p><strong>Interest holidays:</strong> If performance drops, holiday flag automatically triggered. Holiday status visible on customer statements and dashboard.</p>
+                        <p><strong>Statements & reports:</strong> Monthly statements show distribution amount, margins paid, fund performance, and holiday status. Accessible via portal.</p>
+                        <p><strong>Account management:</strong> Customer can request early exit, modify settings. Lender reviews requests within 5 business days.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>PHASE 3: EXIT (Early or Maturity)</h4>
+                        <p><strong>Customer-initiated:</strong> Request early repayment. Deal Agent calculates exit position (fund value minus outstanding fees).</p>
+                        <p><strong>Lender approval:</strong> Lender reviews exit request, confirms repayment terms.</p>
+                        <p><strong>Settlement:</strong> Distribution Agent processes final payment. All accounts reconciled. Loan closed.</p>
+                        <p><strong>Documents archived:</strong> All transaction history, statements, audit logs preserved for 7 years. Compliance Agent completes final audit report.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Stakeholder Account Views -->
         <div class="section">
             <div class="section-header">
                 <div class="section-number">2</div>
@@ -580,10 +629,10 @@
             </table>
         </div>
 
-        <!-- Section 3: System Architecture -->
+        <!-- Section 4: System Architecture -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">3</div>
+                <div class="section-number">4</div>
                 <div>
                     <h2>System Architecture</h2>
                     <p>Platform components and core services</p>
@@ -633,10 +682,10 @@
             <p><strong>Synchronous vs. Asynchronous:</strong> Agent actions default to async (publish event, job queued, returns immediately). Synchronous calls used only when timeout is critical and timeout is short: (a) Stripe payment processing (5-second timeout), (b) IDology KYC check (10-second timeout), (c) property valuation lookup (15-second timeout). All synchronous calls wrapped in circuit breaker pattern—if 3rd party times out, fallback to manual review (escalate to human).</p>
         </div>
 
-        <!-- Section 4: Four-Agent System -->
+        <!-- Section 5: Four-Agent System -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">4</div>
+                <div class="section-number">5</div>
                 <div>
                     <h2>Four-Agent Architecture</h2>
                     <p>Autonomous agents managing workflows and monitoring</p>
@@ -793,10 +842,49 @@
             <p><strong>Key Principle:</strong> Agents execute deterministic workflows autonomously. Human interaction is minimal and targeted—only when exceptions occur, approvals are needed, or customers initiate actions. This keeps operational costs low while maintaining compliance oversight.</p>
         </div>
 
-        <!-- Section 5: Interest Holiday Logic -->
+        <!-- Section 6: Agent Technology Implementation -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">5</div>
+                <div class="section-number">6</div>
+                <div>
+                    <h2>Agent Technology Implementation</h2>
+                    <p>Autonomous agent architecture and scaling</p>
+                </div>
+            </div>
+
+            <h3>Agent Framework</h3>
+
+            <p>Four agents implemented as Rails service classes (e.g., <code>DealAgent::OnboardingService</code>, <code>DistributionAgent::ProcessingService</code>). Each agent runs as a Sidekiq background job (worker pool, 4 workers per pod). Agents are horizontally scalable—add more Sidekiq pods to increase throughput.</p>
+
+            <h3>Event Subscription (Kafka)</h3>
+
+            <p>Each agent subscribes to relevant Kafka topics using ruby-kafka gem. Consumer groups enable automatic partitioning—if 4 agent pods are running, 4 consume partitions in parallel, automatically rebalancing if a pod dies. Dead-letter queues capture processing failures (poison pill messages, timeouts); operations team investigates manually.</p>
+
+            <h3>Idempotency & Retry Logic</h3>
+
+            <p>Agents implement idempotent handlers—processing same event twice produces same result (no duplicate charges, no double-distributions). Uses database unique constraints + transactional locks. Failed agent tasks auto-retry with exponential backoff (1s → 2s → 4s → 8s → 16s), then escalate to dead-letter queue.</p>
+
+            <h3>Distributed Tracing</h3>
+
+            <p>Every event gets trace_id (UUID) from source. As event flows through agents (Deal Agent → Compliance Agent → Distribution Agent), each writes logs tagged with trace_id. Enables end-to-end visibility: search CloudWatch by trace_id to see entire customer journey (from application submit → KYC check → funds release → first distribution).</p>
+
+            <h3>State Management</h3>
+
+            <p>Deal workflow uses state machine (AASM gem): <code>draft</code> → <code>submitted</code> → <code>kyc_pending</code> → <code>approved</code> → <code>funded</code> → <code>active</code>. Holiday logic uses similar state machine: <code>normal</code> → <code>holiday_pending</code> → <code>holiday_active</code> → <code>recovery_in_progress</code> → <code>normal</code>. State transitions trigger events; dependent agents react. Example: when Deal Agent transitions deal to <code>approved</code>, publishes <code>deal.approved</code> event; Distribution Agent subscribes and prepares to execute initial payment.</p>
+
+            <h3>Call Center Integration (Twilio Flex)</h3>
+
+            <p>When human escalation needed (payment failure, KYC issue, customer calls), ops team receives ticket in Twilio Flex dashboard. Agent clicks customer, Flex dials phone via Twilio, logs call recording automatically. Call notes stored in customer account (alongside audit trail). If customer calls in (1-800-FUTUREPROOF), Flex IVR routes to available agent. Agent sees customer profile, recent interactions, account balance. Customer support ticket closed when agent resolves issue (update bank account, explain holiday, etc.).</p>
+
+            <h3>Synchronous vs. Asynchronous</h3>
+
+            <p>Agent actions default to async (publish event, job queued, returns immediately). Synchronous calls used only when timeout is critical and timeout is short: (a) Stripe payment processing (5-second timeout), (b) IDology KYC check (10-second timeout), (c) property valuation lookup (15-second timeout). All synchronous calls wrapped in circuit breaker pattern—if 3rd party times out, fallback to manual review (escalate to human).</p>
+        </div>
+
+        <!-- Section 7: Interest Holiday Logic -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">7</div>
                 <div>
                     <h2>Interest Holiday Mechanism</h2>
                     <p>Dynamic payment suspension based on fund performance</p>
@@ -832,9 +920,9 @@
                         <td>Holiday automatically expires if conditions not met within timeframe</td>
                     </tr>
                     <tr>
-                        <td><strong>Repayment Schedule</strong></td>
-                        <td>Gradual step-down</td>
-                        <td>Once recovery begins, payments resume gradually rather than lump-sum</td>
+                        <td><strong>Accumulated Interest</strong></td>
+                        <td>Ongoing</td>
+                        <td>During holiday, interest is not distributed to customer but accumulates in the account</td>
                     </tr>
                 </tbody>
             </table>
@@ -876,10 +964,10 @@
             </div>
         </div>
 
-        <!-- Section 6: Compliance & Monitoring -->
+        <!-- Section 8: Compliance & Monitoring -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">6</div>
+                <div class="section-number">8</div>
                 <div>
                     <h2>Compliance & Fraud Detection</h2>
                     <p>Regulatory adherence and system safeguards</p>
@@ -951,59 +1039,12 @@
             <p><strong>Annual Compliance Certification:</strong> To be performed by external auditor. Covers all regulatory requirements across Australia, UK, and US jurisdictions.</p>
         </div>
 
-        <!-- Section 7: Customer Journey -->
+        
+
+        <!-- Section 9: Technology Stack -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">7</div>
-                <div>
-                    <h2>Customer Journey</h2>
-                    <p>Three phases from origination to exit</p>
-                </div>
-            </div>
-
-            <h3>Three Phases</h3>
-
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <h4>PHASE 1: ORIGINATION (Weeks 1–4)</h4>
-                        <p><strong>Customer applies:</strong> Provides property details, equity percentage, income expectations through portal.</p>
-                        <p><strong>Deal Agent processes:</strong> KYC/AML checks, property valuation, risk tier assignment, document generation.</p>
-                        <p><strong>e-Signature:</strong> Customer reviews and signs loan documents, investment agreement.</p>
-                        <p><strong>Funding confirmation:</strong> Lender & Wholesale Funder approve. Capital transferred. Account activated.</p>
-                    </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <h4>PHASE 2: ONGOING SERVICING (Months 1–30+)</h4>
-                        <p><strong>Monthly distributions:</strong> Distribution Agent calculates returns every month. Customer receives payment on fixed date.</p>
-                        <p><strong>Performance monitoring:</strong> Investment Agent tracks fund performance. Generates rolling metrics visible on customer dashboard.</p>
-                        <p><strong>Interest holidays:</strong> If performance drops, holiday flag automatically triggered. Holiday status visible on customer statements and dashboard.</p>
-                        <p><strong>Statements & reports:</strong> Monthly statements show distribution amount, margins paid, fund performance, and holiday status. Accessible via portal.</p>
-                        <p><strong>Account management:</strong> Customer can request early exit, modify settings. Lender reviews requests within 5 business days.</p>
-                    </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <h4>PHASE 3: EXIT (Early or Maturity)</h4>
-                        <p><strong>Customer-initiated:</strong> Request early repayment. Deal Agent calculates exit position (fund value minus outstanding fees).</p>
-                        <p><strong>Lender approval:</strong> Lender reviews exit request, confirms repayment terms.</p>
-                        <p><strong>Settlement:</strong> Distribution Agent processes final payment. All accounts reconciled. Loan closed.</p>
-                        <p><strong>Documents archived:</strong> All transaction history, statements, audit logs preserved for 7 years. Compliance Agent completes final audit report.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 8: Technology Stack -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-number">8</div>
+                <div class="section-number">9</div>
                 <div>
                     <h2>Technology Stack</h2>
                     <p>Core platform and infrastructure</p>
@@ -1027,6 +1068,29 @@
                         <li>Redis 7 (caching + session store)</li>
                         <li>Kafka 3.6 (event log, 3 replicas)</li>
                         <li>PgBouncer (connection pooling)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div>
+                    <h4>Agent & Workflow Technology</h4>
+                    <ul>
+                        <li>Sidekiq (async job execution)</li>
+                        <li>Kafka (event pub/sub, 4 topic streams)</li>
+                        <li>OpenTelemetry (distributed tracing, trace ID tagging)</li>
+                        <li>Dead-letter queues (failure handling)</li>
+                        <li>State machines (holiday logic, deal workflow)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Customer Communication</h4>
+                    <ul>
+                        <li>SendGrid (transactional email)</li>
+                        <li>Twilio (SMS + voice calls)</li>
+                        <li>Twilio Flex (call center platform)</li>
+                        <li>WebRTC (in-app video calls)</li>
+                        <li>DocuSign (e-signature, document workflows)</li>
                     </ul>
                 </div>
             </div>
@@ -1109,10 +1173,10 @@
             <p><strong>Caching Strategy:</strong> Three-tier: (1) Database query cache (Rails fragment caching for dashboard components, 1-hour TTL), (2) Redis session cache (customer login state, 7-day rolling expiry), (3) Application-level cache (monthly metrics computed once, stored in Redis, invalidated on new distribution). Implements cache-aside pattern with lazy loading.</p>
         </div>
 
-        <!-- Section 9: Database Schema -->
+        <!-- Section 10: Database Schema -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">9</div>
+                <div class="section-number">10</div>
                 <div>
                     <h2>Database Schema</h2>
                     <p>Core tables and data relationships</p>
@@ -1218,10 +1282,10 @@
             <p>Result fed to Distribution Agent for payment execution. All calculations recorded in audit_log for compliance.</p>
         </div>
 
-        <!-- Section 10: Deployment & Testing -->
+        <!-- Section 11: Deployment & Testing -->
         <div class="section">
             <div class="section-header">
-                <div class="section-number">10</div>
+                <div class="section-number">11</div>
                 <div>
                     <h2>Deployment & Quality Assurance</h2>
                     <p>Release process and testing strategy</p>
@@ -1262,7 +1326,7 @@
         <!-- Footer -->
         <div class="footer">
             <strong>FutureProof Income from Property Equity — Technical Architecture</strong>
-            Document version 4.3 (Agent Implementation & Voice Integration) · Internal use only<br>
+            Document version 4.4 (Agent Implementation & Voice Integration) · Internal use only<br>
             © 2026 FutureProof Financial Group Limited. All rights reserved.
         </div>
     </div>
