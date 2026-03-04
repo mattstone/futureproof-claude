@@ -114,24 +114,37 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 60px 50px;
+            padding: 40px 50px;
             background: white;
         }
 
         .section {
-            margin-bottom: 80px;
+            margin-bottom: 40px;
             page-break-inside: avoid;
             orphans: 2;
             widows: 2;
+        }
+        
+        @media print {
+            .section {
+                margin-bottom: 30px;
+            }
         }
 
         .section-header {
             display: flex;
             align-items: center;
             gap: 16px;
-            margin-bottom: 35px;
-            padding-bottom: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
             border-bottom: 3px solid var(--fp-main);
+        }
+        
+        @media print {
+            .section-header {
+                margin-bottom: 16px;
+                padding-bottom: 8px;
+            }
         }
 
         .section-number {
@@ -167,7 +180,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 30px 0;
+            margin: 16px 0;
             background: white;
             border-radius: 8px;
             overflow: hidden;
@@ -175,6 +188,14 @@
             page-break-inside: avoid;
             orphans: 3;
             widows: 3;
+            font-size: 13px;
+        }
+        
+        @media print {
+            table {
+                margin: 12px 0;
+                font-size: 12px;
+            }
         }
 
         thead {
@@ -183,19 +204,32 @@
         }
 
         th {
-            padding: 18px 16px;
+            padding: 12px 12px;
             text-align: left;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
         td {
-            padding: 16px;
+            padding: 10px 12px;
             border-bottom: 1px solid var(--fp-border);
-            font-size: 13px;
-            line-height: 1.7;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        @media print {
+            th {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            td {
+                padding: 6px 10px;
+                font-size: 11px;
+                line-height: 1.4;
+            }
         }
 
         tbody tr:hover {
@@ -219,23 +253,41 @@
             color: var(--fp-main);
             font-size: 13px;
             font-weight: 800;
-            margin: 24px 0 12px 0;
+            margin: 16px 0 8px 0;
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
+        
+        @media print {
+            h4 {
+                margin: 10px 0 6px 0;
+            }
+        }
 
         p {
-            margin: 16px 0;
+            margin: 12px 0;
             line-height: 1.8;
             font-size: 14px;
             page-break-inside: avoid;
         }
 
         ul, ol {
-            margin: 16px 0 16px 28px;
-            line-height: 1.9;
+            margin: 10px 0 10px 28px;
+            line-height: 1.7;
             font-size: 14px;
             page-break-inside: avoid;
+        }
+        
+        @media print {
+            p {
+                margin: 8px 0;
+                line-height: 1.6;
+            }
+            
+            ul, ol {
+                margin: 6px 0 6px 24px;
+                line-height: 1.5;
+            }
         }
 
         li {
@@ -245,13 +297,20 @@
 
         .highlight {
             background: rgba(26, 115, 232, 0.08);
-            padding: 24px;
+            padding: 16px;
             border-left: 5px solid var(--fp-main);
             border-radius: 6px;
-            margin: 28px 0;
+            margin: 16px 0;
             page-break-inside: avoid;
             orphans: 3;
             widows: 3;
+        }
+        
+        @media print {
+            .highlight {
+                padding: 12px;
+                margin: 12px 0;
+            }
         }
 
         .highlight strong {
@@ -260,7 +319,7 @@
 
         svg {
             display: block;
-            margin: 30px auto;
+            margin: 20px auto;
             max-width: 100%;
             background: white;
             border: 1px solid var(--fp-border);
@@ -268,18 +327,33 @@
             padding: 15px;
             page-break-inside: avoid;
         }
+        
+        @media print {
+            svg {
+                margin: 10px auto;
+            }
+        }
 
         .timeline {
             display: flex;
             flex-direction: column;
-            gap: 28px;
-            margin: 35px 0;
+            gap: 16px;
+            margin: 20px 0;
+            page-break-inside: avoid;
         }
 
         .timeline-item {
             display: flex;
-            gap: 24px;
+            gap: 16px;
             page-break-inside: avoid;
+            margin-bottom: 8px;
+        }
+        
+        @media print {
+            .timeline-item {
+                gap: 12px;
+                margin-bottom: 6px;
+            }
         }
 
         .timeline-marker {
@@ -319,29 +393,45 @@
         .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin: 28px 0;
+            gap: 30px;
+            margin: 20px 0;
+            page-break-inside: avoid;
         }
 
         @media (max-width: 900px) {
             .two-col {
                 grid-template-columns: 1fr;
-                gap: 28px;
+                gap: 20px;
+            }
+        }
+        
+        @media print {
+            .two-col {
+                gap: 24px;
+                margin: 16px 0;
             }
         }
 
         .footer {
-            margin-top: 80px;
-            padding: 40px;
+            margin-top: 40px;
+            padding: 24px;
             background: var(--fp-gray-lighter);
             border-top: 3px solid var(--fp-main);
             text-align: center;
             color: #5f6368;
-            font-size: 12px;
+            font-size: 11px;
             border-radius: 8px;
             page-break-inside: avoid;
             orphans: 3;
             widows: 3;
+        }
+        
+        @media print {
+            .footer {
+                margin-top: 30px;
+                padding: 16px;
+                font-size: 10px;
+            }
         }
 
         .footer strong {
@@ -370,7 +460,7 @@
         @media print {
             .container {
                 max-width: 100%;
-                padding: 0;
+                padding: 40px 50px;
                 margin: 0;
             }
             
@@ -381,6 +471,12 @@
 
             .section {
                 page-break-after: auto;
+                margin-bottom: 40px;
+            }
+            
+            h3 {
+                margin-top: 20px;
+                margin-bottom: 12px;
             }
         }
     </style>
@@ -400,15 +496,15 @@
 
     <div class="container">
         <!-- Title Page -->
-        <div class="section" style="text-align: center; padding: 40px 60px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; page-break-after: always; border-bottom: none;">
+        <div class="section" style="text-align: center; padding: 60px 60px 40px 60px; height: auto; page-break-after: always; border-bottom: none;">
             <h1 style="font-size: 48px; font-weight: 900; color: var(--fp-dark); margin: 0 0 20px 0;">FutureProof EPM</h1>
             <p style="font-size: 24px; color: var(--fp-main); font-weight: 600; margin: 0 0 60px 0;">Income from Property Equity — Technical Architecture</p>
             
-            <div style="max-width: 700px; margin-bottom: 100px; text-align: center;">
+            <div style="max-width: 700px; margin: 60px auto; text-align: center;">
                 <p style="font-size: 16px; color: #5f6368; line-height: 1.9;">A comprehensive guide to the platform architecture, agents, workflows, and compliance systems that power monthly income distribution for equity-partnered homeowners.</p>
             </div>
 
-            <div style="border-top: 1px solid #ddd; padding-top: 60px; margin-top: auto;">
+            <div style="border-top: 1px solid #ddd; padding-top: 60px; margin-top: 60px;">
                 <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Document Version 4.3</p>
                 <p style="font-size: 13px; color: #5f6368; margin: 0 0 8px 0;">Internal Use Only</p>
                 <p style="font-size: 12px; color: #9aa0a6; margin: 0;">© 2026 FutureProof Financial Group Limited</p>
