@@ -1,0 +1,58 @@
+<div class="agent-live-section" data-controller="agent-live">
+  <div class="section-header">
+    <h2>Agent Operations Centre</h2>
+    <span class="live-indicator">● LIVE</span>
+    <span data-agent-live-target="lastUpdate" class="last-update-text"></span>
+  </div>
+
+  <div class="agent-metrics-row">
+    <div class="metric-card metric-card-primary">
+      <div class="metric-value" data-agent-live-target="taskCount"><%= @agent_performances&.sum(:tasks_completed_today) || 0 %></div>
+      <div class="metric-label">Tasks Today</div>
+    </div>
+    <div class="metric-card metric-card-success">
+      <div class="metric-value"><%= @agent_performances&.sum(:tasks_completed_week) || 0 %></div>
+      <div class="metric-label">Tasks This Week</div>
+    </div>
+    <div class="metric-card metric-card-info">
+      <div class="metric-value"><%= (@agent_performances&.average(:satisfaction_score) || 0).round(1) %>%</div>
+      <div class="metric-label">Avg Satisfaction</div>
+    </div>
+    <div class="metric-card metric-card-warning">
+      <div class="metric-value"><%= (@agent_performances&.average(:avg_resolution_minutes) || 0).round(1) %>m</div>
+      <div class="metric-label">Avg Resolution</div>
+    </div>
+  </div>
+
+  <div class="agent-grid-and-stream">
+    <div class="agent-status-grid">
+      <h3>Agent Status</h3>
+      <% (@agent_performances || []).each do |agent| %>
+        <div class="agent-row" data-agent-live-target="agentStatus">
+          <span class="agent-type-icon"><%= agent.agent_type == "ai" ? "🤖" : "👤" %></span>
+          <span class="agent-name"><%= agent.agent_name %></span>
+          <span class="agent-status-badge status-<%= agent.status %>"><%= agent.status.capitalize %></span>
+          <span class="agent-tasks-count"><%= agent.tasks_completed_today %> tasks</span>
+          <span class="agent-quality"><%= agent.quality_score.round(1) %>%</span>
+          <% if agent.current_task.present? %>
+            <span class="agent-current-task"><%= agent.current_task.truncate(40) %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="activity-stream-container">
+      <h3>Live Activity Feed</h3>
+      <div class="activity-stream" data-agent-live-target="activityStream">
+        <% (@recent_agent_tasks || []).first(10).each do |task| %>
+          <div class="activity-entry">
+            <span class="activity-time"><%= task.completed_at&.strftime("%H:%M:%S") %></span>
+            <span class="activity-icon"><%= task.status == "completed" ? "✅" : "⏳" %></span>
+            <strong><%= task.agent_performance.agent_name %></strong>
+            <%= task.description&.truncate(50) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_080000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_080000) do
     t.index ["action_type"], name: "index_agent_actions_on_action_type"
     t.index ["actionable_type", "actionable_id"], name: "index_agent_actions_on_actionable_type_and_actionable_id"
     t.index ["ai_agent_id"], name: "index_agent_actions_on_ai_agent_id"
+  end
+
+  create_table "agent_performances", force: :cascade do |t|
+    t.string "agent_name", null: false
+    t.string "agent_type", null: false
+    t.float "avg_resolution_minutes", default: 0.0
+    t.datetime "created_at", null: false
+    t.string "current_task"
+    t.datetime "last_active_at"
+    t.jsonb "metadata", default: {}
+    t.float "quality_score", default: 0.0
+    t.float "satisfaction_score", default: 0.0
+    t.string "status", default: "idle"
+    t.integer "tasks_completed_month", default: 0
+    t.integer "tasks_completed_today", default: 0
+    t.integer "tasks_completed_week", default: 0
+    t.datetime "updated_at", null: false
+    t.index ["agent_type"], name: "index_agent_performances_on_agent_type"
+    t.index ["status"], name: "index_agent_performances_on_status"
+  end
+
+  create_table "agent_tasks", force: :cascade do |t|
+    t.bigint "agent_performance_id"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.jsonb "metadata", default: {}
+    t.text "outcome"
+    t.string "priority", default: "normal"
+    t.float "resolution_minutes"
+    t.datetime "started_at"
+    t.string "status", default: "pending"
+    t.string "task_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_performance_id"], name: "index_agent_tasks_on_agent_performance_id"
+    t.index ["completed_at"], name: "index_agent_tasks_on_completed_at"
+    t.index ["status"], name: "index_agent_tasks_on_status"
+    t.index ["task_type"], name: "index_agent_tasks_on_task_type"
   end
 
   create_table "ai_agents", force: :cascade do |t|
@@ -952,6 +990,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_080000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_actions", "ai_agents"
+  add_foreign_key "agent_tasks", "agent_performances"
   add_foreign_key "application_checklists", "applications"
   add_foreign_key "application_checklists", "users", column: "completed_by_id"
   add_foreign_key "application_documents", "applications"

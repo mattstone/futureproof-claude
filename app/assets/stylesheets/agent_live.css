@@ -1,0 +1,193 @@
+/* Agent Live Dashboard Styles */
+
+.agent-live-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.agent-live-section .section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.agent-live-section .section-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.live-indicator {
+  color: #34C759;
+  font-size: 12px;
+  font-weight: 600;
+  animation: pulse-live 2s infinite;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.last-update-text {
+  margin-left: auto;
+  font-size: 12px;
+  color: #8E8E93;
+}
+
+/* Metrics Row */
+.agent-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: #F5F5F7;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.metric-card-primary { border-left: 4px solid #007AFF; }
+.metric-card-success { border-left: 4px solid #34C759; }
+.metric-card-info { border-left: 4px solid #5856D6; }
+.metric-card-warning { border-left: 4px solid #FF9500; }
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D1D1F;
+}
+
+.metric-label {
+  font-size: 13px;
+  color: #8E8E93;
+  margin-top: 4px;
+}
+
+/* Agent Grid + Activity Stream */
+.agent-grid-and-stream {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.agent-status-grid h3,
+.activity-stream-container h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+/* Agent Rows */
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.agent-row:hover {
+  background: #F5F5F7;
+}
+
+.agent-type-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.agent-name {
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.agent-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-idle { background: #E5E5EA; color: #8E8E93; }
+.status-processing { background: #D1F2EB; color: #0D7C5F; }
+.status-on_break { background: #FFF3CD; color: #856404; }
+.status-offline { background: #F8D7DA; color: #721C24; }
+
+.agent-tasks-count {
+  color: #8E8E93;
+  font-size: 12px;
+}
+
+.agent-quality {
+  color: #34C759;
+  font-weight: 600;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.agent-current-task {
+  font-size: 11px;
+  color: #007AFF;
+  font-style: italic;
+}
+
+/* Activity Stream */
+.activity-stream {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-entry {
+  padding: 8px 12px;
+  border-left: 3px solid #E5E5EA;
+  margin-bottom: 4px;
+  font-size: 13px;
+  transition: background 0.3s, opacity 0.3s;
+}
+
+.activity-entry.activity-new {
+  background: #F0F9FF;
+  border-left-color: #007AFF;
+}
+
+.activity-time {
+  color: #8E8E93;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.activity-icon {
+  margin: 0 4px;
+}
+
+.activity-detail {
+  color: #8E8E93;
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .agent-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .agent-grid-and-stream {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-row {
+    flex-wrap: wrap;
+  }
+}

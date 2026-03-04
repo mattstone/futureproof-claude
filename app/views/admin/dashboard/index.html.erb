@@ -1,6 +1,9 @@
 <% content_for :page_title, "Agent Command Centre" %>
 <div data-controller="admin-dashboard">
 
+<!-- Agent Operations Centre (Real-Time) -->
+<%= render "admin/dashboard/agent_live_dashboard" %>
+
 <!-- Priority Inbox — Agent Escalations Only -->
 <div class="priority-inbox <%= @attention_items.any? ? 'needs-attention' : '' %>">
   <% if @attention_items.any? %>

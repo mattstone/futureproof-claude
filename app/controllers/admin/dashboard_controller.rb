@@ -28,6 +28,13 @@ class Admin::DashboardController < Admin::BaseController
     @rejected_applications = applications_scope.where(status: 'rejected').count
     @new_applications_this_month = applications_scope.where('created_at >= ?', 1.month.ago).count
     
+    # Agent Performance Dashboard (real-time mock data)
+    @agent_performances = AgentPerformance.active.order(:agent_type, :agent_name) rescue nil
+    @recent_agent_tasks = AgentTask.includes(:agent_performance)
+                                   .completed
+                                   .order(completed_at: :desc)
+                                   .limit(20) rescue nil
+
     # Recent activity - scoped to admin's lender
     if futureproof_admin?
       @recent_user_activity = UserVersion.includes(:user, :admin_user)
