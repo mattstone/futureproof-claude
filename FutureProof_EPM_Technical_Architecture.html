@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>FutureProof_EPM_Technical_Architecture</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#futureproof-epm-income-from-property-equity-technical-architecture"
+id="toc-futureproof-epm-income-from-property-equity-technical-architecture">FutureProof
+EPM Income from Property Equity — Technical Architecture</a>
+<ul>
+<li><a href="#epm-overview" id="toc-epm-overview">1. EPM
+Overview</a></li>
+<li><a href="#customer-journey" id="toc-customer-journey">2. Customer
+Journey</a></li>
+<li><a href="#stakeholder-views-fraud-monitoring"
+id="toc-stakeholder-views-fraud-monitoring">3. Stakeholder Views &amp;
+Fraud Monitoring</a></li>
+<li><a href="#system-architecture" id="toc-system-architecture">4.
+System Architecture</a></li>
+<li><a href="#four-agent-architecture"
+id="toc-four-agent-architecture">5. Four-Agent Architecture</a></li>
+<li><a href="#agent-technology-claude-kimi"
+id="toc-agent-technology-claude-kimi">6. Agent Technology: Claude &amp;
+Kimi</a></li>
+<li><a href="#interest-holiday-mechanism"
+id="toc-interest-holiday-mechanism">7. Interest Holiday
+Mechanism</a></li>
+<li><a href="#compliance-fraud-detection"
+id="toc-compliance-fraud-detection">8. Compliance &amp; Fraud
+Detection</a></li>
+<li><a href="#technology-stack" id="toc-technology-stack">9. Technology
+Stack</a></li>
+<li><a href="#database-schema" id="toc-database-schema">10. Database
+Schema</a></li>
+<li><a href="#deployment-quality-assurance"
+id="toc-deployment-quality-assurance">11. Deployment &amp; Quality
+Assurance</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1
+id="futureproof-epm-income-from-property-equity-technical-architecture">FutureProof
+EPM Income from Property Equity — Technical Architecture</h1>
+<p><strong>Version 4.5</strong> | Commercial in Confidence</p>
+<hr />
+<h2 id="epm-overview">1. EPM Overview</h2>
+<p>FutureProof transforms home equity into monthly income. We partner
+with homeowners, borrowers, and capital providers to build a simple
+system: invest equity, distribute returns, manage risk.</p>
+<p><strong>The Four Players</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 41%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Role</th>
+<th>What They Do</th>
+<th>Their Stake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customer</strong></td>
+<td>Partners their equity for monthly income</td>
+<td>Receives monthly distributions</td>
+</tr>
+<tr>
+<td><strong>Investment Partner</strong></td>
+<td>Manages the invested capital</td>
+<td>Generates ~10% p.a. returns over 30 years</td>
+</tr>
+<tr>
+<td><strong>Lender</strong></td>
+<td>Originates loans, manages customer relationships</td>
+<td>Earns margin (0.75%–2%) on distributions</td>
+</tr>
+<tr>
+<td><strong>Wholesale Funder</strong></td>
+<td>Supplies capital to lenders</td>
+<td>Earns wholesale margin (0.2%–3.6%)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How Monthly Income Works</strong></p>
+<ol type="1">
+<li>Investment Partner’s fund earns returns.</li>
+<li>System calculates monthly payout (based on equity %, fund
+performance, holiday status).</li>
+<li>Customer gets their share.</li>
+<li>Lender deducts margin. Wholesale Funder takes their cut. FutureProof
+takes 0.25%.</li>
+</ol>
+<p>Simple. Repeatable. Auditable.</p>
+<hr />
+<h2 id="customer-journey">2. Customer Journey</h2>
+<h3 id="phase-1-origination-weeks-14"><strong>PHASE 1: Origination
+(Weeks 1–4)</strong></h3>
+<p>Customer applies → Deal Agent verifies identity (KYC/AML), values
+property, assigns risk tier → e-signs documents → Lender &amp; funder
+approve → Capital transferred → Account live.</p>
+<h3 id="phase-2-ongoing-months-130"><strong>PHASE 2: Ongoing (Months
+1–30+)</strong></h3>
+<p>Every month: - Distribution Agent calculates fund returns. - Customer
+gets paid on fixed date. - Investment Agent watches fund performance. If
+it drops 10%, interest holiday flag triggers automatically. - Monthly
+statement shows distribution, margins, fund health, holiday status. -
+Customer can request early exit anytime.</p>
+<h3 id="phase-3-exit-early-or-maturity"><strong>PHASE 3: Exit (Early or
+Maturity)</strong></h3>
+<p>Customer requests exit → Deal Agent calculates final amount (fund
+value minus fees) → Lender approves → Distribution Agent processes final
+payment → Loan closed → All records archived (7 years).</p>
+<hr />
+<h2 id="stakeholder-views-fraud-monitoring">3. Stakeholder Views &amp;
+Fraud Monitoring</h2>
+<p><strong>What each player sees + what we watch for:</strong></p>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 41%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stakeholder</th>
+<th>Dashboard Shows</th>
+<th>Red Flags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customer</strong></td>
+<td>Monthly distributions, cumulative income, fund chart, holiday
+status</td>
+<td>Multiple withdrawals same day, logins from new locations, rapid
+device switches</td>
+</tr>
+<tr>
+<td><strong>Lender</strong></td>
+<td>Distribution schedule, margin received, portfolio health, customer
+status</td>
+<td>Holiday requests that look systematic, unusual pattern shifts,
+distributions delayed</td>
+</tr>
+<tr>
+<td><strong>Investment Partner</strong></td>
+<td>Fund performance, ETF data, rebalancing schedule, cost basis</td>
+<td>Performance that doesn’t match ETFs, holdings mismatches,
+rebalancing delays</td>
+</tr>
+<tr>
+<td><strong>Wholesale Funder</strong></td>
+<td>Portfolio yield, default rates, margin collections, lender tier
+performance</td>
+<td>Yield compression, risk concentration, lender financial strain</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="system-architecture">4. System Architecture</h2>
+<h3 id="core-platform"><strong>Core Platform</strong></h3>
+<p><strong>Rails 8.1 + Hotwire + Stimulus</strong></p>
+<p>Single monolithic Rails app. Live dashboards update via Hotwire
+(Turbo). Lightweight JavaScript via Stimulus. No WebSocket
+complexity.</p>
+<p><strong>PostgreSQL</strong></p>
+<p>Source of truth: customers, transactions, audit trails. JSON columns
+for flexible fund metadata. Materialized views for performance
+aggregation. Database triggers enforce compliance rules automatically.
+Partitioned by customer ID for scale.</p>
+<p><strong>Kafka Event Queue</strong></p>
+<p>Agents publish events. Others subscribe. Deal created → Distribution
+Agent and Compliance Agent react. Distribution executed → Lender gets
+paid. Holiday triggered → Distribution Agent adjusts calculations.
+Exactly-once processing with dead-letter queues for failures.</p>
+<p><strong>Redis Cache</strong></p>
+<p>Sessions, rate limiting, staged calculations, fraud detection (Bloom
+filters), frequently accessed data.</p>
+<p><strong>S3 Storage</strong></p>
+<p>Documents, statements, audit logs. Encrypted at rest. Lifecycle:
+archive after 90 days, delete after 7 years (compliance).</p>
+<h3 id="core-services"><strong>Core Services</strong></h3>
+<p><strong>Distribution Engine</strong> (Solid Queue job)</p>
+<p>Runs 1st–5th of month via Rails native background job scheduler.
+Pulls fund returns, calculates per-customer distributions, stages in
+Redis, executes ACH/bank transfers via Stripe, publishes events. Retry
+logic with exponential backoff.</p>
+<p><strong>Compliance Engine</strong></p>
+<p>Real-time validation against 20+ regulatory rules. Writes immutable
+audit trail. Database triggers for Change Data Capture.</p>
+<p><strong>Fraud Detection</strong></p>
+<p>ML pipeline scores every transaction: - Known patterns (Bloom
+filter)? - Behavioral anomalies (isolation forest)? - Rule violations
+(impossible geography, velocity)?</p>
+<p><strong>Interest Holiday Logic</strong></p>
+<p>Monthly job monitors fund performance vs. entry/exit thresholds.
+Triggers automatically at 90% drop. Releases automatically at 145.8%
+recovery.</p>
+<p><strong>Notification Service</strong></p>
+<p>Email (SendGrid), SMS (Twilio), in-app. Stores pending notifications,
+retries with backoff, confirms delivery.</p>
+<p><strong>Document Engine</strong></p>
+<p>Server-rendered templates (ERB) + Prawn gem. Generates loan docs,
+agreements, statements, disclosures. All digitally signed, archived to
+S3 with immutable version IDs.</p>
+<hr />
+<h2 id="four-agent-architecture">5. Four-Agent Architecture</h2>
+<p><strong>Deal Agent</strong> - Processes applications - Runs KYC/AML -
+Generates documents - Triggered by: New application</p>
+<p><strong>Distribution Agent</strong> - Calculates monthly returns -
+Deducts margins - Executes payments - Generates statements - Triggered
+by: Monthly cutoff date</p>
+<p><strong>Investment Agent</strong> - Monitors fund performance -
+Calculates rolling metrics - Decides holiday eligibility -
+Triggers/releases holidays - Triggered by: Monthly performance
+updates</p>
+<p><strong>Compliance Agent</strong> - Real-time fraud detection -
+Regulatory rule enforcement - Generates audit reports - Flags suspicious
+activity - Triggered by: Transaction submission</p>
+<h3 id="agent-communication"><strong>Agent Communication</strong></h3>
+<p>All agents publish to Kafka. Others subscribe. Decoupled.
+Asynchronous. Scalable.</p>
+<p><strong>Example flow:</strong> 1. Deal Agent publishes
+<code>deal.created</code>. 2. Distribution Agent and Compliance Agent
+subscribe, wake up. 3. Distribution Agent publishes
+<code>distribution.monthly</code>. 4. Lender receives payment. 5.
+Investment Agent publishes <code>holiday.triggered</code>. 6.
+Distribution Agent adjusts calculations. 7. Compliance Agent publishes
+<code>fraud.detected</code>. 8. System escalates to lender for
+review.</p>
+<hr />
+<h2 id="agent-technology-claude-kimi">6. Agent Technology: Claude &amp;
+Kimi</h2>
+<h3 id="why-agents"><strong>Why Agents?</strong></h3>
+<p>Human agents would slow everything down. AI agents process in
+seconds. Four autonomous agents handle all workflows 24/7.</p>
+<h3 id="how-we-do-it-claude-kimi"><strong>How We Do It: Claude &amp;
+Kimi</strong></h3>
+<p><strong>Claude</strong> handles Deal Agent workflows (KYC/AML logic,
+document generation decisions, eligibility assessment).</p>
+<p><strong>Kimi</strong> handles Distribution Agent workflows (complex
+calculation logic, margin deduction rules, payment reconciliation).</p>
+<p>Both are integrated via OpenAI-compatible API endpoints that sit
+inside our private network. <strong>Critical: No customer data ever
+leaves the system.</strong> All processing happens on-premise. Customer
+names, account balances, fund performance data, transaction
+histories—all stay inside our infrastructure. Claude and Kimi receive
+anonymized, hashed transaction patterns and rule-based queries. They
+respond with recommendations that Distribution Agent executes, but they
+never touch raw customer data.</p>
+<h3 id="implementation-details"><strong>Implementation
+Details</strong></h3>
+<p>Rails service classes (e.g.,
+<code>DealAgent::OnboardingService</code>). Each agent runs as Solid
+Queue background job (4 workers per pod). Horizontally scalable.</p>
+<p><strong>Event Subscription (Kafka)</strong></p>
+<p>Each agent subscribes to relevant Kafka topics using ruby-kafka gem.
+Consumer groups handle partitioning automatically. Dead-letter queues
+capture failures.</p>
+<p><strong>Idempotency &amp; Retry</strong></p>
+<p>Agents implement idempotent handlers. Database unique constraints +
+transactional locks prevent double-processing. Failed tasks auto-retry
+(1s → 2s → 4s → 8s → 16s), then escalate.</p>
+<p><strong>Distributed Tracing</strong></p>
+<p>Every event gets a trace ID. As it flows through agents, each writes
+logs tagged with that ID. Search CloudWatch by trace ID, see the entire
+customer journey end-to-end.</p>
+<p><strong>State Management</strong></p>
+<ul>
+<li>Deal workflow:
+<code>draft → submitted → kyc_pending → approved → funded → active</code></li>
+<li>Holiday logic:
+<code>normal → holiday_pending → holiday_active → recovery_in_progress → normal</code></li>
+</ul>
+<p><strong>Call Center (Twilio Flex)</strong></p>
+<p>When manual escalation needed, ops team gets a ticket in Twilio Flex.
+Agent clicks customer, Flex dials via Twilio, logs call recording. If
+customer calls in, IVR routes to available agent. Agent sees customer
+profile, recent interactions, account balance.</p>
+<p><strong>Sync vs. Async</strong></p>
+<p>Async by default (publish event, job queued). Sync only for: - Stripe
+payment (5-sec timeout) - IDology KYC (10-sec timeout) - Property
+valuation (15-sec timeout)</p>
+<p>All wrapped in circuit breaker pattern.</p>
+<hr />
+<h2 id="interest-holiday-mechanism">7. Interest Holiday Mechanism</h2>
+<p><strong>Why holidays exist:</strong> Market downturns shouldn’t force
+customers to pay lenders. We pause interest accrual automatically.</p>
+<p><strong>How it works:</strong></p>
+<table>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th>Threshold</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>90% drop</strong></td>
+<td>Holiday automatically triggers. Customer still gets monthly
+distributions. Lender gets alert. Statements show holiday status.</td>
+</tr>
+<tr>
+<td><strong>145.8% recovery</strong></td>
+<td>Holiday automatically lifts. Everything returns to normal.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example timeline:</strong></p>
+<ul>
+<li><strong>Months 1–10:</strong> Normal operations. Fund does well.
+Customer gets paid.</li>
+<li><strong>Month 11:</strong> Market drop. Fund hits 88% (below 90%
+threshold). Holiday flag activates.</li>
+<li><strong>Months 12–18:</strong> Holiday active. Customer still paid.
+Statements note holiday.</li>
+<li><strong>Month 19:</strong> Fund recovers to 145.8%. Holiday
+automatically released.</li>
+</ul>
+<hr />
+<h2 id="compliance-fraud-detection">8. Compliance &amp; Fraud
+Detection</h2>
+<p><strong>What we check. How we catch bad actors.</strong></p>
+<h3 id="compliance-rules"><strong>Compliance Rules</strong></h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Rule</th>
+<th>What We Verify</th>
+<th>What Happens If It Fails</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>KYC/AML</strong></td>
+<td>Customer identity confirmed before onboarding</td>
+<td>Application rejected</td>
+</tr>
+<tr>
+<td><strong>Responsible Lending</strong></td>
+<td>Fund amount appropriate for risk tier</td>
+<td>Margin increased; tier adjusted</td>
+</tr>
+<tr>
+<td><strong>Distribution Accuracy</strong></td>
+<td>Monthly calcs match fund returns</td>
+<td>Distribution held pending audit</td>
+</tr>
+<tr>
+<td><strong>Fund Performance</strong></td>
+<td>Daily returns reconcile with actual</td>
+<td>Discrepancy flagged</td>
+</tr>
+<tr>
+<td><strong>Holiday Logic</strong></td>
+<td>Thresholds applied correctly</td>
+<td>Manually reviewed</td>
+</tr>
+<tr>
+<td><strong>Data Privacy</strong></td>
+<td>PII access logged; encrypted</td>
+<td>Unauthorized access alert</td>
+</tr>
+</tbody>
+</table>
+<h3 id="real-time-fraud-monitoring"><strong>Real-Time Fraud
+Monitoring</strong></h3>
+<p><strong>Account anomalies:</strong> - Logins from unusual locations -
+Rapid device changes - After-hours patterns</p>
+<p><strong>Transaction anomalies:</strong> - Multiple withdrawals same
+day - Requests after distribution - Systematic holiday manipulation</p>
+<p><strong>Data inconsistencies:</strong> - Reported vs. actual fund
+value mismatch - Distribution calculation errors</p>
+<p><strong>Regulatory violations:</strong> - KYC/AML failures -
+Undisclosed conflicts - Unauthorized transfers</p>
+<h3 id="audit-reporting"><strong>Audit &amp; Reporting</strong></h3>
+<p><strong>Audit Trail:</strong> Every transaction, margin payment,
+holiday trigger recorded with timestamp, user ID, changes. Retained 7
+years minimum.</p>
+<p><strong>Monthly Reporting:</strong> Lenders and wholesale funders get
+automated reports on portfolio health, margin collections, default
+scenarios.</p>
+<p><strong>Annual Certification:</strong> External auditor reviews all
+regulatory requirements (Australia, UK, US).</p>
+<hr />
+<h2 id="technology-stack">9. Technology Stack</h2>
+<p><strong>Backend</strong> - Rails 8.1 (Ruby 3.4.8) - Solid Queue
+(native Rails background jobs, 4 workers) - ruby-kafka (event streaming)
+- Puma (web server, 3 threads, auto-scaling)</p>
+<p><strong>Data</strong> - PostgreSQL 16 (primary + read replica) -
+Redis 7 (cache + session store) - Kafka 3.6 (event log, 3 replicas) -
+PgBouncer (connection pooling)</p>
+<p><strong>Agents &amp; Workflow</strong> - Solid Queue (async
+execution) - Kafka (pub/sub, 4 topic streams) - OpenTelemetry
+(distributed tracing) - Dead-letter queues (failure handling) - State
+machines (holiday logic, deal workflow)</p>
+<p><strong>Communication</strong> - SendGrid (email) - Twilio (SMS +
+voice) - Twilio Flex (call center) - WebRTC (video calls) - DocuSign
+(e-signature)</p>
+<p><strong>Frontend</strong> - Hotwire (Turbo Streams + Drive) -
+Stimulus JS (lightweight controllers) - Tailwind CSS (styling) - ERB
+templates (server-rendered) - Chart.js (performance charts)</p>
+<p><strong>Infrastructure</strong> - AWS S3 (documents, versioned) - AWS
+CloudFront (CDN) - S3 Glacier (archive) - Fly.io (deployment) - GitHub
+Actions (CI/CD) - Docker (containers) - Terraform (IaC)</p>
+<p><strong>Monitoring</strong> - Sentry (error tracking) - CloudWatch
+(logs) - Grafana (dashboards) - PagerDuty (escalation) - HTTPS/TLS, WAF,
+CSP headers</p>
+<hr />
+<h2 id="database-schema">10. Database Schema</h2>
+<p><strong>Core tables:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 33%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th>Table</th>
+<th>Purpose</th>
+<th>Key Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customers</code></td>
+<td>Homeowners</td>
+<td>id, email, phone, kyc_status, aml_status, risk_tier</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>Residential with equity</td>
+<td>id, customer_id, address, property_value, equity_percentage,
+loan_amount</td>
+</tr>
+<tr>
+<td><code>accounts</code></td>
+<td>Customer investment accounts</td>
+<td>id, customer_id, property_id, starting_balance, current_balance,
+holiday_flagged</td>
+</tr>
+<tr>
+<td><code>fund_performance</code></td>
+<td>Monthly metrics (materialized view)</td>
+<td>account_id, month, starting_value, ending_value, return_pct,
+rolling_12m_return</td>
+</tr>
+<tr>
+<td><code>distributions</code></td>
+<td>Monthly payouts (immutable)</td>
+<td>id, account_id, fund_return_amount, lender_margin, customer_payout,
+executed_at</td>
+</tr>
+<tr>
+<td><code>payments</code></td>
+<td>ACH/bank transfers (immutable)</td>
+<td>id, distribution_id, amount, bank_account_id, status,
+stripe_charge_id</td>
+</tr>
+<tr>
+<td><code>audit_log</code></td>
+<td>Append-only event log</td>
+<td>id, entity_type, action, changes_json, user_id, timestamp,
+trace_id</td>
+</tr>
+<tr>
+<td><code>fraud_alerts</code></td>
+<td>Detected patterns</td>
+<td>id, customer_id, alert_type, fraud_score, status, reviewed_by</td>
+</tr>
+<tr>
+<td><code>lenders</code></td>
+<td>Loan originators</td>
+<td>id, name, tier, max_funding_line, current_balance, margin_rate</td>
+</tr>
+<tr>
+<td><code>wholesale_funders</code></td>
+<td>Capital providers</td>
+<td>id, name, funding_capacity, current_deployed, margin_rate</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Design patterns:</strong></p>
+<ul>
+<li><strong>Immutable logs:</strong> <code>distributions</code>,
+<code>payments</code>, <code>audit_log</code> have no UPDATE/DELETE. All
+changes are INSERT-only with timestamps.</li>
+<li><strong>Soft deletes:</strong> <code>customers</code>,
+<code>accounts</code> include <code>deleted_at</code>. Preserves
+history; queries filter <code>WHERE deleted_at IS NULL</code>.</li>
+<li><strong>JSON columns:</strong> <code>audit_log.changes_json</code>
+stores before/after. <code>fraud_alerts.details_json</code> stores model
+output. <code>accounts.metadata_json</code> stores region-specific
+terms.</li>
+<li><strong>Materialized views:</strong> <code>fund_performance</code>
+refreshed nightly. Improves dashboard load times.</li>
+<li><strong>Partitioning:</strong> <code>distributions</code>,
+<code>payments</code> partitioned by <code>created_at</code> (monthly
+partitions). Old partitions move to cold storage.</li>
+</ul>
+<hr />
+<h2 id="deployment-quality-assurance">11. Deployment &amp; Quality
+Assurance</h2>
+<p><strong>Testing</strong></p>
+<ul>
+<li><strong>Unit tests:</strong> Core logic (distributions, holiday
+logic, fraud rules).</li>
+<li><strong>Integration tests:</strong> Agent workflows, end-to-end
+customer journeys, payments.</li>
+<li><strong>Performance tests:</strong> Batch processing at scale (1000s
+of customers), query optimization.</li>
+<li><strong>Security tests:</strong> Auth, authorization, data access,
+PII encryption.</li>
+<li><strong>Manual tests:</strong> Customer portal UX, lender reporting,
+admin workflows.</li>
+</ul>
+<p><strong>Continuous Deployment</strong></p>
+<p>GitHub Actions runs tests on every PR. RSpec (200+ specs), Rubocop
+(linting), Brakeman (security), database migrations validated. Tests +
+code review approval required before merge.</p>
+<p>Staging environment deployed automatically from main branch using
+Fly.io (same infra as production). Runs against production-replica DB
+(encrypted, daily sanitized PII). Manual smoke tests.</p>
+<p>Production: Blue-green deployment on Fly.io. Traffic shifted 10% →
+50% → 100% over 10 minutes (canary rollout). Health checks verify Rails
+boot, database, Kafka, latency. Automatic rollback if health checks fail
+within 5 minutes.</p>
+<p><strong>Monitoring &amp; Alerting</strong></p>
+<ul>
+<li><strong>Sentry:</strong> Real-time errors. Critical errors trigger
+PagerDuty within 2 minutes.</li>
+<li><strong>CloudWatch:</strong> Structured JSON logging (trace_id,
+user_id, duration_ms, queries, API calls). 90 days hot, then S3
+archive.</li>
+<li><strong>Grafana:</strong> System health (CPU, memory, disk), app
+metrics (requests/sec, error rate, p95 latency), business metrics
+(distributions, revenue), agent health (lag, dead-letter size), database
+health (pool, replication lag).</li>
+<li><strong>Alerts:</strong> error rate &gt;1%, distribution latency
+&gt;60s, Kafka lag &gt;1000 messages.</li>
+</ul>
+<hr />
+<p><strong>Commercial in Confidence</strong></p>
+<p>© 2026 FutureProof Financial Group Limited. All rights reserved.</p>
+</body>
+</html>
