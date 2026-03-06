@@ -81,11 +81,10 @@
 - [x] Run tests, commit (c61c8c7)
 
 #### Step 0.2 — Field-Level Encryption
-- [ ] Add `encrypts :government_id, :credit_score, :bank_account_number` to Application model
-- [ ] Verify `Rails.application.credentials` has encryption key (or generate)
-- [ ] Test encryption round-trip (write + read)
-- [ ] Update SECURITY_FRAMEWORK.md status
-- [ ] Run tests, commit
+- [x] Add `encrypts :government_id, :credit_score, :bank_account_number` to Application model
+- [x] Generated encryption keys via `rails db:encryption:init`, added to credentials
+- [x] Test encryption round-trip — verified data encrypted at rest, decrypted on read
+- [x] Run tests, commit (72a74f6)
 
 #### Step 0.3 — ReferralPartner Model
 - [ ] Generate model: `ReferralPartner` (name, company, licence_number, region, commission_rate, status, contact_email, phone)
@@ -438,7 +437,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [x] 0.1  [ ] 0.2  [ ] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [x] 0.2  [ ] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b

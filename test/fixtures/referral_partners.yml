@@ -1,0 +1,21 @@
+helen_chen:
+  name: "Helen Chen"
+  company: "Pacific Brokers"
+  licence_number: "BR-AU-001"
+  region: "au"
+  commission_rate: 2.5
+  status: "active"
+  contact_email: "helen@pacificbrokers.com.au"
+  phone: "+61 400 123 456"
+  lender: futureproof
+
+james_wright:
+  name: "James Wright"
+  company: "National Mortgage Group"
+  licence_number: "BR-AU-002"
+  region: "au"
+  commission_rate: 3.0
+  status: "active"
+  contact_email: "james@nmg.com.au"
+  phone: "+61 400 789 012"
+  lender: futureproof
