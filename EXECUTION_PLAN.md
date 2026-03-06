@@ -125,12 +125,9 @@
 ### Phase 1: Infrastructure
 
 #### Step 1.1 — Rails/Ruby Upgrade
-- [ ] Update Gemfile: `gem "rails", "~> 8.1.2"`
-- [ ] Update `.ruby-version` to latest stable 3.4.x
-- [ ] `bundle update rails`
-- [ ] Fix deprecation warnings
-- [ ] Run full test suite
-- [ ] Commit
+- [x] Rails 8.1.2 already in Gemfile and installed (from Session 1)
+- [x] Ruby 3.4.x in use (3.4.4 locally, .ruby-version targets 3.4.8)
+- [x] No action needed — already done
 
 #### Step 1.2 — Multi-Region Routing Audit
 - [ ] Verify `config/regions.yml` has all 4 regions (already exists)
@@ -436,7 +433,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [x] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b

@@ -53,6 +53,7 @@ class Application < ApplicationRecord
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
+  validates :region, inclusion: { in: %w[au us nz uk] }, allow_nil: true
   validates :existing_mortgage_amount, numericality: {
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000

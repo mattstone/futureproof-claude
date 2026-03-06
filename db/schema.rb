@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_114236) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -238,6 +238,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_114236) do
     t.integer "property_valuation_low"
     t.integer "property_valuation_middle"
     t.bigint "referral_partner_id"
+    t.string "region", default: "us"
     t.text "rejected_reason"
     t.integer "status", default: 0, null: false
     t.string "super_fund_name"
@@ -246,6 +247,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_114236) do
     t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["referral_partner_id"], name: "index_applications_on_referral_partner_id"
+    t.index ["region"], name: "index_applications_on_region"
     t.index ["user_id", "status"], name: "index_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
   end
