@@ -1,1 +1,297 @@
-<%= render 'legal/contracts/mortgage_shared', region: 'au' %>
+<% details = legal_details('au') %>
+<% config = RegionHelper.region_config('au') %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Equity Preservation Mortgage Contract</h1>
+    <p class="legal-jurisdiction">Australia (AU) — National Consumer Credit Protection Act 2009</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+    <p class="legal-regulated">Regulated by: Australian Securities and Investments Commission (ASIC)</p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. PARTIES</h2>
+    <p><strong>1.1 The Lender:</strong> [Lender Name], Australian Credit Licence No. [XXXX], ABN [XX XXX XXX XXX], of [Registered Address] (the "<strong>Lender</strong>").</p>
+    <p><strong>1.2 The Borrower:</strong> [Borrower Full Legal Name], of [Borrower Address], date of birth [DOB], Australian Resident (the "<strong>Borrower</strong>").</p>
+    <p><strong>1.3 The Platform:</strong> FutureProof Financial Pty Ltd, ABN [XX XXX XXX XXX], operating the FutureProof EPM Platform (the "<strong>Platform</strong>").</p>
+
+    <h2>2. DEFINITIONS</h2>
+    <p><strong>"EPM"</strong> means Equity Preservation Mortgage, a mortgage product where the loan proceeds are invested to generate income for the Borrower while preserving the Borrower's equity in the property.</p>
+    <p><strong>"Property"</strong> means the real property located at [Property Address], [Suburb/Postcode], being the security for this mortgage.</p>
+    <p><strong>"Loan Amount"</strong> means the principal sum of A$[Amount] advanced under this contract.</p>
+    <p><strong>"LTV Ratio"</strong> means the Loan-to-Value ratio, being [XX]% of the independently assessed market value of the Property, not exceeding 80%.</p>
+    <p><strong>"Investment Portfolio"</strong> means the portfolio of investments (primarily international index funds) managed by the appointed Investment Manager.</p>
+    <p><strong>"Monthly Income"</strong> means the regular monthly payment made to the Borrower from investment returns, currently estimated at A$[Amount]/month.</p>
+    <p><strong>"Term"</strong> means the period of [XX] years from the date of this contract.</p>
+    <p><strong>"NNEG"</strong> means No Negative Equity Guarantee, the protection preventing the Borrower's home loan debt from exceeding the property value.</p>
+
+    <h2>3. LOAN TERMS</h2>
+    <p><strong>3.1</strong> The Lender agrees to advance the Loan Amount to the Borrower, secured by a registered first-ranking mortgage over the Property.</p>
+    <p><strong>3.2</strong> The Loan Amount shall not exceed 80% of the independently assessed market value of the Property.</p>
+    <p><strong>3.3</strong> The minimum property value for eligibility is A$500,000.</p>
+    <p><strong>3.4</strong> The Borrower must be aged 55 years or older at the date of this contract (or younger with exception approval).</p>
+    <p><strong>3.5</strong> The Borrower must be an Australian resident for tax purposes.</p>
+
+    <h2>4. EQUITY PRESERVATION GUARANTEE</h2>
+    <p><strong>4.1</strong> The fundamental feature of this EPM is the preservation of equity in the Borrower's property throughout the Term.</p>
+    <p><strong>4.2</strong> The EPM structure ensures:</p>
+    <ul>
+      <li>(a) All mortgage interest payments are made from the Investment Portfolio returns, not from the Borrower's personal funds;</li>
+      <li>(b) The Loan Amount remains static (no compounding interest on the principal);</li>
+      <li>(c) The Borrower's equity in the Property is preserved, being the difference between property value and the original Loan Amount;</li>
+      <li>(d) Upon sale or settlement, the Borrower (or estate) receives the property proceeds less only the original Loan Amount.</li>
+    </ul>
+
+    <h2>5. NO NEGATIVE EQUITY GUARANTEE (NNEG)</h2>
+    <p><strong>5.1 NNEG Protection</strong>: This mortgage is issued with a No Negative Equity Guarantee. The Borrower is protected such that:</p>
+    <ul>
+      <li>(a) The mortgage debt (principal + accrued interest) shall never exceed the market value of the Property;</li>
+      <li>(b) If, at any time, the property value falls below the mortgage debt due to sustained market decline, the NNEG trigger is activated;</li>
+      <li>(c) Upon NNEG trigger, the Lender's insurance mechanism absorbs the shortfall, and no additional debt is imposed on the Borrower or estate;</li>
+      <li>(d) The Borrower's obligation is limited to the property value; the estate cannot be pursued for any deficit.</li>
+    </ul>
+    <p><strong>5.2 NNEG Probability</strong>: NNEG protection is provided via Pool Coverage insurance. Scenario analysis indicates NNEG is unlikely under standard market conditions, but remains possible in prolonged property market downturns. The Lender's risk analysis estimates NNEG probability at [X]% over the [XX] year term.</p>
+    <p><strong>5.3 NNEG Trigger and Resolution</strong>: If NNEG is triggered (debt > property value), the Platform shall immediately:</p>
+    <ul>
+      <li>(a) Notify both parties in writing;</li>
+      <li>(b) Activate the insurance claim process;</li>
+      <li>(c) Cease accrual of further debt beyond the property value;</li>
+      <li>(d) Offer refinancing or settlement options to the Borrower.</li>
+    </ul>
+
+    <h2>6. INVESTMENT STRUCTURE</h2>
+    <p><strong>6.1</strong> The Loan Amount shall be allocated as follows:</p>
+    <ul>
+      <li>(a) Approximately 30% to an Annuity Portion, providing guaranteed income;</li>
+      <li>(b) Approximately 70% to a Reinvestment Portion, invested in diversified index funds (primarily international equity ETFs).</li>
+    </ul>
+    <p><strong>6.2</strong> Investment returns from the Portfolio shall be applied in the following priority:</p>
+    <ul>
+      <li>(a) First, to pay all mortgage interest due to the Lender;</li>
+      <li>(b) Second, to pay the Monthly Income to the Borrower;</li>
+      <li>(c) Third, any surplus to be reinvested in the Portfolio.</li>
+    </ul>
+
+    <h2>7. INTEREST RATE AND PAYMENTS</h2>
+    <p><strong>7.1</strong> The interest rate applicable to the Loan shall be disclosed in the Loan Schedule, being [X]% per annum (or as referenced in the Australian Securities and Investments Commission Handbook).</p>
+    <p><strong>7.2</strong> All interest payments shall be made from the Investment Portfolio. The Borrower is not personally liable for interest payments, except in the event of a default under clause 12 or if NNEG is triggered.</p>
+    <p><strong>7.3</strong> The Platform shall provide quarterly statements showing interest accrued, interest paid, Investment Portfolio balance, and NNEG risk status.</p>
+
+    <h2>8. MONTHLY INCOME</h2>
+    <p><strong>8.1</strong> The Borrower shall receive Monthly Income payments calculated as approximately 1.5% per annum of the property value, paid monthly in arrears.</p>
+    <p><strong>8.2 Tax Treatment</strong>: Monthly Income is generally treated as capital drawdown (not income) for Australian tax purposes. The Borrower should seek independent tax advice. The Platform will provide an Annual Tax Statement (ATS) confirming the tax-free nature of the income for ATO purposes.</p>
+    <p><strong>8.3</strong> Monthly Income payments are guaranteed by the Insurance/Pool Coverage mechanism described in clause 9.</p>
+
+    <h2>9. INSURANCE AND POOL COVERAGE</h2>
+    <p><strong>9.1</strong> Lenders Mortgage Insurance (LMI) shall be obtained at an upfront premium of 2% of the Loan Amount, added to the loan balance.</p>
+    <p><strong>9.2</strong> The Pool Coverage mechanism provides additional protection:</p>
+    <ul>
+      <li>(a) The Borrower's Monthly Income is maintained regardless of short-term market fluctuations;</li>
+      <li>(b) Interest payments to the Lender are guaranteed;</li>
+      <li>(c) The Borrower's NNEG protection is maintained;</li>
+      <li>(d) In the event of Pool depletion, the insurance claim process is activated automatically.</li>
+    </ul>
+
+    <h2>10. CENTRELINK DISCLOSURE AND IMPACT</h2>
+    <p><strong>10.1 Assets Test Impact</strong>: The Loan Amount is treated as an asset under the Centrelink Age Pension means test. Specifically:</p>
+    <ul>
+      <li>(a) The Loan Amount is assessed under the assets test; assets above A$884,000 (single) or A$1,327,000 (couple) result in pension reduction;</li>
+      <li>(b) For every A$1,000 over the threshold, Age Pension is reduced by approximately A$3 per fortnight;</li>
+      <li>(c) The Borrower should contact Services Australia (1300 131 202) to obtain an individual assessment.</li>
+    </ul>
+    <p><strong>10.2 Deeming</strong>: Centrelink applies a deeming rate to assess deemed income from the asset. Current deeming rates are approximately 2% on assets up to A$60,600 (or regional equivalent).</p>
+    <p><strong>10.3 Recommendation</strong>: The Borrower is strongly recommended to:</p>
+    <ul>
+      <li>(a) Notify Services Australia of this EPM loan before the first payment;</li>
+      <li>(b) Request a formal Age Pension calculation showing the impact;</li>
+      <li>(c) Seek advice from an aged care financial advisor on whether EPM is suitable given their Age Pension eligibility.</li>
+    </ul>
+    <p><strong>10.4 No Guarantee of Pension Retention</strong>: The Lender makes no representation about Age Pension eligibility. Centrelink assessment is independent and final. The Borrower's Age Pension may be reduced, eliminated, or suspended as a result of this EPM.</p>
+
+    <h2>11. BORROWER'S OBLIGATIONS</h2>
+    <p><strong>11.1</strong> The Borrower shall:</p>
+    <ul>
+      <li>(a) Maintain the Property in good repair and condition (normal wear and tear excepted);</li>
+      <li>(b) Keep the Property adequately insured against fire, flood, natural disaster, and other standard perils (minimum coverage to the replacement value);</li>
+      <li>(c) Not create any additional security interest over the Property without the Lender's written consent;</li>
+      <li>(d) Pay all council rates, land taxes, strata levies (if applicable), and other statutory charges when due;</li>
+      <li>(e) Notify the Platform immediately of any material change in circumstances (death, incapacity, change of residency);</li>
+      <li>(f) Provide proof of insurance annually.</li>
+    </ul>
+
+    <h2>12. SALE OF PROPERTY AND ADVISED SALES ACKNOWLEDGEMENT</h2>
+    <p><strong>12.1 Right to Sell</strong>: The Borrower retains the absolute right to sell the Property at any time without restriction or penalty.</p>
+    <p><strong>12.2 Sale Proceeds</strong>: Upon sale, the sale proceeds are applied as follows:</p>
+    <ul>
+      <li>(a) First, to the Lender for the outstanding Loan Amount (principal + accrued interest);</li>
+      <li>(b) Second, to any Centrelink Age Pension debt recovery (if applicable);</li>
+      <li>(c) Third, all remaining proceeds to the Borrower or estate.</li>
+    </ul>
+    <p><strong>12.3 Advised Sales Acknowledgement</strong>: The Borrower acknowledges that they have been advised in writing of the following:</p>
+    <ul>
+      <li>(a) They have the right to sell the property at any time;</li>
+      <li>(b) Upon sale, they will receive the proceeds after repaying the Loan Amount;</li>
+      <li>(c) The sale may trigger Centrelink Age Pension recalculation (assets test and income test may apply);</li>
+      <li>(d) They should obtain independent financial and legal advice before selling;</li>
+      <li>(e) Real estate agent fees and legal costs will be deducted from sale proceeds as per the sale agreement;</li>
+      <li>(f) If the property sells for less than the Loan Amount, NNEG protection activates and absorbs the shortfall (no deficit recovery from estate).</li>
+    </ul>
+    <p><strong>12.4 Acknowledgement Signature</strong>: By signing this contract, the Borrower and their witness confirm that they have read and understood clauses 12.1–12.3, and the Borrower has had the opportunity to seek independent advice.</p>
+
+    <h2>13. EARLY REPAYMENT</h2>
+    <p><strong>13.1</strong> The Borrower may repay the Loan in full at any time, subject to:</p>
+    <ul>
+      <li>(a) [90] days' written notice to the Lender;</li>
+      <li>(b) Payment of any early repayment adjustment fees as disclosed in the Loan Schedule;</li>
+      <li>(c) Settlement of all outstanding interest and fees.</li>
+    </ul>
+    <p><strong>13.2</strong> Upon early repayment, the Investment Portfolio shall be liquidated and any surplus returned to the Borrower.</p>
+
+    <h2>14. COOLING-OFF PERIOD</h2>
+    <p><strong>14.1</strong> Under the National Consumer Credit Protection Act 2009 (Cth), the Borrower has a cooling-off period of 14 days from the date of signing this contract, during which they may cancel without penalty.</p>
+    <p><strong>14.2</strong> To exercise the cooling-off right, the Borrower must provide written notice to the Platform before the cooling-off period expires.</p>
+
+    <h2>15. DEFAULT</h2>
+    <p><strong>15.1</strong> An event of default occurs if the Borrower:</p>
+    <ul>
+      <li>(a) Fails to maintain adequate property insurance;</li>
+      <li>(b) Creates an additional security interest without consent;</li>
+      <li>(c) Allows the Property to fall into material disrepair;</li>
+      <li>(d) Provides false or misleading information in the application;</li>
+      <li>(e) Becomes bankrupt or enters insolvency proceedings;</li>
+      <li>(f) Ceases to be an Australian resident (unless approved for non-residency).</li>
+    </ul>
+    <p><strong>15.2</strong> Upon default, the Lender may, after providing 30 days' notice, exercise the power of sale over the Property, with proceeds applied per clause 12.2.</p>
+
+    <h2>16. DISPUTE RESOLUTION</h2>
+    <p><strong>16.1</strong> Any dispute arising under this contract shall first be referred to the Platform's internal complaints process, with a response required within 30 calendar days.</p>
+    <p><strong>16.2</strong> If the dispute is not resolved, either party may refer the matter to the Australian Financial Complaints Authority (AFCA).</p>
+    <p><strong>16.3</strong> Complaints may also be lodged with the Australian Securities and Investments Commission (ASIC).</p>
+
+    <h2>17. COMPLIANCE</h2>
+    <p><strong>17.1</strong> This contract is issued in compliance with the National Consumer Credit Protection Act 2009 (Cth).</p>
+    <p><strong>17.2</strong> The Lender holds an Australian Credit Licence issued by ASIC under section 36 of the National Consumer Credit Protection Act 2009 (Cth).</p>
+    <p><strong>17.3</strong> All parties comply with anti-money laundering obligations under the Anti-Money Laundering and Counter-Terrorism Financing Act 2006 (Cth).</p>
+
+    <h2>18. PRIVACY</h2>
+    <p><strong>18.1</strong> Personal information collected under this contract is handled in accordance with the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs).</p>
+    <p><strong>18.2</strong> The Platform's Privacy Policy is available at futureprooffinancial.co/legal/privacy/au.</p>
+
+    <h2>19. GOVERNING LAW</h2>
+    <p><strong>19.1</strong> This contract is governed by and shall be construed in accordance with the laws of [State/Territory], Australia.</p>
+    <p><strong>19.2</strong> The parties submit to the exclusive jurisdiction of the courts of [State/Territory].</p>
+
+    <h2>20. EXECUTION</h2>
+    <p>Executed as a deed on this [Day] day of [Month] [Year].</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the LENDER:</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Title: ___________________________</p>
+        <p>Signature: ___________________________</p>
+        <p>Date: ___________________________</p>
+      </div>
+
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by the BORROWER:</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Signature: ___________________________</p>
+        <p>Date: ___________________________</p>
+      </div>
+
+      <div class="legal-signature-block">
+        <p><strong>WITNESS (required for this deed):</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Signature: ___________________________</p>
+        <p>Date: ___________________________</p>
+        <p>Address: ___________________________</p>
+      </div>
+
+      <div class="legal-signature-block">
+        <p><strong>BORROWER'S ACKNOWLEDGEMENT RE: ADVISED SALES (Clause 12.4)</strong></p>
+        <p>I, [Borrower Name], confirm that I have read and understood the Advised Sales provisions in clause 12, and I have had the opportunity to seek independent financial and legal advice regarding my rights and obligations.</p>
+        <p>Borrower Signature: ___________________________   Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .legal-document {
+    font-family: 'Georgia', serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .legal-header {
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .legal-header h1 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+  }
+
+  .legal-jurisdiction {
+    font-style: italic;
+    color: #666;
+    margin: 0.3rem 0;
+  }
+
+  .legal-version {
+    font-size: 0.9rem;
+    color: #999;
+    margin: 0.3rem 0;
+  }
+
+  .legal-regulated {
+    color: #666;
+    font-weight: bold;
+  }
+
+  .legal-body h2 {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: bold;
+  }
+
+  .legal-body p {
+    margin-bottom: 0.8rem;
+    text-align: justify;
+  }
+
+  .legal-body ul {
+    margin: 1rem 0 1rem 2rem;
+  }
+
+  .legal-body li {
+    margin-bottom: 0.6rem;
+  }
+
+  .legal-signatures {
+    margin-top: 3rem;
+    border-top: 2px solid #333;
+    padding-top: 1.5rem;
+  }
+
+  .legal-signature-block {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+  }
+
+  @media print {
+    .legal-document {
+      padding: 0;
+    }
+  }
+</style>
