@@ -175,12 +175,12 @@
 - [x] Commit (e0b003d)
 
 #### Step 2.1c — Calculation Engine: FX + Regional Quotes
-- [ ] Add FX sensitivity for non-US regions (±10%, ±20% scenarios)
-- [ ] Regional currency formatting in quote output
-- [ ] AU: Add Centrelink impact estimate (assets test, deeming)
-- [ ] UK: Add IHT impact estimate
-- [ ] Write tests for regional calculations
-- [ ] Commit
+- [x] Add FX sensitivity for non-US regions (±10%, ±20% scenarios)
+- [x] Regional currency formatting in quote output
+- [x] AU: Add Centrelink impact estimate (assets test, deeming)
+- [x] UK: Add IHT impact estimate
+- [x] Write tests for regional calculations
+- [x] Commit (b6afe41)
 
 #### Step 2.2a — Contracts: AU Mortgage + NNEG
 - [ ] Create `app/views/legal/contracts/mortgage_contract_au.html.erb`
@@ -435,7 +435,7 @@ Mark steps complete as they're done:
 ```
 Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [x] 0.6
 Phase 1: [x] 1.1  [x] 1.2  [x] 1.3a [x] 1.3b [x] 1.3c
-Phase 2: [x] 2.1a [x] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
+Phase 2: [x] 2.1a [x] 2.1b [x] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
 Phase 3: [x] 3.1a [x] 3.1b [x] 3.2a [x] 3.2b [x] 3.3
 Phase 4: [ ] 4.1a [ ] 4.1b [ ] 4.1c [ ] 4.1d [ ] 4.2a [ ] 4.2b [ ] 4.2c [ ] 4.3
