@@ -72,13 +72,13 @@
 ### Phase 0: Foundation & Security
 
 #### Step 0.1 — Security Hardening (Devise + InputSanitization)
-- [ ] Re-enable `InputSanitization` on User model (uncomment include)
-- [ ] Enable Devise `:lockable` — add migration if `failed_attempts`/`locked_at` columns missing
-- [ ] Enable Devise `:confirmable` — add migration if `confirmed_at`/`confirmation_token` columns missing
-- [ ] Enable Devise `:trackable` — add migration if `sign_in_count`/`current_sign_in_at` columns missing
-- [ ] Strengthen password: `config.password_length = 10..128` (user), admin validation 12+
-- [ ] Update Devise initializer with lockout config
-- [ ] Run tests, commit
+- [x] Re-enable `InputSanitization` on User model (uncomment include)
+- [x] Enable Devise `:lockable` — add migration for `failed_attempts`/`locked_at`/`unlock_token` columns
+- [x] Confirmable already present — `confirmed_at`/`confirmation_token` columns exist
+- [x] Enable Devise `:trackable` — add migration for `sign_in_count`/`current_sign_in_at`/`last_sign_in_at`/IPs
+- [x] Strengthen password: `config.password_length = 10..128`, User model minimum 10
+- [x] Update Devise initializer: lock_strategy, unlock_strategy(:both), max 5 attempts, 30min lockout, last_attempt_warning
+- [x] Run tests, commit (c61c8c7)
 
 #### Step 0.2 — Field-Level Encryption
 - [ ] Add `encrypts :government_id, :credit_score, :bank_account_number` to Application model
@@ -438,7 +438,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [ ] 0.1  [ ] 0.2  [ ] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [ ] 0.2  [ ] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b

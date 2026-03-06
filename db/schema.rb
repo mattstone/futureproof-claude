@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_112618) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_113713) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -213,13 +213,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_112618) do
 
   create_table "applications", force: :cascade do |t|
     t.string "address"
+    t.string "bank_account_number"
     t.integer "borrower_age", default: 0
     t.text "borrower_names"
     t.string "company_name"
     t.text "corelogic_data"
     t.datetime "created_at", null: false
+    t.string "credit_score"
     t.decimal "existing_mortgage_amount", precision: 12, scale: 2, default: "0.0"
     t.string "existing_mortgage_lender"
+    t.string "government_id"
     t.decimal "growth_rate", precision: 5, scale: 2, default: "2.0"
     t.boolean "has_existing_mortgage", default: false, null: false
     t.integer "home_value"

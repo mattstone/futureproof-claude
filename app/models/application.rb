@@ -1,5 +1,11 @@
 class Application < ApplicationRecord
-  # include InputSanitization  # Temporarily disabled for testing
+  include InputSanitization
+  
+  # Field-level encryption for L4 sensitive data
+  encrypts :government_id, deterministic: true
+  encrypts :credit_score
+  encrypts :bank_account_number
+
   belongs_to :user
   belongs_to :mortgage, optional: true
   has_one :contract, dependent: :destroy
