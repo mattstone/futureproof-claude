@@ -183,12 +183,12 @@
 - [x] Commit (b6afe41)
 
 #### Step 2.2a — Contracts: AU Mortgage + NNEG
-- [ ] Create `app/views/legal/contracts/mortgage_contract_au.html.erb`
-- [ ] Include NNEG clause (standard wording)
-- [ ] Include advised sales acknowledgement
-- [ ] Include Centrelink disclosure
-- [ ] Test renders correctly
-- [ ] Commit
+- [x] Create `app/views/legal/contracts/mortgage_contract_au.html.erb`
+- [x] Include NNEG clause (standard wording)
+- [x] Include advised sales acknowledgement
+- [x] Include Centrelink disclosure
+- [x] Test renders correctly
+- [x] Commit (903d4eb)
 
 #### Step 2.2b — Contracts: US Mortgage + Disclosures
 - [ ] Create `app/views/legal/contracts/mortgage_contract_us.html.erb`
@@ -435,7 +435,7 @@ Mark steps complete as they're done:
 ```
 Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [x] 0.6
 Phase 1: [x] 1.1  [x] 1.2  [x] 1.3a [x] 1.3b [x] 1.3c
-Phase 2: [x] 2.1a [x] 2.1b [x] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
+Phase 2: [x] 2.1a [x] 2.1b [x] 2.1c [x] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
 Phase 3: [x] 3.1a [x] 3.1b [x] 3.2a [x] 3.2b [x] 3.3
 Phase 4: [ ] 4.1a [ ] 4.1b [ ] 4.1c [ ] 4.1d [ ] 4.2a [ ] 4.2b [ ] 4.2c [ ] 4.3
