@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_131400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -213,6 +213,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
 
   create_table "applications", force: :cascade do |t|
     t.string "address"
+    t.decimal "approved_interest_rate", precision: 5, scale: 3
+    t.decimal "approved_loan_amount", precision: 15, scale: 2
+    t.integer "approved_term_years"
     t.string "bank_account_number"
     t.integer "borrower_age", default: 0
     t.text "borrower_names"
@@ -227,6 +230,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
     t.boolean "has_existing_mortgage", default: false, null: false
     t.integer "home_value"
     t.integer "income_payout_term"
+    t.bigint "lender_id"
     t.integer "loan_term"
     t.bigint "mortgage_id"
     t.integer "ownership_status", default: 0, null: false
@@ -244,6 +248,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
     t.string "super_fund_name"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["lender_id", "status"], name: "index_applications_on_lender_id_and_status"
+    t.index ["lender_id"], name: "index_applications_on_lender_id"
     t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
     t.index ["referral_partner_id"], name: "index_applications_on_referral_partner_id"
@@ -1050,6 +1056,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_120624) do
   add_foreign_key "application_messages", "applications"
   add_foreign_key "application_versions", "applications"
   add_foreign_key "application_versions", "users"
+  add_foreign_key "applications", "lenders"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "referral_partners"
   add_foreign_key "applications", "users"

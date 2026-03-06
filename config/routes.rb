@@ -374,6 +374,16 @@ Rails.application.routes.draw do
     end
   end
 
+  # Lender portal routes
+  namespace :lender do
+    resources :applications, only: [:index, :show] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
+  end
+
   # Debug routes
   get 'diagnostic/sso_debug', to: 'diagnostic#sso_debug'
   get 'diagnostic/sso_public', to: 'diagnostic#sso_debug_public'

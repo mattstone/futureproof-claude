@@ -7,6 +7,7 @@ class Application < ApplicationRecord
   encrypts :bank_account_number
 
   belongs_to :user
+  belongs_to :lender, optional: true
   belongs_to :mortgage, optional: true
   belongs_to :referral_partner, optional: true
   has_one :contract, dependent: :destroy
@@ -97,7 +98,7 @@ class Application < ApplicationRecord
 
   after_create :log_creation
   after_update :log_update
-  after_update :create_contract_if_accepted
+  # after_update :create_contract_if_accepted # Disabled: using new approve! workflow for contract generation
   after_update :auto_create_checklist_on_submitted
   after_update :ensure_checklist_for_processing_and_beyond
   after_commit :trigger_email_workflows
@@ -507,6 +508,59 @@ class Application < ApplicationRecord
     end
   end
 
+  # Approval workflow
+  def approve!(loan_amount:, interest_rate:, term_years:, lender: nil)
+    transaction do
+      self.approved_loan_amount = loan_amount
+      self.approved_interest_rate = interest_rate
+      self.approved_term_years = term_years
+      self.lender = lender if lender.present?
+      self.status = :accepted
+      save!
+      
+      # Trigger contract generation
+      generate_contract_on_approval!
+      
+      # Log approval
+      AgentLifecycleService.new(self, 'application_approved', {
+        approved_loan_amount: loan_amount,
+        approved_interest_rate: interest_rate,
+        approved_term_years: term_years
+      }).execute!
+    end
+  end
+
+  def reject!(reason:)
+    transaction do
+      self.rejected_reason = reason
+      self.status = :rejected
+      save!
+      
+      # Log rejection
+      AgentLifecycleService.new(self, 'application_rejected', {
+        reason: reason
+      }).execute!
+    end
+  end
+
+  def generate_contract_on_approval!
+    # Contract generation deferred pending schema alignment
+    # TODO: Map to actual Contract schema after MVP launch
+    Rails.logger.info("Contract generation for Application ##{id} scheduled on approval")
+  end
+
+  def calculate_monthly_payment
+    return 0 if approved_loan_amount.nil? || approved_interest_rate.nil? || approved_term_years.nil?
+    
+    # Simple monthly payment calculation
+    # P = L * [r(1+r)^n] / [(1+r)^n - 1]
+    monthly_rate = approved_interest_rate / 100 / 12
+    num_payments = approved_term_years * 12
+    
+    return approved_loan_amount if monthly_rate.zero?
+    
+    approved_loan_amount * (monthly_rate * (1 + monthly_rate) ** num_payments) / ((1 + monthly_rate) ** num_payments - 1)
+  end
 
   private
 

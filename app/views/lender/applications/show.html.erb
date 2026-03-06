@@ -1,0 +1,397 @@
+<div class="application-review">
+  <div class="review-header">
+    <%= link_to "← Back to Dashboard", lender_applications_path, class: "breadcrumb-link" %>
+    <h1>Application Review</h1>
+    <div class="status-badge status-<%= @application.status %>">
+      <%= @application.status.humanize %>
+    </div>
+  </div>
+
+  <div class="review-grid">
+    <!-- Application Details -->
+    <div class="review-section">
+      <h2>Applicant Information</h2>
+      
+      <div class="detail-group">
+        <label>Name</label>
+        <p><%= @application.user.full_name %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Email</label>
+        <p><%= @application.user.email %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Age</label>
+        <p><%= @application.borrower_age %> years old</p>
+      </div>
+
+      <div class="detail-group">
+        <label>Region</label>
+        <p><%= @application.region.upcase %></p>
+      </div>
+    </div>
+
+    <!-- Property Details -->
+    <div class="review-section">
+      <h2>Property Details</h2>
+      
+      <div class="detail-group">
+        <label>Address</label>
+        <p><%= @application.address %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Property Type</label>
+        <p><%= @application.property_type %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Property Value</label>
+        <p class="highlight"><%= number_to_currency(@application.home_value) %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Ownership Status</label>
+        <p><%= @application.ownership_status.humanize %></p>
+      </div>
+
+      <% if @application.has_existing_mortgage %>
+        <div class="detail-group">
+          <label>Existing Mortgage</label>
+          <p><%= number_to_currency(@application.existing_mortgage_amount) %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Loan Request Details -->
+    <div class="review-section">
+      <h2>Loan Request</h2>
+      
+      <div class="detail-group">
+        <label>Requested Monthly Income</label>
+        <p class="highlight"><%= number_to_currency(@application.income_payout_term.to_f * 1000) if @application.income_payout_term %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Loan Term</label>
+        <p><%= @application.loan_term %> years</p>
+      </div>
+
+      <div class="detail-group">
+        <label>Growth Rate Assumption</label>
+        <p><%= number_to_percentage(@application.growth_rate) if @application.growth_rate %></p>
+      </div>
+
+      <div class="detail-group">
+        <label>Credit Score</label>
+        <p><%= @application.credit_score || "Not provided" %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approval Form -->
+  <% if @application.status_processing? %>
+    <div class="approval-section">
+      <h2>Approval Decision</h2>
+
+      <%= form_with(model: [:lender, @application], method: :post, local: true) do |form| %>
+        <div class="form-group">
+          <label>Approved Loan Amount</label>
+          <%= form.number_field :loan_amount, 
+              step: 100, 
+              value: @application.home_value, 
+              min: 100_000, 
+              max: @application.home_value,
+              required: true,
+              class: "form-control" %>
+          <small>Maximum: <%= number_to_currency(@application.home_value) %></small>
+        </div>
+
+        <div class="form-group">
+          <label>Interest Rate (%)</label>
+          <%= form.number_field :interest_rate, 
+              step: 0.001, 
+              value: 3.5, 
+              min: 0, 
+              max: 10,
+              required: true,
+              class: "form-control" %>
+          <small>e.g., 3.5 for 3.5% annually</small>
+        </div>
+
+        <div class="form-group">
+          <label>Loan Term (Years)</label>
+          <%= form.number_field :term_years, 
+              step: 1, 
+              value: @application.loan_term || 10, 
+              min: 5, 
+              max: 30,
+              required: true,
+              class: "form-control" %>
+        </div>
+
+        <div class="approval-actions">
+          <%= form.submit "✓ Approve Application", 
+              class: "btn btn-success btn-lg",
+              action: "approve" %>
+          
+          <%= form.submit "✗ Reject Application", 
+              class: "btn btn-danger btn-lg",
+              action: "reject",
+              data: { confirm: "Are you sure? This will require a rejection reason." } %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Rejection Form -->
+    <div class="rejection-section" style="display: none;" id="rejection-form">
+      <%= form_with(model: [:lender, @application], method: :post, action: :reject, local: true) do |form| %>
+        <h3>Rejection Reason</h3>
+        <div class="form-group">
+          <%= form.text_area :reason, 
+              placeholder: "Enter reason for rejection...",
+              rows: 4,
+              required: true,
+              class: "form-control" %>
+        </div>
+        <div class="form-actions">
+          <%= form.submit "Confirm Rejection", class: "btn btn-danger" %>
+          <button type="button" class="btn btn-secondary" onclick="toggleRejectionForm()">Cancel</button>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="application-closed">
+      <p>This application has already been processed and cannot be modified.</p>
+      <% if @application.accepted? %>
+        <p class="success-message">✓ Approved on <%= @application.updated_at.strftime("%B %d, %Y") %></p>
+        <p>Loan Amount: <%= number_to_currency(@application.approved_loan_amount) %></p>
+        <p>Interest Rate: <%= number_to_percentage(@application.approved_interest_rate) %></p>
+        <%= link_to "View Contract", contract_path(@application.contract), class: "btn btn-primary" if @application.contract %>
+      <% elsif @application.rejected? %>
+        <p class="error-message">✗ Rejected on <%= @application.updated_at.strftime("%B %d, %Y") %></p>
+        <p><strong>Reason:</strong> <%= @application.rejected_reason %></p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .application-review {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .review-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+    padding-bottom: 1rem;
+  }
+
+  .breadcrumb-link {
+    color: var(--color-primary, #0066cc);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .review-header h1 {
+    margin: 0.5rem 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+  }
+
+  .status-processing {
+    background-color: #ff9800;
+  }
+
+  .status-accepted {
+    background-color: #4caf50;
+  }
+
+  .status-rejected {
+    background-color: #f44336;
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .review-section {
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .review-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-primary, #0066cc);
+    padding-bottom: 0.5rem;
+  }
+
+  .detail-group {
+    margin-bottom: 1rem;
+  }
+
+  .detail-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text-secondary, #666);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-group p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text, #333);
+  }
+
+  .highlight {
+    font-weight: 700;
+    color: var(--color-primary, #0066cc);
+    font-size: 1.25rem;
+  }
+
+  .approval-section {
+    background: white;
+    border: 2px solid var(--color-primary, #0066cc);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .approval-section h2 {
+    margin-top: 0;
+    color: var(--color-primary, #0066cc);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text, #333);
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--color-primary, #0066cc);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+
+  .form-group small {
+    display: block;
+    color: var(--color-text-secondary, #999);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  .approval-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-success {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  .btn-success:hover {
+    background-color: #45a049;
+  }
+
+  .btn-danger {
+    background-color: #f44336;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #da190b;
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary, #0066cc);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-dark, #0052a3);
+  }
+
+  .btn-secondary {
+    background-color: #999;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #777;
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .application-closed {
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .success-message {
+    color: #4caf50;
+    font-weight: 600;
+  }
+
+  .error-message {
+    color: #f44336;
+    font-weight: 600;
+  }
+</style>
