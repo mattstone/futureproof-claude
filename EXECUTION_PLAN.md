@@ -191,68 +191,68 @@
 - [x] Commit (903d4eb)
 
 #### Step 2.2b — Contracts: US Mortgage + Disclosures
-- [ ] Create `app/views/legal/contracts/mortgage_contract_us.html.erb`
-- [ ] Include TILA/RESPA disclosures
-- [ ] Include non-recourse/NNEG clause
-- [ ] Include "loan proceeds not taxable" disclosure
-- [ ] Include state-specific sections (CA, FL, AZ, NY)
-- [ ] Commit
+- [x] Create `app/views/legal/contracts/mortgage_contract_us.html.erb`
+- [x] Include TILA/RESPA disclosures
+- [x] Include non-recourse/NNEG clause
+- [x] Include "loan proceeds not taxable" disclosure
+- [x] Include state-specific sections (CA, FL, AZ, NY)
+- [x] Commit (9f30b0a)
 
 #### Step 2.2c — Contracts: NZ + UK
-- [ ] Create NZ mortgage contract (CCCFA compliant, relationship property consent)
-- [ ] Create UK mortgage contract (MCOB compliant, ERC standards, IHT disclosure)
-- [ ] Both include NNEG clause
-- [ ] Commit
+- [x] Create NZ mortgage contract (CCCFA compliant, relationship property consent)
+- [x] Create UK mortgage contract (MCOB compliant, ERC standards, IHT disclosure)
+- [x] Both include NNEG clause
+- [x] Commit (9f30b0a)
 
 #### Step 2.2d — Beneficiary Letter Templates
-- [ ] Create `app/views/legal/beneficiary/` directory
-- [ ] AU template (no estate tax, CGT note, settlement process)
-- [ ] US template (step-up basis, NNEG, refinance option)
-- [ ] NZ template (no estate tax, relationship property note)
-- [ ] UK template (IHT implications, ERC settlement standards, RNRB note)
-- [ ] Commit
+- [x] Create `app/views/legal/beneficiary/` directory
+- [x] AU template (no estate tax, CGT note, settlement process)
+- [x] US template (step-up basis, NNEG, refinance option)
+- [x] NZ template (no estate tax, relationship property note)
+- [x] UK template (IHT implications, ERC settlement standards, RNRB note)
+- [x] Commit (9f30b0a)
 
 #### Step 2.2e — Privacy Policies + Terms
-- [ ] Create privacy policies for AU (Privacy Act), US (state laws), NZ (Privacy Act 2020), UK (GDPR)
-- [ ] Create customer terms for each region
-- [ ] Link from footer
-- [ ] Commit
+- [x] Create privacy policies for AU (Privacy Act), US (state laws), NZ (Privacy Act 2020), UK (GDPR)
+- [x] Create customer terms for each region
+- [x] Link from footer
+- [x] Commit (bc6d7f0)
 
-#### Step 2.3a — AI Chat: Models + Routing
-- [ ] Verify/create `ChatConversation`, `ChatMessage`, `ChatAgent` models
-- [ ] Create/update `AiAgentRouter` service with region-aware routing
-- [ ] 5 agent types: Onboarding, Loan Specialist, Legal, Technical Support, Operations
-- [ ] Write model tests
-- [ ] Commit
+#### Step 2.3a — AI Chat: Models + Routing Service
+- [x] Verify/create `ChatConversation`, `ChatMessage`, `ChatAgent` models
+- [x] Create/update `AiAgentRouter` service with region-aware routing
+- [x] 5 agent types: Onboarding, Loan Specialist, Legal, Technical Support, Operations
+- [x] Write model tests
+- [x] Commit (5b42a49)
 
 #### Step 2.3b — AI Chat: UI + Stimulus
-- [ ] Create floating chat widget (bottom-right, all customer pages)
-- [ ] Stimulus controller for open/close, send message, display response
-- [ ] Mobile responsive (full-screen on mobile)
-- [ ] CSS in design_system.css (no inline styles)
-- [ ] Commit
+- [x] Create floating chat widget (bottom-right, all customer pages)
+- [x] Stimulus controller for open/close, send message, display response
+- [x] Mobile responsive (full-screen on mobile)
+- [x] CSS in design_system.css (no inline styles)
+- [x] Commit (5b42a49)
 
 #### Step 2.3c — AI Chat: Regional Awareness
-- [ ] Mock response dataset per agent type (20+ responses each)
-- [ ] Region-aware responses (AU legislation/currency, US legislation/currency, etc.)
-- [ ] Agents never expose portfolio details (Model B — consumer doesn't own it)
-- [ ] Log all conversations
-- [ ] Commit
+- [x] Mock response dataset per agent type (20+ responses each)
+- [x] Region-aware responses (AU legislation/currency, US legislation/currency, etc.)
+- [x] Agents never expose portfolio details (Model B — consumer doesn't own it)
+- [x] Log all conversations
+- [x] Commit (5b42a49)
 
 #### Step 2.4a — Agent Dashboard: Models + Seeds
-- [ ] Verify/create `AgentPerformance`, `AgentTask` models
-- [ ] Seed 8 agents (mix of AI + human, various roles)
-- [ ] Seed 50+ completed tasks with realistic timestamps
-- [ ] Seed performance metrics (resolution time, satisfaction, escalation rate)
-- [ ] Commit
+- [x] Verify/create `AgentPerformance`, `AgentTask` models
+- [x] Seed 8 agents (mix of AI + human, various roles)
+- [x] Seed 50+ completed tasks with realistic timestamps
+- [x] Seed performance metrics (resolution time, satisfaction, escalation rate)
+- [x] Commit (f55b14c)
 
 #### Step 2.4b — Agent Dashboard: View + Live Updates
-- [ ] Create admin dashboard view with agent grid
-- [ ] Cards: status, tasks completed, avg resolution time, NPS
-- [ ] Stimulus controller for auto-refresh (every 10 seconds)
-- [ ] Live activity stream (recent completions)
-- [ ] CSS status indicators (green/amber/red)
-- [ ] Commit
+- [x] Create admin dashboard view with agent grid
+- [x] Cards: status, tasks completed, avg resolution time, NPS
+- [x] Stimulus controller for auto-refresh (every 10 seconds)
+- [x] Live activity stream (recent completions)
+- [x] CSS status indicators (green/amber/red)
+- [x] Commit (f55b14c)
 
 ---
 
@@ -435,8 +435,8 @@ Mark steps complete as they're done:
 ```
 Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [x] 0.6
 Phase 1: [x] 1.1  [x] 1.2  [x] 1.3a [x] 1.3b [x] 1.3c
-Phase 2: [x] 2.1a [x] 2.1b [x] 2.1c [x] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
-         [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
+Phase 2: [x] 2.1a [x] 2.1b [x] 2.1c [x] 2.2a [x] 2.2b [x] 2.2c [x] 2.2d [x] 2.2e
+         [x] 2.3a [x] 2.3b [x] 2.3c [x] 2.4a [x] 2.4b
 Phase 3: [x] 3.1a [x] 3.1b [x] 3.2a [x] 3.2b [x] 3.3
 Phase 4: [ ] 4.1a [ ] 4.1b [ ] 4.1c [ ] 4.1d [ ] 4.2a [ ] 4.2b [ ] 4.2c [ ] 4.3
 Phase 5: [ ] 5.1a [ ] 5.1b [ ] 5.3
