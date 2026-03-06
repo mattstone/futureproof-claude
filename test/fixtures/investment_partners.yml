@@ -1,0 +1,19 @@
+futureproof_capital_au:
+  name: "FutureProof Capital AU"
+  region: "au"
+  licence_number: "IP-AU-001"
+  aum: 50000000.00
+  portfolio_strategy: "balanced_etf"
+  fee_rate: 1.25
+  status: "active"
+  wholesale_funder: one
+
+futureproof_capital_us:
+  name: "FutureProof Capital US"
+  region: "us"
+  licence_number: "IP-US-001"
+  aum: 100000000.00
+  portfolio_strategy: "growth_etf"
+  fee_rate: 1.50
+  status: "active"
+  wholesale_funder: one

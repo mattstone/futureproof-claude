@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_113834) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_114236) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -489,6 +489,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_113834) do
     t.index ["name"], name: "index_funder_pools_on_name"
     t.index ["wholesale_funder_id", "name"], name: "index_funder_pools_on_wholesale_funder_id_and_name", unique: true
     t.index ["wholesale_funder_id"], name: "index_funder_pools_on_wholesale_funder_id"
+  end
+
+  create_table "investment_partners", force: :cascade do |t|
+    t.decimal "aum", precision: 15, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.decimal "fee_rate", precision: 5, scale: 2, default: "0.0"
+    t.string "licence_number", null: false
+    t.string "name", null: false
+    t.string "portfolio_strategy"
+    t.string "region", null: false
+    t.string "status", default: "active"
+    t.datetime "updated_at", null: false
+    t.bigint "wholesale_funder_id", null: false
+    t.index ["licence_number"], name: "index_investment_partners_on_licence_number", unique: true
+    t.index ["region"], name: "index_investment_partners_on_region"
+    t.index ["status"], name: "index_investment_partners_on_status"
+    t.index ["wholesale_funder_id"], name: "index_investment_partners_on_wholesale_funder_id"
   end
 
   create_table "lender_clause_versions", force: :cascade do |t|
@@ -1057,6 +1074,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_113834) do
   add_foreign_key "funder_pool_versions", "funder_pools"
   add_foreign_key "funder_pool_versions", "users"
   add_foreign_key "funder_pools", "wholesale_funders"
+  add_foreign_key "investment_partners", "wholesale_funders"
   add_foreign_key "lender_clause_versions", "lender_clauses"
   add_foreign_key "lender_clause_versions", "users"
   add_foreign_key "lender_clauses", "lenders"

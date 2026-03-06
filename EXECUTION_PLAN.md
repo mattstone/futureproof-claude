@@ -87,13 +87,12 @@
 - [x] Run tests, commit (72a74f6)
 
 #### Step 0.3 — ReferralPartner Model
-- [ ] Generate model: `ReferralPartner` (name, company, licence_number, region, commission_rate, status, contact_email, phone)
-- [ ] Add `belongs_to :lender`
-- [ ] Add `has_many :applications` (add `referral_partner_id` to applications if missing)
-- [ ] Add validations (name, region, licence_number)
-- [ ] Add PaperTrail tracking
-- [ ] Write model test
-- [ ] Run tests, commit
+- [x] Generated ReferralPartner model with all fields
+- [x] belongs_to :lender, has_many :applications (added referral_partner_id FK to applications)
+- [x] Validations: name, region, licence_number (unique per region), commission_rate, email format
+- [x] PaperTrail + InputSanitization enabled
+- [x] 12 model tests passing
+- [x] Commit (e3c760d)
 
 #### Step 0.4 — InvestmentPartner Model
 - [ ] Generate model: `InvestmentPartner` (name, region, licence_number, aum, portfolio_strategy, fee_rate, status)
@@ -437,7 +436,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [x] 0.1  [x] 0.2  [ ] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
