@@ -436,7 +436,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [ ] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [ ] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
