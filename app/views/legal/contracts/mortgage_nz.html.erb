@@ -1,1 +1,112 @@
-<%= render 'legal/contracts/mortgage_shared', region: 'nz' %>
+<% details = legal_details('nz') %>
+<% config = RegionHelper.region_config('nz') %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Equity Preservation Mortgage Contract</h1>
+    <p class="legal-jurisdiction">New Zealand — CCCFA Compliant</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+    <p class="legal-regulated">Regulated by: Financial Markets Authority (FMA), Commerce Commission</p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. PARTIES</h2>
+    <p><strong>1.1 The Lender:</strong> [Lender Name], registered under [Companies Act 1993 / CCCFA], of [Address] (the "<strong>Lender</strong>").</p>
+    <p><strong>1.2 The Borrower:</strong> [Borrower Full Legal Name], of [Borrower Address], New Zealand resident (the "<strong>Borrower</strong>").</p>
+
+    <h2>2. DEFINITIONS</h2>
+    <p><strong>"EPM"</strong> means Equity Preservation Mortgage, where loan proceeds are invested to generate income while preserving the Borrower's equity.</p>
+    <p><strong>"Property"</strong> means the real property (land and buildings) located at [Address], registered under [Land Registration Act 2017], being security for this mortgage.</p>
+    <p><strong>"Loan Amount"</strong> means NZ$[Amount] advanced under this contract.</p>
+    <p><strong>"NNEG"</strong> means No Negative Equity Guarantee, protecting the Borrower from owing more than property value.</p>
+
+    <h2>3. LOAN TERMS & CCCFA DISCLOSURE</h2>
+    <p><strong>3.1 Credit Contract:</strong> This credit contract is governed by the Credit Contracts and Consumer Finance Act 2003 (CCCFA).</p>
+    <p><strong>3.2 Key Information Summary (KIS):</strong> A Key Information Summary has been provided separately, containing:</p>
+    <ul>
+      <li>(a) Establishment fee: NZ$[Amount];</li>
+      <li>(b) Annual percentage rate (APR): [X]%;</li>
+      <li>(c) Monthly payment: NZ$[Amount];</li>
+      <li>(d) Total amount to be paid: NZ$[Amount].</li>
+    </ul>
+    <p><strong>3.3</strong> The Loan Amount shall not exceed 80% of independently valued property value.</p>
+    <p><strong>3.4</strong> Minimum property value: NZ$400,000.</p>
+    <p><strong>3.5</strong> Borrower must be aged 55+ or qualify under alternative criteria.</p>
+
+    <h2>4. EQUITY PRESERVATION & NNEG</h2>
+    <p><strong>4.1</strong> The EPM preserves the Borrower's equity. All interest payments are made from investment returns.</p>
+    <p><strong>4.2 NNEG Protection:</strong> The Borrower is protected from owing more than the property value. Insurance covers any shortfall in downturns.</p>
+
+    <h2>5. RELATIONSHIP PROPERTY CONSENT & DISCLOSURE</h2>
+    <p><strong>5.1 Relationship Property Act 1976:</strong> If the Property was acquired during a relationship (marriage, civil union, de facto), the Borrower confirms:</p>
+    <ul>
+      <li>(a) Consent of spouse/partner has been obtained (if required);</li>
+      <li>(b) The Property is registered in the Borrower's name or jointly;</li>
+      <li>(c) This mortgage does not contravene any relationship property agreement.</li>
+    </ul>
+    <p><strong>5.2 Disclosure:</strong> This EPM may be treated as relationship property and subject to equal division upon relationship dissolution. The Borrower should seek legal advice.</p>
+
+    <h2>6. INVESTMENT STRUCTURE & INCOME</h2>
+    <p><strong>6.1</strong> Approximately 30% allocated to annuity (guaranteed income), 70% to index funds (diversified equity ETFs).</p>
+    <p><strong>6.2</strong> Monthly Income: approximately 1.5% per annum of property value, paid monthly in arrears.</p>
+    <p><strong>6.3 Tax Treatment:</strong> May be treated as capital drawdown or ordinary income. The Borrower should consult a tax advisor and obtain IRD guidance.</p>
+
+    <h2>7. INTEREST & PAYMENTS</h2>
+    <p><strong>7.1</strong> Interest rate: [X]% per annum (disclosed in KIS).</p>
+    <p><strong>7.2</strong> All interest paid from Investment Portfolio. Borrower not personally liable for interest.</p>
+    <p><strong>7.3</strong> Quarterly statements provided.</p>
+
+    <h2>8. INSURANCE & PROTECTION</h2>
+    <p><strong>8.1</strong> Upfront insurance premium: 2% of Loan Amount, included in loan balance.</p>
+    <p><strong>8.2</strong> Pool Coverage insurance provides NNEG protection and income guarantee.</p>
+
+    <h2>9. BORROWER OBLIGATIONS</h2>
+    <p><strong>9.1</strong> The Borrower shall:</p>
+    <ul>
+      <li>(a) Maintain property in good condition;</li>
+      <li>(b) Maintain property insurance;</li>
+      <li>(c) Pay all rates, taxes, levies when due;</li>
+      <li>(d) Not create additional security without Lender consent.</li>
+    </ul>
+
+    <h2>10. SALE & DEFAULT</h2>
+    <p><strong>10.1 Right to Sell:</strong> Borrower may sell at any time without penalty. NNEG covers any shortfall.</p>
+    <p><strong>10.2 Default:</strong> Default occurs if Borrower fails to maintain insurance, allow property to deteriorate, or creates additional liens without consent. Upon default and after [60] days' notice, Lender may enforce security.</p>
+
+    <h2>11. DISPUTES & COMPLAINTS</h2>
+    <p><strong>11.1</strong> Complaints to the Lender's internal process first (30 days to respond).</p>
+    <p><strong>11.2</strong> If unresolved, complaints may be referred to the Financial Dispute Resolution Scheme (FDRS) or Ombudsman.</p>
+
+    <h2>12. CCCFA COMPLIANCE</h2>
+    <p><strong>12.1</strong> This contract complies with the Credit Contracts and Consumer Finance Act 2003, including responsible lending obligations.</p>
+    <p><strong>12.2</strong> The Lender has assessed the Borrower's ability to repay and is satisfied this loan is not unsuitable.</p>
+
+    <h2>13. PRIVACY & CONFIDENTIALITY</h2>
+    <p><strong>13.1</strong> Personal information is protected under the Privacy Act 2020.</p>
+
+    <h2>14. GOVERNING LAW</h2>
+    <p><strong>14.1</strong> This contract is governed by New Zealand law.</p>
+    <p><strong>14.2</strong> The parties submit to the jurisdiction of New Zealand courts.</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by LENDER:</strong></p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by BORROWER:</strong></p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .legal-document { font-family: 'Georgia', serif; max-width: 900px; margin: 0 auto; padding: 2rem; line-height: 1.8; color: #333; }
+  .legal-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .legal-header h1 { font-size: 1.8rem; margin: 0.5rem 0; }
+  .legal-body h2 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.8rem; font-weight: bold; }
+  .legal-body p { margin-bottom: 0.6rem; }
+  .legal-signatures { margin-top: 3rem; border-top: 2px solid #333; padding-top: 1.5rem; }
+  .legal-signature-block { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; background-color: #f9f9f9; }
+</style>

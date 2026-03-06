@@ -1,1 +1,190 @@
-<%= render 'legal/contracts/mortgage_shared', region: 'us' %>
+<% details = legal_details('us') %>
+<% config = RegionHelper.region_config('us') %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Equity Preservation Mortgage Contract</h1>
+    <p class="legal-jurisdiction">United States — TILA/RESPA Compliant</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+    <p class="legal-regulated">Regulated by: Federal Reserve, CFPB, State Licensing Authorities</p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. TILA DISCLOSURE STATEMENT</h2>
+    <p><strong>1.1 Truth in Lending Act (TILA) Disclosure:</strong> This disclosure is provided in compliance with the Truth in Lending Act (15 U.S.C. § 1601 et seq.) and Regulation Z (12 CFR Part 1026).</p>
+    <p><strong>Finance Charge:</strong> $[Amount]</p>
+    <p><strong>Annual Percentage Rate (APR):</strong> [X]%</p>
+    <p><strong>Amount Financed:</strong> $[Amount]</p>
+    <p><strong>Total of Payments:</strong> $[Amount]</p>
+    <p><strong>Payment Schedule:</strong> [XX] equal monthly payments of $[Amount], beginning [Date]</p>
+    <p><strong>Prepayment:</strong> There is [no penalty / a penalty] for early repayment.</p>
+
+    <h2>2. RESPA DISCLOSURE & LOAN ESTIMATE</h2>
+    <p><strong>2.1 RESPA Compliance:</strong> This transaction complies with the Real Estate Settlement Procedures Act (RESPA) (12 U.S.C. § 2601 et seq.) and Regulation X (12 CFR Part 1024).</p>
+    <p><strong>2.2 Closing Disclosure:</strong> A Closing Disclosure (Form 1003) has been provided separately, setting forth all fees, costs, and loan terms.</p>
+    <p><strong>2.3 Loan Estimate:</strong> The initial Loan Estimate provided is binding and reflects good-faith estimates of all costs.</p>
+    <p><strong>2.4 Settlement Services:</strong> All settlement services (title insurance, appraisal, flood certification, etc.) have been disclosed. The Borrower has the right to shop for these services and select providers.</p>
+
+    <h2>3. PARTIES</h2>
+    <p><strong>3.1 The Lender:</strong> [Lender Name], licensed in [State], Loan Officer Licence [XXXX], NMLS ID [#####], of [Address] (the "<strong>Lender</strong>").</p>
+    <p><strong>3.2 The Borrower:</strong> [Borrower Full Legal Name], Social Security Number [***-**-XXXX], of [Borrower Address] (the "<strong>Borrower</strong>").</p>
+    <p><strong>3.3 The Platform:</strong> FutureProof Financial Inc., licensed under [State] law, operating the FutureProof EPM Platform (the "<strong>Platform</strong>").</p>
+
+    <h2>4. DEFINITIONS</h2>
+    <p><strong>"EPM"</strong> means Equity Preservation Mortgage, a non-traditional mortgage where loan proceeds are invested to generate income while preserving equity.</p>
+    <p><strong>"Property"</strong> means the real property located at [Property Address], [City, State, ZIP], being the security for this mortgage.</p>
+    <p><strong>"Loan Amount"</strong> means the principal sum of $[Amount] advanced under this contract.</p>
+    <p><strong>"NNEG"</strong> means No Negative Equity Guarantee, protecting the Borrower from owing more than the property value.</p>
+
+    <h2>5. LOAN TERMS</h2>
+    <p><strong>5.1</strong> The Lender agrees to advance the Loan Amount to the Borrower, secured by a first mortgage (Deed of Trust in [State/States]) on the Property.</p>
+    <p><strong>5.2</strong> The Loan Amount shall not exceed 80% of the independently appraised value of the Property.</p>
+    <p><strong>5.3</strong> Minimum property value for eligibility: $500,000.</p>
+    <p><strong>5.4</strong> The Borrower must be aged 55 or older (or meet alternative qualification criteria).</p>
+    <p><strong>5.5</strong> The Borrower must be a U.S. citizen or permanent resident.</p>
+
+    <h2>6. EQUITY PRESERVATION GUARANTEE & NNEG</h2>
+    <p><strong>6.1 Equity Preservation:</strong> The EPM preserves the Borrower's equity throughout the term. All interest payments are made from investment returns, not the Borrower's personal funds.</p>
+    <p><strong>6.2 No Negative Equity Guarantee (NNEG):</strong> This mortgage is issued with NNEG protection:</p>
+    <ul>
+      <li>(a) The Borrower's obligation is limited to the property value. The estate cannot owe more than the property is worth.</li>
+      <li>(b) If property value falls below the mortgage debt (in sustained downturns), NNEG insurance activates.</li>
+      <li>(c) The Lender's insurance absorbs any shortfall. No deficit can be pursued against the Borrower or estate.</li>
+      <li>(d) This is a key feature distinguishing EPM from traditional reverse mortgages.</li>
+    </ul>
+
+    <h2>7. INVESTMENT STRUCTURE & INCOME GENERATION</h2>
+    <p><strong>7.1</strong> Approximately 30% of the Loan Amount is allocated to an annuity, providing guaranteed income. Approximately 70% is invested in diversified index funds (primarily U.S. equity ETFs).</p>
+    <p><strong>7.2</strong> Monthly Income is calculated as approximately 1.5% per annum of the property value, paid monthly in arrears.</p>
+    <p><strong>7.3 Tax Treatment:</strong> Monthly Income may be treated as capital drawdown (non-taxable return of principal) or ordinary income, depending on the investment structure. The Borrower should consult a tax advisor. The Platform will provide annual 1099 statements as applicable.</p>
+
+    <h2>8. INTEREST RATE & PAYMENTS</h2>
+    <p><strong>8.1</strong> The interest rate is [X]% per annum (fixed / adjustable), disclosed in the Loan Estimate and Closing Disclosure.</p>
+    <p><strong>8.2</strong> All interest payments are made from the Investment Portfolio. The Borrower is not personally liable for interest payments.</p>
+    <p><strong>8.3</strong> Quarterly statements will show all transactions, Portfolio balance, and NNEG status.</p>
+
+    <h2>9. INSURANCE & MORTGAGE INSURANCE PREMIUM (MIP)</h2>
+    <p><strong>9.1 Loan-Level Price Adjustment (LLPA):</strong> An upfront insurance premium of 2% of the Loan Amount has been included in the loan balance.</p>
+    <p><strong>9.2 Pool Coverage:</strong> Additional insurance protection ensures Monthly Income is maintained even during market downturns. The Lender's insurance claim process is automatic.</p>
+
+    <h2>10. BORROWER ACKNOWLEDGMENTS & CONSUMER DISCLOSURES</h2>
+    <p><strong>10.1 Non-Traditional Mortgage:</strong> The Borrower acknowledges that this is a non-traditional mortgage with unique features:</p>
+    <ul>
+      <li>(a) Debt may not decline as payments are made (opposite of traditional mortgages);</li>
+      <li>(b) If property value declines, NNEG protection limits the Borrower's obligation;</li>
+      <li>(c) Monthly income is provided, creating a monthly cash flow unlike traditional mortgages;</li>
+      <li>(d) Investment performance directly affects income and equity.</li>
+    </ul>
+    <p><strong>10.2 Right to Counsel:</strong> The Borrower has been advised to consult independent legal, financial, and tax counsel before signing.</p>
+    <p><strong>10.3 Financial Counseling:</strong> HUD-approved counseling for reverse mortgages is available; the Borrower may pursue this for additional guidance.</p>
+
+    <h2>11. BORROWER'S OBLIGATIONS</h2>
+    <p><strong>11.1</strong> The Borrower shall:</p>
+    <ul>
+      <li>(a) Maintain the Property in good condition;</li>
+      <li>(b) Maintain homeowners insurance (minimum coverage to replacement value);</li>
+      <li>(c) Pay all property taxes and HOA fees when due;</li>
+      <li>(d) Not create additional liens without Lender consent;</li>
+      <li>(e) Notify the Lender immediately if the Property is no longer the Borrower's principal residence.</li>
+    </ul>
+
+    <h2>12. STATE-SPECIFIC DISCLOSURES</h2>
+    <p><strong>12.1 California (if applicable):</strong> This transaction complies with California Residential Mortgage Lending Act (Division 1.6 of the California Finance Code). Borrower has the right to cancel within 3 days of signing.</p>
+    <p><strong>12.2 Florida (if applicable):</strong> This transaction complies with Florida Statute Chapter 655. No assignment of the contract shall occur without the Borrower's written consent.</p>
+    <p><strong>12.3 New York (if applicable):</strong> This transaction complies with New York Real Property Law Article 16. Borrower has right to rescind within 3 business days.</p>
+    <p><strong>12.4 Arizona (if applicable):</strong> This transaction complies with Arizona Revised Statutes § 34-222. Borrower has right to cancel within 3 business days.</p>
+
+    <h2>13. SALE OF PROPERTY</h2>
+    <p><strong>13.1 Right to Sell:</strong> The Borrower may sell the Property at any time without penalty or restriction.</p>
+    <p><strong>13.2 Sale Proceeds:</strong> Net proceeds after sale costs are applied as follows: (a) Lender's loan balance; (b) any IRS liens; (c) remaining to Borrower or estate.</p>
+    <p><strong>13.3 NNEG & Sale:</strong> If the property sells for less than the loan balance, NNEG insurance covers the shortfall. No deficiency judgment may be pursued against the Borrower or estate.</p>
+
+    <h2>14. DEFAULT & REMEDIES</h2>
+    <p><strong>14.1</strong> Default occurs if the Borrower:</p>
+    <ul>
+      <li>(a) Fails to maintain property insurance;</li>
+      <li>(b) Allows property taxes to become delinquent;</li>
+      <li>(c) Creates additional liens without consent;</li>
+      <li>(d) No longer occupies the Property as principal residence (unless approved);</li>
+      <li>(e) Provides false information in the application.</li>
+    </ul>
+    <p><strong>14.2</strong> Upon default, after providing written notice and [60] days to cure, the Lender may exercise the power of sale via [judicial / non-judicial] foreclosure, depending on state law.</p>
+
+    <h2>15. COOLING-OFF PERIOD & RESCISSION</h2>
+    <p><strong>15.1 Right to Rescind (TILA Rescission Right):</strong> Certain transactions may provide a right to rescind within 3 business days of the signing date (15 U.S.C. § 1635). The Borrower will receive written notice of this right.</p>
+    <p><strong>15.2</strong> To rescind, the Borrower must provide written notice to the Lender before the rescission period expires.</p>
+
+    <h2>16. COMPLAINT RESOLUTION</h2>
+    <p><strong>16.1</strong> Complaints should be directed to the Lender's compliance department.</p>
+    <p><strong>16.2</strong> If unresolved, complaints may be filed with the Consumer Financial Protection Bureau (CFPB) at www.consumerfinance.gov/complaint.</p>
+    <p><strong>16.3</strong> Complaints may also be filed with [State] Department of Financial Services.</p>
+
+    <h2>17. COMPLIANCE & DISCLOSURES</h2>
+    <p><strong>17.1 Equal Credit Opportunity Act (ECOA):</strong> The Borrower has the right to credit without discrimination based on protected characteristics (race, color, religion, national origin, sex, marital status, age, etc.).</p>
+    <p><strong>17.2 Fair Housing Act:</strong> The Lender does not discriminate on the basis of familial status, disability, or other protected classes.</p>
+    <p><strong>17.3 Dodd-Frank Act:</strong> This transaction complies with qualified mortgage standards and ability-to-repay requirements as applicable.</p>
+    <p><strong>17.4 GLBA & Privacy:</strong> Personal information is protected under the Gramm-Leach-Bliley Act (GLBA) and the Lender's Privacy Policy.</p>
+
+    <h2>18. GOVERNING LAW</h2>
+    <p><strong>18.1</strong> This contract is governed by the laws of [State], without regard to conflict of law principles.</p>
+    <p><strong>18.2</strong> The parties consent to jurisdiction in [State/Federal] courts.</p>
+
+    <h2>19. EXECUTION</h2>
+    <p>Executed on this [Day] day of [Month], [Year].</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by LENDER:</strong></p>
+        <p>Name: ___________________________   Title: ___________________________</p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by BORROWER:</strong></p>
+        <p>Name: ___________________________</p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .legal-document {
+    font-family: 'Georgia', serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.8;
+    color: #333;
+  }
+  .legal-header {
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .legal-header h1 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+  }
+  .legal-body h2 {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: bold;
+  }
+  .legal-body p, .legal-body li {
+    margin-bottom: 0.6rem;
+  }
+  .legal-signatures {
+    margin-top: 3rem;
+    border-top: 2px solid #333;
+    padding-top: 1.5rem;
+  }
+  .legal-signature-block {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+  }
+</style>

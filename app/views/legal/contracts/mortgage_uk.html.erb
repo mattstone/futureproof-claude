@@ -1,1 +1,113 @@
-<%= render 'legal/contracts/mortgage_shared', region: 'uk' %>
+<% details = legal_details('uk') %>
+<% config = RegionHelper.region_config('uk') %>
+
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Equity Preservation Mortgage Contract</h1>
+    <p class="legal-jurisdiction">United Kingdom — FCA MCOB Compliant</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+    <p class="legal-regulated">Regulated by: Financial Conduct Authority (FCA), Prudential Regulation Authority (PRA)</p>
+  </div>
+
+  <div class="legal-body">
+    <h2>1. REGULATED MORTGAGE CONTRACT</h2>
+    <p><strong>1.1</strong> This is a regulated mortgage contract under Financial Services and Markets Act 2000 (FSMA) and FCA Handbook (MCOB).</p>
+    <p><strong>1.2 Product Information Document (PID):</strong> A Product Information Document has been provided, containing key product features, costs, and risks.</p>
+
+    <h2>2. PARTIES</h2>
+    <p><strong>2.1 The Lender:</strong> [Lender Name], FCA Authorisation Number [XXXXXX], of [Address] (the "<strong>Lender</strong>").</p>
+    <p><strong>2.2 The Borrower:</strong> [Borrower Full Legal Name], of [Borrower Address], UK resident (the "<strong>Borrower</strong>").</p>
+
+    <h2>3. DEFINITIONS & LOAN TERMS</h2>
+    <p><strong>"EPM"</strong> means Equity Preservation Mortgage, where loan proceeds are invested to generate income while preserving equity.</p>
+    <p><strong>"Property"</strong> means the freehold / leasehold property at [Address], [Postcode], with [XX] years remaining on lease (if leasehold), registered at HM Land Registry under [Title Number].</p>
+    <p><strong>"Loan Amount"</strong> means £[Amount] advanced.</p>
+    <p><strong>"NNEG"</strong> means No Negative Equity Guarantee protecting the Borrower from owing more than property value.</p>
+
+    <h2>4. MORTGAGE TERMS</h2>
+    <p><strong>4.1</strong> Loan Amount shall not exceed 80% of independently appraised property value.</p>
+    <p><strong>4.2</strong> Minimum property value: £250,000.</p>
+    <p><strong>4.3</strong> Borrower must be aged 55+ (or meet alternative criteria).</p>
+    <p><strong>4.4</strong> Interest rate: [X]% (fixed / variable, disclosed in Mortgage Illustration).</p>
+    <p><strong>4.5</strong> Term: [XX] years from [date].</p>
+
+    <h2>5. EQUITY PRESERVATION & NNEG</h2>
+    <p><strong>5.1</strong> The EPM preserves the Borrower's equity. All interest payments are made from investment returns, not the Borrower's personal funds.</p>
+    <p><strong>5.2 NNEG Protection:</strong> The Borrower is protected from negative equity. If property value falls below mortgage debt, insurance covers the shortfall. The Borrower's obligation is limited to property value.</p>
+
+    <h2>6. INVESTMENT STRUCTURE & INCOME</h2>
+    <p><strong>6.1</strong> Approximately 30% allocated to guaranteed annuity, 70% to diversified equity index funds (primarily UK and global equities).</p>
+    <p><strong>6.2</strong> Monthly Income: approximately 1.5% per annum of property value.</p>
+    <p><strong>6.3 Tax Treatment:</strong> May be treated as capital drawdown (non-taxable) or income. The Borrower should consult a tax advisor and HMRC.</p>
+
+    <h2>7. INTEREST & PAYMENTS</h2>
+    <p><strong>7.1</strong> All interest paid from Investment Portfolio. Borrower not personally liable for interest.</p>
+    <p><strong>7.2</strong> Quarterly statements showing Portfolio balance, interest, income, and NNEG status.</p>
+
+    <h2>8. INSURANCE & PROTECTION</h2>
+    <p><strong>8.1</strong> Upfront insurance premium: 2% of Loan Amount, included in loan balance.</p>
+    <p><strong>8.2</strong> Pool Coverage insurance ensures income guarantee and NNEG protection.</p>
+
+    <h2>9. CONSUMER PROTECTION & ICOB RULES</h2>
+    <p><strong>9.1 Mortgage Illustration:</strong> A Mortgage Illustration has been provided showing estimated interest, monthly payments, and total repayable amount.</p>
+    <p><strong>9.2 MIPD (Mortgage Insurance Product Information Document):</strong> A separate MIPD discloses insurance terms, risks, and claims process.</p>
+    <p><strong>9.3 Arrears & Possession:</strong> If arrears occur [60] days notice must be given before possession proceedings.</p>
+    <p><strong>9.4 Financial Difficulty:</strong> If the Borrower experiences financial difficulty, contact the Lender's Collections team. FCA rules require forbearance and reasonable alternatives before enforcement.</p>
+
+    <h2>10. PROPERTY & MAINTENANCE</h2>
+    <p><strong>10.1</strong> The Borrower shall:</p>
+    <ul>
+      <li>(a) Maintain property insurance (minimum rebuild cost);</li>
+      <li>(b) Keep property in good condition;</li>
+      <li>(c) Pay all council tax, ground rent, service charges when due;</li>
+      <li>(d) Not create additional security without Lender consent.</li>
+    </ul>
+
+    <h2>11. INHERITANCE TAX IMPACT & ESTATE PLANNING</h2>
+    <p><strong>11.1 IHT Disclosure:</strong> The Borrower is advised that the outstanding mortgage debt and estate value may affect Inheritance Tax (IHT) calculations.</p>
+    <p><strong>11.2</strong> IHT is charged at 40% on estates above £325,000 threshold. The estate value (property + investments - mortgage) should be considered in tax planning.</p>
+    <p><strong>11.3 Recommendation:</strong> The Borrower should seek independent legal and tax advice on will preparation and trust structures to optimise inheritance tax position.</p>
+
+    <h2>12. EARLY REPAYMENT & SALE</h2>
+    <p><strong>12.1 Right to Sell:</strong> The Borrower may sell at any time without penalty. NNEG insurance covers any shortfall.</p>
+    <p><strong>12.2 Early Repayment:</strong> Early repayment permitted subject to [90] days' notice and any early repayment fees (disclosed in Mortgage Illustration).</p>
+
+    <h2>13. DEFAULT & ENFORCEMENT</h2>
+    <p><strong>13.1</strong> Default occurs if the Borrower fails to maintain insurance, let property deteriorate, create additional liens, or [XX].</p>
+    <p><strong>13.2</strong> Upon default, after [60] days' notice, the Lender may exercise the power of sale under Law of Property Act 1925.</p>
+
+    <h2>14. FCA COMPLAINTS & OMBUDSMAN</h2>
+    <p><strong>14.1</strong> Complaints should be directed to the Lender's complaints team (response required within 8 weeks).</p>
+    <p><strong>14.2</strong> If unresolved, complaints may be referred to the Financial Ombudsman Service (FOS) at www.financial-ombudsman.org.uk.</p>
+
+    <h2>15. REGULATORY COMPLIANCE</h2>
+    <p><strong>15.1 FCA MCOB:</strong> This mortgage complies with FCA Mortgages: Conduct of Business rules (MCOB).</p>
+    <p><strong>15.2 Consumer Credit Act 1974:</strong> Where applicable, this transaction complies with Consumer Credit Act standards.</p>
+    <p><strong>15.3 GDPR & Privacy:</strong> Personal data is protected under UK-GDPR and Data Protection Act 2018.</p>
+
+    <h2>16. GOVERNING LAW & JURISDICTION</h2>
+    <p><strong>16.1</strong> This contract is governed by English Law (or Scottish Law / Northern Ireland Law, as applicable).</p>
+    <p><strong>16.2</strong> The parties submit to the exclusive jurisdiction of [English / Scottish / Northern Ireland] courts.</p>
+
+    <div class="legal-signatures">
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by LENDER:</strong></p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+      <div class="legal-signature-block">
+        <p><strong>SIGNED by BORROWER:</strong></p>
+        <p>Signature: ___________________________   Date: ___________________________</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .legal-document { font-family: 'Georgia', serif; max-width: 900px; margin: 0 auto; padding: 2rem; line-height: 1.8; color: #333; }
+  .legal-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .legal-header h1 { font-size: 1.8rem; margin: 0.5rem 0; }
+  .legal-body h2 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.8rem; font-weight: bold; }
+  .legal-body p { margin-bottom: 0.6rem; }
+  .legal-signatures { margin-top: 3rem; border-top: 2px solid #333; padding-top: 1.5rem; }
+  .legal-signature-block { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; background-color: #f9f9f9; }
+</style>
