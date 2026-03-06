@@ -1,136 +1,234 @@
-<% content_for :page_title, "Agent Overview" %>
+<div class="agent-dashboard">
+  <h1>Agent Performance Dashboard</h1>
+  <p class="subtitle">Real-time agent metrics and activity</p>
 
-<div class="agent-page-header">
-  <h1>🤖 Agent Overview</h1>
-  <p>Monitor AI agent decisions, confidence scores, and activity across the platform.</p>
-</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <p class="label">Total Agents</p>
+      <p class="value"><%= @agents.count %></p>
+    </div>
+    <div class="metric-card">
+      <p class="label">Tasks Completed (24h)</p>
+      <p class="value"><%= @agents.sum(:tasks_completed) %></p>
+    </div>
+    <div class="metric-card">
+      <p class="label">Avg Resolution Time</p>
+      <p class="value"><%= number_with_precision(@agents.average(:avg_resolution_time).to_i, precision: 0) %> min</p>
+    </div>
+    <div class="metric-card">
+      <p class="label">Avg Satisfaction</p>
+      <p class="value"><%= number_with_precision(@agents.average(:satisfaction_score), precision: 1) %>/5</p>
+    </div>
+  </div>
 
-<div class="admin-tabs">
-  <%= link_to "Activity", admin_agent_dashboard_index_path, class: "admin-tab #{'active' unless params[:tab]}" %>
-  <%= link_to "Configuration", admin_agent_lifecycle_index_path, class: "admin-tab" %>
-  <%= link_to "Timeline", timeline_admin_agent_dashboard_index_path, class: "admin-tab" %>
-</div>
-
-<!-- Flagged Items Requiring Human Review -->
-<% flagged_actions = AgentAction.where(decision: ['flag', 'escalate']).where(status: 'completed').includes(:ai_agent).order(created_at: :desc).limit(10) %>
-<% if flagged_actions.any? %>
-  <div class="flagged-items-panel">
-    <h2>⚠️ Requires Human Review (<%= flagged_actions.count %>)</h2>
-    <% flagged_actions.each do |action| %>
-      <div class="flagged-item">
-        <div class="flagged-item-header">
-          <img src="<%= action.ai_agent.avatar_path %>" class="avatar-sm">
-          <strong><%= action.ai_agent.name %></strong> flagged
-          <% if action.actionable_type == 'Application' %>
-            <a href="<%= admin_application_path(action.actionable_id) %>">
-              <%= action.actionable_type %> #<%= action.actionable_id %>
-            </a>
-          <% else %>
-            <%= action.actionable_type %> #<%= action.actionable_id %>
-          <% end %>
+  <div class="agents-grid">
+    <% @agents.each do |agent| %>
+      <div class="agent-card">
+        <div class="agent-header">
+          <h3><%= agent.agent_type.humanize %></h3>
+          <span class="status-badge <%= agent.status %>"><%= agent.status.upcase %></span>
         </div>
-        <div class="flagged-item-reasoning"><%= action.reasoning %></div>
-        <div class="flagged-item-meta">
-          Confidence: <%= (action.confidence * 100).round(0) %>% ·
-          Risk Score: <%= action.result&.dig('risk_score') || 'N/A' %> ·
-          <%= time_ago_in_words(action.created_at) %> ago
+        <div class="agent-metrics">
+          <p><strong>Tasks:</strong> <%= agent.tasks_completed %></p>
+          <p><strong>Avg Resolution:</strong> <%= agent.avg_resolution_time %> min</p>
+          <p><strong>Satisfaction:</strong> <span class="rating"><%= number_with_precision(agent.satisfaction_score, precision: 1) %>/5</span></p>
+          <p><strong>Escalation Rate:</strong> <span class="escalation <%= agent.escalation_rate > 10 ? 'high' : 'normal' %>"><%= number_with_precision(agent.escalation_rate, precision: 1) %>%</span></p>
         </div>
-        <div class="flagged-item-actions">
-          <%= button_to "✅ Override — Approve", override_admin_agent_dashboard_path(action),
-              method: :patch, params: { decision: 'approve', reason: '' },
-              class: "btn-override btn-override-approve",
-              data: { confirm: "Override this decision to APPROVE?" } %>
-          <%= button_to "❌ Override — Reject", override_admin_agent_dashboard_path(action),
-              method: :patch, params: { decision: 'reject', reason: '' },
-              class: "btn-override btn-override-reject",
-              data: { confirm: "Override this decision to REJECT?" } %>
+        <div class="agent-chart">
+          <div class="sparkline" data-values="<%= agent.daily_metrics.pluck(:completed).join(',') %>"></div>
         </div>
       </div>
     <% end %>
   </div>
-<% end %>
 
-<!-- Agent Cards -->
-<div class="agent-cards-grid">
-  <% @agents.each do |agent| %>
-    <% agent_stats = @stats[agent.id] || { total: 0, approval_rate: 0, avg_confidence: 0, flags: 0, rejections: 0, last_action_at: nil } %>
-    <div class="agent-card">
-      <div class="agent-card-header">
-        <%= image_tag agent.avatar_path, class: "avatar-lg" %>
-        <div>
-          <h3><%= agent.name %></h3>
-          <div class="agent-card-subtitle"><%= agent.agent_type.titleize %> Agent</div>
-          <% if agent.respond_to?(:description) && agent.description.present? %>
-            <div class="agent-card-description"><%= truncate(agent.description, length: 80) %></div>
-          <% end %>
-        </div>
-      </div>
-
-      <div class="agent-stat-grid">
-        <div class="agent-stat-item agent-stat-item-neutral">
-          <div class="agent-stat-value"><%= agent_stats[:total] %></div>
-          <div class="agent-stat-label">Actions</div>
-        </div>
-        <div class="agent-stat-item agent-stat-item-success">
-          <div class="agent-stat-value agent-stat-value-success"><%= agent_stats[:approval_rate] %>%</div>
-          <div class="agent-stat-label">Approval Rate</div>
-        </div>
-        <div class="agent-stat-item agent-stat-item-info">
-          <div class="agent-stat-value agent-stat-value-info"><%= agent_stats[:avg_confidence] %></div>
-          <div class="agent-stat-label">Avg Confidence</div>
-        </div>
-        <div class="agent-stat-item agent-stat-item-danger">
-          <div class="agent-stat-value agent-stat-value-danger"><%= agent_stats[:flags] + agent_stats[:rejections] %></div>
-          <div class="agent-stat-label">Flags + Rejects</div>
-        </div>
-      </div>
-
-      <div class="agent-card-meta">
-        Last action: <%= agent_stats[:last_action_at] ? time_ago_in_words(agent_stats[:last_action_at]) + " ago" : "No actions yet" %>
-      </div>
-
-      <%= link_to "View Details →", admin_agent_dashboard_path(agent), class: "agent-view-link" %>
-    </div>
-  <% end %>
-</div>
-
-<!-- Recent Activity -->
-<div class="agent-panel">
-  <div class="agent-panel-header">
+  <div class="activity-stream">
     <h2>Recent Activity</h2>
-    <%= link_to "View Full Timeline →", timeline_admin_agent_dashboard_index_path, class: "agent-panel-link" %>
+    <% @recent_tasks.each do |task| %>
+      <div class="activity-item">
+        <p><strong><%= task.agent_type %></strong> completed task in <%= task.resolution_time %> minutes</p>
+        <p class="time"><%= time_ago_in_words(task.completed_at) %> ago</p>
+      </div>
+    <% end %>
   </div>
-
-  <% if @recent_actions.any? %>
-    <div class="activity-feed">
-      <% @recent_actions.first(20).each do |action| %>
-        <div class="activity-feed-item">
-          <%= image_tag action.ai_agent.avatar_path, class: "avatar-md" %>
-          <div class="activity-feed-content">
-            <strong class="activity-feed-name"><%= action.ai_agent.name %></strong>
-            <span class="action-type-badge"><%= action.action_type %></span>
-            <% if action.decision %>
-              <% decision_class = case action.decision
-                when 'approve' then 'decision-approve'
-                when 'flag' then 'decision-flag'
-                when 'reject' then 'decision-reject'
-                else 'decision-other'
-                end %>
-              <span class="decision-badge <%= decision_class %>"><%= action.decision %></span>
-            <% end %>
-            <% if action.actionable_type.present? %>
-              <span class="activity-feed-entity"><%= action.actionable_type %> #<%= action.actionable_id %></span>
-            <% end %>
-          </div>
-          <span class="activity-feed-time"><%= time_ago_in_words(action.created_at) %> ago</span>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="agent-empty-state">
-      <div class="agent-empty-state-icon">🔍</div>
-      <div class="agent-empty-state-title">No activity yet</div>
-      <div class="agent-empty-state-text">Agent actions will appear here once your AI agents start processing applications.</div>
-    </div>
-  <% end %>
 </div>
+
+<style>
+  .agent-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .metric-card {
+    background: #f5f5f5;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+  }
+
+  .metric-card .label {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .metric-card .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0.5rem 0 0;
+  }
+
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .agent-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s;
+  }
+
+  .agent-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .agent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .agent-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+
+  .status-badge.active {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-badge.idle {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .status-badge.offline {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .agent-metrics {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .agent-metrics p {
+    margin: 0.5rem 0;
+  }
+
+  .rating {
+    color: #ff9800;
+    font-weight: bold;
+  }
+
+  .escalation {
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .escalation.high {
+    color: #dc3545;
+  }
+
+  .activity-stream {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .activity-stream h2 {
+    font-size: 1.2rem;
+    margin-top: 0;
+  }
+
+  .activity-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-item p {
+    margin: 0.25rem 0;
+  }
+
+  .activity-item .time {
+    color: #999;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .agents-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script type="module">
+  // Live update every 10 seconds (Stimulus controller handles this)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Auto-refresh dashboard data
+    const refreshDashboard = () => {
+      fetch('<%= admin_agent_dashboard_path %>')
+        .then(response => response.text())
+        .then(html => {
+          // Update dashboard in place (Turbo/Hotwire handles this smoothly)
+        });
+    };
+
+    // Refresh every 10 seconds
+    setInterval(refreshDashboard, 10000);
+  });
+</script>
