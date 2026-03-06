@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_112618) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -846,25 +846,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_090000) do
     t.datetime "confirmed_at"
     t.string "country_of_residence", default: "Australia"
     t.datetime "created_at", null: false
+    t.datetime "current_sign_in_at"
+    t.string "current_sign_in_ip"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.integer "failed_attempts", default: 0, null: false
     t.string "first_name"
     t.boolean "is_test", default: false, null: false
     t.text "known_browser_signatures"
     t.text "last_browser_info"
     t.string "last_browser_signature"
     t.string "last_name"
+    t.datetime "last_sign_in_at"
+    t.string "last_sign_in_ip"
     t.bigint "lender_id"
+    t.datetime "locked_at"
     t.string "mobile_country_code"
     t.string "mobile_number"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.integer "sign_in_count", default: 0, null: false
     t.string "sso_provider"
     t.string "sso_uid"
     t.boolean "terms_accepted", default: false, null: false
     t.integer "terms_version"
     t.string "unconfirmed_email"
+    t.string "unlock_token"
     t.datetime "updated_at", null: false
     t.string "verification_code"
     t.datetime "verification_code_expires_at"
@@ -876,6 +884,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_090000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["sso_provider", "sso_uid", "lender_id"], name: "index_users_on_sso_and_lender", unique: true
     t.index ["terms_version"], name: "index_users_on_terms_version"
+    t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
   create_table "versions", force: :cascade do |t|

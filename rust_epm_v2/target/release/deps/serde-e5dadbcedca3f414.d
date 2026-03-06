@@ -1,0 +1,14 @@
+/Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/deps/serde-e5dadbcedca3f414.d: /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/build/serde-964e7503de6b8e03/out/private.rs
+
+/Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/deps/libserde-e5dadbcedca3f414.rlib: /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/build/serde-964e7503de6b8e03/out/private.rs
+
+/Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/deps/libserde-e5dadbcedca3f414.rmeta: /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/build/serde-964e7503de6b8e03/out/private.rs
+
+/Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/Users/zen/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/build/serde-964e7503de6b8e03/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/zen/projects/futureproof/futureproof/rust_epm_v2/target/release/build/serde-964e7503de6b8e03/out

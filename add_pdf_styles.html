@@ -1,0 +1,176 @@
+<style>
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background: white;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+@page {
+  size: A4;
+  margin: 1in;
+}
+
+@media print {
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  table {
+    page-break-inside: avoid;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+  }
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-top: 40px;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+  border-bottom: 3px solid #0066cc;
+  padding-bottom: 10px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #0066cc;
+  border-left: 4px solid #0066cc;
+  padding-left: 12px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+p {
+  margin: 12px 0;
+  text-align: justify;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 13px;
+}
+
+table thead {
+  background-color: #0066cc;
+  color: white;
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #0066cc;
+}
+
+table td {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+}
+
+table tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+table tbody tr:hover {
+  background-color: #f0f5ff;
+}
+
+code {
+  background-color: #f4f4f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+strong {
+  font-weight: 600;
+  color: #0066cc;
+}
+
+ul, ol {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+li {
+  margin: 8px 0;
+}
+
+blockquote {
+  border-left: 4px solid #0066cc;
+  margin: 20px 0;
+  padding-left: 16px;
+  color: #666;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 2px solid #0066cc;
+  margin: 30px 0;
+}
+
+.nav {
+  display: none;
+}
+
+#TOC {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px 0;
+  page-break-after: always;
+}
+
+#TOC ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#TOC li {
+  margin: 8px 0;
+}
+
+#TOC a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+#TOC a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+</style>

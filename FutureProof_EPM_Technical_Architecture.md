@@ -1,6 +1,6 @@
 # FutureProof EPM Income from Property Equity — Technical Architecture
 
-**Version 4.5** | Commercial in Confidence
+**Version 5.0** | Commercial in Confidence
 
 ---
 
@@ -278,7 +278,201 @@ All wrapped in circuit breaker pattern.
 
 ---
 
-## 9. Technology Stack
+## 9. Multi-Jurisdiction Financial Regulation
+
+FutureProof operates across four jurisdictions. Each has national financial regulation, state/territory-level requirements, and distinct licensing obligations. The platform enforces jurisdiction-specific rules automatically via the Compliance Agent and region configuration.
+
+### **Australia**
+
+**National Regulators & Legislation**
+
+| Regulator / Act | Scope | FutureProof Obligation |
+|-----------------|-------|----------------------|
+| **ASIC** (Australian Securities & Investments Commission) | Consumer credit, financial services, market conduct | Australian Financial Services Licence (AFSL); Australian Credit Licence (ACL); responsible lending obligations |
+| **APRA** (Australian Prudential Regulation Authority) | Prudential oversight of lenders and funders | Capital adequacy reporting for wholesale funders; liquidity coverage ratios |
+| **National Consumer Credit Protection Act 2009** (NCCP) | All consumer credit products | Responsible lending assessments; hardship obligations; mandatory disclosure; credit guides |
+| **AML/CTF Act 2006** | Anti-money laundering, counter-terrorism financing | Customer identification (KYC); ongoing due diligence; suspicious matter reports (SMRs) to AUSTRAC; transaction monitoring |
+| **Corporations Act 2001** | Financial product disclosure, managed investment schemes | Product Disclosure Statements (PDS) if EPM classified as financial product; ongoing disclosure obligations |
+| **Design and Distribution Obligations (DDO)** | Product governance | Target Market Determination (TMD) for EPM product; distribution conditions; review triggers |
+
+**State & Territory Requirements**
+
+| State/Territory | Additional Requirement |
+|----------------|----------------------|
+| **NSW** | Fair Trading Act 1987; Property and Stock Agents Act 2002 (if property valuation involved) |
+| **VIC** | Australian Consumer Law and Fair Trading Act 2012; Estate Agents Act 1980 |
+| **QLD** | Fair Trading Act 1989; Property Occupations Act 2014 |
+| **WA** | Fair Trading Act 2010; Real Estate and Business Agents Act 1978 |
+| **SA** | Fair Trading Act 1987; Land Agents Act 1994 |
+| **TAS** | Australian Consumer Law (Tasmania) Act 2010 |
+| **ACT** | Fair Trading (Australian Consumer Law) Act 1992 |
+| **NT** | Consumer Affairs and Fair Trading Act 1990 |
+
+### **United Kingdom**
+
+**National Regulators & Legislation**
+
+| Regulator / Act | Scope | FutureProof Obligation |
+|-----------------|-------|----------------------|
+| **FCA** (Financial Conduct Authority) | Consumer protection, market integrity, competition | FCA authorisation; compliance with Consumer Duty (2023); fair value assessments; vulnerability policies |
+| **PRA** (Prudential Regulation Authority) | Prudential soundness of financial firms | Capital requirements for lenders; stress testing; recovery and resolution plans |
+| **Consumer Credit Act 1974** | Regulated credit agreements | Pre-contractual information; right of withdrawal (14 days); unfair relationship provisions |
+| **Financial Services and Markets Act 2000** (FSMA) | Overarching financial regulation | Permissions for regulated activities; approved persons regime; financial promotions |
+| **Money Laundering Regulations 2017** (MLR) | AML/KYC | Customer due diligence; enhanced due diligence for high-risk; suspicious activity reports (SARs) to NCA |
+| **Senior Managers & Certification Regime (SM&CR)** | Individual accountability | Senior management functions defined; annual certification; conduct rules for all staff |
+| **Mortgage Credit Directive Order 2015** | EU-derived mortgage regulation (retained) | Affordability assessments; ESIS (European Standardised Information Sheet); binding offers |
+
+**Regional Considerations**
+
+| Region | Additional Requirement |
+|--------|----------------------|
+| **England & Wales** | Law of Property Act 1925; Land Registration Act 2002 |
+| **Scotland** | Separate property law (feudal heritage); Registration of Title (Scotland) Act; separate Land Register |
+| **Northern Ireland** | Property (NI) Order 1978; Land Registration Act (NI) 1970; separate registry |
+
+### **United States**
+
+**Federal Regulators & Legislation**
+
+| Regulator / Act | Scope | FutureProof Obligation |
+|-----------------|-------|----------------------|
+| **SEC** (Securities and Exchange Commission) | Securities regulation | Registration if EPM constitutes a security; Regulation D exemptions for private placements to wholesale funders |
+| **CFPB** (Consumer Financial Protection Bureau) | Consumer financial products | TILA disclosures (APR, finance charges); RESPA settlement procedures; ability-to-repay rules |
+| **FinCEN** (Financial Crimes Enforcement Network) | AML/BSA compliance | Currency Transaction Reports (CTRs); Suspicious Activity Reports (SARs); Customer Due Diligence (CDD) Rule |
+| **OCC** (Office of the Comptroller of the Currency) | National bank oversight | Applicable if lender is nationally chartered; CRA compliance |
+| **Truth in Lending Act (TILA)** | Disclosure of credit terms | Loan Estimate within 3 business days; Closing Disclosure 3 days before settlement |
+| **Real Estate Settlement Procedures Act (RESPA)** | Settlement services | Good faith estimates; prohibition on kickbacks; escrow account requirements |
+| **Equal Credit Opportunity Act (ECOA)** | Anti-discrimination | Adverse action notices; prohibited basis protections; fair lending monitoring |
+| **Dodd-Frank Wall Street Reform Act** | Systemic risk, consumer protection | Qualified Mortgage (QM) rules; ability-to-repay; risk retention for securitised products |
+| **Bank Secrecy Act (BSA)** | AML compliance | AML program requirement; independent testing; designated compliance officer |
+
+**State-Level Requirements (Key States)**
+
+| State | Licensing & Key Requirements |
+|-------|----------------------------|
+| **California** | Department of Financial Protection and Innovation (DFPI) licence; California Financing Law (CFL); California Residential Mortgage Lending Act |
+| **New York** | NYDFS mortgage banker licence; NY Banking Law Article 12-D; NYDFS cybersecurity regulation (23 NYCRR 500) |
+| **Texas** | Department of Savings and Mortgage Lending licence; Texas Finance Code Chapter 156 |
+| **Florida** | Office of Financial Regulation mortgage lender licence; Florida Fair Lending Act |
+| **Illinois** | IDFPR Residential Mortgage License; Illinois Residential Mortgage License Act |
+| **All 50 states** | NMLS (Nationwide Multistate Licensing System) registration; state-specific usury caps; varying foreclosure procedures (judicial vs. non-judicial) |
+
+### **New Zealand**
+
+**National Regulators & Legislation**
+
+| Regulator / Act | Scope | FutureProof Obligation |
+|-----------------|-------|----------------------|
+| **FMA** (Financial Markets Authority) | Financial markets, services, conduct | Financial service provider registration; fair dealing obligations; licensed market conduct |
+| **RBNZ** (Reserve Bank of New Zealand) | Prudential oversight | Prudential requirements for non-bank deposit takers; macro-prudential policy (LVR restrictions) |
+| **Credit Contracts and Consumer Finance Act 2003 (CCCFA)** | Consumer credit | Lender responsibility principles; affordability assessments; fee reasonableness; hardship provisions |
+| **CCCFA Amendments 2021** | Strengthened responsible lending | Detailed income/expense verification; suitability assessments; borrower-centric affordability |
+| **Financial Markets Conduct Act 2013 (FMCA)** | Financial products, fair dealing | Fair dealing (misleading conduct); licensing for financial advice; disclosure obligations |
+| **AML/CFT Act 2009** | Anti-money laundering | Customer due diligence; suspicious transaction reports (STRs) to NZ Police FIU; annual AML/CFT risk assessment |
+| **Financial Service Providers (Registration and Dispute Resolution) Act 2008** | Provider registration | FSP registration; membership of approved dispute resolution scheme |
+
+**Regional Notes**
+
+New Zealand operates as a unitary state — no state/territory-level financial regulation. All financial regulation is national. However, local government consents may apply to property valuations under the Resource Management Act 1991.
+
+---
+
+## 10. IT Security & Privacy Regulation
+
+Each jurisdiction imposes distinct data protection, privacy, and cybersecurity requirements. FutureProof maintains a unified security architecture that satisfies the strictest standard across all four markets.
+
+### **Cross-Jurisdiction Security Standards**
+
+| Standard | Scope | FutureProof Implementation |
+|----------|-------|---------------------------|
+| **ISO 27001:2022** | Information security management system | Certified ISMS covering all EPM data processing; annual surveillance audits; Statement of Applicability maintained |
+| **SOC 2 Type II** | Trust service criteria (security, availability, confidentiality) | Annual audit by independent CPA firm; continuous control monitoring; report provided to wholesale funders |
+| **PCI DSS v4.0** | Payment card data (if applicable) | Stripe handles PCI scope; SAQ-A compliance for redirect-based payments; no card data touches FutureProof servers |
+| **OWASP Top 10** | Web application security | Brakeman (static analysis) in CI; annual penetration testing; WAF rules aligned to OWASP categories |
+
+### **Australia — Privacy & Cybersecurity**
+
+| Regulation | Key Requirements | FutureProof Compliance |
+|-----------|-----------------|----------------------|
+| **Privacy Act 1988 + Australian Privacy Principles (APPs)** | Collection limitation; use/disclosure restrictions; data quality; security safeguards; cross-border disclosure rules | APP-compliant privacy policy; consent management; data minimisation; APP 8 cross-border transfer assessments for any offshore processing |
+| **Notifiable Data Breaches (NDB) Scheme** | Mandatory notification to OAIC and affected individuals for eligible data breaches | Incident response plan with 30-day assessment window; automated breach detection; notification templates pre-approved by legal |
+| **Consumer Data Right (CDR)** | Open banking data sharing (if banking data accessed) | CDR-compliant APIs if accessing banking data; accreditation as data recipient if required |
+| **APRA CPS 234** | Information security for APRA-regulated entities | Applicable to wholesale funders — FutureProof provides CPS 234 compliance evidence as data processor; security capability assessments; third-party assurance |
+| **Critical Infrastructure Act 2018 (SOCI)** | Critical infrastructure protection | Risk management program if designated as critical financial infrastructure; mandatory incident reporting within 12 hours for critical incidents |
+| **State breach notification** | NSW, VIC, QLD have supplementary notification requirements for government-related data | Monitored; currently N/A but implemented as configurable rules |
+
+### **United Kingdom — Privacy & Cybersecurity**
+
+| Regulation | Key Requirements | FutureProof Compliance |
+|-----------|-----------------|----------------------|
+| **UK GDPR + Data Protection Act 2018** | Lawful basis for processing; data subject rights (access, erasure, portability); DPO requirement; DPIA for high-risk processing; 72-hour breach notification to ICO | Lawful basis: contract + legitimate interest; automated DSAR (Data Subject Access Request) portal; DPO appointed; DPIA completed for EPM product; breach notification workflow tested quarterly |
+| **FCA data requirements** | SYSC 13 (operational risk); FG 16/5 (data security in financial services) | Operational resilience self-assessment; important business services identified; impact tolerances set and tested |
+| **NIS Regulations 2018** | Network and information systems security for essential services | Applicable if designated as essential financial service; CAF (Cyber Assessment Framework) self-assessment; incident reporting to lead authority |
+| **UK Cyber Essentials Plus** | Baseline cybersecurity certification | Certified annually; vulnerability scans; verified by external assessor |
+| **PSD2 / Open Banking** | Strong Customer Authentication (SCA); secure API access | SCA for customer-facing transactions; OAuth 2.0 + FAPI-compliant API security |
+
+### **United States — Privacy & Cybersecurity**
+
+| Regulation | Key Requirements | FutureProof Compliance |
+|-----------|-----------------|----------------------|
+| **Gramm-Leach-Bliley Act (GLBA)** | Financial privacy; Safeguards Rule; pretexting protection | Privacy notices at onboarding and annually; written information security plan (WISP); vendor management programme |
+| **GLBA Safeguards Rule (2023 amendments)** | Designated qualified individual; risk assessment; encryption; MFA; continuous monitoring | Qualified individual designated; annual risk assessment; encryption at rest (AES-256) and in transit (TLS 1.3); MFA enforced for all access; SIEM-based continuous monitoring |
+| **NYDFS Cybersecurity Regulation (23 NYCRR 500)** | Comprehensive cybersecurity for financial services in New York | Cybersecurity programme; CISO appointed; 72-hour incident notification to NYDFS; annual penetration testing; 500.17 certification filed annually |
+| **CCPA / CPRA (California)** | Consumer privacy rights; right to delete; right to opt-out of sale; data minimisation | California-specific privacy notices; opt-out mechanisms; data inventory maintained; annual CPRA risk assessments |
+| **State privacy laws** | Virginia (VCDPA), Colorado (CPA), Connecticut (CTDPA), Utah (UCPA), Texas (TDPSA), Oregon, Montana, etc. | Unified privacy framework that satisfies strictest state standard; configurable consent flows per state; vendor DPA library |
+| **SEC Cybersecurity Disclosure Rules (2023)** | Material cybersecurity incident disclosure within 4 business days (8-K); annual risk management disclosure (10-K) | Applicable if SEC-registered; incident materiality assessment process; board-level cybersecurity governance documented |
+| **FTC Safeguards Rule** | Information security programme for non-bank financial institutions | Overlaps with GLBA Safeguards; unified compliance programme covers both |
+
+**State Breach Notification**
+
+All 50 US states have breach notification laws with varying requirements:
+
+| Requirement | Range Across States |
+|-------------|-------------------|
+| **Notification timeline** | 30 days (Florida, Colorado) to 90 days (Connecticut) to "most expedient time" (majority) |
+| **Attorney General notification** | Required in ~35 states above certain thresholds (typically 500+ individuals) |
+| **Credit monitoring** | Required in some states (e.g., California for SSN; Massachusetts) |
+| **Definition of personal information** | Varies — some include biometrics, geolocation, health data, online credentials |
+
+FutureProof implements the strictest standard: 30-day notification, AG notification for all breaches >250 individuals, free credit monitoring offered for any breach involving financial data.
+
+### **New Zealand — Privacy & Cybersecurity**
+
+| Regulation | Key Requirements | FutureProof Compliance |
+|-----------|-----------------|----------------------|
+| **Privacy Act 2020** | 13 Information Privacy Principles (IPPs); mandatory breach notification; cross-border disclosure rules; compliance notices | IPP-compliant data handling; Privacy Officer appointed; breach notification to OPC within 72 hours for notifiable breaches; cross-border transfer assessments |
+| **Notifiable Privacy Breaches** | Mandatory notification to OPC and affected individuals for breaches causing serious harm | Automated breach assessment workflow; pre-approved notification templates; harm assessment matrix aligned to OPC guidance |
+| **RBNZ Guidelines on Cybersecurity** | Cyber resilience expectations for financial institutions | Annual cyber resilience self-assessment; incident response tested; third-party risk management |
+| **CERT NZ reporting** | Voluntary but expected incident reporting | Integrated into incident response process; CERT NZ contacted for significant incidents |
+| **NZ Information Security Manual (NZISM)** | Government security standard (applicable if processing government-adjacent data) | Aligned to NZISM controls where applicable; used as security baseline |
+
+### **Data Residency & Cross-Border Transfers**
+
+| Jurisdiction | Data Residency Rule | FutureProof Approach |
+|-------------|--------------------|--------------------|
+| **Australia** | APP 8 requires reasonable steps before cross-border disclosure; no hard residency mandate but APRA CPS 234 expects control | Primary data in AU region (ap-southeast-2); cross-border transfers only with APP 8 assessment and contractual safeguards |
+| **UK** | UK GDPR adequacy decisions or appropriate safeguards (UK IDTA / UK SCCs) | Primary data in UK region (eu-west-2); transfers to adequate countries only; UK International Data Transfer Agreement for others |
+| **US** | No federal data residency law; GLBA requires safeguards regardless of location; some state laws restrict government data | Primary data in US region (us-east-1); state-specific restrictions enforced; GLBA safeguards applied globally |
+| **NZ** | Privacy Act 2020 IPP 12 — disclosure to foreign entity only if comparable protections exist | Primary data in AU region (ap-southeast-2) with NZ-specific encryption keys; cross-border assessment completed for AU hosting |
+
+### **Platform Security Architecture**
+
+The following security controls apply across all jurisdictions:
+
+1. **Encryption at rest:** AES-256 for all databases, S3 buckets, and backups.
+2. **Encryption in transit:** TLS 1.3 minimum for all connections; certificate pinning for inter-service communication.
+3. **Authentication:** MFA enforced for all internal access; OAuth 2.0 + PKCE for customer-facing; hardware security keys for admin.
+4. **Authorisation:** Role-based access control (RBAC) with principle of least privilege; attribute-based access control (ABAC) for cross-jurisdiction data.
+5. **Key management:** AWS KMS with per-jurisdiction CMKs; automatic key rotation every 365 days; HSM-backed for signing operations.
+6. **Logging & audit:** All access logged with user ID, IP, timestamp, action; logs immutable (append-only); retained per jurisdiction requirements (7 years AU/UK/NZ, varies by state in US).
+7. **Penetration testing:** Annual external pen test; quarterly vulnerability scans; bug bounty programme.
+8. **Incident response:** Documented IR plan; tested quarterly; jurisdiction-specific notification timelines enforced; war room procedures for critical incidents.
+9. **Vendor management:** All third-party vendors assessed against SOC 2 or ISO 27001; DPAs in place; annual reassessment.
+10. **Business continuity:** RPO < 1 hour; RTO < 4 hours; multi-AZ deployment; tested failover twice annually.
+
+---
+
+## 11. Technology Stack
 
 **Backend**
 - Rails 8.1 (Ruby 3.4.8)
@@ -331,7 +525,7 @@ All wrapped in circuit breaker pattern.
 
 ---
 
-## 10. Database Schema
+## 12. Database Schema
 
 **Core tables:**
 
@@ -358,7 +552,7 @@ All wrapped in circuit breaker pattern.
 
 ---
 
-## 11. Deployment & Quality Assurance
+## 13. Deployment & Quality Assurance
 
 **Testing**
 

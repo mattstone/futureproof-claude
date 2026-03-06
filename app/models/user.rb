@@ -1,12 +1,12 @@
 class User < ApplicationRecord
-  # include InputSanitization  # Temporarily disabled for testing
+  include InputSanitization
   
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   # Note: removed :validatable to implement custom scoped email validation
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :timeoutable, :omniauthable,
-         omniauth_providers: [:saml]
+         :recoverable, :rememberable, :timeoutable, :lockable, :trackable,
+         :omniauthable, omniauth_providers: [:saml]
 
   # Associations
   belongs_to :lender, optional: true
@@ -35,7 +35,7 @@ class User < ApplicationRecord
   # Custom email validation (replacing Devise :validatable)
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :email, uniqueness: { scope: :lender_id, message: "is already taken for this lender" }
-  validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
+  validates :password, presence: true, length: { minimum: 10 }, if: :password_required?
   
   # Lender scoping validation - only required for admin users
   validates :lender, presence: true, if: :admin?
