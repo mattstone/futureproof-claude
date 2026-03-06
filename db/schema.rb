@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_131400) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -413,6 +413,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131400) do
     t.index ["funder_pool_id"], name: "index_contracts_on_funder_pool_id"
     t.index ["lender_id"], name: "index_contracts_on_lender_id"
     t.index ["mortgage_contract_id"], name: "index_contracts_on_mortgage_contract_id"
+  end
+
+  create_table "distributions", force: :cascade do |t|
+    t.decimal "amount", precision: 15, scale: 2, null: false
+    t.bigint "application_id", null: false
+    t.datetime "created_at", null: false
+    t.date "distribution_date", null: false
+    t.datetime "failed_at"
+    t.decimal "lender_margin", precision: 10, scale: 2
+    t.bigint "mortgage_id"
+    t.text "notes"
+    t.string "payment_method"
+    t.datetime "processed_at"
+    t.integer "status", default: 0
+    t.string "transaction_id"
+    t.datetime "updated_at", null: false
+    t.index ["application_id", "distribution_date"], name: "index_distributions_on_application_id_and_distribution_date"
+    t.index ["application_id"], name: "index_distributions_on_application_id"
+    t.index ["distribution_date"], name: "index_distributions_on_distribution_date"
+    t.index ["mortgage_id"], name: "index_distributions_on_mortgage_id"
+    t.index ["status"], name: "index_distributions_on_status"
   end
 
   create_table "email_template_versions", force: :cascade do |t|
@@ -1077,6 +1098,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131400) do
   add_foreign_key "contracts", "funder_pools"
   add_foreign_key "contracts", "lenders"
   add_foreign_key "contracts", "mortgage_contracts"
+  add_foreign_key "distributions", "applications"
+  add_foreign_key "distributions", "mortgages"
   add_foreign_key "email_template_versions", "email_templates"
   add_foreign_key "email_template_versions", "users"
   add_foreign_key "email_workflows", "users", column: "created_by_id"

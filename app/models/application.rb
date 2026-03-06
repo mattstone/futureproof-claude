@@ -11,6 +11,7 @@ class Application < ApplicationRecord
   belongs_to :mortgage, optional: true
   belongs_to :referral_partner, optional: true
   has_one :contract, dependent: :destroy
+  has_many :distributions, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
   has_many :application_checklists, class_name: 'ApplicationChecklist', dependent: :destroy
