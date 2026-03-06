@@ -365,6 +365,166 @@ a:hover {
   top: 0;
 }
 
+/* ========== Tables ========== */
+.fp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-sm);
+}
+
+.fp-table thead {
+  background: var(--fp-bg-secondary);
+  border-bottom: 2px solid var(--fp-border);
+}
+
+.fp-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+  font-size: var(--fp-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fp-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--fp-border-light);
+  color: var(--fp-text-primary);
+}
+
+.fp-table tbody tr:hover {
+  background: var(--fp-bg-secondary);
+}
+
+.fp-table-striped tbody tr:nth-child(even) {
+  background: var(--fp-bg-secondary);
+}
+
+/* ========== Checkboxes & Radios ========== */
+.fp-checkbox,
+.fp-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-base);
+  color: var(--fp-text-primary);
+}
+
+.fp-checkbox input[type="checkbox"],
+.fp-radio input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--fp-primary);
+  cursor: pointer;
+}
+
+/* ========== Textarea ========== */
+.fp-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius-md);
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-base);
+  color: var(--fp-text-primary);
+  background: var(--fp-bg-primary);
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.fp-textarea:focus {
+  outline: none;
+  border-color: var(--fp-primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+/* ========== Stat Cards ========== */
+.fp-stat-card {
+  background: var(--fp-bg-primary);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-lg);
+  padding: 20px;
+  text-align: center;
+}
+
+.fp-stat-value {
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-2xl);
+  font-weight: var(--fp-font-bold);
+  color: var(--fp-text-primary);
+  line-height: 1.2;
+}
+
+.fp-stat-label {
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-secondary);
+  margin-top: 4px;
+}
+
+/* ========== Interactive Card ========== */
+.fp-card-interactive {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fp-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fp-shadow-lg);
+}
+
+.fp-card-interactive:active {
+  transform: translateY(0);
+}
+
+/* ========== Accessibility: Focus Indicators ========== */
+:focus-visible {
+  outline: 3px solid var(--fp-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove default outline only when :focus-visible is supported */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to content link */
+.fp-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--fp-primary);
+  color: var(--fp-text-inverse);
+  padding: 8px 16px;
+  z-index: 10000;
+  font-size: var(--fp-text-base);
+  text-decoration: none;
+  border-radius: 0 0 var(--fp-radius-md) 0;
+  transition: top 0.2s;
+}
+
+.fp-skip-link:focus {
+  top: 0;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

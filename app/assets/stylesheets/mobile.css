@@ -309,6 +309,121 @@ img {
 }
 
 /* ========================================
+   Application Form - Mobile Enhancements
+   ======================================== */
+@media (max-width: 767px) {
+  /* Multi-step form: single column */
+  .application-form .form-row,
+  .application-form .form-grid,
+  .form-two-col {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Step progress bar: compact */
+  .step-progress {
+    padding: 8px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .step-progress .step {
+    min-width: 32px;
+    font-size: 11px;
+  }
+
+  /* Form fields: prevent iOS zoom */
+  .application-form input,
+  .application-form select,
+  .application-form textarea {
+    font-size: 16px !important;
+  }
+
+  /* Submit buttons: full width */
+  .application-form .btn-group,
+  .application-form .form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .application-form .btn-group .btn,
+  .application-form .form-actions .btn {
+    width: 100%;
+  }
+
+  /* Property search results */
+  .property-results {
+    max-height: 200px;
+  }
+}
+
+/* ========================================
+   Homepage Calculator - Mobile Enhancements
+   ======================================== */
+@media (max-width: 767px) {
+  .gs-calculator-section {
+    padding: 24px 16px;
+  }
+
+  .gs-calculator-card {
+    padding: 20px 16px;
+  }
+
+  .gs-result-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .gs-slider-container {
+    padding: 8px 0;
+  }
+
+  .gs-nav-links {
+    gap: 8px;
+  }
+
+  .gs-nav-links a {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  /* CTA buttons: full width on mobile */
+  .gs-cta-button,
+  .gs-hero-cta {
+    width: 100%;
+    text-align: center;
+    padding: 16px 24px;
+  }
+}
+
+/* ========================================
+   Dashboard Cards - Mobile Enhancements
+   ======================================== */
+@media (max-width: 767px) {
+  /* Customer dashboard: stack cards */
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dashboard-stat-card {
+    padding: 16px;
+  }
+
+  /* Admin sidebar: collapsible */
+  .admin-sidebar-nav .nav-section-title {
+    cursor: pointer;
+  }
+
+  /* Admin stats: 2-col grid on mobile */
+  .admin-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ========================================
    Print Styles (for legal docs / reports)
    ======================================== */
 @media print {
