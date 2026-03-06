@@ -160,11 +160,11 @@
 ### Phase 2: Core Platform
 
 #### Step 2.1a — Calculation Engine: CPI + Inflation
-- [ ] Add CPI escalation to `CalculationEngine` (annual adjustment, 4% cap)
-- [ ] Add inflation scenario projections (low 1%, base 2.5%, high 5%)
-- [ ] Quote output includes 5/10/15/20 year income projections under each scenario
-- [ ] Write tests for CPI adjustment logic
-- [ ] Commit
+- [x] Add CPI escalation to `CalculationEngine` (annual adjustment, 4% cap)
+- [x] Add inflation scenario projections (low 1%, base 2.5%, high 5%)
+- [x] Quote output includes 5/10/15/20 year income projections under each scenario
+- [x] Write tests for CPI adjustment logic
+- [x] Commit (05081c2)
 
 #### Step 2.1b — Calculation Engine: NNEG + Model B
 - [ ] Add NNEG calculation (mortgage balance vs property value at each year)
@@ -435,7 +435,7 @@ Mark steps complete as they're done:
 ```
 Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [x] 0.5  [x] 0.6
 Phase 1: [x] 1.1  [x] 1.2  [x] 1.3a [x] 1.3b [x] 1.3c
-Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
+Phase 2: [x] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
 Phase 3: [x] 3.1a [x] 3.1b [x] 3.2a [x] 3.2b [x] 3.3
 Phase 4: [ ] 4.1a [ ] 4.1b [ ] 4.1c [ ] 4.1d [ ] 4.2a [ ] 4.2b [ ] 4.2c [ ] 4.3
