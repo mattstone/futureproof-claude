@@ -10,7 +10,8 @@ class EndToEndWorkflowTest < ActionDispatch::IntegrationTest
       address: "123 Lender St",
       postcode: "2000",
       country: "AU",
-      contact_email: "admin@lender.com"
+      contact_email: "admin@lender.com",
+      lender_type: "lender"
     )
   end
 
@@ -25,21 +26,20 @@ class EndToEndWorkflowTest < ActionDispatch::IntegrationTest
     
     # Quote should be calculable via service
     engine = CalculationEngine.new(
-      property_value: 800_000,
-      age: 72,
-      loan_term_years: 10,
-      region: "au",
-      inflation_scenario: "base"
+      home_value: 800_000,
+      term: 10,
+      region: "au"
     )
     
-    quote = engine.calculate_quote
+    result = engine.calculate
+    quote = result[:quote]
     
     # Verify quote calculation
     assert quote[:monthly_income].present?
     assert quote[:loan_amount].present?
     assert quote[:interest_rate].present?
-    assert quote[:nneg_probability].present?
-    assert quote[:estate_impact].present?
+    assert result[:nneg_analysis].present?
+    assert result[:estate_impact].present?
     
     quote_monthly_income = quote[:monthly_income]
     puts "  ✓ Quote generated: $#{quote_monthly_income.to_i}/month"
