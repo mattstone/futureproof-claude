@@ -417,4 +417,254 @@ class CalculationEngineTest < ActiveSupport::TestCase
     assert nneg.key?(:nneg_probability_percent)
     assert nneg.key?(:explanation)
   end
+
+  # FX Sensitivity & Regional Impacts Tests
+
+  test "US region has no FX sensitivity" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    assert_nil result[:fx_sensitivity]
+  end
+
+  test "AU region includes FX sensitivity" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    assert fx.present?
+    assert fx.key?(:pessimistic)
+    assert fx.key?(:conservative)
+    assert fx.key?(:base)
+    assert fx.key?(:optimistic)
+    assert fx.key?(:bullish)
+  end
+
+  test "FX scenarios show income impact" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    base_monthly = result[:quote][:monthly_income]
+
+    # Pessimistic should be lower than base
+    assert fx[:pessimistic][:monthly_income] < fx[:base][:monthly_income]
+    # Bullish should be higher than base
+    assert fx[:bullish][:monthly_income] > fx[:base][:monthly_income]
+  end
+
+  test "FX scenarios include all metrics" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    fx.each_pair do |scenario, data|
+      assert data.key?(:fx_impact_percent)
+      assert data.key?(:monthly_income)
+      assert data.key?(:annual_income)
+      assert data.key?(:total_income_term)
+      assert data.key?(:explanation)
+    end
+  end
+
+  test "AU region includes Centrelink impact" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    impacts = result[:regional_impacts]
+    assert impacts.key?(:centrelink_impact)
+
+    centrelink = impacts[:centrelink_impact]
+    assert centrelink.key?(:assets_test_threshold)
+    assert centrelink.key?(:deeming_rate_percent)
+    assert centrelink.key?(:age_pension_max_annual)
+    assert centrelink.key?(:age_pension_net_annual)
+    assert centrelink.key?(:explanation)
+  end
+
+  test "AU Centrelink calculates assets over threshold" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    centrelink = result[:regional_impacts][:centrelink_impact]
+    # $2M home value → $1.6M LTV loan → over $884k threshold
+    assert centrelink[:assets_over_threshold] > 0
+    assert centrelink[:centrelink_reduction_annual] > 0
+  end
+
+  test "AU Centrelink applies deeming rate" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    centrelink = result[:regional_impacts][:centrelink_impact]
+    loan_amount = 2_000_000 * 0.80
+
+    expected_deeming = loan_amount * 0.025
+    assert_in_delta centrelink[:annual_deeming_income], expected_deeming, 1
+  end
+
+  test "AU Centrelink net pension is non-negative" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    centrelink = result[:regional_impacts][:centrelink_impact]
+    assert centrelink[:age_pension_net_annual] >= 0
+  end
+
+  test "UK region includes inheritance tax impact" do
+    engine = CalculationEngine.new(home_value: 500_000, term: 20, region: "uk")
+    result = engine.calculate
+
+    impacts = result[:regional_impacts]
+    assert impacts.key?(:inheritance_tax_impact)
+
+    iht = impacts[:inheritance_tax_impact]
+    assert iht.key?(:iht_threshold_gbp)
+    assert iht.key?(:iht_rate_percent)
+    assert iht.key?(:iht_liability)
+    assert iht.key?(:estate_after_iht)
+    assert iht.key?(:explanation)
+  end
+
+  test "UK IHT liability calculated on estate over threshold" do
+    engine = CalculationEngine.new(home_value: 500_000, term: 20, region: "uk")
+    result = engine.calculate
+
+    iht = result[:regional_impacts][:inheritance_tax_impact]
+    # Estate should exceed £325k threshold
+    assert iht[:estate_over_threshold] > 0
+    assert iht[:iht_liability] > 0
+  end
+
+  test "UK IHT liability is 40% above threshold" do
+    engine = CalculationEngine.new(home_value: 500_000, term: 20, region: "uk")
+    result = engine.calculate
+
+    iht = result[:regional_impacts][:inheritance_tax_impact]
+    expected_iht = iht[:estate_over_threshold] * 0.40
+
+    assert_in_delta iht[:iht_liability], expected_iht, 10  # Allow rounding variance
+  end
+
+  test "UK estate after IHT is correct" do
+    engine = CalculationEngine.new(home_value: 500_000, term: 20, region: "uk")
+    result = engine.calculate
+
+    iht = result[:regional_impacts][:inheritance_tax_impact]
+    expected_after = iht[:estimated_estate_at_term] - iht[:iht_liability]
+
+    assert_equal expected_after, iht[:estate_after_iht]
+  end
+
+  test "NZ region includes relationship property note" do
+    engine = CalculationEngine.new(home_value: 800_000, term: 15, region: "nz")
+    result = engine.calculate
+
+    impacts = result[:regional_impacts]
+    assert impacts.key?(:relationship_property_note)
+
+    note = impacts[:relationship_property_note]
+    assert note.key?(:explanation)
+    assert note.key?(:recommendation)
+  end
+
+  test "AU region FX sensitivity with Centrelink" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    assert result[:fx_sensitivity].present?
+    assert result[:regional_impacts][:centrelink_impact].present?
+  end
+
+  test "FX pessimistic -20% impact" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    base_monthly = result[:quote][:monthly_income]
+    pessimistic = result[:fx_sensitivity][:pessimistic]
+
+    # 20% depreciation
+    expected_monthly = (base_monthly * 0.80).round(0)
+    assert_equal expected_monthly, pessimistic[:monthly_income]
+  end
+
+  test "FX bullish +20% impact" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    base_monthly = result[:quote][:monthly_income]
+    bullish = result[:fx_sensitivity][:bullish]
+
+    # 20% appreciation
+    expected_monthly = (base_monthly * 1.20).round(0)
+    assert_equal expected_monthly, bullish[:monthly_income]
+  end
+
+  test "FX scenarios include explanations" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    fx.each_pair do |scenario, data|
+      assert data.key?(:explanation)
+      assert data[:explanation].present?
+    end
+  end
+
+  test "UK estate at term drives IHT calculation" do
+    engine = CalculationEngine.new(home_value: 1_000_000, term: 25, region: "uk")
+    result = engine.calculate
+
+    iht = result[:regional_impacts][:inheritance_tax_impact]
+    # Longer term = larger estate = larger IHT
+    assert iht[:estimated_estate_at_term] > 500_000
+  end
+
+  test "AU Centrelink reduction increases with larger assets" do
+    engine_small = CalculationEngine.new(home_value: 500_000, term: 10, region: "au")
+    engine_large = CalculationEngine.new(home_value: 3_000_000, term: 10, region: "au")
+
+    small_reduction = engine_small.calculate[:regional_impacts][:centrelink_impact][:centrelink_reduction_annual]
+    large_reduction = engine_large.calculate[:regional_impacts][:centrelink_impact][:centrelink_reduction_annual]
+
+    # Larger assets = larger reduction
+    assert large_reduction > small_reduction
+  end
+
+  test "FX base scenario has 0% impact" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 10, region: "au")
+    result = engine.calculate
+
+    base_fx = result[:fx_sensitivity][:base]
+    assert_equal 0, base_fx[:fx_impact_percent]
+    assert_equal result[:quote][:monthly_income], base_fx[:monthly_income]
+  end
+
+  test "regional impacts nil for US region" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    # US should have empty regional impacts
+    assert result[:regional_impacts].empty?
+  end
+
+  test "all FX scenarios have annual income" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 15, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    fx.each_pair do |scenario, data|
+      assert data[:annual_income] == data[:monthly_income] * 12
+    end
+  end
+
+  test "all FX scenarios have total income for term" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 15, region: "au")
+    result = engine.calculate
+
+    fx = result[:fx_sensitivity]
+    fx.each_pair do |scenario, data|
+      assert data[:total_income_term] == data[:annual_income] * 15
+    end
+  end
 end

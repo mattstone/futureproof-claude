@@ -31,6 +31,15 @@ class CalculationEngine
   # Maximum annual CPI escalation cap
   MAX_CPI_ESCALATION = 0.04
 
+  # FX sensitivity scenarios for non-USD regions
+  FX_SCENARIOS = {
+    pessimistic: -0.20,  # -20% (currency depreciation)
+    conservative: -0.10, # -10% (modest depreciation)
+    base: 0.0,           # 0% (stable)
+    optimistic: 0.10,    # +10% (modest appreciation)
+    bullish: 0.20        # +20% (strong appreciation)
+  }.freeze
+
   attr_reader :home_value, :term, :region, :model, :region_config
 
   def initialize(home_value:, term: 10, region: "us", model: :pavel, model_type: :a)
@@ -54,12 +63,17 @@ class CalculationEngine
     max_ltv = region_config["max_ltv"] || 0.80
     loan_amount = (home_value * max_ltv).round(0)
 
+    fx_sensitivity = region == "us" ? nil : build_fx_sensitivity(base_quote)
+    regional_impacts = build_regional_impacts(base_quote, loan_amount)
+
     {
       region: region_details,
       quote: base_quote,
       model_type: model_type_details,
       scenarios: build_scenarios(base_quote),
       inflation_projections: build_inflation_projections(base_quote),
+      fx_sensitivity: fx_sensitivity,
+      regional_impacts: regional_impacts,
       nneg_analysis: build_nneg_analysis(loan_amount, base_quote),
       estate_impact: build_estate_impact(loan_amount, base_quote),
       equity_preservation: equity_details,
@@ -188,6 +202,121 @@ class CalculationEngine
       regulatory_body: region_config["regulatory_body"],
       licensing: region_config["licensing"],
       tax_note: region_config["tax_note"]
+    }
+  end
+
+  def build_fx_sensitivity(base_quote)
+    # Only for non-USD regions
+    return nil if region == "us"
+
+    base_monthly = base_quote[:monthly_income]
+
+    FX_SCENARIOS.transform_values do |fx_impact|
+      adjusted_monthly = (base_monthly * (1 + fx_impact)).round(0)
+      {
+        fx_impact_percent: (fx_impact * 100).to_i,
+        monthly_income: adjusted_monthly,
+        annual_income: (adjusted_monthly * 12).round(0),
+        total_income_term: (adjusted_monthly * 12 * term).round(0),
+        explanation: case fx_impact
+                     when -0.20 then "Strong currency depreciation scenario"
+                     when -0.10 then "Modest currency depreciation"
+                     when 0.0  then "Currency remains stable (baseline)"
+                     when 0.10 then "Modest currency appreciation"
+                     when 0.20 then "Strong currency appreciation"
+                     end
+      }
+    end
+  end
+
+  def build_regional_impacts(base_quote, loan_amount)
+    case region
+    when "au"
+      build_au_impacts(base_quote, loan_amount)
+    when "uk"
+      build_uk_impacts(base_quote, loan_amount)
+    when "nz"
+      build_nz_impacts(base_quote, loan_amount)
+    else
+      {}
+    end
+  end
+
+  def build_au_impacts(base_quote, loan_amount)
+    # Australia: Centrelink (Age Pension) assets test & deeming
+    monthly_income = base_quote[:monthly_income]
+    annual_income = monthly_income * 12
+    
+    # Assets test: threshold varies, estimate $884k single, $1.327M couple (2026)
+    # Deeming: assumes 2% return on assets up to threshold, 3.5% above
+    assets_test_threshold = 884_000
+    annual_deeming_income = loan_amount * 0.025  # Assume 2.5% deeming rate
+    annual_deeming_gross = annual_deeming_income + annual_income
+
+    # Age Pension maximum: ~$31,000/year single (2026 estimate)
+    age_pension_max = 31_000
+    
+    # Centrelink reduction: typically $3 per $1,000 over threshold
+    assets_over_threshold = [loan_amount - assets_test_threshold, 0].max
+    annual_centrelink_reduction = (assets_over_threshold / 1000) * 3
+    age_pension_net = [age_pension_max - annual_centrelink_reduction, 0].max
+
+    {
+      centrelink_impact: {
+        assets_test_threshold: assets_test_threshold,
+        your_assets_estimated: loan_amount.round(0),
+        assets_over_threshold: assets_over_threshold.round(0),
+        deeming_rate_percent: 2.5,
+        annual_deeming_income: annual_deeming_income.round(0),
+        annual_income_from_epn: annual_income.round(0),
+        total_annual_assessable: annual_deeming_gross.round(0),
+        age_pension_max_annual: age_pension_max.round(0),
+        centrelink_reduction_annual: annual_centrelink_reduction.round(0),
+        age_pension_net_annual: age_pension_net.round(0),
+        explanation: "Your EPM income is assessed for Centrelink under assets & income tests. The deeming assumes 2.5% annual return. Your Age Pension may reduce, but EPM + reduced pension often exceeds pension alone."
+      }
+    }
+  end
+
+  def build_uk_impacts(base_quote, loan_amount)
+    # UK: Inheritance Tax (IHT) & Estate planning
+    monthly_income = base_quote[:monthly_income]
+    annual_income = monthly_income * 12
+    
+    # IHT threshold: £325,000 (2026)
+    iht_threshold = 325_000
+    iht_rate = 0.40  # 40% above threshold
+    
+    # Estimate estate at term (property + portfolio - mortgage)
+    property_at_term = home_value * (1 - 0.005 * term)  # Conservative decline
+    portfolio_at_term = (annual_income * term * 1.05).round(0)  # 5% net growth after IHT
+    estate_at_term = property_at_term + portfolio_at_term
+    
+    # IHT liability
+    estate_over_threshold = [estate_at_term - iht_threshold, 0].max
+    iht_liability = (estate_over_threshold * iht_rate).round(0)
+    estate_after_iht = estate_at_term - iht_liability
+
+    {
+      inheritance_tax_impact: {
+        iht_threshold_gbp: iht_threshold.round(0),
+        estimated_estate_at_term: estate_at_term.round(0),
+        estate_over_threshold: estate_over_threshold.round(0),
+        iht_rate_percent: (iht_rate * 100).to_i,
+        iht_liability: iht_liability.round(0),
+        estate_after_iht: estate_after_iht.round(0),
+        explanation: "IHT is charged at 40% on estate above £325k threshold. Your EPM builds significant estate for beneficiaries, but plan for tax efficiency via will & trusts."
+      }
+    }
+  end
+
+  def build_nz_impacts(base_quote, loan_amount)
+    # NZ: No estate tax, but relationship property implications
+    {
+      relationship_property_note: {
+        explanation: "In NZ, property acquired during a relationship may be subject to equal division. Ensure your EPM documentation clearly establishes pre-relationship ownership if applicable.",
+        recommendation: "Seek legal advice on will & trust arrangements to protect beneficiaries."
+      }
     }
   end
 
