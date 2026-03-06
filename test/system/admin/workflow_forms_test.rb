@@ -12,7 +12,7 @@ class Admin::WorkflowFormsTest < ApplicationSystemTestCase
 
     @admin_user = User.create!(
       email: "admin@test.com",
-      password: "password",
+      password: "password1234",
       first_name: "Admin",
       last_name: "User",
       lender: @lender,

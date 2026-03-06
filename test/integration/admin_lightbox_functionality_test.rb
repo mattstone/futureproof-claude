@@ -81,6 +81,6 @@ class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
   private
 
   def sign_in(user)
-    post user_session_path, params: { user: { email: user.email, password: 'password' } }
+    post user_session_path, params: { user: { email: user.email, password: 'password1234' } }
   end
 end

@@ -4,7 +4,7 @@ class PropertyAutocompleteSystemTest < ApplicationSystemTestCase
   def setup
     @user = User.create!(
       email: 'system_test@example.com',
-      password: 'password',
+      password: 'password1234',
       password_confirmation: 'password123',
       first_name: 'System',
       last_name: 'Test',

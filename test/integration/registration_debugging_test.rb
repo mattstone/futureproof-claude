@@ -15,7 +15,7 @@ class RegistrationDebuggingTest < ActionDispatch::IntegrationTest
         first_name: "Debug",
         last_name: "Test",
         email: "debug.test@example.com",
-        password: "password",
+        password: "password1234",
         password_confirmation: "password123",
         country_of_residence: "Australia",
         terms_accepted: "1"
@@ -60,7 +60,7 @@ class RegistrationDebuggingTest < ActionDispatch::IntegrationTest
         first_name: "Manual",
         last_name: "Test",
         email: "manual.test@example.com",
-        password: "password",
+        password: "password1234",
         country_of_residence: "Australia",
         terms_accepted: true
       )

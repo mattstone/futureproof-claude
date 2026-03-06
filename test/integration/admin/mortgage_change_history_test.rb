@@ -157,7 +157,7 @@ class Admin::MortgageChangeHistoryTest < ActionDispatch::IntegrationTest
 
   def admin_sign_in
     post user_session_path, params: {
-      user: { email: @admin.email, password: 'password' }
+      user: { email: @admin.email, password: 'password1234' }
     }
     follow_redirect!
   end

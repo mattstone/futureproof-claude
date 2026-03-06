@@ -13,7 +13,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     # Create test user directly to avoid fixture issues
     @user = User.create!(
       email: "test@example.com",
-      password: "password",
+      password: "password1234",
       first_name: "Test",
       last_name: "User",
       lender: @lender,
@@ -70,7 +70,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     
     app_user = User.create!(
       email: "john@example.com",
-      password: "password",
+      password: "password1234",
       first_name: "John",
       last_name: "Doe",
       lender: @lender,
@@ -100,7 +100,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     
     app_user2 = User.create!(
       email: "jane@example.com",
-      password: "password",
+      password: "password1234",
       first_name: "Jane",
       last_name: "Doe",
       lender: @lender,
@@ -125,7 +125,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     @workflow.save!
     app_user3 = User.create!(
       email: "bob@example.com",
-      password: "password",
+      password: "password1234",
       first_name: "Bob",
       last_name: "Smith",
       lender: @lender,
@@ -158,7 +158,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     
     app_user4 = User.create!(
       email: "alice@example.com",
-      password: "password",
+      password: "password1234",
       first_name: "Alice",
       last_name: "Johnson",
       lender: @lender,

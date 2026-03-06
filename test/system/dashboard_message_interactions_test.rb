@@ -6,7 +6,7 @@ class DashboardMessageInteractionsTest < ApplicationSystemTestCase
       first_name: "Test",
       last_name: "User",
       email: "test@example.com",
-      password: "password",
+      password: "password1234",
       password_confirmation: "password123",
       terms_accepted: true,
       confirmed_at: 1.day.ago
@@ -33,7 +33,7 @@ class DashboardMessageInteractionsTest < ApplicationSystemTestCase
       first_name: "Admin",
       last_name: "User",
       email: "admin-system@example.com", 
-      password: "password",
+      password: "password1234",
       password_confirmation: "password123",
       admin: true,
       terms_accepted: true,

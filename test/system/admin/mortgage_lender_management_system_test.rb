@@ -7,7 +7,7 @@ class Admin::MortgageLenderManagementSystemTest < ApplicationSystemTestCase
     # Use actual production-like data setup
     @admin = User.create!(
       email: 'mortgage_admin@test.com',
-      password: 'password',
+      password: 'password1234',
       password_confirmation: 'password123',
       user_type: 'futureproof_admin'
     )

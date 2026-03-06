@@ -115,7 +115,7 @@ class Admin::ApplicationIdSearchIntegrationTest < ActionDispatch::IntegrationTes
 
   def sign_in(user)
     post user_session_path, params: {
-      user: { email: user.email, password: 'password' }
+      user: { email: user.email, password: 'password1234' }
     }
   end
 end

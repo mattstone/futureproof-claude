@@ -46,7 +46,7 @@ class Admin::AiAgentSeedRegressionTest < ActionDispatch::IntegrationTest
     
     # Log in as admin
     post user_session_path, params: {
-      user: { email: @admin.email, password: 'password' }
+      user: { email: @admin.email, password: 'password1234' }
     }
     follow_redirect!
   end
