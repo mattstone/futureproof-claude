@@ -111,6 +111,86 @@ bin/rails csp:report
 
 ---
 
+## PHASE 0A: COMPLIANCE AUDIT & PRODUCT DESIGN (COMPLETED)
+
+**Status:** ✅ ALL 15 WORKS DELIVERED (2026-03-06)  
+**Location:** `/docs/` directory  
+**Impact:** These findings MUST inform all subsequent phases. Do not build features that contradict compliance requirements.
+
+### Deliverables
+
+| Work | Document | Key Finding |
+|------|----------|-------------|
+| 1-2 | `compliance/AUSTRALIA_COMPLIANCE.md` | EPM likely classified as credit product (ACL required). ASIC may also require AFSL if investment component emphasised. Centrelink assets test reduces Age Pension — must disclose prominently. |
+| 3-4 | `compliance/UK_COMPLIANCE.md` | Lifetime mortgage classification. Advised sales ONLY (no self-serve). NNEG mandatory. ERC membership commercially essential. IHT at 40% is major selling point. |
+| 5 | `compliance/NZ_COMPLIANCE.md` | Cleanest jurisdiction — no estate tax, no pension impact, no CGT. FIF tax on offshore ETFs is critical (~$10K/yr if consumer owns portfolio). |
+| 6-7 | `compliance/US_COMPLIANCE.md` | SEC risk is #1 threat (Howey test). Structure as loan advances, not investment returns. Tax-free income mirrors HECM. State-by-state licensing. |
+| 8 | `SECURITY_FRAMEWORK.md` | InputSanitization disabled on User model. No MFA. No field-level encryption for government IDs. Password minimum only 6 chars. |
+| 9 | `TAX_TREATMENT.md` | **Model B (lender owns portfolio) recommended for ALL regions.** Provides tax-free income everywhere, avoids FIF (NZ), avoids Centrelink deeming (AU). |
+| 10 | `ESTATE_BENEFITS.md` | EPM is a growing product (unlike traditional ER which depletes). NNEG protects beneficiaries. Middle case: +£422K estate + £600K income consumed. |
+| 11 | `EPM_VARIANTS.md` | 5 variants: Standard (Phase 1), Growth, Flex, Protect, Legacy (Phases 2-3). Each has different LTV, portfolio strategy, payout structure. |
+| 12 | `INSURANCE_FRAMEWORK.md` | Buildings insurance mandatory. MPI NOT required (NNEG replaces it). NNEG priced as embedded put option. PI + cyber insurance for platform. |
+| 13 | `CERTIFICATIONS_ROADMAP.md` | ~$400K one-time + ~$296K/year. 12-month critical path. UK FCA is longest pole (6-12 months). |
+| 14 | `INCIDENT_RESPONSE.md` | UK 72-hour ICO deadline governs multi-region breaches. Financial calculation errors need specific protocol — overpayment: don't claw back without legal advice. |
+| 15 | `CURRENCY_INFLATION.md` | Full FX hedge too expensive. Income-only hedge recommended. CPI-linked income sustainable 25+ years with 4% annual cap. Deflation is worst-case scenario. |
+
+### Critical Design Decisions (From Phase 0A)
+
+These decisions affect EVERY subsequent phase and must be embedded in the codebase:
+
+1. **Portfolio Ownership: Model B (Lender Owns)**
+   - Consumer receives loan advances only — not investment distributions
+   - Tax-free income in all 4 regions
+   - No FIF tax (NZ), no Centrelink deeming (AU), no 1099 (US), no dividend tax (UK)
+   - Platform does NOT show consumer a portfolio dashboard (they don't own it)
+   - Lender/SPV entity manages investments
+
+2. **Advised Sales Only (All Regions)**
+   - No self-serve EPM purchase flow
+   - Consumer must receive independent advice before contract
+   - Quote engine is informational — application requires adviser involvement
+   - UK: FCA requires this. AU/NZ/US: best practice and likely regulatory expectation
+
+3. **NNEG is Non-Negotiable**
+   - Every EPM contract includes No Negative Equity Guarantee
+   - Beneficiary letter templates required for estate settlement
+   - NNEG pricing built into lender margin (Black-Scholes or equivalent)
+   - UK: ERC membership requires it. Other regions: contractual commitment.
+
+4. **CPI-Linked Income (Standard Variant)**
+   - Annual adjustment by local CPI (ABS, BLS, Stats NZ, ONS)
+   - Cap at 4% p.a. to prevent runaway escalation
+   - Sustainability check: if withdrawal rate >3.5%, flag for review
+   - Show inflation scenarios in every quote (low/base/high)
+
+5. **Security Hardening (Before Launch)**
+   - Re-enable InputSanitization on User model
+   - Enable Devise :lockable (5 attempts → 30 min lockout)
+   - Enable Devise :confirmable (email verification)
+   - Implement MFA for admin roles (devise-two-factor)
+   - Field-level encryption for L4 data (government IDs, credit scores)
+   - Password minimum: 12 chars admin, 10 chars user
+
+6. **Multi-Region Disclosures**
+   - AU: Centrelink impact estimate in every quote
+   - US: "Loan proceeds are not taxable income" disclosure
+   - NZ: "Does not affect NZ Super" marketing highlight
+   - UK: IHT impact calculator in every quote
+   - All: "Seek independent tax/financial advice" at quote, application, and contract stages
+
+### Impact on Existing Phases
+
+| Phase | Changes Required |
+|-------|-----------------|
+| 2.1 (Financial Model) | Add CPI escalation, FX sensitivity, NNEG calculation, Model B structure |
+| 2.2 (Contracts) | Include NNEG clause, advised sales requirement, regional disclosures, beneficiary letter templates |
+| 2.3 (AI Chat) | Agents must never expose portfolio details (consumer doesn't own it). Region-aware tax/pension guidance. |
+| 3.x (UX) | Quote engine shows inflation scenarios, FX sensitivity (non-US), estate impact, Centrelink/IHT estimates |
+| 4.x (Testing) | Test NNEG calculations, CPI adjustment logic, regional disclosure presence, Model B income calculation |
+| 5.1 (Capabilities) | Incorporate 5 product variants, licensing roadmap, compliance matrix, security framework |
+
+---
+
 ## PHASE 1: INFRASTRUCTURE & UPGRADES
 
 ### Task 1.1: Rails & Ruby Upgrade
