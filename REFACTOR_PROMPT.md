@@ -178,6 +178,76 @@ These decisions affect EVERY subsequent phase and must be embedded in the codeba
    - UK: IHT impact calculator in every quote
    - All: "Seek independent tax/financial advice" at quote, application, and contract stages
 
+### Phase 0A Task: Regional Test Data Ecosystem (AU & US)
+
+**Goal:** Seed a complete, realistic business ecosystem for AU and US markets so the platform is immediately usable and demo-ready after refactoring. Every entity in the EPM value chain must exist with realistic data.
+
+**Current State:**
+- ✅ Models exist: `Lender`, `WholesaleFunder`, `FunderPool`, `LenderFunderPool`
+- ❌ No `ReferralPartner` / `Broker` model (mentioned in Phase 5 but not built)
+- ❌ No `InvestmentPartner` model (the entity managing the portfolio under Model B)
+- ❌ Seed data is AU-only — no US entities
+- ❌ Only 1 generic test user — no region-specific consumers with applications
+
+**Required Models (create if missing):**
+
+1. **`ReferralPartner`** (Broker / Mortgage Adviser)
+   - `name`, `company`, `licence_number`, `region` (AU/US), `lender_id` (belongs_to)
+   - `commission_rate`, `status` (active/suspended), `contact_email`, `phone`
+   - Tracks referrals → applications
+
+2. **`InvestmentPartner`** (Investment House / Portfolio Manager)
+   - `name`, `region`, `licence_number`, `aum` (assets under management)
+   - `portfolio_strategy` (balanced/growth/conservative), `fee_rate`
+   - Same global entity (e.g., "FutureProof Capital") but with local jurisdiction entities
+   - Linked to `FunderPool` or `WholesaleFunder`
+
+**Required Seed Data — Australia:**
+
+| Entity Type | Name | Details |
+|-------------|------|---------|
+| **Wholesale Funder** | Macquarie Capital | AUD, $25M pool (exists) |
+| **Wholesale Funder** | IFM Investors | AUD, $20M pool (exists) |
+| **Lender** | FutureProof Financial AU | ACL holder, primary platform lender |
+| **Lender** | Meridian Finance | White-label lender partner |
+| **Investment Partner** | FutureProof Capital AU | AFSL holder, manages EPM portfolios |
+| **Broker** | Helen Chen (Mortgage Choice) | RG 146 qualified, Sydney |
+| **Broker** | James Wright (Aussie Home Loans) | RG 146 qualified, Melbourne |
+| **Consumer** | Margaret Thompson, 68 | $950K property, Mosman NSW, full EPM Standard |
+| **Consumer** | David & Susan Park, 72/70 | $1.2M property, Toorak VIC, joint application |
+| **Consumer** | Robert Kelly, 65 | $780K property, Paddington QLD, pending application |
+| **Consumer** | Patricia Nguyen, 71 | $850K property, Norwood SA, EPM Protect variant |
+| **Consumer** | Alan Mitchell, 60 | $1.5M property, Mosman Park WA, EPM Growth (deferred) |
+
+**Required Seed Data — United States:**
+
+| Entity Type | Name | Details |
+|-------------|------|---------|
+| **Wholesale Funder** | BlackRock Investments | USD, $50M pool (exists, add US detail) |
+| **Wholesale Funder** | Vanguard Institutional | USD, $75M pool, new |
+| **Lender** | FutureProof Financial US | NMLS registered, primary US lender |
+| **Lender** | Pacific Coast Lending | CA-licensed lender partner |
+| **Investment Partner** | FutureProof Capital US | SEC-registered, manages US EPM portfolios |
+| **Broker** | Sarah Johnson (Compass Mortgage) | NMLS licensed, CA |
+| **Broker** | Michael Torres (First Choice Financial) | NMLS licensed, FL |
+| **Consumer** | William & Mary Anderson, 70/68 | $1.1M property, Boca Raton FL, EPM Standard |
+| **Consumer** | Jennifer Liu, 66 | $1.8M property, San Francisco CA, EPM Growth |
+| **Consumer** | Thomas O'Brien, 74 | $920K property, Scottsdale AZ, EPM Standard |
+| **Consumer** | Linda Washington, 69 | $750K property, Brooklyn NY, pending application |
+| **Consumer** | Richard & Carol Martinez, 72/71 | $1.3M property, La Jolla CA, EPM Legacy |
+
+**Each consumer should have:**
+- A `User` account (with regional email/phone format)
+- An `Application` at various stages (draft, submitted, processing, approved, active)
+- For approved/active: a `MortgageContract` with realistic terms (LTV, income rate, margin)
+- Linked to a lender, funder pool, and broker
+
+**Seed file:** Create `db/seeds/regional_ecosystem.rb`
+
+**Token Budget:** 15k tokens
+
+---
+
 ### Impact on Existing Phases
 
 | Phase | Changes Required |
