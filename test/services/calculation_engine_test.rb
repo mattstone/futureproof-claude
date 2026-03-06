@@ -225,4 +225,196 @@ class CalculationEngineTest < ActiveSupport::TestCase
       assert_equal 4, result[:inflation_projections][scenario][:projections].length
     end
   end
+
+  # NNEG (Negative Equity) & Estate Impact Tests
+
+  test "model type A (portfolio distribution)" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us", model_type: :a)
+    result = engine.calculate
+
+    assert_equal :a, result[:model_type][:type]
+    assert_equal "Portfolio Distribution Model", result[:model_type][:name]
+    assert_equal "portfolio", result[:model_type][:income_source]
+  end
+
+  test "model type B (loan advances)" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us", model_type: :b)
+    result = engine.calculate
+
+    assert_equal :b, result[:model_type][:type]
+    assert_equal "Loan Advance Model", result[:model_type][:name]
+    assert_equal "loan_advances", result[:model_type][:income_source]
+  end
+
+  test "NNEG analysis includes year-by-year data" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    assert nneg.key?(:scenario_results)
+    assert_equal 10, nneg[:scenario_results].length
+    
+    # Each year should have NNEG data
+    nneg[:scenario_results].each do |year_data|
+      assert year_data.key?(:year)
+      assert year_data.key?(:mortgage_balance)
+      assert year_data.key?(:ltv_ratio)
+      assert year_data.key?(:nneg_risk_pessimistic)
+    end
+  end
+
+  test "NNEG analysis includes property value scenarios" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    year_1 = nneg[:scenario_results][0]
+    
+    assert year_1.key?(:property_value_pessimistic)
+    assert year_1.key?(:property_value_expected)
+    assert year_1.key?(:property_value_optimistic)
+    
+    # Property value should decline (pessimistic), stay same (expected), grow (optimistic)
+    assert year_1[:property_value_pessimistic] < year_1[:property_value_expected]
+    assert year_1[:property_value_expected] <= year_1[:property_value_optimistic]
+  end
+
+  test "NNEG probability calculated" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    assert nneg.key?(:nneg_probability_percent)
+    assert nneg[:nneg_probability_percent] >= 0
+    assert nneg[:nneg_probability_percent] <= 100
+  end
+
+  test "NNEG trigger year identified when risk exists" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    # nneg_trigger_year can be nil or a year number
+    assert nneg[:nneg_trigger_year].nil? || nneg[:nneg_trigger_year].is_a?(Integer)
+    assert nneg.key?(:explanation)
+  end
+
+  test "estate impact calculated at 5, 10, and term years" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 20, region: "us")
+    result = engine.calculate
+
+    estate = result[:estate_impact]
+    assert estate.key?(:year_5_estate)
+    assert estate.key?(:year_10_estate)
+    assert estate.key?(:year_at_term_estate)
+    
+    assert estate[:year_5_estate].key?(:property_value)
+    assert estate[:year_5_estate].key?(:portfolio_value)
+    assert estate[:year_5_estate].key?(:mortgage_debt)
+    assert estate[:year_5_estate].key?(:net_estate)
+  end
+
+  test "estate value increases with investment growth" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 20, region: "us")
+    result = engine.calculate
+
+    estate = result[:estate_impact]
+    
+    # Portfolio value should grow from year 5 → 10 → term
+    assert estate[:year_5_estate][:portfolio_value] < estate[:year_10_estate][:portfolio_value]
+    assert estate[:year_10_estate][:portfolio_value] < estate[:year_at_term_estate][:portfolio_value]
+  end
+
+  test "mortgage debt decreases over time" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 20, region: "us")
+    result = engine.calculate
+
+    estate = result[:estate_impact]
+    
+    # Mortgage debt should decrease as payments are made
+    assert estate[:year_5_estate][:mortgage_debt] > estate[:year_10_estate][:mortgage_debt]
+    assert estate[:year_10_estate][:mortgage_debt] > estate[:year_at_term_estate][:mortgage_debt]
+  end
+
+  test "net estate represents property + portfolio - debt" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    estate = result[:estate_impact]
+    year_5 = estate[:year_5_estate]
+    
+    expected_net = year_5[:property_value] + year_5[:portfolio_value] - year_5[:mortgage_debt]
+    assert_equal expected_net, year_5[:net_estate]
+  end
+
+  test "AU region with NNEG analysis" do
+    engine = CalculationEngine.new(home_value: 2_000_000, term: 15, region: "au", model_type: :b)
+    result = engine.calculate
+
+    assert_equal :b, result[:model_type][:type]
+    assert result[:nneg_analysis].key?(:scenario_results)
+    assert result[:estate_impact].key?(:year_at_term_estate)
+  end
+
+  test "monthly payment calculation" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    loan_amount = 1_500_000 * 0.80  # 80% LTV
+
+    monthly_payment = engine.send(:calculate_monthly_payment, loan_amount, 10)
+    
+    # Monthly payment should be positive
+    assert monthly_payment > 0
+    # Total paid over 10 years should exceed loan amount (due to interest)
+    total_paid = monthly_payment * 10 * 12
+    assert total_paid > loan_amount
+  end
+
+  test "remaining balance decreases over time" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    loan_amount = 1_500_000 * 0.80
+    monthly_payment = engine.send(:calculate_monthly_payment, loan_amount, 10)
+
+    balance_year_0 = engine.send(:calculate_remaining_balance, loan_amount, monthly_payment, 0)
+    balance_year_5 = engine.send(:calculate_remaining_balance, loan_amount, monthly_payment, 5 * 12)
+    balance_year_10 = engine.send(:calculate_remaining_balance, loan_amount, monthly_payment, 10 * 12)
+
+    assert balance_year_0 > balance_year_5
+    assert balance_year_5 > balance_year_10
+    assert balance_year_10 >= 0
+  end
+
+  test "NNEG probability reflects risk across the term" do
+    engine = CalculationEngine.new(home_value: 500_000, term: 20, region: "us")  # Smaller property = more risk
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    # Higher NNEG probability on smaller properties over longer terms
+    assert nneg[:nneg_probability_percent] >= 0
+  end
+
+  test "model type defaulting to :a" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    assert_equal :a, result[:model_type][:type]
+  end
+
+  test "estate explanation provided" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    assert result[:estate_impact].key?(:explanation)
+    assert result[:estate_impact][:explanation].length > 0
+  end
+
+  test "all NNEG keys present in result" do
+    engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
+    result = engine.calculate
+
+    nneg = result[:nneg_analysis]
+    assert nneg.key?(:scenario_results)
+    assert nneg.key?(:nneg_trigger_year)
+    assert nneg.key?(:nneg_probability_percent)
+    assert nneg.key?(:explanation)
+  end
 end

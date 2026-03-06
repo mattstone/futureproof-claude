@@ -33,11 +33,12 @@ class CalculationEngine
 
   attr_reader :home_value, :term, :region, :model, :region_config
 
-  def initialize(home_value:, term: 10, region: "us", model: :pavel)
+  def initialize(home_value:, term: 10, region: "us", model: :pavel, model_type: :a)
     @home_value = home_value.to_f
     @term = term.to_i
     @region = region.to_s.downcase
     @model = model.to_sym
+    @model_type = model_type.to_sym  # :a or :b
     @region_config = RegionHelper.region_config(@region)
 
     validate!
@@ -50,11 +51,17 @@ class CalculationEngine
       model: model
     )
 
+    max_ltv = region_config["max_ltv"] || 0.80
+    loan_amount = (home_value * max_ltv).round(0)
+
     {
       region: region_details,
       quote: base_quote,
+      model_type: model_type_details,
       scenarios: build_scenarios(base_quote),
       inflation_projections: build_inflation_projections(base_quote),
+      nneg_analysis: build_nneg_analysis(loan_amount, base_quote),
+      estate_impact: build_estate_impact(loan_amount, base_quote),
       equity_preservation: equity_details,
       insurance: insurance_details,
       compliance: compliance_details,
@@ -74,6 +81,82 @@ class CalculationEngine
       max_ltv: config["max_ltv"],
       regulatory_body: config["regulatory_body"],
       tax_note: config["tax_note"]
+    }
+  end
+
+  def model_type_details
+    {
+      type: @model_type,
+      name: @model_type == :a ? "Portfolio Distribution Model" : "Loan Advance Model",
+      description: @model_type == :a ? 
+        "Monthly income derived from investment portfolio returns" :
+        "Monthly income provided via direct loan advances",
+      income_source: @model_type == :a ? "portfolio" : "loan_advances"
+    }
+  end
+
+  def build_nneg_analysis(loan_amount, base_quote)
+    # NNEG = Negative Equity situation where mortgage balance > property value
+    # Calculate year-by-year mortgage balance decline and property value risk
+    
+    monthly_payment = calculate_monthly_payment(loan_amount, term)
+    nneg_years = []
+    
+    (1..term).each do |year|
+      # Remaining mortgage balance after payments
+      remaining_balance = calculate_remaining_balance(loan_amount, monthly_payment, year * 12)
+      
+      # Property value under different market scenarios
+      # Conservative: 1% annual decline, Base: 0% (flat), Optimistic: 2% annual growth
+      property_scenarios = {
+        pessimistic: home_value * ((1 - 0.01) ** year),   # 1% annual decline
+        expected: home_value,                             # No change
+        optimistic: home_value * ((1 + 0.02) ** year)    # 2% annual growth
+      }
+      
+      ltv_ratio = remaining_balance / home_value
+      nneg_years << {
+        year: year,
+        mortgage_balance: remaining_balance.round(0),
+        property_value_pessimistic: property_scenarios[:pessimistic].round(0),
+        property_value_expected: property_scenarios[:expected].round(0),
+        property_value_optimistic: property_scenarios[:optimistic].round(0),
+        ltv_ratio: ltv_ratio.round(3),
+        nneg_risk_pessimistic: remaining_balance > property_scenarios[:pessimistic]
+      }
+    end
+    
+    nneg_trigger_year = nneg_years.find { |y| y[:nneg_risk_pessimistic] }&.dig(:year)
+    nneg_probability = calculate_nneg_probability(nneg_years)
+    
+    {
+      scenario_results: nneg_years,
+      nneg_trigger_year: nneg_trigger_year,
+      nneg_probability_percent: nneg_probability,
+      explanation: nneg_trigger_year ? 
+        "NNEG risk may occur in year #{nneg_trigger_year} in pessimistic scenarios. Insurance covers the shortfall." :
+        "NNEG risk is minimal under standard market conditions. Insurance provides additional protection."
+    }
+  end
+
+  def build_estate_impact(loan_amount, base_quote)
+    # Estate impact: What the beneficiary receives
+    # Estate = (Property Value + Portfolio Value) - Mortgage Balance
+    
+    monthly_payment = calculate_monthly_payment(loan_amount, term)
+    portfolio_growth_rate = 0.07  # Assumed 7% annual investment returns
+    
+    year_end_data = {
+      year_5: calculate_estate_at_year(loan_amount, monthly_payment, 5, portfolio_growth_rate),
+      year_10: calculate_estate_at_year(loan_amount, monthly_payment, 10, portfolio_growth_rate),
+      year_at_term: calculate_estate_at_year(loan_amount, monthly_payment, term, portfolio_growth_rate)
+    }
+    
+    {
+      year_5_estate: year_end_data[:year_5],
+      year_10_estate: year_end_data[:year_10],
+      year_at_term_estate: year_end_data[:year_at_term],
+      explanation: "Estate represents the property and investment portfolio remaining for your beneficiaries after loan and mortgage costs. Insurance protects this value against market downturns."
     }
   end
 
@@ -234,5 +317,63 @@ class CalculationEngine
 
   def number_with_delimiter(number)
     number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+  end
+
+  def calculate_monthly_payment(loan_amount, years)
+    # Standard mortgage amortization
+    # Payment = P * [r(1+r)^n] / [(1+r)^n - 1]
+    # Using 3.5% annual rate (conservative for reverse mortgages)
+    annual_rate = 0.035
+    monthly_rate = annual_rate / 12
+    months = years * 12
+    
+    if monthly_rate == 0
+      loan_amount / months
+    else
+      numerator = loan_amount * monthly_rate * ((1 + monthly_rate) ** months)
+      denominator = ((1 + monthly_rate) ** months) - 1
+      (numerator / denominator).round(0)
+    end
+  end
+
+  def calculate_remaining_balance(loan_amount, monthly_payment, months)
+    # Remaining balance after N payments
+    # B = P(1+r)^n - PMT * [((1+r)^n - 1) / r]
+    annual_rate = 0.035
+    monthly_rate = annual_rate / 12
+    
+    if monthly_rate == 0
+      loan_amount - (monthly_payment * months)
+    else
+      balance = loan_amount * ((1 + monthly_rate) ** months)
+      balance -= monthly_payment * (((1 + monthly_rate) ** months) - 1) / monthly_rate
+      [balance, 0].max.round(0)  # Never negative
+    end
+  end
+
+  def calculate_nneg_probability(nneg_years)
+    # NNEG probability = % of years where NNEG risk exists in pessimistic scenario
+    nneg_count = nneg_years.count { |y| y[:nneg_risk_pessimistic] }
+    ((nneg_count.to_f / nneg_years.length) * 100).round(0)
+  end
+
+  def calculate_estate_at_year(loan_amount, monthly_payment, year, portfolio_growth_rate)
+    # Estate = Property + Portfolio - Mortgage Debt
+    remaining_mortgage = calculate_remaining_balance(loan_amount, monthly_payment, year * 12)
+    
+    # Portfolio value at year X (monthly income accumulated + growth)
+    monthly_income = loan_amount / (term * 12)  # Average distribution
+    monthly_income_accumulated = monthly_income * year * 12
+    portfolio_growth = monthly_income_accumulated * ((1 + portfolio_growth_rate) ** year)
+    
+    property_value_at_year = home_value * (1 - 0.005 * year)  # Conservative: 0.5% annual decline
+    estate_value = (property_value_at_year + portfolio_growth - remaining_mortgage).round(0)
+    
+    {
+      property_value: property_value_at_year.round(0),
+      portfolio_value: portfolio_growth.round(0),
+      mortgage_debt: remaining_mortgage.round(0),
+      net_estate: [estate_value, 0].max.round(0)
+    }
   end
 end
