@@ -21,6 +21,16 @@ class CalculationEngine
     optimistic: 1.30     # 75th percentile
   }.freeze
 
+  # Inflation scenarios for income projections
+  INFLATION_SCENARIOS = {
+    low: 0.01,      # 1% annual inflation
+    base: 0.025,    # 2.5% annual inflation
+    high: 0.05      # 5% annual inflation
+  }.freeze
+
+  # Maximum annual CPI escalation cap
+  MAX_CPI_ESCALATION = 0.04
+
   attr_reader :home_value, :term, :region, :model, :region_config
 
   def initialize(home_value:, term: 10, region: "us", model: :pavel)
@@ -44,6 +54,7 @@ class CalculationEngine
       region: region_details,
       quote: base_quote,
       scenarios: build_scenarios(base_quote),
+      inflation_projections: build_inflation_projections(base_quote),
       equity_preservation: equity_details,
       insurance: insurance_details,
       compliance: compliance_details,
@@ -107,6 +118,44 @@ class CalculationEngine
         total_income: (annual * term).round(0)
       }
     end
+  end
+
+  def build_inflation_projections(base_quote)
+    base_monthly = base_quote[:monthly_income]
+
+    INFLATION_SCENARIOS.transform_values do |inflation_rate|
+      {
+        inflation_rate_percent: (inflation_rate * 100).to_i,
+        projections: [5, 10, 15, 20].map do |years|
+          escalated_monthly = apply_cpi_escalation(base_monthly, years, inflation_rate)
+          {
+            years: years,
+            monthly_income: escalated_monthly,
+            annual_income: (escalated_monthly * 12).round(0),
+            cumulative_income: calculate_cumulative_income(base_monthly, years, inflation_rate)
+          }
+        end
+      }
+    end
+  end
+
+  def apply_cpi_escalation(base_amount, years, inflation_rate)
+    # Apply inflation rate annually, capped at MAX_CPI_ESCALATION per year
+    capped_inflation = [inflation_rate, MAX_CPI_ESCALATION].min
+    (base_amount * ((1 + capped_inflation) ** years)).round(0)
+  end
+
+  def calculate_cumulative_income(base_monthly, years, inflation_rate)
+    # Calculate total income over the projection period with annual CPI adjustments
+    cumulative = 0
+    capped_inflation = [inflation_rate, MAX_CPI_ESCALATION].min
+
+    (1..years).each do |year|
+      monthly = apply_cpi_escalation(base_monthly, year - 1, inflation_rate)
+      cumulative += (monthly * 12)
+    end
+
+    cumulative.round(0)
   end
 
   def equity_details
