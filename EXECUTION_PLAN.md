@@ -95,12 +95,12 @@
 - [x] Commit (e3c760d)
 
 #### Step 0.4 — InvestmentPartner Model
-- [ ] Generate model: `InvestmentPartner` (name, region, licence_number, aum, portfolio_strategy, fee_rate, status)
-- [ ] Add association to `FunderPool` or `WholesaleFunder` (polymorphic or direct FK)
-- [ ] Add validations
-- [ ] Add PaperTrail tracking
-- [ ] Write model test
-- [ ] Run tests, commit
+- [x] Generated InvestmentPartner model (name, region, licence_number, aum, portfolio_strategy, fee_rate, status)
+- [x] belongs_to :wholesale_funder (direct FK)
+- [x] Validations: name, region, licence_number (globally unique), aum/fee_rate numeric ranges
+- [x] PaperTrail + InputSanitization enabled
+- [x] 11 model tests passing
+- [x] Commit (c93a6ca)
 
 #### Step 0.5 — AU Seed Ecosystem
 - [ ] Create `db/seeds/regional_ecosystem_au.rb`
@@ -436,7 +436,7 @@ Each session should tackle 2-4 steps (depending on complexity). Suggested groupi
 Mark steps complete as they're done:
 
 ```
-Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [ ] 0.4  [ ] 0.5  [ ] 0.6
+Phase 0: [x] 0.1  [x] 0.2  [x] 0.3  [x] 0.4  [ ] 0.5  [ ] 0.6
 Phase 1: [ ] 1.1  [ ] 1.2  [ ] 1.3a [ ] 1.3b [ ] 1.3c
 Phase 2: [ ] 2.1a [ ] 2.1b [ ] 2.1c [ ] 2.2a [ ] 2.2b [ ] 2.2c [ ] 2.2d [ ] 2.2e
          [ ] 2.3a [ ] 2.3b [ ] 2.3c [ ] 2.4a [ ] 2.4b
