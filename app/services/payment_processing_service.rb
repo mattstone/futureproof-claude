@@ -63,6 +63,8 @@ class PaymentProcessingService
       amount: monthly_payment,
       lender_margin: calculate_lender_margin(monthly_payment),
       distribution_date: distribution_date,
+      payment_period_year: @distribution_year,
+      payment_period_month: @distribution_month,
       status: :pending,
       payment_method: 'ach',  # Default to ACH
       notes: "Automatic monthly EPM distribution for #{Date.new(@distribution_year, @distribution_month, 1).strftime('%B %Y')}"

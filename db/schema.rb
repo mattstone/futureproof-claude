@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_011001) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_102200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -447,6 +447,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_011001) do
     t.bigint "mortgage_id"
     t.text "notes"
     t.string "payment_method"
+    t.integer "payment_period_month"
+    t.integer "payment_period_year"
     t.datetime "processed_at"
     t.integer "status", default: 0
     t.string "transaction_id"

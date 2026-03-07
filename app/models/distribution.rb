@@ -18,7 +18,7 @@ class Distribution < ApplicationRecord
   validates :status, presence: true
   validates :payment_method, presence: true, if: -> { processing? || completed? }
   
-  scope :for_month, ->(year, month) { where("EXTRACT(YEAR FROM distribution_date) = ? AND EXTRACT(MONTH FROM distribution_date) = ?", year, month) }
+  scope :for_month, ->(year, month) { where(payment_period_year: year, payment_period_month: month) }
   scope :pending_payments, -> { where(status: :pending) }
   scope :completed_payments, -> { where(status: :completed) }
   scope :recent, -> { order(distribution_date: :desc) }
