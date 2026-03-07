@@ -41,7 +41,8 @@ class Application < ApplicationRecord
     submitted: 4,
     processing: 5,
     rejected: 6,
-    accepted: 7
+    accepted: 7,
+    activated: 8
   }, prefix: true
 
   # Validations

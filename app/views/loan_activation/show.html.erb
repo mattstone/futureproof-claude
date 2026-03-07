@@ -1,0 +1,54 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Portal", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6">Activate Your Loan</h1>
+
+  <div class="bg-green-50 border-l-4 border-green-600 rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold text-green-900 mb-4">Your application has been approved</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <p class="text-gray-600 text-sm">Loan Amount</p>
+        <p class="text-2xl font-bold text-green-700"><%= number_to_currency(@application.approved_loan_amount || 0) %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Interest Rate</p>
+        <p class="text-2xl font-bold"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Term</p>
+        <p class="text-2xl font-bold"><%= @application.approved_term_years %> years</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Before You Activate</h2>
+    <ul class="space-y-3 text-gray-700">
+      <li class="flex items-start gap-3">
+        <span class="text-green-600 font-bold mt-1">✓</span>
+        <span>Review all loan terms and conditions carefully</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="text-green-600 font-bold mt-1">✓</span>
+        <span>Ensure your property details are correct: <strong><%= @application.address %></strong></span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="text-green-600 font-bold mt-1">✓</span>
+        <span>Confirm your identity documents have been verified</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="text-green-600 font-bold mt-1">✓</span>
+        <span>Understand that activation begins the loan disbursement process</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <%= form_with url: loan_activation_confirm_path(@region, @application), method: :post, class: "text-center" do %>
+      <p class="text-gray-600 mb-6">By clicking below, you confirm that you have reviewed and agree to all loan terms.</p>
+      <%= submit_tag "Activate Loan", class: "px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg cursor-pointer" %>
+    <% end %>
+  </div>
+</div>
