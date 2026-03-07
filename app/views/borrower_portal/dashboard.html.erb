@@ -1,0 +1,60 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Borrower Portal</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Application Status Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Application Status</h2>
+      <div class="space-y-2">
+        <p class="text-gray-600">Status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
+        <p class="text-gray-600">Application ID: <span class="font-mono"><%= @application.id %></span></p>
+        <p class="text-gray-600">Submitted: <span><%= @application.created_at.strftime("%d %B %Y") %></span></p>
+      </div>
+    </div>
+
+    <!-- Loan Terms Card (if approved) -->
+    <% if @application.status == 'accepted' %>
+    <div class="bg-green-50 border-l-4 border-green-600 rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Approved Loan Terms</h2>
+      <div class="space-y-2">
+        <p class="text-gray-600">Loan Amount: <span class="font-semibold text-green-700"><%= number_to_currency(@application.approved_loan_amount || 0) %></span></p>
+        <p class="text-gray-600">Interest Rate: <span class="font-semibold"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></span></p>
+        <p class="text-gray-600">Term: <span class="font-semibold"><%= @application.approved_term_years %> years</span></p>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+  <!-- Quick Links Section -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Quick Links</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <%= link_to "Loan Details", borrower_portal_loan_details_path(@region, @application), class: "block p-4 border rounded hover:bg-blue-50 text-center text-blue-600 font-semibold" %>
+      <%= link_to "Property Details", borrower_portal_property_details_path(@region, @application), class: "block p-4 border rounded hover:bg-blue-50 text-center text-blue-600 font-semibold" %>
+      <%= link_to "Annuity Schedule", borrower_portal_annuity_schedule_path(@region, @application), class: "block p-4 border rounded hover:bg-blue-50 text-center text-blue-600 font-semibold" %>
+      <%= link_to "Documents", borrower_portal_documents_path(@region, @application), class: "block p-4 border rounded hover:bg-blue-50 text-center text-blue-600 font-semibold" %>
+      <% if @application.status == 'accepted' %>
+        <%= link_to "Activate Loan", loan_activation_path(@region, @application), class: "block p-4 border rounded hover:bg-green-50 text-center text-green-600 font-semibold" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Borrower Information -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">Your Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-gray-600">Borrower Name(s): <span class="font-semibold"><%= @application.borrower_names || "Not provided" %></span></p>
+      </div>
+      <div>
+        <p class="text-gray-600">Age: <span class="font-semibold"><%= @application.borrower_age || "Not provided" %></span></p>
+      </div>
+      <div>
+        <p class="text-gray-600">Credit Score: <span class="font-semibold"><%= @application.credit_score || "Not provided" %></span></p>
+      </div>
+      <div>
+        <p class="text-gray-600">Ownership Status: <span class="font-semibold"><%= @application.ownership_status&.humanize || "Not provided" %></span></p>
+      </div>
+    </div>
+  </div>
+</div>

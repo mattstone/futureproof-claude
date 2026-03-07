@@ -1,0 +1,91 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6">Annuity Schedule</h1>
+
+  <% if @application.status == 'accepted' && @application.approved_loan_amount && @application.approved_interest_rate && @application.approved_term_years %>
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-600">
+        <p class="text-gray-700">This schedule shows the projected monthly payments for your loan.</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b-2 border-gray-300">
+            <tr>
+              <th class="text-left p-3">Month</th>
+              <th class="text-right p-3">Principal</th>
+              <th class="text-right p-3">Interest</th>
+              <th class="text-right p-3">Payment</th>
+              <th class="text-right p-3">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%
+              loan_amount = @application.approved_loan_amount.to_f
+              annual_rate = @application.approved_interest_rate.to_f / 100
+              monthly_rate = annual_rate / 12
+              months = @application.approved_term_years * 12
+              
+              # Calculate monthly payment using standard formula
+              if monthly_rate > 0
+                monthly_payment = loan_amount * (monthly_rate * (1 + monthly_rate) ** months) / ((1 + monthly_rate) ** months - 1)
+              else
+                monthly_payment = loan_amount / months
+              end
+              
+              remaining_balance = loan_amount
+            %>
+            <% (1..Math.min(months, 60)).each do |month| %>
+              <%
+                interest_payment = remaining_balance * monthly_rate
+                principal_payment = monthly_payment - interest_payment
+                remaining_balance -= principal_payment
+              %>
+              <tr class="<%= month.even? ? 'bg-gray-50' : '' %> border-b border-gray-200 hover:bg-blue-50">
+                <td class="p-3"><%= month %></td>
+                <td class="text-right p-3"><%= number_to_currency(principal_payment) %></td>
+                <td class="text-right p-3"><%= number_to_currency(interest_payment) %></td>
+                <td class="text-right p-3 font-semibold"><%= number_to_currency(monthly_payment) %></td>
+                <td class="text-right p-3"><%= number_to_currency([remaining_balance, 0].max) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if months > 60 %>
+        <p class="text-gray-600 text-sm mt-4">Showing first 60 months of <%= months %> total months</p>
+      <% end %>
+
+      <div class="mt-6 p-4 bg-gray-50 rounded border">
+        <h3 class="font-semibold mb-2">Loan Summary</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <p class="text-gray-600">Monthly Payment</p>
+            <p class="font-semibold"><%= number_to_currency(monthly_payment) %></p>
+          </div>
+          <div>
+            <p class="text-gray-600">Loan Amount</p>
+            <p class="font-semibold"><%= number_to_currency(loan_amount) %></p>
+          </div>
+          <div>
+            <p class="text-gray-600">Interest Rate</p>
+            <p class="font-semibold"><%= number_to_percentage(@application.approved_interest_rate, precision: 2) %></p>
+          </div>
+          <div>
+            <p class="text-gray-600">Term</p>
+            <p class="font-semibold"><%= @application.approved_term_years %> years</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded">
+      <p class="text-yellow-700 font-semibold">Annuity schedule will be available once your application is approved.</p>
+      <p class="text-yellow-700 mt-2">Current status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
+    </div>
+  <% end %>
+</div>

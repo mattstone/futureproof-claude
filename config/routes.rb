@@ -274,6 +274,28 @@ Rails.application.routes.draw do
     get 'support', to: 'support#chat', as: 'support_chat'
     post 'support/send_message', to: 'support#send_message', as: 'support_send_message'
     delete 'support/clear', to: 'support#clear', as: 'support_clear'
+
+    # Borrower Portal (authenticated borrowers only)
+    get 'borrower_portal/:application_id', to: 'borrower_portal#dashboard', as: 'borrower_portal'
+    get 'borrower_portal/:application_id/annuity_schedule', to: 'borrower_portal#annuity_schedule', as: 'borrower_portal_annuity_schedule'
+    get 'borrower_portal/:application_id/loan_details', to: 'borrower_portal#loan_details', as: 'borrower_portal_loan_details'
+    get 'borrower_portal/:application_id/property_details', to: 'borrower_portal#property_details', as: 'borrower_portal_property_details'
+    get 'borrower_portal/:application_id/documents', to: 'borrower_portal#documents', as: 'borrower_portal_documents'
+
+    # Loan Activation (authenticated borrowers - approved applications only)
+    get 'loan_activation/:application_id', to: 'loan_activation#show', as: 'loan_activation'
+    post 'loan_activation/:application_id', to: 'loan_activation#activate', as: 'loan_activation_confirm'
+
+    # Lender Dashboard (authenticated lenders only)
+    namespace :lender_dashboard do
+      get '/', to: 'lender_dashboard#index', as: 'index'
+      get 'applications', to: 'lender_dashboard#applications', as: 'applications'
+      get 'applications/:id', to: 'lender_dashboard#application_detail', as: 'application_detail'
+      get 'payments', to: 'lender_dashboard#payments', as: 'payments'
+      get 'reports', to: 'lender_dashboard#reports', as: 'reports'
+      get 'account', to: 'lender_dashboard#account', as: 'account'
+      patch 'account', to: 'lender_dashboard#update_account', as: 'update_account'
+    end
   end
 
   # Legal document routes (region-specific contracts, agreements, terms, privacy)

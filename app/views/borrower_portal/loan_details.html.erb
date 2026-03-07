@@ -1,0 +1,70 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6">Loan Details</h1>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Approved Loan Terms</h2>
+    
+    <% if @application.status == 'accepted' %>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="border-l-4 border-blue-600 pl-4">
+          <p class="text-gray-600 text-sm">Loan Amount</p>
+          <p class="text-2xl font-bold text-blue-600"><%= number_to_currency(@application.approved_loan_amount || 0) %></p>
+        </div>
+        
+        <div class="border-l-4 border-green-600 pl-4">
+          <p class="text-gray-600 text-sm">Interest Rate</p>
+          <p class="text-2xl font-bold text-green-600"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></p>
+        </div>
+        
+        <div class="border-l-4 border-purple-600 pl-4">
+          <p class="text-gray-600 text-sm">Term</p>
+          <p class="text-2xl font-bold text-purple-600"><%= @application.approved_term_years %> years</p>
+        </div>
+      </div>
+
+      <hr class="my-6" />
+
+      <h3 class="text-lg font-semibold mb-4">Loan Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="text-gray-600">Loan Status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
+        </div>
+        <div>
+          <p class="text-gray-600">Loan Term: <span class="font-semibold"><%= @application.loan_term %> months</span></p>
+        </div>
+        <% if @application.has_existing_mortgage %>
+          <div>
+            <p class="text-gray-600">Existing Mortgage: <span class="font-semibold"><%= number_to_currency(@application.existing_mortgage_amount || 0) %></span></p>
+          </div>
+          <div>
+            <p class="text-gray-600">Existing Lender: <span class="font-semibold"><%= @application.existing_mortgage_lender || "Not provided" %></span></p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-yellow-50 border-l-4 border-yellow-600 p-4">
+        <p class="text-yellow-700">Loan details will be available once your application is approved.</p>
+        <p class="text-yellow-700 mt-2">Current status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">Application Summary</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-gray-600">Application ID: <span class="font-mono text-sm"><%= @application.id %></span></p>
+      </div>
+      <div>
+        <p class="text-gray-600">Region: <span class="font-semibold"><%= @application.region.upcase %></span></p>
+      </div>
+      <div>
+        <p class="text-gray-600">Submitted: <span><%= @application.created_at.strftime("%d %B %Y %H:%M") %></span></p>
+      </div>
+    </div>
+  </div>
+</div>

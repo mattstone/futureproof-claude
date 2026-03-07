@@ -1,0 +1,70 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6">Documents</h1>
+
+  <% if @application.documents.any? %>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-gray-100 border-b border-gray-300">
+          <tr>
+            <th class="text-left p-4 font-semibold">Document Name</th>
+            <th class="text-left p-4 font-semibold">Status</th>
+            <th class="text-left p-4 font-semibold">Uploaded</th>
+            <th class="text-center p-4 font-semibold">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @application.documents.each do |doc| %>
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="p-4">
+                <p class="font-semibold"><%= doc.document_type&.humanize || "Document" %></p>
+              </td>
+              <td class="p-4">
+                <% case doc.status %>
+                  <% when 'verified' %>
+                    <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">✓ Verified</span>
+                  <% when 'pending' %>
+                    <span class="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm font-semibold">⏳ Pending Review</span>
+                  <% when 'rejected' %>
+                    <span class="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-semibold">✗ Rejected</span>
+                  <% else %>
+                    <span class="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-semibold"><%= doc.status&.humanize %></span>
+                <% end %>
+              </td>
+              <td class="p-4 text-gray-600">
+                <%= doc.created_at.strftime("%d %B %Y") %>
+              </td>
+              <td class="p-4 text-center">
+                <% if doc.file_path || doc.file_url %>
+                  <%= link_to "Download", doc.file_url || doc.file_path, class: "text-blue-600 hover:underline font-semibold", target: "_blank" %>
+                <% else %>
+                  <span class="text-gray-400">—</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-center py-12">
+        <p class="text-gray-600 text-lg">No documents uploaded yet.</p>
+        <p class="text-gray-500 mt-2">Documents will appear here as you submit your application.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Document Status Info -->
+  <div class="mt-6 bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
+    <h3 class="font-semibold text-blue-900 mb-2">Document Status Guide</h3>
+    <ul class="text-blue-800 text-sm space-y-1">
+      <li><span class="font-semibold">✓ Verified</span> — Document has been reviewed and accepted</li>
+      <li><span class="font-semibold">⏳ Pending Review</span> — Document has been uploaded and is under review</li>
+      <li><span class="font-semibold">✗ Rejected</span> — Document was rejected. Please re-upload a corrected version.</li>
+    </ul>
+  </div>
+</div>

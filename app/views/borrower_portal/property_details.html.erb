@@ -1,0 +1,102 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6">Property Details</h1>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Property Information</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <p class="text-gray-600 text-sm">Address</p>
+        <p class="text-lg font-semibold"><%= @application.address || "Not provided" %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 text-sm">Property Type</p>
+        <p class="text-lg font-semibold"><%= @application.property_type&.humanize || "Not provided" %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 text-sm">Property State</p>
+        <p class="text-lg font-semibold"><%= @application.property_state&.humanize || "Not provided" %></span></p>
+      </div>
+
+      <div>
+        <p class="text-gray-600 text-sm">Home Value</p>
+        <p class="text-lg font-semibold"><%= number_to_currency(@application.home_value || 0) %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Property Valuations -->
+  <% if @application.property_valuation_low || @application.property_valuation_middle || @application.property_valuation_high %>
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Property Valuations</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border rounded p-4">
+        <p class="text-gray-600 text-sm">Low Valuation</p>
+        <p class="text-xl font-bold text-red-600"><%= number_to_currency(@application.property_valuation_low || 0) %></p>
+      </div>
+      
+      <div class="border rounded p-4">
+        <p class="text-gray-600 text-sm">Middle Valuation</p>
+        <p class="text-xl font-bold text-blue-600"><%= number_to_currency(@application.property_valuation_middle || 0) %></p>
+      </div>
+      
+      <div class="border rounded p-4">
+        <p class="text-gray-600 text-sm">High Valuation</p>
+        <p class="text-xl font-bold text-green-600"><%= number_to_currency(@application.property_valuation_high || 0) %></p>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
+  <!-- Property Images -->
+  <% if @application.property_images.present? %>
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Property Images</h2>
+    
+    <% begin %>
+      <% images = JSON.parse(@application.property_images) %>
+      <% if images.is_a?(Array) && images.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% images.each do |image| %>
+            <div class="border rounded overflow-hidden">
+              <img src="<%= image %>" alt="Property image" class="w-full h-48 object-cover">
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% rescue %>
+      <p class="text-gray-600">Unable to load property images</p>
+    <% end %>
+  </div>
+  <% end %>
+
+  <!-- CoreLogic Data -->
+  <% if @application.corelogic_data.present? %>
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">Additional Property Information</h2>
+    
+    <% begin %>
+      <% data = JSON.parse(@application.corelogic_data) %>
+      <% if data.is_a?(Hash) && data.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% data.slice("bedrooms", "bathrooms", "garage", "land_area", "building_area").each do |key, value| %>
+            <div>
+              <p class="text-gray-600 text-sm"><%= key.humanize %></p>
+              <p class="font-semibold"><%= value %></p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% rescue %>
+      <p class="text-gray-600">Unable to load additional property information</p>
+    <% end %>
+  </div>
+  <% end %>
+</div>
