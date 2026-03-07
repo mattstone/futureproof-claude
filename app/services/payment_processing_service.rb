@@ -1,10 +1,10 @@
 class PaymentProcessingService
-  # Process monthly distributions for approved applications
+  # Process EPM distributions for approved applications
   #
   # This service:
-  # 1. Calculates monthly payment based on approved loan amount and interest rate
+  # 1. Calculates distribution amount based on equity participation
   # 2. Creates a Distribution record with pending status
-  # 3. Processes payment through mock payment processor
+  # 3. Processes distribution through mock payment processor
   # 4. Updates distribution status and transaction ID
   # 5. Logs all activity for compliance
   
@@ -51,17 +51,17 @@ class PaymentProcessingService
     existing = application.distributions.for_month(@distribution_year, @distribution_month).first
     return existing if existing.present?
     
-    # Calculate payment amount
-    monthly_payment = calculate_monthly_payment
-    return nil if monthly_payment.zero?
+    # Calculate distribution amount
+    distribution_amount = calculate_distribution_amount
+    return nil if distribution_amount.zero?
     
     # Determine distribution date (first of next month)
     distribution_date = Date.new(@distribution_year, @distribution_month, 1) + 1.month
     
     # Create distribution record
     distribution = application.distributions.create!(
-      amount: monthly_payment,
-      lender_margin: calculate_lender_margin(monthly_payment),
+      amount: distribution_amount,
+      lender_margin: calculate_lender_margin(distribution_amount),
       distribution_date: distribution_date,
       payment_period_year: @distribution_year,
       payment_period_month: @distribution_month,
@@ -78,19 +78,16 @@ class PaymentProcessingService
   
   private
   
-  def calculate_monthly_payment
+  def calculate_distribution_amount
     return 0 if application.status != 'accepted' || application.approved_loan_amount.nil?
     
-    # Calculate monthly payment using approved terms
-    # Monthly Payment = P * [r(1+r)^n] / [(1+r)^n - 1]
-    principal = application.approved_loan_amount.to_f
-    annual_rate = application.approved_interest_rate.to_f / 100
-    monthly_rate = annual_rate / 12
-    num_payments = application.approved_term_years * 12
+    # EPM: Calculate distribution based on equity participation
+    # This is a placeholder - in production, would be based on property performance
+    equity_investment = application.approved_loan_amount.to_f
     
-    return principal if monthly_rate.zero?
-    
-    (principal * (monthly_rate * (1 + monthly_rate) ** num_payments) / ((1 + monthly_rate) ** num_payments - 1)).round(2)
+    # Temporary: Simple percentage of equity investment as monthly distribution
+    # TODO: Replace with property income/appreciation calculations
+    (equity_investment * 0.005).round(2)  # 0.5% of equity per distribution
   end
   
   def calculate_lender_margin(payment_amount)
