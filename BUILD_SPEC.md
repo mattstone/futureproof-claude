@@ -21,7 +21,21 @@ The platform has a working core loop: Quote → Application → Approval → Dis
 
 ## What Needs Building
 
+**⚠️ CRITICAL: See `AUDIT_REPORT.md` - platform is using traditional mortgage logic instead of EPM. This must be fixed before building new features.**
+
 Build each feature below as a self-contained unit. After each one: run `bundle exec rails test`, confirm 0 failures, commit.
+
+### 0. **EPM Logic Fix (Priority: CRITICAL)**
+
+**MUST DO FIRST** - The platform currently implements traditional mortgage logic where borrowers pay monthly amounts to lenders. EPM should work in reverse: lenders invest capital and receive distributions from property performance.
+
+**Files to fix:**
+- `app/services/payment_processing_service.rb` - Remove amortization formula, auto-generation
+- `app/models/distribution.rb` - Remove monthly payment scopes, add approval workflow  
+- Application schema - Rename loan fields to equity fields
+- Remove `payment_period_month/year` dependencies
+
+**See AUDIT_REPORT.md for complete analysis and fix recommendations.**
 
 ### 1. Borrower Portal (Priority: HIGH)
 

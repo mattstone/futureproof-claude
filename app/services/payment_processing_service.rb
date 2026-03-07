@@ -47,8 +47,8 @@ class PaymentProcessingService
   end
   
   def process_payment
-    # Don't create duplicate distributions for same month
-    existing = application.distributions.for_month(@distribution_year, @distribution_month).first
+    # Don't create duplicate distributions for same period
+    existing = application.distributions.for_period(@distribution_year, @distribution_month).first
     return existing if existing.present?
     
     # Calculate distribution amount

@@ -18,9 +18,9 @@ class Distribution < ApplicationRecord
   validates :status, presence: true
   validates :payment_method, presence: true, if: -> { processing? || completed? }
   
-  scope :for_month, ->(year, month) { where(payment_period_year: year, payment_period_month: month) }
-  scope :pending_payments, -> { where(status: :pending) }
-  scope :completed_payments, -> { where(status: :completed) }
+  scope :for_period, ->(year, month) { where(payment_period_year: year, payment_period_month: month) }
+  scope :pending_distributions, -> { where(status: :pending) }
+  scope :completed_distributions, -> { where(status: :completed) }
   scope :recent, -> { order(distribution_date: :desc) }
   
   def mark_as_processing!(transaction_id = nil)
@@ -35,7 +35,7 @@ class Distribution < ApplicationRecord
       
       # Log the completion
       if application.user.present?
-        Rails.logger.info("Monthly distribution of $#{amount.to_i} paid to #{application.user.email} on #{distribution_date}")
+        Rails.logger.info("EPM distribution of $#{amount.to_i} completed to #{application.user.email} on #{distribution_date}")
       end
     end
   end
@@ -50,6 +50,6 @@ class Distribution < ApplicationRecord
   def retry!
     return if status == 'processing'
     update!(status: :pending, failed_at: nil, transaction_id: nil)
-    Rails.logger.info("Distribution #{id} retrying payment")
+    Rails.logger.info("Distribution #{id} retrying EPM distribution")
   end
 end
