@@ -282,6 +282,9 @@ Rails.application.routes.draw do
     get 'borrower_portal/:application_id/property_details', to: 'borrower_portal#property_details', as: 'borrower_portal_property_details'
     get 'borrower_portal/:application_id/documents', to: 'borrower_portal#documents', as: 'borrower_portal_documents'
 
+    # Key Facts Sheet (legal document)
+    get 'key_facts_sheet/:application_id', to: 'legal_documents#key_facts_sheet', as: 'key_facts_sheet'
+
     # Loan Activation (authenticated borrowers - approved applications only)
     get 'loan_activation/:application_id', to: 'loan_activation#show', as: 'loan_activation'
     post 'loan_activation/:application_id', to: 'loan_activation#activate', as: 'loan_activation_confirm'

@@ -1,0 +1,112 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="mb-6 no-print">
+    <%= link_to "← Back to Portal", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+    <button onclick="window.print()" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Print / Save PDF</button>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-8 print:shadow-none">
+    <div class="text-center mb-8 border-b pb-6">
+      <h1 class="text-3xl font-bold">Key Facts Sheet</h1>
+      <p class="text-gray-600 mt-2">Equity Partner Mortgage — Summary of Terms</p>
+      <p class="text-gray-500 text-sm mt-1">Generated: <%= Date.current.strftime("%d %B %Y") %></p>
+    </div>
+
+    <!-- Section 1: Lender -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">1. Your Lender</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-gray-600 text-sm">Lender Name</p>
+          <p class="font-semibold"><%= @lender&.name || "FutureProof Finance" %></p>
+        </div>
+        <div>
+          <p class="text-gray-600 text-sm">Contact</p>
+          <p class="font-semibold"><%= @lender&.contact_email || "contact@futureproof.com" %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Loan Details -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">2. Loan Details</h2>
+      <table class="w-full">
+        <tbody>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600 w-1/2">Loan Amount</td>
+            <td class="py-3 font-semibold text-right"><%= number_to_currency(@application.approved_loan_amount || 0) %></td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Annual Interest Rate</td>
+            <td class="py-3 font-semibold text-right"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Loan Term</td>
+            <td class="py-3 font-semibold text-right"><%= @application.approved_term_years || "N/A" %> years</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Loan Type</td>
+            <td class="py-3 font-semibold text-right">Equity Partner Mortgage (EPM)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 3: Property -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">3. Property</h2>
+      <table class="w-full">
+        <tbody>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600 w-1/2">Property Address</td>
+            <td class="py-3 font-semibold text-right"><%= @application.address || "Not provided" %></td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Estimated Value</td>
+            <td class="py-3 font-semibold text-right"><%= number_to_currency(@application.home_value || 0) %></td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Property Type</td>
+            <td class="py-3 font-semibold text-right"><%= @application.property_type&.humanize || "N/A" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 4: Borrower -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">4. Borrower</h2>
+      <table class="w-full">
+        <tbody>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600 w-1/2">Name(s)</td>
+            <td class="py-3 font-semibold text-right"><%= @application.borrower_names || "Not provided" %></td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3 text-gray-600">Ownership Structure</td>
+            <td class="py-3 font-semibold text-right"><%= @application.ownership_status&.humanize || "N/A" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 5: Important Information -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">5. Important Information</h2>
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+        <p class="text-sm text-yellow-800"><strong>Warning:</strong> This is a summary only. Please read the full loan agreement before signing. If you do not understand any terms, seek independent legal and financial advice.</p>
+      </div>
+      <ul class="space-y-2 text-gray-700 text-sm">
+        <li>• The lender acquires an equity stake in your property in exchange for capital.</li>
+        <li>• You retain ownership and use of the property during the loan term.</li>
+        <li>• Distributions are calculated based on the approved loan terms above.</li>
+        <li>• Early termination may incur fees as outlined in the full agreement.</li>
+        <li>• Property valuations may be required periodically.</li>
+      </ul>
+    </div>
+
+    <div class="border-t-2 pt-6 text-center text-gray-500 text-sm">
+      <p>Application Reference: <%= @application.id %> | Region: <%= @region&.upcase %></p>
+      <p class="mt-1">This document was generated automatically and does not constitute legal advice.</p>
+    </div>
+  </div>
+</div>
