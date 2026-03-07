@@ -55,8 +55,8 @@ class PaymentProcessingService
     distribution_amount = calculate_distribution_amount
     return nil if distribution_amount.zero?
     
-    # Determine distribution date (first of next month)
-    distribution_date = Date.new(@distribution_year, @distribution_month, 1) + 1.month
+    # Determine distribution date (first of the distribution month)
+    distribution_date = Date.new(@distribution_year, @distribution_month, 1)
     
     # Create distribution record
     distribution = application.distributions.create!(
