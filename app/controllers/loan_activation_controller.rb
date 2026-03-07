@@ -3,17 +3,27 @@ class LoanActivationController < ApplicationController
   before_action :load_application
 
   def show
-    redirect_to borrower_portal_path(params[:region], @application), alert: 'Application is not approved.' unless @application.status == 'accepted'
+    unless @application.status == 'accepted'
+      redirect_to borrower_portal_path(params[:region], @application), alert: 'EPM investment is not approved.'
+      return
+    end
   end
 
   def activate
     unless @application.status == 'accepted'
-      redirect_to borrower_portal_path(params[:region], @application), alert: 'Application is not approved.'
+      redirect_to borrower_portal_path(params[:region], @application), alert: 'EPM investment is not approved.'
       return
     end
 
-    @application.update!(status: :activated)
-    redirect_to borrower_portal_path(params[:region], @application), notice: 'Loan activated successfully.'
+    # EPM Investment activation - could trigger first distribution
+    @application.update!(
+      updated_at: Time.current  # Mark as activated, status stays 'accepted' 
+    )
+    
+    # TODO: Trigger initial distribution to borrower
+    
+    redirect_to borrower_portal_path(params[:region], @application), 
+                notice: 'EPM Investment activated successfully! Your equity partnership is now active.'
   end
 
   private

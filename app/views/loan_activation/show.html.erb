@@ -3,23 +3,38 @@
     <%= link_to "← Back to Portal", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
   </div>
 
-  <h1 class="text-3xl font-bold mb-6">Activate Your Loan</h1>
+  <h1 class="text-3xl font-bold mb-6">Activate Your EPM Investment</h1>
 
   <div class="bg-green-50 border-l-4 border-green-600 rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold text-green-900 mb-4">Your application has been approved</h2>
+    <h2 class="text-xl font-semibold text-green-900 mb-4">Your EPM application has been approved!</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div>
-        <p class="text-gray-600 text-sm">Loan Amount</p>
-        <p class="text-2xl font-bold text-green-700"><%= number_to_currency(@application.approved_loan_amount || 0) %></p>
+        <p class="text-gray-600 text-sm">Equity Investment</p>
+        <p class="text-2xl font-bold text-green-700">
+          <%= number_to_currency(@application.equity_investment_amount || 0) %>
+        </p>
       </div>
       <div>
-        <p class="text-gray-600 text-sm">Interest Rate</p>
-        <p class="text-2xl font-bold"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></p>
+        <p class="text-gray-600 text-sm">Equity Percentage</p>
+        <p class="text-2xl font-bold">
+          <%= @application.equity_percentage&.round(2) || 0 %>%
+        </p>
       </div>
       <div>
-        <p class="text-gray-600 text-sm">Term</p>
-        <p class="text-2xl font-bold"><%= @application.approved_term_years %> years</p>
+        <p class="text-gray-600 text-sm">Partnership Term</p>
+        <p class="text-2xl font-bold">
+          <%= @application.participation_term_years || @application.investment_term || "TBD" %> years
+        </p>
       </div>
+    </div>
+  </div>
+
+  <div class="bg-blue-50 border-l-4 border-blue-600 rounded-lg shadow p-6 mb-6">
+    <h3 class="text-lg font-semibold text-blue-900 mb-3">How EPM Works</h3>
+    <div class="text-blue-800 text-sm space-y-2">
+      <p><strong>Your Equity Partner:</strong> <%= @application.lender&.name || "FutureProof" %></p>
+      <p><strong>What happens next:</strong> Your equity partner will invest capital and you'll receive distributions based on your property's performance.</p>
+      <p><strong>No monthly payments:</strong> Unlike traditional mortgages, you don't make monthly payments. Instead, you receive distributions when approved by your equity partner.</p>
     </div>
   </div>
 
@@ -28,7 +43,7 @@
     <ul class="space-y-3 text-gray-700">
       <li class="flex items-start gap-3">
         <span class="text-green-600 font-bold mt-1">✓</span>
-        <span>Review all loan terms and conditions carefully</span>
+        <span>Review all EPM partnership terms and conditions carefully</span>
       </li>
       <li class="flex items-start gap-3">
         <span class="text-green-600 font-bold mt-1">✓</span>
@@ -40,15 +55,16 @@
       </li>
       <li class="flex items-start gap-3">
         <span class="text-green-600 font-bold mt-1">✓</span>
-        <span>Understand that activation begins the loan disbursement process</span>
+        <span>Understand that activation begins the equity partnership and distribution process</span>
       </li>
     </ul>
   </div>
 
   <div class="bg-white rounded-lg shadow p-6">
     <%= form_with url: loan_activation_confirm_path(@region, @application), method: :post, class: "text-center" do %>
-      <p class="text-gray-600 mb-6">By clicking below, you confirm that you have reviewed and agree to all loan terms.</p>
-      <%= submit_tag "Activate Loan", class: "px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg cursor-pointer" %>
+      <p class="text-gray-600 mb-6">By clicking below, you confirm that you have reviewed and agree to all EPM partnership terms.</p>
+      <%= submit_tag "Activate EPM Investment", 
+          class: "px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg cursor-pointer" %>
     <% end %>
   </div>
 </div>
