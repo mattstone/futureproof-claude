@@ -1,0 +1,121 @@
+<div class="legal-document credit-guide-au">
+  <div class="document-header">
+    <h1>Credit Guide</h1>
+    <p class="last-updated">This Credit Guide was prepared on <%= Date.current.strftime('%d %B %Y') %></p>
+  </div>
+
+  <div class="alert alert-info" style="border-left: 4px solid #0066cc; background: #e3f2fd; padding: 15px; margin: 20px 0; border-radius: 4px;">
+    <p><strong>Important:</strong> Under the <em>National Consumer Credit Protection Act 2009</em>, we are required to give you this Credit Guide before providing you with credit assistance. Please read it carefully and keep it for your records.</p>
+  </div>
+
+  <section>
+    <h2>1. About Us</h2>
+    <p><strong><%= @company_name || 'FutureProof' %> Pty Ltd</strong></p>
+    <ul>
+      <li>ACN: [INSERT ACN]</li>
+      <li>ABN: [INSERT ABN]</li>
+      <li>Australian Credit Licence Number: [INSERT ACL NUMBER]</li>
+    </ul>
+    <p>We are licensed to engage in credit activities, including providing credit assistance by suggesting you apply for a particular credit product and assisting you in applying.</p>
+  </section>
+
+  <section>
+    <h2>2. What Credit Assistance Do We Provide?</h2>
+    <p>We provide credit assistance in relation to <strong>Equity Preservation Mortgages (EPM)</strong>. An EPM allows eligible homeowners to access the equity in their property through a secured loan with monthly annuity payments.</p>
+    <p>Our credit assistance includes:</p>
+    <ul>
+      <li>Assessing your eligibility for an EPM</li>
+      <li>Providing loan quotes based on your property and circumstances</li>
+      <li>Assisting you in applying for an EPM with one of our panel lenders</li>
+      <li>Facilitating the loan settlement process</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>3. Our Lender Panel</h2>
+    <p>We work with the following approved lenders:</p>
+    <ul>
+      <li>[INSERT LENDER NAMES AND ACL NUMBERS]</li>
+    </ul>
+    <p>We will recommend a lender based on your specific circumstances, including property value, location, and financial situation. We will explain why we recommend a particular lender.</p>
+  </section>
+
+  <section>
+    <h2>4. Fees and Charges</h2>
+    <h3>4.1 Fees You Pay to Us</h3>
+    <ul>
+      <li><strong>Application Fee:</strong> [INSERT — e.g., $0 / nil]</li>
+      <li><strong>Ongoing Fees:</strong> [INSERT — e.g., nil]</li>
+      <li><strong>Early Termination Fee:</strong> [INSERT — e.g., nil]</li>
+    </ul>
+    <p>We will tell you the exact fees before you apply.</p>
+
+    <h3>4.2 Commissions We Receive</h3>
+    <p>We may receive commissions from the lender if your loan is approved. These commissions are paid by the lender, not by you. Typical commissions are:</p>
+    <ul>
+      <li><strong>Upfront Commission:</strong> [INSERT — e.g., X% of loan amount]</li>
+      <li><strong>Trailing Commission:</strong> [INSERT — e.g., X% per annum of outstanding balance]</li>
+    </ul>
+    <p>The exact commission varies by lender and product. We will disclose the specific commission amount before you enter into a loan contract.</p>
+
+    <h3>4.3 Other Benefits</h3>
+    <p>We will disclose any other benefits we receive that could reasonably be expected to influence our recommendations.</p>
+  </section>
+
+  <section>
+    <h2>5. How We Assess Your Loan Suitability</h2>
+    <p>Before recommending an EPM, we are legally required to assess that the loan is <strong>not unsuitable</strong> for you. We do this by:</p>
+    <ol>
+      <li><strong>Understanding your requirements and objectives:</strong> Why you want the loan, what you intend to use it for, and your preferred terms.</li>
+      <li><strong>Assessing your financial situation:</strong> Your income, expenses, assets, liabilities, and existing financial commitments.</li>
+      <li><strong>Verifying your information:</strong> We take reasonable steps to verify the information you provide.</li>
+    </ol>
+    <p>A loan is <strong>unsuitable</strong> if:</p>
+    <ul>
+      <li>It does not meet your requirements and objectives; or</li>
+      <li>You could not meet the financial obligations under the contract without substantial hardship; or</li>
+      <li>The contract does not meet the requirements prescribed by regulations.</li>
+    </ul>
+    <p>You can request a copy of our suitability assessment at any time (within 7 years of the assessment).</p>
+  </section>
+
+  <section>
+    <h2>6. Your Rights</h2>
+    <h3>6.1 Cooling-Off Period</h3>
+    <p>If you enter into an EPM contract, you have a <strong>14-day cooling-off period</strong> during which you can cancel the contract without penalty. The cooling-off period begins on the day you receive the contract documents.</p>
+
+    <h3>6.2 Hardship</h3>
+    <p>If you experience financial difficulty, you can apply for a hardship variation. Your lender must respond within 21 days. For more information, contact us or your lender directly.</p>
+
+    <h3>6.3 Complaints</h3>
+    <p>If you have a complaint about our services, please contact us first (details below). If you are not satisfied with our response, you can contact:</p>
+    <ul>
+      <li><strong>Australian Financial Complaints Authority (AFCA)</strong></li>
+      <li>Phone: 1800 931 678</li>
+      <li>Email: info@afca.org.au</li>
+      <li>Website: www.afca.org.au</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. Privacy</h2>
+    <p>Your personal information is collected, used, and disclosed in accordance with our Privacy Policy and the <em>Privacy Act 1988 (Cth)</em>. A copy of our Privacy Policy is available on our website.</p>
+    <p>By engaging our services, you consent to us collecting, using, and disclosing your personal information as described in our Privacy Policy and this Credit Guide.</p>
+  </section>
+
+  <section>
+    <h2>8. Contact Information</h2>
+    <p><strong><%= @company_name || 'FutureProof' %> Pty Ltd</strong></p>
+    <p>
+      Email: <%= @contact_email || 'support@futureproof.com.au' %><br>
+      Phone: 1300 FUTURE (1300 388 873)<br>
+      Address: [INSERT ADDRESS], Australia<br>
+      ACL Number: [INSERT ACL NUMBER]
+    </p>
+  </section>
+
+  <div class="document-footer" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #1a5490;">
+    <p><strong>Please keep this Credit Guide for your records.</strong></p>
+    <p><small>This Credit Guide complies with the requirements of section 113 of the <em>National Consumer Credit Protection Act 2009</em>.</small></p>
+  </div>
+</div>

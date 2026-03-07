@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_011001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -256,6 +256,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["region"], name: "index_applications_on_region"
     t.index ["user_id", "status"], name: "index_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "application_id"
+    t.text "changes"
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.integer "kyc_verification_id"
+    t.text "notes"
+    t.string "reason"
+    t.string "region", limit: 2
+    t.string "resource_id"
+    t.string "resource_type"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["action"], name: "index_audit_logs_on_action"
+    t.index ["application_id"], name: "index_audit_logs_on_application_id"
+    t.index ["created_at"], name: "index_audit_logs_on_created_at"
+    t.index ["resource_type", "created_at"], name: "index_audit_logs_on_resource_type_and_created_at"
+    t.index ["user_id", "created_at"], name: "index_audit_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_audit_logs_on_user_id"
   end
 
   create_table "business_process_workflows", force: :cascade do |t|
@@ -1081,6 +1103,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "referral_partners"
   add_foreign_key "applications", "users"
+  add_foreign_key "audit_logs", "applications"
+  add_foreign_key "audit_logs", "users"
   add_foreign_key "chat_conversations", "chat_agents"
   add_foreign_key "chat_conversations", "users"
   add_foreign_key "chat_messages", "chat_conversations"

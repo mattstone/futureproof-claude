@@ -269,6 +269,11 @@ Rails.application.routes.draw do
     get "apply", to: "pages#apply", as: :regional_apply
     get "get-started", to: "pages#get_started", as: :regional_get_started
     get "/", to: "pages#get_started", as: :regional_root
+
+    # Customer Support (24/7 AI chat)
+    get 'support', to: 'support#chat', as: 'support_chat'
+    post 'support/send_message', to: 'support#send_message', as: 'support_send_message'
+    delete 'support/clear', to: 'support#clear', as: 'support_clear'
   end
 
   # Legal document routes (region-specific contracts, agreements, terms, privacy)
