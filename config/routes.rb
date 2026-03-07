@@ -227,6 +227,7 @@ Rails.application.routes.draw do
       end
     end
     
+    get 'dashboard_v2', to: 'admin_dashboard_v2#dashboard_v2'
     root "dashboard#index"
   end
 

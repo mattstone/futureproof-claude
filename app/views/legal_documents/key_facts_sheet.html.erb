@@ -26,25 +26,25 @@
       </div>
     </div>
 
-    <!-- Section 2: Loan Details -->
+    <!-- Section 2: Equity Investment Terms -->
     <div class="mb-8">
-      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">2. Loan Details</h2>
+      <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-4">2. Equity Investment Terms</h2>
       <table class="w-full">
         <tbody>
           <tr class="border-b">
-            <td class="py-3 text-gray-600 w-1/2">Loan Amount</td>
-            <td class="py-3 font-semibold text-right"><%= number_to_currency(@application.approved_loan_amount || 0) %></td>
+            <td class="py-3 text-gray-600 w-1/2">Equity Investment Amount</td>
+            <td class="py-3 font-semibold text-right"><%= number_to_currency(@application.equity_investment_amount || 0) %></td>
           </tr>
           <tr class="border-b">
-            <td class="py-3 text-gray-600">Annual Interest Rate</td>
-            <td class="py-3 font-semibold text-right"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></td>
+            <td class="py-3 text-gray-600">Equity Percentage</td>
+            <td class="py-3 font-semibold text-right"><%= number_to_percentage(@application.equity_percentage || 0, precision: 2) %></td>
           </tr>
           <tr class="border-b">
-            <td class="py-3 text-gray-600">Loan Term</td>
-            <td class="py-3 font-semibold text-right"><%= @application.approved_term_years || "N/A" %> years</td>
+            <td class="py-3 text-gray-600">Participation Term</td>
+            <td class="py-3 font-semibold text-right"><%= @application.participation_term_years || "N/A" %> years</td>
           </tr>
           <tr class="border-b">
-            <td class="py-3 text-gray-600">Loan Type</td>
+            <td class="py-3 text-gray-600">Investment Type</td>
             <td class="py-3 font-semibold text-right">Equity Partner Mortgage (EPM)</td>
           </tr>
         </tbody>

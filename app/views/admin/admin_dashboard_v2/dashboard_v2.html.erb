@@ -1,0 +1,152 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold">Admin Dashboard v2</h1>
+    <p class="text-gray-600 mt-2">Real-time portfolio metrics and performance analytics</p>
+  </div>
+
+  <!-- Portfolio KPIs -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm font-semibold uppercase">Total Applications</p>
+      <p class="text-3xl font-bold mt-2"><%= @total_applications %></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm font-semibold uppercase">Total Capital Deployed</p>
+      <p class="text-3xl font-bold mt-2"><%= number_to_currency(@total_capital_deployed || 0) %></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm font-semibold uppercase">Active Investments</p>
+      <p class="text-3xl font-bold mt-2"><%= @active_investments %></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm font-semibold uppercase">Total Distributions</p>
+      <p class="text-3xl font-bold mt-2"><%= number_to_currency(@total_distributions || 0) %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Application Funnel -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold mb-6">Application Funnel</h2>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Pending</span>
+            <span class="text-yellow-600 font-bold"><%= @pending_applications %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-yellow-500 h-2 rounded-full" style="width: <%= @total_applications > 0 ? (@pending_applications.to_f / @total_applications * 100).round : 0 %>%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Approved</span>
+            <span class="text-green-600 font-bold"><%= @approved_applications %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: <%= @total_applications > 0 ? (@approved_applications.to_f / @total_applications * 100).round : 0 %>%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Rejected</span>
+            <span class="text-red-600 font-bold"><%= @rejected_applications %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-red-500 h-2 rounded-full" style="width: <%= @total_applications > 0 ? (@rejected_applications.to_f / @total_applications * 100).round : 0 %>%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribution Performance -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold mb-6">Distribution Performance</h2>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Completed</span>
+            <span class="text-green-600 font-bold"><%= @completed_distributions %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: <%= (@completed_distributions.to_f / (@completed_distributions + @pending_distributions + @failed_distributions).to_f * 100).round rescue 0 %>%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Pending</span>
+            <span class="text-yellow-600 font-bold"><%= @pending_distributions %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-yellow-500 h-2 rounded-full" style="width: <%= (@pending_distributions.to_f / (@completed_distributions + @pending_distributions + @failed_distributions).to_f * 100).round rescue 0 %>%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-gray-700 font-semibold">Failed</span>
+            <span class="text-red-600 font-bold"><%= @failed_distributions %></span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-red-500 h-2 rounded-full" style="width: <%= (@failed_distributions.to_f / (@completed_distributions + @pending_distributions + @failed_distributions).to_f * 100).round rescue 0 %>%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regional Breakdown -->
+  <div class="bg-white rounded-lg shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-6">Regional Breakdown</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <% @applications_by_region.each do |region, count| %>
+        <div class="p-4 border rounded-lg">
+          <p class="text-gray-600 text-sm font-semibold uppercase"><%= region %></p>
+          <p class="text-2xl font-bold mt-2"><%= count %> applications</p>
+          <p class="text-gray-600 text-sm mt-2">
+            Capital: <%= number_to_currency(@capital_by_region[region] || 0) %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="bg-white rounded-lg shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-6">Recent Applications</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left py-3 px-4">ID</th>
+            <th class="text-left py-3 px-4">Borrower</th>
+            <th class="text-left py-3 px-4">Region</th>
+            <th class="text-left py-3 px-4">Capital</th>
+            <th class="text-left py-3 px-4">Status</th>
+            <th class="text-left py-3 px-4">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_applications.each do |app| %>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-3 px-4 font-mono text-sm"><%= app.id %></td>
+              <td class="py-3 px-4"><%= app.borrower_names || "N/A" %></td>
+              <td class="py-3 px-4"><%= app.region&.upcase || "N/A" %></td>
+              <td class="py-3 px-4"><%= number_to_currency(app.equity_investment_amount || 0) %></td>
+              <td class="py-3 px-4">
+                <span class="px-2 py-1 rounded-full text-xs font-semibold <%= case app.status
+                  when 'approved' then 'bg-green-100 text-green-800'
+                  when 'rejected' then 'bg-red-100 text-red-800'
+                  when 'pending' then 'bg-yellow-100 text-yellow-800'
+                  else 'bg-gray-100 text-gray-800'
+                end %>">
+                  <%= app.status&.humanize %>
+                </span>
+              </td>
+              <td class="py-3 px-4"><%= app.created_at.strftime("%d %b %Y") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
