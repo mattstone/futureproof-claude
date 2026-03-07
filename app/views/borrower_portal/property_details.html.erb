@@ -1,102 +1,135 @@
 <div class="container mx-auto px-4 py-8">
-  <div class="mb-6">
-    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
-  </div>
+  <%= link_to "← Back to Borrower Portal", borrower_portal_path(region: @region, application_id: @application.id), class: "text-blue-600 hover:underline mb-4 inline-block" %>
 
   <h1 class="text-3xl font-bold mb-6">Property Details</h1>
 
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Property Information</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <p class="text-gray-600 text-sm">Address</p>
-        <p class="text-lg font-semibold"><%= @application.address || "Not provided" %></p>
-      </div>
-      
-      <div>
-        <p class="text-gray-600 text-sm">Property Type</p>
-        <p class="text-lg font-semibold"><%= @application.property_type&.humanize || "Not provided" %></p>
-      </div>
-      
-      <div>
-        <p class="text-gray-600 text-sm">Property State</p>
-        <p class="text-lg font-semibold"><%= @application.property_state&.humanize || "Not provided" %></span></p>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Property Information -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Property Information</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Property Address:</span>
+            <span class="font-semibold"><%= @application.address || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Property Type:</span>
+            <span class="font-semibold capitalize"><%= @application.property_type&.humanize || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Property State:</span>
+            <span class="font-semibold capitalize"><%= @application.property_state&.humanize || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2">
+            <span class="text-gray-600">Current Home Value:</span>
+            <span class="font-semibold text-green-600">
+              <%= number_to_currency(@application.home_value || 0) %>
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <p class="text-gray-600 text-sm">Home Value</p>
-        <p class="text-lg font-semibold"><%= number_to_currency(@application.home_value || 0) %></p>
+      <!-- Valuation Details -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Property Valuation</h3>
+        <div class="space-y-4">
+          <% if @application.property_valuation_low && @application.property_valuation_middle && @application.property_valuation_high %>
+            <div class="flex justify-between py-2 border-b">
+              <span class="text-gray-600">Low Estimate:</span>
+              <span class="font-semibold"><%= number_to_currency(@application.property_valuation_low) %></span>
+            </div>
+            <div class="flex justify-between py-2 border-b">
+              <span class="text-gray-600">Middle Estimate:</span>
+              <span class="font-semibold text-green-600"><%= number_to_currency(@application.property_valuation_middle) %></span>
+            </div>
+            <div class="flex justify-between py-2 border-b">
+              <span class="text-gray-600">High Estimate:</span>
+              <span class="font-semibold"><%= number_to_currency(@application.property_valuation_high) %></span>
+            </div>
+            <div class="mt-4 p-3 bg-gray-50 rounded">
+              <p class="text-sm text-gray-600">
+                Valuation range: 
+                <%= number_to_currency(@application.property_valuation_high - @application.property_valuation_low) %>
+              </p>
+            </div>
+          <% else %>
+            <p class="text-gray-500">Property valuation details not available.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Growth Projections -->
+      <% if @application.growth_rate %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Growth Projections</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Annual Growth Rate:</span>
+              <span class="font-semibold"><%= @application.growth_rate %>% per year</span>
+            </div>
+            <div class="mt-4 p-3 bg-blue-50 rounded">
+              <p class="text-sm text-blue-800">
+                Projected value in 5 years: 
+                <%= number_to_currency((@application.home_value || 0) * (1 + (@application.growth_rate || 0) / 100.0) ** 5) %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Additional Details -->
+    <div class="space-y-6">
+      <!-- CoreLogic Data -->
+      <% if @application.corelogic_data.present? %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">CoreLogic Property Data</h3>
+          <div class="bg-gray-50 rounded p-4">
+            <pre class="text-xs text-gray-700 whitespace-pre-wrap"><%= @application.corelogic_data %></pre>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Property Images -->
+      <% if @application.property_images.present? %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Property Images</h3>
+          <div class="text-sm text-gray-600">
+            <%= @application.property_images %>
+          </div>
+        </div>
+      <% else %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Property Images</h3>
+          <div class="text-center py-8">
+            <div class="text-gray-400 mb-4">
+              <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <p class="text-gray-500">No property images uploaded.</p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Market Analysis -->
+      <div class="bg-green-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-green-900 mb-3">Market Position</h3>
+        <div class="text-green-800 text-sm space-y-2">
+          <p>Your property is positioned in the <strong><%= @region&.upcase %></strong> market.</p>
+          <% if @application.equity_investment_amount && @application.home_value %>
+            <p>
+              EPM investment represents 
+              <strong><%= ((@application.equity_investment_amount / @application.home_value.to_f) * 100).round(2) %>%</strong>
+              of the property value.
+            </p>
+          <% end %>
+          <p class="text-xs mt-3 text-green-700">
+            * Property values and growth projections are estimates based on market data and should not be considered guaranteed returns.
+          </p>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Property Valuations -->
-  <% if @application.property_valuation_low || @application.property_valuation_middle || @application.property_valuation_high %>
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Property Valuations</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="border rounded p-4">
-        <p class="text-gray-600 text-sm">Low Valuation</p>
-        <p class="text-xl font-bold text-red-600"><%= number_to_currency(@application.property_valuation_low || 0) %></p>
-      </div>
-      
-      <div class="border rounded p-4">
-        <p class="text-gray-600 text-sm">Middle Valuation</p>
-        <p class="text-xl font-bold text-blue-600"><%= number_to_currency(@application.property_valuation_middle || 0) %></p>
-      </div>
-      
-      <div class="border rounded p-4">
-        <p class="text-gray-600 text-sm">High Valuation</p>
-        <p class="text-xl font-bold text-green-600"><%= number_to_currency(@application.property_valuation_high || 0) %></p>
-      </div>
-    </div>
-  </div>
-  <% end %>
-
-  <!-- Property Images -->
-  <% if @application.property_images.present? %>
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Property Images</h2>
-    
-    <% begin %>
-      <% images = JSON.parse(@application.property_images) %>
-      <% if images.is_a?(Array) && images.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <% images.each do |image| %>
-            <div class="border rounded overflow-hidden">
-              <img src="<%= image %>" alt="Property image" class="w-full h-48 object-cover">
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    <% rescue %>
-      <p class="text-gray-600">Unable to load property images</p>
-    <% end %>
-  </div>
-  <% end %>
-
-  <!-- CoreLogic Data -->
-  <% if @application.corelogic_data.present? %>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-semibold mb-4">Additional Property Information</h2>
-    
-    <% begin %>
-      <% data = JSON.parse(@application.corelogic_data) %>
-      <% if data.is_a?(Hash) && data.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <% data.slice("bedrooms", "bathrooms", "garage", "land_area", "building_area").each do |key, value| %>
-            <div>
-              <p class="text-gray-600 text-sm"><%= key.humanize %></p>
-              <p class="font-semibold"><%= value %></p>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    <% rescue %>
-      <p class="text-gray-600">Unable to load additional property information</p>
-    <% end %>
-  </div>
-  <% end %>
 </div>

@@ -2,15 +2,29 @@ class BorrowerPortalController < ApplicationController
   before_action :authenticate_user!
   before_action :load_application
 
-  def dashboard; end
+  def dashboard
+    @distributions = @application.distributions.recent.limit(10)
+    @total_distributions = @application.distributions.completed_distributions.sum(:amount)
+    @pending_distributions = @application.distributions.pending_distributions.sum(:amount)
+  end
 
-  def annuity_schedule; end
+  def annuity_schedule
+    # Show projected distribution schedule based on equity participation
+    @distributions = @application.distributions.order(:distribution_date)
+  end
 
-  def loan_details; end
+  def loan_details
+    # Show EPM equity investment details
+  end
 
-  def property_details; end
+  def property_details
+    # Show property information and valuation details
+  end
 
-  def documents; end
+  def documents
+    # Show application documents and contracts
+    @documents = []  # TODO: Add document model/storage
+  end
 
   private
 

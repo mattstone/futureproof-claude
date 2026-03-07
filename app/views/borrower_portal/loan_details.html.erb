@@ -1,70 +1,150 @@
 <div class="container mx-auto px-4 py-8">
-  <div class="mb-6">
-    <%= link_to "← Back to Dashboard", borrower_portal_path(@region, @application), class: "text-blue-600 hover:underline" %>
+  <%= link_to "← Back to Borrower Portal", borrower_portal_path(region: @region, application_id: @application.id), class: "text-blue-600 hover:underline mb-4 inline-block" %>
+
+  <h1 class="text-3xl font-bold mb-6">EPM Investment Details</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Investment Terms -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Investment Terms</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Application Status:</span>
+            <span class="font-semibold capitalize
+              <%= case @application.status
+                  when 'accepted' then 'text-green-600'
+                  when 'rejected' then 'text-red-600'
+                  when 'processing' then 'text-blue-600'
+                  else 'text-yellow-600'
+                  end %>
+            "><%= @application.status.humanize %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Equity Investment Amount:</span>
+            <span class="font-semibold text-green-600">
+              <%= number_to_currency(@application.equity_investment_amount || 0) %>
+            </span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Equity Percentage:</span>
+            <span class="font-semibold"><%= @application.equity_percentage&.round(2) || 0 %>%</span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Participation Term:</span>
+            <span class="font-semibold"><%= @application.participation_term_years || 0 %> years</span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Investment Term:</span>
+            <span class="font-semibold"><%= @application.investment_term || 0 %> months</span>
+          </div>
+          <div class="flex justify-between py-2">
+            <span class="text-gray-600">Application Region:</span>
+            <span class="font-semibold uppercase"><%= @application.region || @region %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lender Information -->
+      <% if @application.lender %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Equity Partner</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Partner Name:</span>
+              <span class="font-semibold"><%= @application.lender.name %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Partner Type:</span>
+              <span class="font-semibold capitalize"><%= @application.lender.lender_type %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Contact:</span>
+              <span class="font-semibold"><%= @application.lender.contact_email %></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Borrower Information -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Borrower Information</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Borrower Names:</span>
+            <span class="font-semibold"><%= @application.borrower_names || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Borrower Age:</span>
+            <span class="font-semibold"><%= @application.borrower_age || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Credit Score:</span>
+            <span class="font-semibold"><%= @application.credit_score || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2 border-b">
+            <span class="text-gray-600">Ownership Status:</span>
+            <span class="font-semibold capitalize"><%= @application.ownership_status&.humanize || "—" %></span>
+          </div>
+          <div class="flex justify-between py-2">
+            <span class="text-gray-600">Application Date:</span>
+            <span class="font-semibold">
+              <%= @application.created_at&.strftime("%d %B %Y") || "—" %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Details -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Financial Details</h3>
+        <div class="space-y-3">
+          <% if @application.has_existing_mortgage %>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Existing Mortgage:</span>
+              <span class="font-semibold text-red-600">Yes</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Existing Amount:</span>
+              <span class="font-semibold">
+                <%= number_to_currency(@application.existing_mortgage_amount || 0) %>
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Existing Lender:</span>
+              <span class="font-semibold"><%= @application.existing_mortgage_lender || "—" %></span>
+            </div>
+          <% else %>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Existing Mortgage:</span>
+              <span class="font-semibold text-green-600">No</span>
+            </div>
+          <% end %>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Bank Account:</span>
+            <span class="font-mono text-sm">
+              <%= @application.bank_account_number ? "***#{@application.bank_account_number.last(4)}" : "—" %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <h1 class="text-3xl font-bold mb-6">Loan Details</h1>
-
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Approved Loan Terms</h2>
-    
-    <% if @application.status == 'accepted' %>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="border-l-4 border-blue-600 pl-4">
-          <p class="text-gray-600 text-sm">Loan Amount</p>
-          <p class="text-2xl font-bold text-blue-600"><%= number_to_currency(@application.approved_loan_amount || 0) %></p>
-        </div>
-        
-        <div class="border-l-4 border-green-600 pl-4">
-          <p class="text-gray-600 text-sm">Interest Rate</p>
-          <p class="text-2xl font-bold text-green-600"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></p>
-        </div>
-        
-        <div class="border-l-4 border-purple-600 pl-4">
-          <p class="text-gray-600 text-sm">Term</p>
-          <p class="text-2xl font-bold text-purple-600"><%= @application.approved_term_years %> years</p>
-        </div>
-      </div>
-
-      <hr class="my-6" />
-
-      <h3 class="text-lg font-semibold mb-4">Loan Information</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <p class="text-gray-600">Loan Status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
-        </div>
-        <div>
-          <p class="text-gray-600">Loan Term: <span class="font-semibold"><%= @application.loan_term %> months</span></p>
-        </div>
-        <% if @application.has_existing_mortgage %>
-          <div>
-            <p class="text-gray-600">Existing Mortgage: <span class="font-semibold"><%= number_to_currency(@application.existing_mortgage_amount || 0) %></span></p>
-          </div>
-          <div>
-            <p class="text-gray-600">Existing Lender: <span class="font-semibold"><%= @application.existing_mortgage_lender || "Not provided" %></span></p>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="bg-yellow-50 border-l-4 border-yellow-600 p-4">
-        <p class="text-yellow-700">Loan details will be available once your application is approved.</p>
-        <p class="text-yellow-700 mt-2">Current status: <span class="font-semibold"><%= @application.status.humanize %></span></p>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-semibold mb-4">Application Summary</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <p class="text-gray-600">Application ID: <span class="font-mono text-sm"><%= @application.id %></span></p>
-      </div>
-      <div>
-        <p class="text-gray-600">Region: <span class="font-semibold"><%= @application.region.upcase %></span></p>
-      </div>
-      <div>
-        <p class="text-gray-600">Submitted: <span><%= @application.created_at.strftime("%d %B %Y %H:%M") %></span></p>
-      </div>
+  <!-- EPM Explanation -->
+  <div class="mt-8 bg-blue-50 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-blue-900 mb-3">Understanding Your EPM Investment</h3>
+    <div class="text-blue-800 text-sm space-y-2">
+      <p><strong>Equity Partner Mortgage (EPM)</strong> is different from a traditional mortgage:</p>
+      <ul class="list-disc list-inside space-y-1 ml-4">
+        <li>Your equity partner invests capital in exchange for a percentage of your property</li>
+        <li>You receive distributions based on property performance, not fixed payments</li>
+        <li>No monthly mortgage payments - distributions are approval-based</li>
+        <li>Your equity partner shares in both appreciation and income from the property</li>
+        <li>At the end of the term, you can buy back the equity or refinance</li>
+      </ul>
     </div>
   </div>
 </div>
