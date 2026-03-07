@@ -1,45 +1,43 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold">Lender Dashboard</h1>
+    <h1 class="text-3xl font-bold">Equity Partner Dashboard</h1>
     <%= link_to "Account Settings", lender_dashboard_account_path, class: "btn btn-primary" %>
   </div>
 
-  <!-- Portfolio Metrics Grid -->
+  <!-- EPM Portfolio Metrics -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Loans -->
+    <!-- Active Equity Investments -->
     <div class="bg-white rounded-lg shadow p-6">
-      <p class="text-gray-600 text-sm mb-2">Total Loans</p>
-      <p class="text-3xl font-bold text-blue-600"><%= @lender.applications.count %></p>
-      <p class="text-gray-500 text-xs mt-2">Active Portfolio</p>
+      <p class="text-gray-600 text-sm mb-2">Active Investments</p>
+      <p class="text-3xl font-bold text-blue-600"><%= @active_investments %></p>
+      <p class="text-gray-500 text-xs mt-2">EPM Portfolio</p>
     </div>
 
-    <!-- Total Capital Disbursed -->
+    <!-- Total Capital Deployed -->
     <div class="bg-white rounded-lg shadow p-6">
-      <p class="text-gray-600 text-sm mb-2">Capital Disbursed</p>
+      <p class="text-gray-600 text-sm mb-2">Capital Deployed</p>
       <p class="text-2xl font-bold text-green-600">
-        <%= number_to_currency(@lender.applications.where(status: :accepted).sum(:approved_loan_amount) || 0) %>
+        <%= number_to_currency(@total_equity_investments) %>
       </p>
-      <p class="text-gray-500 text-xs mt-2">Total Deployed</p>
+      <p class="text-gray-500 text-xs mt-2">Total Investment</p>
     </div>
 
-    <!-- Average Loan Value -->
+    <!-- Property Portfolio Value -->
     <div class="bg-white rounded-lg shadow p-6">
-      <p class="text-gray-600 text-sm mb-2">Average Loan</p>
-      <% total_loans = @lender.applications.where(status: :accepted).sum(:approved_loan_amount).to_f %>
-      <% count = @lender.applications.where(status: :accepted).count %>
-      <% avg = count > 0 ? total_loans / count : 0 %>
-      <p class="text-2xl font-bold text-purple-600"><%= number_to_currency(avg) %></p>
-      <p class="text-gray-500 text-xs mt-2">Per Investment</p>
+      <p class="text-gray-600 text-sm mb-2">Portfolio Value</p>
+      <p class="text-2xl font-bold text-purple-600">
+        <%= number_to_currency(@property_portfolio_value) %>
+      </p>
+      <p class="text-gray-500 text-xs mt-2">Total Property Value</p>
     </div>
 
-    <!-- Portfolio Health -->
+    <!-- Distributions Made -->
     <div class="bg-white rounded-lg shadow p-6">
-      <p class="text-gray-600 text-sm mb-2">Applications</p>
-      <p class="text-2xl font-bold">
-        <span class="text-blue-600"><%= @lender.applications.where(status: :accepted).count %></span> /
-        <span class="text-gray-400"><%= @lender.applications.count %></span>
+      <p class="text-gray-600 text-sm mb-2">Distributions Made</p>
+      <p class="text-2xl font-bold text-orange-600">
+        <%= number_to_currency(@total_distributions_made) %>
       </p>
-      <p class="text-gray-500 text-xs mt-2">Approved / Total</p>
+      <p class="text-gray-500 text-xs mt-2">To Borrowers</p>
     </div>
   </div>
 
@@ -47,44 +45,50 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     <%= link_to lender_dashboard_applications_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">📋</p>
-      <h3 class="font-semibold text-gray-800">View Applications</h3>
-      <p class="text-gray-500 text-sm mt-1">Review pending and approved applications</p>
+      <h3 class="font-semibold text-gray-800">Investment Applications</h3>
+      <p class="text-gray-500 text-sm mt-1">Review EPM investment opportunities</p>
     <% end %>
 
     <%= link_to lender_dashboard_payments_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">💰</p>
-      <h3 class="font-semibold text-gray-800">Distribution Schedule</h3>
-      <p class="text-gray-500 text-sm mt-1">View capital distributions and returns</p>
+      <h3 class="font-semibold text-gray-800">Distribution Management</h3>
+      <p class="text-gray-500 text-sm mt-1">Manage distributions to borrowers</p>
     <% end %>
 
     <%= link_to lender_dashboard_reports_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">📊</p>
-      <h3 class="font-semibold text-gray-800">Portfolio Reports</h3>
-      <p class="text-gray-500 text-sm mt-1">Analyze performance and trends</p>
+      <h3 class="font-semibold text-gray-800">Portfolio Performance</h3>
+      <p class="text-gray-500 text-sm mt-1">Analyze equity investment returns</p>
     <% end %>
   </div>
 
-  <!-- Recent Applications -->
+  <!-- Recent EPM Applications -->
   <div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-semibold mb-4">Recent Applications</h2>
+    <h2 class="text-xl font-semibold mb-4">Recent EPM Applications</h2>
     
-    <% if @lender.applications.any? %>
+    <% if @portfolio_applications.any? %>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-gray-100 border-b">
             <tr>
-              <th class="text-left p-3">Applicant</th>
-              <th class="text-left p-3">Amount</th>
+              <th class="text-left p-3">Borrower</th>
+              <th class="text-left p-3">Equity Investment</th>
+              <th class="text-left p-3">Property Value</th>
               <th class="text-left p-3">Status</th>
-              <th class="text-left p-3">Created</th>
+              <th class="text-left p-3">Applied</th>
               <th class="text-center p-3">Action</th>
             </tr>
           </thead>
           <tbody>
-            <% @lender.applications.limit(10).each do |app| %>
+            <% @portfolio_applications.limit(10).each do |app| %>
               <tr class="border-b hover:bg-gray-50">
-                <td class="p-3"><%= app.borrower_names || "Pending" %></td>
-                <td class="p-3 font-semibold"><%= number_to_currency(app.approved_loan_amount || 0) %></td>
+                <td class="p-3"><%= app.borrower_names || "Anonymous" %></td>
+                <td class="p-3 font-semibold text-green-600">
+                  <%= number_to_currency(app.equity_investment_amount || 0) %>
+                </td>
+                <td class="p-3 font-semibold">
+                  <%= number_to_currency(app.home_value || 0) %>
+                </td>
                 <td class="p-3">
                   <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
                     <% case app.status %>
@@ -92,6 +96,8 @@
                         bg-green-100 text-green-800
                       <% when 'rejected' %>
                         bg-red-100 text-red-800
+                      <% when 'processing' %>
+                        bg-blue-100 text-blue-800
                       <% else %>
                         bg-yellow-100 text-yellow-800
                     <% end %>
@@ -99,7 +105,7 @@
                 </td>
                 <td class="p-3 text-gray-600"><%= app.created_at.strftime("%d %b %Y") %></td>
                 <td class="p-3 text-center">
-                  <%= link_to "View", lender_dashboard_application_detail_path(app), class: "text-blue-600 hover:underline font-semibold" %>
+                  <%= link_to "Review", lender_dashboard_application_detail_path(app), class: "text-blue-600 hover:underline font-semibold" %>
                 </td>
               </tr>
             <% end %>
@@ -107,10 +113,13 @@
         </table>
       </div>
       <div class="mt-4 text-center">
-        <%= link_to "View All Applications", lender_dashboard_applications_path, class: "text-blue-600 hover:underline font-semibold" %>
+        <%= link_to "View All Investments", lender_dashboard_applications_path, class: "text-blue-600 hover:underline font-semibold" %>
       </div>
     <% else %>
-      <p class="text-gray-600 py-8 text-center">No applications yet.</p>
+      <div class="text-center py-8">
+        <p class="text-gray-600 text-lg">No EPM investments yet.</p>
+        <p class="text-gray-500 text-sm mt-2">Investment applications will appear here when borrowers apply for equity partnerships.</p>
+      </div>
     <% end %>
   </div>
 </div>
