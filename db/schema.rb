@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_102200) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_220149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -213,9 +213,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_102200) do
 
   create_table "applications", force: :cascade do |t|
     t.string "address"
-    t.decimal "approved_interest_rate", precision: 5, scale: 3
-    t.decimal "approved_loan_amount", precision: 15, scale: 2
-    t.integer "approved_term_years"
     t.string "bank_account_number"
     t.integer "borrower_age", default: 0
     t.text "borrower_names"
@@ -223,6 +220,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_102200) do
     t.text "corelogic_data"
     t.datetime "created_at", null: false
     t.string "credit_score"
+    t.decimal "equity_investment_amount", precision: 15, scale: 2
+    t.decimal "equity_percentage", precision: 5, scale: 3
     t.decimal "existing_mortgage_amount", precision: 12, scale: 2, default: "0.0"
     t.string "existing_mortgage_lender"
     t.string "government_id"
@@ -230,10 +229,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_102200) do
     t.boolean "has_existing_mortgage", default: false, null: false
     t.integer "home_value"
     t.integer "income_payout_term"
+    t.integer "investment_term"
     t.bigint "lender_id"
-    t.integer "loan_term"
     t.bigint "mortgage_id"
     t.integer "ownership_status", default: 0, null: false
+    t.integer "participation_term_years"
     t.string "property_id"
     t.text "property_images"
     t.integer "property_state", default: 0, null: false

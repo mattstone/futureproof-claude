@@ -85,9 +85,9 @@ end
 - `loan_term` (integer)
 - `ownership_status` (enum: individual, joint, trust, company)
 - `property_state` (enum: primary_residence, investment, holiday_home)
-- `approved_loan_amount` (decimal)
-- `approved_interest_rate` (decimal)
-- `approved_term_years` (integer)
+- `equity_investment_amount` (decimal) — EPM equity investment amount
+- `equity_percentage` (decimal) — EPM equity participation percentage
+- `participation_term_years` (integer) — EPM participation term
 - `existing_mortgage_amount` (decimal)
 - `has_existing_mortgage` (boolean)
 - `credit_score` (string)
@@ -165,9 +165,9 @@ Legal document auto-populated from application data.
 **Create:** `app/controllers/legal_documents_controller.rb` (or add action to existing controller)
 
 **Use actual columns:**
-- `@application.approved_loan_amount` (not mortgage_contract.loan_amount)
-- `@application.approved_interest_rate` (not mortgage_contract.interest_rate)
-- `@application.approved_term_years` (not mortgage_contract.term_years)
+- `@application.equity_investment_amount` (not mortgage_contract.loan_amount)
+- `@application.equity_percentage` (not mortgage_contract.interest_rate)
+- `@application.participation_term_years` (not mortgage_contract.term_years)
 - `@application.home_value` (not property_valuation_in_cents)
 - `@application.address` (not property_address)
 - `@application.lender` (not mortgage_contract.lender)

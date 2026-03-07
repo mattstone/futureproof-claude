@@ -79,14 +79,14 @@ class PaymentProcessingService
   private
   
   def calculate_distribution_amount
-    return 0 if application.status != 'accepted' || application.approved_loan_amount.nil?
+    return 0 if application.status != 'accepted' || application.equity_investment_amount.nil?
     
     # EPM: Calculate distribution based on equity participation
     # This is a placeholder - in production, would be based on property performance
-    equity_investment = application.approved_loan_amount.to_f
+    equity_investment = application.equity_investment_amount.to_f
     
-    # Temporary: Simple percentage of equity investment as monthly distribution
-    # TODO: Replace with property income/appreciation calculations
+    # Temporary: Simple percentage of equity investment as distribution
+    # TODO: Replace with property income/appreciation calculations  
     (equity_investment * 0.005).round(2)  # 0.5% of equity per distribution
   end
   
