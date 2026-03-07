@@ -30,6 +30,9 @@ class Lender < ApplicationRecord
   
   # Contract relationships
   has_many :contracts, dependent: :restrict_with_exception
+  
+  # Application relationships (EPM applications)
+  has_many :applications, dependent: :restrict_with_exception
 
   # Lender Clauses relationships
   has_many :lender_clauses, dependent: :destroy

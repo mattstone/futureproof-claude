@@ -43,19 +43,19 @@
 
   <!-- Quick Actions -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-    <%= link_to lender_dashboard_applications_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
+    <%= link_to lender_dashboard_applications_path(region: @region), class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">📋</p>
       <h3 class="font-semibold text-gray-800">Investment Applications</h3>
       <p class="text-gray-500 text-sm mt-1">Review EPM investment opportunities</p>
     <% end %>
 
-    <%= link_to lender_dashboard_payments_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
+    <%= link_to lender_dashboard_payments_path(region: @region), class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">💰</p>
       <h3 class="font-semibold text-gray-800">Distribution Management</h3>
       <p class="text-gray-500 text-sm mt-1">Manage distributions to borrowers</p>
     <% end %>
 
-    <%= link_to lender_dashboard_reports_path, class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
+    <%= link_to lender_dashboard_reports_path(region: @region), class: "bg-white rounded-lg shadow p-6 hover:shadow-lg transition text-center no-underline" do %>
       <p class="text-gray-600 mb-2">📊</p>
       <h3 class="font-semibold text-gray-800">Portfolio Performance</h3>
       <p class="text-gray-500 text-sm mt-1">Analyze equity investment returns</p>
@@ -105,7 +105,7 @@
                 </td>
                 <td class="p-3 text-gray-600"><%= app.created_at.strftime("%d %b %Y") %></td>
                 <td class="p-3 text-center">
-                  <%= link_to "Review", lender_dashboard_application_detail_path(app), class: "text-blue-600 hover:underline font-semibold" %>
+                  <%= link_to "Review", lender_dashboard_application_detail_path(region: @region, id: app.id), class: "text-blue-600 hover:underline font-semibold" %>
                 </td>
               </tr>
             <% end %>
@@ -113,7 +113,7 @@
         </table>
       </div>
       <div class="mt-4 text-center">
-        <%= link_to "View All Investments", lender_dashboard_applications_path, class: "text-blue-600 hover:underline font-semibold" %>
+        <%= link_to "View All Investments", lender_dashboard_applications_path(region: @region), class: "text-blue-600 hover:underline font-semibold" %>
       </div>
     <% else %>
       <div class="text-center py-8">

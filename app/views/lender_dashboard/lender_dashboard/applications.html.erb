@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-  <%= link_to "← Back to Dashboard", lender_dashboard_index_path, class: "text-blue-600 hover:underline mb-4 inline-block" %>
+  <%= link_to "← Back to Dashboard", lender_dashboard_index_path(region: @region), class: "text-blue-600 hover:underline mb-4 inline-block" %>
   
   <h1 class="text-3xl font-bold mb-6">EPM Investment Applications</h1>
   
@@ -83,7 +83,7 @@
                 </td>
                 <td class="p-4 text-gray-600"><%= app.created_at.strftime("%d %b %Y") %></td>
                 <td class="p-4 text-center">
-                  <%= link_to "Review", lender_dashboard_application_detail_path(app), 
+                  <%= link_to "Review", lender_dashboard_application_detail_path(region: @region, id: app.id), 
                       class: "bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" %>
                 </td>
               </tr>
@@ -145,7 +145,7 @@
                   <%= app.updated_at.strftime("%d %b %Y") %>
                 </td>
                 <td class="p-4 text-center">
-                  <%= link_to "Manage", lender_dashboard_application_detail_path(app), 
+                  <%= link_to "Manage", lender_dashboard_application_detail_path(region: @region, id: app.id), 
                       class: "text-blue-600 hover:underline font-semibold" %>
                 </td>
               </tr>

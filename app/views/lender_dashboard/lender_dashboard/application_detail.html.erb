@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-  <%= link_to "← Back to Applications", lender_dashboard_applications_path, class: "text-blue-600 hover:underline mb-4 inline-block" %>
+  <%= link_to "← Back to Applications", lender_dashboard_applications_path(region: @region), class: "text-blue-600 hover:underline mb-4 inline-block" %>
 
   <h1 class="text-3xl font-bold mb-6">Application Detail</h1>
 
@@ -26,23 +26,23 @@
   </div>
 
   <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Loan Terms</h2>
+    <h2 class="text-xl font-semibold mb-4">EPM Investment Terms</h2>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="border-l-4 border-blue-600 pl-4">
         <p class="text-gray-600 text-sm">Status</p>
         <p class="text-xl font-bold"><%= @application.status.humanize %></p>
       </div>
       <div class="border-l-4 border-green-600 pl-4">
-        <p class="text-gray-600 text-sm">Loan Amount</p>
-        <p class="text-xl font-bold text-green-600"><%= number_to_currency(@application.approved_loan_amount || 0) %></p>
+        <p class="text-gray-600 text-sm">Capital Investment</p>
+        <p class="text-xl font-bold text-green-600"><%= number_to_currency(@application.equity_investment_amount || 0) %></p>
       </div>
       <div class="border-l-4 border-purple-600 pl-4">
-        <p class="text-gray-600 text-sm">Interest Rate</p>
-        <p class="text-xl font-bold"><%= number_to_percentage(@application.approved_interest_rate || 0, precision: 2) %></p>
+        <p class="text-gray-600 text-sm">Equity Stake</p>
+        <p class="text-xl font-bold"><%= (@application.equity_percentage || 0).round(2) %>%</p>
       </div>
       <div class="border-l-4 border-orange-600 pl-4">
-        <p class="text-gray-600 text-sm">Term</p>
-        <p class="text-xl font-bold"><%= @application.approved_term_years || "N/A" %> years</p>
+        <p class="text-gray-600 text-sm">Investment Date</p>
+        <p class="text-xl font-bold"><%= @application.updated_at.strftime("%d %b %Y") %></p>
       </div>
     </div>
   </div>

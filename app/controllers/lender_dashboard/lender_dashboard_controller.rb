@@ -67,6 +67,7 @@ class LenderDashboard::LenderDashboardController < ApplicationController
 
   def load_lender
     @lender = current_user.lender
+    @region = params[:region]
     redirect_to dashboard_path, alert: 'Access denied.' unless @lender
   end
 

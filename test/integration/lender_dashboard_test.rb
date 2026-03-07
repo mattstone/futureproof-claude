@@ -6,6 +6,7 @@ class LenderDashboardTest < ActionDispatch::IntegrationTest
     @regular_user = users(:regular_user) 
     @lender = lenders(:futureproof)
     @admin_user.update!(lender: @lender)
+    @regular_user.update!(lender: nil)  # Ensure regular user has no lender
     
     @application = applications(:mortgage_application)
     @application.update!(
