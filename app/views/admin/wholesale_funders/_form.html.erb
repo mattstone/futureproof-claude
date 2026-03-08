@@ -57,11 +57,10 @@
       <div>
         <div class="admin-form-group">
           <%= form.label :total_allocated_amount, "Total Allocated Amount" %>
-          <div style="position: relative;">
-            <span style="position: absolute; left: 12px; top: 10px; color: #6b7280;"><%= @wholesale_funder.currency_symbol %></span>
+          <div class="admin-form-currency-wrapper">
+            <span class="admin-form-currency-symbol"><%= @wholesale_funder.currency_symbol %></span>
             <%= form.number_field :total_allocated_amount,
-                class: "admin-form-input",
-                style: "padding-left: 28px;",
+                class: "admin-form-input admin-form-input-currency",
                 step: "0.01",
                 placeholder: "0.00" %>
           </div>

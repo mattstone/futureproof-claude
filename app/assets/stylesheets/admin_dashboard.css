@@ -2235,6 +2235,24 @@
   text-align: center;
 }
 
+.admin-form-currency-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-form-currency-symbol {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.admin-form-input-currency {
+  padding-left: 28px !important;
+}
+
 @media (max-width: 768px) {
   .admin-metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-nav-grid { grid-template-columns: 1fr; }
