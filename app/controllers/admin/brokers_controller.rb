@@ -4,14 +4,13 @@ module Admin
 
     def index
       # Filter by current jurisdiction (default: AU)
-      jurisdiction = session[:jurisdiction] || "AU"
-      @brokers = Broker.by_jurisdiction(jurisdiction).order(created_at: :desc)
+      @current_jurisdiction = session[:jurisdiction] || "AU"
+      @brokers = Broker.by_jurisdiction(@current_jurisdiction).order(created_at: :desc)
       @stats = {
         total: @brokers.count,
         active: @brokers.where(active: true).count,
         inactive: @brokers.where(active: false).count
       }
-      @jurisdiction = jurisdiction
     end
 
     def show

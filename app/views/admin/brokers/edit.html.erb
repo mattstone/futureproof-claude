@@ -3,6 +3,7 @@
     <h1>Edit Broker: <%= @broker.name %></h1>
     <p class="admin-section-subtitle">
       <%= link_to "← Back", admin_broker_path(@broker), class: "admin-link" %>
+      <span class="admin-jurisdiction-badge"><%= @broker.jurisdiction %></span>
     </p>
   </div>
 

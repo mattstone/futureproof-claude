@@ -3,6 +3,9 @@
     <h1>Create Broker</h1>
     <p class="admin-section-subtitle">
       <%= link_to "← Back to Brokers", admin_brokers_path, class: "admin-link" %>
+      <% if @broker.jurisdiction %>
+        <span class="admin-jurisdiction-badge"><%= @broker.jurisdiction %></span>
+      <% end %>
     </p>
   </div>
 

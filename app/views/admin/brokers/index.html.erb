@@ -1,7 +1,12 @@
 <div class="admin-section">
   <div class="admin-section-header">
-    <h1>Brokers<% if @jurisdiction %> - <%= @jurisdiction %><% end %></h1>
-    <p class="admin-section-subtitle">Manage broker profiles and lender assignments</p>
+    <h1>Brokers</h1>
+    <p class="admin-section-subtitle">
+      Manage broker profiles and lender assignments
+      <% if @current_jurisdiction %>
+        <span class="admin-jurisdiction-badge"><%= @current_jurisdiction %></span>
+      <% end %>
+    </p>
     <%= link_to "Add Broker", new_admin_broker_path, class: "admin-link", style: "background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none;" %>
   </div>
 
