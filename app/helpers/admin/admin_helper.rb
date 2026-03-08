@@ -7,9 +7,21 @@ module Admin::AdminHelper
     
     return scope if selected_jurisdiction == "Summary"
     
-    # Map jurisdiction selector values to region field values (case-insensitive)
-    region_value = selected_jurisdiction.downcase
-    scope.where(jurisdiction_field => region_value)
+    # Map jurisdiction codes to possible field values (uppercase, lowercase, full names)
+    possible_values = case selected_jurisdiction.upcase
+      when "AU"
+        ["AU", "au", "Australia"]
+      when "US"
+        ["US", "us", "United States"]
+      when "NZ"
+        ["NZ", "nz", "New Zealand"]
+      when "UK"
+        ["UK", "uk", "United Kingdom"]
+      else
+        [selected_jurisdiction]
+    end
+    
+    scope.where(jurisdiction_field => possible_values)
   end
 
   # Get current jurisdiction from session
