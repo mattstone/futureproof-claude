@@ -121,7 +121,6 @@
           <div class="admin-header-title-section">
             <h1><%= yield(:page_title) || "Futureproof" %></h1>
           </div>
-          <%= render 'admin/shared/jurisdiction_switcher' if current_user&.lender&.lender_type_futureproof? %>
         </div>
 
         <div class="admin-content">
