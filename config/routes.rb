@@ -50,8 +50,7 @@ Rails.application.routes.draw do
     
     # Direct access to all funder pools
     resources :funder_pools, only: [:index]
-    resources :dashboard, only: [:index]
-    get 'business', to: 'dashboard#business'
+    get 'business', to: 'old_dashboard#business'
     resources :users
     resources :mortgages do
       resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do
@@ -227,8 +226,8 @@ Rails.application.routes.draw do
       end
     end
     
-    get 'dashboard_v2', to: 'admin_dashboard_v2#dashboard_v2'
-    root "dashboard#index"
+    get 'old', to: 'old_dashboard#index', as: 'old_dashboard'
+    root "admin_dashboard_v2#dashboard_v2"
   end
 
   # API routes

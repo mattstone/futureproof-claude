@@ -1,4 +1,4 @@
-class Admin::DashboardController < Admin::BaseController
+class Admin::OldDashboardController < Admin::BaseController
   def index
     # Get scoped data based on admin type
     users_scope = scoped_users
