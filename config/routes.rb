@@ -44,8 +44,10 @@ Rails.application.routes.draw do
     resources :wholesale_funders do
       collection do
         post :search
+        get :by_jurisdiction
       end
       resources :funder_pools, except: [:index]
+      resources :contracts, controller: 'wholesale_funder_contracts', only: [:index, :new, :create, :edit, :update, :destroy]
     end
     
     # Direct access to all funder pools

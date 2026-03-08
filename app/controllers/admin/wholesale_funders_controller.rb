@@ -3,9 +3,46 @@ class Admin::WholesaleFundersController < Admin::BaseController
   before_action :set_wholesale_funder, only: [:show, :edit, :update, :destroy]
 
   def index
-    @wholesale_funders = WholesaleFunder.includes(:funder_pools).recent.page(params[:page]).per(10)
+    # Get selected jurisdiction (default: 'All')
+    @selected_jurisdiction = params[:jurisdiction].presence || 'All'
+    
+    # Calculate global statistics
+    all_funders = WholesaleFunder.includes(:lender_wholesale_funders, :lenders)
+    @global_stats = {
+      total_allocated: all_funders.sum(:total_allocated_amount),
+      total_committed: all_funders.sum { |f| f.committed_amount },
+      total_available: all_funders.sum { |f| f.available_amount },
+      utilization_pct: calculate_global_utilization(all_funders)
+    }
+    
+    # Get funders for selected jurisdiction
+    @wholesale_funders = filter_by_jurisdiction(@selected_jurisdiction).recent.page(params[:page]).per(10)
     apply_filters
     prepare_filter_options
+  end
+
+  def by_jurisdiction
+    jurisdiction = params[:jurisdiction].presence || 'All'
+    funders = filter_by_jurisdiction(jurisdiction).recent
+    
+    respond_to do |format|
+      format.json do
+        data = funders.map do |f|
+          {
+            id: f.id,
+            name: f.name,
+            country: f.country,
+            currency: f.currency,
+            total_allocated: f.total_allocated_amount,
+            committed: f.committed_amount,
+            available: f.available_amount,
+            utilization_pct: f.utilization_percentage,
+            runway_months: f.runway_months
+          }
+        end
+        render json: data
+      end
+    end
   end
 
   def search
@@ -64,7 +101,31 @@ class Admin::WholesaleFundersController < Admin::BaseController
   end
 
   def wholesale_funder_params
-    params.require(:wholesale_funder).permit(:name, :country, :currency)
+    params.require(:wholesale_funder).permit(:name, :country, :currency, :total_allocated_amount)
+  end
+
+  def filter_by_jurisdiction(jurisdiction)
+    if jurisdiction == 'All'
+      WholesaleFunder.all
+    elsif %w[AU US NZ UK].include?(jurisdiction)
+      # Map jurisdiction codes to country names
+      country_map = {
+        'AU' => 'Australia',
+        'US' => 'United States',
+        'NZ' => 'New Zealand',
+        'UK' => 'United Kingdom'
+      }
+      WholesaleFunder.by_country(country_map[jurisdiction])
+    else
+      WholesaleFunder.all
+    end
+  end
+
+  def calculate_global_utilization(funders)
+    total_allocated = funders.sum(:total_allocated_amount)
+    return 0 if total_allocated == 0
+    total_committed = funders.sum { |f| f.committed_amount }
+    ((total_committed.to_f / total_allocated) * 100).round(2)
   end
 
   def apply_filters
