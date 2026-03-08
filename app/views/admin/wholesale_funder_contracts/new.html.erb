@@ -1,0 +1,16 @@
+<div class="p-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Add New Contract</h1>
+    <p class="text-gray-600 mt-2">For <%= @wholesale_funder.name %></p>
+  </div>
+
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to "← Back to Contracts", admin_wholesale_funder_contracts_path(@wholesale_funder), 
+        class: "text-blue-600 hover:text-blue-900" %>
+  </div>
+
+  <div class="max-w-4xl">
+    <%= render 'form', wholesale_funder: @wholesale_funder, contract: @contract %>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<%= form_with(model: [@wholesale_funder, @contract], local: true) do |form| %>
+  <% if @contract.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+      <h3 class="font-bold mb-2"><%= pluralize(@contract.errors.count, "error") %> prohibited this contract:</h3>
+      <ul class="list-disc list-inside text-sm">
+        <% @contract.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="space-y-6">
+      <!-- Jurisdiction -->
+      <div>
+        <div>
+          <%= form.label :jurisdiction, "Jurisdiction", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+          <%= form.select :jurisdiction,
+              [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]],
+              { prompt: "Select jurisdiction" },
+              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" %>
+          <p class="text-xs text-gray-500 mt-1">The jurisdiction this contract applies to</p>
+        </div>
+      </div>
+
+      <!-- Party Type -->
+      <div>
+        <div>
+          <%= form.label :party_type, "Party Type", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+          <%= form.select :party_type,
+              [
+                ["Lender Agreement", "Lender Agreement"],
+                ["Broker Agreement", "Broker Agreement"],
+                ["Terms of Service", "Terms of Service"],
+                ["Investment Agreement", "Investment Agreement"],
+                ["Master Agreement", "Master Agreement"]
+              ],
+              { prompt: "Select party type" },
+              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" %>
+          <p class="text-xs text-gray-500 mt-1">Type of agreement</p>
+        </div>
+      </div>
+
+      <!-- Version -->
+      <div>
+        <div>
+          <%= form.label :version, "Version", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+          <%= form.text_field :version,
+              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+              placeholder: "1.0" %>
+          <p class="text-xs text-gray-500 mt-1">Contract version number</p>
+        </div>
+      </div>
+
+      <!-- HTML Content Editor -->
+      <div>
+        <div>
+          <%= form.label :html_content, "Contract HTML", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+          <div class="bg-gray-50 rounded-lg border border-gray-300 overflow-hidden">
+            <div class="flex border-b border-gray-300 bg-gray-100">
+              <button type="button" class="flex-1 px-4 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none" 
+                      onclick="switchEditor('visual')">Visual</button>
+              <button type="button" class="flex-1 px-4 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none" 
+                      onclick="switchEditor('html')">HTML</button>
+            </div>
+            
+            <!-- Visual Editor (simplified) -->
+            <div id="visual-editor" class="p-4">
+              <div class="prose max-w-none border border-gray-300 rounded p-4 bg-white min-h-96">
+                <div id="content-preview" class="text-gray-700"></div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">Preview of the contract above. Switch to HTML tab to edit.</p>
+            </div>
+
+            <!-- HTML Editor -->
+            <div id="html-editor" class="hidden p-4">
+              <%= form.text_area :html_content,
+                  class: "w-full h-96 px-4 py-2 font-mono text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "<h1>Contract Title</h1><p>Contract content here...</p>" %>
+              <p class="text-xs text-gray-500 mt-2">Enter valid HTML. Basic tags: &lt;h1-h6&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;br&gt;</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 mt-8 pt-6 border-t border-gray-200">
+      <%= form.submit class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" %>
+      <%= link_to "Cancel", admin_wholesale_funder_contracts_path(@wholesale_funder), 
+          class: "px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition" %>
+    </div>
+  </div>
+
+  <script>
+    function switchEditor(mode) {
+      const visualEditor = document.getElementById('visual-editor');
+      const htmlEditor = document.getElementById('html-editor');
+      
+      if (mode === 'visual') {
+        visualEditor.classList.remove('hidden');
+        htmlEditor.classList.add('hidden');
+        updatePreview();
+      } else {
+        visualEditor.classList.add('hidden');
+        htmlEditor.classList.remove('hidden');
+      }
+    }
+
+    function updatePreview() {
+      const textarea = document.querySelector('textarea[name="wholesale_funder_contract[html_content]"]');
+      const preview = document.getElementById('content-preview');
+      preview.innerHTML = textarea.value || '<p>No content yet.</p>';
+    }
+
+    // Update preview when textarea changes
+    document.addEventListener('DOMContentLoaded', function() {
+      const textarea = document.querySelector('textarea[name="wholesale_funder_contract[html_content]"]');
+      if (textarea) {
+        textarea.addEventListener('input', updatePreview);
+        updatePreview();
+      }
+    });
+  </script>
+<% end %>
