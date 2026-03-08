@@ -29,7 +29,7 @@
         </div>
         
         <nav class="admin-nav">
-          <%= link_to admin_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard' && action_name == 'index'}" do %>
+          <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'admin_dashboard_v2' || (controller_name == 'old_dashboard' && action_name == 'index')}" do %>
             <span>📊 Dashboard</span>
           <% end %>
           <%= link_to admin_business_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard' && action_name == 'business'}" do %>
