@@ -6,67 +6,46 @@
     <p class="form-help-text">Global funding allocation and contract management across all jurisdictions</p>
 
     <!-- Global Summary Cards -->
-    <div class="admin-stats-grid" style="margin: 24px 0 32px 0;">
-      <div class="admin-stat-card">
-        <div class="admin-stat-content">
-          <div class="admin-stat-icon admin-stat-icon-blue">
-            <span class="admin-stat-icon-text">💰</span>
-          </div>
-          <div class="admin-stat-text">
-            <div class="admin-stat-label">TOTAL ALLOCATED</div>
-            <div class="admin-stat-value"><%= number_to_currency(@global_stats[:total_allocated], precision: 0) %></div>
-            <small>All Jurisdictions</small>
-          </div>
+    <div class="admin-metrics-grid">
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Allocated</span>
         </div>
+        <p class="admin-metric-value"><%= number_to_currency(@global_stats[:total_allocated], precision: 0) %></p>
+        <small>All Jurisdictions</small>
       </div>
 
-      <div class="admin-stat-card">
-        <div class="admin-stat-content">
-          <div class="admin-stat-icon admin-stat-icon-blue">
-            <span class="admin-stat-icon-text">📊</span>
-          </div>
-          <div class="admin-stat-text">
-            <div class="admin-stat-label">TOTAL COMMITTED</div>
-            <div class="admin-stat-value"><%= number_to_currency(@global_stats[:total_committed], precision: 0) %></div>
-            <small>From Active Applications</small>
-          </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Committed</span>
         </div>
+        <p class="admin-metric-value"><%= number_to_currency(@global_stats[:total_committed], precision: 0) %></p>
+        <small>From Active Applications</small>
       </div>
 
-      <div class="admin-stat-card">
-        <div class="admin-stat-content">
-          <div class="admin-stat-icon admin-stat-icon-blue">
-            <span class="admin-stat-icon-text">✅</span>
-          </div>
-          <div class="admin-stat-text">
-            <div class="admin-stat-label">TOTAL AVAILABLE</div>
-            <div class="admin-stat-value"><%= number_to_currency(@global_stats[:total_available], precision: 0) %></div>
-            <small>Ready to Deploy</small>
-          </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Available</span>
         </div>
+        <p class="admin-metric-value"><%= number_to_currency(@global_stats[:total_available], precision: 0) %></p>
+        <small>Ready to Deploy</small>
       </div>
 
-      <div class="admin-stat-card">
-        <div class="admin-stat-content">
-          <div class="admin-stat-icon admin-stat-icon-blue">
-            <span class="admin-stat-icon-text">📈</span>
-          </div>
-          <div class="admin-stat-text">
-            <div class="admin-stat-label">UTILIZATION</div>
-            <div class="admin-stat-value"><%= @global_stats[:utilization_pct] %>%</div>
-            <small>Committed / Total</small>
-          </div>
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Utilization</span>
         </div>
+        <p class="admin-metric-value"><%= @global_stats[:utilization_pct] %>%</p>
+        <small>Committed / Total</small>
       </div>
     </div>
 
     <!-- Jurisdiction Filter & Actions -->
     <div class="admin-actions-bar">
       <div class="admin-filter">
-        <label class="admin-form-label" style="margin-bottom: 0; margin-right: 12px;">Filter by Jurisdiction</label>
+        <label class="admin-form-label">Filter by Jurisdiction</label>
         <select id="jurisdiction-filter" 
                 class="admin-form-select"
-                style="max-width: 250px;"
                 onchange="window.location.href='<%= admin_wholesale_funders_path %>' + '?jurisdiction=' + this.value">
           <option value="All" <%= 'selected' if @selected_jurisdiction == 'All' %>>All Jurisdictions</option>
           <option value="AU" <%= 'selected' if @selected_jurisdiction == 'AU' %>>Australia (AU)</option>
@@ -82,18 +61,18 @@
   </div>
 
   <!-- Funders Table -->
-  <div class="admin-table">
-    <table>
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
       <thead>
         <tr>
           <th>Name</th>
           <th>Country</th>
           <th>Currency</th>
-          <th class="text-right">Allocated</th>
-          <th class="text-right">Committed</th>
-          <th class="text-right">Available</th>
-          <th class="text-right">Utilization</th>
-          <th class="text-right">Runway (mo)</th>
+          <th>Allocated</th>
+          <th>Committed</th>
+          <th>Available</th>
+          <th>Utilization</th>
+          <th>Runway</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -101,22 +80,22 @@
         <% if @wholesale_funders.any? %>
           <% @wholesale_funders.each do |funder| %>
             <tr>
-              <td><%= funder.name %></td>
+              <td><strong><%= funder.name %></strong></td>
               <td><%= funder.country %></td>
               <td><%= funder.currency %></td>
-              <td class="text-right"><strong><%= number_to_currency(funder.total_allocated_amount, precision: 0) %></strong></td>
-              <td class="text-right"><strong><%= number_to_currency(funder.committed_amount, precision: 0) %></strong></td>
-              <td class="text-right"><strong><%= number_to_currency(funder.available_amount, precision: 0) %></strong></td>
-              <td class="text-right">
-                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                  <div style="width: 80px; background: #e5e7eb; border-radius: 9999px; height: 8px;">
-                    <div style="background: #3b82f6; height: 8px; border-radius: 9999px; width: <%= funder.utilization_percentage %>%"></div>
+              <td><%= number_to_currency(funder.total_allocated_amount, precision: 0) %></td>
+              <td><%= number_to_currency(funder.committed_amount, precision: 0) %></td>
+              <td><%= number_to_currency(funder.available_amount, precision: 0) %></td>
+              <td>
+                <div class="admin-progress-inline">
+                  <div class="admin-progress-bar-small">
+                    <div class="admin-progress-fill-small" style="width: <%= funder.utilization_percentage %>%"></div>
                   </div>
-                  <span style="min-width: 48px; text-align: right;"><strong><%= funder.utilization_percentage %>%</strong></span>
+                  <span class="admin-progress-percent"><%= funder.utilization_percentage %>%</span>
                 </div>
               </td>
-              <td class="text-right">
-                <span style="font-weight: 600; <%= funder.runway_months > 12 ? 'color: #16a34a;' : funder.runway_months > 6 ? 'color: #ca8a04;' : 'color: #dc2626;' %>">
+              <td>
+                <span class="<%= funder.runway_months > 12 ? 'admin-text-success' : funder.runway_months > 6 ? 'admin-text-warning' : 'admin-text-danger' %>">
                   <% if funder.runway_months >= 999 %>
                     ∞ months
                   <% else %>
@@ -124,21 +103,19 @@
                   <% end %>
                 </span>
               </td>
-              <td style="display: flex; gap: 8px;">
-                <%= link_to "Contracts", admin_wholesale_funder_contracts_path(funder), 
-                    class: "admin-btn admin-btn-sm", style: "background: #3b82f6; color: white; text-decoration: none; padding: 6px 12px;" %>
-                <%= link_to "Edit", edit_admin_wholesale_funder_path(funder), 
-                    class: "admin-btn admin-btn-sm", style: "background: #8b5cf6; color: white; text-decoration: none; padding: 6px 12px;" %>
+              <td class="admin-actions-cell">
+                <%= link_to "Contracts", admin_wholesale_funder_contracts_path(funder), class: "admin-btn admin-btn-sm" %>
+                <%= link_to "Edit", edit_admin_wholesale_funder_path(funder), class: "admin-btn admin-btn-sm" %>
                 <%= link_to "Delete", admin_wholesale_funder_path(funder), 
                     method: :delete, data: { confirm: "Are you sure?" },
-                    class: "admin-btn admin-btn-sm", style: "background: #dc2626; color: white; text-decoration: none; padding: 6px 12px;" %>
+                    class: "admin-btn admin-btn-sm admin-btn-danger" %>
               </td>
             </tr>
           <% end %>
         <% else %>
           <tr>
-            <td colspan="9" style="text-align: center; padding: 32px; color: #6b7280;">
-              <p style="margin: 0;">No wholesale funders found for this jurisdiction.</p>
+            <td colspan="9" class="admin-table-empty">
+              No wholesale funders found for this jurisdiction.
             </td>
           </tr>
         <% end %>
@@ -147,7 +124,7 @@
   </div>
 
   <!-- Pagination -->
-  <div style="margin-top: 24px;">
+  <div class="admin-pagination">
     <%= paginate @wholesale_funders %>
   </div>
 </div>
