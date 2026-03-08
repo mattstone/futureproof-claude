@@ -21,9 +21,6 @@
           method: :patch,
           class: "admin-btn admin-btn-secondary"
         ) %>
-        <%= link_to "Delete", admin_broker_path(@broker), method: :delete,
-            data: { confirm: "Delete #{@broker.name}?" },
-            class: "admin-btn admin-btn-danger" %>
         <%= link_to "Back", admin_brokers_path, class: "admin-btn admin-btn-secondary" %>
       </div>
     </div>

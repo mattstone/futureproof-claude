@@ -1,6 +1,6 @@
 module Admin
   class BrokersController < BaseController
-    before_action :set_broker, only: [:show, :edit, :update, :toggle_active, :destroy]
+    before_action :set_broker, only: [:show, :edit, :update, :toggle_active]
 
     def index
       # Filter by current jurisdiction (default: AU)
@@ -48,11 +48,6 @@ module Admin
     def toggle_active
       @broker.update(active: !@broker.active)
       redirect_to admin_brokers_path, notice: "Broker #{@broker.active ? 'activated' : 'deactivated'}"
-    end
-
-    def destroy
-      @broker.destroy
-      redirect_to admin_brokers_path, notice: 'Broker deleted successfully'
     end
 
     private
