@@ -1927,11 +1927,6 @@
 
 /* ========== Modern Admin Dashboard Layout ========== */
 
-.admin-content,
-.admin-content-wrapper {
-  padding: 0;
-}
-
 .admin-section-header {
   padding: 0 0 20px 0;
   border-bottom: 1px solid #e5e7eb;
