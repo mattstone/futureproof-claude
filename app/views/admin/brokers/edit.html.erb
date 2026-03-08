@@ -1,0 +1,51 @@
+<div class="admin-section">
+  <div class="admin-section-header">
+    <h1>Edit Broker: <%= @broker.name %></h1>
+    <p class="admin-section-subtitle">
+      <%= link_to "← Back", admin_broker_path(@broker), class: "admin-link" %>
+    </p>
+  </div>
+
+  <%= form_with(model: [:admin, @broker], local: true) do |form| %>
+    <% if @broker.errors.any? %>
+      <div style="padding: 1rem; background: #fee; border-radius: 0.5rem; margin-bottom: 2rem; color: #991b1b;">
+        <h4><%= pluralize(@broker.errors.count, "error") %> prohibited this broker from being saved:</h4>
+        <ul style="margin: 0.5rem 0 0 1rem;">
+          <% @broker.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="admin-section" style="max-width: 500px;">
+      <div style="display: grid; gap: 1.5rem;">
+        <div>
+          <%= form.label :name, "Name", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.text_field :name, class: "admin-input", placeholder: "Broker name" %>
+        </div>
+
+        <div>
+          <%= form.label :email, "Email", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.email_field :email, class: "admin-input", placeholder: "broker@example.com", disabled: true %>
+          <small style="color: #6b7280;">Email cannot be changed</small>
+        </div>
+
+        <div>
+          <%= form.label :phone, "Phone", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.text_field :phone, class: "admin-input", placeholder: "02 1234 5678" %>
+        </div>
+
+        <div>
+          <%= form.label :active, "Active", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.check_box :active %>
+          <span style="margin-left: 0.5rem; color: #6b7280;">Broker can sign in and access portal</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <%= form.submit "Save Changes", class: "admin-link", style: "background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem;" %>
+      </div>
+    </div>
+  <% end %>
+</div>

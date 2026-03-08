@@ -1,0 +1,95 @@
+<div class="admin-section">
+  <div class="admin-section-header">
+    <h1><%= @broker.name %></h1>
+    <p class="admin-section-subtitle">
+      <%= link_to "← Back to Brokers", admin_brokers_path, class: "admin-link" %>
+    </p>
+  </div>
+
+  <!-- Broker Info -->
+  <div class="admin-two-column" style="margin-bottom: 2rem;">
+    <div class="admin-section">
+      <h3 style="margin-bottom: 1rem;">Profile</h3>
+      <div style="display: grid; gap: 1rem;">
+        <div>
+          <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Name</label>
+          <p><%= @broker.name %></p>
+        </div>
+        <div>
+          <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Email</label>
+          <p><%= @broker.email %></p>
+        </div>
+        <div>
+          <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Phone</label>
+          <p><%= @broker.phone || "N/A" %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3 style="margin-bottom: 1rem;">Status</h3>
+      <div style="display: grid; gap: 1rem;">
+        <div>
+          <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Active</label>
+          <p>
+            <% if @broker.active %>
+              <span style="color: #10b981; font-weight: 600;">✓ Active</span>
+            <% else %>
+              <span style="color: #6b7280; font-weight: 600;">Inactive</span>
+            <% end %>
+          </p>
+        </div>
+        <div>
+          <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Member Since</label>
+          <p><%= @broker.created_at.strftime("%B %d, %Y") %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lender Assignments -->
+  <div class="admin-section">
+    <h3 style="margin-bottom: 1rem;">Assigned Lenders</h3>
+    
+    <div class="admin-table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Lender</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @broker_lenders.any? %>
+            <% @broker_lenders.each do |bl| %>
+              <tr>
+                <td><strong><%= bl.lender.name %></strong></td>
+                <td>
+                  <% if bl.active %>
+                    <span style="color: #10b981; font-weight: 600;">Active</span>
+                  <% else %>
+                    <span style="color: #6b7280; font-weight: 600;">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="admin-actions-cell">
+                  <%= link_to(bl.active ? "Disable" : "Enable", toggle_active_admin_broker_lender_path(@broker, bl), method: :patch, class: "admin-link") %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="3" class="admin-table-empty">No lenders assigned</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+    <%= link_to "Edit", edit_admin_broker_path(@broker), class: "admin-link" %>
+    <%= link_to(@broker.active ? "Deactivate" : "Activate", toggle_active_admin_broker_path(@broker), method: :patch, class: "admin-link") %>
+  </div>
+</div>

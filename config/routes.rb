@@ -196,6 +196,23 @@ Rails.application.routes.draw do
       end
     end
 
+    # Broker Management
+    resources :brokers, only: [:index, :show, :edit, :update] do
+      member do
+        patch :toggle_active
+      end
+      resources :lenders, controller: 'broker_lenders', only: [] do
+        member do
+          patch :toggle_active
+        end
+        collection do
+          get :available_lenders
+          post :add_lender
+          delete :remove_lender
+        end
+      end
+    end
+
     # Agent Lifecycle Management (NEW - replaces complex workflow builders)
     resources :agent_lifecycle, only: [:index, :show, :edit, :update] do
       member do

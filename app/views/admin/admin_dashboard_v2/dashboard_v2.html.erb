@@ -55,10 +55,10 @@
         <span class="admin-nav-desc">Manage lender profiles, relationships, and assignments</span>
       <% end %>
 
-      <div class="admin-nav-card admin-nav-card-disabled">
+      <%= link_to admin_brokers_path, class: "admin-nav-card" do %>
         <span class="admin-nav-title">Brokers</span>
-        <span class="admin-nav-desc">Coming next...</span>
-      </div>
+        <span class="admin-nav-desc">Manage broker profiles and lender assignments</span>
+      <% end %>
 
       <div class="admin-nav-card admin-nav-card-disabled">
         <span class="admin-nav-title">Agents</span>

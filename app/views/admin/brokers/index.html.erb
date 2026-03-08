@@ -1,0 +1,82 @@
+<div class="admin-section">
+  <div class="admin-section-header">
+    <h1>Brokers</h1>
+    <p class="admin-section-subtitle">Manage broker profiles and lender assignments</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="admin-metrics-grid" style="margin-bottom: 2rem;">
+    <div class="admin-metric-card">
+      <div class="admin-metric-top">
+        <span class="admin-metric-label">Total Brokers</span>
+      </div>
+      <div class="admin-metric-value"><%= @stats[:total] %></div>
+    </div>
+
+    <div class="admin-metric-card">
+      <div class="admin-metric-top">
+        <span class="admin-metric-label">Active</span>
+      </div>
+      <div class="admin-metric-value"><%= @stats[:active] %></div>
+    </div>
+
+    <div class="admin-metric-card">
+      <div class="admin-metric-top">
+        <span class="admin-metric-label">Inactive</span>
+      </div>
+      <div class="admin-metric-value"><%= @stats[:inactive] %></div>
+    </div>
+  </div>
+
+  <!-- Brokers Table -->
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Lenders</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @brokers.any? %>
+          <% @brokers.each do |broker| %>
+            <tr>
+              <td><strong><%= broker.name %></strong></td>
+              <td><small><%= broker.email %></small></td>
+              <td><%= broker.phone || "N/A" %></td>
+              <td>
+                <small>
+                  <% if broker.lenders.any? %>
+                    <%= broker.lenders.pluck(:name).join(", ") %>
+                  <% else %>
+                    <span style="color: #9ca3af;">No lenders</span>
+                  <% end %>
+                </small>
+              </td>
+              <td>
+                <% if broker.active %>
+                  <span style="color: #10b981; font-weight: 600;">Active</span>
+                <% else %>
+                  <span style="color: #6b7280; font-weight: 600;">Inactive</span>
+                <% end %>
+              </td>
+              <td class="admin-actions-cell">
+                <%= link_to "View", admin_broker_path(broker), class: "admin-link" %>
+                <%= link_to "Edit", edit_admin_broker_path(broker), class: "admin-link" %>
+                <%= link_to(broker.active ? "Deactivate" : "Activate", toggle_active_admin_broker_path(broker), method: :patch, class: "admin-link") %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="admin-table-empty">No brokers yet</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
