@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  # Global jurisdiction setting (accessible from anywhere)
+  post 'set_jurisdiction', to: 'admin/base#set_jurisdiction'
+
   # Admin routes
   namespace :admin do
     post 'set_jurisdiction', to: 'base#set_jurisdiction'

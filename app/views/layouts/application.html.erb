@@ -32,9 +32,6 @@
           <%= link_to root_path, class: "admin-nav-link #{'active' if request.path == '/'}" do %>
             <span>📊 Dashboard</span>
           <% end %>
-          <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'admin_dashboard_v2' || (controller_name == 'old_dashboard' && action_name == 'index')}" do %>
-            <span>⚙️ Admin</span>
-          <% end %>
 
           <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %>>
             <summary class="admin-nav-group-header">Operations</summary>
@@ -121,6 +118,7 @@
           <div class="admin-header-title-section">
             <h1><%= yield(:page_title) || "Futureproof" %></h1>
           </div>
+          <%= render 'admin/shared/jurisdiction_switcher', path: set_jurisdiction_path %>
         </div>
 
         <div class="admin-content">
