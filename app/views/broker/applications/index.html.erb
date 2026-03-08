@@ -62,15 +62,15 @@
                 </td>
                 <td>
                   <span class="admin-metric-label">
-                    <% case app.application_status %>
-                      <% when 'open' %>
-                        <span style="color: #fbbf24;">Open</span>
-                      <% when 'converted' %>
+                    <% case app.status %>
+                      <% when 'submitted', 'processing' %>
+                        <span style="color: #fbbf24;">Pending</span>
+                      <% when 'accepted' %>
                         <span style="color: #10b981;">Approved</span>
-                      <% when 'backoffice_review' %>
-                        <span style="color: #6366f1;">Review</span>
+                      <% when 'rejected' %>
+                        <span style="color: #ef4444;">Rejected</span>
                       <% else %>
-                        <span><%= app.application_status.humanize %></span>
+                        <span><%= app.status.humanize %></span>
                     <% end %>
                   </span>
                 </td>

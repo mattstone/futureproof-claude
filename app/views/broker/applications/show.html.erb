@@ -30,15 +30,15 @@
         <div>
           <label style="font-weight: 600; color: #374151; font-size: 0.875rem;">Status</label>
           <p>
-            <% case @application.application_status %>
-              <% when 'open' %>
-                <span style="color: #fbbf24; font-weight: 600;">Open</span>
-              <% when 'converted' %>
+            <% case @application.status %>
+              <% when 'submitted', 'processing' %>
+                <span style="color: #fbbf24; font-weight: 600;">Pending</span>
+              <% when 'accepted' %>
                 <span style="color: #10b981; font-weight: 600;">Approved</span>
-              <% when 'backoffice_review' %>
-                <span style="color: #6366f1; font-weight: 600;">In Review</span>
+              <% when 'rejected' %>
+                <span style="color: #ef4444; font-weight: 600;">Rejected</span>
               <% else %>
-                <span><%= @application.application_status.humanize %></span>
+                <span><%= @application.status.humanize %></span>
             <% end %>
           </p>
         </div>
@@ -58,7 +58,7 @@
   <div class="admin-section">
     <h3 style="margin-bottom: 1rem;">EPM Performance</h3>
     
-    <% mortgage = @application.mortgage_contract %>
+    <% mortgage = @application.mortgage %>
     <% if mortgage %>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
         <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #6366f1;">

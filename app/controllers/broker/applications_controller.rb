@@ -14,9 +14,9 @@ module Broker
 
       @stats = {
         total: @applications.count,
-        pending: @applications.where(application_status: :open).count,
-        approved: @applications.where(application_status: :converted).count,
-        rejected: @applications.where(application_status: 'backoffice_review').count
+        pending: @applications.where(status: [:submitted, :processing]).count,
+        approved: @applications.where(status: :accepted).count,
+        rejected: @applications.where(status: :rejected).count
       }
     end
 
