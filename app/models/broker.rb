@@ -8,6 +8,11 @@ class Broker < ApplicationRecord
   has_many :lenders, through: :broker_lenders
   has_many :applications, dependent: :nullify
 
+  VALID_JURISDICTIONS = ["AU", "US", "NZ", "UK"].freeze
+
+  validates :jurisdiction, presence: true, inclusion: { in: VALID_JURISDICTIONS }
+
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
+  scope :by_jurisdiction, ->(jurisdiction) { where(jurisdiction: jurisdiction) }
 end

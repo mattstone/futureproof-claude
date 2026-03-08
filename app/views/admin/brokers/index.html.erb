@@ -1,7 +1,8 @@
 <div class="admin-section">
   <div class="admin-section-header">
-    <h1>Brokers</h1>
+    <h1>Brokers<% if @jurisdiction %> - <%= @jurisdiction %><% end %></h1>
     <p class="admin-section-subtitle">Manage broker profiles and lender assignments</p>
+    <%= link_to "Add Broker", new_admin_broker_path, class: "admin-link", style: "background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none;" %>
   </div>
 
   <!-- Stats Cards -->
@@ -68,6 +69,7 @@
                 <%= link_to "View", admin_broker_path(broker), class: "admin-link" %>
                 <%= link_to "Edit", edit_admin_broker_path(broker), class: "admin-link" %>
                 <%= link_to(broker.active ? "Deactivate" : "Activate", toggle_active_admin_broker_path(broker), method: :patch, class: "admin-link") %>
+                <%= link_to "Delete", admin_broker_path(broker), method: :delete, data: { confirm: "Are you sure?" }, class: "admin-link", style: "color: #ef4444;" %>
               </td>
             </tr>
           <% end %>

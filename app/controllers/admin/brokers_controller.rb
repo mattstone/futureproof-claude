@@ -1,19 +1,38 @@
 module Admin
   class BrokersController < BaseController
-    before_action :set_broker, only: [:show, :edit, :update, :toggle_active]
+    before_action :set_broker, only: [:show, :edit, :update, :toggle_active, :destroy]
 
     def index
-      @brokers = Broker.all.order(created_at: :desc)
+      # Filter by current jurisdiction (default: AU)
+      jurisdiction = session[:jurisdiction] || "AU"
+      @brokers = Broker.by_jurisdiction(jurisdiction).order(created_at: :desc)
       @stats = {
         total: @brokers.count,
         active: @brokers.where(active: true).count,
         inactive: @brokers.where(active: false).count
       }
+      @jurisdiction = jurisdiction
     end
 
     def show
       @lenders = @broker.lenders
       @broker_lenders = @broker.broker_lenders
+    end
+
+    def new
+      @broker = Broker.new
+      @broker.jurisdiction = session[:jurisdiction] || "AU"
+    end
+
+    def create
+      @broker = Broker.new(broker_params)
+      @broker.jurisdiction = session[:jurisdiction] || "AU"
+      
+      if @broker.save
+        redirect_to admin_broker_path(@broker), notice: 'Broker created successfully'
+      else
+        render :new, status: :unprocessable_entity
+      end
     end
 
     def edit
@@ -32,6 +51,11 @@ module Admin
       redirect_to admin_brokers_path, notice: "Broker #{@broker.active ? 'activated' : 'deactivated'}"
     end
 
+    def destroy
+      @broker.destroy
+      redirect_to admin_brokers_path, notice: 'Broker deleted successfully'
+    end
+
     private
 
     def set_broker
@@ -39,7 +63,7 @@ module Admin
     end
 
     def broker_params
-      params.require(:broker).permit(:name, :email, :phone, :active)
+      params.require(:broker).permit(:name, :email, :phone, :password, :password_confirmation, :active, :jurisdiction)
     end
   end
 end

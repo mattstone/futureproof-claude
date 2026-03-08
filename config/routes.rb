@@ -197,7 +197,7 @@ Rails.application.routes.draw do
     end
 
     # Broker Management
-    resources :brokers, only: [:index, :show, :edit, :update] do
+    resources :brokers do
       member do
         patch :toggle_active
       end

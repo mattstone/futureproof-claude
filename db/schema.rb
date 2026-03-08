@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_170615) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_200300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -299,6 +299,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170615) do
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.string "jurisdiction", default: "AU"
     t.string "name"
     t.string "phone"
     t.datetime "remember_created_at"
@@ -306,6 +307,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170615) do
     t.string "reset_password_token"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_brokers_on_email", unique: true
+    t.index ["jurisdiction"], name: "index_brokers_on_jurisdiction"
     t.index ["reset_password_token"], name: "index_brokers_on_reset_password_token", unique: true
   end
 

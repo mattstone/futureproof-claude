@@ -1,8 +1,8 @@
 <div class="admin-section">
   <div class="admin-section-header">
-    <h1>Edit Broker: <%= @broker.name %></h1>
+    <h1>Create Broker</h1>
     <p class="admin-section-subtitle">
-      <%= link_to "← Back", admin_broker_path(@broker), class: "admin-link" %>
+      <%= link_to "← Back to Brokers", admin_brokers_path, class: "admin-link" %>
     </p>
   </div>
 
@@ -22,13 +22,12 @@
       <div style="display: grid; gap: 1.5rem;">
         <div>
           <%= form.label :name, "Name", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.text_field :name, class: "admin-input", placeholder: "Broker name" %>
+          <%= form.text_field :name, class: "admin-input", placeholder: "Broker name", required: true %>
         </div>
 
         <div>
           <%= form.label :email, "Email", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.email_field :email, class: "admin-input", placeholder: "broker@example.com", disabled: true %>
-          <small style="color: #6b7280;">Email cannot be changed</small>
+          <%= form.email_field :email, class: "admin-input", placeholder: "broker@example.com", required: true %>
         </div>
 
         <div>
@@ -37,20 +36,29 @@
         </div>
 
         <div>
+          <%= form.label :password, "Password", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.password_field :password, class: "admin-input", placeholder: "Minimum 8 characters", required: true %>
+        </div>
+
+        <div>
+          <%= form.label :password_confirmation, "Confirm Password", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
+          <%= form.password_field :password_confirmation, class: "admin-input", placeholder: "Confirm password", required: true %>
+        </div>
+
+        <div>
           <%= form.label :jurisdiction, "Jurisdiction", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.select :jurisdiction, [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], {}, class: "admin-input", disabled: true %>
-          <small style="color: #6b7280;">Jurisdiction cannot be changed after creation</small>
+          <%= form.select :jurisdiction, [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], {}, class: "admin-input" %>
         </div>
 
         <div>
           <%= form.label :active, "Active", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.check_box :active %>
+          <%= form.check_box :active, { checked: true } %>
           <span style="margin-left: 0.5rem; color: #6b7280;">Broker can sign in and access portal</span>
         </div>
       </div>
 
       <div style="margin-top: 2rem;">
-        <%= form.submit "Save Changes", class: "admin-link", style: "background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem;" %>
+        <%= form.submit "Create Broker", class: "admin-link", style: "background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; border: none; font-weight: 600;" %>
       </div>
     </div>
   <% end %>

@@ -64,7 +64,7 @@
               </div>
             </details>
 
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders wholesale_funders calculators]) %>>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders brokers wholesale_funders calculators]) %>>
               <summary class="admin-nav-group-header">Products</summary>
               <div class="admin-nav-group-items">
                 <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
@@ -72,6 +72,9 @@
                 <% end %>
                 <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}" do %>
                   <span>🏢 Lenders</span>
+                <% end %>
+                <%= link_to admin_brokers_path, class: "admin-nav-link #{'active' if controller_name == 'brokers'}" do %>
+                  <span>🤝 Brokers</span>
                 <% end %>
                 <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}" do %>
                   <span>💰 Wholesale Funders</span>
