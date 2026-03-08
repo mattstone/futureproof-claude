@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="light" lan="en" class="theme-light">
+<html data-theme="light" lang="en" class="admin-html">
   <head>
     <title><%= content_for(:title) || "Futureproof" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,36 +10,153 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <link rel="stylesheet" href="/assets/tailwind.css" data-turbo-track="reload">
+    <%= stylesheet_link_tag "application", "admin", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <% if notice %>
-      <div class="alert alert-success alert-notice" data-controller="alert">
-        <%= notice %>
-        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
-      </div>
-    <% end %>
-    <% if alert %>
-      <div class="alert alert-danger alert-alert" data-controller="alert">
-        <%= alert %>
-        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
-      </div>
-    <% end %>
-    
-    <main id="main-content" class="homepage-main">
-      <%= yield %>
-    </main>
+  <body class="admin-body">
+    <div class="admin-container">
+      <!-- Admin Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="admin-brand">
+          <%= link_to root_path, class: "admin-brand-link" do %>
+            <%= image_tag "futureproof-logo.png", class: "admin-logo" %>
+          <% end %>
+        </div>
+        
+        <nav class="admin-nav">
+          <%= link_to root_path, class: "admin-nav-link #{'active' if request.path == '/'}" do %>
+            <span>📊 Dashboard</span>
+          <% end %>
+          <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'admin_dashboard_v2' || (controller_name == 'old_dashboard' && action_name == 'index')}" do %>
+            <span>⚙️ Admin</span>
+          <% end %>
+
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %>>
+            <summary class="admin-nav-group-header">Operations</summary>
+            <div class="admin-nav-group-items">
+              <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
+                <span>📋 Applications</span>
+              <% end %>
+              <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}" do %>
+                <span>📄 Contracts</span>
+              <% end %>
+              <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
+                <span>👥 Users</span>
+              <% end %>
+            </div>
+          </details>
+
+          <% if current_user&.lender&.lender_type_futureproof? %>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %>>
+              <summary class="admin-nav-group-header">AI Agents</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}" do %>
+                  <span>🤖 Agent Overview</span>
+                <% end %>
+                <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
+                  <span>📧 Email Templates</span>
+                <% end %>
+              </div>
+            </details>
+
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders wholesale_funders calculators]) %>>
+              <summary class="admin-nav-group-header">Products</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
+                  <span>🏠 Mortgages</span>
+                <% end %>
+                <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}" do %>
+                  <span>🏢 Lenders</span>
+                <% end %>
+                <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}" do %>
+                  <span>💰 Wholesale Funders</span>
+                <% end %>
+                <%= link_to admin_calculators_path, class: "admin-nav-link #{'active' if controller_name == 'calculators'}" do %>
+                  <span>🧮 Calculator</span>
+                <% end %>
+              </div>
+            </details>
+
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[terms_of_uses privacy_policies terms_and_conditions core_logic_test]) %>>
+              <summary class="admin-nav-group-header">Configuration</summary>
+              <div class="admin-nav-group-items">
+                <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
+                  <span>📄 Terms of Use</span>
+                <% end %>
+                <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
+                  <span>🔒 Privacy Policies</span>
+                <% end %>
+                <%= link_to admin_terms_and_conditions_path, class: "admin-nav-link #{'active' if controller_name == 'terms_and_conditions'}" do %>
+                  <span>📋 Terms & Conditions</span>
+                <% end %>
+                <%= link_to admin_core_logic_test_index_path, class: "admin-nav-link #{'active' if controller_name == 'core_logic_test'}" do %>
+                  <span>🏠 CoreLogic API Test</span>
+                <% end %>
+              </div>
+            </details>
+          <% end %>
+        </nav>
+        
+        <div class="admin-user-info">
+          <div class="admin-current-user">
+            <strong><%= current_user&.display_name || "User" %></strong>
+            <small><%= current_user&.email %></small>
+          </div>
+          <div class="admin-actions">
+            <%= link_to "View Site", root_path, class: "admin-link", target: "_blank" %>
+            <%= link_to "🕹️ Arcade", arcade_path, class: "admin-link", target: "_blank" %>
+            <%= render 'shared/sign_out_link', css_class: "admin-link" %>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <div class="admin-header">
+          <div class="admin-header-title-section">
+            <h1><%= yield(:page_title) || "Futureproof" %></h1>
+          </div>
+          <%= render 'admin/shared/jurisdiction_switcher' if current_user&.lender&.lender_type_futureproof? %>
+        </div>
+
+        <div class="admin-content">
+          <% if notice %>
+            <div class="alert alert-success"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="alert alert-danger"><%= alert %></div>
+          <% end %>
+          
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+    <script>
+      // Scroll active nav item into view on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.admin-nav');
+        const active = sidebar && sidebar.querySelector('.admin-nav-link.active');
+        if (active && sidebar) {
+          // Use saved scroll position if available, otherwise scroll to active item
+          const saved = sessionStorage.getItem('admin-nav-scroll');
+          if (saved) {
+            sidebar.scrollTop = parseInt(saved, 10);
+          } else {
+            active.scrollIntoView({ block: 'center', behavior: 'instant' });
+          }
+        }
+        // Save scroll position on nav clicks
+        if (sidebar) {
+          sidebar.addEventListener('scroll', function() {
+            sessionStorage.setItem('admin-nav-scroll', sidebar.scrollTop);
+          });
+        }
+      });
+    </script>
   </body>
 </html>
