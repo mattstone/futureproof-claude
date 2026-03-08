@@ -3,10 +3,10 @@ class Admin::WholesaleFundersController < Admin::BaseController
   before_action :set_wholesale_funder, only: [:show, :edit, :update, :destroy]
 
   def index
-    # Get selected jurisdiction (default: 'All')
-    @selected_jurisdiction = params[:jurisdiction].presence || 'All'
+    # Get current jurisdiction from session (synced with top switcher)
+    @current_jurisdiction = session[:jurisdiction] || "AU"
     
-    # Calculate global statistics
+    # Calculate global statistics (all jurisdictions for context)
     all_funders = WholesaleFunder.includes(:lender_wholesale_funders, :lenders)
     @global_stats = {
       total_allocated: all_funders.sum(:total_allocated_amount),
@@ -15,8 +15,8 @@ class Admin::WholesaleFundersController < Admin::BaseController
       utilization_pct: calculate_global_utilization(all_funders)
     }
     
-    # Get funders for selected jurisdiction
-    @wholesale_funders = filter_by_jurisdiction(@selected_jurisdiction).recent.page(params[:page]).per(10)
+    # Get funders for current jurisdiction
+    @wholesale_funders = filter_by_jurisdiction(@current_jurisdiction).recent.page(params[:page]).per(10)
     apply_filters
     prepare_filter_options
   end

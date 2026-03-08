@@ -44,22 +44,6 @@
         <small>Committed / Total</small>
       </div>
     </div>
-
-    <!-- Jurisdiction Filter -->
-    <div class="admin-actions-bar">
-      <div class="admin-filter">
-        <label class="admin-form-label">Filter by Jurisdiction</label>
-        <select id="jurisdiction-filter" 
-                class="admin-form-select"
-                onchange="window.location.href='<%= admin_wholesale_funders_path %>' + '?jurisdiction=' + this.value">
-          <option value="All" <%= 'selected' if @selected_jurisdiction == 'All' %>>All Jurisdictions</option>
-          <option value="AU" <%= 'selected' if @selected_jurisdiction == 'AU' %>>Australia (AU)</option>
-          <option value="US" <%= 'selected' if @selected_jurisdiction == 'US' %>>United States (US)</option>
-          <option value="NZ" <%= 'selected' if @selected_jurisdiction == 'NZ' %>>New Zealand (NZ)</option>
-          <option value="UK" <%= 'selected' if @selected_jurisdiction == 'UK' %>>United Kingdom (UK)</option>
-        </select>
-      </div>
-    </div>
   </div>
 
   <!-- Funders Table -->
