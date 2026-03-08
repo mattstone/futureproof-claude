@@ -34,6 +34,10 @@ class Lender < ApplicationRecord
   # Application relationships (EPM applications)
   has_many :applications, dependent: :restrict_with_exception
 
+  # Broker relationships
+  has_many :broker_lenders, dependent: :destroy
+  has_many :brokers, through: :broker_lenders
+
   # Lender Clauses relationships
   has_many :lender_clauses, dependent: :destroy
   has_many :active_lender_clauses, -> { where(is_active: true) }, 

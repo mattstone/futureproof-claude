@@ -421,6 +421,17 @@ Rails.application.routes.draw do
     end
   end
 
+  # Broker portal routes
+  devise_for :brokers, controllers: {
+    registrations: 'broker/registrations',
+    sessions: 'broker/sessions'
+  }
+
+  namespace :broker do
+    root 'applications#index'
+    resources :applications, only: [:index, :show]
+  end
+
   # Debug routes
   get 'diagnostic/sso_debug', to: 'diagnostic#sso_debug'
   get 'diagnostic/sso_public', to: 'diagnostic#sso_debug_public'

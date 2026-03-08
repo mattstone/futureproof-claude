@@ -1,0 +1,97 @@
+<div class="admin-section">
+  <div class="admin-section-header">
+    <h1>Broker Portal</h1>
+    <p class="admin-section-subtitle">Your Applications & EPM Performance</p>
+  </div>
+
+  <% if @lenders.any? %>
+    <div class="admin-section" style="margin-top: 2rem;">
+      <p class="admin-section-subtitle">Working with: <%= @lenders.map(&:name).join(", ") %></p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="admin-metrics-grid" style="margin-bottom: 2rem;">
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Applications</span>
+        </div>
+        <div class="admin-metric-value"><%= @stats[:total] %></div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Open/Pending</span>
+        </div>
+        <div class="admin-metric-value"><%= @stats[:pending] %></div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Approved</span>
+        </div>
+        <div class="admin-metric-value"><%= @stats[:approved] %></div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Rejected</span>
+        </div>
+        <div class="admin-metric-value"><%= @stats[:rejected] %></div>
+      </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="admin-table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Status</th>
+            <th>Lender</th>
+            <th>Applied</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @applications.any? %>
+            <% @applications.each do |app| %>
+              <tr>
+                <td>
+                  <strong><%= app.user.email %></strong><br>
+                  <small><%= app.user.first_name %> <%= app.user.last_name %></small>
+                </td>
+                <td>
+                  <span class="admin-metric-label">
+                    <% case app.application_status %>
+                      <% when 'open' %>
+                        <span style="color: #fbbf24;">Open</span>
+                      <% when 'converted' %>
+                        <span style="color: #10b981;">Approved</span>
+                      <% when 'backoffice_review' %>
+                        <span style="color: #6366f1;">Review</span>
+                      <% else %>
+                        <span><%= app.application_status.humanize %></span>
+                    <% end %>
+                  </span>
+                </td>
+                <td><%= app.lender.name %></td>
+                <td><small><%= app.created_at.strftime("%b %d, %Y") %></small></td>
+                <td class="admin-actions-cell">
+                  <%= link_to "View", broker_application_path(app), class: "admin-link" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="admin-table-empty">No applications yet</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div style="padding: 2rem; text-align: center; color: #6b7280;">
+      <p>No lenders assigned yet. Contact your administrator.</p>
+    </div>
+  <% end %>
+</div>

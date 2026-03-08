@@ -10,6 +10,7 @@ class Application < ApplicationRecord
   belongs_to :lender, optional: true
   belongs_to :mortgage, optional: true
   belongs_to :referral_partner, optional: true
+  belongs_to :broker, optional: true
   has_one :contract, dependent: :destroy
   has_many :distributions, dependent: :destroy
   has_many :application_versions, dependent: :destroy
@@ -115,6 +116,7 @@ class Application < ApplicationRecord
   scope :in_progress, -> { where(status: [:created, :property_details, :income_and_loan_options]) }
   scope :completed, -> { where(status: [:submitted, :processing, :accepted, :rejected]) }
   scope :pending_review, -> { where(status: [:submitted, :processing]) }
+  scope :by_broker, ->(broker) { where(broker_id: broker.id) }
 
   # Methods
   def formatted_home_value

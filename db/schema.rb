@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_170530) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_170615) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -216,6 +216,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170530) do
     t.string "bank_account_number"
     t.integer "borrower_age", default: 0
     t.text "borrower_names"
+    t.bigint "broker_id"
     t.string "company_name"
     t.text "corelogic_data"
     t.datetime "created_at", null: false
@@ -248,6 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170530) do
     t.string "super_fund_name"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["broker_id"], name: "index_applications_on_broker_id"
     t.index ["lender_id", "status"], name: "index_applications_on_lender_id_and_status"
     t.index ["lender_id"], name: "index_applications_on_lender_id"
     t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
@@ -278,6 +280,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170530) do
     t.index ["resource_type", "created_at"], name: "index_audit_logs_on_resource_type_and_created_at"
     t.index ["user_id", "created_at"], name: "index_audit_logs_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "broker_lenders", force: :cascade do |t|
+    t.integer "access_level"
+    t.boolean "active", default: true
+    t.bigint "broker_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "lender_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["broker_id", "lender_id"], name: "index_broker_lenders_on_broker_id_and_lender_id", unique: true
+    t.index ["broker_id"], name: "index_broker_lenders_on_broker_id"
+    t.index ["lender_id"], name: "index_broker_lenders_on_lender_id"
+  end
+
+  create_table "brokers", force: :cascade do |t|
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "name"
+    t.string "phone"
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_brokers_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_brokers_on_reset_password_token", unique: true
   end
 
   create_table "business_process_workflows", force: :cascade do |t|
@@ -1114,12 +1143,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_170530) do
   add_foreign_key "application_messages", "applications"
   add_foreign_key "application_versions", "applications"
   add_foreign_key "application_versions", "users"
+  add_foreign_key "applications", "brokers"
   add_foreign_key "applications", "lenders"
   add_foreign_key "applications", "mortgages"
   add_foreign_key "applications", "referral_partners"
   add_foreign_key "applications", "users"
   add_foreign_key "audit_logs", "applications"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "broker_lenders", "brokers"
+  add_foreign_key "broker_lenders", "lenders"
   add_foreign_key "chat_conversations", "chat_agents"
   add_foreign_key "chat_conversations", "users"
   add_foreign_key "chat_messages", "chat_conversations"
