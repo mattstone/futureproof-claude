@@ -141,10 +141,12 @@ class WholesaleFunder < ApplicationRecord
   # Average monthly deployment over specified months
   def average_monthly_deployment(months = 12)
     start_date = months.months.ago
-    distributions = Distribution.joins(application: [lender: :wholesale_funder])
-                                .where(wholesale_funders: { id: id })
-                                .where('distributions.created_at >= ?', start_date)
-                                .sum(:amount)
+    # Get distributions for applications where lender uses this wholesale funder
+    distributions = Distribution.where(
+      application_id: Application.where(lender_id: self.lenders.pluck(:id))
+    ).where('distributions.created_at >= ?', start_date)
+     .sum(:amount)
+    
     months_count = [months, 1].max
     (distributions / months_count).round(2)
   end

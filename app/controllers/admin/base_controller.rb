@@ -11,7 +11,7 @@ class Admin::BaseController < ApplicationController
   def ensure_futureproof_admin
     unless futureproof_admin?
       Rails.logger.warn "[SECURITY] Unauthorized Futureproof admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Lender: #{current_user&.lender&.name || 'unknown'}, Path: #{request.fullpath}"
-      redirect_to admin_dashboard_index_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
+      redirect_to admin_root_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
     end
   end
 
