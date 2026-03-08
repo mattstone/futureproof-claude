@@ -45,10 +45,10 @@
         <span class="admin-nav-desc">Manage funding allocations, deployments, and contracts</span>
       <% end %>
 
-      <div class="admin-nav-card admin-nav-card-disabled">
+      <%= link_to admin_lenders_path, class: "admin-nav-card" do %>
         <span class="admin-nav-title">Lenders</span>
-        <span class="admin-nav-desc">Coming next...</span>
-      </div>
+        <span class="admin-nav-desc">Manage lender profiles, relationships, and assignments</span>
+      <% end %>
 
       <div class="admin-nav-card admin-nav-card-disabled">
         <span class="admin-nav-title">Brokers</span>
