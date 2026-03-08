@@ -15,15 +15,25 @@ class LoanActivationController < ApplicationController
       return
     end
 
-    # EPM Investment activation - could trigger first distribution
-    @application.update!(
-      updated_at: Time.current  # Mark as activated, status stays 'accepted' 
-    )
-    
-    # TODO: Trigger initial distribution to borrower
-    
-    redirect_to borrower_portal_path(params[:region], @application), 
-                notice: 'EPM Investment activated successfully! Your equity partnership is now active.'
+    # EPM Investment activation - trigger initial capital disbursement to borrower
+    begin
+      Distribution.create!(
+        application: @application,
+        amount: @application.equity_investment_amount,
+        distribution_date: Date.current,
+        status: :pending,
+        lender_margin: 0,
+        notes: "Initial equity capital disbursement upon activation"
+      )
+
+      @application.update!(status: :activated)
+      
+      redirect_to borrower_portal_path(params[:region], @application), 
+                  notice: 'EPM Investment activated successfully! Your equity capital disbursement is pending.'
+    rescue StandardError => e
+      redirect_to loan_activation_path(params[:region], @application), 
+                  alert: "Activation failed: #{e.message}"
+    end
   end
 
   private
