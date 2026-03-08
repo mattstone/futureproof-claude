@@ -101,29 +101,29 @@ class AdminDashboardV2IntegrationTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "admin can access dashboard v2" do
+  test "admin can access dashboard" do
     sign_in @admin
-    get admin_dashboard_v2_path
+    get admin_root_path
 
     assert_response :success
-    assert_select "h1", "Admin Dashboard v2"
+    assert_select "h1", "Dashboard"
     assert_select "p", "Real-time portfolio metrics and performance analytics"
   end
 
   test "dashboard shows correct portfolio KPIs" do
     sign_in @admin
-    get admin_dashboard_v2_path
+    get admin_root_path
 
     assert_response :success
     # Should show 3 total applications
     assert_select "div", /3/
     # Should show capital deployed
-    assert_select "p", /Total Capital Deployed/
+    assert_select "p", /Capital Deployed/
   end
 
   test "dashboard shows application funnel" do
     sign_in @admin
-    get admin_dashboard_v2_path
+    get admin_root_path
 
     assert_response :success
     assert_select "h2", /Application Funnel/
@@ -134,7 +134,7 @@ class AdminDashboardV2IntegrationTest < ActionDispatch::IntegrationTest
 
   test "dashboard shows distribution performance" do
     sign_in @admin
-    get admin_dashboard_v2_path
+    get admin_root_path
 
     assert_response :success
     assert_select "h2", /Distribution Performance/
@@ -145,14 +145,14 @@ class AdminDashboardV2IntegrationTest < ActionDispatch::IntegrationTest
 
   test "non-admin user is denied access" do
     sign_in @user
-    get admin_dashboard_v2_path
+    get admin_root_path
 
     assert_redirected_to root_path
     assert_equal "Access denied.", flash[:alert]
   end
 
   test "unauthenticated user is redirected to login" do
-    get admin_dashboard_v2_path
+    get admin_root_path
     assert_redirected_to new_user_session_path
   end
 end
