@@ -2,7 +2,12 @@
   <!-- Header -->
   <div class="admin-section-header">
     <h1>Dashboard</h1>
-    <p class="admin-section-subtitle">Real-time portfolio metrics and performance analytics</p>
+    <p class="admin-section-subtitle">
+      Real-time portfolio metrics and performance analytics
+      <% if @current_jurisdiction != "Summary" %>
+        <span class="admin-jurisdiction-badge"><%= @current_jurisdiction %></span>
+      <% end %>
+    </p>
   </div>
 
   <!-- Portfolio KPIs -->

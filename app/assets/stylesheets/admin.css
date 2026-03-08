@@ -9962,6 +9962,19 @@
   padding-left: 28px !important;
 }
 
+/* Jurisdiction indicator badge */
+.admin-jurisdiction-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .admin-metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-nav-grid { grid-template-columns: 1fr; }
