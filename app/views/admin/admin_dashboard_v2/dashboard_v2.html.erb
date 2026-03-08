@@ -29,7 +29,7 @@
             </svg>
           </div>
         </div>
-        <p class="text-4xl font-bold text-slate-900"><%= number_to_currency(@total_capital_deployed || 0) %></p>
+        <p class="text-4xl font-bold text-slate-900"><%= number_to_currency(@total_capital_deployed || 0, precision: 0) %></p>
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-shadow">
@@ -53,7 +53,7 @@
             </svg>
           </div>
         </div>
-        <p class="text-4xl font-bold text-slate-900"><%= number_to_currency(@total_distributions || 0) %></p>
+        <p class="text-4xl font-bold text-slate-900"><%= number_to_currency(@total_distributions || 0, precision: 0) %></p>
       </div>
     </div>
 
