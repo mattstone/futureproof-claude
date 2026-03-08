@@ -5,9 +5,18 @@ class Admin::LendersController < Admin::BaseController
 
   def index
     # Filter by jurisdiction (map AU/US/NZ/UK to country codes)
-    all_lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools)
+    all_lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools, :applications)
     @lenders = jurisdiction_filtered_scope(all_lenders, :country).order(:lender_type, :name)
     @current_jurisdiction = current_admin_jurisdiction
+    
+    # Calculate summary metrics
+    lender_ids = @lenders.pluck(:id)
+    @summary_stats = {
+      total_lenders: @lenders.count,
+      total_funders: LenderWholesaleFunder.where(lender_id: lender_ids).distinct.count(:wholesale_funder_id),
+      total_applications: Application.where(lender_id: lender_ids).count,
+      total_capital_deployed: Application.where(lender_id: lender_ids).sum(:equity_investment_amount) || 0
+    }
   end
 
   def show

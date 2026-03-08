@@ -1,80 +1,110 @@
 <% content_for :page_title, "Lenders" %>
 
-<div class="admin-section-header">
-  <h1>Lenders</h1>
-  <p class="admin-section-subtitle">
-    Manage equity partners
-    <% if @current_jurisdiction != "Summary" %>
-      <span class="admin-jurisdiction-badge"><%= @current_jurisdiction %></span>
-    <% end %>
-  </p>
-</div>
+<div class="admin-content-wrapper">
+  <!-- Summary Card -->
+  <div class="admin-card">
+    <h2>Lenders Management</h2>
+    <p class="form-help-text">Manage equity partners, funding allocations, and applications</p>
 
-<div class="admin-actions-bar">
-  <div class="admin-header-left">
-    <div class="lenders-count">
-      Total: <span class="admin-badge"><%= @lenders.count %></span>
+    <!-- Summary Metrics -->
+    <div class="admin-metrics-grid">
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Lenders</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_lenders] %></p>
+        <small><%= @current_jurisdiction %> jurisdiction</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Wholesale Funders</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_funders] %></p>
+        <small>Connected funders</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Applications</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_applications] %></p>
+        <small>Active investments</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Capital Deployed</span>
+        </div>
+        <p class="admin-metric-value"><%= number_to_currency(@summary_stats[:total_capital_deployed], precision: 0) %></p>
+        <small>Total invested</small>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="admin-actions-bar">
+      <div></div>
+      <div class="admin-header-right">
+        <%= link_to "➕ New Lender", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
+      </div>
     </div>
   </div>
-  
-  <div class="admin-header-right">
-    <%= link_to "➕ New Lender", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
-  </div>
-</div>
 
-<div class="admin-table-wrapper">
-  <% if @lenders.any? %>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Country</th>
-          <th>Funders</th>
-          <th>Applications</th>
-          <th class="admin-actions-cell">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @lenders.each do |lender| %>
+  <!-- Lenders Table -->
+  <div class="admin-table-wrapper">
+    <% if @lenders.any? %>
+      <table class="admin-table">
+        <thead>
           <tr>
-            <td>
-              <strong><%= lender.name %></strong>
-              <% if lender.lender_type_futureproof? %>
-                <span class="admin-badge admin-badge-futureproof">FUTUREPROOF</span>
-              <% end %>
-            </td>
-            <td>
-              <span class="admin-badge admin-badge-<%= lender.lender_type %>">
-                <%= lender.lender_type.humanize %>
-              </span>
-            </td>
-            <td>
-              <code><%= lender.country.upcase %></code>
-            </td>
-            <td>
-              <span class="admin-badge"><%= lender.wholesale_funders.count %></span>
-            </td>
-            <td>
-              <span class="admin-badge"><%= lender.applications.count %></span>
-            </td>
-            <td class="admin-actions-cell">
-              <%= link_to "View", admin_lender_path(lender), class: "admin-link-btn" %>
-              <%= link_to "Edit", edit_admin_lender_path(lender), class: "admin-link-btn" %>
-              <% unless lender.lender_type_futureproof? %>
-                <%= link_to "Delete", admin_lender_path(lender), method: :delete,
-                    data: { confirm: "Delete #{lender.name}?" },
-                    class: "admin-link-btn admin-link-btn-danger" %>
-              <% end %>
-            </td>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Country</th>
+            <th>Funders</th>
+            <th>Applications</th>
+            <th class="admin-actions-cell">Actions</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <div class="admin-table-empty">
-      <p>No lenders found for this jurisdiction.</p>
-      <%= link_to "Create one", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
-    </div>
-  <% end %>
+        </thead>
+        <tbody>
+          <% @lenders.each do |lender| %>
+            <tr>
+              <td>
+                <strong><%= lender.name %></strong>
+                <% if lender.lender_type_futureproof? %>
+                  <span class="admin-badge admin-badge-futureproof">FUTUREPROOF</span>
+                <% end %>
+              </td>
+              <td>
+                <span class="admin-badge admin-badge-<%= lender.lender_type %>">
+                  <%= lender.lender_type.humanize %>
+                </span>
+              </td>
+              <td>
+                <code><%= lender.country %></code>
+              </td>
+              <td>
+                <span class="admin-badge"><%= lender.wholesale_funders.count %></span>
+              </td>
+              <td>
+                <span class="admin-badge"><%= lender.applications.count %></span>
+              </td>
+              <td class="admin-actions-cell">
+                <%= link_to "View", admin_lender_path(lender), class: "admin-link-btn" %>
+                <%= link_to "Edit", edit_admin_lender_path(lender), class: "admin-link-btn" %>
+                <% unless lender.lender_type_futureproof? %>
+                  <%= link_to "Delete", admin_lender_path(lender), method: :delete,
+                      data: { confirm: "Delete #{lender.name}?" },
+                      class: "admin-link-btn admin-link-btn-danger" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="admin-table-empty">
+        <p>No lenders found for this jurisdiction.</p>
+        <%= link_to "Create one", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
+      </div>
+    <% end %>
+  </div>
 </div>
