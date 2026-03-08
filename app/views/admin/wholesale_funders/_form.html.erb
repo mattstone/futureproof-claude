@@ -1,8 +1,8 @@
-<%= form_with(model: [@wholesale_funder], local: true) do |form| %>
+<%= form_with(model: [:admin, @wholesale_funder], local: true) do |form| %>
   <% if @wholesale_funder.errors.any? %>
-    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-      <h3 class="font-bold mb-2"><%= pluralize(@wholesale_funder.errors.count, "error") %> prohibited this record:</h3>
-      <ul class="list-disc list-inside text-sm">
+    <div class="admin-alert admin-alert-error">
+      <h4><%= pluralize(@wholesale_funder.errors.count, "error") %> prohibited this record:</h4>
+      <ul>
         <% @wholesale_funder.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -10,22 +10,24 @@
     </div>
   <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="admin-form-container">
+    <div class="admin-form-row">
       <!-- Name -->
-      <div class="md:col-span-2">
-        <div>
-          <%= form.label :name, "Funder Name", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :name, "Funder Name" %>
           <%= form.text_field :name, 
-              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+              class: "admin-form-input",
               placeholder: "e.g., ABC Wholesale Funding" %>
         </div>
       </div>
+    </div>
 
+    <div class="admin-form-row">
       <!-- Country -->
       <div>
-        <div>
-          <%= form.label :country, "Country", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+        <div class="admin-form-group">
+          <%= form.label :country, "Country" %>
           <%= form.select :country,
               [
                 ["Australia", "Australia"],
@@ -34,41 +36,44 @@
                 ["United Kingdom", "United Kingdom"]
               ],
               { prompt: "Select a country" },
-              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" %>
+              class: "admin-form-select" %>
         </div>
       </div>
 
       <!-- Currency -->
       <div>
-        <div>
-          <%= form.label :currency, "Currency", class: "block text-sm font-semibold text-gray-700 mb-2" %>
+        <div class="admin-form-group">
+          <%= form.label :currency, "Currency" %>
           <%= form.select :currency,
               [["AUD", "AUD"], ["USD", "USD"], ["GBP", "GBP"]],
               { prompt: "Select currency" },
-              class: "block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" %>
+              class: "admin-form-select" %>
         </div>
       </div>
+    </div>
 
-      <!-- Total Allocated Amount -->
-      <div class="md:col-span-2">
-        <div>
-          <%= form.label :total_allocated_amount, "Total Allocated Amount", class: "block text-sm font-semibold text-gray-700 mb-2" %>
-          <div class="relative">
-            <span class="absolute left-4 top-2.5 text-gray-600"><%= @wholesale_funder.currency_symbol %></span>
+    <!-- Total Allocated Amount -->
+    <div class="admin-form-row">
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :total_allocated_amount, "Total Allocated Amount" %>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 12px; top: 10px; color: #6b7280;"><%= @wholesale_funder.currency_symbol %></span>
             <%= form.number_field :total_allocated_amount,
-                class: "block w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                class: "admin-form-input",
+                style: "padding-left: 28px;",
                 step: "0.01",
                 placeholder: "0.00" %>
           </div>
-          <p class="text-xs text-gray-500 mt-1">Total funding available for deployment to lenders</p>
+          <small class="admin-form-help">Total funding available for deployment to lenders</small>
         </div>
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="flex gap-3 mt-8 pt-6 border-t border-gray-200">
-      <%= form.submit class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" %>
-      <%= link_to "Cancel", admin_wholesale_funders_path, class: "px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition" %>
+    <div class="admin-form-actions">
+      <%= form.submit class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
     </div>
   </div>
 <% end %>

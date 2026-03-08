@@ -118,7 +118,10 @@
       <!-- Main Content -->
       <main class="admin-main">
         <div class="admin-header">
-          <h1><%= yield(:page_title) || "Back Office" %></h1>
+          <div class="admin-header-title-section">
+            <h1><%= yield(:page_title) || "Back Office" %></h1>
+          </div>
+          <%= render 'admin/shared/jurisdiction_switcher' %>
         </div>
 
         <div class="admin-content">

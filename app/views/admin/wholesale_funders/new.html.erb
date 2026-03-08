@@ -1,10 +1,10 @@
-<div class="p-6">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Add New Wholesale Funder</h1>
-    <p class="text-gray-600 mt-2">Create a new wholesale funding allocation</p>
-  </div>
+<% provide :page_title, "Add New Wholesale Funder" %>
 
-  <div class="max-w-2xl">
+<div class="admin-card">
+  <h2>Add New Wholesale Funder</h2>
+  <p class="form-help-text">Create a new wholesale funding allocation</p>
+
+  <div style="max-width: 600px;">
     <%= render 'form', wholesale_funder: @wholesale_funder %>
   </div>
 </div>

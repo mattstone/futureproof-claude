@@ -15,6 +15,8 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    post 'set_jurisdiction', to: 'base#set_jurisdiction'
+    
     resources :lenders do
       member do
         get :available_wholesale_funders

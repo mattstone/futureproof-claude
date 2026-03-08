@@ -1,10 +1,10 @@
-<div class="p-6">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Edit Wholesale Funder</h1>
-    <p class="text-gray-600 mt-2"><%= @wholesale_funder.name %></p>
-  </div>
+<% provide :page_title, "Edit Wholesale Funder" %>
 
-  <div class="max-w-2xl">
+<div class="admin-card">
+  <h2>Edit Wholesale Funder</h2>
+  <p class="form-help-text"><%= @wholesale_funder.name %></p>
+
+  <div style="max-width: 600px;">
     <%= render 'form', wholesale_funder: @wholesale_funder %>
   </div>
 </div>

@@ -4,6 +4,7 @@ class Admin::BaseController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin
   before_action :log_admin_activity
+  before_action :initialize_admin_jurisdiction
 
   protected
 
@@ -13,6 +14,13 @@ class Admin::BaseController < ApplicationController
       Rails.logger.warn "[SECURITY] Unauthorized Futureproof admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Lender: #{current_user&.lender&.name || 'unknown'}, Path: #{request.fullpath}"
       redirect_to admin_root_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
     end
+  end
+
+  def set_jurisdiction
+    if valid_jurisdiction?(params[:admin_jurisdiction])
+      session[:admin_jurisdiction] = params[:admin_jurisdiction]
+    end
+    redirect_back fallback_location: admin_root_path
   end
 
   private
@@ -71,5 +79,13 @@ class Admin::BaseController < ApplicationController
     else
       Contract.none
     end
+  end
+
+  def initialize_admin_jurisdiction
+    session[:admin_jurisdiction] ||= "Summary"
+  end
+
+  def valid_jurisdiction?(jurisdiction)
+    ["Summary", "AU", "US", "NZ", "UK"].include?(jurisdiction)
   end
 end

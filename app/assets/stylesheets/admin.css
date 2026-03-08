@@ -7600,3 +7600,114 @@
 .decision-badge-flag { background-color: #f59e0b !important; color: white !important; }
 .decision-badge-advance { background-color: #3b82f6 !important; color: white !important; }
 .decision-badge-request_info { background-color: #8b5cf6 !important; color: white !important; }
+
+/* ========================================
+   Jurisdiction Switcher Styles
+   ======================================== */
+
+.admin-jurisdiction-switcher {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  height: 64px;
+}
+
+.admin-jurisdiction-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.admin-jurisdiction-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.admin-jurisdiction-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.admin-jurisdiction-radio:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-jurisdiction-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0891b2;
+}
+
+.admin-jurisdiction-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Header flex layout for jurisdiction switcher */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.admin-header-title-section {
+  flex: 1;
+}
+
+.admin-header-title-section h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+@media (max-width: 768px) {
+  .admin-jurisdiction-switcher {
+    margin-left: 0;
+    margin-top: 12px;
+    height: auto;
+    width: 100%;
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .admin-header {
+    flex-wrap: wrap;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .admin-header-title-section {
+    flex-basis: 100%;
+  }
+
+  .admin-jurisdiction-options {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .admin-jurisdiction-radio {
+    padding: 4px 8px;
+  }
+
+  .admin-jurisdiction-text,
+  .admin-jurisdiction-label {
+    font-size: 13px;
+  }
+}
