@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_220149) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -991,6 +991,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_220149) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "wholesale_funder_contracts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "html_content", null: false
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.datetime "updated_at", null: false
+    t.string "version", default: "1.0"
+    t.bigint "wholesale_funder_id", null: false
+    t.index ["wholesale_funder_id", "jurisdiction", "party_type"], name: "index_wf_contracts_unique", unique: true
+    t.index ["wholesale_funder_id"], name: "index_wholesale_funder_contracts_on_wholesale_funder_id"
+  end
+
   create_table "wholesale_funder_versions", force: :cascade do |t|
     t.string "action", null: false
     t.text "change_details"
@@ -1015,6 +1027,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_220149) do
     t.datetime "created_at", null: false
     t.string "currency", default: "AUD", null: false
     t.string "name", null: false
+    t.decimal "total_allocated_amount", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
     t.index ["country"], name: "index_wholesale_funders_on_country"
     t.index ["currency"], name: "index_wholesale_funders_on_currency"
@@ -1173,6 +1186,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_220149) do
   add_foreign_key "user_versions", "users"
   add_foreign_key "user_versions", "users", column: "admin_user_id"
   add_foreign_key "users", "lenders"
+  add_foreign_key "wholesale_funder_contracts", "wholesale_funders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"
   add_foreign_key "workflow_execution_trackers", "email_workflows"
