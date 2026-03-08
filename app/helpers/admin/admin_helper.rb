@@ -1,27 +1,17 @@
 module Admin::AdminHelper
+  # Valid ISO 3166-1 alpha-2 country codes
+  VALID_JURISDICTION_CODES = ["AU", "US", "NZ", "UK"].freeze
+
   # Filter scope based on current admin jurisdiction session
   # Returns all records for "Summary" view, scoped to jurisdiction for specific views
-  # Handles mapping between jurisdiction codes (AU/US) and region codes (au/us)
+  # Uses standardized ISO 3166-1 alpha-2 country codes (AU, US, NZ, UK)
   def jurisdiction_filtered_scope(scope, jurisdiction_field = :country)
     selected_jurisdiction = session[:admin_jurisdiction] || "Summary"
     
     return scope if selected_jurisdiction == "Summary"
     
-    # Map jurisdiction codes to possible field values (uppercase, lowercase, full names)
-    possible_values = case selected_jurisdiction.upcase
-      when "AU"
-        ["AU", "au", "Australia"]
-      when "US"
-        ["US", "us", "United States"]
-      when "NZ"
-        ["NZ", "nz", "New Zealand"]
-      when "UK"
-        ["UK", "uk", "United Kingdom"]
-      else
-        [selected_jurisdiction]
-    end
-    
-    scope.where(jurisdiction_field => possible_values)
+    # All country fields are now standardized to uppercase ISO codes
+    scope.where(jurisdiction_field => selected_jurisdiction)
   end
 
   # Get current jurisdiction from session
@@ -29,7 +19,7 @@ module Admin::AdminHelper
     session[:admin_jurisdiction] || "Summary"
   end
 
-  # Map jurisdiction codes to full names
+  # Map ISO 3166-1 alpha-2 codes to full country names
   def jurisdiction_display_name(jurisdiction_code)
     {
       "AU" => "Australia",

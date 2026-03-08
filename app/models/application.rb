@@ -56,7 +56,10 @@ class Application < ApplicationRecord
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
-  validates :region, inclusion: { in: %w[au us nz uk] }, allow_nil: true
+  # ISO 3166-1 alpha-2 country codes
+  VALID_REGION_CODES = ["AU", "US", "NZ", "UK"].freeze
+  
+  validates :region, inclusion: { in: VALID_REGION_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }, allow_nil: true
   validates :existing_mortgage_amount, numericality: {
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000

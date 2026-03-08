@@ -41,10 +41,13 @@ class Lender < ApplicationRecord
   has_many :published_lender_clauses, -> { where(is_draft: false) }, 
            class_name: 'LenderClause'
   
+  # ISO 3166-1 alpha-2 country codes
+  VALID_COUNTRY_CODES = ["AU", "US", "NZ", "UK"].freeze
+
   validates :name, presence: true
   validates :lender_type, presence: true
   validates :contact_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :country, presence: true
+  validates :country, presence: true, inclusion: { in: VALID_COUNTRY_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
   
   # Ensure only one futureproof lender can exist
   validate :only_one_futureproof_lender, if: :lender_type_futureproof?
