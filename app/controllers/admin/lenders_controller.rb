@@ -1,10 +1,13 @@
 class Admin::LendersController < Admin::BaseController
+  include Admin::AdminHelper
   before_action :ensure_futureproof_admin
   before_action :set_lender, only: [:show, :edit, :update, :destroy]
 
   def index
-    @lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools)
-                     .order(:lender_type, :name)
+    # Filter by jurisdiction (map AU/US/NZ/UK to country codes)
+    all_lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools)
+    @lenders = jurisdiction_filtered_scope(all_lenders, :country).order(:lender_type, :name)
+    @current_jurisdiction = current_admin_jurisdiction
   end
 
   def show
