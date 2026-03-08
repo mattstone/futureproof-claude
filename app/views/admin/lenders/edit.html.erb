@@ -1,28 +1,18 @@
 <% content_for :page_title, "Edit #{@lender.name}" %>
 
-<div class="admin-actions-bar">
-  <div>
-    <h1>Edit Lender</h1>
-    <p class="page-subtitle">Update lender information</p>
-  </div>
-  
-  <div class="admin-actions">
-    <%= link_to "View Lender", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
-    <%= link_to "Back to Lenders", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+<div class="admin-content-wrapper">
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div>
+        <h2>Edit Lender</h2>
+        <p class="admin-section-subtitle">Update lender information</p>
+      </div>
+      <div class="admin-card-actions">
+        <%= link_to "View", admin_lender_path(@lender), class: "admin-btn admin-btn-secondary" %>
+        <%= link_to "Back", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+      </div>
+    </div>
+
+    <%= render 'form', lender: @lender %>
   </div>
 </div>
-
-<!-- Edit Lender Form -->
-<div class="admin-card">
-  <h3>Lender Details</h3>
-  
-  <%= render 'form', lender: @lender %>
-</div>
-
-<style>
-.page-subtitle {
-  color: #6b7280;
-  font-size: 14px;
-  margin: 0;
-}
-</style>
