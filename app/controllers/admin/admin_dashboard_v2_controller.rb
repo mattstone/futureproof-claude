@@ -1,8 +1,8 @@
 module Admin
   class AdminDashboardV2Controller < ApplicationController
+    include Admin::AdminHelper
     before_action :authenticate_user!
     before_action :check_admin_role
-    helper Admin::AdminHelper
 
     def dashboard_v2
       # Get filtered scope based on selected jurisdiction
