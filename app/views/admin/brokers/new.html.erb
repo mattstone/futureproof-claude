@@ -1,68 +1,77 @@
-<div class="admin-section">
-  <div class="admin-section-header">
-    <h1>Create Broker</h1>
-    <p class="admin-section-subtitle">
-      <%= link_to "← Back to Brokers", admin_brokers_path, class: "admin-link" %>
-      <% if @broker.jurisdiction %>
-        <span class="admin-jurisdiction-badge"><%= @broker.jurisdiction %></span>
-      <% end %>
-    </p>
-  </div>
+<% content_for :page_title, "Create Broker" %>
 
-  <%= form_with(model: [:admin, @broker], local: true) do |form| %>
-    <% if @broker.errors.any? %>
-      <div style="padding: 1rem; background: #fee; border-radius: 0.5rem; margin-bottom: 2rem; color: #991b1b;">
-        <h4><%= pluralize(@broker.errors.count, "error") %> prohibited this broker from being saved:</h4>
-        <ul style="margin: 0.5rem 0 0 1rem;">
-          <% @broker.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
+<div class="admin-content-wrapper">
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div>
+        <h2>Create Broker</h2>
+        <p class="admin-card-subtitle">New broker account</p>
       </div>
-    <% end %>
-
-    <div class="admin-section" style="max-width: 500px;">
-      <div style="display: grid; gap: 1.5rem;">
-        <div>
-          <%= form.label :name, "Name", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.text_field :name, class: "admin-input", placeholder: "Broker name", required: true %>
-        </div>
-
-        <div>
-          <%= form.label :email, "Email", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.email_field :email, class: "admin-input", placeholder: "broker@example.com", required: true %>
-        </div>
-
-        <div>
-          <%= form.label :phone, "Phone", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.text_field :phone, class: "admin-input", placeholder: "02 1234 5678" %>
-        </div>
-
-        <div>
-          <%= form.label :password, "Password", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.password_field :password, class: "admin-input", placeholder: "Minimum 8 characters", required: true %>
-        </div>
-
-        <div>
-          <%= form.label :password_confirmation, "Confirm Password", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.password_field :password_confirmation, class: "admin-input", placeholder: "Confirm password", required: true %>
-        </div>
-
-        <div>
-          <%= form.label :jurisdiction, "Jurisdiction", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.select :jurisdiction, [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], {}, class: "admin-input" %>
-        </div>
-
-        <div>
-          <%= form.label :active, "Active", style: "font-weight: 600; color: #374151; display: block; margin-bottom: 0.5rem;" %>
-          <%= form.check_box :active, { checked: true } %>
-          <span style="margin-left: 0.5rem; color: #6b7280;">Broker can sign in and access portal</span>
-        </div>
-      </div>
-
-      <div style="margin-top: 2rem;">
-        <%= form.submit "Create Broker", class: "admin-link", style: "background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; border: none; font-weight: 600;" %>
+      <div class="admin-card-actions">
+        <%= link_to "Back", admin_brokers_path, class: "admin-btn admin-btn-secondary" %>
       </div>
     </div>
-  <% end %>
+
+    <%= form_with(model: [:admin, @broker], local: true) do |form| %>
+      <% if @broker.errors.any? %>
+        <div class="admin-alert admin-alert-danger">
+          <h4><%= pluralize(@broker.errors.count, "error") %> found</h4>
+          <ul>
+            <% @broker.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="admin-form-section">
+        <div class="admin-form-group">
+          <%= form.label :name, "Name", class: "admin-form-label" %>
+          <%= form.text_field :name, class: "admin-form-input", placeholder: "Broker name", required: true %>
+        </div>
+
+        <div class="admin-form-group">
+          <%= form.label :email, "Email", class: "admin-form-label" %>
+          <%= form.email_field :email, class: "admin-form-input", placeholder: "broker@example.com", required: true %>
+        </div>
+
+        <div class="admin-form-group">
+          <%= form.label :phone, "Phone", class: "admin-form-label" %>
+          <%= form.text_field :phone, class: "admin-form-input", placeholder: "02 1234 5678" %>
+        </div>
+
+        <div class="admin-form-group">
+          <%= form.label :password, "Password", class: "admin-form-label" %>
+          <%= form.password_field :password, class: "admin-form-input", placeholder: "Minimum 8 characters", required: true %>
+        </div>
+
+        <div class="admin-form-group">
+          <%= form.label :password_confirmation, "Confirm Password", class: "admin-form-label" %>
+          <%= form.password_field :password_confirmation, class: "admin-form-input", placeholder: "Confirm password", required: true %>
+        </div>
+
+        <div class="admin-form-group">
+          <%= form.label :jurisdiction, "Jurisdiction", class: "admin-form-label" %>
+          <%= form.select :jurisdiction, 
+              [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], 
+              {}, 
+              class: "admin-form-input", 
+              required: true %>
+        </div>
+
+        <div class="admin-form-group">
+          <div class="admin-form-checkbox">
+            <%= form.check_box :active, { checked: true } %>
+            <%= form.label :active, "Active", class: "admin-form-label" %>
+          </div>
+          <small class="admin-form-hint">Broker can sign in and access portal when active</small>
+        </div>
+      </div>
+
+      <div class="admin-form-actions">
+        <%= form.submit "Create Broker", class: "admin-btn admin-btn-primary" %>
+        <%= link_to "Cancel", admin_brokers_path, class: "admin-btn admin-btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
 </div>
