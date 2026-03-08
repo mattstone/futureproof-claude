@@ -27,11 +27,9 @@
 
   <!-- Brokers Table -->
   <div class="admin-card">
-    <div class="admin-card-header">
-      <h2>Brokers <span class="admin-badge admin-badge-info"><%= @current_jurisdiction %></span></h2>
-      <div class="admin-card-actions">
-        <%= link_to "➕ Add Broker", new_admin_broker_path, class: "admin-btn admin-btn-primary" %>
-      </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="margin: 0;">Brokers <span class="admin-badge admin-badge-info"><%= @current_jurisdiction %></span></h2>
+      <%= link_to "➕ Add Broker", new_admin_broker_path, class: "admin-btn admin-btn-primary" %>
     </div>
 
     <% if @brokers.any? %>

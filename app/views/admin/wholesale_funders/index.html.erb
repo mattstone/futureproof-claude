@@ -2,8 +2,13 @@
 
 <div class="admin-content-wrapper">
   <div class="admin-card">
-    <h2>Wholesale Funders Management</h2>
-    <p class="form-help-text">Global funding allocation and contract management across all jurisdictions</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h2 style="margin: 0 0 0.5rem 0;">Wholesale Funders Management</h2>
+        <p class="form-help-text" style="margin: 0;">Global funding allocation and contract management across all jurisdictions</p>
+      </div>
+      <%= link_to "Add Funder", new_admin_wholesale_funder_path, class: "admin-btn admin-btn-primary" %>
+    </div>
 
     <!-- Global Summary Cards -->
     <div class="admin-metrics-grid">
@@ -40,7 +45,7 @@
       </div>
     </div>
 
-    <!-- Jurisdiction Filter & Actions -->
+    <!-- Jurisdiction Filter -->
     <div class="admin-actions-bar">
       <div class="admin-filter">
         <label class="admin-form-label">Filter by Jurisdiction</label>
@@ -53,9 +58,6 @@
           <option value="NZ" <%= 'selected' if @selected_jurisdiction == 'NZ' %>>New Zealand (NZ)</option>
           <option value="UK" <%= 'selected' if @selected_jurisdiction == 'UK' %>>United Kingdom (UK)</option>
         </select>
-      </div>
-      <div>
-        <%= link_to "Add Funder", new_admin_wholesale_funder_path, class: "admin-btn admin-btn-primary" %>
       </div>
     </div>
   </div>
