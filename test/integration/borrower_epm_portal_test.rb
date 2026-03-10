@@ -33,7 +33,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     get borrower_application_path(@app)
     
     assert_response :success
-    assert_select "h1", text: "EPM Loan Details"
+    assert_select "h1", text: "Your Guaranteed Income Plan"
   end
 
   test "borrower cannot access other user's application" do
@@ -65,23 +65,23 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     get borrower_application_path(@app)
     
     assert_response :success
-    # Should show EPM-specific fields
-    assert_select "*", text: /Equity Capital/i
-    assert_select "*", text: /Loan Term/i
-    assert_select "*", text: /Property Value/i
-    assert_select "*", text: /Your Equity/i
+    # Should show EPM-specific fields (property value, mortgage, LTV, income term)
+    assert_select "*", text: /Your Property Value/i
+    assert_select "*", text: /Mortgage Amount/i
+    assert_select "*", text: /Income Term/i
+    assert_select "*", text: /Guaranteed Income/i
   end
 
-  test "activated loan shows capital received" do
+  test "activated loan shows income schedule" do
     @app.update(status: :activated)
     
     sign_in @borrower
     get borrower_application_path(@app)
     
     assert_response :success
-    # Check for capital received section
-    assert_select "*", text: /Capital Received/i
-    assert_select "*", text: /Received/i
+    # Check for income payment schedule
+    assert_select "*", text: /Income Payment Schedule/i
+    assert_select "h2", text: /Your Plan Details/i
   end
 
   test "borrower root loads applications list" do

@@ -1,13 +1,13 @@
 <div class="borrower-detail">
   <div class="detail-header">
     <%= link_to "← Back to Loans", borrower_applications_path, class: "back-link" %>
-    <h1>EPM Loan Details</h1>
+    <h1>Your Guaranteed Income Plan</h1>
   </div>
 
   <!-- Status & Quick Info -->
   <div class="detail-cards">
     <div class="detail-card status-card">
-      <div class="card-label">Loan Status</div>
+      <div class="card-label">Status</div>
       <div class="card-status app-status-<%= @application.status %>">
         <%= @application.status.humanize %>
       </div>
@@ -17,79 +17,107 @@
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Equity Capital</div>
-      <div class="card-value">$<%= number_with_precision(@loan_summary[:equity_amount], precision: 0) %></div>
+      <div class="card-label">Your Property Value</div>
+      <div class="card-value">$<%= number_with_precision(@income_summary[:property_value], precision: 0) %></div>
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Capital Received</div>
-      <div class="card-value">$<%= number_with_precision(@loan_summary[:capital_received], precision: 0) %></div>
+      <div class="card-label">Mortgage Amount (LTV)</div>
+      <div class="card-value">$<%= number_with_precision(@income_summary[:mortgage_amount], precision: 0) %></div>
+      <div class="card-meta"><%= number_with_precision(@income_summary[:ltv], precision: 1) %>% LTV</div>
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Loan Term</div>
-      <div class="card-value"><%= @loan_summary[:term_years] %> years</div>
+      <div class="card-label">Income Term</div>
+      <div class="card-value"><%= @income_summary[:term_years] %> years</div>
     </div>
 
-    <div class="detail-card">
-      <div class="card-label">Property Value</div>
-      <div class="card-value">$<%= number_with_precision(@loan_summary[:property_value], precision: 0) %></div>
-    </div>
-
-    <div class="detail-card">
-      <div class="card-label">Your Equity %</div>
-      <div class="card-value"><%= number_with_precision(@loan_summary[:equity_percentage], precision: 1) %>%</div>
-    </div>
-
-
+    <% if @income_summary[:next_income] %>
+      <div class="detail-card next-income">
+        <div class="card-label">Next Income Payment</div>
+        <div class="card-value">$<%= number_with_precision(@income_summary[:next_income][:amount], precision: 2) %></div>
+        <div class="card-meta">Due <%= @income_summary[:next_income][:date]&.strftime('%B %d, %Y') %></div>
+      </div>
+    <% end %>
   </div>
 
-  <!-- Loan Terms Summary -->
-  <div class="terms-section">
-    <h2>Loan Terms</h2>
-    <div class="terms-details">
-      <div class="term-item">
-        <span class="term-label">Equity Capital</span>
-        <span class="term-value">$<%= number_with_precision(@application.equity_investment_amount, precision: 0) %></span>
-        <span class="term-desc">One-time capital received on loan activation</span>
+  <!-- Income Summary -->
+  <div class="income-summary-section">
+    <h2>Income Summary</h2>
+    <div class="income-summary">
+      <div class="summary-item">
+        <span class="summary-label">Total Income Received</span>
+        <span class="summary-value">$<%= number_with_precision(@income_summary[:total_income_received], precision: 2) %></span>
       </div>
-      <div class="term-item">
-        <span class="term-label">Loan Term</span>
-        <span class="term-value"><%= @application.participation_term_years %> years</span>
-        <span class="term-desc">Duration of the equity partnership</span>
-      </div>
-      <div class="term-item">
-        <span class="term-label">Your Equity %</span>
-        <span class="term-value"><%= number_with_precision(@application.equity_percentage, precision: 1) %>%</span>
-        <span class="term-desc">Your ownership stake in the property</span>
-      </div>
-      <div class="term-item">
-        <span class="term-label">Property Value</span>
-        <span class="term-value">$<%= number_with_precision(@application.home_value, precision: 0) %></span>
-        <span class="term-desc">Appraised property value</span>
+      <div class="summary-item">
+        <span class="summary-label">Remaining Income Payments</span>
+        <span class="summary-value"><%= @income_summary[:remaining_income_payments] %></span>
       </div>
     </div>
   </div>
 
-  <!-- Capital Received -->
-  <% if @application.status_activated? %>
-    <div class="capital-section">
-      <h2>Capital Received</h2>
-      <div class="capital-status">
-        <div class="status-badge status-completed">✓ Received</div>
-        <div class="capital-amount">$<%= number_with_precision(@application.equity_investment_amount, precision: 2) %></div>
-        <p class="capital-desc">Your equity capital was disbursed on <%= @application.updated_at&.strftime('%B %d, %Y') %></p>
+  <!-- Income Schedule -->
+  <div class="schedule-section">
+    <h2>Income Payment Schedule</h2>
+    
+    <% if @distributions.any? %>
+      <div class="schedule-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment #</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Received Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @distributions.each_with_index do |dist, index| %>
+              <tr class="income-row income-<%= dist.status %>">
+                <td><%= index + 1 %></td>
+                <td>${<%= number_with_precision(dist.amount, precision: 2) %></td>
+                <td><%= dist.distribution_date&.strftime('%B %d, %Y') || 'TBD' %></td>
+                <td>
+                  <% if dist.status == "completed" %>
+                    <%= dist.processed_at&.strftime('%B %d, %Y') %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= dist.status %>">
+                    <%= dist.status.humanize %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="empty-schedule">No income schedule available yet. Payments will begin once your plan is activated.</p>
+    <% end %>
+  </div>
+
+  <!-- Plan Details -->
+  <div class="plan-section">
+    <h2>Your Plan Details</h2>
+    <div class="plan-details">
+      <div class="plan-item">
+        <span class="plan-label">How It Works</span>
+        <span class="plan-desc">Your property is mortgaged and the funds are invested. The investment returns generate your monthly guaranteed income while maintaining your No Negative Equity Guarantee (NNEG).</span>
+      </div>
+      <div class="plan-item">
+        <span class="plan-label">Your Rights</span>
+        <span class="plan-desc">You retain full ownership and the right to live in your property. You never make monthly repayments. The mortgage is repaid when you sell the property or pass it to your estate.</span>
+      </div>
+      <div class="plan-item">
+        <span class="plan-label">Loan-to-Value (LTV)</span>
+        <span class="plan-desc"><%= number_with_precision(@income_summary[:ltv], precision: 1) %>% — Your property secures the mortgage. NNEG protection means you'll never owe more than your property is worth.</span>
       </div>
     </div>
-  <% else %>
-    <div class="capital-section">
-      <h2>Capital Pending</h2>
-      <div class="capital-status">
-        <div class="status-badge status-pending">Pending</div>
-        <p class="capital-desc">Your loan must be activated before capital is disbursed. Current status: <strong><%= @application.status.humanize %></strong></p>
-      </div>
-    </div>
-  <% end %>
+  </div>
 
   <!-- Contract & Documents -->
   <div class="documents-section">
@@ -99,7 +127,7 @@
         <div class="document-item">
           <div class="doc-icon">📄</div>
           <div class="doc-info">
-            <div class="doc-name">Loan Contract</div>
+            <div class="doc-name">Income Plan Contract</div>
             <div class="doc-meta">Created <%= time_ago_in_words(@contract.created_at) %> ago</div>
           </div>
           <div class="doc-actions">
@@ -178,88 +206,9 @@
     grid-column: span 1;
   }
 
-  /* Loan Terms */
-  .terms-section {
-    background: white;
-    padding: 24px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 40px;
-  }
-
-  .terms-section h2 {
-    font-size: 16px;
-    margin: 0 0 20px 0;
-  }
-
-  .terms-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-
-  .term-item {
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .term-label {
-    font-size: 11px;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .term-value {
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .term-desc {
-    font-size: 12px;
-    color: #999;
-    line-height: 1.4;
-  }
-
-  /* Capital Received */
-  .capital-section {
-    background: white;
-    padding: 24px;
-    border-radius: 8px;
-    border: 2px solid #d4edda;
-    margin-bottom: 40px;
-  }
-
-  .capital-section h2 {
-    font-size: 16px;
-    margin: 0 0 20px 0;
-  }
-
-  .capital-status {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 6px;
-    text-align: center;
-  }
-
-  .capital-amount {
-    font-size: 32px;
-    font-weight: 600;
-    color: #2196F3;
-  }
-
-  .capital-desc {
-    color: #666;
-    font-size: 14px;
-    margin: 0;
+  .detail-card.next-income {
+    background: #f0f7ff;
+    border-color: #2196F3;
   }
 
   .card-label {
@@ -309,8 +258,8 @@
     color: #721c24;
   }
 
-  /* Payout Summary */
-  .payout-summary-section {
+  /* Income Summary */
+  .income-summary-section {
     background: white;
     padding: 24px;
     border-radius: 8px;
@@ -318,12 +267,12 @@
     margin-bottom: 40px;
   }
 
-  .payout-summary-section h2 {
+  .income-summary-section h2 {
     font-size: 16px;
     margin: 0 0 16px 0;
   }
 
-  .payout-summary {
+  .income-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -387,7 +336,7 @@
     border-bottom: 1px solid #f0f0f0;
   }
 
-  .payout-row.payout-completed {
+  .income-row.income-completed {
     background: #f9f9f9;
   }
 
@@ -418,15 +367,46 @@
     padding: 20px;
   }
 
-  .payout-summary-section .summary-label {
-    color: #666;
-    font-size: 14px;
+  /* Plan Details */
+  .plan-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 40px;
   }
 
-  .payout-summary-section .summary-value {
-    font-size: 20px;
-    font-weight: 600;
+  .plan-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .plan-details {
+    display: grid;
+    gap: 16px;
+  }
+
+  .plan-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .plan-label {
+    font-size: 13px;
     color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .plan-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
   }
 
   /* Documents */

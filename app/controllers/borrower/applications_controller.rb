@@ -16,19 +16,22 @@ module Borrower
       }
     end
 
-    # Show EPM loan details - borrower receives one-time capital payout
+    # Show EPM income dashboard - customer receives monthly guaranteed income
     def show
       @lender = @application.lender
       @contract = @application.contract
+      @distributions = @application.distributions.order(:distribution_date)
 
-      # Calculate EPM loan metrics (borrower receives capital once)
-      @loan_summary = {
-        equity_amount: @application.equity_investment_amount,
-        term_years: @application.participation_term_years,
+      # Calculate EPM income metrics
+      @income_summary = {
         property_value: @application.home_value,
-        equity_percentage: @application.equity_percentage,
+        mortgage_amount: @application.equity_investment_amount,
+        ltv: @application.equity_percentage,
+        term_years: @application.participation_term_years,
         status: @application.status.humanize,
-        capital_received: @application.status_activated? ? @application.equity_investment_amount : 0
+        total_income_received: @distributions.where(status: "completed").sum(:amount),
+        next_income: calculate_next_income,
+        remaining_income_payments: @distributions.where(status: ["pending", "processing"]).count
       }
     end
 
@@ -40,6 +43,18 @@ module Borrower
 
     def authorize_borrower_access!
       redirect_to borrower_root_path, alert: "Access denied" unless @application.user_id == current_user.id
+    end
+
+    def calculate_next_income
+      pending = @application.distributions.where(status: ["pending", "processing"]).order(:distribution_date).first
+      if pending
+        {
+          date: pending.distribution_date&.to_date,
+          amount: pending.amount
+        }
+      else
+        nil
+      end
     end
   end
 end
