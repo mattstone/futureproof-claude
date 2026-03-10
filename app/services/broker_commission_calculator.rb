@@ -73,7 +73,7 @@ class BrokerCommissionCalculator
     loan_amount = @application.approved_loan_amount.to_f
     commission_amount = commission_rate.calculate_commission(loan_amount)
 
-    BrokerCommission.create!(
+    commission = BrokerCommission.create!(
       broker_id: @broker.id,
       application_id: @application.id,
       commission_amount: commission_amount,
@@ -81,6 +81,18 @@ class BrokerCommissionCalculator
       earned_date: determine_earned_date(commission_rate),
       status: determine_initial_status(commission_rate)
     )
+
+    # Invalidate broker performance metrics cache (metrics have changed)
+    invalidate_broker_metrics_cache if commission && @broker && @lender
+
+    commission
+  end
+
+  # Clear cached broker performance metrics
+  # Called when commission is created/updated (metrics are no longer accurate)
+  def invalidate_broker_metrics_cache
+    Rails.cache.delete("broker_metrics:lender:#{@lender.id}")
+    Rails.cache.delete("broker_metrics:broker:#{@broker.id}:lender:#{@lender.id}")
   end
 
   def determine_earned_date(commission_rate)

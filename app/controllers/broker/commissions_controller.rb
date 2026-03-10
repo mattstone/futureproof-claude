@@ -26,6 +26,28 @@ module Broker
                                         .for_period(@period_start, @period_end)
                                         .order(commission_amount: :desc)
                                         .limit(5)
+
+      # Handle export requests
+      if params[:format] == 'csv'
+        export_to_csv
+      end
+    end
+
+    def export_to_csv
+      service = BrokerCommissionInvoiceService.new(
+        broker: current_broker,
+        period_start: @period_start,
+        period_end: @period_end
+      )
+
+      filename = "broker_commissions_#{@period_start.strftime('%Y%m%d')}_#{@period_end.strftime('%Y%m%d')}.csv"
+
+      send_data(
+        service.to_csv,
+        type: 'text/csv',
+        disposition: 'attachment',
+        filename: filename
+      )
     end
 
     private

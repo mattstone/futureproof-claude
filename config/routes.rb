@@ -465,6 +465,12 @@ Rails.application.routes.draw do
     root 'applications#index'
     resources :applications, only: [:index, :show]
     resources :commissions, only: [:index]
+    
+    # Password setup and reset (no authentication required)
+    get '/password/new', to: 'passwords#new'
+    post '/password', to: 'passwords#create'
+    get '/password/reset/:token', to: 'passwords#edit'
+    patch '/password/:token', to: 'passwords#update'
   end
 
   # Debug routes

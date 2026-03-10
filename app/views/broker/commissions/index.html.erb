@@ -4,7 +4,7 @@
     <p class="subtitle">Track your earned and pending commissions</p>
   </div>
 
-  <!-- Period Selector -->
+  <!-- Period Selector & Export -->
   <div class="period-selector">
     <%= form_with url: broker_commissions_path, method: :get, local: true do |f| %>
       <%= f.select :period, 
@@ -17,6 +17,7 @@
         <%= f.date_field :end_date, value: params[:end_date], class: "date-input" %>
       <% end %>
       <%= submit_tag "Filter", class: "btn btn-secondary" %>
+      <%= link_to "Export CSV", broker_commissions_path(period: params[:period], format: :csv), class: "btn btn-secondary" %>
     <% end %>
   </div>
 

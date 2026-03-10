@@ -17,6 +17,7 @@ class BrokerCommission < ApplicationRecord
   scope :unpaid, -> { where(status: [ "earned", "pending" ]) }
   scope :for_broker, ->(broker) { where(broker_id: broker.id) }
   scope :for_period, ->(start_date, end_date) { where(earned_date: start_date..end_date) }
+  scope :recent, ->(limit = 10) { order(earned_date: :desc).limit(limit) }
 
   def mark_as_paid!
     update(status: "paid", paid_date: Time.current)

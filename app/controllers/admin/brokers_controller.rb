@@ -23,7 +23,11 @@ module Admin
       @broker = Broker.new(broker_params)
       
       if @broker.save
-        redirect_to admin_broker_path(@broker), notice: 'Broker created successfully.'
+        # Generate password setup token and send email
+        @broker.update(reset_password_token: SecureRandom.urlsafe_base64, reset_password_sent_at: Time.current)
+        BrokerMailer.setup_password(@broker, @broker.reset_password_token).deliver_later
+        
+        redirect_to admin_broker_path(@broker), notice: 'Broker created successfully. Password setup email sent.'
       else
         render :new, status: :unprocessable_entity
       end
