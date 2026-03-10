@@ -491,11 +491,11 @@ Rails.application.routes.draw do
 
   # Broker portal routes
   devise_for :brokers, controllers: {
-    registrations: 'broker/registrations',
-    sessions: 'broker/sessions'
+    registrations: 'broker_portal/registrations',
+    sessions: 'broker_portal/sessions'
   }
 
-  namespace :broker do
+  namespace :broker_portal do
     root 'applications#index'
     resources :applications, only: [:index, :show]
     resources :commissions, only: [:index]
