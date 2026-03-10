@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_121002) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_135531) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1075,6 +1075,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_121002) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "webhook_deliveries", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "delivered_at"
+    t.string "event"
+    t.datetime "failed_at"
+    t.jsonb "payload"
+    t.text "response_body"
+    t.integer "response_code"
+    t.integer "retry_count"
+    t.bigint "webhook_id", null: false
+    t.index ["webhook_id"], name: "index_webhook_deliveries_on_webhook_id"
+  end
+
   create_table "webhook_endpoints", force: :cascade do |t|
     t.boolean "active", default: true
     t.datetime "created_at", null: false
@@ -1098,6 +1111,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_121002) do
     t.datetime "updated_at", null: false
     t.bigint "webhook_endpoint_id", null: false
     t.index ["webhook_endpoint_id"], name: "index_webhook_events_on_webhook_endpoint_id"
+  end
+
+  create_table "webhooks", force: :cascade do |t|
+    t.boolean "active"
+    t.datetime "created_at"
+    t.string "event"
+    t.bigint "lender_id", null: false
+    t.string "secret"
+    t.datetime "updated_at"
+    t.string "url"
+    t.index ["lender_id"], name: "index_webhooks_on_lender_id"
   end
 
   create_table "wholesale_funder_contracts", force: :cascade do |t|
@@ -1305,8 +1329,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_121002) do
   add_foreign_key "user_versions", "users"
   add_foreign_key "user_versions", "users", column: "admin_user_id"
   add_foreign_key "users", "lenders"
+  add_foreign_key "webhook_deliveries", "webhooks"
   add_foreign_key "webhook_endpoints", "users"
   add_foreign_key "webhook_events", "webhook_endpoints"
+  add_foreign_key "webhooks", "lenders"
   add_foreign_key "wholesale_funder_contracts", "wholesale_funders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"
