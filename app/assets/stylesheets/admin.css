@@ -3858,6 +3858,7 @@
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: #f8fafc;
+  overflow-x: hidden;
 }
 
 .admin-container {
@@ -4091,6 +4092,8 @@
   margin-left: 280px;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: calc(100% - 280px);
 }
 
 .admin-header {
@@ -4113,6 +4116,7 @@
 .admin-content {
   flex: 1;
   padding: 32px;
+  overflow-x: hidden;
 }
 
 /* Tables */
