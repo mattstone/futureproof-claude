@@ -7,6 +7,12 @@ module JurisdictionValidation
     # This concern exists for organization and future extension
   end
 
+  # Normalize jurisdiction code to standard format (uppercase)
+  def self.normalize_jurisdiction(code)
+    return nil unless code.present?
+    code.to_s.upcase
+  end
+
   # NOTE: Actual jurisdiction validation methods are defined in Application model:
   # - region_matches_user_jurisdiction (private)
   # - validate_epm_jurisdiction_rules (private)

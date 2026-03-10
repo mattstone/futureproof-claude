@@ -3,7 +3,7 @@ class BorrowerMessage < ApplicationRecord
   belongs_to :user
   belongs_to :lender, optional: true
 
-  enum sender_type: { borrower: "borrower", lender: "lender" }
+  enum :sender_type, { borrower: "borrower", lender: "lender" }
 
   validates :message, presence: true, length: { minimum: 1, maximum: 5000 }
   validates :sender_type, presence: true, inclusion: { in: sender_types.keys }

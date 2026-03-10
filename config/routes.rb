@@ -480,7 +480,7 @@ Rails.application.routes.draw do
   end
 
   # Lender portal routes
-  namespace :lender do
+  namespace :lender_portal do
     resources :applications, only: [:index, :show] do
       member do
         post :approve
