@@ -28,8 +28,6 @@ module Admin
       @total_documents = @legal_documents.count
       @active_documents = @legal_documents.where(status: 'active').count
       @pending_documents = @legal_documents.where(status: 'draft').count
-      @by_type = @legal_documents.group(:document_type).count
-      @by_status = @legal_documents.group(:status).count
     end
 
     # View a specific legal document
