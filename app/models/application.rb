@@ -1,11 +1,20 @@
 class Application < ApplicationRecord
   include InputSanitization
   include LenderScopes
+  include JsonAttributes
   
   # Field-level encryption for L4 sensitive data
   encrypts :government_id, deterministic: true
   encrypts :credit_score
   encrypts :bank_account_number
+  
+  # JSON attributes with safe parsing
+  # Concern creates: property_images_parsed, property_images_array
+  json_attribute :property_images, default: []
+  # Concern creates: corelogic_data_parsed, corelogic_data_array, corelogic_property_data, corelogic_data_hash
+  json_attribute :corelogic_data, default: {}, aliases: [:corelogic_property_data, :corelogic_data_hash]
+  # Concern creates: borrower_names_parsed, borrower_names_array
+  json_attribute :borrower_names, default: []
 
   belongs_to :user
   belongs_to :lender, optional: true
@@ -249,28 +258,11 @@ class Application < ApplicationRecord
   end
 
   # CoreLogic property methods
-  def property_images_array
-    return [] unless property_images.present?
-    begin
-      JSON.parse(property_images)
-    rescue JSON::ParserError
-      []
-    end
-  end
-
-  def corelogic_property_data
-    return {} unless corelogic_data.present?
-    begin
-      JSON.parse(corelogic_data)
-    rescue JSON::ParserError
-      {}
-    end
-  end
-
-  # Alias for backwards compatibility with view templates
-  def corelogic_data_hash
-    corelogic_property_data
-  end
+  # JSON parsing methods now handled by JsonAttributes concern
+  # - property_images_array → property_images_parsed
+  # - corelogic_property_data → corelogic_data_parsed
+  # - corelogic_data_hash → alias to corelogic_data_parsed
+  # See: app/models/concerns/json_attributes.rb
 
   def has_property_valuation?
     property_valuation_middle.present? && property_valuation_middle > 0
