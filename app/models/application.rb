@@ -109,6 +109,7 @@ class Application < ApplicationRecord
   after_update :auto_create_checklist_on_submitted
   after_update :ensure_checklist_for_processing_and_beyond
   after_commit :trigger_email_workflows
+  after_commit :invalidate_broker_dashboard_cache
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -888,6 +889,11 @@ class Application < ApplicationRecord
   end
 
   private
+
+  def invalidate_broker_dashboard_cache
+    return unless broker_id.present?
+    BrokerDashboardCacheService.invalidate_broker_cache(broker)
+  end
 
   def trigger_workflows_for(trigger_type, context = {})
     EmailWorkflow.active.for_trigger(trigger_type).find_each do |workflow|

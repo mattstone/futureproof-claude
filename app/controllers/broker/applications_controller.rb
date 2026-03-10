@@ -7,17 +7,8 @@ module Broker
     def index
       # Broker sees only their applications for lenders they work with
       @lenders = current_broker.lenders
-      @applications = ::Application.by_broker(current_broker)
-                                     .where(lender_id: @lenders.ids)
-                                     .includes(:user, :lender, :distributions)
-                                     .order(created_at: :desc)
-
-      @stats = {
-        total: @applications.count,
-        pending: @applications.where(status: [ :submitted, :processing ]).count,
-        approved: @applications.where(status: :accepted).count,
-        rejected: @applications.where(status: :rejected).count
-      }
+      @applications = BrokerDashboardCacheService.fetch_applications(current_broker)
+      @stats = BrokerDashboardCacheService.fetch_stats(current_broker)
     end
 
     def show
