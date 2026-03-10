@@ -97,6 +97,10 @@ class Application < ApplicationRecord
   validate :borrower_names_format_if_joint
   validate :checklist_completed_for_acceptance
 
+  # Webhook triggers
+  after_create :trigger_application_created_webhook
+  after_update :trigger_application_status_webhooks, if: :status_changed?
+
   # Callbacks
   before_validation :assign_demo_address, on: :create
   before_validation :set_default_existing_mortgage_amount
@@ -907,6 +911,76 @@ class Application < ApplicationRecord
         ))
       rescue => e
         Rails.logger.error "Failed to trigger workflow '#{workflow.name}' for Application #{id}: #{e.message}"
+      end
+    end
+  end
+
+  def trigger_application_created_webhook
+    return unless lender_id.present?
+    
+    payload = {
+      event: 'application_created',
+      timestamp: Time.current.iso8601,
+      application: {
+        id: id,
+        borrower_name: user.full_name,
+        borrower_email: user.email,
+        property_address: property_address,
+        loan_amount: loan_amount,
+        property_value: property_value,
+        ltv_ratio: ltv_ratio,
+        status: status
+      }
+    }
+
+    lender.webhook_endpoints.active.for_event('application_created').find_each do |endpoint|
+      endpoint.trigger_event('application_created', payload)
+    end
+  end
+
+  def trigger_application_status_webhooks
+    return unless lender_id.present?
+    
+    old_status, new_status = saved_change_to_status
+    
+    # Trigger approved webhook
+    if new_status == 'accepted'
+      payload = {
+        event: 'application_approved',
+        timestamp: Time.current.iso8601,
+        application: {
+          id: id,
+          borrower_name: user.full_name,
+          borrower_email: user.email,
+          property_address: property_address,
+          loan_amount: loan_amount,
+          status: new_status,
+          approved_at: Time.current.iso8601
+        }
+      }
+      
+      lender.webhook_endpoints.active.for_event('application_approved').find_each do |endpoint|
+        endpoint.trigger_event('application_approved', payload)
+      end
+    end
+
+    # Trigger rejected webhook
+    if new_status == 'rejected'
+      payload = {
+        event: 'application_rejected',
+        timestamp: Time.current.iso8601,
+        application: {
+          id: id,
+          borrower_name: user.full_name,
+          borrower_email: user.email,
+          status: new_status,
+          rejected_reason: rejected_reason,
+          rejected_at: Time.current.iso8601
+        }
+      }
+      
+      lender.webhook_endpoints.active.for_event('application_rejected').find_each do |endpoint|
+        endpoint.trigger_event('application_rejected', payload)
       end
     end
   end

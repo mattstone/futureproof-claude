@@ -12,6 +12,7 @@ class User < ApplicationRecord
   belongs_to :lender, optional: true
   has_many :applications, dependent: :destroy
   has_one :notification_preference, dependent: :destroy
+  has_many :webhook_endpoints, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
   

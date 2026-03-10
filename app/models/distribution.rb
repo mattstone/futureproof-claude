@@ -40,6 +40,9 @@ class Distribution < ApplicationRecord
       
       # Send email notification
       deliver_payment_notification
+      
+      # Trigger webhook
+      trigger_distribution_webhook
     end
   end
   
@@ -67,5 +70,29 @@ class Distribution < ApplicationRecord
     return if status == 'processing'
     update!(status: :pending, failed_at: nil, transaction_id: nil)
     Rails.logger.info("Distribution #{id} retrying EPM distribution")
+  end
+
+  def trigger_distribution_webhook
+    return unless application.lender_id.present?
+    
+    payload = {
+      event: 'distribution_completed',
+      timestamp: processed_at.iso8601,
+      distribution: {
+        id: id,
+        application_id: application_id,
+        borrower_name: application.user.full_name,
+        borrower_email: application.user.email,
+        amount: amount,
+        currency: 'AUD',
+        transaction_id: transaction_id,
+        processed_at: processed_at.iso8601,
+        property_address: application.property_address
+      }
+    }
+    
+    application.lender.webhook_endpoints.active.for_event('distribution_completed').find_each do |endpoint|
+      endpoint.trigger_event('distribution_completed', payload)
+    end
   end
 end
