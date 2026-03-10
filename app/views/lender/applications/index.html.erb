@@ -4,6 +4,23 @@
     <p class="subtitle"><%= current_user.lender.name %></p>
   </div>
 
+  <!-- Broker Filter -->
+  <div class="broker-filter-section">
+    <%= form_with url: lender_applications_path, method: :get, local: true do |f| %>
+      <div class="filter-group">
+        <label for="broker_id">Filter by Broker:</label>
+        <%= f.select :broker_id, 
+            options_for_select([["All Brokers", ""]] + @available_brokers.map { |b| [b.name, b.id] }, @selected_broker&.id),
+            { include_blank: false },
+            class: "broker-select" %>
+        <%= submit_tag "Filter", class: "btn btn-secondary" %>
+        <% if @selected_broker %>
+          <%= link_to "Clear Filter", lender_applications_path, class: "btn btn-outline" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
   <!-- Stats Cards -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -24,6 +41,38 @@
     </div>
   </div>
 
+  <!-- Top Broker Performance -->
+  <% if @top_brokers.any? %>
+    <div class="broker-performance-section">
+      <h2>Top Performing Brokers</h2>
+      <div class="broker-cards-grid">
+        <% @top_brokers.each do |metrics| %>
+          <div class="broker-card">
+            <div class="broker-name"><%= metrics[:broker_name] %></div>
+            <div class="broker-metrics">
+              <div class="metric">
+                <span class="metric-label">Applications:</span>
+                <span class="metric-value"><%= metrics[:applications_sourced] %></span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Conversion Rate:</span>
+                <span class="metric-value"><%= number_to_percentage(metrics[:conversion_rate], precision: 1) %></span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Total Loan Value:</span>
+                <span class="metric-value"><%= number_to_currency(metrics[:total_loan_value], unit: '$') %></span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Avg Deal:</span>
+                <span class="metric-value"><%= number_to_currency(metrics[:average_deal_size], unit: '$') %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Pending Applications Section -->
   <div class="applications-section">
     <h2>
@@ -36,6 +85,7 @@
         <thead>
           <tr>
             <th>Applicant</th>
+            <th>Broker</th>
             <th>Property Value</th>
             <th>Requested Income</th>
             <th>Loan Term</th>
@@ -50,6 +100,13 @@
                 <strong><%= link_to app.user.full_name, lender_application_path(app) %></strong>
                 <br>
                 <small><%= app.user.email %></small>
+              </td>
+              <td>
+                <% if app.broker %>
+                  <span class="broker-badge"><%= app.broker.name %></span>
+                <% else %>
+                  <span class="text-muted">Direct</span>
+                <% end %>
               </td>
               <td><%= number_to_currency(app.home_value) %></td>
               <td>
@@ -165,6 +222,32 @@
     color: var(--color-text-secondary, #666);
   }
 
+  .broker-filter-section {
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .filter-group label {
+    font-weight: 600;
+    color: var(--color-text, #333);
+  }
+
+  .broker-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -190,6 +273,72 @@
   .stat-label {
     font-size: 0.875rem;
     color: var(--color-text-secondary, #666);
+  }
+
+  .broker-performance-section {
+    margin-bottom: 2rem;
+    background: white;
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .broker-performance-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .broker-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .broker-card {
+    border: 1px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--color-background, #f9f9f9);
+  }
+
+  .broker-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-primary, #0066cc);
+  }
+
+  .broker-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .metric {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+  }
+
+  .metric-label {
+    color: var(--color-text-secondary, #666);
+  }
+
+  .metric-value {
+    font-weight: 600;
+    color: var(--color-text, #333);
+  }
+
+  .broker-badge {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 
   .applications-section {
@@ -291,6 +440,26 @@
 
   .btn-primary:hover {
     background-color: var(--color-primary-dark, #0052a3);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-secondary, #6c757d);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-secondary-dark, #5a6268);
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: var(--color-primary, #0066cc);
+    border: 1px solid var(--color-primary, #0066cc);
+  }
+
+  .btn-outline:hover {
+    background-color: var(--color-primary, #0066cc);
+    color: white;
   }
 
   .btn-sm {

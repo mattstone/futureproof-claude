@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :brokers
   namespace :users do
     resources :verifications, only: [:new, :create] do
       collection do
@@ -46,6 +47,15 @@ Rails.application.routes.draw do
       # Singleton clause resource - one clause per lender
       resource :clause, controller: 'lender_clauses', except: [:show]
     end
+    
+    resources :brokers do
+      member do
+        patch :toggle_active
+        post :assign_lender
+        delete :remove_lender
+      end
+    end
+    
     resources :wholesale_funders do
       collection do
         post :search

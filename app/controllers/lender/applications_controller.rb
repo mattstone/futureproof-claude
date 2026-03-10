@@ -3,19 +3,30 @@ module Lender
     before_action :authenticate_user!
     before_action :verify_lender_admin!
     before_action :set_application, only: [:show, :approve, :reject]
+    before_action :set_broker_filter
 
     # Dashboard - list pending applications for this lender
     def index
-      @pending_applications = current_user.lender.applications.where(status: :processing).order(created_at: :desc).page(params[:page])
-      @approved_applications = current_user.lender.applications.where(status: :accepted).order(created_at: :desc).limit(10)
-      @rejected_applications = current_user.lender.applications.where(status: :rejected).order(created_at: :desc).limit(5)
+      @broker_service = BrokerPerformanceService.new(lender: current_user.lender, broker: @selected_broker)
+      
+      # Filter applications by broker if specified
+      all_applications = @broker_service.filtered_applications
+      
+      @pending_applications = all_applications.where(status: :processing).order(created_at: :desc).page(params[:page])
+      @approved_applications = all_applications.where(status: :accepted).order(created_at: :desc).limit(10)
+      @rejected_applications = all_applications.where(status: :rejected).order(created_at: :desc).limit(5)
       
       @stats = {
-        pending_count: current_user.lender.applications.where(status: :processing).count,
-        approved_count: current_user.lender.applications.where(status: :accepted).count,
-        rejected_count: current_user.lender.applications.where(status: :rejected).count,
-        total_portfolio_value: current_user.lender.applications.where(status: :accepted).sum(:approved_loan_amount).to_i
+        pending_count: all_applications.where(status: :processing).count,
+        approved_count: all_applications.where(status: :accepted).count,
+        rejected_count: all_applications.where(status: :rejected).count,
+        total_portfolio_value: all_applications.where(status: :accepted).sum(:approved_loan_amount).to_i
       }
+      
+      # Broker metrics for sidebar/cards
+      @broker_metrics = @broker_service.all_broker_metrics
+      @top_brokers = @broker_service.top_brokers(limit: 3)
+      @available_brokers = current_user.lender.brokers.active
     end
 
     # Review screen - show application details for approval
@@ -84,6 +95,11 @@ module Lender
 
     def rejection_params
       params.require(:application).permit(:reason)
+    end
+
+    def set_broker_filter
+      @selected_broker = nil
+      @selected_broker = Broker.find(params[:broker_id]) if params[:broker_id].present?
     end
   end
 end

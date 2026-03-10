@@ -1,69 +1,163 @@
-<% content_for :page_title, "Edit #{@broker.name}" %>
+<div class="admin-container">
+  <div class="admin-header">
+    <h1>Edit Broker: <%= @broker.name %></h1>
+  </div>
 
-<div class="admin-content-wrapper">
-  <div class="admin-card">
-    <div class="admin-card-header">
-      <div>
-        <h2>Edit Broker</h2>
-        <p class="admin-card-subtitle"><%= @broker.name %></p>
-      </div>
-      <div class="admin-card-actions">
-        <%= link_to "Back", admin_broker_path(@broker), class: "admin-btn admin-btn-secondary" %>
-      </div>
-    </div>
+  <%= render "form", broker: @broker %>
 
-    <%= form_with(model: [:admin, @broker], local: true) do |form| %>
-      <% if @broker.errors.any? %>
-        <div class="admin-alert admin-alert-danger">
-          <h4><%= pluralize(@broker.errors.count, "error") %> found</h4>
-          <ul>
-            <% @broker.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-
-      <div class="admin-form-section">
-        <div class="admin-form-group">
-          <%= form.label :name, "Name", class: "admin-form-label" %>
-          <%= form.text_field :name, class: "admin-form-input", required: true %>
-        </div>
-
-        <div class="admin-form-group">
-          <%= form.label :email, "Email", class: "admin-form-label" %>
-          <%= form.email_field :email, class: "admin-form-input", disabled: true %>
-          <small class="admin-form-hint">Email cannot be changed</small>
-        </div>
-
-        <div class="admin-form-group">
-          <%= form.label :phone, "Phone", class: "admin-form-label" %>
-          <%= form.text_field :phone, class: "admin-form-input", placeholder: "02 1234 5678" %>
-        </div>
-
-        <div class="admin-form-group">
-          <%= form.label :jurisdiction, "Jurisdiction", class: "admin-form-label" %>
-          <%= form.select :jurisdiction, 
-              [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], 
-              {}, 
-              class: "admin-form-input", 
-              disabled: true %>
-          <small class="admin-form-hint">Jurisdiction cannot be changed</small>
-        </div>
-
-        <div class="admin-form-group">
-          <div class="admin-form-checkbox">
-            <%= form.check_box :active %>
-            <%= form.label :active, "Active", class: "admin-form-label" %>
+  <!-- Lender Assignments Section -->
+  <div class="lender-assignments">
+    <h2>Assigned Lenders</h2>
+    
+    <% if @broker.lenders.any? %>
+      <div class="assigned-lenders">
+        <% @broker.lenders.each do |lender| %>
+          <div class="lender-item">
+            <span class="lender-name"><%= lender.name %></span>
+            <%= link_to "Remove", remove_lender_admin_broker_path(@broker, lender_id: lender.id), 
+                method: :delete, 
+                data: { confirm: "Are you sure?" },
+                class: "btn btn-sm btn-danger" %>
           </div>
-          <small class="admin-form-hint">Broker can sign in and access portal when active</small>
-        </div>
+        <% end %>
       </div>
+    <% else %>
+      <p class="empty-message">No lenders assigned to this broker.</p>
+    <% end %>
 
-      <div class="admin-form-actions">
-        <%= form.submit "Save Changes", class: "admin-btn admin-btn-primary" %>
-        <%= link_to "Cancel", admin_broker_path(@broker), class: "admin-btn admin-btn-secondary" %>
+    <% if @available_lenders.any? %>
+      <h3>Assign New Lender</h3>
+      <div class="assign-lender-form">
+        <%= form_with url: assign_lender_admin_broker_path(@broker), method: :post, local: true do |f| %>
+          <div class="form-group">
+            <%= f.select :lender_id, @available_lenders.map { |l| [l.name, l.id] }, 
+                { prompt: "Select a lender" },
+                class: "form-input" %>
+          </div>
+          <%= f.submit "Assign Lender", class: "btn btn-primary" %>
+        <% end %>
       </div>
     <% end %>
   </div>
 </div>
+
+<style>
+  .admin-container {
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .admin-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .admin-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+  }
+
+  .lender-assignments {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .lender-assignments h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .lender-assignments h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+
+  .assigned-lenders {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .lender-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .lender-name {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .empty-message {
+    color: #999;
+    font-style: italic;
+  }
+
+  .assign-lender-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .form-group {
+    flex: 1;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background-color: #0066cc;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0052a3;
+  }
+
+  .btn-danger {
+    background-color: #f44336;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #da190b;
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+</style>

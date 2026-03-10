@@ -1,0 +1,182 @@
+<div class="broker-form">
+  <%= form_with model: [@broker], local: true, class: "admin-form" do |f| %>
+    <% if @broker.errors.any? %>
+      <div class="error-messages">
+        <h2><%= pluralize(@broker.errors.count, "error") %> prohibited this broker from being saved:</h2>
+        <ul>
+          <% @broker.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :name %>
+      <%= f.text_field :name, required: true, class: "form-input" %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :email %>
+      <%= f.email_field :email, required: true, class: "form-input" %>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :country %>
+        <%= f.select :country, 
+            [["Australia", "AU"], ["United States", "US"], ["New Zealand", "NZ"], ["United Kingdom", "UK"]], 
+            { prompt: "Select country" },
+            required: true,
+            class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :jurisdiction %>
+        <%= f.select :jurisdiction,
+            [["AU", "AU"], ["US", "US"], ["NZ", "NZ"], ["UK", "UK"]],
+            { prompt: "Select jurisdiction" },
+            required: true,
+            class: "form-input" %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :contact_telephone %>
+        <%= f.telephone_field :contact_telephone, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :contact_telephone_country_code %>
+        <%= f.text_field :contact_telephone_country_code, placeholder: "+61", class: "form-input" %>
+      </div>
+    </div>
+
+    <% if @broker.new_record? %>
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :password %>
+          <%= f.password_field :password, required: true, class: "form-input" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :password_confirmation %>
+          <%= f.password_field :password_confirmation, required: true, class: "form-input" %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="form-actions">
+      <%= f.submit @broker.new_record? ? "Create Broker" : "Update Broker", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_brokers_path, class: "btn btn-outline" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .broker-form {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 600px;
+  }
+
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .error-messages {
+    background-color: #ffebee;
+    border: 1px solid #ef5350;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .error-messages h2 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: #c62828;
+  }
+
+  .error-messages ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.5rem;
+    color: #d32f2f;
+  }
+
+  .error-messages li {
+    margin: 0.25rem 0;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .form-input {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background-color: #0066cc;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0052a3;
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: #0066cc;
+    border: 1px solid #0066cc;
+  }
+
+  .btn-outline:hover {
+    background-color: #0066cc;
+    color: white;
+  }
+</style>
