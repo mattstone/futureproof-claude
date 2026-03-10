@@ -65,19 +65,19 @@
       <!-- Stats Cards -->
       <div class="ld-stats-grid">
         <div class="ld-stat-card">
-          <div class="ld-stat-value"><%= @documents.count { |d| d.status_active? } %></div>
+          <div class="ld-stat-value"><%= @legal_documents.count { |d| d.status_active? } %></div>
           <div class="ld-stat-label">Active Documents</div>
         </div>
         <div class="ld-stat-card">
           <div class="ld-stat-label">By Jurisdiction</div>
           <% LegalDocument::JURISDICTIONS.each do |j| %>
-            <div class="ld-stat-row"><span><%= j %></span><strong><%= @documents.count { |d| d.jurisdiction == j } %></strong></div>
+            <div class="ld-stat-row"><span><%= j %></span><strong><%= @legal_documents.count { |d| d.jurisdiction == j } %></strong></div>
           <% end %>
         </div>
         <div class="ld-stat-card">
           <div class="ld-stat-label">By Status</div>
           <% LegalDocument.statuses.keys.each do |s| %>
-            <% count = @documents.count { |d| d.status == s } %>
+            <% count = @legal_documents.count { |d| d.status == s } %>
             <% next if count == 0 %>
             <div class="ld-stat-row"><span><%= s.titleize %></span><strong><%= count %></strong></div>
           <% end %>
@@ -85,14 +85,14 @@
         <div class="ld-stat-card">
           <div class="ld-stat-label">By Party Type</div>
           <% LegalDocument::PARTY_TYPES.each do |pt| %>
-            <% count = @documents.count { |d| d.party_type == pt } %>
+            <% count = @legal_documents.count { |d| d.party_type == pt } %>
             <% next if count == 0 %>
             <div class="ld-stat-row"><span><%= pt.titleize %></span><strong><%= count %></strong></div>
           <% end %>
         </div>
       </div>
 
-      <% if @documents.any? %>
+      <% if @legal_documents.any? %>
         <!-- Bulk Actions -->
         <div class="ld-bulk-actions" id="bulk-actions" style="display:none;">
           <span id="selected-count">0</span> selected:
@@ -121,7 +121,7 @@
               </tr>
             </thead>
             <tbody>
-              <% @documents.each do |doc| %>
+              <% @legal_documents.each do |doc| %>
                 <tr>
                   <td><input type="checkbox" class="row-check" value="<%= doc.id %>" onchange="updateBulk()"></td>
                   <td><%= doc.document_type_display %></td>
@@ -141,14 +141,14 @@
           </table>
         </div>
 
-        <% if @documents.respond_to?(:total_pages) %>
+        <% if @legal_documents.respond_to?(:total_pages) %>
           <div class="ld-pagination">
-            <% if @documents.current_page > 1 %>
-              <%= link_to "← Previous", admin_legal_documents_path(**request.query_parameters.merge(page: @documents.current_page - 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
+            <% if @legal_documents.current_page > 1 %>
+              <%= link_to "← Previous", admin_legal_documents_path(**request.query_parameters.merge(page: @legal_documents.current_page - 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
             <% end %>
-            <span class="ld-page-info">Page <%= @documents.current_page %> of <%= @documents.total_pages %></span>
-            <% if @documents.current_page < @documents.total_pages %>
-              <%= link_to "Next →", admin_legal_documents_path(**request.query_parameters.merge(page: @documents.current_page + 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
+            <span class="ld-page-info">Page <%= @legal_documents.current_page %> of <%= @legal_documents.total_pages %></span>
+            <% if @legal_documents.current_page < @legal_documents.total_pages %>
+              <%= link_to "Next →", admin_legal_documents_path(**request.query_parameters.merge(page: @legal_documents.current_page + 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
             <% end %>
           </div>
         <% end %>
