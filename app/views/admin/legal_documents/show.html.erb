@@ -1,0 +1,235 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<div class="ld-page">
+  <!-- Breadcrumb -->
+  <nav class="ld-breadcrumb">
+    <%= link_to "Dashboard", admin_root_path %> ›
+    <%= link_to "Legal Documents", admin_legal_documents_path %> ›
+    <span><%= @legal_document.title %></span>
+  </nav>
+
+  <!-- Header -->
+  <div class="ld-show-header">
+    <h1><%= @legal_document.title %></h1>
+    <div class="ld-badge-row">
+      <span class="ld-badge ld-badge-status ld-status-<%= @legal_document.status %>"><%= @legal_document.status.titleize %></span>
+      <span class="ld-badge ld-badge-jurisdiction"><%= @legal_document.jurisdiction %></span>
+      <span class="ld-badge ld-badge-neutral"><%= @legal_document.party_type_display %></span>
+      <span class="ld-badge ld-badge-neutral">v<%= @legal_document.version %></span>
+      <span class="ld-badge ld-badge-neutral">From: <%= @legal_document.effective_from&.strftime("%d %b %Y") %></span>
+      <% if @legal_document.effective_to %>
+        <span class="ld-badge ld-badge-neutral">To: <%= @legal_document.effective_to.strftime("%d %b %Y") %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="ld-action-bar">
+    <% case @legal_document.status %>
+    <% when "draft" %>
+      <%= link_to "Edit", edit_admin_legal_document_path(@legal_document), class: "ld-btn ld-btn-secondary" %>
+      <%= link_to "Publish", publish_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
+      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
+    <% when "in_review" %>
+      <%= link_to "Edit", edit_admin_legal_document_path(@legal_document), class: "ld-btn ld-btn-secondary" %>
+      <%= link_to "Approve", approve_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
+      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
+    <% when "approved" %>
+      <%= link_to "Activate", activate_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
+      <%= link_to "Archive", archive_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-secondary" %>
+    <% when "active" %>
+      <%= link_to "Archive", archive_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-secondary" %>
+    <% when "archived" %>
+      <%= link_to "Restore", restore_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
+    <% end %>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="ld-stats-grid ld-stats-3">
+    <% acceptance_count = @legal_document.legal_document_acceptances.count %>
+    <div class="ld-stat-card">
+      <div class="ld-stat-value <%= acceptance_count > 0 ? 'ld-text-green' : 'ld-text-muted' %>">
+        <%= acceptance_count > 0 ? "#{(acceptance_count.to_f / [1, (@total_parties || 1)].max * 100).round}%" : "—" %>
+      </div>
+      <div class="ld-stat-label">Acceptance Rate</div>
+    </div>
+    <div class="ld-stat-card">
+      <div class="ld-stat-value"><%= acceptance_count %></div>
+      <div class="ld-stat-label">Total Acceptances</div>
+    </div>
+    <div class="ld-stat-card">
+      <div class="ld-stat-label">By Party Type</div>
+      <% @legal_document.legal_document_acceptances.group(:acceptance_type).count.each do |type, count| %>
+        <div class="ld-stat-row"><span><%= type.titleize %></span><strong><%= count %></strong></div>
+      <% end %>
+      <% if @legal_document.legal_document_acceptances.empty? %>
+        <div class="ld-text-muted">No acceptances yet</div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ld-tabs">
+    <div class="ld-tab-nav">
+      <button class="ld-tab-btn active" onclick="switchTab('content', this)">Content</button>
+      <button class="ld-tab-btn" onclick="switchTab('versions', this)">Versions</button>
+      <button class="ld-tab-btn" onclick="switchTab('acceptances', this)">Acceptances</button>
+      <button class="ld-tab-btn" onclick="switchTab('changes', this)">Changes</button>
+      <button class="ld-tab-btn" onclick="switchTab('metadata', this)">Metadata</button>
+    </div>
+
+    <!-- Content Tab -->
+    <div class="ld-tab-panel active" id="tab-content">
+      <div class="ld-document-content">
+        <% if @legal_document.content.present? %>
+          <% if @legal_document.respond_to?(:rendered_content) %>
+            <%= @legal_document.rendered_content.html_safe %>
+          <% else %>
+            <pre class="ld-raw-content"><%= @legal_document.content %></pre>
+          <% end %>
+        <% else %>
+          <div class="ld-empty-state"><p>No content yet.</p></div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Versions Tab -->
+    <div class="ld-tab-panel" id="tab-versions">
+      <% versions = @legal_document.legal_document_versions.recent %>
+      <% if versions.any? %>
+        <table class="ld-table">
+          <thead>
+            <tr><th>Timestamp</th><th>Action</th><th>Changed By</th><th>Details</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% versions.each do |v| %>
+              <tr class="ld-version-row ld-version-<%= v.action %>">
+                <td><%= v.created_at.strftime("%d %b %Y %H:%M") %></td>
+                <td><span class="ld-badge ld-version-action-<%= v.action %>"><%= v.action_display %></span></td>
+                <td><%= v.created_by %></td>
+                <td><%= v.change_details %></td>
+                <td>
+                  <% if v.previous_content.present? && v.new_content.present? %>
+                    <button class="ld-btn ld-btn-sm ld-btn-outline" onclick="toggleDiff(this)">View Diff</button>
+                  <% end %>
+                </td>
+              </tr>
+              <% if v.previous_content.present? && v.new_content.present? %>
+                <tr class="ld-diff-row" style="display:none;">
+                  <td colspan="5">
+                    <div class="ld-inline-diff">
+                      <div class="ld-diff-side ld-diff-old">
+                        <h4>Previous</h4>
+                        <pre><%= v.previous_content %></pre>
+                      </div>
+                      <div class="ld-diff-side ld-diff-new">
+                        <h4>Current</h4>
+                        <pre><%= v.new_content %></pre>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="ld-empty-state"><p>No version history yet.</p></div>
+      <% end %>
+    </div>
+
+    <!-- Acceptances Tab -->
+    <div class="ld-tab-panel" id="tab-acceptances">
+      <% acceptances = @legal_document.legal_document_acceptances.recent %>
+      <div class="ld-tab-toolbar">
+        <span><strong><%= acceptances.count %></strong> total acceptances</span>
+        <button class="ld-btn ld-btn-sm ld-btn-outline" onclick="exportAcceptances()">Export as CSV</button>
+      </div>
+      <% if acceptances.any? %>
+        <table class="ld-table">
+          <thead>
+            <tr><th>User / Lender</th><th>Accepted At</th><th>Version</th><th>Acceptance Type</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <% acceptances.each do |a| %>
+              <tr>
+                <td><%= a.respond_to?(:accepted_by_name) ? a.accepted_by_name : (a.user&.email || a.lender&.name || "Unknown") %></td>
+                <td><%= a.accepted_at&.strftime("%d %b %Y %H:%M") %></td>
+                <td>v<%= @legal_document.version %></td>
+                <td><span class="ld-badge ld-badge-neutral"><%= a.acceptance_type.titleize %></span></td>
+                <td><%= a.respond_to?(:notes) ? a.notes : "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="ld-empty-state"><p>No acceptances recorded yet.</p></div>
+      <% end %>
+    </div>
+
+    <!-- Changes Tab -->
+    <div class="ld-tab-panel" id="tab-changes">
+      <% changes = @legal_document.changes_from_previous %>
+      <% if changes %>
+        <p class="ld-text-muted">Comparing v<%= @legal_document.version %> with v<%= changes[:previous_version] %></p>
+        <div id="diff-viewer" class="ld-diff-viewer">
+          <div class="ld-diff-side ld-diff-old">
+            <h4>Previous (v<%= changes[:previous_version] %>)</h4>
+            <pre id="diff-old"></pre>
+          </div>
+          <div class="ld-diff-side ld-diff-new">
+            <h4>Current (v<%= @legal_document.version %>)</h4>
+            <pre id="diff-new"></pre>
+          </div>
+        </div>
+      <% else %>
+        <div class="ld-empty-state"><p>No previous version to compare.</p></div>
+      <% end %>
+    </div>
+
+    <!-- Metadata Tab -->
+    <div class="ld-tab-panel" id="tab-metadata">
+      <table class="ld-table ld-meta-table">
+        <tbody>
+          <tr><th>Created At</th><td><%= @legal_document.created_at.strftime("%d %b %Y %H:%M") %></td></tr>
+          <tr><th>Updated At</th><td><%= @legal_document.updated_at.strftime("%d %b %Y %H:%M") %></td></tr>
+          <tr><th>Document Type</th><td><%= @legal_document.document_type_display %></td></tr>
+          <tr><th>Jurisdiction</th><td><%= @legal_document.jurisdiction_name %></td></tr>
+          <tr><th>Party Type</th><td><%= @legal_document.party_type_display %></td></tr>
+          <tr><th>Version</th><td><%= @legal_document.version %></td></tr>
+          <tr><th>Effective From</th><td><%= @legal_document.effective_from&.strftime("%d %b %Y") %></td></tr>
+          <tr><th>Effective To</th><td><%= @legal_document.effective_to&.strftime("%d %b %Y") || "No expiry" %></td></tr>
+          <tr><th>Is Draft</th><td><%= @legal_document.is_draft ? "Yes" : "No" %></td></tr>
+          <tr><th>Status</th><td><span class="ld-badge ld-badge-status ld-status-<%= @legal_document.status %>"><%= @legal_document.status.titleize %></span></td></tr>
+          <tr><th>Active</th><td><%= @legal_document.is_active ? "Yes" : "No" %></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.ld-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.ld-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'content') { hljs.highlightAll(); }
+}
+
+function toggleDiff(btn) {
+  var row = btn.closest('tr').nextElementSibling;
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+  btn.textContent = row.style.display === 'none' ? 'View Diff' : 'Hide Diff';
+}
+
+function exportAcceptances() {
+  window.location.href = '<%= admin_legal_document_path(@legal_document, format: :csv) %>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  hljs.highlightAll();
+});
+</script>

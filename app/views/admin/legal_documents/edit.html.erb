@@ -1,0 +1,9 @@
+<div class="container">
+  <div class="breadcrumb">
+    <%= link_to 'Legal Documents', admin_legal_documents_path %><span>›</span>
+    <%= link_to @legal_document.title, admin_legal_document_path(@legal_document) %><span>›</span> Edit
+  </div>
+  <h1>Edit <%= @legal_document.title %></h1>
+  <p>Version <%= @legal_document.version %> — Status: <%= @legal_document.status %></p>
+  <%= render 'form', legal_document: @legal_document %>
+</div>

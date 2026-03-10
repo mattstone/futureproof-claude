@@ -1,0 +1,137 @@
+<%= form_with(model: [:admin, legal_document], local: true, html: { id: 'legal-document-form' }) do |f| %>
+  <% if legal_document.errors.any? %>
+    <div class="card" style="border-color: #dc2626; margin-bottom: 20px;">
+      <h2 style="color: #dc2626; margin-top: 0;"><%= pluralize(legal_document.errors.count, "error") %> prevented this document from being saved:</h2>
+      <ul>
+        <% legal_document.errors.full_messages.each do |message| %>
+          <li class="error"><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% editing = legal_document.persisted? %>
+
+  <% if editing && legal_document.status.present? %>
+    <div class="form-group">
+      <label>Status</label>
+      <span class="badge badge-<%= legal_document.status.dasherize %>"><%= legal_document.status.titleize %></span>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <label for="legal_document_document_type">Document Type <span class="error">*</span></label>
+    <%= f.select :document_type,
+        options_for_select(LegalDocument::DOCUMENT_TYPES.map { |t| [t.titleize, t] }, legal_document.document_type),
+        { include_blank: '— Select type —' },
+        { required: true, disabled: editing, class: legal_document.errors[:document_type].any? ? 'error' : '' } %>
+    <%= f.hidden_field :document_type if editing %>
+    <% legal_document.errors[:document_type].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_jurisdiction">Jurisdiction <span class="error">*</span></label>
+    <%= f.select :jurisdiction,
+        options_for_select([['Australia', 'AU'], ['United States', 'US'], ['New Zealand', 'NZ'], ['United Kingdom', 'UK']], legal_document.jurisdiction),
+        { include_blank: '— Select jurisdiction —' },
+        { required: true, disabled: editing, class: legal_document.errors[:jurisdiction].any? ? 'error' : '' } %>
+    <%= f.hidden_field :jurisdiction if editing %>
+    <% legal_document.errors[:jurisdiction].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_party_type">Party Type <span class="error">*</span></label>
+    <%= f.select :party_type,
+        options_for_select(%w[universal customer lender broker wholesale_funder investment_provider].map { |t| [t.titleize, t] }, legal_document.party_type),
+        { include_blank: '— Select party type —' },
+        { required: true, disabled: editing, class: legal_document.errors[:party_type].any? ? 'error' : '' } %>
+    <%= f.hidden_field :party_type if editing %>
+    <% legal_document.errors[:party_type].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_title">Title <span class="error">*</span></label>
+    <%= f.text_field :title, required: true, placeholder: 'e.g., Privacy Policy - Australia v1.0', class: legal_document.errors[:title].any? ? 'error' : '' %>
+    <div class="help-text">Short descriptive title</div>
+    <% legal_document.errors[:title].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_effective_from">Effective From <span class="error">*</span></label>
+    <%= f.date_field :effective_from, required: true, value: legal_document.effective_from || Date.today, class: legal_document.errors[:effective_from].any? ? 'error' : '' %>
+    <% legal_document.errors[:effective_from].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_effective_to">Effective To</label>
+    <%= f.date_field :effective_to, class: legal_document.errors[:effective_to].any? ? 'error' : '' %>
+    <div class="help-text">Leave blank for indefinite</div>
+    <% legal_document.errors[:effective_to].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label for="legal_document_content">Content <span class="error">*</span></label>
+    <%= f.text_area :content, rows: 30, required: true, placeholder: 'Enter markdown content. {{variables}} will be substituted.', id: 'legal-document-content', class: legal_document.errors[:content].any? ? 'error' : '' %>
+    <div class="help-text">Markdown syntax allowed. Preview updates as you type.</div>
+    <% legal_document.errors[:content].each do |msg| %>
+      <div class="error"><%= msg %></div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <label>Preview</label>
+    <div id="content-preview" class="card" style="min-height: 100px; overflow-y: auto; max-height: 400px;">
+      <em style="color: #6b7280;">Start typing to see preview...</em>
+    </div>
+  </div>
+
+  <%= f.hidden_field :is_draft, id: 'is_draft_field', value: legal_document.is_draft.nil? ? true : legal_document.is_draft %>
+
+  <div class="button-group">
+    <button type="submit" class="button btn-secondary" onclick="document.getElementById('is_draft_field').value='true';">Save as Draft</button>
+    <button type="submit" class="button btn-primary" onclick="document.getElementById('is_draft_field').value='false';">Save &amp; Publish</button>
+    <%= link_to 'Cancel', admin_legal_documents_path, class: 'button btn-secondary' %>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var textarea = document.getElementById('legal-document-content');
+    var preview = document.getElementById('content-preview');
+    if (textarea && preview) {
+      function updatePreview() {
+        var text = textarea.value;
+        if (!text.trim()) {
+          preview.innerHTML = '<em style="color: #6b7280;">Start typing to see preview...</em>';
+          return;
+        }
+        // Basic markdown: headings, bold, italic, lists, paragraphs
+        var html = text
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+          .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+          .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/^- (.+)$/gm, '<li>$1</li>')
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/\{\{(\w+)\}\}/g, '<code style="background:#dbeafe;padding:2px 4px;border-radius:3px;">{{$1}}</code>');
+        preview.innerHTML = '<p>' + html + '</p>';
+      }
+      textarea.addEventListener('input', updatePreview);
+      updatePreview();
+    }
+  });
+</script>

@@ -1,0 +1,200 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page">
+  <div class="ld-header">
+    <h1>Legal Documents</h1>
+    <%= link_to "Create New", new_admin_legal_document_path, class: "ld-btn ld-btn-primary" %>
+  </div>
+
+  <div class="ld-layout">
+    <!-- Sidebar Filters -->
+    <aside class="ld-sidebar">
+      <%= form_tag admin_legal_documents_path, method: :get, class: "ld-filters-form" do %>
+        <div class="ld-filter-group">
+          <h3>Jurisdiction</h3>
+          <% LegalDocument::JURISDICTIONS.each do |j| %>
+            <label class="ld-checkbox">
+              <%= check_box_tag "jurisdiction[]", j, Array(params[:jurisdiction]).include?(j) %>
+              <%= j %>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="ld-filter-group">
+          <h3>Document Type</h3>
+          <% LegalDocument::DOCUMENT_TYPES.each do |key, label| %>
+            <label class="ld-checkbox">
+              <%= check_box_tag "document_type[]", key, Array(params[:document_type]).include?(key.to_s) %>
+              <%= label %>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="ld-filter-group">
+          <h3>Party Type</h3>
+          <% LegalDocument::PARTY_TYPES.each do |pt| %>
+            <label class="ld-checkbox">
+              <%= check_box_tag "party_type[]", pt, Array(params[:party_type]).include?(pt) %>
+              <%= pt.titleize %>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="ld-filter-group">
+          <h3>Status</h3>
+          <% LegalDocument.statuses.keys.each do |s| %>
+            <label class="ld-checkbox">
+              <%= check_box_tag "status[]", s, Array(params[:status]).include?(s) %>
+              <%= s.titleize %>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="ld-filter-group">
+          <h3>Search</h3>
+          <%= text_field_tag :search, params[:search], placeholder: "Search by title…", class: "ld-search-input" %>
+        </div>
+
+        <%= submit_tag "Apply Filters", class: "ld-btn ld-btn-secondary ld-btn-block" %>
+        <%= link_to "Clear", admin_legal_documents_path, class: "ld-btn ld-btn-outline ld-btn-block" %>
+      <% end %>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ld-main">
+      <!-- Stats Cards -->
+      <div class="ld-stats-grid">
+        <div class="ld-stat-card">
+          <div class="ld-stat-value"><%= @documents.count { |d| d.status_active? } %></div>
+          <div class="ld-stat-label">Active Documents</div>
+        </div>
+        <div class="ld-stat-card">
+          <div class="ld-stat-label">By Jurisdiction</div>
+          <% LegalDocument::JURISDICTIONS.each do |j| %>
+            <div class="ld-stat-row"><span><%= j %></span><strong><%= @documents.count { |d| d.jurisdiction == j } %></strong></div>
+          <% end %>
+        </div>
+        <div class="ld-stat-card">
+          <div class="ld-stat-label">By Status</div>
+          <% LegalDocument.statuses.keys.each do |s| %>
+            <% count = @documents.count { |d| d.status == s } %>
+            <% next if count == 0 %>
+            <div class="ld-stat-row"><span><%= s.titleize %></span><strong><%= count %></strong></div>
+          <% end %>
+        </div>
+        <div class="ld-stat-card">
+          <div class="ld-stat-label">By Party Type</div>
+          <% LegalDocument::PARTY_TYPES.each do |pt| %>
+            <% count = @documents.count { |d| d.party_type == pt } %>
+            <% next if count == 0 %>
+            <div class="ld-stat-row"><span><%= pt.titleize %></span><strong><%= count %></strong></div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @documents.any? %>
+        <!-- Bulk Actions -->
+        <div class="ld-bulk-actions" id="bulk-actions" style="display:none;">
+          <span id="selected-count">0</span> selected:
+          <button type="button" class="ld-btn ld-btn-secondary ld-btn-sm" onclick="bulkAction('archive')">Archive Selected</button>
+          <button type="button" class="ld-btn ld-btn-outline ld-btn-sm" onclick="bulkAction('export')">Export Selected</button>
+        </div>
+
+        <div class="ld-table-wrap">
+          <table class="ld-table">
+            <thead>
+              <tr>
+                <th class="ld-th-check"><input type="checkbox" id="select-all" onchange="toggleAll(this)"></th>
+                <% [["document_type", "Document Type"], ["jurisdiction", "Jurisdiction"], ["party_type", "Party Type"],
+                    ["version", "Version"], ["status", "Status"], ["effective_from", "Effective From"],
+                    ["effective_to", "Effective To"]].each do |col, label| %>
+                  <th>
+                    <%= link_to admin_legal_documents_path(sort: col, dir: (params[:sort] == col && params[:dir] == "asc") ? "desc" : "asc", **request.query_parameters.except("sort", "dir")) do %>
+                      <%= label %>
+                      <% if params[:sort] == col %>
+                        <span class="ld-sort-arrow"><%= params[:dir] == "asc" ? "▲" : "▼" %></span>
+                      <% end %>
+                    <% end %>
+                  </th>
+                <% end %>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @documents.each do |doc| %>
+                <tr>
+                  <td><input type="checkbox" class="row-check" value="<%= doc.id %>" onchange="updateBulk()"></td>
+                  <td><%= doc.document_type_display %></td>
+                  <td><span class="ld-badge ld-badge-jurisdiction"><%= doc.jurisdiction %></span></td>
+                  <td><%= doc.party_type_display %></td>
+                  <td><%= doc.version %></td>
+                  <td><span class="ld-badge ld-badge-status ld-status-<%= doc.status %>"><%= doc.status.titleize %></span></td>
+                  <td><%= doc.effective_from&.strftime("%d %b %Y") %></td>
+                  <td><%= doc.effective_to&.strftime("%d %b %Y") || "—" %></td>
+                  <td class="ld-actions">
+                    <%= link_to "View", admin_legal_document_path(doc), class: "ld-btn ld-btn-sm ld-btn-outline" %>
+                    <%= link_to "Edit", edit_admin_legal_document_path(doc), class: "ld-btn ld-btn-sm ld-btn-secondary" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if @documents.respond_to?(:total_pages) %>
+          <div class="ld-pagination">
+            <% if @documents.current_page > 1 %>
+              <%= link_to "← Previous", admin_legal_documents_path(**request.query_parameters.merge(page: @documents.current_page - 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
+            <% end %>
+            <span class="ld-page-info">Page <%= @documents.current_page %> of <%= @documents.total_pages %></span>
+            <% if @documents.current_page < @documents.total_pages %>
+              <%= link_to "Next →", admin_legal_documents_path(**request.query_parameters.merge(page: @documents.current_page + 1)), class: "ld-btn ld-btn-sm ld-btn-outline" %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="ld-empty-state">
+          <h2>No documents found</h2>
+          <p>Create your first legal document or adjust your filters.</p>
+          <%= link_to "Create New Document", new_admin_legal_document_path, class: "ld-btn ld-btn-primary" %>
+        </div>
+      <% end %>
+    </main>
+  </div>
+</div>
+
+<script>
+function toggleAll(el) {
+  document.querySelectorAll('.row-check').forEach(function(cb) { cb.checked = el.checked; });
+  updateBulk();
+}
+function updateBulk() {
+  var checked = document.querySelectorAll('.row-check:checked');
+  var bar = document.getElementById('bulk-actions');
+  var cnt = document.getElementById('selected-count');
+  bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  cnt.textContent = checked.length;
+}
+function bulkAction(action) {
+  var ids = Array.from(document.querySelectorAll('.row-check:checked')).map(function(cb) { return cb.value; });
+  if (ids.length === 0) return;
+  if (action === 'archive' && !confirm('Archive ' + ids.length + ' document(s)?')) return;
+  // Submit via form
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '<%= admin_legal_documents_path %>/bulk_' + action;
+  var token = document.querySelector('meta[name="csrf-token"]');
+  if (token) {
+    var t = document.createElement('input');
+    t.type = 'hidden'; t.name = 'authenticity_token'; t.value = token.content;
+    form.appendChild(t);
+  }
+  ids.forEach(function(id) {
+    var i = document.createElement('input');
+    i.type = 'hidden'; i.name = 'ids[]'; i.value = id;
+    form.appendChild(i);
+  });
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
