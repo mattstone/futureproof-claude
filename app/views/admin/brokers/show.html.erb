@@ -19,12 +19,8 @@
         <span class="info-value"><%= @broker.email %></span>
       </div>
       <div class="info-item">
-        <span class="info-label">Country:</span>
-        <span class="info-value"><%= @broker.country %></span>
-      </div>
-      <div class="info-item">
         <span class="info-label">Jurisdiction:</span>
-        <span class="info-value"><%= @broker.jurisdiction %></span>
+        <span class="info-value"><span class="jurisdiction-badge"><%= @broker.jurisdiction %></span></span>
       </div>
       <div class="info-item">
         <span class="info-label">Phone:</span>
@@ -213,6 +209,17 @@
 
   .status-inactive {
     background-color: #f44336;
+  }
+
+  .jurisdiction-badge {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #d0d0d0;
   }
 
   .lenders-list {
