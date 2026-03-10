@@ -2,34 +2,21 @@ module Lender
   class DashboardController < BaseController
     # Lender dashboard with application pipeline overview
     def index
-      # Get all applications assigned to this lender
-      @applications = Application.where(lender_id: current_user.id)
-                                  .includes(:user, :distributions)
-                                  .order(created_at: :desc)
+      # Optimized: Single query with eager loading
+      @applications = Application.with_lender_data(current_user.id)
 
-      # Pipeline stats
-      @stats = {
-        total: @applications.count,
-        pending: @applications.where(status: :processing).count,
-        approved: @applications.where(status: :accepted).count,
-        active: @applications.where(status: :activated).count,
-        rejected: @applications.where(status: :rejected).count
-      }
+      # Cached stats calculation (1 DB query)
+      @stats = lender_stats(current_user.id)
+      @percentages = pipeline_percentages(@stats)
 
-      # Recent applications
+      # Recent applications (from pre-loaded data)
       @recent_applications = @applications.limit(5)
 
-      # Monthly distribution data
-      @monthly_distributions = Distribution.joins(application: :lender)
-                                            .where(applications: { lender_id: current_user.id }, distributions: { status: :completed })
-                                            .group_by_month(:processed_at)
-                                            .sum(:amount)
+      # Monthly distribution data (efficient SQL aggregation)
+      @monthly_distributions = monthly_distributions(current_user.id)
 
-      # Top borrowers by income
-      @top_borrowers = @applications.where(status: :activated)
-                                     .sort_by { |app| app.distributions.sum(&:amount) }
-                                     .reverse
-                                     .first(5)
+      # Top borrowers (SQL aggregation, no N+1)
+      @top_borrowers = top_active_borrowers(current_user.id, 5)
     end
 
     # All applications assigned to lender
@@ -42,27 +29,22 @@ module Lender
         @applications = @applications.where(status: params[:status])
       end
 
-      # Sort
-      case params[:sort]
-      when 'newest'
-        @applications = @applications.order(created_at: :desc)
-      when 'oldest'
-        @applications = @applications.order(created_at: :asc)
-      when 'value_high'
-        @applications = @applications.sort_by { |a| a.loan_amount }.reverse
-      when 'value_low'
-        @applications = @applications.sort_by { |a| a.loan_amount }
-      else
-        @applications = @applications.order(created_at: :desc)
-      end
+      # Sort (database-level, not Ruby)
+      @applications = case params[:sort]
+                      when 'newest'
+                        @applications.order(created_at: :desc)
+                      when 'oldest'
+                        @applications.order(created_at: :asc)
+                      when 'value_high'
+                        @applications.order(loan_amount: :desc)
+                      when 'value_low'
+                        @applications.order(loan_amount: :asc)
+                      else
+                        @applications.order(created_at: :desc)
+                      end
 
-      @stats = {
-        total: Application.where(lender_id: current_user.id).count,
-        pending: Application.where(lender_id: current_user.id, status: :processing).count,
-        approved: Application.where(lender_id: current_user.id, status: :accepted).count,
-        active: Application.where(lender_id: current_user.id, status: :activated).count,
-        rejected: Application.where(lender_id: current_user.id, status: :rejected).count
-      }
+      # Use cached stats (avoid duplicate queries)
+      @stats = lender_stats(current_user.id)
     end
 
     # Individual application review

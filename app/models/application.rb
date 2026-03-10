@@ -1,5 +1,6 @@
 class Application < ApplicationRecord
   include InputSanitization
+  include LenderScopes
   
   # Field-level encryption for L4 sensitive data
   encrypts :government_id, deterministic: true

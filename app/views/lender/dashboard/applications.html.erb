@@ -4,21 +4,31 @@
   <div class="page-controls">
     <div class="filter-group">
       <%= form_with url: lender_dashboard_applications_path, method: :get, local: true, class: "filter-form" do |f| %>
-        <%= f.select :status, 
-          options_for_select(
-            [['All', ''], ['Pending', 'processing'], ['Approved', 'accepted'], ['Active', 'activated'], ['Rejected', 'rejected']], 
-            params[:status]
-          ), 
-          {}, 
-          class: "filter-select" %>
+        <div class="form-group">
+          <label for="status-filter" class="form-label">Filter by Status:</label>
+          <%= f.select :status, 
+            options_for_select(
+              [['All', ''], ['Pending', 'processing'], ['Approved', 'accepted'], ['Active', 'activated'], ['Rejected', 'rejected']], 
+              params[:status]
+            ), 
+            {}, 
+            id: "status-filter",
+            class: "filter-select",
+            'aria-label' => "Filter applications by status" %>
+        </div>
         
-        <%= f.select :sort,
-          options_for_select(
-            [['Newest First', 'newest'], ['Oldest First', 'oldest'], ['Highest Value', 'value_high'], ['Lowest Value', 'value_low']],
-            params[:sort] || 'newest'
-          ),
-          {},
-          class: "filter-select" %>
+        <div class="form-group">
+          <label for="sort-select" class="form-label">Sort by:</label>
+          <%= f.select :sort,
+            options_for_select(
+              [['Newest First', 'newest'], ['Oldest First', 'oldest'], ['Highest Value', 'value_high'], ['Lowest Value', 'value_low']],
+              params[:sort] || 'newest'
+            ),
+            {},
+            id: "sort-select",
+            class: "filter-select",
+            'aria-label' => "Sort applications" %>
+        </div>
         
         <%= f.submit "Apply Filters", class: "btn btn-primary" %>
         <%= link_to "Clear", lender_dashboard_applications_path, class: "btn btn-secondary" %>
@@ -27,19 +37,19 @@
 
     <div class="stats-row">
       <div class="stat-pill">
-        <span class="stat-count"><%= @stats[:total] %></span>
+        <span class="stat-count" role="status" aria-label="Total applications: <%= @stats[:total] %>"><%= @stats[:total] %></span>
         <span class="stat-label">Total</span>
       </div>
       <div class="stat-pill">
-        <span class="stat-count" style="color: #F59E0B;"><%= @stats[:pending] %></span>
+        <span class="stat-count stat-count--warning" role="status" aria-label="Pending applications: <%= @stats[:pending] %>"><%= @stats[:pending] %></span>
         <span class="stat-label">Pending</span>
       </div>
       <div class="stat-pill">
-        <span class="stat-count" style="color: #3B82F6;"><%= @stats[:approved] %></span>
+        <span class="stat-count stat-count--info" role="status" aria-label="Approved applications: <%= @stats[:approved] %>"><%= @stats[:approved] %></span>
         <span class="stat-label">Approved</span>
       </div>
       <div class="stat-pill">
-        <span class="stat-count" style="color: #10B981;"><%= @stats[:active] %></span>
+        <span class="stat-count stat-count--success" role="status" aria-label="Active applications: <%= @stats[:active] %>"><%= @stats[:active] %></span>
         <span class="stat-label">Active</span>
       </div>
     </div>
