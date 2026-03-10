@@ -1,0 +1,19 @@
+one:
+  email: broker1@example.com
+  name: John Broker
+  phone: "0412345678"
+  jurisdiction: AU
+  active: true
+  encrypted_password: $2a$12$2Al1frCmzu2Abi7G5lFNreNh8R0aHv7K2HDrV7OEjFEjl.TjiOry.
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+
+two:
+  email: broker2@example.com
+  name: Jane Broker
+  phone: "0412345679"
+  jurisdiction: AU
+  active: true
+  encrypted_password: $2a$12$2Al1frCmzu2Abi7G5lFNreNh8R0aHv7K2HDrV7OEjFEjl.TjiOry.
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
