@@ -40,17 +40,34 @@ class CalculationEngine
     bullish: 0.20        # +20% (strong appreciation)
   }.freeze
 
-  attr_reader :home_value, :term, :region, :model, :region_config
+  attr_reader :home_value, :term, :region, :model, :region_config, :application
 
-  def initialize(home_value:, term: 10, region: "us", model: :pavel, model_type: :a)
+  # ✅ CRITICAL: Accept application parameter to validate region consistency
+  def initialize(home_value:, term: 10, region: "us", model: :pavel, model_type: :a, application: nil)
     @home_value = home_value.to_f
     @term = term.to_i
     @region = region.to_s.downcase
     @model = model.to_sym
     @model_type = model_type.to_sym  # :a or :b
+    @application = application
+    
+    # ✅ CRITICAL: Validate region matches application's region if provided
+    validate_region_consistency! if application
+    
     @region_config = RegionHelper.region_config(@region)
-
     validate!
+  end
+
+  # ✅ CRITICAL: Ensure calculation region matches application region
+  def validate_region_consistency!
+    return unless application && application.region
+    
+    normalized_app_region = application.region.downcase
+    unless @region == normalized_app_region
+      raise RegionMismatchError,
+        "Calculation region (#{@region.upcase}) doesn't match application region (#{application.region}). " \
+        "This would apply wrong tax treatment, NNEG rules, and income guarantees."
+    end
   end
 
   def calculate
@@ -506,3 +523,6 @@ class CalculationEngine
     }
   end
 end
+
+# ✅ CRITICAL: Error for region mismatch (prevents wrong tax/regulatory rules)
+class RegionMismatchError < StandardError; end

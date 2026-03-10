@@ -1,12 +1,19 @@
 module Borrower
   class ApplicationsController < BaseController
+    include JurisdictionAuditLogging
+    
     before_action :set_application, only: [:show]
     before_action :authorize_borrower_access!, only: [:show]
+    before_action :audit_jurisdiction_access, only: [:show]
 
-    # List all EPM applications for current borrower
+    # ✅ CRITICAL: List EPM applications with jurisdiction scoping
     def index
-      @applications = current_user.applications.includes(:lender, :distributions)
-                                               .order(created_at: :desc)
+      # Get user's applications
+      user_apps = current_user.applications.includes(:lender, :distributions)
+      
+      # ✅ CRITICAL: Scope to user's home jurisdiction only
+      @applications = scope_applications_by_jurisdiction(user_apps)
+                      .order(created_at: :desc)
 
       @stats = {
         total: @applications.count,

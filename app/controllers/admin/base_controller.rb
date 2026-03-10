@@ -83,10 +83,53 @@ class Admin::BaseController < ApplicationController
   end
 
   def initialize_admin_jurisdiction
-    session[:admin_jurisdiction] ||= "Summary"
+    # ✅ CRITICAL: For lender-type admins, set jurisdiction to their lender's country
+    # Futureproof admins get "Summary" by default
+    
+    if lender_admin? && admin_lender
+      session[:admin_jurisdiction] = admin_lender.country
+    else
+      session[:admin_jurisdiction] ||= "Summary"
+    end
   end
 
   def valid_jurisdiction?(jurisdiction)
     ["Summary", "AU", "US", "NZ", "UK"].include?(jurisdiction)
+  end
+
+  # ✅ CRITICAL: Get effective jurisdiction for filtering
+  # Returns either the selected jurisdiction or all for "Summary"
+  def effective_admin_jurisdiction
+    selected = session[:admin_jurisdiction] || "Summary"
+    
+    # Lender admins can only see their own jurisdiction
+    if lender_admin?
+      admin_lender&.country || selected
+    else
+      selected
+    end
+  end
+
+  # ✅ CRITICAL: Scope queries by admin's jurisdiction access
+  def scope_by_admin_jurisdiction(scope)
+    jurisdiction = effective_admin_jurisdiction
+    return scope if jurisdiction == "Summary"
+    
+    scope.where(jurisdiction_field => jurisdiction)
+  end
+
+  private
+
+  def jurisdiction_field
+    case controller_name
+    when 'applications'
+      :region
+    when 'lenders'
+      :country
+    when 'brokers'
+      :jurisdiction
+    else
+      :jurisdiction
+    end
   end
 end

@@ -2,6 +2,10 @@ class Application < ApplicationRecord
   include InputSanitization
   include LenderScopes
   include JsonAttributes
+  include JurisdictionValidation
+  
+  # Specify which field stores jurisdiction
+  self.jurisdiction_field = :region
   
   # Field-level encryption for L4 sensitive data
   encrypts :government_id, deterministic: true
@@ -70,10 +74,18 @@ class Application < ApplicationRecord
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
+  
   # ISO 3166-1 alpha-2 country codes
   VALID_REGION_CODES = ["AU", "US", "NZ", "UK"].freeze
   
-  validates :region, inclusion: { in: VALID_REGION_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }, allow_nil: true
+  # ✅ CRITICAL: Region MUST be set and must be valid (not optional for EPM)
+  validates :region, presence: true, inclusion: { in: VALID_REGION_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
+  
+  # ✅ CRITICAL: Validate region matches user's home jurisdiction
+  validate :region_matches_user_jurisdiction, if: :user_present?
+  
+  # ✅ CRITICAL: Validate against EPM jurisdiction rules
+  validate :validate_epm_jurisdiction_rules, if: :region_present?
   validates :existing_mortgage_amount, numericality: {
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000
@@ -963,5 +975,58 @@ class Application < ApplicationRecord
         endpoint.trigger_event('application_rejected', payload)
       end
     end
+  end
+
+  private
+
+  # ✅ CRITICAL: Validate application region matches user's home jurisdiction
+  def region_matches_user_jurisdiction
+    return if !user || !region
+
+    user_jurisdiction = user_home_jurisdiction_code
+    return unless user_jurisdiction  # Skip if user has no jurisdiction set yet
+
+    unless region == user_jurisdiction
+      errors.add(:region, 
+        "must match user's home jurisdiction (#{user_jurisdiction}). " \
+        "User is in #{user.country_of_residence}, application is for #{region}")
+    end
+  end
+
+  # ✅ CRITICAL: Get user's home jurisdiction as ISO code
+  def user_home_jurisdiction_code
+    return nil unless user&.country_of_residence
+    
+    # Map full country name to ISO code
+    country_to_code = {
+      'Australia' => 'AU',
+      'United States' => 'US',
+      'New Zealand' => 'NZ',
+      'United Kingdom' => 'UK'
+    }
+    
+    country_to_code[user.country_of_residence]
+  end
+
+  # ✅ CRITICAL: Validate application against EPM jurisdiction rules
+  def validate_epm_jurisdiction_rules
+    return unless region
+    
+    begin
+      service = EpmJurisdictionService.new(region)
+      errors_list = service.validate_application(self)
+      
+      errors_list.each { |error| errors.add(:base, error) }
+    rescue InvalidJurisdictionError => e
+      errors.add(:region, e.message)
+    end
+  end
+
+  def user_present?
+    user.present?
+  end
+
+  def region_present?
+    region.present?
   end
 end
