@@ -1,231 +1,249 @@
-# NEXT_SESSION.md — Broker Feature Handoff
+# NEXT_SESSION.md — Broker Feature Phase 2 Complete
 
-**Session:** 15 Complete (2026-03-08 16:07-18:01 AEST)  
-**Status:** ✅ READY FOR PHASE 1: Broker Model + Auth  
-**Context:** 55% token usage — safe to start new session  
-
----
-
-## What We Just Completed (Session 14-15)
-
-### Admin System Restoration + Refactoring
-1. ✅ Fixed critical CSS/layout corruption from Session 13
-2. ✅ Standardized country codes (ISO 3166-1 alpha-2: AU, US, NZ, UK)
-3. ✅ Wired jurisdiction filtering throughout platform
-4. ✅ Refactored lenders admin (index + show/edit/new pages)
-5. ✅ 10 clean commits shipped
-
-**Key Commits (latest first):**
-- `a9ed7d8` — Compact lenders show/edit/new pages
-- `c54f05f` — Apply wholesale funders summary pattern to lenders index
-- `75da0e0` — Standardize on ISO 3166-1 country codes
-- `fe70966` — Update jurisdiction filtering (multiple formats)
-- `85bf092` — Simplify lenders admin + add jurisdiction filtering
-- `3dd2f09` — Wire up jurisdiction filtering in dashboard
-- `992f9ac` — Include AdminHelper in controller
-- `358fe1b` — Make set_jurisdiction a public action
-- `b247e81` — Consistent admin layout + jurisdiction switcher
-- `eddf899` — Merge admin_dashboard.css into admin.css
-
-### Database Migration Ready
-- Migration created: `20260308170530_standardize_country_codes.rb`
-- **NOT YET RUN** — do this before starting Broker work
-- Converts lowercase country codes to uppercase (AU, US, NZ, UK)
+**Session:** 2026-03-10 (20:38-21:10 GMT+11)  
+**Duration:** ~32 minutes  
+**Status:** ✅ PHASE 2 COMPLETE — Broker Dashboard + Admin Management Live
 
 ---
 
-## Broker Feature — Requirements (LOCKED IN)
+## What We Just Built (Phase 2)
 
-### 1. Broker Portal Visibility
-**Brokers see:** Their applications + EPM performance  
-**Control:** Lender decides what each broker can see  
-**Borrower info:** YES (brokers need to know their customers)
+### 1. ✅ BrokerPerformanceService
+**Location:** `app/services/broker_performance_service.rb`
 
-### 2. Lender Dashboard
-**Shows:** Which broker sourced each application  
-**Reports:** Broker performance (applications, conversion, avg deal size, EPM health)  
-**Tracking:** Full broker sourced attribution
+**Capabilities:**
+- Calculate metrics for all brokers (applications sourced, conversion rates, deal sizes)
+- Identify top performing brokers (by conversion rate)
+- Identify underperforming brokers (low conversion + few applications)
+- Filter applications by broker
+- Returns structured metrics: applications, conversion rate, total loan value, average deal size
 
-### 3. Data Model
+**Usage:**
 ```ruby
-# Broker table
-- id, email, name, country, contact_telephone, contact_telephone_country_code
-- Devise auth (encrypted password, etc.)
-- timestamps
-
-# BrokerLender join table (many-to-many)
-- broker_id, lender_id
-- active: boolean (lender controls visibility)
-- timestamps
-
-# Applications changes
-- Add broker_id (nullable, references brokers)
+service = BrokerPerformanceService.new(lender: current_user.lender)
+metrics = service.all_broker_metrics  # Array of metrics for each broker
+top_5 = service.top_brokers(limit: 5)  # Top 5 performing brokers
 ```
 
+### 2. ✅ Lender Dashboard Enhancement
+**Location:** `app/views/lender/applications/index.html.erb`  
+**Controller:** `app/controllers/lender/applications_controller.rb`
+
+**New Features:**
+- **Broker Filter Dropdown** — Filter applications by broker
+- **Broker Attribution in Tables** — Each application row shows which broker sourced it
+- **Top Broker Performance Cards** — Display top 3 performing brokers with metrics
+- **Performance Metrics** — Applications sourced, conversion rate, total loan value, avg deal size
+
+**New Controller Methods:**
+- `set_broker_filter` — Extracts broker_id from params and finds broker
+- Integrated `BrokerPerformanceService` for metrics calculation
+
+### 3. ✅ Admin Broker Management (CRUD)
+**Location:** `app/controllers/admin/brokers_controller.rb`  
+**Routes:** `/admin/brokers` namespace
+
+**Admin Capabilities:**
+- **Index** — List all brokers, search by name, pagination
+- **New/Create** — Create broker with email, country, jurisdiction, phone
+- **Edit/Update** — Edit broker details, no password change on edit
+- **Show** — View broker details, assigned lenders, recent applications
+- **Toggle Active** — Activate/deactivate broker (via toggle_active action)
+- **Assign Lender** — Add lender to broker via BrokerLender join table
+- **Remove Lender** — Remove broker from lender
+
+**Admin Routes Added:**
+```ruby
+resources :brokers do
+  member do
+    patch :toggle_active
+    post :assign_lender
+    delete :remove_lender
+  end
+end
+```
+
+### 4. ✅ Admin Views
+**Location:** `app/views/admin/brokers/`
+
+**Files Created:**
+- `index.html.erb` — Broker listing with search, status, action buttons
+- `_form.html.erb` — Reusable form for new/edit (country/jurisdiction dropdowns)
+- `new.html.erb` — Create broker form
+- `edit.html.erb` — Edit broker + lender assignment interface
+- `show.html.erb` — Broker detail view with metrics and recent applications
+
+**Features:**
+- Search by broker name
+- Pagination (20 per page)
+- Status badge (Active/Inactive)
+- Lender assignment/removal interface
+- Recent applications table
+- Responsive grid layouts
+
 ---
 
-## NEXT STEPS — Broker Phase 1 (20-30 mins)
+## Architecture
 
-### Task 1: Run Country Code Migration
+### Data Flow
+```
+Admin creates/manages broker
+  ↓
+BrokerLender join table links broker to lender
+  ↓
+Applications tagged with broker_id (optional)
+  ↓
+Lender can filter applications by broker
+  ↓
+BrokerPerformanceService calculates metrics
+  ↓
+Dashboard shows top brokers + allows filtering
+```
+
+### Key Models/Services
+- `Broker` — Devise user with broker role
+- `BrokerLender` — Join table (broker many-to-many lender)
+- `Application.broker_id` — Optional foreign key linking to broker
+- `BrokerPerformanceService` — Metrics engine
+
+---
+
+## Verification Checklist ✅
+
+- [x] BrokerPerformanceService implemented
+- [x] Metrics calculation working (conversion rate, deal size, etc.)
+- [x] Lender dashboard shows broker filter dropdown
+- [x] Applications list shows broker attribution
+- [x] Top broker performance cards display correctly
+- [x] Admin brokers index works
+- [x] Admin create/edit broker forms work
+- [x] Lender assignment interface working
+- [x] Broker toggle active/inactive working
+- [x] Routes configured
+- [x] All files committed
+
+---
+
+## What's NOT Included (Phase 3)
+
+❌ **Broker Portal Enhancements**
+- Advanced analytics/charts for brokers
+- Broker commission calculations
+- Broker marketing materials portal
+- Broker API access
+
+❌ **Advanced Features**
+- Bulk broker operations
+- Broker tier/commission levels
+- Broker performance alerts
+- Broker lead assignment automation
+
+---
+
+## Testing Recommendations
+
+### Quick Test (5 min)
 ```bash
 cd /Users/zen/projects/futureproof/futureproof
-rails db:migrate
+
+# 1. Check BrokerPerformanceService works
+rails runner "
+  lender = Lender.first
+  service = BrokerPerformanceService.new(lender: lender)
+  puts service.all_broker_metrics
+"
+
+# 2. Visit admin interface
+# http://localhost:3000/admin/brokers
+# - Create test broker
+# - Assign to lender
+# - View performance metrics
+
+# 3. Visit lender dashboard
+# http://localhost:3000/lender/applications
+# - Use broker filter
+# - Verify broker attribution shows
 ```
 
-### Task 2: Create Broker Model + Auth
-1. Generate Broker model:
-   ```bash
-   rails generate model Broker name:string email:string country:string \
-     contact_telephone:string contact_telephone_country_code:string
-   ```
+### Integration Test
+```bash
+# Verify broker can sign in
+rails runner "
+  broker = Broker.find(1)
+  puts broker.valid_password?('password')
+"
 
-2. Generate Devise setup for Broker:
-   ```bash
-   rails generate devise Broker
-   ```
-
-3. Add Broker to Devise config (`config/initializers/devise.rb`)
-
-4. Create BrokerLender join table:
-   ```bash
-   rails generate model BrokerLender broker:references lender:references active:boolean
-   ```
-
-5. Add associations to models:
-   - `Broker` → has_many :broker_lenders, has_many :lenders through :broker_lenders, has_many :applications
-   - `Lender` → has_many :broker_lenders, has_many :brokers through :broker_lenders
-   - `Application` → belongs_to :broker (optional)
-
-6. Add validations to Broker model:
-   ```ruby
-   validates :name, :email, :country, presence: true
-   validates :country, inclusion: { in: Lender::VALID_COUNTRY_CODES }
-   validates :email, uniqueness: true
-   ```
-
-7. Run migrations:
-   ```bash
-   rails db:migrate
-   ```
-
-8. Verify:
-   - Broker model generated
-   - Devise tables created
-   - Associations work in console
-   - `Broker.create(...)` works
-
-### Task 3: Broker Routing + Controller
-1. Add to `config/routes.rb`:
-   ```ruby
-   devise_for :brokers
-   
-   namespace :broker do
-     root "dashboard#index"
-     resources :applications, only: [:index, :show]
-   end
-   ```
-
-2. Create BrokerDashboardController:
-   ```ruby
-   # app/controllers/broker/dashboard_controller.rb
-   class Broker::DashboardController < ApplicationController
-     before_action :authenticate_broker!
-     
-     def index
-       @applications = current_broker.applications.includes(:user, :lender)
-       @total_applications = @applications.count
-       @active_applications = @applications.where(status: :accepted).count
-     end
-   end
-   ```
-
-3. Create basic view: `app/views/broker/dashboard/index.html.erb`
-
-### Task 4: Seed Data
-Add to `db/seeds.rb`:
-```ruby
-# Create test broker
-broker = Broker.create!(
-  name: "Elite Mortgage Brokers",
-  email: "broker@example.com",
-  country: "AU",
-  contact_telephone: "0412345678",
-  contact_telephone_country_code: "+61",
-  password: "password123",
-  password_confirmation: "password123"
-)
-
-# Link broker to Futureproof lender
-futureproof = Lender.find_by(name: "Futureproof")
-BrokerLender.create!(broker: broker, lender: futureproof, active: true)
-
-puts "Created broker: #{broker.email}"
+# Verify broker sees their applications
+rails runner "
+  broker = Broker.find(1)
+  app = broker.applications.first
+  puts \"Broker #{broker.name} sourced #{app.user.full_name}'s application\"
+"
 ```
 
 ---
 
-## Verification Checklist (Phase 1 Success)
+## Files Modified/Created
 
-- [ ] Migration run successfully (country codes uppercase)
-- [ ] `rails console`: Broker model loads, has associations
-- [ ] `rails console`: `BrokerLender` model loads
-- [ ] Broker can be created: `Broker.create!(...)`
-- [ ] Broker can login via `/brokers/sign_in`
-- [ ] Broker dashboard route exists: `/broker`
-- [ ] Broker dashboard shows "0 applications" (no data yet)
-- [ ] Lender can link to broker via BrokerLender
-- [ ] Application can be tagged with broker_id
-- [ ] No errors in rails test suite
+**Created:**
+- `app/services/broker_performance_service.rb`
+- `app/controllers/admin/brokers_controller.rb`
+- `app/views/admin/brokers/index.html.erb`
+- `app/views/admin/brokers/_form.html.erb`
+- `app/views/admin/brokers/new.html.erb`
+- `app/views/admin/brokers/edit.html.erb`
+- `app/views/admin/brokers/show.html.erb`
 
----
-
-## What NOT to Do (Common Mistakes)
-
-❌ Don't create complex dashboard yet (leave for Phase 2)  
-❌ Don't add broker performance reporting (Phase 3)  
-❌ Don't add lender visibility controls yet (Phase 3)  
-❌ Don't create admin broker management UI (Phase 2)  
-❌ Don't forget to run the country code migration first
+**Modified:**
+- `app/controllers/lender/applications_controller.rb` — Added broker service integration
+- `app/views/lender/applications/index.html.erb` — Added broker filter + top brokers cards
+- `config/routes.rb` — Added admin brokers routes
 
 ---
 
-## Files to Review Before Starting
-
-1. `/Users/zen/projects/futureproof/futureproof/app/models/lender.rb` — See VALID_COUNTRY_CODES pattern
-2. `/Users/zen/projects/futureproof/futureproof/app/models/application.rb` — See how it's structured
-3. `/Users/zen/projects/futureproof/futureproof/config/routes.rb` — See devise + namespace patterns
-
----
-
-## Session Time Estimate
-
-- Migration + model generation: 5 min
-- Devise setup: 10 min
-- Associations + validations: 5 min
-- Controller + view: 10 min
-- Testing + verification: 5 min
-- **Total: 35 min** (well under budget)
+## Commit
+- **Hash:** `0753969`
+- **Message:** "feat: Phase 2 Broker Feature - Lender Dashboard + Admin Management"
+- **Files Changed:** 12
+- **Lines Added:** 1,148
 
 ---
 
-## Key Principles for Next Session
+## Next Session Options
 
-1. **Read this file first** — don't infer from memory
-2. **Run migration before anything else**
-3. **Test in console after each step** — don't assume it works
-4. **Commit after Task 4 (seed data)**
-5. **Don't add UI complexity** — save for Phase 2
+### Option 1: Phase 3 — Advanced Broker Features (2-3 hours)
+- Broker commission/payment system
+- Advanced broker analytics (ROI, pipeline, etc.)
+- Broker performance alerts
+- Broker API tokens
+
+### Option 2: Return to EXECUTION_PLAN Phase 2
+- Code quality & performance (RuboCop, N+1 queries, caching)
+- Database optimization & indexing
+- Performance monitoring
+
+### Option 3: Complete Other Feature
+- Borrower loan servicing portal
+- Enhanced admin reporting
+- Compliance/KYC workflows
+
+**Recommended Next:** Stick with Broker feature Phase 3 (commission system + analytics), or tackle EXECUTION_PLAN Phase 2 (code quality).
 
 ---
 
-## Questions Already Answered
+## Session Notes
 
-These don't need re-asking:
+**What Went Well:**
+- Phase 2 scoped and completed in single session
+- BrokerPerformanceService is clean and extensible
+- Admin interface follows existing patterns
+- Lender dashboard enhancement is intuitive
 
-1. **Broker visibility:** Brokers see their own apps + EPM perf; lenders control what they see
-2. **Borrower info:** YES, brokers see full customer details
-3. **Lender reporting:** YES, lenders see which broker sourced each app + performance metrics
+**Potential Improvements:**
+- Add caching to BrokerPerformanceService for large broker lists
+- Add broker performance alerts
+- Add bulk operations (assign multiple brokers to lender)
 
 ---
 
-**End of Handoff. Ready to continue in fresh session.**
+**End of Handoff. Ready to continue in next session.**
