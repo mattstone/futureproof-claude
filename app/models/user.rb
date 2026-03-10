@@ -11,6 +11,7 @@ class User < ApplicationRecord
   # Associations
   belongs_to :lender, optional: true
   has_many :applications, dependent: :destroy
+  has_one :notification_preference, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
   
@@ -27,7 +28,7 @@ class User < ApplicationRecord
   attr_accessor :current_admin_user
   
   # Callbacks for change tracking
-  after_create :log_creation
+  after_create :log_creation, :create_notification_preference
   after_create :create_initial_application, unless: :admin?
   after_update :log_update
 
@@ -471,5 +472,9 @@ class User < ApplicationRecord
     unless valid_mobile_phone?
       errors.add(:mobile_number, "is not a valid phone number for the selected country")
     end
+  end
+
+  def create_notification_preference
+    NotificationPreference.create!(user: self, payment_email: true, payment_sms: true, message_email: true)
   end
 end

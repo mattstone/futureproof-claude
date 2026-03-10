@@ -55,23 +55,41 @@
     <div class="account-card">
       <div class="card-header">
         <h2>Notifications</h2>
+        <% if current_user.notification_preference %>
+          <%= link_to "Edit", "#", class: "edit-link", title: "Manage notification preferences" %>
+        <% end %>
       </div>
       <div class="account-info">
         <p class="section-desc">Manage how you receive updates about your loans.</p>
-        <div class="notification-item">
-          <div class="notification-content">
-            <h4>Income Payment Notifications</h4>
-            <p>Get notified when your monthly income is paid</p>
+        <% if current_user.notification_preference %>
+          <div class="notification-item">
+            <div class="notification-content">
+              <h4>Income Payment Notifications</h4>
+              <p>Get notified when your monthly income is paid</p>
+            </div>
+            <div class="notification-channels">
+              <% if current_user.notification_preference.payment_email %>
+                <span class="channel email">📧 Email</span>
+              <% end %>
+              <% if current_user.notification_preference.payment_sms %>
+                <span class="channel sms">📱 SMS</span>
+              <% end %>
+            </div>
           </div>
-          <input type="checkbox" checked disabled class="notification-toggle" />
-        </div>
-        <div class="notification-item">
-          <div class="notification-content">
-            <h4>Message Notifications</h4>
-            <p>Get notified when lender sends a message</p>
+          <div class="notification-item">
+            <div class="notification-content">
+              <h4>Message Notifications</h4>
+              <p>Get notified when lender sends a message</p>
+            </div>
+            <div class="notification-channels">
+              <% if current_user.notification_preference.message_email %>
+                <span class="channel email">📧 Email</span>
+              <% end %>
+            </div>
           </div>
-          <input type="checkbox" checked disabled class="notification-toggle" />
-        </div>
+        <% else %>
+          <p class="section-desc">Notification preferences loading...</p>
+        <% end %>
       </div>
     </div>
 
@@ -266,8 +284,32 @@
     color: #999;
   }
 
+  .notification-channels {
+    display: flex;
+    gap: 8px;
+  }
+
   .notification-toggle {
     cursor: pointer;
+  }
+
+  .channel {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #e3f2fd;
+    color: #1565c0;
+    font-weight: 500;
+  }
+
+  .channel.email {
+    background: #f3e5f5;
+    color: #6a1b9a;
+  }
+
+  .channel.sms {
+    background: #e8f5e9;
+    color: #2e7d32;
   }
 
   .disclaimer {

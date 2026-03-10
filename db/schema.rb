@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_113558) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_114100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -854,6 +854,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_113558) do
     t.index ["status"], name: "index_mortgages_on_status"
   end
 
+  create_table "notification_preferences", force: :cascade do |t|
+    t.boolean "message_email"
+    t.boolean "payment_email"
+    t.boolean "payment_sms"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_notification_preferences_on_user_id"
+  end
+
   create_table "privacy_policies", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
@@ -1258,6 +1266,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_113558) do
   add_foreign_key "mortgage_lenders", "mortgages"
   add_foreign_key "mortgage_versions", "mortgages"
   add_foreign_key "mortgage_versions", "users"
+  add_foreign_key "notification_preferences", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
   add_foreign_key "referral_partners", "lenders"
