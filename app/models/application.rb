@@ -9,8 +9,8 @@ class Application < ApplicationRecord
   belongs_to :user
   belongs_to :lender, optional: true
   belongs_to :mortgage, optional: true
-  belongs_to :referral_partner, optional: true
   belongs_to :broker, optional: true
+  # referral_partner deprecated — use broker instead
   has_one :contract, dependent: :destroy
   has_one :broker_commission, dependent: :destroy
   has_many :distributions, dependent: :destroy

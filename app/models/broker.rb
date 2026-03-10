@@ -7,7 +7,7 @@ class Broker < ApplicationRecord
   has_many :broker_lenders, dependent: :destroy
   has_many :lenders, through: :broker_lenders
   has_many :applications, dependent: :nullify
-  has_many :commission_rates, dependent: :destroy
+  has_many :commission_rates, class_name: 'BrokerCommissionRate', dependent: :destroy
   has_many :broker_commissions, dependent: :destroy
 
   VALID_JURISDICTIONS = ["AU", "US", "NZ", "UK"].freeze

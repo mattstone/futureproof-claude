@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_094555) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -242,7 +242,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_094555) do
     t.integer "property_valuation_high"
     t.integer "property_valuation_low"
     t.integer "property_valuation_middle"
-    t.bigint "referral_partner_id"
     t.string "region", default: "US"
     t.text "rejected_reason"
     t.integer "status", default: 0, null: false
@@ -254,7 +253,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_094555) do
     t.index ["lender_id"], name: "index_applications_on_lender_id"
     t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
-    t.index ["referral_partner_id"], name: "index_applications_on_referral_partner_id"
     t.index ["region"], name: "index_applications_on_region"
     t.index ["user_id", "status"], name: "index_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
@@ -1174,7 +1172,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_094555) do
   add_foreign_key "applications", "brokers"
   add_foreign_key "applications", "lenders"
   add_foreign_key "applications", "mortgages"
-  add_foreign_key "applications", "referral_partners"
   add_foreign_key "applications", "users"
   add_foreign_key "audit_logs", "applications"
   add_foreign_key "audit_logs", "users"
