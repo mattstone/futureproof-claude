@@ -19,8 +19,9 @@ module Borrower
     # Show payment history with filtering
     def payment_history
       @period = params[:period] || 'all'
-      @distributions = filter_distributions_by_period(@application.distributions)
-      @summary = calculate_period_summary(@distributions)
+      service = BorrowerIncomeService.new(@application)
+      @distributions = service.distributions_by_period(@period)
+      @summary = service.period_summary(@distributions)
     end
 
     # Show loan documents
@@ -78,17 +79,9 @@ module Borrower
       @contract = @application.contract
       @distributions = @application.distributions.order(:distribution_date)
 
-      # Calculate EPM income metrics
-      @income_summary = {
-        property_value: @application.home_value,
-        mortgage_amount: @application.equity_investment_amount,
-        ltv: @application.equity_percentage,
-        term_years: @application.participation_term_years,
-        status: @application.status.humanize,
-        total_income_received: @distributions.where(status: "completed").sum(:amount),
-        next_income: calculate_next_income,
-        remaining_income_payments: @distributions.where(status: ["pending", "processing"]).count
-      }
+      # Use service to calculate income summary
+      service = BorrowerIncomeService.new(@application)
+      @income_summary = service.income_summary
     end
 
     private
@@ -99,40 +92,6 @@ module Borrower
 
     def authorize_borrower_access!
       redirect_to borrower_root_path, alert: "Access denied" unless @application.user_id == current_user.id
-    end
-
-    def calculate_next_income
-      pending = @application.distributions.where(status: ["pending", "processing"]).order(:distribution_date).first
-      if pending
-        {
-          date: pending.distribution_date&.to_date,
-          amount: pending.amount
-        }
-      else
-        nil
-      end
-    end
-
-    def filter_distributions_by_period(distributions)
-      case @period
-      when 'month'
-        distributions.where(distribution_date: 1.month.ago..Time.current)
-      when 'quarter'
-        distributions.where(distribution_date: 3.months.ago..Time.current)
-      when 'year'
-        distributions.where(distribution_date: 1.year.ago..Time.current)
-      else
-        distributions
-      end.order(distribution_date: :desc)
-    end
-
-    def calculate_period_summary(distributions)
-      {
-        total: distributions.sum(:amount),
-        received: distributions.where(status: "completed").sum(:amount),
-        pending: distributions.where(status: ["pending", "processing"]).sum(:amount),
-        count: distributions.count
-      }
     end
   end
 end
