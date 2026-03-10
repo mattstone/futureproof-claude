@@ -1,0 +1,330 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back to Loan", borrower_application_path(@application), class: "back-link" %>
+    <h1>Loan Documents</h1>
+  </div>
+
+  <!-- Contract -->
+  <div class="documents-section">
+    <h2>Agreements</h2>
+    
+    <% if @contract %>
+      <div class="document-item">
+        <div class="doc-icon">📄</div>
+        <div class="doc-info">
+          <div class="doc-name">Income Plan Agreement</div>
+          <div class="doc-meta">
+            Created <%= time_ago_in_words(@contract.created_at) %> ago
+            <span class="doc-date">(<%= @contract.created_at.strftime('%B %d, %Y') %>)</span>
+          </div>
+          <div class="doc-description">
+            Your signed income plan agreement including terms, conditions, NNEG guarantee, and payment schedule.
+          </div>
+        </div>
+        <div class="doc-actions">
+          <%= link_to "Download PDF", "#", class: "btn btn-primary", title: "Download contract" %>
+          <%= link_to "View", "#", class: "btn btn-secondary", title: "View online" %>
+        </div>
+      </div>
+    <% else %>
+      <p class="empty-message">Agreement not yet available. It will appear once your loan is activated.</p>
+    <% end %>
+  </div>
+
+  <!-- Key Documents -->
+  <div class="documents-section">
+    <h2>Key Information</h2>
+    
+    <div class="document-item">
+      <div class="doc-icon">ℹ️</div>
+      <div class="doc-info">
+        <div class="doc-name">Key Facts Sheet</div>
+        <div class="doc-meta">Product summary</div>
+        <div class="doc-description">
+          Summary of your EPM product, rates, fees, and important information.
+        </div>
+      </div>
+      <div class="doc-actions">
+        <%= link_to "Download", "#", class: "btn btn-secondary", title: "Download key facts" %>
+      </div>
+    </div>
+
+    <div class="document-item">
+      <div class="doc-icon">🛡️</div>
+      <div class="doc-info">
+        <div class="doc-name">NNEG Guarantee</div>
+        <div class="doc-meta">Protection details</div>
+        <div class="doc-description">
+          Details of your No Negative Equity Guarantee protection.
+        </div>
+      </div>
+      <div class="doc-actions">
+        <%= link_to "Download", "#", class: "btn btn-secondary", title: "Download NNEG info" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income Statements -->
+  <div class="documents-section">
+    <h2>Income Statements</h2>
+    
+    <div class="statement-filter">
+      <%= form_with url: borrower_application_documents_path(@application), method: :get, local: true do |f| %>
+        <%= f.select :year, (Time.current.year-2..Time.current.year).map { |y| [y.to_s, y] }, { selected: params[:year] || Time.current.year } %>
+        <%= f.submit "Filter", class: "btn btn-small" %>
+      <% end %>
+    </div>
+
+    <div class="statements-list">
+      <% (1..12).each do |month| %>
+        <div class="statement-item">
+          <div class="statement-icon">📊</div>
+          <div class="statement-info">
+            <div class="statement-name">Income Statement — <%= Date::MONTHNAMES[month] %> <%= params[:year] || Time.current.year %></div>
+            <div class="statement-meta">Monthly income summary</div>
+          </div>
+          <div class="statement-actions">
+            <%= link_to "Download", "#", class: "btn btn-small" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Payment Proof -->
+  <div class="documents-section">
+    <h2>Payment Receipts</h2>
+    
+    <div class="receipt-description">
+      Download proof of payment for tax or accounting purposes.
+    </div>
+
+    <% if @application.distributions.where(status: "completed").any? %>
+      <div class="receipts-list">
+        <% @application.distributions.where(status: "completed").order(processed_at: :desc).first(6).each do |dist| %>
+          <div class="receipt-item">
+            <div class="receipt-icon">✓</div>
+            <div class="receipt-info">
+              <div class="receipt-name">Payment Receipt</div>
+              <div class="receipt-meta">
+                $<%= number_with_precision(dist.amount, precision: 2) %> received on <%= dist.processed_at.strftime('%B %d, %Y') %>
+              </div>
+            </div>
+            <div class="receipt-actions">
+              <%= link_to "Download", "#", class: "btn btn-small" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-message">No payment receipts yet.</p>
+    <% end %>
+  </div>
+
+  <!-- Support -->
+  <div class="help-section">
+    <h2>Need Help?</h2>
+    <p>Can't find a document or need clarification?</p>
+    <%= link_to "Contact Support", borrower_messages_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .documents-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+  }
+
+  .documents-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .document-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .document-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .doc-icon,
+  .statement-icon,
+  .receipt-icon {
+    font-size: 28px;
+    min-width: 40px;
+  }
+
+  .doc-info,
+  .statement-info,
+  .receipt-info {
+    flex: 1;
+  }
+
+  .doc-name,
+  .statement-name,
+  .receipt-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .doc-meta,
+  .statement-meta,
+  .receipt-meta {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+
+  .doc-date {
+    display: block;
+    margin-top: 2px;
+  }
+
+  .doc-description {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .doc-actions,
+  .statement-actions,
+  .receipt-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: #2196F3;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #1976D2;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .empty-message {
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+  }
+
+  .statement-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .statement-filter select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .statements-list,
+  .receipts-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .statement-item,
+  .receipt-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+  }
+
+  .receipt-description {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .help-section {
+    background: #f0f7ff;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #b3e5fc;
+    text-align: center;
+  }
+
+  .help-section h2 {
+    font-size: 16px;
+    margin: 0 0 12px 0;
+  }
+
+  .help-section p {
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 16px 0;
+  }
+</style>

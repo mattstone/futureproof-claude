@@ -16,6 +16,19 @@ module Borrower
       }
     end
 
+    # Show payment history with filtering
+    def payment_history
+      @period = params[:period] || 'all'
+      @distributions = filter_distributions_by_period(@application.distributions)
+      @summary = calculate_period_summary(@distributions)
+    end
+
+    # Show loan documents
+    def documents
+      @contract = @application.contract
+      @documents = [@application.contract].compact
+    end
+
     # Show EPM income dashboard - customer receives monthly guaranteed income
     def show
       @lender = @application.lender
@@ -55,6 +68,28 @@ module Borrower
       else
         nil
       end
+    end
+
+    def filter_distributions_by_period(distributions)
+      case @period
+      when 'month'
+        distributions.where(distribution_date: 1.month.ago..Time.current)
+      when 'quarter'
+        distributions.where(distribution_date: 3.months.ago..Time.current)
+      when 'year'
+        distributions.where(distribution_date: 1.year.ago..Time.current)
+      else
+        distributions
+      end.order(distribution_date: :desc)
+    end
+
+    def calculate_period_summary(distributions)
+      {
+        total: distributions.sum(:amount),
+        received: distributions.where(status: "completed").sum(:amount),
+        pending: distributions.where(status: ["pending", "processing"]).sum(:amount),
+        count: distributions.count
+      }
     end
   end
 end

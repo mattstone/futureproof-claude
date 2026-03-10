@@ -2,6 +2,11 @@
   <div class="detail-header">
     <%= link_to "← Back to Loans", borrower_applications_path, class: "back-link" %>
     <h1>Your Guaranteed Income Plan</h1>
+    <div class="loan-actions">
+      <%= link_to "Payment History", borrower_application_payment_history_path(@application), class: "action-link" %>
+      <%= link_to "Documents", borrower_application_documents_path(@application), class: "action-link" %>
+      <%= link_to "Messages", borrower_messages_path, class: "action-link" %>
+    </div>
   </div>
 
   <!-- Status & Quick Info -->
@@ -184,8 +189,28 @@
 
   .detail-header h1 {
     font-size: 28px;
-    margin: 0;
+    margin: 0 0 12px 0;
     color: #333;
+  }
+
+  .loan-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .action-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background: #f0f7ff;
+    transition: all 0.2s;
+  }
+
+  .action-link:hover {
+    background: #e3f2fd;
   }
 
   .detail-cards {

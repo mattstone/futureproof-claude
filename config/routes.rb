@@ -482,7 +482,15 @@ Rails.application.routes.draw do
   # Borrower portal routes (EPM loan servicing)
   namespace :borrower do
     root 'applications#index'
-    resources :applications, only: [:index, :show]
+    resources :applications, only: [:index, :show] do
+      member do
+        get :payment_history
+        get :documents
+      end
+    end
+    resources :messages, only: [:index, :create]
+    resource :account, only: [:show, :edit, :update]
+    resource :password, only: [:edit, :update]
   end
 
   # Defines the root path route ("/")

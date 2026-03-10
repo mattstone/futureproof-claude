@@ -1,0 +1,331 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back to Loan", borrower_application_path(@application), class: "back-link" %>
+    <h1>Income Payment History</h1>
+  </div>
+
+  <!-- Period Filter -->
+  <div class="filter-section">
+    <div class="filter-buttons">
+      <%= link_to "All Time", borrower_application_payment_history_path(@application, period: 'all'), class: "filter-btn #{'active' if @period == 'all'}" %>
+      <%= link_to "This Month", borrower_application_payment_history_path(@application, period: 'month'), class: "filter-btn #{'active' if @period == 'month'}" %>
+      <%= link_to "This Quarter", borrower_application_payment_history_path(@application, period: 'quarter'), class: "filter-btn #{'active' if @period == 'quarter'}" %>
+      <%= link_to "This Year", borrower_application_payment_history_path(@application, period: 'year'), class: "filter-btn #{'active' if @period == 'year'}" %>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-label">Total Income</div>
+      <div class="summary-value">$<%= number_with_precision(@summary[:total], precision: 2) %></div>
+      <div class="summary-meta"><%= @summary[:count] %> payments</div>
+    </div>
+    <div class="summary-card success">
+      <div class="summary-label">Received</div>
+      <div class="summary-value">$<%= number_with_precision(@summary[:received], precision: 2) %></div>
+    </div>
+    <div class="summary-card pending">
+      <div class="summary-label">Pending</div>
+      <div class="summary-value">$<%= number_with_precision(@summary[:pending], precision: 2) %></div>
+    </div>
+  </div>
+
+  <!-- Payment History Table -->
+  <div class="history-section">
+    <h2>Payment Details</h2>
+    
+    <% if @distributions.any? %>
+      <div class="history-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment #</th>
+              <th>Amount</th>
+              <th>Scheduled</th>
+              <th>Received</th>
+              <th>Status</th>
+              <th>Days</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @distributions.each_with_index do |dist, index| %>
+              <tr class="history-row history-<%= dist.status %>">
+                <td><strong>#<%= index + 1 %></strong></td>
+                <td class="amount">$<%= number_with_precision(dist.amount, precision: 2) %></td>
+                <td><%= dist.distribution_date&.strftime('%b %d, %Y') %></td>
+                <td>
+                  <% if dist.status == "completed" %>
+                    <%= dist.processed_at&.strftime('%b %d, %Y') %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= dist.status %>">
+                    <%= dist.status.humanize %>
+                  </span>
+                </td>
+                <td class="days-info">
+                  <% if dist.status == "completed" %>
+                    <% days = (dist.processed_at - dist.distribution_date).to_i %>
+                    <span class="days <%= days > 0 ? 'late' : 'ontime' %>">
+                      <%= days == 0 ? "On time" : "#{days} days" %>
+                    </span>
+                  <% elsif dist.status == "pending" %>
+                    <% days_until = (dist.distribution_date - Time.current).to_i %>
+                    <span class="days-until">In <%= (days_until / 86400).to_i %> days</span>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p>No payments in this period.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Export Link -->
+  <div class="export-section">
+    <%= link_to "Download as CSV", "#", class: "btn btn-secondary", title: "Export payment history" %>
+  </div>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: #f0f0f0;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    background: #e0e0e0;
+  }
+
+  .filter-btn.active {
+    background: #2196F3;
+    color: white;
+  }
+
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .summary-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .summary-card.success {
+    border-color: #d4edda;
+    background: #f9fff9;
+  }
+
+  .summary-card.pending {
+    border-color: #fff3cd;
+    background: #fffbf0;
+  }
+
+  .summary-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .summary-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .summary-meta {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .history-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+  }
+
+  .history-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .history-table {
+    overflow-x: auto;
+  }
+
+  .history-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .history-table th {
+    text-align: left;
+    padding: 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .history-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+  }
+
+  .history-row.history-completed {
+    background: #f9f9f9;
+  }
+
+  .history-row .amount {
+    font-weight: 600;
+    color: #2196F3;
+  }
+
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+
+  .status-completed {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-pending,
+  .status-processing {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .days-info {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .days {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .days.ontime {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .days.late {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .days-until {
+    color: #999;
+    font-size: 12px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+
+  .export-section {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+</style>
