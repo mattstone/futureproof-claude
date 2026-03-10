@@ -270,7 +270,74 @@ bin/rails runner "puts Broker.count"
 
 ---
 
-## 🚀 What's Next (Broker Module Complete - Options)
+## 🎉 Session D Summary — EPM Borrower Portal (Phase 1) ✅
+
+### Borrower Portal Complete (60 min)
+
+**What was built:**
+1. **Dashboard** (`/borrower/applications`)
+   - List all EPM loans with stats cards (total, active, completed, rejected)
+   - Quick stats on each loan: amount, term, property value, lender
+   - Status badge with color coding
+   - Action buttons: View Details, Download Contract
+
+2. **Loan Details** (`/borrower/applications/:id`)
+   - EPM-specific fields: loan amount, term, property value, equity %
+   - Application status & timeline
+   - Next payment info (amount, due date)
+   - Payment summary (total paid, remaining payments)
+
+3. **Payment Schedule**
+   - Full distribution table with all monthly payments
+   - Columns: Payment #, Amount, Due Date, Paid Date, Status
+   - Status badges (pending, processing, completed)
+   - Color-coded rows for completion status
+
+4. **Documents & Lender Info**
+   - Contract display (placeholder for PDF download)
+   - Lender contact information
+   - Address & email links
+
+5. **Security & Access Control**
+   - Authentication required (Devise)
+   - Email verification required
+   - User isolation (can only see own loans)
+   - Proper redirects for unauthorized access
+
+6. **UI/UX**
+   - Dedicated borrower layout (no admin sidebar)
+   - Responsive grid design
+   - Color-coded status badges
+   - Mobile-friendly navigation header
+   - Professional card-based layout
+
+**Files Created (6):**
+- `app/controllers/borrower/base_controller.rb` (layout + auth)
+- `app/controllers/borrower/applications_controller.rb` (dashboard & details)
+- `app/views/layouts/borrower.html.erb` (clean layout)
+- `app/views/borrower/applications/index.html.erb` (dashboard)
+- `app/views/borrower/applications/show.html.erb` (details)
+- `test/integration/borrower_epm_portal_test.rb` (7 tests)
+
+**Routes Added:**
+- `GET /borrower` → applications#index (root)
+- `GET /borrower/applications` → applications#index (dashboard)
+- `GET /borrower/applications/:id` → applications#show (details)
+
+**Tests (7 total, 100% passing):**
+- ✅ Can access loan dashboard
+- ✅ Can view application details
+- ✅ Cannot access other user's loans
+- ✅ Unauthenticated users redirected
+- ✅ EPM fields display correctly
+- ✅ Payment schedule displays distributions
+- ✅ Borrower root loads applications list
+
+**Commit:** `997049b`
+
+---
+
+## 🚀 What's Next (Broker + Borrower Portal Complete - Options)
 
 **Broker module is 100% complete.** All priorities shipped:
 - ✅ Priority 1: Cache Invalidation
@@ -279,24 +346,40 @@ bin/rails runner "puts Broker.count"
 - ✅ Priority 4: Integration Tests
 - ✅ Priority 5: Code Quality
 
+**Borrower Portal (Phase 1) is complete:**
+- ✅ Dashboard with loan listing
+- ✅ Loan details with EPM fields
+- ✅ Payment schedule display
+- ✅ Documents & lender info
+- ✅ Full auth & access control
+- ✅ 7 integration tests passing
+
 **Choose next direction:**
 
-### Option A: Optional Enhancements (Priority 3+ features)
+### Option A: Borrower Portal Enhancements (Phase 2)
+- [ ] Payment history with filters
+- [ ] Document download (PDF generation)
+- [ ] Messages/support tickets with lender
+- [ ] Account settings & password change
+- [ ] Payment notifications (email/SMS)
+- **Estimated:** 90 min total
+
+### Option B: Optional EPM Features
 - [ ] Commission Payouts (payment batch processing)
-- [ ] Borrower Portal (loan servicing dashboard)
 - [ ] Advanced Attribution (campaign-level analysis)
-- [ ] Real-time Webhooks (Slack notifications)
+- [ ] Real-time Webhooks (notifications)
+- [ ] Email workflows (application status)
 - **Estimated:** 60-120 min per feature
 
-### Option B: MarketingHub (Other project)
+### Option C: MarketingHub (Other project)
 - [ ] SleekFlow Priority 1 (full conversation view)
 - [ ] Tag system enhancements
 - [ ] Real-time search improvements
 - **See:** `/Users/zen/projects/internetschminternet/social_media_marketing/ENHANCEMENTS.md`
 
-### Option C: Infrastructure/Performance
+### Option D: Infrastructure/Performance
 - [ ] NewRelic/Datadog monitoring integration
-- [ ] Load testing (broker dashboard)
+- [ ] Load testing (broker/borrower dashboards)
 - [ ] Performance benchmarking
 - [ ] Automated alerting
 
