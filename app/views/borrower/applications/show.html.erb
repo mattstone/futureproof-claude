@@ -17,8 +17,13 @@
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Total Loan Amount</div>
-      <div class="card-value">$<%= number_with_precision(@loan_summary[:original_amount], precision: 0) %></div>
+      <div class="card-label">Equity Capital</div>
+      <div class="card-value">$<%= number_with_precision(@loan_summary[:equity_amount], precision: 0) %></div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Capital Received</div>
+      <div class="card-value">$<%= number_with_precision(@loan_summary[:capital_received], precision: 0) %></div>
     </div>
 
     <div class="detail-card">
@@ -36,73 +41,55 @@
       <div class="card-value"><%= number_with_precision(@loan_summary[:equity_percentage], precision: 1) %>%</div>
     </div>
 
-    <% if @loan_summary[:next_payment] %>
-      <div class="detail-card next-payout">
-        <div class="card-label">Next Payout</div>
-        <div class="card-value">$<%= number_with_precision(@loan_summary[:next_payment][:amount], precision: 2) %></div>
-        <div class="card-meta">Due <%= @loan_summary[:next_payment][:date]&.strftime('%B %d, %Y') %></div>
-      </div>
-    <% end %>
+
   </div>
 
-  <!-- Payout Summary -->
-  <div class="payout-summary-section">
-    <h2>Payout Summary</h2>
-    <div class="payout-summary">
-      <div class="summary-item">
-        <span class="summary-label">Total Received</span>
-        <span class="summary-value">$<%= number_with_precision(@loan_summary[:total_paid], precision: 2) %></span>
+  <!-- Loan Terms Summary -->
+  <div class="terms-section">
+    <h2>Loan Terms</h2>
+    <div class="terms-details">
+      <div class="term-item">
+        <span class="term-label">Equity Capital</span>
+        <span class="term-value">$<%= number_with_precision(@application.equity_investment_amount, precision: 0) %></span>
+        <span class="term-desc">One-time capital received on loan activation</span>
       </div>
-      <div class="summary-item">
-        <span class="summary-label">Remaining Payouts</span>
-        <span class="summary-value"><%= @loan_summary[:remaining_payments] %></span>
+      <div class="term-item">
+        <span class="term-label">Loan Term</span>
+        <span class="term-value"><%= @application.participation_term_years %> years</span>
+        <span class="term-desc">Duration of the equity partnership</span>
+      </div>
+      <div class="term-item">
+        <span class="term-label">Your Equity %</span>
+        <span class="term-value"><%= number_with_precision(@application.equity_percentage, precision: 1) %>%</span>
+        <span class="term-desc">Your ownership stake in the property</span>
+      </div>
+      <div class="term-item">
+        <span class="term-label">Property Value</span>
+        <span class="term-value">$<%= number_with_precision(@application.home_value, precision: 0) %></span>
+        <span class="term-desc">Appraised property value</span>
       </div>
     </div>
   </div>
 
-  <!-- Payout Schedule -->
-  <div class="schedule-section">
-    <h2>Payout Schedule</h2>
-    
-    <% if @distributions.any? %>
-      <div class="schedule-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Payout #</th>
-              <th>Amount</th>
-              <th>Scheduled Date</th>
-              <th>Received Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @distributions.each_with_index do |dist, index| %>
-              <tr class="payout-row payout-<%= dist.status %>">
-                <td><%= index + 1 %></td>
-                <td>${<%= number_with_precision(dist.amount, precision: 2) %></td>
-                <td><%= dist.distribution_date&.strftime('%B %d, %Y') || 'TBD' %></td>
-                <td>
-                  <% if dist.status == "completed" %>
-                    <%= dist.processed_at&.strftime('%B %d, %Y') %>
-                  <% else %>
-                    —
-                  <% end %>
-                </td>
-                <td>
-                  <span class="status-badge status-<%= dist.status %>">
-                    <%= dist.status.humanize %>
-                  </span>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+  <!-- Capital Received -->
+  <% if @application.status_activated? %>
+    <div class="capital-section">
+      <h2>Capital Received</h2>
+      <div class="capital-status">
+        <div class="status-badge status-completed">✓ Received</div>
+        <div class="capital-amount">$<%= number_with_precision(@application.equity_investment_amount, precision: 2) %></div>
+        <p class="capital-desc">Your equity capital was disbursed on <%= @application.updated_at&.strftime('%B %d, %Y') %></p>
       </div>
-    <% else %>
-      <p class="empty-schedule">No payout schedule available yet. Payouts will appear once your loan is activated.</p>
-    <% end %>
-  </div>
+    </div>
+  <% else %>
+    <div class="capital-section">
+      <h2>Capital Pending</h2>
+      <div class="capital-status">
+        <div class="status-badge status-pending">Pending</div>
+        <p class="capital-desc">Your loan must be activated before capital is disbursed. Current status: <strong><%= @application.status.humanize %></strong></p>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Contract & Documents -->
   <div class="documents-section">
@@ -191,9 +178,88 @@
     grid-column: span 1;
   }
 
-  .detail-card.next-payout {
-    background: #f0f7ff;
-    border-color: #2196F3;
+  /* Loan Terms */
+  .terms-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 40px;
+  }
+
+  .terms-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .terms-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .term-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .term-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .term-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .term-desc {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.4;
+  }
+
+  /* Capital Received */
+  .capital-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 2px solid #d4edda;
+    margin-bottom: 40px;
+  }
+
+  .capital-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .capital-status {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .capital-amount {
+    font-size: 32px;
+    font-weight: 600;
+    color: #2196F3;
+  }
+
+  .capital-desc {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
   }
 
   .card-label {

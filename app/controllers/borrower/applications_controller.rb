@@ -16,22 +16,19 @@ module Borrower
       }
     end
 
-    # Show EPM loan details, payment schedule, contract
+    # Show EPM loan details - borrower receives one-time capital payout
     def show
       @lender = @application.lender
       @contract = @application.contract
-      @distributions = @application.distributions.order(:processed_at)
 
-      # Calculate current loan metrics
+      # Calculate EPM loan metrics (borrower receives capital once)
       @loan_summary = {
-        original_amount: @application.equity_investment_amount,
+        equity_amount: @application.equity_investment_amount,
         term_years: @application.participation_term_years,
         property_value: @application.home_value,
         equity_percentage: @application.equity_percentage,
         status: @application.status.humanize,
-        total_paid: @distributions.where(status: "completed").sum(:amount),
-        remaining_payments: @distributions.where(status: ["pending", "processing"]).count,
-        next_payment: calculate_next_payout
+        capital_received: @application.status_activated? ? @application.equity_investment_amount : 0
       }
     end
 
@@ -43,18 +40,6 @@ module Borrower
 
     def authorize_borrower_access!
       redirect_to borrower_root_path, alert: "Access denied" unless @application.user_id == current_user.id
-    end
-
-    def calculate_next_payout
-      pending = @application.distributions.where(status: ["pending", "processing"]).order(:distribution_date).first
-      if pending
-        {
-          date: pending.distribution_date&.to_date,
-          amount: pending.amount
-        }
-      else
-        nil
-      end
     end
   end
 end

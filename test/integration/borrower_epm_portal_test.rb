@@ -66,42 +66,22 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     
     assert_response :success
     # Should show EPM-specific fields
-    assert_select "*", text: /Total Loan Amount/i
+    assert_select "*", text: /Equity Capital/i
     assert_select "*", text: /Loan Term/i
     assert_select "*", text: /Property Value/i
     assert_select "*", text: /Your Equity/i
   end
 
-  test "payout schedule displays distributions" do
-    # Create some distributions
-    @app.distributions.destroy_all
-    Distribution.create!(
-      application: @app,
-      amount: 1000.00,
-      status: "pending",
-      distribution_date: 1.month.from_now,
-      processed_at: 1.month.from_now,
-      payment_method: "bank_transfer"
-    )
-    Distribution.create!(
-      application: @app,
-      amount: 1000.00,
-      status: "completed",
-      distribution_date: 1.day.ago,
-      processed_at: 1.day.ago,
-      payment_method: "bank_transfer"
-    )
-
+  test "activated loan shows capital received" do
+    @app.update(status: :activated)
+    
     sign_in @borrower
     get borrower_application_path(@app)
     
     assert_response :success
-    # Check for payout schedule table
-    assert_select "table" do
-      assert_select "th", text: /Payout #/i
-      assert_select "th", text: /Amount/i
-      assert_select "th", text: /Status/i
-    end
+    # Check for capital received section
+    assert_select "*", text: /Capital Received/i
+    assert_select "*", text: /Received/i
   end
 
   test "borrower root loads applications list" do
