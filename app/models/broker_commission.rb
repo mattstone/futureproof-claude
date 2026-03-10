@@ -14,7 +14,7 @@ class BrokerCommission < ApplicationRecord
   scope :earned, -> { where(status: "earned") }
   scope :paid, -> { where(status: "paid") }
   scope :pending, -> { where(status: "pending") }
-  scope :unpaid, -> { where(status: [ "earned", "pending" ]) }
+  scope :unpaid, -> { where(paid_date: nil).where(status: [ "earned", "pending" ]) }
   scope :for_broker, ->(broker) { where(broker_id: broker.id) }
   scope :for_period, ->(start_date, end_date) { where(earned_date: start_date..end_date) }
   scope :recent, ->(limit = 10) { order(earned_date: :desc).limit(limit) }

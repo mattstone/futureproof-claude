@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  devise_for :brokers
   namespace :users do
     resources :verifications, only: [:new, :create] do
       collection do
