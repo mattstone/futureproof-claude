@@ -9,6 +9,7 @@ module Broker
       @total_pending = BrokerCommission.for_broker(current_broker).pending.sum(:commission_amount).to_f
       
       @commissions = BrokerCommissionCalculator.commissions_by_period(current_broker, @period_start, @period_end)
+                                               .includes(:application => :user)
                                                .page(params[:page])
                                                .per(20)
 

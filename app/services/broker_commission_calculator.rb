@@ -1,4 +1,21 @@
+# Service for calculating and managing broker commissions
+#
+# Handles commission calculation based on:
+# - BrokerCommissionRate (per lender/broker configuration)
+# - Application approval amount (principal × percentage)
+# - Payment trigger (when commission is earned: on_approval, on_funding, on_first_payment)
+#
+# Commissions are created automatically when applications are approved (via Application#approve!)
+# and tracked in BrokerCommission model with status transitions (pending → earned → paid).
+#
+# Example:
+#   calculator = BrokerCommissionCalculator.new(application: app)
+#   commission = calculator.calculate_commission_for_approval
+#
 class BrokerCommissionCalculator
+  # Initialize calculator for an application
+  #
+  # @param application [Application] The application to calculate commission for
   def initialize(application:)
     @application = application
     @broker = application.broker

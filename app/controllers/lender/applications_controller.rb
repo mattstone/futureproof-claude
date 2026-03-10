@@ -9,12 +9,14 @@ module Lender
     def index
       @broker_service = BrokerPerformanceService.new(lender: current_user.lender, broker: @selected_broker)
       
-      # Filter applications by broker if specified
+      # Filter applications by broker if specified (with eager loading)
       all_applications = @broker_service.filtered_applications
+                                        .includes(:user, :broker, :lender, :distributions)
+                                        .order(created_at: :desc)
       
-      @pending_applications = all_applications.where(status: :processing).order(created_at: :desc).page(params[:page])
-      @approved_applications = all_applications.where(status: :accepted).order(created_at: :desc).limit(10)
-      @rejected_applications = all_applications.where(status: :rejected).order(created_at: :desc).limit(5)
+      @pending_applications = all_applications.where(status: :processing).page(params[:page])
+      @approved_applications = all_applications.where(status: :accepted).limit(10)
+      @rejected_applications = all_applications.where(status: :rejected).limit(5)
       
       @stats = {
         pending_count: all_applications.where(status: :processing).count,

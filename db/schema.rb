@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_100009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -248,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
     t.string "super_fund_name"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["broker_id", "status"], name: "index_applications_on_broker_id_and_status"
     t.index ["broker_id"], name: "index_applications_on_broker_id"
     t.index ["lender_id", "status"], name: "index_applications_on_lender_id_and_status"
     t.index ["lender_id"], name: "index_applications_on_lender_id"
@@ -288,6 +289,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
     t.bigint "lender_id", null: false
     t.string "payment_trigger"
     t.datetime "updated_at", null: false
+    t.index ["broker_id", "lender_id"], name: "index_broker_commission_rates_on_broker_id_and_lender_id", unique: true
     t.index ["broker_id"], name: "index_broker_commission_rates_on_broker_id"
     t.index ["lender_id"], name: "index_broker_commission_rates_on_lender_id"
   end
@@ -303,7 +305,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_broker_commissions_on_application_id"
+    t.index ["broker_id", "earned_date"], name: "index_broker_commissions_on_broker_id_and_earned_date"
+    t.index ["broker_id", "status"], name: "index_broker_commissions_on_broker_id_and_status"
     t.index ["broker_id"], name: "index_broker_commissions_on_broker_id"
+    t.index ["status"], name: "index_broker_commissions_on_status"
   end
 
   create_table "broker_lenders", force: :cascade do |t|
@@ -509,6 +514,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_095417) do
     t.string "transaction_id"
     t.datetime "updated_at", null: false
     t.index ["application_id", "distribution_date"], name: "index_distributions_on_application_id_and_distribution_date"
+    t.index ["application_id", "status"], name: "index_distributions_on_application_id_and_status"
     t.index ["application_id"], name: "index_distributions_on_application_id"
     t.index ["distribution_date"], name: "index_distributions_on_distribution_date"
     t.index ["mortgage_id"], name: "index_distributions_on_mortgage_id"

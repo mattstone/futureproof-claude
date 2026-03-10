@@ -1,16 +1,48 @@
+# Service for calculating broker performance metrics and analytics
+#
+# Used by lenders to understand broker sourcing patterns and performance:
+# - Conversion rates (applications submitted vs approved)
+# - Deal sizes (average and total loan values)
+# - Volume tracking (applications sourced)
+# - Top performer identification
+#
+# Includes caching (1 hour TTL) for dashboard performance.
+#
+# Example:
+#   service = BrokerPerformanceService.new(lender: lender)
+#   metrics = service.all_broker_metrics
+#   top_brokers = service.top_brokers(limit: 3)
+#
 class BrokerPerformanceService
+  CACHE_TTL = 1.hour
+
+  # Initialize service for a specific lender (optionally filter to one broker)
+  #
+  # @param lender [Lender] The lender to calculate metrics for
+  # @param broker [Broker, nil] Optional filter to a specific broker
   def initialize(lender:, broker: nil)
     @lender = lender
     @broker = broker
   end
 
-  # Get all brokers for a lender with their performance metrics
+  # Get all brokers for a lender with their performance metrics (cached)
   def all_broker_metrics
-    @lender.brokers.active.map { |broker| broker_metrics(broker) }
+    cache_key = "broker_metrics:lender:#{@lender.id}"
+    Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+      @lender.brokers.active.map { |broker| broker_metrics_uncached(broker) }
+    end
   end
 
-  # Get metrics for a specific broker
+  # Get metrics for a specific broker (cached)
   def broker_metrics(broker)
+    cache_key = "broker_metrics:broker:#{broker.id}:lender:#{@lender.id}"
+    Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) do
+      broker_metrics_uncached(broker)
+    end
+  end
+
+  # Uncached broker metrics calculation
+  def broker_metrics_uncached(broker)
     applications = broker_applications(broker)
     approved = applications.where(status: :accepted)
     
