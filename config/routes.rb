@@ -479,6 +479,12 @@ Rails.application.routes.draw do
   # SAML metadata route
   get 'saml/metadata', to: 'saml#metadata'
 
+  # Borrower portal routes (EPM loan servicing)
+  namespace :borrower do
+    root 'applications#index'
+    resources :applications, only: [:index, :show]
+  end
+
   # Defines the root path route ("/")
   root "pages#get_started"
 end

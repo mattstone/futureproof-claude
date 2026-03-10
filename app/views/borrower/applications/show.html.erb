@@ -1,0 +1,483 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back to Loans", borrower_applications_path, class: "back-link" %>
+    <h1>EPM Loan Details</h1>
+  </div>
+
+  <!-- Status & Quick Info -->
+  <div class="detail-cards">
+    <div class="detail-card status-card">
+      <div class="card-label">Loan Status</div>
+      <div class="card-status app-status-<%= @application.status %>">
+        <%= @application.status.humanize %>
+      </div>
+      <div class="card-meta">
+        Applied <%= time_ago_in_words(@application.created_at) %> ago
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Original Loan Amount</div>
+      <div class="card-value">$<%= number_with_precision(@loan_summary[:original_amount], precision: 0) %></div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Loan Term</div>
+      <div class="card-value"><%= @loan_summary[:term_years] %> years</div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Property Value</div>
+      <div class="card-value">$<%= number_with_precision(@loan_summary[:property_value], precision: 0) %></div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Equity %</div>
+      <div class="card-value"><%= number_with_precision(@loan_summary[:equity_percentage], precision: 1) %>%</div>
+    </div>
+
+    <% if @loan_summary[:next_payment] %>
+      <div class="detail-card next-payment">
+        <div class="card-label">Next Payment</div>
+        <div class="card-value">$<%= number_with_precision(@loan_summary[:next_payment][:amount], precision: 2) %></div>
+        <div class="card-meta">Due <%= @loan_summary[:next_payment][:date]&.strftime('%B %d, %Y') %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Payment Summary -->
+  <div class="payment-summary-section">
+    <h2>Payment Summary</h2>
+    <div class="payment-summary">
+      <div class="summary-item">
+        <span class="summary-label">Total Paid</span>
+        <span class="summary-value">$<%= number_with_precision(@loan_summary[:total_paid], precision: 2) %></span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Remaining Payments</span>
+        <span class="summary-value"><%= @loan_summary[:remaining_payments] %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Schedule -->
+  <div class="schedule-section">
+    <h2>Payment Schedule</h2>
+    
+    <% if @distributions.any? %>
+      <div class="schedule-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment #</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Paid Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @distributions.each_with_index do |dist, index| %>
+              <tr class="payment-row payment-<%= dist.status %>">
+                <td><%= index + 1 %></td>
+                <td>${<%= number_with_precision(dist.amount, precision: 2) %></td>
+                <td><%= dist.processed_at&.strftime('%B %d, %Y') || 'TBD' %></td>
+                <td>
+                  <% if dist.status == "completed" %>
+                    <%= dist.updated_at&.strftime('%B %d, %Y') %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= dist.status %>">
+                    <%= dist.status.humanize %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="empty-schedule">No payment schedule available yet. Payments will appear once your loan is activated.</p>
+    <% end %>
+  </div>
+
+  <!-- Contract & Documents -->
+  <div class="documents-section">
+    <h2>Documents</h2>
+    <div class="documents-list">
+      <% if @contract %>
+        <div class="document-item">
+          <div class="doc-icon">📄</div>
+          <div class="doc-info">
+            <div class="doc-name">Loan Contract</div>
+            <div class="doc-meta">Created <%= time_ago_in_words(@contract.created_at) %> ago</div>
+          </div>
+          <div class="doc-actions">
+            <%= link_to "View Contract", "#", class: "btn btn-secondary", title: "Download contract PDF" %>
+          </div>
+        </div>
+      <% else %>
+        <p>No contract available yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Lender Info -->
+  <% if @lender %>
+    <div class="lender-section">
+      <h2>Lender Information</h2>
+      <div class="lender-card">
+        <div class="lender-name"><%= @lender.name %></div>
+        <div class="lender-details">
+          <div class="detail">
+            <span class="label">Address:</span>
+            <span class="value"><%= @lender.address %> <%= @lender.postcode %></span>
+          </div>
+          <div class="detail">
+            <span class="label">Contact:</span>
+            <span class="value"><%= link_to @lender.contact_email, "mailto:#{@lender.contact_email}" %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .detail-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .detail-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .detail-card.status-card {
+    grid-column: span 1;
+  }
+
+  .detail-card.next-payment {
+    background: #f0f7ff;
+    border-color: #2196F3;
+  }
+
+  .card-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .card-status {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .card-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .card-meta {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .app-status-submitted,
+  .app-status-processing {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .app-status-accepted,
+  .app-status-activated {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .app-status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* Payment Summary */
+  .payment-summary-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 40px;
+  }
+
+  .payment-summary-section h2 {
+    font-size: 16px;
+    margin: 0 0 16px 0;
+  }
+
+  .payment-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .summary-label {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .summary-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Schedule Table */
+  .schedule-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 40px;
+  }
+
+  .schedule-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .schedule-table {
+    overflow-x: auto;
+  }
+
+  .schedule-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .schedule-table th {
+    text-align: left;
+    padding: 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .schedule-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .payment-row.payment-completed {
+    background: #f9f9f9;
+  }
+
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+
+  .status-completed {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-pending,
+  .status-processing {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .empty-schedule {
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* Documents */
+  .documents-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 40px;
+  }
+
+  .documents-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .documents-list {
+    display: grid;
+    gap: 16px;
+  }
+
+  .document-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+  }
+
+  .doc-icon {
+    font-size: 24px;
+  }
+
+  .doc-info {
+    flex: 1;
+  }
+
+  .doc-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .doc-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  /* Lender Info */
+  .lender-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .lender-section h2 {
+    font-size: 16px;
+    margin: 0 0 16px 0;
+  }
+
+  .lender-card {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 6px;
+  }
+
+  .lender-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+  }
+
+  .lender-details {
+    display: grid;
+    gap: 8px;
+  }
+
+  .detail {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .detail .label {
+    color: #666;
+    min-width: 80px;
+  }
+
+  .detail .value {
+    color: #333;
+    flex: 1;
+  }
+
+  .detail a {
+    color: #2196F3;
+    text-decoration: none;
+  }
+
+  .detail a:hover {
+    text-decoration: underline;
+  }
+</style>
