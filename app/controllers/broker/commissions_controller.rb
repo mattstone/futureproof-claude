@@ -7,9 +7,9 @@ module Broker
       @total_earned = BrokerCommissionCalculator.total_earned_commissions(current_broker, @period_start, @period_end)
       @total_unpaid = BrokerCommissionCalculator.total_unpaid_commissions(current_broker, @period_start, @period_end)
       @total_pending = BrokerCommission.for_broker(current_broker).pending.sum(:commission_amount).to_f
-      
+
       @commissions = BrokerCommissionCalculator.commissions_by_period(current_broker, @period_start, @period_end)
-                                               .includes(:application => :user)
+                                               .includes(application: :user)
                                                .page(params[:page])
                                                .per(20)
 
@@ -28,7 +28,7 @@ module Broker
                                         .limit(5)
 
       # Handle export requests
-      if params[:format] == 'csv'
+      if params[:format] == "csv"
         export_to_csv
       end
     end
@@ -44,8 +44,8 @@ module Broker
 
       send_data(
         service.to_csv,
-        type: 'text/csv',
-        disposition: 'attachment',
+        type: "text/csv",
+        disposition: "attachment",
         filename: filename
       )
     end
@@ -74,7 +74,7 @@ module Broker
     end
 
     def authenticate_broker!
-      redirect_to root_path, alert: 'Access denied' unless user_signed_in? && current_user.is_a?(Broker)
+      redirect_to root_path, alert: "Access denied" unless user_signed_in? && current_user.is_a?(Broker)
     end
   end
 end

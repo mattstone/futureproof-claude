@@ -1,23 +1,23 @@
 module Broker
   class PasswordsController < ApplicationController
-    before_action :set_broker_from_token, only: [:new, :create]
-    skip_before_action :verify_authenticity_token, only: [:create] # Allow password setup without session
+    before_action :set_broker_from_token, only: [ :new, :create ]
+    skip_before_action :verify_authenticity_token, only: [ :create ] # Allow password setup without session
 
     # Show password setup form (first login)
     def new
-      @page_title = 'Set Up Your Password'
+      @page_title = "Set Up Your Password"
     end
 
     # Create password after setup
     def create
       if password_params[:password].blank?
-        flash[:alert] = 'Password cannot be blank'
+        flash[:alert] = "Password cannot be blank"
         render :new
         return
       end
 
       if password_params[:password] != password_params[:password_confirmation]
-        flash[:alert] = 'Passwords do not match'
+        flash[:alert] = "Passwords do not match"
         render :new
         return
       end
@@ -26,10 +26,10 @@ module Broker
       @broker.password_confirmation = password_params[:password_confirmation]
 
       if @broker.save
-        flash[:notice] = 'Password set successfully. You can now sign in.'
+        flash[:notice] = "Password set successfully. You can now sign in."
         redirect_to new_broker_session_path
       else
-        flash[:alert] = 'Failed to set password: ' + @broker.errors.full_messages.join(', ')
+        flash[:alert] = "Failed to set password: " + @broker.errors.full_messages.join(", ")
         render :new
       end
     end
@@ -38,7 +38,7 @@ module Broker
     def edit
       @broker = Broker.find_by(reset_password_token: params[:token])
       unless @broker
-        flash[:alert] = 'Invalid or expired password reset link'
+        flash[:alert] = "Invalid or expired password reset link"
         redirect_to new_broker_session_path
       end
     end
@@ -47,19 +47,19 @@ module Broker
     def update
       @broker = Broker.find_by(reset_password_token: params[:token])
       unless @broker
-        flash[:alert] = 'Invalid or expired password reset link'
+        flash[:alert] = "Invalid or expired password reset link"
         redirect_to new_broker_session_path
         return
       end
 
       if password_params[:password].blank?
-        flash[:alert] = 'Password cannot be blank'
+        flash[:alert] = "Password cannot be blank"
         render :edit
         return
       end
 
       if password_params[:password] != password_params[:password_confirmation]
-        flash[:alert] = 'Passwords do not match'
+        flash[:alert] = "Passwords do not match"
         render :edit
         return
       end
@@ -70,10 +70,10 @@ module Broker
       @broker.reset_password_sent_at = nil
 
       if @broker.save
-        flash[:notice] = 'Password reset successfully. You can now sign in.'
+        flash[:notice] = "Password reset successfully. You can now sign in."
         redirect_to new_broker_session_path
       else
-        flash[:alert] = 'Failed to reset password: ' + @broker.errors.full_messages.join(', ')
+        flash[:alert] = "Failed to reset password: " + @broker.errors.full_messages.join(", ")
         render :edit
       end
     end
@@ -83,7 +83,7 @@ module Broker
     def set_broker_from_token
       @broker = Broker.find_by(reset_password_token: params[:token])
       unless @broker
-        flash[:alert] = 'Invalid or expired password setup link'
+        flash[:alert] = "Invalid or expired password setup link"
         redirect_to new_broker_session_path
       end
     end

@@ -2,7 +2,7 @@ module Broker
   class ApplicationsController < ApplicationController
     before_action :authenticate_broker!
     before_action :authorize_lender_access!
-    before_action :set_application, only: [:show]
+    before_action :set_application, only: [ :show ]
 
     def index
       # Broker sees only their applications for lenders they work with
@@ -14,7 +14,7 @@ module Broker
 
       @stats = {
         total: @applications.count,
-        pending: @applications.where(status: [:submitted, :processing]).count,
+        pending: @applications.where(status: [ :submitted, :processing ]).count,
         approved: @applications.where(status: :accepted).count,
         rejected: @applications.where(status: :rejected).count
       }

@@ -18,23 +18,23 @@ class BrokerCommissionInvoiceService
   def to_csv
     CSV.generate do |csv|
       # Header
-      csv << ['FutureProof Commission Invoice']
+      csv << [ "FutureProof Commission Invoice" ]
       csv << []
-      csv << ["Broker:", @broker.name]
-      csv << ["Email:", @broker.email]
-      csv << ["Period:", "#{@period_start.strftime('%B %d, %Y')} - #{@period_end.strftime('%B %d, %Y')}"]
-      csv << ["Generated:", Time.current.strftime('%B %d, %Y at %l:%M %p')]
+      csv << [ "Broker:", @broker.name ]
+      csv << [ "Email:", @broker.email ]
+      csv << [ "Period:", "#{@period_start.strftime('%B %d, %Y')} - #{@period_end.strftime('%B %d, %Y')}" ]
+      csv << [ "Generated:", Time.current.strftime("%B %d, %Y at %l:%M %p") ]
       csv << []
 
       # Column headers
       csv << [
-        'Application ID',
-        'Applicant',
-        'Loan Amount',
-        'Commission Rate',
-        'Commission Amount',
-        'Earned Date',
-        'Status'
+        "Application ID",
+        "Applicant",
+        "Loan Amount",
+        "Commission Rate",
+        "Commission Amount",
+        "Earned Date",
+        "Status"
       ]
 
       # Commission rows
@@ -45,7 +45,7 @@ class BrokerCommissionInvoiceService
           number_to_currency(commission.application.approved_loan_amount),
           "#{commission.commission_rate}%",
           number_to_currency(commission.commission_amount),
-          commission.earned_date&.strftime('%B %d, %Y'),
+          commission.earned_date&.strftime("%B %d, %Y"),
           commission.status.titleize
         ]
       end
@@ -53,11 +53,11 @@ class BrokerCommissionInvoiceService
       csv << []
 
       # Summary
-      csv << ['SUMMARY']
-      csv << ["Total Commissions (All):", number_to_currency(total_commissions)]
-      csv << ["Earned Commissions:", number_to_currency(earned_commissions)]
-      csv << ["Pending Commissions:", number_to_currency(pending_commissions)]
-      csv << ["Paid Commissions:", number_to_currency(paid_commissions)]
+      csv << [ "SUMMARY" ]
+      csv << [ "Total Commissions (All):", number_to_currency(total_commissions) ]
+      csv << [ "Earned Commissions:", number_to_currency(earned_commissions) ]
+      csv << [ "Pending Commissions:", number_to_currency(pending_commissions) ]
+      csv << [ "Paid Commissions:", number_to_currency(paid_commissions) ]
     end
   end
 
@@ -82,7 +82,7 @@ class BrokerCommissionInvoiceService
   def commissions_in_period
     @commissions_in_period ||= BrokerCommission.for_broker(@broker)
                                                .for_period(@period_start, @period_end)
-                                               .includes(:application => :user)
+                                               .includes(application: :user)
                                                .order(earned_date: :desc)
   end
 
@@ -91,15 +91,15 @@ class BrokerCommissionInvoiceService
   end
 
   def earned_commissions
-    commissions_in_period.where(status: [ 'earned', 'paid' ]).sum(:commission_amount).to_f
+    commissions_in_period.where(status: [ "earned", "paid" ]).sum(:commission_amount).to_f
   end
 
   def pending_commissions
-    commissions_in_period.where(status: 'pending').sum(:commission_amount).to_f
+    commissions_in_period.where(status: "pending").sum(:commission_amount).to_f
   end
 
   def paid_commissions
-    commissions_in_period.where(status: 'paid').sum(:commission_amount).to_f
+    commissions_in_period.where(status: "paid").sum(:commission_amount).to_f
   end
 
   def number_to_currency(amount)
