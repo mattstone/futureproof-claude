@@ -1,0 +1,70 @@
+<div class="lender-documents-container">
+  <div class="documents-header">
+    <h1>📄 Legal Agreements</h1>
+    <p class="subtitle">Review and accept required lender agreements and compliance documents</p>
+  </div>
+
+  <div class="documents-content">
+    <% if @required_documents.any? %>
+      <div class="documents-summary">
+        <div class="summary-card">
+          <div class="summary-label">Total Documents</div>
+          <div class="summary-value"><%= @required_documents.count %></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Accepted</div>
+          <div class="summary-value" style="color: #4caf50;"><%= @required_documents.count - @pending_documents.count %></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Pending</div>
+          <div class="summary-value" style="color: #ff9800;"><%= @pending_documents.count %></div>
+        </div>
+      </div>
+
+      <div class="documents-list">
+        <% @required_documents.each do |document| %>
+          <div class="document-card">
+            <div class="document-card-header">
+              <div class="document-info">
+                <h3><%= document.document_name %></h3>
+                <p class="document-desc"><%= document.description || "Review this agreement for your records" %></p>
+              </div>
+              <% acceptance = @acceptances[document.id] %>
+              <% if acceptance&.accepted? %>
+                <div class="document-status accepted">
+                  ✓ Accepted <%= acceptance.accepted_at.strftime("%b %d, %Y") %>
+                </div>
+              <% else %>
+                <div class="document-status pending">
+                  ⚠ Pending
+                </div>
+              <% end %>
+            </div>
+
+            <div class="document-card-actions">
+              <%= link_to "View Agreement", lender_portal_legal_document_path(document), class: "btn btn-secondary" %>
+              
+              <% if acceptance&.accepted? %>
+                <%= button_to "Withdraw", lender_portal_legal_document_reject_path(document), 
+                    method: :post, 
+                    data: { confirm: "Are you sure?" }, 
+                    class: "btn btn-outline" %>
+              <% else %>
+                <%= button_to "Accept", lender_portal_legal_document_accept_path(document), 
+                    method: :post, 
+                    class: "btn btn-primary" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p>✓ All required agreements have been accepted!</p>
+        <%= link_to "Back to Dashboard", lender_portal_root_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= render 'shared/documents_styles' %>

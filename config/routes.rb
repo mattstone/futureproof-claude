@@ -487,6 +487,14 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    
+    # Legal Documents - Lender can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
   end
 
   # Broker portal routes
@@ -499,6 +507,14 @@ Rails.application.routes.draw do
     root 'applications#index'
     resources :applications, only: [:index, :show]
     resources :commissions, only: [:index]
+    
+    # Legal Documents - Broker can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
     
     # Password setup and reset (no authentication required)
     get '/password/new', to: 'passwords#new'
@@ -539,6 +555,14 @@ Rails.application.routes.draw do
     end
     resource :account, only: [:show, :edit, :update]
     resource :password, only: [:edit, :update]
+    
+    # Legal Documents - Borrower can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
   end
 
 
