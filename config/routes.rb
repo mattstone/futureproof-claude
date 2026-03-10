@@ -506,6 +506,18 @@ Rails.application.routes.draw do
     resource :password, only: [:edit, :update]
   end
 
+  # Lender portal routes (EPM lender management)
+  namespace :lender_dashboard do
+    root 'dashboard#index'
+    get 'index', to: 'dashboard#index', as: 'index'
+    get 'applications', to: 'dashboard#applications', as: 'applications'
+    get 'applications/:id', to: 'dashboard#application_detail', as: 'application_detail'
+    get 'payments', to: 'dashboard#payments', as: 'payments'
+    get 'reports', to: 'dashboard#reports', as: 'reports'
+    get 'account', to: 'dashboard#account', as: 'account'
+    patch 'account', to: 'dashboard#update_account', as: 'update_account'
+  end
+
   # Defines the root path route ("/")
   root "pages#get_started"
 end

@@ -87,6 +87,14 @@ class User < ApplicationRecord
     admin
   end
 
+  def lender?
+    lender.present?
+  end
+
+  def borrower?
+    !lender? && !admin?
+  end
+
   def display_name
     full_name.present? ? full_name : email
   end
