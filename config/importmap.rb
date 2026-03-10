@@ -51,3 +51,5 @@ pin "internmap" # @2.0.3
 pin "robust-predicates" # @3.0.2
 pin "trix"
 pin "@rails/actiontext", to: "actiontext.esm.js"
+pin "@rails/actioncable", to: "actioncable.esm.js"
+pin_all_from "app/javascript/channels", under: "channels"

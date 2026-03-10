@@ -497,6 +497,11 @@ Rails.application.routes.draw do
         get :download_receipt
       end
     end
+    resources :messages, only: [] do
+      member do
+        patch :mark_as_read
+      end
+    end
     resource :account, only: [:show, :edit, :update]
     resource :password, only: [:edit, :update]
   end
