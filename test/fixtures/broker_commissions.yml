@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  broker: one
+  application: one
+  commission_amount: 9.99
+  commission_rate: 9.99
+  earned_date: 2026-03-10 20:45:55
+  paid_date: 2026-03-10 20:45:55
+  status: MyString
+
+two:
+  broker: two
+  application: two
+  commission_amount: 9.99
+  commission_rate: 9.99
+  earned_date: 2026-03-10 20:45:55
+  paid_date: 2026-03-10 20:45:55
+  status: MyString

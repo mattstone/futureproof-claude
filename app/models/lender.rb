@@ -37,6 +37,7 @@ class Lender < ApplicationRecord
   # Broker relationships
   has_many :broker_lenders, dependent: :destroy
   has_many :brokers, through: :broker_lenders
+  has_many :broker_commission_rates, dependent: :destroy
 
   # Lender Clauses relationships
   has_many :lender_clauses, dependent: :destroy

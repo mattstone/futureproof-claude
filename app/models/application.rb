@@ -12,6 +12,7 @@ class Application < ApplicationRecord
   belongs_to :referral_partner, optional: true
   belongs_to :broker, optional: true
   has_one :contract, dependent: :destroy
+  has_one :broker_commission, dependent: :destroy
   has_many :distributions, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
@@ -525,6 +526,9 @@ class Application < ApplicationRecord
       self.status = :accepted
       save!
       
+      # Calculate broker commission if applicable
+      calculate_broker_commission! if broker.present?
+      
       # Trigger contract generation
       generate_contract_on_approval!
       
@@ -535,6 +539,11 @@ class Application < ApplicationRecord
         approved_term_years: term_years
       }).execute!
     end
+  end
+
+  def calculate_broker_commission!
+    calculator = BrokerCommissionCalculator.new(application: self)
+    calculator.calculate_commission_for_approval
   end
 
   def reject!(reason:)

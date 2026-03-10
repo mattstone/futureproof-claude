@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_200300) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_094555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -280,6 +280,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_200300) do
     t.index ["resource_type", "created_at"], name: "index_audit_logs_on_resource_type_and_created_at"
     t.index ["user_id", "created_at"], name: "index_audit_logs_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "broker_commission_rates", force: :cascade do |t|
+    t.boolean "active"
+    t.bigint "broker_id", null: false
+    t.decimal "commission_percentage"
+    t.datetime "created_at", null: false
+    t.bigint "lender_id", null: false
+    t.string "payment_trigger"
+    t.datetime "updated_at", null: false
+    t.index ["broker_id"], name: "index_broker_commission_rates_on_broker_id"
+    t.index ["lender_id"], name: "index_broker_commission_rates_on_lender_id"
+  end
+
+  create_table "broker_commissions", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.bigint "broker_id", null: false
+    t.decimal "commission_amount"
+    t.decimal "commission_rate"
+    t.datetime "created_at", null: false
+    t.datetime "earned_date"
+    t.datetime "paid_date"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_broker_commissions_on_application_id"
+    t.index ["broker_id"], name: "index_broker_commissions_on_broker_id"
   end
 
   create_table "broker_lenders", force: :cascade do |t|
@@ -1152,6 +1178,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_200300) do
   add_foreign_key "applications", "users"
   add_foreign_key "audit_logs", "applications"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "broker_commission_rates", "brokers"
+  add_foreign_key "broker_commission_rates", "lenders"
+  add_foreign_key "broker_commissions", "applications"
+  add_foreign_key "broker_commissions", "brokers"
   add_foreign_key "broker_lenders", "brokers"
   add_foreign_key "broker_lenders", "lenders"
   add_foreign_key "chat_conversations", "chat_agents"

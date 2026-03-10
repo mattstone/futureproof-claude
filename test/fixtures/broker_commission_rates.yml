@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  broker: one
+  lender: one
+  commission_percentage: 9.99
+  payment_trigger: MyString
+  active: false
+
+two:
+  broker: two
+  lender: two
+  commission_percentage: 9.99
+  payment_trigger: MyString
+  active: false

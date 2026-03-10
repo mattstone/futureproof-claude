@@ -46,6 +46,13 @@ Rails.application.routes.draw do
       end
       # Singleton clause resource - one clause per lender
       resource :clause, controller: 'lender_clauses', except: [:show]
+      
+      # Broker commission rates
+      resources :broker_commission_rates do
+        member do
+          patch :toggle_active
+        end
+      end
     end
     
     resources :brokers do
@@ -457,6 +464,7 @@ Rails.application.routes.draw do
   namespace :broker do
     root 'applications#index'
     resources :applications, only: [:index, :show]
+    resources :commissions, only: [:index]
   end
 
   # Debug routes
