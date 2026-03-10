@@ -127,13 +127,22 @@ class Application < ApplicationRecord
   scope :by_broker, ->(broker) { where(broker_id: broker.id) }
 
   # Methods
+  # =================================
+  # Formatter Methods - Delegate to Presenter
+  # =================================
+  # These methods maintain backward compatibility while delegating to the presenter.
+  # For new code, use: ApplicationPresenter.new(application).method_name
+  
+  def presenter
+    @presenter ||= ApplicationPresenter.new(self)
+  end
+
   def formatted_home_value
-    ActionController::Base.helpers.number_to_currency(home_value, precision: 0)
+    presenter.home_value_formatted
   end
 
   def formatted_existing_mortgage_amount
-    return "$0" unless has_existing_mortgage? && existing_mortgage_amount > 0
-    ActionController::Base.helpers.number_to_currency(existing_mortgage_amount, precision: 0)
+    presenter.existing_mortgage_amount_formatted
   end
 
   def display_address
@@ -172,20 +181,7 @@ class Application < ApplicationRecord
   end
 
   def status_badge_class
-    case status
-    when 'created'
-      'badge-secondary'
-    when 'property_details', 'income_and_loan_options'
-      'badge-warning'
-    when 'submitted', 'processing'
-      'badge-info'
-    when 'accepted'
-      'badge-success'
-    when 'rejected'
-      'badge-danger'
-    else
-      'badge-secondary'
-    end
+    presenter.status_badge_class
   end
 
   def can_be_edited?
@@ -237,7 +233,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_future_property_value(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(future_property_value(growth_rate_override), precision: 0)
+    presenter.future_property_value_formatted(growth_rate_override)
   end
 
   def property_appreciation(growth_rate_override = nil)
@@ -245,11 +241,11 @@ class Application < ApplicationRecord
   end
 
   def formatted_property_appreciation(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(property_appreciation(growth_rate_override), precision: 0)
+    presenter.property_appreciation_formatted(growth_rate_override)
   end
 
   def formatted_growth_rate
-    "#{growth_rate || 2.0}%"
+    presenter.growth_rate_formatted
   end
 
   # CoreLogic property methods
@@ -281,25 +277,15 @@ class Application < ApplicationRecord
   end
 
   def formatted_property_valuation_range
-    if property_valuation_low.present? && property_valuation_high.present?
-      low = ActionController::Base.helpers.number_to_currency(property_valuation_low, precision: 0)
-      high = ActionController::Base.helpers.number_to_currency(property_valuation_high, precision: 0)
-      "#{low} - #{high}"
-    else
-      "Not available"
-    end
+    presenter.property_valuation_range_formatted
   end
 
   def formatted_property_valuation_middle
-    if property_valuation_middle.present?
-      ActionController::Base.helpers.number_to_currency(property_valuation_middle, precision: 0)
-    else
-      "Not available"
-    end
+    presenter.property_valuation_middle_formatted
   end
 
   def contract_display_name
-    "#{user.display_name} - #{address[0..50]}"
+    presenter.contract_display_name
   end
 
   # Equity preservation calculations
@@ -319,7 +305,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_home_equity_preserved(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(home_equity_preserved(growth_rate_override), precision: 0)
+    presenter.home_equity_preserved_formatted(growth_rate_override)
   end
 
   # Loan value calculation ((Home Value - Existing Mortgage) * LVR)
@@ -337,7 +323,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_loan_value
-    ActionController::Base.helpers.number_to_currency(loan_value, precision: 0)
+    presenter.loan_value_formatted
   end
 
   # Payment Summary calculations
@@ -353,7 +339,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_interest_paid_on_behalf
-    ActionController::Base.helpers.number_to_currency(interest_paid_on_behalf, precision: 0)
+    presenter.interest_paid_on_behalf_formatted
   end
 
   def loan_principal_paid_on_behalf
@@ -367,7 +353,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_loan_principal_paid_on_behalf
-    ActionController::Base.helpers.number_to_currency(loan_principal_paid_on_behalf, precision: 0)
+    presenter.loan_principal_paid_on_behalf_formatted
   end
 
   def repayment_due_at_end_of_loan
@@ -381,7 +367,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_repayment_due_at_end_of_loan
-    ActionController::Base.helpers.number_to_currency(repayment_due_at_end_of_loan, precision: 0)
+    presenter.repayment_due_at_end_of_loan_formatted
   end
 
   # Income Summary calculations
@@ -390,7 +376,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_total_income_amount
-    ActionController::Base.helpers.number_to_currency(total_income_amount, precision: 0)
+    presenter.total_income_amount_formatted
   end
 
   def monthly_income_amount
@@ -404,7 +390,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_monthly_income_amount
-    ActionController::Base.helpers.number_to_currency(monthly_income_amount, precision: 0)
+    presenter.monthly_income_amount_formatted
   end
 
   def annuity_duration_years
