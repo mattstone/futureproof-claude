@@ -1,0 +1,203 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back", borrower_account_path, class: "back-link" %>
+    <h1>Edit Profile</h1>
+  </div>
+
+  <div class="form-container">
+    <%= form_with model: current_user, local: true, class: "account-form" do |f| %>
+      <% if current_user.errors.any? %>
+        <div class="error-box">
+          <h4><%= pluralize(current_user.errors.count, "error") %> prevented your changes:</h4>
+          <ul>
+            <% current_user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-section">
+        <h2>Personal Information</h2>
+        
+        <div class="form-group">
+          <%= f.label :first_name, "First Name", class: "form-label" %>
+          <%= f.text_field :first_name, class: "form-input" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :last_name, "Last Name", class: "form-label" %>
+          <%= f.text_field :last_name, class: "form-input" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :phone, "Phone Number", class: "form-label" %>
+          <%= f.telephone_field :phone, placeholder: "+1 (555) 000-0000", class: "form-input" %>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Email Address</h2>
+        
+        <div class="form-group">
+          <%= f.label :email, "Email", class: "form-label" %>
+          <%= f.email_field :email, class: "form-input" %>
+          <p class="form-hint">Changing your email will require re-verification</p>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Save Changes", class: "btn btn-primary" %>
+        <%= link_to "Cancel", borrower_account_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .form-container {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    max-width: 600px;
+  }
+
+  .account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-section h2 {
+    font-size: 16px;
+    margin: 0;
+    color: #333;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .form-input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  }
+
+  .form-hint {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: #2196F3;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #1976D2;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  .error-box {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+  }
+
+  .error-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+  }
+
+  .error-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .error-box li {
+    font-size: 13px;
+  }
+</style>

@@ -1,0 +1,299 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back to Dashboard", borrower_root_path, class: "back-link" %>
+    <h1>Account Settings</h1>
+  </div>
+
+  <div class="account-grid">
+    <!-- Account Info Card -->
+    <div class="account-card">
+      <div class="card-header">
+        <h2>Your Profile</h2>
+        <%= link_to "Edit", edit_borrower_account_path, class: "edit-link" %>
+      </div>
+      <div class="account-info">
+        <div class="info-row">
+          <span class="label">Name</span>
+          <span class="value"><%= current_user.first_name %> <%= current_user.last_name %></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email</span>
+          <span class="value"><%= current_user.email %></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Phone</span>
+          <span class="value"><%= current_user.phone || "Not set" %></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email Verified</span>
+          <span class="value">
+            <% if current_user.confirmed_at %>
+              ✓ Yes
+            <% else %>
+              Pending verification
+            <% end %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Card -->
+    <div class="account-card">
+      <div class="card-header">
+        <h2>Security</h2>
+      </div>
+      <div class="account-info">
+        <p class="section-desc">Manage your password and security settings.</p>
+        <div class="action-list">
+          <%= link_to "Change Password", edit_borrower_password_path, class: "action-link" %>
+          <span class="last-changed">Last changed <%= time_ago_in_words(current_user.updated_at) %> ago</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="account-card">
+      <div class="card-header">
+        <h2>Notifications</h2>
+      </div>
+      <div class="account-info">
+        <p class="section-desc">Manage how you receive updates about your loans.</p>
+        <div class="notification-item">
+          <div class="notification-content">
+            <h4>Income Payment Notifications</h4>
+            <p>Get notified when your monthly income is paid</p>
+          </div>
+          <input type="checkbox" checked disabled class="notification-toggle" />
+        </div>
+        <div class="notification-item">
+          <div class="notification-content">
+            <h4>Message Notifications</h4>
+            <p>Get notified when lender sends a message</p>
+          </div>
+          <input type="checkbox" checked disabled class="notification-toggle" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Data & Privacy Card -->
+    <div class="account-card">
+      <div class="card-header">
+        <h2>Data & Privacy</h2>
+      </div>
+      <div class="account-info">
+        <div class="action-list">
+          <%= link_to "View Privacy Policy", "#", class: "action-link" %>
+          <%= link_to "Download My Data", "#", class: "action-link" %>
+          <%= link_to "Delete Account", "#", class: "action-link danger" %>
+        </div>
+        <p class="disclaimer">Account deletion is permanent and cannot be undone.</p>
+      </div>
+    </div>
+
+    <!-- Support Card -->
+    <div class="account-card full-width">
+      <div class="card-header">
+        <h2>Need Help?</h2>
+      </div>
+      <div class="account-info">
+        <p>Have questions about your account or settings?</p>
+        <%= link_to "Contact Support", borrower_root_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .account-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+  }
+
+  .account-card {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+  }
+
+  .account-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .card-header {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-header h2 {
+    font-size: 16px;
+    margin: 0;
+    color: #333;
+  }
+
+  .edit-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .edit-link:hover {
+    text-decoration: underline;
+  }
+
+  .account-info {
+    padding: 20px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .info-row:last-child {
+    border-bottom: none;
+  }
+
+  .info-row .label {
+    color: #999;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .info-row .value {
+    color: #333;
+    font-weight: 600;
+  }
+
+  .section-desc {
+    color: #666;
+    font-size: 13px;
+    margin: 0 0 16px 0;
+  }
+
+  .action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .action-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    background: #f0f7ff;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .action-link:hover {
+    background: #e3f2fd;
+  }
+
+  .action-link.danger {
+    color: #d32f2f;
+    background: #ffebee;
+  }
+
+  .action-link.danger:hover {
+    background: #ffcdd2;
+  }
+
+  .last-changed {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+
+  .notification-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .notification-content p {
+    margin: 0;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .notification-toggle {
+    cursor: pointer;
+  }
+
+  .disclaimer {
+    font-size: 12px;
+    color: #999;
+    margin: 12px 0 0 0;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: #2196F3;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #1976D2;
+  }
+</style>
