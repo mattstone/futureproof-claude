@@ -7,17 +7,29 @@ module Admin
       authorize_admin_access!
     end
 
-    # List all legal documents, filterable by jurisdiction, type, party
+    # List all legal documents, filtered by global jurisdiction switcher
     def index
+      # Get jurisdiction from global admin switcher (stored in session)
+      current_jurisdiction = session[:admin_jurisdiction] || "Summary"
+      
       @legal_documents = LegalDocument.all
-      @legal_documents = @legal_documents.for_jurisdiction(params[:jurisdiction]) if params[:jurisdiction].present?
+      
+      # Filter by jurisdiction from global switcher
+      unless current_jurisdiction == "Summary"
+        @legal_documents = @legal_documents.where(jurisdiction: current_jurisdiction)
+      end
+      
+      # Optional: Type filter from query params (doesn't override jurisdiction)
       @legal_documents = @legal_documents.of_type(params[:document_type]) if params[:document_type].present?
-      @legal_documents = @legal_documents.for_party(params[:party_type]) if params[:party_type].present?
+      
       @legal_documents = @legal_documents.order(jurisdiction: :asc, document_type: :asc, version: :desc)
       
-      @jurisdictions = LegalDocument::JURISDICTIONS
-      @document_types = LegalDocument::DOCUMENT_TYPES
-      @party_types = LegalDocument::PARTY_TYPES
+      # Stats
+      @total_documents = @legal_documents.count
+      @active_documents = @legal_documents.where(status: 'active').count
+      @pending_documents = @legal_documents.where(status: 'draft').count
+      @by_type = @legal_documents.group(:document_type).count
+      @by_status = @legal_documents.group(:status).count
     end
 
     # View a specific legal document
