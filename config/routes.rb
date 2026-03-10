@@ -486,8 +486,16 @@ Rails.application.routes.draw do
       member do
         get :payment_history
         get :documents
+        get :download_contract
+        get :download_statements
+        get :download_key_facts
       end
       resources :messages, only: [:index, :create]
+    end
+    resources :distributions, only: [] do
+      member do
+        get :download_receipt
+      end
     end
     resource :account, only: [:show, :edit, :update]
     resource :password, only: [:edit, :update]

@@ -22,8 +22,7 @@
           </div>
         </div>
         <div class="doc-actions">
-          <%= link_to "Download PDF", "#", class: "btn btn-primary", title: "Download contract" %>
-          <%= link_to "View", "#", class: "btn btn-secondary", title: "View online" %>
+          <%= link_to "Download PDF", download_contract_borrower_application_path(@application, format: :pdf), class: "btn btn-primary", title: "Download contract" %>
         </div>
       </div>
     <% else %>
@@ -41,25 +40,11 @@
         <div class="doc-name">Key Facts Sheet</div>
         <div class="doc-meta">Product summary</div>
         <div class="doc-description">
-          Summary of your EPM product, rates, fees, and important information.
+          Summary of your EPM product, guaranteed income, NNEG guarantee, and important information.
         </div>
       </div>
       <div class="doc-actions">
-        <%= link_to "Download", "#", class: "btn btn-secondary", title: "Download key facts" %>
-      </div>
-    </div>
-
-    <div class="document-item">
-      <div class="doc-icon">🛡️</div>
-      <div class="doc-info">
-        <div class="doc-name">NNEG Guarantee</div>
-        <div class="doc-meta">Protection details</div>
-        <div class="doc-description">
-          Details of your No Negative Equity Guarantee protection.
-        </div>
-      </div>
-      <div class="doc-actions">
-        <%= link_to "Download", "#", class: "btn btn-secondary", title: "Download NNEG info" %>
+        <%= link_to "Download", download_key_facts_borrower_application_path(@application, format: :pdf), class: "btn btn-secondary", title: "Download key facts" %>
       </div>
     </div>
   </div>
@@ -68,26 +53,19 @@
   <div class="documents-section">
     <h2>Income Statements</h2>
     
-    <div class="statement-filter">
-      <%= form_with url: borrower_application_documents_path(@application), method: :get, local: true do |f| %>
-        <%= f.select :year, (Time.current.year-2..Time.current.year).map { |y| [y.to_s, y] }, { selected: params[:year] || Time.current.year } %>
-        <%= f.submit "Filter", class: "btn btn-small" %>
-      <% end %>
+    <div class="statement-description" style="font-size: 13px; color: #666; margin-bottom: 16px;">
+      Download your 12-month income payment schedule showing all guaranteed monthly payments.
     </div>
 
-    <div class="statements-list">
-      <% (1..12).each do |month| %>
-        <div class="statement-item">
-          <div class="statement-icon">📊</div>
-          <div class="statement-info">
-            <div class="statement-name">Income Statement — <%= Date::MONTHNAMES[month] %> <%= params[:year] || Time.current.year %></div>
-            <div class="statement-meta">Monthly income summary</div>
-          </div>
-          <div class="statement-actions">
-            <%= link_to "Download", "#", class: "btn btn-small" %>
-          </div>
-        </div>
-      <% end %>
+    <div class="statement-item">
+      <div class="statement-icon">📊</div>
+      <div class="statement-info">
+        <div class="statement-name">12-Month Income Schedule</div>
+        <div class="statement-meta">All guaranteed monthly payments</div>
+      </div>
+      <div class="statement-actions">
+        <%= link_to "Download", download_statements_borrower_application_path(@application, format: :pdf), class: "btn btn-small" %>
+      </div>
     </div>
   </div>
 
@@ -111,7 +89,7 @@
               </div>
             </div>
             <div class="receipt-actions">
-              <%= link_to "Download", "#", class: "btn btn-small" %>
+              <%= link_to "Download", download_receipt_borrower_distribution_path(dist, format: :pdf), class: "btn btn-small" %>
             </div>
           </div>
         <% end %>

@@ -37,7 +37,23 @@ class Distribution < ApplicationRecord
       if application.user.present?
         Rails.logger.info("EPM distribution of $#{amount.to_i} completed to #{application.user.email} on #{distribution_date}")
       end
+      
+      # Send email notification
+      deliver_payment_notification
     end
+  end
+  
+  def deliver_payment_notification
+    return unless application.user.present?
+    
+    # Check if notifications are enabled
+    if application.user.notification_preference&.payment_email == false
+      Rails.logger.info("Payment notification skipped for #{application.user.email} (disabled in preferences)")
+      return
+    end
+    
+    BorrowerMailer.payment_distributed(self).deliver_later
+    Rails.logger.info("Payment notification email queued for distribution #{id}")
   end
   
   def mark_as_failed!(reason = nil)

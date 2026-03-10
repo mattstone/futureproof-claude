@@ -29,6 +29,49 @@ module Borrower
       @documents = [@application.contract].compact
     end
 
+    # Download contract PDF
+    def download_contract
+      respond_to do |format|
+        format.pdf do
+          render action: :contract, layout: false
+        end
+      end
+    end
+
+    # Download monthly income statements PDF
+    def download_statements
+      respond_to do |format|
+        format.pdf do
+          render action: :income_statements, layout: false
+        end
+      end
+    end
+
+    # Download key facts sheet PDF
+    def download_key_facts
+      respond_to do |format|
+        format.pdf do
+          render action: :key_facts, layout: false
+        end
+      end
+    end
+
+    # Download payment receipt PDF
+    def download_receipt
+      distribution = @application.distributions.find(params[:distribution_id])
+      
+      if distribution.user_id != current_user.id && distribution.lender_id != current_user.id
+        return redirect_to borrower_root_path, alert: "Access denied"
+      end
+
+      @distribution = distribution
+      respond_to do |format|
+        format.pdf do
+          render action: 'distributions/receipt', layout: false
+        end
+      end
+    end
+
     # Show EPM income dashboard - customer receives monthly guaranteed income
     def show
       @lender = @application.lender

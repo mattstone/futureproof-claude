@@ -1,0 +1,36 @@
+PAYMENT RECEIVED - Your Monthly EPM Income
+<%= "=" * 50 %>
+
+Hi <%= @user.first_name %>,
+
+Great news! Your monthly guaranteed income payment has been successfully processed and deposited into your bank account.
+
+PAYMENT DETAILS
+<%= "-" * 50 %>
+Payment Amount:        $<%= @amount %>
+Property:              <%= @property %>
+Payment Date:          <%= @distribution.processed_at.strftime('%d %B %Y') %>
+Transaction ID:        <%= @distribution.transaction_id %>
+
+Total Received (to date): $<%= @total_received %>
+
+WHAT'S NEXT?
+<%= "-" * 50 %>
+1. Download Receipt: Get your payment receipt for tax purposes
+   <%= borrower_distribution_download_receipt_url(@distribution, format: :pdf) %>
+
+2. View Loan Details: Check your payment history
+   <%= borrower_application_url(@application) %>
+
+3. Questions? Message your lender directly from your portal
+   <%= borrower_application_messages_url(@application) %>
+
+IMPORTANT
+<%= "-" * 50 %>
+Your guaranteed income may be subject to income tax.
+Consult your accountant for tax treatment.
+
+Update your notification preferences:
+<%= edit_borrower_account_url %>
+
+This is an automated message. Please don't reply with sensitive information.

@@ -1,0 +1,109 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+      h1 { color: #1F2937; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+      h2 { color: #374151; margin-top: 20px; margin-bottom: 10px; font-size: 16px; }
+      .section { margin-bottom: 20px; }
+      .header { text-align: center; margin-bottom: 30px; }
+      .terms-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+      .terms-table td { padding: 10px; border-bottom: 1px solid #E5E7EB; }
+      .terms-table td:first-child { font-weight: bold; width: 40%; }
+      .highlight { background-color: #F0FDF4; padding: 15px; border-left: 4px solid #059669; margin: 15px 0; }
+      .signature-line { margin-top: 30px; border-top: 1px solid #333; width: 200px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Equity Partner Mortgage Agreement</h1>
+      <p>Loan Agreement Contract</p>
+    </div>
+
+    <div class="section">
+      <h2>Loan Details</h2>
+      <table class="terms-table">
+        <tr>
+          <td>Property Address</td>
+          <td><%= @application.property_address %></td>
+        </tr>
+        <tr>
+          <td>Property Value</td>
+          <td>$<%= number_with_precision(@application.property_value, precision: 0, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td>Loan Amount</td>
+          <td>$<%= number_with_precision(@application.loan_amount, precision: 0, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td>Loan-to-Value (LTV)</td>
+          <td><%= number_with_precision(@application.ltv_ratio * 100, precision: 1) %>%</td>
+        </tr>
+        <tr>
+          <td>Interest Rate (Annual)</td>
+          <td><%= number_with_precision(@application.interest_rate * 100, precision: 2) %>%</td>
+        </tr>
+        <tr>
+          <td>Loan Term</td>
+          <td><%= @application.loan_term_years %> years</td>
+        </tr>
+        <tr>
+          <td>Monthly Income Payment</td>
+          <td>$<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Key Features</h2>
+      <div class="highlight">
+        <p><strong>You Own Your Property:</strong> You retain full ownership of your property. This is a mortgage, not a sale or equity release.</p>
+        
+        <p><strong>Monthly Guaranteed Income:</strong> You receive guaranteed monthly income from your loan proceeds being invested. This is not a loan you must repay.</p>
+        
+        <p><strong>No Monthly Repayments:</strong> You do not make monthly mortgage payments. Your income is guaranteed regardless of investment performance.</p>
+        
+        <p><strong>No Negative Equity Guarantee (NNEG):</strong> You are protected by a guarantee that ensures you will never owe more than your property is worth when the loan is settled.</p>
+        
+        <p><strong>When Loan is Repaid:</strong> The loan is repaid from the proceeds of your property sale or from your estate. You (or your heirs) keep any equity that remains after the loan is settled.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Monthly Income Payment Schedule</h2>
+      <p>Your guaranteed monthly income of <strong>$<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %></strong> will be paid on the <strong>15th of each month</strong> into your nominated bank account.</p>
+      
+      <p>Income payments will continue for the duration of the loan term or until the loan is settled, whichever is sooner.</p>
+    </div>
+
+    <div class="section">
+      <h2>Your Rights and Responsibilities</h2>
+      <ul>
+        <li>You must notify us of any changes to your contact information</li>
+        <li>You must maintain the property in reasonable condition</li>
+        <li>You must maintain appropriate property insurance</li>
+        <li>You may not sell the property without settling the loan</li>
+        <li>You will receive quarterly statements showing your account balance and income received</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Borrower Acknowledgement</h2>
+      <p>I acknowledge that I have read, understood, and agree to the terms and conditions of this Equity Partner Mortgage Agreement. I understand that:</p>
+      <ul>
+        <li>I own the property and will receive guaranteed monthly income</li>
+        <li>I will not make monthly loan repayments</li>
+        <li>The loan will be repaid when my property is sold or from my estate</li>
+        <li>I am protected by the No Negative Equity Guarantee</li>
+      </ul>
+    </div>
+
+    <div class="signature-line" style="margin-top: 40px;"></div>
+    <p style="margin-top: 5px;">Borrower Signature</p>
+
+    <p style="margin-top: 40px; font-size: 12px; color: #6B7280;">
+      <strong>Date Generated:</strong> <%= Time.current.strftime('%d %B %Y') %><br>
+      <strong>Agreement ID:</strong> <%= @application.id %><br>
+      This is a certified agreement. Keep this document for your records.
+    </p>
+  </body>
+</html>

@@ -1,0 +1,166 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+      h1 { color: #1F2937; border-bottom: 3px solid #059669; padding-bottom: 10px; font-size: 20px; }
+      h2 { color: #374151; margin-top: 20px; margin-bottom: 10px; font-size: 15px; border-left: 4px solid #059669; padding-left: 10px; }
+      .section { margin-bottom: 20px; }
+      .highlight { background-color: #ECFDF5; padding: 15px; border-radius: 4px; margin: 15px 0; }
+      .yes-no { color: #059669; font-weight: bold; }
+      .no-label { color: #DC2626; font-weight: bold; }
+      ul { margin: 10px 0; padding-left: 20px; }
+      li { margin: 8px 0; }
+      .comparison-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+      .comparison-table th { background: #F3F4F6; padding: 10px; text-align: left; border-bottom: 2px solid #059669; font-weight: bold; }
+      .comparison-table td { padding: 10px; border-bottom: 1px solid #E5E7EB; }
+      .comparison-table tr:nth-child(even) { background: #F9FAFB; }
+    </style>
+  </head>
+  <body>
+    <h1>Equity Partner Mortgage - Key Facts Sheet</h1>
+
+    <div class="section">
+      <h2>What is an Equity Partner Mortgage (EPM)?</h2>
+      <p>An Equity Partner Mortgage is a unique product that allows you to:</p>
+      <div class="highlight">
+        <ul>
+          <li><span class="yes-no">✓ Keep ownership</span> of your property</li>
+          <li><span class="yes-no">✓ Receive guaranteed monthly income</span> from your loan proceeds being invested</li>
+          <li><span class="yes-no">✓ Make NO monthly repayments</span> to the lender</li>
+          <li><span class="yes-no">✓ Retain all equity growth</span> from property appreciation</li>
+          <li><span class="yes-no">✓ Have protection</span> from the No Negative Equity Guarantee</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>How Does It Work?</h2>
+      <ol>
+        <li><strong>You borrow money</strong> against your property (which you already own)</li>
+        <li><strong>We invest the proceeds</strong> to create a portfolio that generates returns</li>
+        <li><strong>You receive guaranteed monthly income</strong> from those investment returns</li>
+        <li><strong>You keep the investment returns</strong> that exceed your guaranteed income</li>
+        <li><strong>When you sell your property or pass away,</strong> the loan is repaid from the sale proceeds or your estate</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <h2>EPM vs Traditional Mortgage - Side by Side</h2>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Equity Partner Mortgage</th>
+            <th>Traditional Mortgage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>You Own Property</strong></td>
+            <td><span class="yes-no">Yes</span></td>
+            <td><span class="yes-no">Yes</span></td>
+          </tr>
+          <tr>
+            <td><strong>Monthly Payments Due</strong></td>
+            <td><span class="no-label">No</span></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><strong>Receive Monthly Income</strong></td>
+            <td><span class="yes-no">Yes</span></td>
+            <td><span class="no-label">No</span></td>
+          </tr>
+          <tr>
+            <td><strong>Income Guaranteed</strong></td>
+            <td><span class="yes-no">Yes</span></td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td><strong>Protected from Negative Equity</strong></td>
+            <td><span class="yes-no">Yes (NNEG)</span></td>
+            <td><span class="no-label">No</span></td>
+          </tr>
+          <tr>
+            <td><strong>Can Access Equity Early</strong></td>
+            <td><span class="no-label">No</span></td>
+            <td>Refinance/redraw</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>No Negative Equity Guarantee (NNEG)</h2>
+      <div class="highlight">
+        <p>You are protected by the <strong>No Negative Equity Guarantee.</strong> This means:</p>
+        <ul>
+          <li>You will never owe more than your property is worth</li>
+          <li>If investment returns don't cover your income, the guarantee covers the difference</li>
+          <li>If the property value drops, your loan amount doesn't increase</li>
+          <li>Your heirs are protected - they never inherit a debt larger than the estate</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Your Loan Summary</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="width: 50%; padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Property Address</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= @application.property_address %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Property Value</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">$<%= number_with_precision(@application.property_value, precision: 0, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Loan Amount</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">$<%= number_with_precision(@application.loan_amount, precision: 0, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>LTV (Loan-to-Value)</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= number_with_precision(@application.ltv_ratio * 100, precision: 1) %>%</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Guaranteed Monthly Income</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">$<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Annual Guaranteed Income</strong></td>
+          <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">$<%= number_with_precision(@application.monthly_payment * 12, precision: 2, delimiter: ',') %></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px;"><strong>Loan Term</strong></td>
+          <td style="padding: 8px;"><%= @application.loan_term_years %> years</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>When Does the Loan Get Repaid?</h2>
+      <ul>
+        <li><strong>Property Sale:</strong> When you sell your property, the loan is repaid from the sale proceeds. You keep any remaining equity.</li>
+        <li><strong>Death:</strong> When you pass away, the loan is repaid from your estate. Your heirs keep any remaining equity.</li>
+        <li><strong>Early Repayment:</strong> You can repay the loan early at any time without penalty.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Important Things to Know</h2>
+      <ul>
+        <li>Your guaranteed income is paid monthly into your nominated bank account</li>
+        <li>You retain full ownership and can make decisions about your property</li>
+        <li>You must maintain property insurance while the loan is active</li>
+        <li>You must keep the property in reasonable condition</li>
+        <li>You cannot sell the property without settling the loan</li>
+        <li>Your income may be subject to income tax - consult your accountant</li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #E5E7EB; font-size: 12px; color: #6B7280;">
+      <p><strong>Document ID:</strong> <%= @application.id %></p>
+      <p><strong>Generated:</strong> <%= Time.current.strftime('%d %B %Y') %></p>
+      <p style="margin-top: 15px;">This Key Facts Sheet is for information purposes. For legal advice, please consult your lawyer.</p>
+    </div>
+  </body>
+</html>
