@@ -1,3 +1,5 @@
+require_relative '../presenters/application_presenter'
+
 class Application < ApplicationRecord
   include InputSanitization
   include LenderScopes
