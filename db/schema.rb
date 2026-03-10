@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_211252) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_211328) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -131,6 +131,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211252) do
     t.index ["business_rules"], name: "index_ai_agents_on_business_rules", using: :gin
     t.index ["is_active"], name: "index_ai_agents_on_is_active"
     t.index ["lifecycle_stages"], name: "index_ai_agents_on_lifecycle_stages", using: :gin
+  end
+
+  create_table "aml_checks", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "checked_at"
+    t.datetime "created_at"
+    t.text "failure_reason"
+    t.datetime "passed_at"
+    t.string "risk_level"
+    t.integer "status"
+    t.datetime "updated_at"
+    t.index ["application_id"], name: "index_aml_checks_on_application_id"
   end
 
   create_table "application_checklists", force: :cascade do |t|
@@ -635,6 +647,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211252) do
     t.index ["region"], name: "index_investment_partners_on_region"
     t.index ["status"], name: "index_investment_partners_on_status"
     t.index ["wholesale_funder_id"], name: "index_investment_partners_on_wholesale_funder_id"
+  end
+
+  create_table "kyc_submissions", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "created_at"
+    t.string "document_url"
+    t.text "notes"
+    t.integer "status"
+    t.datetime "submitted_at"
+    t.datetime "updated_at"
+    t.string "verification_type"
+    t.datetime "verified_at"
+    t.string "verified_by"
+    t.index ["application_id"], name: "index_kyc_submissions_on_application_id"
   end
 
   create_table "lender_clause_versions", force: :cascade do |t|
@@ -1242,6 +1268,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211252) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_actions", "ai_agents"
   add_foreign_key "agent_tasks", "agent_performances"
+  add_foreign_key "aml_checks", "applications"
   add_foreign_key "application_checklists", "applications"
   add_foreign_key "application_checklists", "users", column: "completed_by_id"
   add_foreign_key "application_documents", "applications"
@@ -1291,6 +1318,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211252) do
   add_foreign_key "funder_pool_versions", "users"
   add_foreign_key "funder_pools", "wholesale_funders"
   add_foreign_key "investment_partners", "wholesale_funders"
+  add_foreign_key "kyc_submissions", "applications"
   add_foreign_key "lender_clause_versions", "lender_clauses"
   add_foreign_key "lender_clause_versions", "users"
   add_foreign_key "lender_clauses", "lenders"
