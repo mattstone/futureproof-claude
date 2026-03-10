@@ -46,7 +46,7 @@
               
               <!-- Actions -->
               <div class="flex gap-2 ml-4">
-                <%= link_to "Test", test_lender_dashboard_webhook_path(webhook), method: :post, class: "btn btn-sm btn-outline", data: { confirm: "Send test webhook?" } %>
+                <%= link_to "Test", test_lender_dashboard_webhook_path(webhook), class: "btn btn-sm btn-outline" %>
                 <%= link_to "Logs", delivery_log_lender_dashboard_webhook_path(webhook), class: "btn btn-sm btn-outline" %>
                 <%= link_to "Edit", edit_lender_dashboard_webhook_path(webhook), class: "btn btn-sm btn-outline" %>
                 <%= link_to "Delete", lender_dashboard_webhook_path(webhook), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: "Delete webhook?" } %>

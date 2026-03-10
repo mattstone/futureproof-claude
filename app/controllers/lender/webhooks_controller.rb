@@ -36,17 +36,18 @@ module Lender
     end
 
     def test
-      test_payload = {
-        event: 'test',
-        timestamp: Time.current.iso8601,
-        message: 'This is a test webhook from FutureProof EPM'
-      }
-      
-      service = WebhookDeliveryService.new(@webhook)
-      @response = service.deliver_test(test_payload)
-      
-      respond_to do |format|
-        format.json { render json: @response }
+      # GET /test — show test form
+      # POST /test — execute test
+      if request.get?
+        render :test
+      else
+        service = WebhookTestService.new(@webhook)
+        @test_result = service.test_webhook
+        
+        respond_to do |format|
+          format.html { render :test_result }
+          format.json { render json: @test_result }
+        end
       end
     end
 

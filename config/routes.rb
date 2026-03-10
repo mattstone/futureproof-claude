@@ -338,6 +338,16 @@ Rails.application.routes.draw do
       get 'reports', to: 'lender_dashboard#reports', as: 'reports'
       get 'account', to: 'lender_dashboard#account', as: 'account'
       patch 'account', to: 'lender_dashboard#update_account', as: 'update_account'
+      
+      # Webhook management
+      resources :webhooks do
+        member do
+          get :test
+          post :test
+          get :delivery_log
+          post :retry
+        end
+      end
     end
   end
 
@@ -506,26 +516,7 @@ Rails.application.routes.draw do
     resource :password, only: [:edit, :update]
   end
 
-  # Lender portal routes (EPM lender management)
-  namespace :lender_dashboard do
-    root 'dashboard#index'
-    get 'index', to: 'dashboard#index', as: 'index'
-    get 'applications', to: 'dashboard#applications', as: 'applications'
-    get 'applications/:id', to: 'dashboard#application_detail', as: 'application_detail'
-    get 'payments', to: 'dashboard#payments', as: 'payments'
-    get 'reports', to: 'dashboard#reports', as: 'reports'
-    get 'account', to: 'dashboard#account', as: 'account'
-    patch 'account', to: 'dashboard#update_account', as: 'update_account'
-    
-    # Webhook management
-    resources :webhooks do
-      member do
-        post :test
-        get :delivery_log
-        post :retry
-      end
-    end
-  end
+
 
   # Defines the root path route ("/")
   root "pages#get_started"
