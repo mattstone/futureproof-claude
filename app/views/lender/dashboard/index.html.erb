@@ -11,20 +11,20 @@
 
     <div class="metric-card">
       <div class="metric-label">Pending Review</div>
-      <div class="metric-value" style="color: #F59E0B;"><%= @stats[:pending] %></div>
+      <div class="metric-value stat-count--warning"><%= @stats[:pending] %></div>
       <div class="metric-detail">Awaiting approval</div>
     </div>
 
     <div class="metric-card">
       <div class="metric-label">Active Loans</div>
-      <div class="metric-value" style="color: #10B981;"><%= @stats[:active] %></div>
+      <div class="metric-value stat-count--success"><%= @stats[:active] %></div>
       <div class="metric-detail">Paying out income</div>
     </div>
 
     <div class="metric-card">
       <div class="metric-label">Total Portfolio Value</div>
-      <div class="metric-value" style="color: #2196F3;">
-        $<%= number_with_precision(@stats[:total_loan_amount] || 0, precision: 0, delimiter: ',') %>
+      <div class="metric-value stat-count--info">
+        <%= format_portfolio_value(@stats[:total_loan_amount]) %>
       </div>
       <div class="metric-detail">Loan amount outstanding</div>
     </div>
@@ -34,34 +34,16 @@
   <div class="section">
     <h2>Application Pipeline</h2>
     <div class="pipeline-bars">
-      <div class="pipeline-item">
-        <div class="pipeline-bar" style="width: <%= (@stats[:pending].to_f / @stats[:total]) * 100 %>%; background: #F59E0B;"></div>
-        <div class="pipeline-label">
-          Pending
-          <span class="count"><%= @stats[:pending] %></span>
+      <% pipeline_bar_config(@stats).each do |bar| %>
+        <div class="pipeline-item">
+          <div class="pipeline-bar pipeline-bar--<%= bar[:color] %>" 
+               style="width: <%= bar[:percentage] %>%;"></div>
+          <div class="pipeline-label">
+            <%= bar[:label] %>
+            <span class="count"><%= bar[:count] %></span>
+          </div>
         </div>
-      </div>
-      <div class="pipeline-item">
-        <div class="pipeline-bar" style="width: <%= ((@stats[:approved] - @stats[:active]).to_f / @stats[:total]) * 100 %>%; background: #3B82F6;"></div>
-        <div class="pipeline-label">
-          Approved
-          <span class="count"><%= @stats[:approved] - @stats[:active] %></span>
-        </div>
-      </div>
-      <div class="pipeline-item">
-        <div class="pipeline-bar" style="width: <%= (@stats[:active].to_f / @stats[:total]) * 100 %>%; background: #10B981;"></div>
-        <div class="pipeline-label">
-          Active
-          <span class="count"><%= @stats[:active] %></span>
-        </div>
-      </div>
-      <div class="pipeline-item">
-        <div class="pipeline-bar" style="width: <%= (@stats[:rejected].to_f / @stats[:total]) * 100 %>%; background: #EF4444;"></div>
-        <div class="pipeline-label">
-          Rejected
-          <span class="count"><%= @stats[:rejected] %></span>
-        </div>
-      </div>
+      <% end %>
     </div>
   </div>
 

@@ -35,16 +35,61 @@ module LenderDashboardHelper
                 .to_h
   end
 
-  # Pipeline percentages (for UI rendering)
-  def pipeline_percentages(stats)
-    total = stats[:total].to_f
-    return {} if total.zero?
+  # Pipeline percentage calculation
+  def pipeline_percentage(count, total)
+    return 0 if total.to_f.zero?
+    (count.to_f / total * 100).round(1)
+  end
 
-    {
-      pending: (stats[:pending] / total * 100).round(1),
-      approved: ((stats[:approved] - stats[:active]) / total * 100).round(1),
-      active: (stats[:active] / total * 100).round(1),
-      rejected: (stats[:rejected] / total * 100).round(1)
-    }
+  # Pipeline bar configuration (consolidates calculation logic)
+  def pipeline_bar_config(stats)
+    total = stats[:total].to_i
+    return [] if total.zero?
+
+    [
+      { 
+        label: 'Pending', 
+        count: stats[:pending], 
+        color: 'warning', 
+        percentage: pipeline_percentage(stats[:pending], total) 
+      },
+      { 
+        label: 'Approved', 
+        count: stats[:approved] - stats[:active], 
+        color: 'info', 
+        percentage: pipeline_percentage(stats[:approved] - stats[:active], total) 
+      },
+      { 
+        label: 'Active', 
+        count: stats[:active], 
+        color: 'success', 
+        percentage: pipeline_percentage(stats[:active], total) 
+      },
+      { 
+        label: 'Rejected', 
+        count: stats[:rejected], 
+        color: 'danger', 
+        percentage: pipeline_percentage(stats[:rejected], total) 
+      }
+    ]
+  end
+
+  # Format portfolio value (reusable currency formatter)
+  def format_portfolio_value(amount)
+    "$#{number_with_precision(amount || 0, precision: 0, delimiter: ',')}"
+  end
+
+  # Metric card color class helper
+  def metric_color_class(metric_type)
+    case metric_type
+    when :pending
+      'stat-count--warning'
+    when :active
+      'stat-count--success'
+    when :portfolio
+      'stat-count--info'
+    else
+      'stat-count--default'
+    end
   end
 end
