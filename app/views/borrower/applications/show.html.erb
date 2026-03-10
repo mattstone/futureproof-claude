@@ -17,7 +17,7 @@
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Original Loan Amount</div>
+      <div class="card-label">Total Loan Amount</div>
       <div class="card-value">$<%= number_with_precision(@loan_summary[:original_amount], precision: 0) %></div>
     </div>
 
@@ -32,59 +32,59 @@
     </div>
 
     <div class="detail-card">
-      <div class="card-label">Equity %</div>
+      <div class="card-label">Your Equity %</div>
       <div class="card-value"><%= number_with_precision(@loan_summary[:equity_percentage], precision: 1) %>%</div>
     </div>
 
     <% if @loan_summary[:next_payment] %>
-      <div class="detail-card next-payment">
-        <div class="card-label">Next Payment</div>
+      <div class="detail-card next-payout">
+        <div class="card-label">Next Payout</div>
         <div class="card-value">$<%= number_with_precision(@loan_summary[:next_payment][:amount], precision: 2) %></div>
         <div class="card-meta">Due <%= @loan_summary[:next_payment][:date]&.strftime('%B %d, %Y') %></div>
       </div>
     <% end %>
   </div>
 
-  <!-- Payment Summary -->
-  <div class="payment-summary-section">
-    <h2>Payment Summary</h2>
-    <div class="payment-summary">
+  <!-- Payout Summary -->
+  <div class="payout-summary-section">
+    <h2>Payout Summary</h2>
+    <div class="payout-summary">
       <div class="summary-item">
-        <span class="summary-label">Total Paid</span>
+        <span class="summary-label">Total Received</span>
         <span class="summary-value">$<%= number_with_precision(@loan_summary[:total_paid], precision: 2) %></span>
       </div>
       <div class="summary-item">
-        <span class="summary-label">Remaining Payments</span>
+        <span class="summary-label">Remaining Payouts</span>
         <span class="summary-value"><%= @loan_summary[:remaining_payments] %></span>
       </div>
     </div>
   </div>
 
-  <!-- Payment Schedule -->
+  <!-- Payout Schedule -->
   <div class="schedule-section">
-    <h2>Payment Schedule</h2>
+    <h2>Payout Schedule</h2>
     
     <% if @distributions.any? %>
       <div class="schedule-table">
         <table>
           <thead>
             <tr>
-              <th>Payment #</th>
+              <th>Payout #</th>
               <th>Amount</th>
-              <th>Due Date</th>
-              <th>Paid Date</th>
+              <th>Scheduled Date</th>
+              <th>Received Date</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             <% @distributions.each_with_index do |dist, index| %>
-              <tr class="payment-row payment-<%= dist.status %>">
+              <tr class="payout-row payout-<%= dist.status %>">
                 <td><%= index + 1 %></td>
                 <td>${<%= number_with_precision(dist.amount, precision: 2) %></td>
-                <td><%= dist.processed_at&.strftime('%B %d, %Y') || 'TBD' %></td>
+                <td><%= dist.distribution_date&.strftime('%B %d, %Y') || 'TBD' %></td>
                 <td>
                   <% if dist.status == "completed" %>
-                    <%= dist.updated_at&.strftime('%B %d, %Y') %>
+                    <%= dist.processed_at&.strftime('%B %d, %Y') %>
                   <% else %>
                     —
                   <% end %>
@@ -100,7 +100,7 @@
         </table>
       </div>
     <% else %>
-      <p class="empty-schedule">No payment schedule available yet. Payments will appear once your loan is activated.</p>
+      <p class="empty-schedule">No payout schedule available yet. Payouts will appear once your loan is activated.</p>
     <% end %>
   </div>
 
@@ -191,7 +191,7 @@
     grid-column: span 1;
   }
 
-  .detail-card.next-payment {
+  .detail-card.next-payout {
     background: #f0f7ff;
     border-color: #2196F3;
   }
@@ -243,8 +243,8 @@
     color: #721c24;
   }
 
-  /* Payment Summary */
-  .payment-summary-section {
+  /* Payout Summary */
+  .payout-summary-section {
     background: white;
     padding: 24px;
     border-radius: 8px;
@@ -252,12 +252,12 @@
     margin-bottom: 40px;
   }
 
-  .payment-summary-section h2 {
+  .payout-summary-section h2 {
     font-size: 16px;
     margin: 0 0 16px 0;
   }
 
-  .payment-summary {
+  .payout-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -321,7 +321,7 @@
     border-bottom: 1px solid #f0f0f0;
   }
 
-  .payment-row.payment-completed {
+  .payout-row.payout-completed {
     background: #f9f9f9;
   }
 
@@ -350,6 +350,17 @@
     font-size: 14px;
     text-align: center;
     padding: 20px;
+  }
+
+  .payout-summary-section .summary-label {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .payout-summary-section .summary-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
   }
 
   /* Documents */

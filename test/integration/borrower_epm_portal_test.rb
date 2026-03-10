@@ -66,13 +66,13 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     
     assert_response :success
     # Should show EPM-specific fields
-    assert_select "*", text: /Original Loan Amount/i
+    assert_select "*", text: /Total Loan Amount/i
     assert_select "*", text: /Loan Term/i
     assert_select "*", text: /Property Value/i
-    assert_select "*", text: /Equity/i
+    assert_select "*", text: /Your Equity/i
   end
 
-  test "payment schedule displays distributions" do
+  test "payout schedule displays distributions" do
     # Create some distributions
     @app.distributions.destroy_all
     Distribution.create!(
@@ -96,9 +96,9 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     get borrower_application_path(@app)
     
     assert_response :success
-    # Check for payment schedule table
+    # Check for payout schedule table
     assert_select "table" do
-      assert_select "th", text: /Payment #/i
+      assert_select "th", text: /Payout #/i
       assert_select "th", text: /Amount/i
       assert_select "th", text: /Status/i
     end

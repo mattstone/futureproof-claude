@@ -38,7 +38,7 @@
 
           <div class="app-details">
             <div class="detail-item">
-              <span class="detail-label">Loan Amount</span>
+              <span class="detail-label">Total Payout</span>
               <span class="detail-value">$<%= number_with_precision(app.equity_investment_amount, precision: 0) %></span>
             </div>
             <div class="detail-item">
@@ -50,8 +50,8 @@
               <span class="detail-value">$<%= number_with_precision(app.home_value, precision: 0) %></span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Lender</span>
-              <span class="detail-value"><%= app.lender&.name || "Pending" %></span>
+              <span class="detail-label">Your Equity %</span>
+              <span class="detail-value"><%= number_with_precision(app.equity_percentage, precision: 1) %>%</span>
             </div>
           </div>
 

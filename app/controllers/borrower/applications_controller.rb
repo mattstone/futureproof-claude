@@ -31,7 +31,7 @@ module Borrower
         status: @application.status.humanize,
         total_paid: @distributions.where(status: "completed").sum(:amount),
         remaining_payments: @distributions.where(status: ["pending", "processing"]).count,
-        next_payment: calculate_next_payment
+        next_payment: calculate_next_payout
       }
     end
 
@@ -45,11 +45,11 @@ module Borrower
       redirect_to borrower_root_path, alert: "Access denied" unless @application.user_id == current_user.id
     end
 
-    def calculate_next_payment
-      pending = @application.distributions.where(status: ["pending", "processing"]).order(:processed_at).first
+    def calculate_next_payout
+      pending = @application.distributions.where(status: ["pending", "processing"]).order(:distribution_date).first
       if pending
         {
-          date: pending.processed_at&.to_date,
+          date: pending.distribution_date&.to_date,
           amount: pending.amount
         }
       else
