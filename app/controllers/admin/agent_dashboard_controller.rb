@@ -1,7 +1,6 @@
 module Admin
-  class AgentDashboardController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
+  class AgentDashboardController < Admin::BaseController
+    # authenticate_user! and authorization already applied by BaseController
 
     def index
       @agents = AgentPerformance.includes(:daily_metrics).order(:agent_type)

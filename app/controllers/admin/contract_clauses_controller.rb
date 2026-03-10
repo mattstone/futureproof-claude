@@ -1,4 +1,4 @@
-class Admin::ContractClausesController < ApplicationController
+class Admin::ContractClausesController < Admin::BaseController
   before_action :authenticate_user!
   before_action :ensure_admin_user!
   before_action :set_mortgage_and_contract

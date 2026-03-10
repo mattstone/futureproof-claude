@@ -1,4 +1,4 @@
-class Admin::CalculatorsController < ApplicationController
+class Admin::CalculatorsController < Admin::BaseController
   before_action :authenticate_user!
   skip_before_action :verify_authenticity_token, only: [:calculate]
   

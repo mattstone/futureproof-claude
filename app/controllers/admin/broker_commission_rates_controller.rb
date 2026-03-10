@@ -1,5 +1,5 @@
 module Admin
-  class BrokerCommissionRatesController < ApplicationController
+  class BrokerCommissionRatesController < Admin::BaseController
     before_action :authenticate_user!
     before_action :verify_admin!
     before_action :set_lender

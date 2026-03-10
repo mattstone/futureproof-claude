@@ -1,5 +1,5 @@
 module Admin
-  class BrokersController < ApplicationController
+  class BrokersController < Admin::BaseController
     before_action :authenticate_user!
     before_action :verify_admin!
     before_action :set_broker, only: [:show, :edit, :update, :toggle_active]
