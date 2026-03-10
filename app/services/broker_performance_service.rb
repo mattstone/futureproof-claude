@@ -45,7 +45,7 @@ class BrokerPerformanceService
   def broker_metrics_uncached(broker)
     applications = broker_applications(broker)
     approved = applications.where(status: :accepted)
-    
+
     {
       broker_id: broker.id,
       broker_name: broker.name,

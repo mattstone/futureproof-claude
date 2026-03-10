@@ -2,7 +2,7 @@ class BrokerCommission < ApplicationRecord
   belongs_to :broker
   belongs_to :application
 
-  STATUSES = ["earned", "paid", "pending"].freeze
+  STATUSES = [ "earned", "paid", "pending" ].freeze
 
   validates :commission_amount, presence: true, numericality: { greater_than: 0 }
   validates :commission_rate, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 100 }
@@ -14,7 +14,7 @@ class BrokerCommission < ApplicationRecord
   scope :earned, -> { where(status: "earned") }
   scope :paid, -> { where(status: "paid") }
   scope :pending, -> { where(status: "pending") }
-  scope :unpaid, -> { where(status: ["earned", "pending"]) }
+  scope :unpaid, -> { where(status: [ "earned", "pending" ]) }
   scope :for_broker, ->(broker) { where(broker_id: broker.id) }
   scope :for_period, ->(start_date, end_date) { where(earned_date: start_date..end_date) }
 
@@ -27,7 +27,7 @@ class BrokerCommission < ApplicationRecord
   end
 
   def unpaid?
-    ["earned", "pending"].include?(status)
+    [ "earned", "pending" ].include?(status)
   end
 
   def paid?
