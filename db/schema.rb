@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_100009) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_113558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -279,6 +279,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_100009) do
     t.index ["resource_type", "created_at"], name: "index_audit_logs_on_resource_type_and_created_at"
     t.index ["user_id", "created_at"], name: "index_audit_logs_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "borrower_messages", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "lender_id"
+    t.text "message", null: false
+    t.datetime "read_at"
+    t.string "sender_type", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["application_id", "created_at"], name: "index_borrower_messages_on_application_id_and_created_at"
+    t.index ["application_id"], name: "index_borrower_messages_on_application_id"
+    t.index ["lender_id"], name: "index_borrower_messages_on_lender_id"
+    t.index ["user_id"], name: "index_borrower_messages_on_user_id"
   end
 
   create_table "broker_commission_rates", force: :cascade do |t|
@@ -1181,6 +1196,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_100009) do
   add_foreign_key "applications", "users"
   add_foreign_key "audit_logs", "applications"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "borrower_messages", "applications"
+  add_foreign_key "borrower_messages", "lenders"
+  add_foreign_key "borrower_messages", "users"
   add_foreign_key "broker_commission_rates", "brokers"
   add_foreign_key "broker_commission_rates", "lenders"
   add_foreign_key "broker_commissions", "applications"

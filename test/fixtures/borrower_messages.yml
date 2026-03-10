@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  application: one
+  user: one
+  lender: one
+  message: MyText
+  read_at: 2026-03-10 22:35:58
+
+two:
+  application: two
+  user: two
+  lender: two
+  message: MyText
+  read_at: 2026-03-10 22:35:58

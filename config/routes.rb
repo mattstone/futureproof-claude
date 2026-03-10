@@ -487,8 +487,8 @@ Rails.application.routes.draw do
         get :payment_history
         get :documents
       end
+      resources :messages, only: [:index, :create]
     end
-    resources :messages, only: [:index, :create]
     resource :account, only: [:show, :edit, :update]
     resource :password, only: [:edit, :update]
   end

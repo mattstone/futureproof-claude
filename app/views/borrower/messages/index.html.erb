@@ -1,0 +1,393 @@
+<div class="borrower-detail messages-container">
+  <div class="detail-header">
+    <%= link_to "← Back to Loan", borrower_application_path(@application), class: "back-link" %>
+    <h1>Messages with <%= @application.lender&.name || "Lender" %></h1>
+    <% if @unread_count > 0 %>
+      <div class="unread-badge"><%= @unread_count %> unread</div>
+    <% end %>
+  </div>
+
+  <!-- Message Thread -->
+  <div class="messages-thread">
+    <div class="messages-list">
+      <% if @messages.any? %>
+        <% @messages.each do |msg| %>
+          <div class="message-item message-<%= msg.sender_type %>">
+            <div class="message-avatar">
+              <% if msg.from_borrower? %>
+                <span class="avatar-initials"><%= current_user.first_name[0] %></span>
+              <% else %>
+                <span class="avatar-initials lender"><%= @application.lender&.name[0] %></span>
+              <% end %>
+            </div>
+            <div class="message-content">
+              <div class="message-header">
+                <span class="sender-name">
+                  <% if msg.from_borrower? %>
+                    You
+                  <% else %>
+                    <%= @application.lender&.name || "Lender" %>
+                  <% end %>
+                </span>
+                <span class="message-time" title="<%= msg.created_at.strftime('%B %d, %Y at %l:%M %p') %>">
+                  <%= time_ago_in_words(msg.created_at) %> ago
+                </span>
+              </div>
+              <div class="message-text">
+                <%= simple_format(msg.message) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="empty-messages">
+          <p>No messages yet. Send a message to start a conversation with your lender.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-form-section">
+    <h2>Send a Message</h2>
+    
+    <%= form_with model: [@application, @message], local: true, class: "message-form" do |f| %>
+      <% if @message && @message.errors.any? %>
+        <div class="error-box">
+          <ul>
+            <% @message.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :message, "Your Message", class: "form-label" %>
+        <%= f.text_area :message, 
+                        rows: 5,
+                        placeholder: "Type your message here... (max 5000 characters)",
+                        class: "form-textarea" %>
+        <div class="char-count">
+          <span id="char-count">0</span> / 5000
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Send Message", class: "btn btn-primary" %>
+        <%= link_to "Cancel", borrower_application_path(@application), class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Info Box -->
+  <div class="info-section">
+    <h3>💬 Message Tips</h3>
+    <ul>
+      <li>Be clear and specific about your question or concern</li>
+      <li>Include relevant dates or transaction numbers if applicable</li>
+      <li>You'll typically receive a response within 1 business day</li>
+      <li>For urgent matters, please call our support team</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .borrower-detail.messages-container {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+    flex: 1;
+  }
+
+  .unread-badge {
+    background: #ff4081;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Message Thread */
+  .messages-thread {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+    overflow: hidden;
+  }
+
+  .messages-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .message-item {
+    display: flex;
+    gap: 12px;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .message-item.message-borrower {
+    flex-direction: row-reverse;
+  }
+
+  .message-avatar {
+    flex-shrink: 0;
+  }
+
+  .avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2196F3;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .avatar-initials.lender {
+    background: #4CAF50;
+  }
+
+  .message-content {
+    flex: 1;
+    max-width: 70%;
+  }
+
+  .message-item.message-borrower .message-content {
+    align-items: flex-end;
+  }
+
+  .message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+
+  .sender-name {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .message-time {
+    color: #999;
+    font-size: 11px;
+  }
+
+  .message-text {
+    background: #f0f0f0;
+    padding: 12px;
+    border-radius: 8px;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+
+  .message-item.message-borrower .message-text {
+    background: #2196F3;
+    color: white;
+  }
+
+  .empty-messages {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+
+  /* Message Form */
+  .message-form-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+  }
+
+  .message-form-section h2 {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+  }
+
+  .form-textarea:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  }
+
+  .char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: #2196F3;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #1976D2;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+
+  /* Info Section */
+  .info-section {
+    background: #f0f7ff;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+  }
+
+  .info-section h3 {
+    font-size: 14px;
+    margin: 0 0 12px 0;
+    color: #1976D2;
+  }
+
+  .info-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .info-section li {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .info-section li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+    font-weight: bold;
+  }
+
+  .error-box {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    border: 1px solid #f5c6cb;
+  }
+
+  .error-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .error-box li {
+    font-size: 13px;
+  }
+</style>
+
+<script>
+  // Character count update
+  document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('.form-textarea');
+    const charCount = document.querySelector('#char-count');
+    
+    if (textarea) {
+      textarea.addEventListener('input', function() {
+        charCount.textContent = this.value.length;
+      });
+    }
+  });
+</script>
