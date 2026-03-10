@@ -20,6 +20,14 @@ Rails.application.routes.draw do
   namespace :admin do
     post 'set_jurisdiction', to: 'base#set_jurisdiction'
     
+    # Dashboard
+    get 'dashboard', to: 'dashboard#index'
+    get 'dashboard/webhooks', to: 'dashboard#webhooks'
+    post 'dashboard/retry_webhook/:id', to: 'dashboard#retry_webhook', as: 'retry_webhook'
+    patch 'dashboard/toggle_webhook/:id', to: 'dashboard#toggle_webhook', as: 'toggle_webhook'
+    get 'dashboard/applications', to: 'dashboard#applications'
+    get 'dashboard/payments', to: 'dashboard#payments'
+    
     resources :lenders do
       member do
         get :available_wholesale_funders
