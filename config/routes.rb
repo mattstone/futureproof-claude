@@ -274,6 +274,23 @@ Rails.application.routes.draw do
       end
     end
     
+    # Legal Documents Management
+    resources :legal_documents do
+      member do
+        patch :publish
+        patch :approve
+        patch :activate
+        patch :archive
+      end
+      collection do
+        get :compliance_dashboard
+        get :templates
+        post :setup_jurisdiction
+        get :export_compliance_report
+        get :acceptance_tracking
+      end
+    end
+
     get 'old', to: 'old_dashboard#index', as: 'old_dashboard'
     root "admin_dashboard_v2#dashboard_v2"
   end

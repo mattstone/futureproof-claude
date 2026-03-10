@@ -22,6 +22,10 @@ class User < ApplicationRecord
   has_many :mortgage_contract_users, dependent: :destroy
   has_many :additional_mortgage_contracts, through: :mortgage_contract_users, source: :mortgage_contract
 
+  # Legal document acceptance
+  has_many :legal_document_acceptances, dependent: :destroy
+  has_many :accepted_legal_documents, through: :legal_document_acceptances, source: :legal_document
+
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value
   
@@ -257,6 +261,26 @@ class User < ApplicationRecord
     current_terms = TermsOfUse.current
     return false if current_terms.blank?
     terms_version == current_terms.version
+  end
+
+  # Check if user has accepted a specific legal document
+  def accepted?(legal_document)
+    legal_document_acceptances.exists?(legal_document: legal_document)
+  end
+
+  # Get acceptance record for a document
+  def acceptance_of(legal_document)
+    legal_document_acceptances.find_by(legal_document: legal_document)
+  end
+
+  # Mark user acceptance of a legal document
+  def accept!(legal_document, acceptance_type = "explicit")
+    legal_document_acceptances.find_or_create_by!(
+      legal_document: legal_document
+    ) do |acceptance|
+      acceptance.accepted_at = Time.current
+      acceptance.acceptance_type = acceptance_type
+    end
   end
   
   # Log when admin views user profile

@@ -45,6 +45,10 @@ class Lender < ApplicationRecord
            class_name: 'LenderClause'
   has_many :published_lender_clauses, -> { where(is_draft: false) }, 
            class_name: 'LenderClause'
+
+  # Legal document acceptance (lender agreements, etc.)
+  has_many :legal_document_acceptances, dependent: :destroy
+  has_many :accepted_legal_documents, through: :legal_document_acceptances, source: :legal_document
   
   # ISO 3166-1 alpha-2 country codes
   VALID_COUNTRY_CODES = ["AU", "US", "NZ", "UK"].freeze
@@ -106,6 +110,28 @@ class Lender < ApplicationRecord
     return "No clause" unless has_clause?
     truncated = custom_clause_content.strip
     truncated.length > 50 ? "#{truncated[0..47]}..." : truncated
+  end
+
+  # Legal document acceptance
+  def accepted?(legal_document)
+    legal_document_acceptances.exists?(legal_document: legal_document)
+  end
+
+  def acceptance_of(legal_document)
+    legal_document_acceptances.find_by(legal_document: legal_document)
+  end
+
+  def accept!(legal_document, acceptance_type = "explicit")
+    legal_document_acceptances.find_or_create_by!(
+      legal_document: legal_document
+    ) do |acceptance|
+      acceptance.accepted_at = Time.current
+      acceptance.acceptance_type = acceptance_type
+    end
+  end
+
+  def jurisdiction
+    country  # Map 'country' to 'jurisdiction' for legal document system
   end
   
   private

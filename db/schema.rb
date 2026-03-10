@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_211328) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -663,6 +663,87 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211328) do
     t.index ["application_id"], name: "index_kyc_submissions_on_application_id"
   end
 
+  create_table "legal_document_acceptances", force: :cascade do |t|
+    t.string "acceptance_type"
+    t.datetime "accepted_at", null: false
+    t.bigint "application_id"
+    t.datetime "created_at", null: false
+    t.bigint "legal_document_id", null: false
+    t.bigint "lender_id"
+    t.text "notes"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["application_id"], name: "index_legal_document_acceptances_on_application_id"
+    t.index ["legal_document_id", "lender_id", "accepted_at"], name: "idx_legal_acceptances_lender"
+    t.index ["legal_document_id", "user_id", "accepted_at"], name: "idx_legal_acceptances_user"
+    t.index ["legal_document_id"], name: "index_legal_document_acceptances_on_legal_document_id"
+    t.index ["lender_id"], name: "index_legal_document_acceptances_on_lender_id"
+    t.index ["user_id"], name: "index_legal_document_acceptances_on_user_id"
+  end
+
+  create_table "legal_document_signatures", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.bigint "legal_document_acceptance_id", null: false
+    t.text "signature_data"
+    t.string "signature_method"
+    t.string "signature_provider"
+    t.datetime "signed_at"
+    t.string "signer_email", null: false
+    t.string "signer_name", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.index ["legal_document_acceptance_id", "signed_at"], name: "idx_legal_signatures"
+    t.index ["legal_document_acceptance_id"], name: "idx_on_legal_document_acceptance_id_5c0490665d"
+  end
+
+  create_table "legal_document_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "document_type", null: false
+    t.text "instructions"
+    t.boolean "is_active", default: true
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.integer "sort_order", default: 0
+    t.text "template_content", null: false
+    t.string "template_name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_type", "jurisdiction", "party_type"], name: "idx_legal_templates_lookup"
+  end
+
+  create_table "legal_document_versions", force: :cascade do |t|
+    t.string "action"
+    t.bigint "admin_user_id"
+    t.text "change_details"
+    t.datetime "created_at", null: false
+    t.bigint "legal_document_id", null: false
+    t.text "new_content"
+    t.text "previous_content"
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_legal_document_versions_on_admin_user_id"
+    t.index ["legal_document_id", "created_at"], name: "idx_legal_doc_versions"
+    t.index ["legal_document_id"], name: "index_legal_document_versions_on_legal_document_id"
+  end
+
+  create_table "legal_documents", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.string "document_type", null: false
+    t.datetime "effective_from", null: false
+    t.datetime "effective_to"
+    t.boolean "is_active", default: false, null: false
+    t.boolean "is_draft", default: true, null: false
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.integer "status", default: 0
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.string "version", null: false
+    t.index ["document_type", "jurisdiction", "party_type", "is_active"], name: "idx_legal_docs_lookup"
+    t.index ["document_type", "jurisdiction", "party_type", "version"], name: "idx_legal_docs_unique", unique: true
+    t.index ["is_active", "effective_from"], name: "idx_legal_docs_active"
+  end
+
   create_table "lender_clause_versions", force: :cascade do |t|
     t.string "action", null: false
     t.text "change_details"
@@ -1146,6 +1227,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211328) do
     t.boolean "active"
     t.datetime "created_at"
     t.string "event"
+    t.string "jurisdiction"
     t.bigint "lender_id", null: false
     t.string "secret"
     t.datetime "updated_at"
@@ -1319,6 +1401,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_211328) do
   add_foreign_key "funder_pools", "wholesale_funders"
   add_foreign_key "investment_partners", "wholesale_funders"
   add_foreign_key "kyc_submissions", "applications"
+  add_foreign_key "legal_document_acceptances", "applications"
+  add_foreign_key "legal_document_acceptances", "legal_documents"
+  add_foreign_key "legal_document_acceptances", "lenders"
+  add_foreign_key "legal_document_acceptances", "users"
+  add_foreign_key "legal_document_signatures", "legal_document_acceptances"
+  add_foreign_key "legal_document_versions", "legal_documents"
+  add_foreign_key "legal_document_versions", "users", column: "admin_user_id"
   add_foreign_key "lender_clause_versions", "lender_clauses"
   add_foreign_key "lender_clause_versions", "users"
   add_foreign_key "lender_clauses", "lenders"
