@@ -1,0 +1,96 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Delivery History</h1>
+        <p class="text-slate-600 mt-2 font-mono text-sm"><%= @webhook.url %></p>
+      </div>
+      <%= link_to "← Back to Webhooks", lender_dashboard_webhooks_path, class: "btn btn-outline" %>
+    </div>
+
+    <!-- Empty State -->
+    <% if @events.empty? %>
+      <div class="bg-white rounded-lg border border-slate-200 p-12 text-center">
+        <div class="mb-4">
+          <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-slate-900">No webhook events yet</h3>
+        <p class="text-slate-600 mt-2">Webhooks will appear here as events occur</p>
+      </div>
+    <% else %>
+      <!-- Events Table -->
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Event Type</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Timestamp</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Attempts</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <% @events.each do |event| %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-6 py-4 text-sm font-medium text-slate-900">
+                  <code class="bg-slate-100 px-2 py-1 rounded text-xs"><%= event.event_type %></code>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600">
+                  <%= event.created_at.strftime("%Y-%m-%d %H:%M:%S") %>
+                </td>
+                <td class="px-6 py-4 text-sm">
+                  <% case event.status %>
+                    <% when 'pending' %>
+                      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <span class="w-2 h-2 rounded-full bg-yellow-600 animate-pulse"></span>
+                        Pending
+                      </span>
+                    <% when 'delivered' %>
+                      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span class="w-2 h-2 rounded-full bg-green-600"></span>
+                        Delivered
+                      </span>
+                    <% when 'failed' %>
+                      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                        Failed
+                      </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600">
+                  <%= event.attempt_count %> / 4
+                </td>
+                <td class="px-6 py-4 text-sm">
+                  <% if event.failed? && event.attempt_count < 4 %>
+                    <%= button_to "Retry", retry_lender_dashboard_webhook_path(@webhook, event_id: event.id), method: :post, class: "btn btn-sm btn-outline" %>
+                  <% elsif event.failed? %>
+                    <span class="text-xs text-slate-500">Max attempts reached</span>
+                  <% end %>
+                </td>
+              </tr>
+              <% if event.error_message.present? %>
+                <tr class="bg-red-50 border-b border-slate-200">
+                  <td colspan="5" class="px-6 py-3">
+                    <p class="text-xs font-semibold text-red-700 mb-1">Error:</p>
+                    <code class="text-xs text-red-600 break-all"><%= event.error_message %></code>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <% if @events.respond_to?(:total_pages) %>
+          <div class="bg-slate-50 px-6 py-4 flex items-center justify-center">
+            <%= paginate @events %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

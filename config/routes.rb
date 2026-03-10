@@ -516,6 +516,15 @@ Rails.application.routes.draw do
     get 'reports', to: 'dashboard#reports', as: 'reports'
     get 'account', to: 'dashboard#account', as: 'account'
     patch 'account', to: 'dashboard#update_account', as: 'update_account'
+    
+    # Webhook management
+    resources :webhooks do
+      member do
+        post :test
+        get :delivery_log
+        post :retry
+      end
+    end
   end
 
   # Defines the root path route ("/")

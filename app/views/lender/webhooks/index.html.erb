@@ -1,0 +1,72 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Webhooks</h1>
+        <p class="text-slate-600 mt-2">Manage integrations and receive real-time notifications</p>
+      </div>
+      <%= link_to "New Webhook", new_lender_dashboard_webhook_path, class: "btn btn-primary" %>
+    </div>
+
+    <!-- Empty State -->
+    <% if @webhooks.empty? %>
+      <div class="bg-white rounded-lg border border-slate-200 p-12 text-center">
+        <div class="mb-4">
+          <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-slate-900">No webhooks yet</h3>
+        <p class="text-slate-600 mt-2">Register your first webhook endpoint to start receiving real-time notifications</p>
+        <div class="mt-6">
+          <%= link_to "Create Webhook", new_lender_dashboard_webhook_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% else %>
+      <!-- Webhook Cards -->
+      <div class="space-y-4">
+        <% @webhooks.each do |webhook| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-lg font-semibold text-slate-900 break-all"><%= webhook.url %></h3>
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium <%= webhook.active? ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700' %>">
+                    <span class="w-2 h-2 rounded-full <%= webhook.active? ? 'bg-green-600' : 'bg-slate-400' %>"></span>
+                    <%= webhook.active? ? 'Active' : 'Inactive' %>
+                  </span>
+                </div>
+                <% if webhook.last_triggered_at.present? %>
+                  <p class="text-sm text-slate-500">Last triggered: <%= time_ago_in_words(webhook.last_triggered_at) %> ago</p>
+                <% else %>
+                  <p class="text-sm text-slate-500">Never triggered</p>
+                <% end %>
+              </div>
+              
+              <!-- Actions -->
+              <div class="flex gap-2 ml-4">
+                <%= link_to "Test", test_lender_dashboard_webhook_path(webhook), method: :post, class: "btn btn-sm btn-outline", data: { confirm: "Send test webhook?" } %>
+                <%= link_to "Logs", delivery_log_lender_dashboard_webhook_path(webhook), class: "btn btn-sm btn-outline" %>
+                <%= link_to "Edit", edit_lender_dashboard_webhook_path(webhook), class: "btn btn-sm btn-outline" %>
+                <%= link_to "Delete", lender_dashboard_webhook_path(webhook), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: "Delete webhook?" } %>
+              </div>
+            </div>
+
+            <!-- Events -->
+            <div class="mt-4 pt-4 border-t border-slate-200">
+              <p class="text-xs font-semibold text-slate-600 uppercase mb-2">Subscribed Events</p>
+              <div class="flex flex-wrap gap-2">
+                <% webhook.events.each do |event| %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <%= event %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

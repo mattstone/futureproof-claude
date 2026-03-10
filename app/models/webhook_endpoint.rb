@@ -1,9 +1,8 @@
 class WebhookEndpoint < ApplicationRecord
-  belongs_to :lender, class_name: 'User'
+  belongs_to :user
   has_many :webhook_events, dependent: :destroy
 
-  validates :url, presence: true, url: true
-  validates :secret, presence: true
+  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp(%w(http https)) }
   validates :events, presence: true
   validate :events_are_valid
 

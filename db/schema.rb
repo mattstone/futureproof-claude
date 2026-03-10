@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_114100) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_121002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1075,6 +1075,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_114100) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "webhook_endpoints", force: :cascade do |t|
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.text "events"
+    t.datetime "last_triggered_at"
+    t.string "secret"
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_webhook_endpoints_on_user_id"
+  end
+
+  create_table "webhook_events", force: :cascade do |t|
+    t.integer "attempt_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at"
+    t.text "error_message"
+    t.string "event_type"
+    t.jsonb "payload"
+    t.integer "status", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "webhook_endpoint_id", null: false
+    t.index ["webhook_endpoint_id"], name: "index_webhook_events_on_webhook_endpoint_id"
+  end
+
   create_table "wholesale_funder_contracts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "html_content", null: false
@@ -1280,6 +1305,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_10_114100) do
   add_foreign_key "user_versions", "users"
   add_foreign_key "user_versions", "users", column: "admin_user_id"
   add_foreign_key "users", "lenders"
+  add_foreign_key "webhook_endpoints", "users"
+  add_foreign_key "webhook_events", "webhook_endpoints"
   add_foreign_key "wholesale_funder_contracts", "wholesale_funders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"

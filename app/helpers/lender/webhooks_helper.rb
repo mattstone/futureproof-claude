@@ -1,0 +1,2 @@
+module Lender::WebhooksHelper
+end
