@@ -36,9 +36,12 @@
             <span>💼 Business</span>
           <% end %>
 
-          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[applications contracts users]) %>>
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[operations_summary applications contracts users]) %>>
             <summary class="admin-nav-group-header">Operations</summary>
             <div class="admin-nav-group-items">
+              <%= link_to admin_operations_summary_path, class: "admin-nav-link #{'active' if controller_name == 'operations_summary'}" do %>
+                <span>📊 Summary</span>
+              <% end %>
               <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
                 <span>📋 Applications</span>
               <% end %>

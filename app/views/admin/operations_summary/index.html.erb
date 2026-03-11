@@ -1,0 +1,568 @@
+<% content_for :page_title, "Operations Summary" %>
+
+<div class="ops-dashboard">
+  <div class="ops-header">
+    <h1>Operations Summary</h1>
+    <p class="ops-subtitle">Application pipeline, conversion trends, and support metrics</p>
+  </div>
+
+  <!-- KPIs Row -->
+  <section class="ops-kpis">
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">Avg Processing Time</div>
+      <div class="ops-kpi-value"><%= @kpis[:avg_processing_days] %> days</div>
+    </div>
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">Approval Rate</div>
+      <div class="ops-kpi-value"><%= @kpis[:approval_rate] %>%</div>
+    </div>
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">Conversion Rate</div>
+      <div class="ops-kpi-value"><%= @kpis[:conversion_rate] %>%</div>
+    </div>
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">App Growth (MoM)</div>
+      <div class="ops-kpi-value <%= @kpis[:app_growth_mom] >= 0 ? 'ops-positive' : 'ops-negative' %>">
+        <%= @kpis[:app_growth_mom] > 0 ? '+' : '' %><%= @kpis[:app_growth_mom] %>%
+      </div>
+    </div>
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">Contract Growth (MoM)</div>
+      <div class="ops-kpi-value <%= @kpis[:contract_growth_mom] >= 0 ? 'ops-positive' : 'ops-negative' %>">
+        <%= @kpis[:contract_growth_mom] > 0 ? '+' : '' %><%= @kpis[:contract_growth_mom] %>%
+      </div>
+    </div>
+    <div class="ops-kpi">
+      <div class="ops-kpi-label">Arrears Risk</div>
+      <div class="ops-kpi-value <%= @kpis[:arrears_percentage] > 5 ? 'ops-negative' : 'ops-positive' %>">
+        <%= @kpis[:arrears_percentage] %>%
+      </div>
+    </div>
+  </section>
+
+  <!-- Pain Points & Alerts -->
+  <section class="ops-section">
+    <h2 class="ops-section-title">⚠️ Pain Points & Blockers</h2>
+    <div class="ops-pain-points">
+      <% @pain_points.each do |pp| %>
+        <div class="ops-pain-point ops-severity-<%= pp[:severity] %>">
+          <div class="ops-pp-header">
+            <span class="ops-pp-severity <%= pp[:severity].to_s %>"><%= pp[:severity].to_s.upcase %></span>
+            <span class="ops-pp-category"><strong><%= pp[:category] %></strong></span>
+          </div>
+          <div class="ops-pp-description"><%= pp[:description] %></div>
+          <div class="ops-pp-impact">
+            <strong>Impact:</strong> <%= pp[:impact] %>
+          </div>
+          <div class="ops-pp-action">
+            <strong>Action:</strong> <%= pp[:action] %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Application Pipeline -->
+  <section class="ops-section">
+    <h2 class="ops-section-title">📋 Application Pipeline</h2>
+    <div class="ops-pipeline">
+      <div class="ops-pipeline-stats">
+        <div class="ops-stat">
+          <div class="ops-stat-value"><%= @applications[:total] %></div>
+          <div class="ops-stat-label">Total Applications</div>
+        </div>
+        <div class="ops-stat">
+          <div class="ops-stat-value"><%= @applications[:new_this_week] %></div>
+          <div class="ops-stat-label">New This Week</div>
+        </div>
+        <div class="ops-stat">
+          <div class="ops-stat-value ops-warning"><%= @applications[:stalled_applications] %></div>
+          <div class="ops-stat-label">Stalled (>3d)</div>
+        </div>
+        <div class="ops-stat">
+          <div class="ops-stat-value"><%= @applications[:acceptance_rate] %>%</div>
+          <div class="ops-stat-label">Acceptance Rate</div>
+        </div>
+      </div>
+
+      <div class="ops-pipeline-breakdown">
+        <h3>Status Breakdown</h3>
+        <div class="ops-status-list">
+          <% @applications[:by_status].each do |status, count| %>
+            <div class="ops-status-item">
+              <span class="ops-status-name"><%= status %></span>
+              <span class="ops-status-bar">
+                <span class="ops-status-fill" style="width: <%= (count.to_f / @applications[:total] * 100).round %>%"></span>
+              </span>
+              <span class="ops-status-count"><%= count %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Conversion Metrics -->
+  <section class="ops-section">
+    <h2 class="ops-section-title">🔄 Conversion: Applications → Contracts</h2>
+    <div class="ops-conversion">
+      <div class="ops-conversion-overall">
+        <div class="ops-metric">
+          <div class="ops-metric-value"><%= @conversion[:conversion_rate] %>%</div>
+          <div class="ops-metric-label">Overall Conversion Rate</div>
+          <div class="ops-metric-detail"><%= @conversion[:applications_with_contracts] %> / <%= @conversion[:total_applications] %> apps</div>
+        </div>
+      </div>
+
+      <div class="ops-conversion-table">
+        <div class="ops-table-header">
+          <div class="ops-table-cell">Period</div>
+          <div class="ops-table-cell">Applications</div>
+          <div class="ops-table-cell">Contracts Created</div>
+          <div class="ops-table-cell">Conversion Rate</div>
+          <div class="ops-table-cell">Trend</div>
+        </div>
+
+        <div class="ops-table-row ops-row-highlight">
+          <div class="ops-table-cell"><strong>This Month</strong></div>
+          <div class="ops-table-cell"><%= @conversion[:this_month][:applications] %></div>
+          <div class="ops-table-cell"><%= @conversion[:this_month][:contracts] %></div>
+          <div class="ops-table-cell"><strong><%= @conversion[:this_month][:conversion_rate] %>%</strong></div>
+          <div class="ops-table-cell">
+            <span class="ops-trend <%= @conversion[:mom_direction] %>">
+              <% if @conversion[:mom_direction] == 'up' %>
+                ↑ +<%= @conversion[:mom_trend] %>%
+              <% elsif @conversion[:mom_direction] == 'down' %>
+                ↓ <%= @conversion[:mom_trend] %>%
+              <% else %>
+                → Flat
+              <% end %>
+            </span>
+          </div>
+        </div>
+
+        <div class="ops-table-row">
+          <div class="ops-table-cell">Last Month</div>
+          <div class="ops-table-cell"><%= @conversion[:last_month][:applications] %></div>
+          <div class="ops-table-cell"><%= @conversion[:last_month][:contracts] %></div>
+          <div class="ops-table-cell"><%= @conversion[:last_month][:conversion_rate] %>%</div>
+          <div class="ops-table-cell">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support & Collections -->
+  <section class="ops-section">
+    <h2 class="ops-section-title">🆘 Support & Collections</h2>
+    <div class="ops-support">
+      <div class="ops-support-grid">
+        <div class="ops-support-card">
+          <div class="ops-support-title">Issues Outstanding</div>
+          <div class="ops-support-value ops-warning"><%= @support[:issues_outstanding] %></div>
+          <div class="ops-support-breakdown">
+            <div>In Arrears: <strong><%= @support[:contracts_in_arrears] %></strong> ($<%= (@support[:arrears_total_value] / 1_000_000).round(1) %>M)</div>
+            <div>In Holiday: <strong><%= @support[:contracts_in_holiday] %></strong></div>
+          </div>
+        </div>
+
+        <div class="ops-support-card">
+          <div class="ops-support-title">Solutions Delivered</div>
+          <div class="ops-support-value ops-positive"><%= @support[:solutions_delivered] %></div>
+          <div class="ops-support-breakdown">
+            <div>Completed: <strong><%= @support[:contracts_completed] %></strong></div>
+            <div>This Month: <strong><%= @support[:completed_this_month] %></strong></div>
+          </div>
+        </div>
+
+        <div class="ops-support-card">
+          <div class="ops-support-title">Application Issues</div>
+          <div class="ops-support-value ops-warning"><%= @support[:applications_needing_attention] %></div>
+          <div class="ops-support-breakdown">
+            <div>Rejected: <strong><%= @support[:rejected_applications] %></strong></div>
+            <div>This Month: <strong><%= @support[:rejected_this_month] %></strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .ops-dashboard {
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
+  }
+
+  .ops-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .ops-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2.25rem;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .ops-subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+
+  /* KPIs */
+  .ops-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .ops-kpi {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .ops-kpi-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .ops-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0066cc;
+  }
+
+  .ops-positive {
+    color: #10b981;
+  }
+
+  .ops-negative {
+    color: #dc2626;
+  }
+
+  /* Sections */
+  .ops-section {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .ops-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  /* Pain Points */
+  .ops-pain-points {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ops-pain-point {
+    border-left: 4px solid #e2e8f0;
+    padding: 1.25rem;
+    border-radius: 4px;
+    background: #fafbfc;
+  }
+
+  .ops-severity-critical { border-left-color: #dc2626; background: #fef2f2; }
+  .ops-severity-warning { border-left-color: #f59e0b; background: #fffbeb; }
+  .ops-severity-info { border-left-color: #3b82f6; background: #eff6ff; }
+  .ops-severity-success { border-left-color: #10b981; background: #f0fdf4; }
+
+  .ops-pp-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .ops-pp-severity {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .critical { background: #dc2626; }
+  .warning { background: #f59e0b; }
+  .info { background: #3b82f6; }
+  .success { background: #10b981; }
+
+  .ops-pp-category {
+    font-size: 0.95rem;
+    color: #1e293b;
+  }
+
+  .ops-pp-description {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 0.5rem;
+  }
+
+  .ops-pp-impact {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+
+  .ops-pp-action {
+    font-size: 0.85rem;
+    color: #475569;
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.03);
+    border-radius: 3px;
+  }
+
+  /* Pipeline */
+  .ops-pipeline {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+  }
+
+  .ops-pipeline-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .ops-stat {
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .ops-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin-bottom: 0.5rem;
+  }
+
+  .ops-stat-value.ops-warning {
+    color: #f59e0b;
+  }
+
+  .ops-stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ops-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ops-status-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 40px;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .ops-status-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+  }
+
+  .ops-status-bar {
+    background: #f1f5f9;
+    border-radius: 3px;
+    height: 8px;
+    overflow: hidden;
+    display: block;
+  }
+
+  .ops-status-fill {
+    background: #3b82f6;
+    height: 100%;
+    display: block;
+  }
+
+  .ops-status-count {
+    font-weight: 600;
+    color: #1e293b;
+    text-align: right;
+  }
+
+  /* Conversion */
+  .ops-conversion {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+  }
+
+  .ops-conversion-overall {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .ops-metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 0.5rem;
+  }
+
+  .ops-metric-label {
+    font-size: 0.9rem;
+    color: #475569;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .ops-metric-detail {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .ops-table-header {
+    display: grid;
+    grid-template-columns: 140px 140px 140px 140px 100px;
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .ops-table-row {
+    display: grid;
+    grid-template-columns: 140px 140px 140px 140px 100px;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .ops-row-highlight {
+    background: #f0fdf4;
+  }
+
+  .ops-table-cell {
+    font-size: 0.9rem;
+    color: #1e293b;
+  }
+
+  .ops-trend {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .ops-trend.up { background: #d1fae5; color: #10b981; }
+  .ops-trend.down { background: #fee2e2; color: #dc2626; }
+  .ops-trend.flat { background: #f1f5f9; color: #64748b; }
+
+  /* Support */
+  .ops-support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .ops-support-card {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 6px;
+    border-left: 3px solid #e2e8f0;
+  }
+
+  .ops-support-title {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .ops-support-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin-bottom: 1rem;
+  }
+
+  .ops-support-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #475569;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .ops-pipeline {
+      grid-template-columns: 1fr;
+    }
+
+    .ops-conversion {
+      grid-template-columns: 1fr;
+    }
+
+    .ops-table-header,
+    .ops-table-row {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ops-dashboard {
+      padding: 1rem;
+    }
+
+    .ops-kpis {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ops-section {
+      padding: 1.5rem;
+    }
+
+    .ops-pipeline-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .ops-table-header,
+    .ops-table-row {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+</style>

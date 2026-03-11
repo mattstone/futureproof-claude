@@ -28,6 +28,9 @@ Rails.application.routes.draw do
     get 'dashboard/applications', to: 'dashboard#applications'
     get 'dashboard/payments', to: 'dashboard#payments'
     
+    # Operations Summary
+    get 'operations_summary', to: 'operations_summary#index'
+    
     resources :lenders do
       member do
         get :available_wholesale_funders
