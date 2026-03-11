@@ -104,6 +104,7 @@ class Admin::DashboardController < Admin::BaseController
       funders_overview: WholesaleFunder.map { |f|
         {
           name: f.name,
+          country: f.country,
           total_capital: f.total_capital,
           deployed: f.total_allocated,
           utilization: f.capital_allocation_percentage,
