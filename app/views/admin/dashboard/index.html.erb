@@ -1,354 +1,822 @@
-<div class="admin-dashboard">
-  <div class="dashboard-header">
-    <h1>FutureProof Admin Dashboard</h1>
-    <p class="subtitle">System health, portfolio metrics, lender analytics</p>
+<% content_for :page_title, "Executive Dashboard" %>
+
+<div class="exec-dashboard">
+  <!-- Header Section -->
+  <div class="ed-header">
+    <div>
+      <h1>Executive Dashboard</h1>
+      <p class="ed-subtitle">FutureProof Platform — Real-time portfolio & business metrics</p>
+    </div>
+    <div class="ed-header-meta">
+      <span class="ed-timestamp">Last updated: <%= Time.now.strftime('%H:%M %Z') %></span>
+    </div>
   </div>
 
-  <!-- System Alerts -->
+  <!-- ============================================================================ -->
+  <!-- SECTION 1: EXECUTIVE SUMMARY - Critical KPIs at a Glance -->
+  <!-- ============================================================================ -->
+  <section class="ed-section">
+    <h2 class="ed-section-title">📊 Executive Summary</h2>
+    <div class="ed-kpi-grid">
+      <!-- Total Capital Raised -->
+      <div class="ed-kpi-card">
+        <div class="ed-kpi-header">
+          <span class="ed-kpi-label">Total Capital Raised</span>
+          <span class="ed-kpi-icon">💰</span>
+        </div>
+        <div class="ed-kpi-value"><%= number_to_currency(@summary[:total_capital_raised], precision: 0) %></div>
+        <div class="ed-kpi-meta"><%= FunderPool.count %> pools across 4 jurisdictions</div>
+      </div>
+
+      <!-- Capital Deployed -->
+      <div class="ed-kpi-card">
+        <div class="ed-kpi-header">
+          <span class="ed-kpi-label">Capital Deployed</span>
+          <span class="ed-kpi-icon">📈</span>
+        </div>
+        <div class="ed-kpi-value"><%= number_to_currency(@summary[:capital_deployed], precision: 0) %></div>
+        <div class="ed-kpi-meta"><%= @summary[:capital_utilization] %>% utilization</div>
+      </div>
+
+      <!-- Monthly Income Generated -->
+      <div class="ed-kpi-card">
+        <div class="ed-kpi-header">
+          <span class="ed-kpi-label">Monthly Income</span>
+          <span class="ed-kpi-icon">💸</span>
+        </div>
+        <div class="ed-kpi-value"><%= number_to_currency(@summary[:monthly_income_generated], precision: 0) %></div>
+        <div class="ed-kpi-meta">From <%= @summary[:active_contracts] %> active contracts</div>
+      </div>
+
+      <!-- Portfolio P&L -->
+      <div class="ed-kpi-card <%= @summary[:portfolio_pl_ytd] >= 0 ? 'ed-card-profit' : 'ed-card-loss' %>">
+        <div class="ed-kpi-header">
+          <span class="ed-kpi-label">Portfolio P&L (YTD)</span>
+          <span class="ed-kpi-icon"><%= @summary[:portfolio_pl_ytd] >= 0 ? '✅' : '⚠️' %></span>
+        </div>
+        <div class="ed-kpi-value <%= @summary[:portfolio_pl_ytd] >= 0 ? 'ed-profit' : 'ed-loss' %>">
+          <%= number_to_currency(@summary[:portfolio_pl_ytd], precision: 0) %>
+        </div>
+        <div class="ed-kpi-meta">Year-to-date profitability</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================================ -->
+  <!-- SECTION 2: HEALTH STATUS & ALERTS -->
+  <!-- ============================================================================ -->
   <% if @alerts.any? %>
-    <div class="alerts-section">
-      <% @alerts.each do |alert| %>
-        <div class="alert alert-<%= alert[:type] %>">
-          <strong><%= alert[:type].to_s.titleize %>:</strong> <%= alert[:message] %>
+    <section class="ed-section">
+      <h2 class="ed-section-title">🚨 Status & Alerts</h2>
+      <div class="ed-alerts">
+        <% @alerts.each do |alert| %>
+          <div class="ed-alert ed-alert-<%= alert[:type] %>">
+            <div class="ed-alert-icon"><%= alert[:icon] %></div>
+            <div class="ed-alert-content">
+              <div class="ed-alert-title"><%= alert[:title] %></div>
+              <div class="ed-alert-description"><%= alert[:description] %></div>
+              <% if alert[:contracts]&.any? %>
+                <div class="ed-alert-details">
+                  <% alert[:contracts].each do |c| %>
+                    <span class="ed-alert-item">
+                      Contract #<%= c[:id] %> | <%= c[:lender] %> | <%= number_to_currency(c[:amount], precision: 0) %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <div class="ed-alert-action">
+              <a href="<%= alert[:action_url] %>" class="btn btn-sm btn-outline">Review</a>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- ============================================================================ -->
+  <!-- SECTION 3: PORTFOLIO PERFORMANCE -->
+  <!-- ============================================================================ -->
+  <section class="ed-section">
+    <h2 class="ed-section-title">📈 Performance Metrics</h2>
+    <div class="ed-metrics-grid">
+      <!-- Returns -->
+      <div class="ed-metric-box">
+        <div class="ed-metric-label">Avg Investment Return</div>
+        <div class="ed-metric-value ed-profit"><%= @performance[:weighted_investment_return] %>%</div>
+        <div class="ed-metric-bar">
+          <div class="ed-metric-fill" style="width: <%= [@performance[:weighted_investment_return], 50].min %>%"></div>
+        </div>
+      </div>
+
+      <!-- Cost of Capital -->
+      <div class="ed-metric-box">
+        <div class="ed-metric-label">Weighted Cost of Capital</div>
+        <div class="ed-metric-value ed-loss"><%= @performance[:weighted_cost_of_capital] %>%</div>
+        <div class="ed-metric-bar">
+          <div class="ed-metric-fill ed-fill-negative" style="width: <%= [@performance[:weighted_cost_of_capital], 50].min %>%"></div>
+        </div>
+      </div>
+
+      <!-- Net Margin -->
+      <div class="ed-metric-box">
+        <div class="ed-metric-label">Net Margin</div>
+        <div class="ed-metric-value <%= @performance[:net_margin] >= 0 ? 'ed-profit' : 'ed-loss' %>">
+          <%= @performance[:net_margin] %>%
+        </div>
+        <div class="ed-metric-bar">
+          <div class="ed-metric-fill" style="width: <%= [@performance[:net_margin], 50].min %>%"></div>
+        </div>
+      </div>
+
+      <!-- Contract Health -->
+      <div class="ed-metric-box">
+        <div class="ed-metric-label">Contracts in Arrears</div>
+        <div class="ed-metric-value <%= @summary[:contracts_in_arrears] > 0 ? 'ed-warning' : 'ed-success' %>">
+          <%= @summary[:contracts_in_arrears] %>
+        </div>
+        <div class="ed-metric-status">
+          <% if @summary[:contracts_in_arrears] == 0 %>
+            <span class="ed-status-badge ed-status-ok">✓ All contracts current</span>
+          <% else %>
+            <span class="ed-status-badge ed-status-warning">⚠ Requires attention</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================================ -->
+  <!-- SECTION 4: CONTRACT STATUS DISTRIBUTION -->
+  <!-- ============================================================================ -->
+  <section class="ed-section">
+    <h2 class="ed-section-title">📋 Contract Portfolio Breakdown</h2>
+    <div class="ed-status-grid">
+      <% @portfolio[:status_distribution].each do |status, count| %>
+        <div class="ed-status-card">
+          <div class="ed-status-label"><%= status %></div>
+          <div class="ed-status-value"><%= count %></div>
+          <div class="ed-status-bar">
+            <div class="ed-status-bar-fill ed-status-<%= status.downcase.gsub(' ', '-') %>" 
+                 style="width: <%= (count.to_f / Contract.count * 100).round %>%"></div>
+          </div>
         </div>
       <% end %>
     </div>
-  <% end %>
+  </section>
 
-  <!-- System Health Metrics -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-label">Total Applications</div>
-      <div class="metric-value"><%= @health[:total_applications] %></div>
-      <div class="metric-detail">
-        <span class="pending stat-count--warning"><%= @health[:pending_applications] %> pending</span>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-label">Active Loans</div>
-      <div class="metric-value stat-count--success"><%= @health[:active_loans] %></div>
-      <div class="metric-detail">
-        <span><strong>Portfolio Value:</strong> <%= number_to_currency(@portfolio[:total_active_portfolio_value], precision: 0) %></span>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-label">Lenders</div>
-      <div class="metric-value stat-count--info"><%= @health[:total_lenders] %></div>
-      <div class="metric-detail">
-        <span><strong>Webhooks:</strong> <%= @health[:active_webhooks] %> active</span>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-label">Rejected</div>
-      <div class="metric-value stat-count--danger"><%= @health[:rejected_applications] %></div>
-      <div class="metric-detail">
-        <span><strong>Failed Webhooks:</strong> <%= @health[:failed_webhooks] %></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Portfolio Overview -->
-  <div class="section">
-    <h2>Portfolio Overview</h2>
-    <div class="portfolio-grid">
-      <div class="portfolio-card">
-        <div class="label">Total Active Portfolio Value</div>
-        <div class="value"><%= number_to_currency(@portfolio[:total_active_portfolio_value], precision: 0) %></div>
-      </div>
-      <div class="portfolio-card">
-        <div class="label">Total Distributions Paid</div>
-        <div class="value"><%= number_to_currency(@portfolio[:total_distributions_paid], precision: 2) %></div>
-      </div>
-      <div class="portfolio-card">
-        <div class="label">Average Loan Amount</div>
-        <div class="value"><%= number_to_currency(@portfolio[:average_loan_amount], precision: 0) %></div>
-      </div>
-      <div class="portfolio-card">
-        <div class="label">Average Loan Term</div>
-        <div class="value"><%= number_with_precision(@portfolio[:average_loan_term]) %> years</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Top Lenders -->
-  <div class="section">
-    <h2>Top Performing Lenders</h2>
-    <% if @top_lenders.any? %>
-      <table class="lenders-table">
-        <thead>
-          <tr>
-            <th>Lender</th>
-            <th>Active Applications</th>
-            <th>Portfolio Value</th>
-            <th>Distribution Coverage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @top_lenders.each do |lender| %>
-            <tr>
-              <td><strong><%= lender[:name] %></strong></td>
-              <td><%= lender[:applications] %></td>
-              <td><%= number_to_currency(lender[:portfolio_value], precision: 0) %></td>
-              <td>
-                <div class="progress-bar">
-                  <div class="progress" style="width: <%= lender[:distribution_status][:percentage] %>%">
-                    <%= number_with_precision(lender[:distribution_status][:percentage], precision: 1) %>%
-                  </div>
-                </div>
-                <small><%= lender[:distribution_status][:with_distributions] %>/<%= lender[:distribution_status][:total_apps] %> with distributions</small>
-              </td>
-            </tr>
+  <!-- ============================================================================ -->
+  <!-- SECTION 5: TOP PERFORMERS -->
+  <!-- ============================================================================ -->
+  <section class="ed-section">
+    <h2 class="ed-section-title">🏆 Top Performers</h2>
+    <div class="ed-performers-grid">
+      <!-- Best Lenders -->
+      <div class="ed-performer-box">
+        <h3 class="ed-performer-title">Top Lenders (by ROI)</h3>
+        <div class="ed-performer-list">
+          <% @top_performers[:top_lenders].each_with_index do |lender, idx| %>
+            <div class="ed-performer-item">
+              <div class="ed-performer-rank"><%= idx + 1 %></div>
+              <div class="ed-performer-info">
+                <div class="ed-performer-name"><%= lender[:name] %></div>
+                <div class="ed-performer-meta"><%= lender[:contracts] %> contracts | <%= number_to_currency(lender[:total_deployed], precision: 0) %></div>
+              </div>
+              <div class="ed-performer-score">
+                <span class="ed-score-label">ROI</span>
+                <span class="ed-score-value"><%= lender[:avg_return] %>%</span>
+              </div>
+            </div>
           <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p class="no-data">No active lenders with applications.</p>
-    <% end %>
-  </div>
+        </div>
+      </div>
 
-  <!-- Monthly Payment Trend -->
-  <div class="section">
-    <h2>Monthly Payment Distribution</h2>
-    <% if @monthly_payments.any? %>
-      <table class="payments-table">
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Count</th>
-            <th>Total Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @monthly_payments.each do |month| %>
-            <tr>
-              <td><strong><%= month[:month] %></strong></td>
-              <td><%= month[:count] %> distributions</td>
-              <td><%= number_to_currency(month[:total], precision: 2) %></td>
-            </tr>
+      <!-- Best Pools -->
+      <div class="ed-performer-box">
+        <h3 class="ed-performer-title">Top Pools (by ROI)</h3>
+        <div class="ed-performer-list">
+          <% @top_performers[:top_pools].each_with_index do |pool, idx| %>
+            <div class="ed-performer-item">
+              <div class="ed-performer-rank"><%= idx + 1 %></div>
+              <div class="ed-performer-info">
+                <div class="ed-performer-name"><%= pool[:name] %></div>
+                <div class="ed-performer-meta"><%= pool[:contracts] %> contracts | <%= number_to_currency(pool[:total_deployed], precision: 0) %></div>
+              </div>
+              <div class="ed-performer-score">
+                <span class="ed-score-label">ROI</span>
+                <span class="ed-score-value"><%= pool[:avg_return] %>%</span>
+              </div>
+            </div>
           <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p class="no-data">No distributions processed yet.</p>
-    <% end %>
-  </div>
+        </div>
+      </div>
 
-  <!-- Failed Webhooks Alert -->
-  <% if @failed_webhooks.any? %>
-    <div class="section alert-section">
-      <h2>Failed Webhook Deliveries (Last 24h)</h2>
-      <table class="webhooks-table">
-        <thead>
-          <tr>
-            <th>Event</th>
-            <th>URL</th>
-            <th>Response Code</th>
-            <th>Failed At</th>
-            <th>Retries</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @failed_webhooks.each do |webhook| %>
-            <tr class="failed-row">
-              <td><strong><%= webhook[:event] %></strong></td>
-              <td><code><%= truncate(webhook[:url], length: 40) %></code></td>
-              <td><span class="status-code status-<%= webhook[:response_code] %>"><%= webhook[:response_code] || 'Timeout' %></span></td>
-              <td><%= webhook[:failed_at].strftime('%H:%M %Z') %></td>
-              <td><%= webhook[:retries] %>/3</td>
-              <td>
-                <% if webhook[:retries] < 3 %>
-                  <%= link_to "Retry", admin_retry_webhook_path(webhook[:webhook_id]), method: :post, class: "btn btn-sm btn-warning" %>
-                <% else %>
-                  <span class="badge badge-danger">Max retries</span>
-                <% end %>
-              </td>
-            </tr>
+      <!-- Best Contracts -->
+      <div class="ed-performer-box">
+        <h3 class="ed-performer-title">Top Contracts (by Return)</h3>
+        <div class="ed-performer-list">
+          <% @top_performers[:top_contracts].each_with_index do |contract, idx| %>
+            <div class="ed-performer-item">
+              <div class="ed-performer-rank"><%= idx + 1 %></div>
+              <div class="ed-performer-info">
+                <div class="ed-performer-name">Contract #<%= contract[:id] %></div>
+                <div class="ed-performer-meta"><%= contract[:lender] %> | <%= number_to_currency(contract[:allocated], precision: 0) %></div>
+              </div>
+              <div class="ed-performer-score">
+                <span class="ed-score-label">Return</span>
+                <span class="ed-score-value"><%= contract[:return_rate] %>%</span>
+              </div>
+            </div>
           <% end %>
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
-  <% end %>
+  </section>
 
-  <!-- Quick Links -->
-  <div class="section quick-links">
-    <h2>Quick Actions</h2>
-    <div class="link-grid">
-      <%= link_to "View All Webhooks", admin_dashboard_webhooks_path, class: "btn btn-primary" %>
-      <%= link_to "View Applications", admin_dashboard_applications_path, class: "btn btn-primary" %>
-      <%= link_to "View Payments", admin_dashboard_payments_path, class: "btn btn-primary" %>
-      <%= link_to "Manage Lenders", admin_lenders_path, class: "btn btn-secondary" %>
+  <!-- ============================================================================ -->
+  <!-- SECTION 6: KEY FIGURES -->
+  <!-- ============================================================================ -->
+  <section class="ed-section">
+    <h2 class="ed-section-title">💼 Key Figures</h2>
+    <div class="ed-figures-grid">
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= @summary[:lenders_active] %></div>
+        <div class="ed-figure-label">Active Lenders</div>
+      </div>
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= @summary[:total_applications] %></div>
+        <div class="ed-figure-label">Applications In Progress</div>
+      </div>
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= number_to_currency(@performance[:average_contract_value], precision: 0) %></div>
+        <div class="ed-figure-label">Avg Contract Value</div>
+      </div>
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= @performance[:average_contract_age_months] %> mo</div>
+        <div class="ed-figure-label">Average Contract Age</div>
+      </div>
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= number_to_currency(@performance[:total_paid_to_date], precision: 0) %></div>
+        <div class="ed-figure-label">Total Payments Processed</div>
+      </div>
+      <div class="ed-figure">
+        <div class="ed-figure-value"><%= @performance[:contracts_by_age][:new] + @performance[:contracts_by_age][:growing] + @performance[:contracts_by_age][:mature] %></div>
+        <div class="ed-figure-label">Total Active Contracts</div>
+      </div>
     </div>
-  </div>
+  </section>
 </div>
 
 <style>
-  .admin-dashboard {
+  .exec-dashboard {
     padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
   }
 
-  .dashboard-header {
-    margin-bottom: 2rem;
+  .ed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
   }
 
-  .dashboard-header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+  .ed-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2.5rem;
+    color: #1e293b;
+    font-weight: 700;
   }
 
-  .subtitle {
-    color: #666;
+  .ed-subtitle {
+    margin: 0;
+    color: #64748b;
     font-size: 0.95rem;
   }
 
-  .alerts-section {
-    margin-bottom: 2rem;
+  .ed-header-meta {
+    text-align: right;
   }
 
-  .alert {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid;
-    border-radius: 4px;
+  .ed-timestamp {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-family: 'Monaco', monospace;
   }
 
-  .alert-warning { border-color: #F59E0B; background: #FFFBEB; }
-  .alert-error { border-color: #EF4444; background: #FEE2E2; }
-  .alert-info { border-color: #3B82F6; background: #EFF6FF; }
+  /* ======================================================================== */
+  /* SECTIONS */
+  /* ======================================================================== */
 
-  .metrics-grid {
+  .ed-section {
+    margin-bottom: 3rem;
+  }
+
+  .ed-section-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1.75rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  /* ======================================================================== */
+  /* KPI GRID */
+  /* ======================================================================== */
+
+  .ed-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
   }
 
-  .metric-card {
-    padding: 1.5rem;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
+  .ed-kpi-card {
     background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
   }
 
-  .metric-label {
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 0.5rem;
+  .ed-kpi-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
 
-  .metric-value {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+  .ed-kpi-card.ed-card-profit {
+    background: #f0fdf4;
+    border-color: #86efac;
   }
 
-  .section {
-    margin-bottom: 2.5rem;
-    padding: 1.5rem;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    background: white;
+  .ed-kpi-card.ed-card-loss {
+    background: #fef2f2;
+    border-color: #fca5a5;
   }
 
-  .section h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.3rem;
-  }
-
-  .portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .portfolio-card {
-    padding: 1rem;
-    background: #F9FAFB;
-    border-radius: 6px;
-    border-left: 3px solid #3B82F6;
-  }
-
-  .portfolio-card .label {
-    font-size: 0.8rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-  }
-
-  .portfolio-card .value {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  table th {
-    background: #F9FAFB;
-    padding: 0.75rem;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid #E5E7EB;
-  }
-
-  table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #E5E7EB;
-  }
-
-  .progress-bar {
-    background: #E5E7EB;
-    height: 24px;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .progress {
-    background: #10B981;
-    height: 100%;
+  .ed-kpi-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
+    margin-bottom: 1rem;
   }
 
-  .status-code {
-    padding: 0.25rem 0.5rem;
-    border-radius: 3px;
+  .ed-kpi-label {
     font-size: 0.85rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     font-weight: 600;
   }
 
-  .status-200 { background: #DCFCE7; color: #166534; }
-  .status-400 { background: #FEF3C7; color: #92400E; }
-  .status-500 { background: #FEE2E2; color: #991B1B; }
-
-  .quick-links {
-    background: #F0F9FF;
+  .ed-kpi-icon {
+    font-size: 1.5rem;
   }
 
-  .link-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  .ed-kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin-bottom: 0.75rem;
+  }
+
+  .ed-kpi-card.ed-card-profit .ed-kpi-value {
+    color: #10b981;
+  }
+
+  .ed-kpi-card.ed-card-loss .ed-kpi-value {
+    color: #dc2626;
+  }
+
+  .ed-kpi-meta {
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  /* ======================================================================== */
+  /* ALERTS */
+  /* ======================================================================== */
+
+  .ed-alerts {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+  }
+
+  .ed-alert {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px;
+    gap: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    align-items: center;
+    border-left: 4px solid #e2e8f0;
+  }
+
+  .ed-alert-critical {
+    border-left-color: #dc2626;
+    background: #fef2f2;
+  }
+
+  .ed-alert-warning {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+  }
+
+  .ed-alert-info {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  .ed-alert-icon {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .ed-alert-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+
+  .ed-alert-description {
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+
+  .ed-alert-details {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ed-alert-item {
+    font-size: 0.8rem;
+    background: rgba(0,0,0,0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: #475569;
+  }
+
+  .ed-alert-action {
+    text-align: right;
   }
 
   .btn {
-    padding: 0.75rem 1rem;
+    display: inline-block;
+    padding: 0.5rem 1rem;
     border-radius: 6px;
     text-decoration: none;
-    display: inline-block;
     font-weight: 600;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
     cursor: pointer;
+    background: transparent;
+    color: #0066cc;
   }
 
-  .btn-primary { background: #3B82F6; color: white; }
-  .btn-secondary { background: #6B7280; color: white; }
-  .btn-warning { background: #F59E0B; color: white; }
+  .btn-outline {
+    border: 1px solid #0066cc;
+  }
+
+  .btn:hover {
+    background: #f0f9ff;
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* ======================================================================== */
+  /* METRICS */
+  /* ======================================================================== */
+
+  .ed-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .ed-metric-box {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .ed-metric-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .ed-metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .ed-metric-bar {
+    background: #f1f5f9;
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .ed-metric-fill {
+    background: #3b82f6;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .ed-metric-fill.ed-fill-negative {
+    background: #dc2626;
+  }
+
+  .ed-metric-status {
+    margin-top: 0.75rem;
+  }
+
+  .ed-status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .ed-status-ok {
+    background: #10b981;
+  }
+
+  .ed-status-warning {
+    background: #f59e0b;
+  }
+
+  .ed-profit {
+    color: #10b981;
+  }
+
+  .ed-loss {
+    color: #dc2626;
+  }
+
+  .ed-warning {
+    color: #f59e0b;
+  }
+
+  .ed-success {
+    color: #10b981;
+  }
+
+  /* ======================================================================== */
+  /* STATUS GRID */
+  /* ======================================================================== */
+
+  .ed-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .ed-status-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .ed-status-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-transform: capitalize;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .ed-status-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .ed-status-bar {
+    background: #f1f5f9;
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .ed-status-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .ed-status-ok { background: #10b981; }
+  .ed-status-in-holiday { background: #f59e0b; }
+  .ed-status-in-arrears { background: #dc2626; }
+  .ed-status-complete { background: #8b5cf6; }
+  .ed-status-awaiting-funding { background: #6b7280; }
+
+  /* ======================================================================== */
+  /* PERFORMERS */
+  /* ======================================================================== */
+
+  .ed-performers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+  }
+
+  .ed-performer-box {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .ed-performer-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1.25rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .ed-performer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ed-performer-item {
+    display: grid;
+    grid-template-columns: 30px 1fr 80px;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .ed-performer-item:last-child {
+    border-bottom: none;
+  }
+
+  .ed-performer-rank {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0066cc;
+    text-align: center;
+  }
+
+  .ed-performer-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .ed-performer-meta {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .ed-performer-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ed-score-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ed-score-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #10b981;
+  }
+
+  /* ======================================================================== */
+  /* KEY FIGURES */
+  /* ======================================================================== */
+
+  .ed-figures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .ed-figure {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .ed-figure:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .ed-figure-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin-bottom: 0.5rem;
+  }
+
+  .ed-figure-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ======================================================================== */
+  /* RESPONSIVE */
+  /* ======================================================================== */
+
+  @media (max-width: 1024px) {
+    .ed-kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ed-performers-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .exec-dashboard {
+      padding: 1.5rem;
+    }
+
+    .ed-header {
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: flex-start;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .ed-header h1 {
+      font-size: 1.75rem;
+    }
+
+    .ed-header-meta {
+      text-align: left;
+    }
+
+    .ed-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ed-section-title {
+      font-size: 1.15rem;
+    }
+
+    .ed-metrics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ed-alert {
+      grid-template-columns: 50px 1fr;
+    }
+
+    .ed-alert-action {
+      grid-column: 2;
+      text-align: left;
+      margin-top: 0.5rem;
+    }
+
+    .ed-figures-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ed-kpi-value {
+      font-size: 1.5rem;
+    }
+  }
 </style>
