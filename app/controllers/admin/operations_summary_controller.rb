@@ -71,7 +71,7 @@ class Admin::OperationsSummaryController < Admin::BaseController
   # ============================================================================
   def build_conversion_metrics
     total_apps = Application.count
-    apps_with_contracts = Application.joins(:contracts).distinct.count
+    apps_with_contracts = Application.where.not(contract: nil).count
     conversion_rate = total_apps > 0 ? ((apps_with_contracts.to_f / total_apps) * 100).round(1) : 0
     
     # Month-over-month conversion
@@ -360,7 +360,7 @@ class Admin::OperationsSummaryController < Admin::BaseController
 
   def calculate_conversion_rate
     total = Application.count
-    with_contracts = Application.joins(:contracts).distinct.count
+    with_contracts = Application.where.not(contract: nil).count
     total > 0 ? ((with_contracts.to_f / total) * 100).round(1) : 0
   end
 
