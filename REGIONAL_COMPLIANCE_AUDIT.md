@@ -1,6 +1,6 @@
 # FutureProof Regional Compliance Audit & Gap Analysis
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Created:** 2026-03-06  
 **Scope:** Financial regulations, security standards, currency/tax treatment per region (AU, NZ, UK, US)  
 **Purpose:** Identify gaps in REFACTOR_PROMPT.md and build implementation plan
@@ -15,7 +15,8 @@
 > - **Board-level summary:** use `docs/pdfs/FutureProof_Regional_Regulatory_Readiness_Jun2026.pdf` — the distilled, decision-focused briefing built from this analysis and the per-market docs.
 > - **Sections 6, 7 and 9** (model selection, token/timeline budgeting, the "should we do Phase 0A?" decision) describe the *internal build process*, which is now complete. They are retained only as a historical record.
 > - **Terminology:** the EPM is a **mortgage**, not a loan the customer repays — the customer receives income and makes **no repayments**; the lender bears the investment risk. Where "loan" appears below in that consumer-obligation sense, read "mortgage / EPM". Genuine regulatory terms (e.g. "loan-to-value", the US "Loan Estimate", "Australian Credit Licence") are left as-is.
-> - **Two factual corrections** were applied in this revision: UK tax treatment (§3.2) and the insurance framing (§4.2) — see those sections.
+> - **Two factual corrections** were applied: UK tax treatment (§3.2) and the insurance framing (§4.2) — see those sections.
+> - **AU classification fork added** (§1.1) — the binding AU question is **ACL vs AFSL** (personal-advice AFSL is a ~6–12 month path), plus the comparison-rate problem and the Age Pension income test. See the board briefing for the cross-market view of this fork.
 >
 > ---
 
@@ -38,6 +39,8 @@
 ## SECTION 1: REGULATORY GAPS — FINANCIAL & LENDING
 
 ### 1.1 Australia (AU) — Missing Regulatory Details
+
+> **⚠️ Update (2026-06-03) — the AU classification fork.** Subsequent analysis (`docs/compliance/AUSTRALIA_COMPLIANCE.md`, `docs/compliance/REGULATORY_ASSESSMENT_AU.md`, and the board briefing PDF) shows the binding AU question is **ACL vs AFSL**, not the ACL alone. An **ACL** (credit) is almost certain; but managing the investment portfolio and giving income projections **likely triggers an AFSL**. *General*-advice-only is the lighter route; ***personal* advice** is much heavier — Statement of Advice, Best Interests Duty, qualified advisers — a ~6–12 month path. Two more AU-specific items confirmed since: the **comparison-rate problem** (the mandatory comparison rate assumes repayments the EPM does not have — needs ASIC guidance/exemption) and the **Age Pension income test** (EPM income is assessable and can reduce pension entitlements — must be disclosed). Net: AU is **not** the clear "fast" market the gap list below implies — its timeline depends entirely on this fork.
 
 **What's Missing:**
 
