@@ -25,8 +25,8 @@ class QuoteServiceTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { QuoteService.quote(home_value: 1_500_000, term: 10, model: :invalid) }
   end
 
-  test "default model is tom" do
-    assert_equal :tom, QuoteService::DEFAULT_MODEL
+  test "default model is pavel (validated production model)" do
+    assert_equal :pavel, QuoteService::DEFAULT_MODEL
   end
 
   # =============================================================================
@@ -37,7 +37,8 @@ class QuoteServiceTest < ActiveSupport::TestCase
     result = QuoteService.quote(home_value: 1_500_000, term: 10, model: :tom)
 
     assert_equal :tom, result[:model]
-    assert_equal "Tom's Model", result[:model_name]
+    assert_equal "Tom's Model (legacy)", result[:model_name]
+    assert_equal "legacy-tom", result[:product_version]
     assert_equal 1_500_000, result[:home_value]
     assert_equal 10, result[:term_years]
     assert_equal 0.80, result[:lvr]
@@ -73,7 +74,7 @@ class QuoteServiceTest < ActiveSupport::TestCase
   test "tom model info returns expected structure" do
     info = QuoteService.model_info(:tom)
 
-    assert_equal "Tom's Model", info[:name]
+    assert_equal "Tom's Model (legacy)", info[:name]
     assert info[:description].present?
     assert info[:assumptions].present?
     assert info[:annuity_rates].present?
@@ -87,7 +88,9 @@ class QuoteServiceTest < ActiveSupport::TestCase
     result = QuoteService.quote(home_value: 1_500_000, term: 10, model: :pavel)
 
     assert_equal :pavel, result[:model]
-    assert_equal "Pavel's Model", result[:model_name]
+    assert_equal "Pavel's Model v14d Optimised", result[:model_name]
+    assert_equal EpmModelConfig.model_version, result[:product_version]
+    assert result[:issued_at].present?
     assert_equal 1_500_000, result[:home_value]
     assert_equal 10, result[:term_years]
     assert_equal 0.80, result[:lvr]
@@ -96,14 +99,20 @@ class QuoteServiceTest < ActiveSupport::TestCase
     assert result[:total_income].positive?
   end
 
-  test "pavel model uses 1.5% annuity rate for 10 year term" do
+  test "pavel model uses validated 2.0% annuity rate for 10 year term" do
     result = QuoteService.quote(home_value: 1_500_000, term: 10, model: :pavel)
 
-    # 1.5% of $1.5M = $22,500/year = $1,875/month
-    assert_equal 0.015, result[:annuity_rate]
-    assert_equal 22_500, result[:annual_income]
-    assert_equal 1_875, result[:monthly_income]
-    assert_equal 225_000, result[:total_income]
+    # v14d Optimised base case: 2.0% of $1.5M = $30,000/year = $2,500/month
+    assert_equal 0.02, result[:annuity_rate]
+    assert_equal 30_000, result[:annual_income]
+    assert_equal 2_500, result[:monthly_income]
+    assert_equal 300_000, result[:total_income]
+    assert result[:term_validated], "10yr term should be MC-validated"
+  end
+
+  test "pavel model flags provisional terms as not validated" do
+    result = QuoteService.quote(home_value: 1_500_000, term: 20, model: :pavel)
+    refute result[:term_validated], "non-anchor terms are provisional pending Pavel validation"
   end
 
   test "pavel model scales linearly with home value" do
@@ -137,33 +146,35 @@ class QuoteServiceTest < ActiveSupport::TestCase
   test "pavel model info returns expected structure with model params" do
     info = QuoteService.model_info(:pavel)
 
-    assert_equal "Pavel's Model", info[:name]
+    assert_equal "Pavel's Model v14d Optimised", info[:name]
     assert info[:description].present?
     assert info[:assumptions].present?
     assert info[:annuity_rates].present?
     assert info[:model_params].present?
     assert info[:risk_metrics].present?
 
-    # Check model params are documented
+    # Check model params are documented (sourced from EpmModelConfig)
     assert info[:model_params][:cash_rate_initial].present?
-    assert info[:model_params][:equity_return_mean].present?
+    assert info[:model_params][:equity_mean].present?
   end
 
   # =============================================================================
   # MODEL COMPARISON TESTS
   # =============================================================================
 
-  test "pavel model is more conservative than tom model" do
+  test "every quote carries a product version for reproducibility" do
     tom = QuoteService.quote(home_value: 1_500_000, term: 10, model: :tom)
     pavel = QuoteService.quote(home_value: 1_500_000, term: 10, model: :pavel)
 
-    # Pavel's model should give lower monthly income (more conservative)
-    assert pavel[:monthly_income] < tom[:monthly_income],
-           "Pavel's model should be more conservative (lower income) than Tom's"
+    assert_equal "legacy-tom", tom[:product_version]
+    assert_equal EpmModelConfig.model_version, pavel[:product_version]
+    assert tom[:issued_at].present?
+    assert pavel[:issued_at].present?
+  end
 
-    # Approximately 25% difference
-    difference_pct = (tom[:monthly_income] - pavel[:monthly_income]).to_f / tom[:monthly_income] * 100
-    assert difference_pct > 20, "Expected >20% difference, got #{difference_pct.round(1)}%"
+  test "rejects home values outside the global envelope" do
+    assert_raises(ArgumentError) { QuoteService.quote(home_value: 250_000, term: 10) }
+    assert_raises(ArgumentError) { QuoteService.quote(home_value: 12_000_000, term: 10) }
   end
 
   test "both models use same LVR" do

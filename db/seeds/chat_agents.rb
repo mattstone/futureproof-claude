@@ -3,6 +3,15 @@ puts "Seeding Chat Agents..."
 
 agents = [
   {
+    name: "Akane",
+    agent_type: "support",
+    description: "EPM customer support specialist. Powered by Claude with the FutureProof knowledge base.",
+    system_prompt: "Built dynamically from CustomerSupportPrompt — see app/services/customer_support_prompt.rb",
+    avatar_emoji: "💬",
+    region_support: %w[us au nz uk],
+    capabilities: { knowledge_base: true, region_aware: true, escalation: true }
+  },
+  {
     name: "Ava",
     agent_type: "onboarding",
     description: "Helps new customers understand EPM products and guides them through the application process.",

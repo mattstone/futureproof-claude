@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
     t.index ["completed_at"], name: "index_agent_tasks_on_completed_at"
     t.index ["status"], name: "index_agent_tasks_on_status"
     t.index ["task_type"], name: "index_agent_tasks_on_task_type"
+  end
+
+  create_table "agreement_signatures", force: :cascade do |t|
+    t.bigint "agreement_id", null: false
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.string "signature_method", default: "typed", null: false
+    t.datetime "signed_at", null: false
+    t.string "signer_email", null: false
+    t.string "signer_name", null: false
+    t.string "signer_role", null: false
+    t.string "signer_title"
+    t.string "typed_signature", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.index ["agreement_id", "signer_role"], name: "index_agreement_signatures_on_agreement_id_and_signer_role", unique: true
+    t.index ["agreement_id"], name: "index_agreement_signatures_on_agreement_id"
+  end
+
+  create_table "agreements", force: :cascade do |t|
+    t.bigint "agreeable_id", null: false
+    t.string "agreeable_type", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.datetime "executed_at"
+    t.datetime "expires_at"
+    t.string "jurisdiction", null: false
+    t.bigint "legal_document_id", null: false
+    t.text "notes"
+    t.datetime "sent_at"
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.string "version"
+    t.index ["agreeable_type", "agreeable_id"], name: "index_agreements_on_agreeable_type_and_agreeable_id"
+    t.index ["created_by_id"], name: "index_agreements_on_created_by_id"
+    t.index ["legal_document_id"], name: "index_agreements_on_legal_document_id"
+    t.index ["status"], name: "index_agreements_on_status"
   end
 
   create_table "ai_agents", force: :cascade do |t|
@@ -595,6 +634,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
     t.index ["trigger_type", "active"], name: "index_email_workflows_on_trigger_type_and_active"
   end
 
+  create_table "faqs", force: :cascade do |t|
+    t.text "answer", null: false
+    t.datetime "created_at", null: false
+    t.string "jurisdiction", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "published", default: false, null: false
+    t.string "question", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jurisdiction", "position"], name: "index_faqs_on_jurisdiction_and_position"
+    t.index ["jurisdiction", "published"], name: "index_faqs_on_jurisdiction_and_published"
+  end
+
   create_table "funder_pool_versions", force: :cascade do |t|
     t.string "action", null: false
     t.text "change_details"
@@ -992,6 +1043,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
     t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
   end
 
+  create_table "quotes", force: :cascade do |t|
+    t.bigint "annual_income"
+    t.decimal "annuity_rate", precision: 8, scale: 6
+    t.bigint "application_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "home_value", null: false
+    t.integer "income_payout_term"
+    t.datetime "issued_at", null: false
+    t.decimal "lvr", precision: 5, scale: 4
+    t.bigint "max_loan"
+    t.bigint "monthly_income", null: false
+    t.string "mortgage_type"
+    t.string "pricing_model"
+    t.string "product_version", null: false
+    t.string "region"
+    t.integer "term_years", null: false
+    t.bigint "total_income"
+    t.datetime "updated_at", null: false
+    t.index ["application_id", "issued_at"], name: "index_quotes_on_application_id_and_issued_at"
+    t.index ["application_id"], name: "index_quotes_on_application_id"
+  end
+
   create_table "referral_partners", force: :cascade do |t|
     t.decimal "commission_rate", precision: 5, scale: 2, default: "0.0"
     t.string "company"
@@ -1035,6 +1108,55 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
     t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
     t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
     t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
+  end
+
+  create_table "support_ticket_messages", force: :cascade do |t|
+    t.bigint "agent_user_id"
+    t.text "body_html"
+    t.text "body_text"
+    t.datetime "created_at", null: false
+    t.datetime "email_sent_at"
+    t.jsonb "metadata", default: {}
+    t.string "microsoft_graph_message_id"
+    t.string "sender_email"
+    t.string "sender_name"
+    t.string "sender_type", null: false
+    t.bigint "support_ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_user_id"], name: "index_support_ticket_messages_on_agent_user_id"
+    t.index ["microsoft_graph_message_id"], name: "index_support_ticket_messages_on_microsoft_graph_message_id", unique: true
+    t.index ["sender_type"], name: "index_support_ticket_messages_on_sender_type"
+    t.index ["support_ticket_id"], name: "index_support_ticket_messages_on_support_ticket_id"
+  end
+
+  create_table "support_tickets", force: :cascade do |t|
+    t.decimal "ai_confidence_score", precision: 5, scale: 4
+    t.text "ai_draft_reply"
+    t.string "ai_suggested_category"
+    t.bigint "application_id"
+    t.string "category", default: "general", null: false
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "microsoft_graph_conversation_id"
+    t.string "microsoft_graph_message_id"
+    t.string "priority", default: "normal", null: false
+    t.datetime "resolved_at"
+    t.string "sender_email", null: false
+    t.string "sender_name"
+    t.string "source", default: "email"
+    t.string "status", default: "open", null: false
+    t.string "subject", null: false
+    t.string "ticket_number", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["application_id"], name: "index_support_tickets_on_application_id"
+    t.index ["microsoft_graph_message_id"], name: "index_support_tickets_on_microsoft_graph_message_id", unique: true
+    t.index ["priority"], name: "index_support_tickets_on_priority"
+    t.index ["sender_email"], name: "index_support_tickets_on_sender_email"
+    t.index ["status"], name: "index_support_tickets_on_status"
+    t.index ["ticket_number"], name: "index_support_tickets_on_ticket_number", unique: true
+    t.index ["user_id"], name: "index_support_tickets_on_user_id"
   end
 
   create_table "terms_and_condition_versions", force: :cascade do |t|
@@ -1350,6 +1472,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_actions", "ai_agents"
   add_foreign_key "agent_tasks", "agent_performances"
+  add_foreign_key "agreement_signatures", "agreements"
+  add_foreign_key "agreements", "legal_documents"
+  add_foreign_key "agreements", "users", column: "created_by_id"
   add_foreign_key "aml_checks", "applications"
   add_foreign_key "application_checklists", "applications"
   add_foreign_key "application_checklists", "users", column: "completed_by_id"
@@ -1438,9 +1563,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_11_083735) do
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "quotes", "applications"
   add_foreign_key "referral_partners", "lenders"
   add_foreign_key "scheduled_workflow_jobs", "workflow_executions", column: "execution_id"
   add_foreign_key "scheduled_workflow_jobs", "workflow_steps", column: "step_id"
+  add_foreign_key "support_ticket_messages", "support_tickets"
+  add_foreign_key "support_ticket_messages", "users", column: "agent_user_id"
+  add_foreign_key "support_tickets", "applications"
+  add_foreign_key "support_tickets", "users"
   add_foreign_key "terms_and_condition_versions", "terms_and_conditions"
   add_foreign_key "terms_and_condition_versions", "users"
   add_foreign_key "terms_and_conditions", "users", column: "created_by_id"

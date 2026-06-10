@@ -1,0 +1,32 @@
+<section id="financial-overview" class="dashboard-overview-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Financial</h3>
+    <%= link_to "View lenders →", scorecard_admin_lenders_path, class: "dashboard-overview-link" %>
+  </header>
+  <dl class="dashboard-overview-stats">
+    <div>
+      <dt>Total raised</dt>
+      <dd><%= number_to_currency(data[:total_aum], precision: 0) %></dd>
+    </div>
+    <div>
+      <dt>Capital deployed</dt>
+      <dd><%= number_to_currency(data[:capital_deployed], precision: 0) %></dd>
+    </div>
+    <div>
+      <dt>Available</dt>
+      <dd><%= number_to_currency(data[:capital_available], precision: 0) %></dd>
+    </div>
+    <div>
+      <dt>WACC</dt>
+      <dd><%= data[:wacc] %>%</dd>
+    </div>
+    <div>
+      <dt>Portfolio P&amp;L</dt>
+      <dd><%= number_to_currency(data[:portfolio_pl], precision: 0) %></dd>
+    </div>
+    <div>
+      <dt>Net margin (annual)</dt>
+      <dd><%= number_to_currency(data[:net_margin_annual], precision: 0) %></dd>
+    </div>
+  </dl>
+</section>

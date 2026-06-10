@@ -1,33 +1,44 @@
 module Admin
   class LegalDocumentsController < BaseController
-    before_action :set_legal_document, only: [:show, :edit, :update, :activate, :archive, :publish, :approve]
+    before_action :set_legal_document, only: [:show, :edit, :update, :activate, :archive, :publish, :approve, :restore]
     
     # Permissions
     def authorize!
       authorize_admin_access!
     end
 
-    # List all legal documents, filtered by global jurisdiction switcher
+    # List all legal documents, filtered by global jurisdiction switcher and query params
     def index
       # Get jurisdiction from global admin switcher (stored in session)
       current_jurisdiction = session[:admin_jurisdiction] || "Summary"
-      
+
       @legal_documents = LegalDocument.all
-      
+
       # Filter by jurisdiction from global switcher
       unless current_jurisdiction == "Summary"
         @legal_documents = @legal_documents.where(jurisdiction: current_jurisdiction)
       end
-      
-      # Optional: Type filter from query params (doesn't override jurisdiction)
+
+      # Filter by document type
       @legal_documents = @legal_documents.of_type(params[:document_type]) if params[:document_type].present?
-      
-      @legal_documents = @legal_documents.order(jurisdiction: :asc, document_type: :asc, version: :desc)
-      
-      # Stats
+
+      # Filter by party type
+      @legal_documents = @legal_documents.where(party_type: params[:party_type]) if params[:party_type].present?
+
+      # Filter by status
+      @legal_documents = @legal_documents.where(status: params[:status]) if params[:status].present?
+
+      # Search by title
+      if params[:q].present?
+        @legal_documents = @legal_documents.where("title ILIKE ?", "%#{params[:q]}%")
+      end
+
+      @legal_documents = @legal_documents.order(document_type: :asc, jurisdiction: :asc, version: :desc)
+
+      # Stats (before pagination, after filters)
       @total_documents = @legal_documents.count
-      @active_documents = @legal_documents.where(status: 'active').count
-      @pending_documents = @legal_documents.where(status: 'draft').count
+      @active_documents = @legal_documents.where(status: "active").count
+      @pending_documents = @legal_documents.where(status: "draft").count
     end
 
     # View a specific legal document
@@ -114,12 +125,19 @@ module Admin
     # Archive document
     def archive
       @legal_document.current_admin_user = current_admin_user
-      
+
       if @legal_document.archive!
         redirect_to admin_legal_documents_path, notice: "Document archived"
       else
         redirect_to admin_legal_document_path(@legal_document), alert: "Failed to archive document"
       end
+    end
+
+    # Restore archived document to draft
+    def restore
+      @legal_document.current_admin_user = current_admin_user
+      @legal_document.update!(status: :draft, is_draft: true)
+      redirect_to admin_legal_document_path(@legal_document), notice: "Document restored to draft"
     end
 
     # Show compliance status across jurisdictions
@@ -212,6 +230,7 @@ module Admin
         :party_type,
         :title,
         :content,
+        :rich_content,
         :effective_from,
         :effective_to,
         :is_active,

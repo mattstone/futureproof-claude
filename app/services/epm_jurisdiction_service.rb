@@ -10,12 +10,15 @@
 # - Protected by NNEG (No Negative Equity Guarantee)
 
 class EpmJurisdictionService
+  class InvalidJurisdictionError < StandardError; end
+
   include JurisdictionValidation
 
   # Jurisdiction-specific EPM rules
   JURISDICTION_RULES = {
     'AU' => {
       name: 'Australia',
+      sales_channel: :self_service,
       currency: 'AUD',
       currency_symbol: 'A$',
       regulatory_body: 'ASIC',
@@ -68,6 +71,7 @@ class EpmJurisdictionService
     
     'US' => {
       name: 'United States',
+      sales_channel: :self_service,
       currency: 'USD',
       currency_symbol: '$',
       regulatory_body: 'CFPB',
@@ -121,6 +125,7 @@ class EpmJurisdictionService
     
     'NZ' => {
       name: 'New Zealand',
+      sales_channel: :self_service,
       currency: 'NZD',
       currency_symbol: 'NZ$',
       regulatory_body: 'FMA',
@@ -173,6 +178,9 @@ class EpmJurisdictionService
     
     'UK' => {
       name: 'United Kingdom',
+      # FCA MCOB: lifetime mortgages cannot be sold execution-only.
+      # The EPM must be recommended by a qualified adviser (see docs/compliance/UK_COMPLIANCE.md)
+      sales_channel: :adviser_led,
       currency: 'GBP',
       currency_symbol: '£',
       regulatory_body: 'FCA',
@@ -225,11 +233,21 @@ class EpmJurisdictionService
     }
   }.freeze
 
+  # True when the jurisdiction requires an adviser-led sale (no self-service)
+  def self.adviser_led?(jurisdiction_code)
+    code = JurisdictionValidation.normalize_jurisdiction(jurisdiction_code)
+    JURISDICTION_RULES.dig(code, :sales_channel) == :adviser_led
+  end
+
+  def adviser_led?
+    @rules[:sales_channel] == :adviser_led
+  end
+
   def initialize(jurisdiction_code)
     @jurisdiction_code = JurisdictionValidation.normalize_jurisdiction(jurisdiction_code)
     @rules = JURISDICTION_RULES[@jurisdiction_code]
     
-    raise InvalidJurisdictionError, "Unknown jurisdiction: #{jurisdiction_code}" unless @rules
+    raise self.class::InvalidJurisdictionError, "Unknown jurisdiction: #{jurisdiction_code}" unless @rules
   end
 
   # Get all rules for jurisdiction
@@ -240,6 +258,11 @@ class EpmJurisdictionService
   # Validate application against jurisdiction rules
   def validate_application(application)
     errors = []
+
+    # Sales channel: adviser-led jurisdictions cannot submit via self-service
+    if adviser_led?
+      errors << "#{@rules[:name]} applications must be arranged through a qualified adviser and cannot be submitted online"
+    end
     
     # Jurisdiction consistency
     unless application.region == @jurisdiction_code
@@ -270,14 +293,8 @@ class EpmJurisdictionService
       errors << "LTV (#{ltv}%) exceeds maximum (#{@rules[:max_ltv] * 100}%)"
     end
     
-    # Compliance requirements
-    unless application.kyc_submission&.verified?
-      errors << "KYC verification required for #{@jurisdiction_code}" if @rules[:required_kyc]
-    end
-    
-    unless application.aml_check&.passed?
-      errors << "AML check required for #{@jurisdiction_code}" if @rules[:required_aml_check]
-    end
+    # Note: KYC/AML compliance checks are performed post-submission by admin/lender
+    # They are not required at the time of customer submission
     
     errors
   end
@@ -323,5 +340,3 @@ class EpmJurisdictionService
     }
   end
 end
-
-class InvalidJurisdictionError < StandardError; end

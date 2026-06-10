@@ -180,11 +180,11 @@ application_ids.sample([application_ids.size, 60].min).each_with_index do |app_i
   pool = pools.sample
   lender = lenders.sample
   
-  # Status distribution: 60% ok, 15% in_holiday, 10% in_arrears, 10% complete, 5% awaiting
+  # Status distribution: 60% ok, 15% in_holiday, 10% investment_at_risk, 10% complete, 5% awaiting
   status = case rand
            when 0...0.6  then :ok
            when 0.6...0.75  then :in_holiday
-           when 0.75...0.85  then :in_arrears
+           when 0.75...0.85  then :investment_at_risk
            when 0.85...0.95  then :complete
            else :awaiting_funding
            end
@@ -225,6 +225,6 @@ puts "✅ Lenders: #{Lender.count} (40+ across all regions)"
 puts "✅ Applications: #{Application.count} (mixed statuses)"
 puts "✅ Contracts: #{Contract.count} (50+ active, 12-month history)"
 puts "✅ Portfolio Value: $#{Contract.sum(:allocated_amount) / 1_000_000}M deployed"
-puts "✅ Active Contracts: #{Contract.where(status: [:ok, :in_holiday, :in_arrears]).count}"
+puts "✅ Active Contracts: #{Contract.where(status: [:ok, :in_holiday, :investment_at_risk]).count}"
 puts "=" * 60
 puts "🎉 Ready for professional admin dashboard redesign\n\n"

@@ -1,39 +1,378 @@
-<div class="legal-document">
-  <h1>Terms of Service — United Kingdom</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  
-  <h2>1. Acceptance</h2>
-  <p>By accessing FutureProof Financial, you accept these Terms and our Privacy Policy.</p>
-  
-  <h2>2. Service Description</h2>
-  <p>We provide Equity Preservation Mortgage (EPM) products regulated under FCA MCOB and FSMA 2000.</p>
-  
-  <h2>3. Eligibility</h2>
-  <ul>
-    <li>Minimum age: 55 years</li>
-    <li>Property value: £250,000+</li>
-    <li>UK resident</li>
-    <li>Pass credit assessment</li>
-  </ul>
-  
-  <h2>4. Your Obligations</h2>
-  <p>You agree to: (a) provide accurate information; (b) maintain building insurance; (c) pay council tax/ground rent; (d) maintain property; (e) keep property registered at HM Land Registry.</p>
-  
-  <h2>5. FCA Consumer Duty</h2>
-  <p>We are committed to acting in your best interest and treating you fairly under FCA Consumer Duty rules.</p>
-  
-  <h2>6. Limitation of Liability</h2>
-  <p>To the extent permitted by law, our liability is limited to the loan principal amount. Nothing excludes liability for death, personal injury, or fraud.</p>
-  
-  <h2>7. Governing Law</h2>
-  <p>These Terms are governed by English Law (or Scottish/NI Law as applicable). Disputes resolved in UK courts or FCA complaints procedures.</p>
-  
-  <h2>8. Contact</h2>
-  <p>[email] | [phone]</p>
-</div>
+<% details = legal_details("uk") %>
+<% config = RegionHelper.region_config("uk") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-page">
+  <div class="legal-container">
+    <h1>Terms and Conditions — United Kingdom</h1>
+    <p class="last-updated">Version <%= legal_version %> | Effective: <%= legal_date %></p>
+
+    <div class="legal-content">
+
+      <div class="legal-section">
+        <h2>1. Introduction and Acceptance</h2>
+        <p><strong>1.1</strong> These Terms and Conditions ("Terms") govern your access to and use of the FutureProof Financial platform ("Platform") and the Equity Preservation Mortgage ("EPM") products and services offered by FutureProof Financial Ltd ("we", "us", "our", "FutureProof").</p>
+        <p><strong>1.2</strong> By accessing the Platform, creating an account, or applying for an EPM product, you ("you", "your", "the Borrower") confirm that you have read, understood, and agree to be bound by these Terms, together with our Privacy Policy and any supplementary documentation provided during the application process.</p>
+        <p><strong>1.3</strong> If you do not agree to these Terms, you must not use the Platform or apply for any EPM product.</p>
+        <p><strong>1.4</strong> These Terms are provided in addition to, and do not replace, any specific mortgage offer, Key Facts Illustration, or contractual documentation you receive in connection with an EPM application.</p>
+        <p><strong>1.5</strong> We recommend that you obtain independent legal and financial advice before entering into any EPM arrangement.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Definitions</h2>
+        <p>In these Terms, the following definitions apply:</p>
+        <ul>
+          <li><strong>APRC:</strong> Annual Percentage Rate of Charge, a standardised measure of the total cost of a mortgage expressed as an annual percentage, as required by MCOB.</li>
+          <li><strong>Consumer Duty:</strong> The FCA's Consumer Duty (PS22/9), which requires firms to act to deliver good outcomes for retail customers, including acting in good faith, avoiding foreseeable harm, and enabling customers to pursue their financial objectives.</li>
+          <li><strong>EPM (Equity Preservation Mortgage):</strong> A secured mortgage product offered by FutureProof whereby the Borrower borrows against residential property equity, the loan proceeds are invested in a diversified portfolio of index-linked ETFs and fixed income instruments with hedging collars, and the Borrower receives monthly income from investment returns while preserving property equity.</li>
+          <li><strong>FCA:</strong> The Financial Conduct Authority, the financial services regulator for the United Kingdom.</li>
+          <li><strong>FOS:</strong> The Financial Ombudsman Service, an independent body that resolves disputes between consumers and financial services firms.</li>
+          <li><strong>FSCS:</strong> The Financial Services Compensation Scheme, the UK's statutory compensation scheme for customers of authorised financial services firms.</li>
+          <li><strong>Hedging Collar:</strong> A risk management strategy using protective put options and covered call options to limit downside investment risk while retaining upside potential within a defined range.</li>
+          <li><strong>Holiday Mechanism:</strong> A feature of the EPM that allows the Borrower to temporarily suspend monthly income payments under specified conditions.</li>
+          <li><strong>Key Facts Illustration (KFI):</strong> A personalised document required by MCOB 5.6 that sets out the key features, costs, and risks of a specific mortgage product.</li>
+          <li><strong>Lifetime Mortgage:</strong> A type of equity release product regulated by the FCA. The EPM differs from a traditional lifetime mortgage in that it is designed for a fixed term (10-30 years) rather than the lifetime of the borrower, and it provides monthly income from invested proceeds rather than a lump sum.</li>
+          <li><strong>LTV (Loan-to-Value):</strong> The ratio of the mortgage loan to the appraised value of the property, expressed as a percentage.</li>
+          <li><strong>MCOB:</strong> Mortgages and Home Finance: Conduct of Business sourcebook, part of the FCA Handbook, setting out rules for firms that carry on home finance activities.</li>
+          <li><strong>NNEG (No Negative Equity Guarantee):</strong> A guarantee ensuring that the Borrower will never owe more than the value of their property at the time of repayment.</li>
+          <li><strong>Platform:</strong> The FutureProof Financial website, web application, and any associated digital services at futureprooffinancial.co.</li>
+          <li><strong>Profit Share:</strong> A mechanism whereby surplus investment returns above the required income and costs are shared between the Borrower and FutureProof at predetermined intervals.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Service Description</h2>
+        <p><strong>3.1</strong> FutureProof provides an Equity Preservation Mortgage (EPM) product that enables eligible homeowners aged 55 and over to:</p>
+        <ul>
+          <li>(a) Borrow against residential property equity up to a maximum LTV of <%= (config["max_ltv"].to_f * 100).to_i %>%;</li>
+          <li>(b) Have loan proceeds invested in a diversified portfolio comprising approximately 70% S&amp;P 500 index-linked ETFs and approximately 30% fixed income instruments;</li>
+          <li>(c) Benefit from hedging collar protection to limit downside investment risk;</li>
+          <li>(d) Receive monthly income of approximately 1.5% of property value per annum from investment returns;</li>
+          <li>(e) Preserve 100% of property equity through the NNEG insurance mechanism;</li>
+          <li>(f) Participate in profit-sharing every 5 years when investment returns exceed required thresholds.</li>
+        </ul>
+        <p><strong>3.2</strong> The Platform provides tools for obtaining indicative quotes, submitting applications, uploading supporting documentation, tracking application progress, and managing your EPM account.</p>
+        <p><strong>3.3</strong> All quotes, projections, and estimates provided through the Platform are indicative only and are subject to formal property valuation, credit assessment, affordability assessment, and lender approval.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Regulatory Status</h2>
+        <p><strong>4.1</strong> FutureProof Financial Ltd is authorised and regulated by the <%= details[:regulator] %>, Firm Reference Number [TBD].</p>
+        <p><strong>4.2</strong> FutureProof Financial Ltd is registered with Companies House, registration number [TBD], with its registered office in England.</p>
+        <p><strong>4.3</strong> Our authorisation covers home finance mediation and administration activities as defined by the Financial Services and Markets Act 2000 (FSMA) and the associated Regulated Activities Order.</p>
+        <p><strong>4.4</strong> We comply with the FCA Handbook, including but not limited to:</p>
+        <ul>
+          <li>(a) <strong>MCOB:</strong> Mortgages and Home Finance: Conduct of Business sourcebook;</li>
+          <li>(b) <strong>PRIN:</strong> Principles for Businesses;</li>
+          <li>(c) <strong>SYSC:</strong> Senior Management Arrangements, Systems and Controls;</li>
+          <li>(d) <strong>DISP:</strong> Dispute Resolution: Complaints sourcebook;</li>
+          <li>(e) <strong>Consumer Duty:</strong> PS22/9 and related guidance.</li>
+        </ul>
+        <p><strong>4.5</strong> You can verify our authorisation status on the FCA Financial Services Register at register.fca.org.uk.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Eligibility</h2>
+        <p><strong>5.1</strong> To be eligible for an EPM, you must satisfy all of the following criteria:</p>
+        <ul>
+          <li>(a) Be aged 55 years or over at the time of application;</li>
+          <li>(b) Be a UK resident (including England, Wales, Scotland, and Northern Ireland);</li>
+          <li>(c) Own residential property in the United Kingdom with a minimum value of <%= config["currency_symbol"] %><%= number_with_delimiter(config["min_home_value"]) %>;</li>
+          <li>(d) The property must be your primary residence;</li>
+          <li>(e) The property must have a clear or acceptable title registered with HM Land Registry (or Registers of Scotland, or Land and Property Services in Northern Ireland);</li>
+          <li>(f) Have legal capacity to enter into a mortgage contract;</li>
+          <li>(g) Not be an undischarged bankrupt or subject to an Individual Voluntary Arrangement (IVA), Debt Relief Order (DRO), or sequestration (Scotland);</li>
+          <li>(h) Pass our credit assessment and affordability checks as required by MCOB.</li>
+        </ul>
+        <p><strong>5.2</strong> Additional considerations may apply for properties in Scotland (where Scots property law applies) and Northern Ireland. We will advise you of any jurisdiction-specific requirements during the application process.</p>
+        <p><strong>5.3</strong> Leasehold properties must have a minimum unexpired lease term sufficient to exceed the proposed EPM term by at least 30 years.</p>
+        <p><strong>5.4</strong> We reserve the right to decline applications that do not meet our lending criteria, in accordance with responsible lending obligations.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Account Registration</h2>
+        <p><strong>6.1</strong> You must create an account on the Platform to access our services and apply for an EPM.</p>
+        <p><strong>6.2</strong> You agree to provide accurate, complete, and current information during registration and throughout the application process. Providing false or misleading information may constitute a criminal offence under the Fraud Act 2006.</p>
+        <p><strong>6.3</strong> You are responsible for maintaining the confidentiality and security of your account credentials, including your password and any multi-factor authentication tokens.</p>
+        <p><strong>6.4</strong> You must notify us immediately if you become aware of any unauthorised use of your account.</p>
+        <p><strong>6.5</strong> We may require identity verification, including but not limited to passport, driving licence, proof of address, and biometric verification, in compliance with our regulatory obligations.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. EPM Product Terms</h2>
+        <p><strong>7.1</strong> The key features of the EPM product are as follows:</p>
+        <ul>
+          <li>(a) <strong>Maximum Loan-to-Value:</strong> <%= (config["max_ltv"].to_f * 100).to_i %>% of the independently assessed property value;</li>
+          <li>(b) <strong>Loan Terms:</strong> 10, 15, 20, 25, or 30 years;</li>
+          <li>(c) <strong>Monthly Income:</strong> Approximately 1.5% of property value per annum, derived from investment returns, subject to market performance;</li>
+          <li>(d) <strong>Investment Strategy:</strong> Diversified portfolio of approximately 70% S&amp;P 500 index-linked ETFs and 30% fixed income instruments, protected by hedging collars;</li>
+          <li>(e) <strong>Equity Preservation:</strong> 100% of property equity is preserved through the NNEG insurance mechanism;</li>
+          <li>(f) <strong>Profit Share:</strong> Surplus investment returns are shared between the Borrower and FutureProof every 5 years, in accordance with the profit-sharing schedule set out in your mortgage offer.</li>
+        </ul>
+        <p><strong>7.2</strong> The EPM is a secured loan. Your property is used as security for the mortgage. If you fail to comply with the terms of the mortgage, your property may be repossessed.</p>
+        <p><strong>7.3</strong> YOUR HOME MAY BE REPOSSESSED IF YOU DO NOT KEEP UP REPAYMENTS ON YOUR MORTGAGE OR ANY OTHER DEBT SECURED ON IT.</p>
+        <p><strong>7.4</strong> The specific terms of your EPM, including the interest rate, APRC, fees, monthly income amount, and repayment terms, will be set out in your individual mortgage offer and Key Facts Illustration.</p>
+        <p><strong>7.5</strong> At the end of the mortgage term, the loan principal is repaid from the investment portfolio. Any surplus is returned to you. If the investment portfolio is insufficient, the NNEG insurance and pool mechanisms cover the shortfall.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. FCA Consumer Duty Obligations</h2>
+        <p><strong>8.1</strong> In accordance with the FCA Consumer Duty (PS22/9), we are committed to delivering good outcomes for our customers. This includes:</p>
+
+        <h3>8.1.1 Acting in Good Faith</h3>
+        <p>We will act honestly, fairly, and professionally in all our dealings with you. We will not exploit your trust, vulnerability, or lack of knowledge.</p>
+
+        <h3>8.1.2 Avoiding Foreseeable Harm</h3>
+        <p>We design our products and services to avoid causing foreseeable harm. We conduct ongoing monitoring to identify and mitigate potential risks to customers, including investment risk, affordability risk, and the risk of property repossession.</p>
+
+        <h3>8.1.3 Enabling and Supporting Customers</h3>
+        <p>We provide clear, timely, and accessible information to enable you to make informed decisions about the EPM product. We support customers who may be in vulnerable circumstances, in accordance with FCA Guidance FG21/1.</p>
+
+        <h3>8.1.4 Price and Value</h3>
+        <p>We ensure that the price of our products and services represents fair value to customers. We conduct regular fair value assessments and will notify you of any material changes to fees or charges.</p>
+
+        <p><strong>8.2</strong> If at any point we determine that the EPM product is not suitable for you, we will inform you and, where appropriate, decline your application or recommend alternative options.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. Fees and Charges</h2>
+        <p><strong>9.1</strong> The following fees may apply in connection with your EPM (all amounts in <%= details[:currency_full] %>):</p>
+        <ul>
+          <li>(a) <strong>Application Fee:</strong> <%= config["currency_symbol"] %>[Amount] — payable on submission of a full application;</li>
+          <li>(b) <strong>Independent Property Valuation Fee:</strong> <%= config["currency_symbol"] %>[Amount] — payable for the RICS-compliant property valuation;</li>
+          <li>(c) <strong>Legal and Conveyancing Fee:</strong> <%= config["currency_symbol"] %>[Amount] — for legal work in connection with the mortgage;</li>
+          <li>(d) <strong>Lenders Mortgage Insurance:</strong> A percentage of the loan amount, detailed in your mortgage offer;</li>
+          <li>(e) <strong>Annual Platform Fee:</strong> [X]% per annum of the investment portfolio value;</li>
+          <li>(f) <strong>Investment Management Fee:</strong> Included within the annual platform fee;</li>
+          <li>(g) <strong>Early Repayment Charge:</strong> May apply if you repay the mortgage before the end of the agreed term, as set out in your mortgage offer.</li>
+        </ul>
+        <p><strong>9.2</strong> The total cost of your EPM, expressed as the <%= details[:interest_disclosure] %>, will be disclosed in your Key Facts Illustration (KFI) in accordance with MCOB 5.6.</p>
+        <p><strong>9.3</strong> All fees will be disclosed in full before you are required to commit to the application. You will not be charged any hidden fees.</p>
+        <p><strong>9.4</strong> We will provide you with a European Standardised Information Sheet (ESIS) where applicable, in accordance with the Mortgage Credit Directive.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>10. Investment Risks</h2>
+        <p><strong>10.1 KEY RISKS STATEMENT:</strong> The value of investments can go down as well as up, and you may receive back less than the original amount invested. Past performance is not a reliable indicator of future results.</p>
+        <p><strong>10.2</strong> The monthly income you receive from the EPM is derived from investment returns and is therefore subject to market fluctuations. The income amount is not guaranteed and may vary from month to month.</p>
+        <p><strong>10.3</strong> Specific risks associated with the EPM investment strategy include:</p>
+        <ul>
+          <li>(a) <strong>Market Risk:</strong> The value of the investment portfolio may decline due to adverse market conditions;</li>
+          <li>(b) <strong>Income Risk:</strong> Monthly income payments may be reduced or suspended if investment returns are insufficient;</li>
+          <li>(c) <strong>Currency Risk:</strong> As the investment portfolio includes international ETFs, exchange rate fluctuations may affect returns;</li>
+          <li>(d) <strong>Counterparty Risk:</strong> The risk that an investment counterparty or insurer may fail to meet its obligations;</li>
+          <li>(e) <strong>Liquidity Risk:</strong> In exceptional market conditions, it may not be possible to liquidate investments at the expected price.</li>
+        </ul>
+        <p><strong>10.4</strong> The hedging collar strategy mitigates but does not eliminate downside risk. The collar provides a floor on investment losses but also caps potential gains above a specified level.</p>
+        <p><strong>10.5</strong> CAPITAL AT RISK: Your capital is at risk. The NNEG insurance ensures you will never owe more than the value of your property, but investment returns are not guaranteed.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>11. Holiday Mechanism</h2>
+        <p><strong>11.1</strong> The EPM includes a Holiday Mechanism that allows you to temporarily suspend or reduce monthly income payments under the following conditions:</p>
+        <ul>
+          <li>(a) You may request an income holiday for a period of up to [X] months in any [Y]-year period;</li>
+          <li>(b) During an income holiday, no monthly income will be paid, but the investment portfolio will continue to be managed;</li>
+          <li>(c) Unpaid income during a holiday period may be accumulated and paid at a later date, or may be retained within the investment portfolio, subject to the terms of your mortgage offer;</li>
+          <li>(d) We may require that a minimum investment portfolio value is maintained before approving an income holiday request.</li>
+        </ul>
+        <p><strong>11.2</strong> To request an income holiday, you must provide us with at least [X] days' written notice.</p>
+        <p><strong>11.3</strong> We reserve the right to refuse a holiday request if, in our reasonable assessment, granting the request would materially prejudice your financial position.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>12. Insurance and No Negative Equity Guarantee (NNEG)</h2>
+        <p><strong>12.1</strong> The EPM includes a No Negative Equity Guarantee (NNEG), which ensures that you will never owe more than the market value of your property at the time of repayment.</p>
+        <p><strong>12.2</strong> The NNEG is provided through a combination of:</p>
+        <ul>
+          <li>(a) A dedicated insurance product underwritten by [insurer details];</li>
+          <li>(b) A pooled risk mechanism across the FutureProof portfolio;</li>
+          <li>(c) The hedging collar on the investment portfolio.</li>
+        </ul>
+        <p><strong>12.3</strong> The cost of the NNEG insurance is incorporated into the overall fee structure of the EPM and is disclosed in your mortgage offer and KFI.</p>
+        <p><strong>12.4</strong> The NNEG applies at the point of mortgage repayment (whether at term end, voluntary early repayment, sale of the property, or the death of the Borrower). If the outstanding loan balance exceeds the property value at that time, the shortfall is covered by the NNEG.</p>
+        <p><strong>12.5</strong> You are not required to make any additional payment beyond the value of your property to discharge the mortgage.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>13. Property Obligations</h2>
+        <p><strong>13.1</strong> Throughout the term of the EPM, you are required to:</p>
+        <ul>
+          <li>(a) <strong>Building Insurance:</strong> Maintain comprehensive buildings insurance for the full reinstatement value of the property with a reputable insurer, noting FutureProof's interest on the policy;</li>
+          <li>(b) <strong>Council Tax:</strong> Pay all council tax (or rates in Northern Ireland) due on the property;</li>
+          <li>(c) <strong>Ground Rent and Service Charges:</strong> If the property is leasehold, pay all ground rent, service charges, and other leasehold obligations as they fall due;</li>
+          <li>(d) <strong>Property Maintenance:</strong> Maintain the property in a good state of repair and not permit waste or deterioration that would materially affect its value;</li>
+          <li>(e) <strong>Land Registry:</strong> Ensure the property remains registered with HM Land Registry (or the equivalent registry in Scotland or Northern Ireland) and that the mortgage charge is properly recorded;</li>
+          <li>(f) <strong>Occupancy:</strong> Maintain the property as your primary residence and notify us immediately if this changes;</li>
+          <li>(g) <strong>Structural Alterations:</strong> Obtain our prior written consent before making any material structural alterations to the property;</li>
+          <li>(h) <strong>Planning and Building Regulations:</strong> Comply with all applicable planning permissions, building regulations, and local authority requirements.</li>
+        </ul>
+        <p><strong>13.2</strong> Failure to comply with these obligations may constitute a breach of the mortgage terms and may result in the mortgage becoming repayable.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>14. Consumer Protections</h2>
+        <p><strong>14.1</strong> Your rights are protected under <%= details[:consumer_credit_act] %>.</p>
+        <p><strong>14.2</strong> In addition, you benefit from protections under:</p>
+        <ul>
+          <li>(a) <strong>Consumer Rights Act 2015:</strong> Which provides that our services must be carried out with reasonable care and skill, and that contractual terms must be fair and transparent;</li>
+          <li>(b) <strong>Consumer Credit Act 1974 (as amended):</strong> Which provides protections in relation to credit agreements, including rights of withdrawal and requirements for adequate pre-contractual information;</li>
+          <li>(c) <strong>Financial Services and Markets Act 2000:</strong> Which establishes the regulatory framework within which we operate;</li>
+          <li>(d) <strong>Unfair Contract Terms Act 1977:</strong> Which restricts the extent to which liability can be excluded or restricted by contract terms;</li>
+          <li>(e) <strong>Equality Act 2010:</strong> We do not discriminate on the basis of any protected characteristic.</li>
+        </ul>
+        <p><strong>14.3</strong> Nothing in these Terms affects your statutory rights as a consumer.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>15. Cooling-Off Period</h2>
+        <p><strong>15.1</strong> In accordance with FCA rules, you have a cooling-off period of <%= details[:cooling_off] %> from the date you receive your mortgage offer within which you may withdraw from the agreement without penalty.</p>
+        <p><strong>15.2</strong> To exercise your right to withdraw, you must notify us in writing (by email or post) within the cooling-off period. The withdrawal takes effect from the date we receive your notification.</p>
+        <p><strong>15.3</strong> If you withdraw during the cooling-off period:</p>
+        <ul>
+          <li>(a) Any funds already advanced will be repaid in full;</li>
+          <li>(b) Any fees paid (other than the valuation fee, if the valuation has already been conducted) will be refunded;</li>
+          <li>(c) No early repayment charges will apply.</li>
+        </ul>
+        <p><strong>15.4</strong> The cooling-off period does not apply to subsequent variations of the mortgage terms agreed by both parties after the initial offer.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>16. Affordability Assessment</h2>
+        <p><strong>16.1</strong> In accordance with MCOB requirements, we will conduct a thorough affordability assessment before approving any EPM application. This assessment will consider:</p>
+        <ul>
+          <li>(a) Your current income and expenditure;</li>
+          <li>(b) Your existing financial commitments and debts;</li>
+          <li>(c) The impact of the EPM on your overall financial position;</li>
+          <li>(d) Your ability to meet ongoing property obligations (insurance, council tax, maintenance);</li>
+          <li>(e) Foreseeable changes to your circumstances (e.g., retirement, reduction in pension income);</li>
+          <li>(f) The potential impact of interest rate changes on any variable-rate elements.</li>
+        </ul>
+        <p><strong>16.2</strong> We may request supporting documentation including bank statements, pension statements, tax returns, proof of benefits, and other evidence of income and expenditure.</p>
+        <p><strong>16.3</strong> If our assessment indicates that the EPM may not be affordable or suitable for you, we will decline the application and, where appropriate, explain the reasons and suggest alternative options.</p>
+        <p><strong>16.4</strong> We may also recommend that you seek independent financial advice from a qualified adviser regulated by the FCA.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>17. Complaints</h2>
+        <p><strong>17.1</strong> If you are dissatisfied with any aspect of our service, you should first contact our internal complaints team:</p>
+        <div class="contact-info">
+          <p><strong>Complaints Team</strong></p>
+          <p>Email: legal@futureprooffinancial.co</p>
+          <p>Post: FutureProof Financial Ltd, [registered address]</p>
+        </div>
+        <p><strong>17.2</strong> We will acknowledge your complaint within 5 business days and aim to resolve it within 8 weeks, in accordance with FCA DISP rules.</p>
+        <p><strong>17.3</strong> If we are unable to resolve your complaint within 8 weeks, or if you are dissatisfied with our response, you have the right to refer your complaint to <%= details[:complaint_body] %>.</p>
+        <div class="contact-info">
+          <p><strong>Financial Ombudsman Service</strong></p>
+          <p>Website: financial-ombudsman.org.uk</p>
+          <p>Phone: 0800 023 4567 (free from landlines and mobiles) or 0300 123 9123</p>
+          <p>Post: Financial Ombudsman Service, Exchange Tower, London E14 9SR</p>
+        </div>
+        <p><strong>17.4</strong> You must refer your complaint to the FOS within 6 months of receiving our final response.</p>
+        <p><strong>17.5</strong> Using the complaints procedure does not affect your right to take legal action.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>18. Financial Services Compensation Scheme (FSCS)</h2>
+        <p><strong>18.1</strong> As an FCA-authorised firm, eligible claims against FutureProof Financial may be covered by the Financial Services Compensation Scheme (FSCS).</p>
+        <p><strong>18.2</strong> The FSCS provides compensation if an authorised firm is unable to pay claims against it, for example because it has gone out of business.</p>
+        <p><strong>18.3</strong> The current FSCS compensation limits are:</p>
+        <ul>
+          <li>(a) Deposits: up to £85,000 per eligible person, per firm;</li>
+          <li>(b) Investments: up to £85,000 per eligible person, per firm;</li>
+          <li>(c) Home finance (mortgage advice and arranging): unlimited.</li>
+        </ul>
+        <p><strong>18.4</strong> For further information about the FSCS, visit fscs.org.uk or call 0800 678 1100.</p>
+        <p><strong>18.5</strong> Not all products and services offered through the Platform may be covered by the FSCS. We will inform you if a particular product or service falls outside FSCS coverage.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>19. Electronic Communications</h2>
+        <p><strong>19.1</strong> By using the Platform, you consent to receiving communications from us electronically, including by email, Platform notifications, and electronic documents.</p>
+        <p><strong>19.2</strong> Electronic communications satisfy any legal requirement for communications to be in writing, to the extent permitted by applicable law.</p>
+        <p><strong>19.3</strong> Certain regulatory documents (such as the mortgage offer and KFI) may be provided in durable medium format in accordance with FCA requirements.</p>
+        <p><strong>19.4</strong> You may request paper copies of any document at any time by contacting us.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>20. Intellectual Property</h2>
+        <p><strong>20.1</strong> All content, design, software, algorithms, financial models, trade marks, logos, and other intellectual property on the Platform are the property of FutureProof Financial Ltd or its licensors and are protected by United Kingdom and international intellectual property laws.</p>
+        <p><strong>20.2</strong> You may not reproduce, distribute, modify, create derivative works from, publicly display, or commercially exploit any Platform content without our prior written consent.</p>
+        <p><strong>20.3</strong> You are granted a limited, non-exclusive, non-transferable licence to access and use the Platform for your personal, non-commercial purposes in connection with the EPM services.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>21. Limitation of Liability</h2>
+        <p><strong>21.1</strong> Nothing in these Terms excludes or limits our liability for:</p>
+        <ul>
+          <li>(a) Death or personal injury caused by our negligence;</li>
+          <li>(b) Fraud or fraudulent misrepresentation;</li>
+          <li>(c) Any matter for which it would be unlawful for us to exclude or limit liability;</li>
+          <li>(d) Any liability that cannot be excluded under the Consumer Rights Act 2015.</li>
+        </ul>
+        <p><strong>21.2</strong> Subject to clause 21.1, and to the maximum extent permitted by applicable law:</p>
+        <ul>
+          <li>(a) We do not guarantee specific investment returns, income amounts, or property value appreciation;</li>
+          <li>(b) All projections and estimates are based on historical data, financial modelling, and assumptions that may not prove accurate;</li>
+          <li>(c) Our total aggregate liability to you in respect of all claims arising under or in connection with these Terms shall not exceed the total fees paid by you to us in the 12-month period preceding the claim;</li>
+          <li>(d) We shall not be liable for any indirect, consequential, incidental, or special losses or damages.</li>
+        </ul>
+        <p><strong>21.3</strong> These limitations are subject to the Unfair Contract Terms Act 1977 and the Consumer Rights Act 2015, and any term that is found to be unfair under those Acts shall be severable from these Terms without affecting the validity of the remaining Terms.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>22. Governing Law and Jurisdiction</h2>
+        <p><strong>22.1</strong> These Terms are governed by and construed in accordance with <%= details[:governing_law] %>.</p>
+        <p><strong>22.2</strong> The parties submit to the exclusive jurisdiction of <%= details[:courts] %> for any disputes arising out of or in connection with these Terms.</p>
+        <p><strong>22.3</strong> If you reside in Scotland, these Terms shall be subject to Scots law and the jurisdiction of the Scottish courts to the extent that Scots law applies to the relevant matter (including, without limitation, property law, heritable securities, and land registration).</p>
+        <p><strong>22.4</strong> If you reside in Northern Ireland, these Terms shall be subject to Northern Ireland law and the jurisdiction of the courts of Northern Ireland to the extent that Northern Ireland law applies to the relevant matter.</p>
+        <p><strong>22.5</strong> Nothing in this clause affects your statutory right to bring proceedings in the courts of the jurisdiction in which you are domiciled.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>23. Amendments</h2>
+        <p><strong>23.1</strong> We may update these Terms from time to time to reflect changes in law, regulation, or our business practices.</p>
+        <p><strong>23.2</strong> Material changes will be notified to you at least 30 days in advance by email or Platform notification.</p>
+        <p><strong>23.3</strong> Continued use of the Platform after the effective date of the updated Terms constitutes your acceptance of the changes.</p>
+        <p><strong>23.4</strong> If you do not agree with the updated Terms, you may close your account, subject to any outstanding obligations under your EPM.</p>
+        <p><strong>23.5</strong> Changes to the terms of an existing EPM (including interest rate, fees, and repayment terms) will be governed by the specific variation provisions in your mortgage offer and applicable MCOB rules.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>24. Key Facts Illustration</h2>
+        <p><strong>24.1</strong> In accordance with MCOB 5.6, you will receive a Key Facts Illustration (KFI) before committing to any EPM product. The KFI will include:</p>
+        <ul>
+          <li>(a) The amount of the mortgage;</li>
+          <li>(b) The term of the mortgage;</li>
+          <li>(c) The interest rate and whether it is fixed or variable;</li>
+          <li>(d) The APRC;</li>
+          <li>(e) The total amount payable over the life of the mortgage;</li>
+          <li>(f) Details of all fees and charges;</li>
+          <li>(g) The projected monthly income (with high, medium, and low scenarios);</li>
+          <li>(h) The impact of the NNEG;</li>
+          <li>(i) A worked example showing the potential outcomes at the end of the mortgage term;</li>
+          <li>(j) Details of the complaints procedure and FOS.</li>
+        </ul>
+        <p><strong>24.2</strong> The KFI is a regulatory document and forms part of the pre-contractual information you are entitled to receive.</p>
+        <p><strong>24.3</strong> You should read the KFI carefully and consider taking independent financial advice before proceeding with your application.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>25. Contact</h2>
+        <div class="contact-info">
+          <p><strong>FutureProof Financial Ltd</strong></p>
+          <p>FCA Firm Reference Number: [TBD]</p>
+          <p>Companies House Registration: [TBD]</p>
+          <p>Email: legal@futureprooffinancial.co</p>
+          <p>Website: futureprooffinancial.co</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <p>These Terms and Conditions were last updated on <%= legal_date %>.</p>
+      <p>FutureProof Financial Ltd is authorised and regulated by the Financial Conduct Authority (FCA), Firm Reference Number [TBD]. Registered in England and Wales, Companies House number [TBD].</p>
+    </div>
+  </div>
+</div>

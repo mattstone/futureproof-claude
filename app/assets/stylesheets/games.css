@@ -5,14 +5,7 @@
 
 /* Core game styles */
 @import url("arcade.css");
-@import url("honky_pong.css");
-@import url("honky_pong_simple.css");
-@import url("honky_pong_simple_fixed.css");
-@import url("honky_pong_minimal.css");
 @import url("lace_invaders.css");
-@import url("hackman.css");
-@import url("defendher.css");
-@import url("hemorrhoids.css");
 
 /* Professional Header Section - Applied to ALL Games */
 .header-section {

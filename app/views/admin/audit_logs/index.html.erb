@@ -1,0 +1,67 @@
+<% content_for :page_title, "Audit log" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Audit log</h2>
+  <p class="admin-section-subtitle">Read-only history of admin and system actions across the platform.</p>
+</div>
+
+<%= form_with url: admin_audit_logs_path, method: :get, local: true, class: "admin-filter-form" do |f| %>
+  <div class="admin-filter-row">
+    <div class="admin-form-field">
+      <%= f.label :action_filter, "Action" %>
+      <%= f.select :action_filter, options_for_select([['All', '']] + @actions.map { |a| [a.humanize, a] }, params[:action_filter]), {}, class: "admin-form-input" %>
+    </div>
+    <div class="admin-form-field">
+      <%= f.label :resource_type, "Resource" %>
+      <%= f.select :resource_type, options_for_select([['All', '']] + @resource_types.map { |r| [r, r] }, params[:resource_type]), {}, class: "admin-form-input" %>
+    </div>
+    <div class="admin-form-field">
+      <%= f.label :user_id, "User ID" %>
+      <%= f.number_field :user_id, value: params[:user_id], class: "admin-form-input" %>
+    </div>
+    <div class="admin-form-field">
+      <%= f.label :from, "From" %>
+      <%= f.date_field :from, value: params[:from], class: "admin-form-input" %>
+    </div>
+    <div class="admin-form-field">
+      <%= f.label :to, "To" %>
+      <%= f.date_field :to, value: params[:to], class: "admin-form-input" %>
+    </div>
+    <div class="admin-form-field">
+      <%= f.submit "Filter", class: "fp-btn fp-btn-primary" %>
+      <%= link_to "Clear", admin_audit_logs_path, class: "fp-btn fp-btn-outline" %>
+    </div>
+  </div>
+<% end %>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>When</th>
+      <th>User</th>
+      <th>Action</th>
+      <th>Resource</th>
+      <th>Region</th>
+      <th>IP</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @logs.each do |log| %>
+      <tr>
+        <td><%= log.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+        <td><%= log.user&.email || "-" %></td>
+        <td><span class="status-badge"><%= log.action %></span></td>
+        <td><%= log.resource_type %><% if log.resource_id %> #<%= log.resource_id %><% end %></td>
+        <td><%= log.region || "-" %></td>
+        <td><%= log.ip_address || "-" %></td>
+        <td><%= link_to "View", admin_audit_log_path(log), class: "fp-btn fp-btn-sm fp-btn-outline" %></td>
+      </tr>
+    <% end %>
+    <% if @logs.empty? %>
+      <tr><td colspan="7"><em>No audit log entries match the current filters.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @logs if @logs.respond_to?(:current_page) %>

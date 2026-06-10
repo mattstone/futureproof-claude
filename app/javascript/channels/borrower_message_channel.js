@@ -1,4 +1,4 @@
-import consumer from "./consumer"
+import consumer from "channels/consumer"
 
 document.addEventListener('turbo:load', () => {
   const messageContainer = document.getElementById('message-list')

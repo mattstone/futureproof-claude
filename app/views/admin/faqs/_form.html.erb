@@ -1,0 +1,47 @@
+<%= stylesheet_link_tag "admin/legal_documents", "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag "admin/faqs", "data-turbo-track": "reload" %>
+
+<div class="ld-page">
+  <div class="ld-header">
+    <h1><%= @faq.new_record? ? "New FAQ" : "Edit FAQ" %></h1>
+    <%= link_to "Back to FAQs", admin_faqs_path, class: "ld-btn ld-btn-secondary" %>
+  </div>
+
+  <% if @faq.errors.any? %>
+    <div class="alert alert-danger">
+      <ul>
+        <% @faq.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [:admin, @faq], class: "ld-form" do |f| %>
+    <div class="ld-form-group">
+      <%= f.label :jurisdiction, class: "ld-form-label" %>
+      <%= f.select :jurisdiction, Faq::JURISDICTIONS.map { |j| [j, j] }, { prompt: "Select jurisdiction" }, class: "ld-search-input" %>
+    </div>
+
+    <div class="ld-form-group">
+      <%= f.label :question, class: "ld-form-label" %>
+      <%= f.text_field :question, class: "ld-search-input", placeholder: "Enter the question" %>
+    </div>
+
+    <div class="ld-form-group">
+      <%= f.label :answer, class: "ld-form-label" %>
+      <%= f.text_area :answer, class: "ld-search-input", rows: 6, placeholder: "Enter the answer" %>
+    </div>
+
+    <div class="ld-form-group">
+      <label class="ld-form-label">
+        <%= f.check_box :published %> Published
+      </label>
+    </div>
+
+    <div class="ld-actions faq-form-actions">
+      <%= f.submit @faq.new_record? ? "Create FAQ" : "Update FAQ", class: "ld-btn ld-btn-primary" %>
+      <%= link_to "Cancel", admin_faqs_path, class: "ld-btn ld-btn-secondary" %>
+    </div>
+  <% end %>
+</div>

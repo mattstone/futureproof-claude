@@ -1,0 +1,65 @@
+<% content_for :page_title, "AI Conversations" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">AI Conversations</h2>
+  <p class="admin-section-subtitle">Read-only history of customer support conversations handled by Akane (Claude).</p>
+</div>
+
+<div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Conversations</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(ChatConversation.count) %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Total input tokens</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(@token_totals[:input]) %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Total output tokens</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(@token_totals[:output]) %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Cache reads</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(@token_totals[:cache_read]) %></div>
+    </div>
+  </div>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Started</th>
+      <th>User</th>
+      <th>Agent</th>
+      <th>Region</th>
+      <th>Status</th>
+      <th class="text-right">Messages</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @conversations.each do |conv| %>
+      <tr>
+        <td><%= conv.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+        <td><%= conv.user&.email || "(guest)" %></td>
+        <td><%= conv.chat_agent&.name || "—" %></td>
+        <td><%= conv.region %></td>
+        <td><span class="status-badge"><%= conv.status %></span></td>
+        <td class="text-right"><%= conv.message_count %></td>
+        <td><%= link_to "View", admin_chat_conversation_path(conv), class: "fp-btn fp-btn-sm fp-btn-outline" %></td>
+      </tr>
+    <% end %>
+    <% if @conversations.empty? %>
+      <tr><td colspan="7"><em>No conversations yet.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @conversations if @conversations.respond_to?(:current_page) %>

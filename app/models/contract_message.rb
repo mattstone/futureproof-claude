@@ -82,7 +82,7 @@ class ContractMessage < ApplicationRecord
       mortgage = application.mortgage
       processed_text.gsub!(/\{\{mortgage\.name\}\}/i, sanitize_for_html(mortgage.name.to_s))
       processed_text.gsub!(/\{\{mortgage\.lvr\}\}/i, sanitize_for_html(mortgage.lvr.to_s)) if mortgage.respond_to?(:lvr)
-      processed_text.gsub!(/\{\{mortgage\.interest_rate\}\}/i, '7.45') # Static for now, same as email template
+      processed_text.gsub!(/\{\{mortgage\.interest_rate\}\}/i, EpmModelConfig.indicative_borrower_rate_pct.to_s)
       processed_text.gsub!(/\{\{mortgage\.mortgage_type_display\}\}/i, sanitize_for_html(mortgage.mortgage_type_display.to_s)) if mortgage.respond_to?(:mortgage_type_display)
     end
 

@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  application: one
+  application: mortgage_application
   status: 1
   risk_level: MyString
   checked_at: 2026-03-11 08:13:28
@@ -11,7 +11,7 @@ one:
   updated_at: 2026-03-11 08:13:28
 
 two:
-  application: two
+  application: second_application
   status: 1
   risk_level: MyString
   checked_at: 2026-03-11 08:13:28

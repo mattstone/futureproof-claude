@@ -5,6 +5,19 @@
 module JurisdictionValidation
   extend ActiveSupport::Concern
 
+  # Module-level normalize method (callable as JurisdictionValidation.normalize_jurisdiction)
+  def self.normalize_jurisdiction(input)
+    return nil if input.blank?
+
+    code = input.to_s.upcase
+
+    # Already a code (AU, US, NZ, UK)
+    return code if VALID_JURISDICTIONS.include?(code)
+
+    # Convert full name to code
+    ISO_TO_CODE[input.to_s] || code
+  end
+
   # Standardized jurisdiction constants
   JURISDICTION_MAP = {
     'AU' => 'Australia',
@@ -24,13 +37,11 @@ module JurisdictionValidation
   VALID_JURISDICTION_NAMES = JURISDICTION_MAP.values.freeze
 
   included do
-    # Validate jurisdiction field based on including model's jurisdiction_field
-    # Models should define: self.jurisdiction_field = :region (or :country, :jurisdiction)
-    
-    validate :validate_jurisdiction_code, if: -> { respond_to?(self.class.jurisdiction_field) }
-    
-    # Add scope for filtering by jurisdiction
-    scope :by_jurisdiction, ->(code) { where(self.class.jurisdiction_field => normalize_jurisdiction(code)) }
+    # Only add AR validations/scopes for ActiveRecord models
+    if respond_to?(:validate) && respond_to?(:scope)
+      validate :validate_jurisdiction_code, if: -> { respond_to?(self.class.jurisdiction_field) }
+      scope :by_jurisdiction, ->(code) { where(self.class.jurisdiction_field => normalize_jurisdiction(code)) }
+    end
   end
 
   class_methods do

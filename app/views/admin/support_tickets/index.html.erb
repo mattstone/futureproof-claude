@@ -1,0 +1,157 @@
+<% content_for :page_title, "Support Tickets" %>
+
+<div class="st-page">
+  <div class="st-page-header">
+    <div></div>
+    <%= button_to "Check Emails", poll_emails_admin_support_tickets_path, method: :post, class: "st-btn st-btn-secondary" %>
+  </div>
+
+  <!-- Stats -->
+  <div class="st-stats-grid">
+    <div class="st-stat-card">
+      <div class="st-stat-value"><%= @stats[:open] %></div>
+      <div class="st-stat-label">Open</div>
+    </div>
+    <div class="st-stat-card st-stat-warning">
+      <div class="st-stat-value"><%= @stats[:in_progress] %></div>
+      <div class="st-stat-label">In Progress</div>
+    </div>
+    <div class="st-stat-card">
+      <div class="st-stat-value"><%= @stats[:waiting] %></div>
+      <div class="st-stat-label">Waiting on Customer</div>
+    </div>
+    <div class="st-stat-card st-stat-danger">
+      <div class="st-stat-value"><%= @stats[:urgent] %></div>
+      <div class="st-stat-label">Urgent</div>
+    </div>
+    <div class="st-stat-card st-stat-success">
+      <div class="st-stat-value"><%= @stats[:resolved_today] %></div>
+      <div class="st-stat-label">Resolved Today</div>
+    </div>
+    <div class="st-stat-card">
+      <div class="st-stat-value"><%= @stats[:total] %></div>
+      <div class="st-stat-label">Total</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="st-filters">
+    <%= form_tag admin_support_tickets_path, method: :get, class: "st-filter-form" do %>
+      <div class="st-filter-row">
+        <div class="st-filter-group">
+          <label class="st-filter-label">Status</label>
+          <select name="status" class="st-filter-select">
+            <option value="">All Statuses</option>
+            <% SupportTicket::STATUSES.each do |s| %>
+              <option value="<%= s %>" <%= 'selected' if params[:status] == s %>><%= s.titleize %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <div class="st-filter-group">
+          <label class="st-filter-label">Priority</label>
+          <select name="priority" class="st-filter-select">
+            <option value="">All Priorities</option>
+            <% SupportTicket::PRIORITIES.each do |p| %>
+              <option value="<%= p %>" <%= 'selected' if params[:priority] == p %>><%= p.titleize %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <div class="st-filter-group">
+          <label class="st-filter-label">Category</label>
+          <select name="category" class="st-filter-select">
+            <option value="">All Categories</option>
+            <% SupportTicket::CATEGORIES.each do |c| %>
+              <option value="<%= c %>" <%= 'selected' if params[:category] == c %>><%= c.titleize %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <div class="st-filter-group">
+          <label class="st-filter-label">Contact Type</label>
+          <select name="contact_type" class="st-filter-select">
+            <option value="">All</option>
+            <option value="customer" <%= 'selected' if params[:contact_type] == 'customer' %>>Existing Customer</option>
+            <option value="contact" <%= 'selected' if params[:contact_type] == 'contact' %>>New Contact</option>
+          </select>
+        </div>
+
+        <div class="st-filter-group st-filter-group-wide">
+          <label class="st-filter-label">Search</label>
+          <input type="text" name="search" value="<%= params[:search] %>" placeholder="Ticket #, subject, email..." class="st-filter-input">
+        </div>
+
+        <div class="st-filter-actions">
+          <button type="submit" class="st-btn st-btn-primary">Filter</button>
+          <%= link_to "Clear", admin_support_tickets_path, class: "st-btn st-btn-secondary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Table -->
+  <div class="st-table-wrap">
+    <% if @tickets.any? %>
+      <table class="st-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Subject</th>
+            <th>From</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Category</th>
+            <th>Messages</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @tickets.each do |ticket| %>
+            <tr class="st-row st-row-<%= ticket.priority %>">
+              <td>
+                <%= link_to ticket.id, admin_support_ticket_path(ticket), class: "st-ticket-link" %>
+              </td>
+              <td class="st-subject">
+                <%= link_to truncate(ticket.subject, length: 60), admin_support_ticket_path(ticket) %>
+              </td>
+              <td>
+                <div class="st-sender">
+                  <span class="st-sender-name"><%= ticket.sender_name || ticket.sender_email %></span>
+                  <% if ticket.sender_name.present? %>
+                    <span class="st-sender-email"><%= ticket.sender_email %></span>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <span class="st-badge st-badge-contact-<%= ticket.existing_customer? ? 'customer' : 'new' %>">
+                  <%= ticket.contact_type %>
+                </span>
+              </td>
+              <td>
+                <span class="st-badge st-badge-status st-status-<%= ticket.status %>">
+                  <%= ticket.status.titleize %>
+                </span>
+              </td>
+              <td>
+                <span class="st-badge st-badge-priority st-priority-<%= ticket.priority %>">
+                  <%= ticket.priority.titleize %>
+                </span>
+              </td>
+              <td><%= ticket.category.titleize %></td>
+              <td class="st-center"><%= ticket.message_count %></td>
+              <td class="st-date"><%= time_ago_in_words(ticket.updated_at) %> ago</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="st-empty-state">
+        <div class="st-empty-icon">📬</div>
+        <h3>No support tickets found</h3>
+        <p>Tickets will appear here when emails are received at matt.stone@futureprooffinancial.co</p>
+      </div>
+    <% end %>
+  </div>
+</div>

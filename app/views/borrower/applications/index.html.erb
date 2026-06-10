@@ -1,10 +1,10 @@
 <div class="borrower-dashboard">
-  <h1>My EPM Loans</h1>
+  <h1>My Guaranteed Income Plans</h1>
 
   <!-- Stats Cards -->
   <div class="borrower-stats">
     <div class="stat-card">
-      <div class="stat-label">Total Loans</div>
+      <div class="stat-label">Total Plans</div>
       <div class="stat-value"><%= @stats[:total] %></div>
     </div>
     <div class="stat-card">
@@ -28,7 +28,7 @@
         <div class="application-card">
           <div class="app-header">
             <div>
-              <h3 class="app-title">EPM Loan</h3>
+              <h3 class="app-title">EPM Plan</h3>
               <p class="app-property"><%= app.address || "Property" %></p>
             </div>
             <div class="app-status app-status-<%= app.status %>">
@@ -66,186 +66,9 @@
     </div>
   <% else %>
     <div class="empty-state">
-      <p>You don't have any EPM loans yet.</p>
+      <p>You don't have any EPM plans yet.</p>
       <%= link_to "Start Application", root_path, class: "btn btn-primary" %>
     </div>
   <% end %>
 </div>
 
-<style>
-  .borrower-dashboard {
-    padding: 0;
-  }
-
-  .borrower-dashboard h1 {
-    font-size: 28px;
-    margin-bottom: 30px;
-    color: #333;
-  }
-
-  .borrower-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-
-  .stat-card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-  }
-
-  .stat-label {
-    font-size: 12px;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
-  .stat-value {
-    font-size: 32px;
-    font-weight: 600;
-    color: #2196F3;
-  }
-
-  .applications-list {
-    display: grid;
-    gap: 16px;
-  }
-
-  .application-card {
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 20px;
-    transition: all 0.2s;
-  }
-
-  .application-card:hover {
-    border-color: #2196F3;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
-  }
-
-  .app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-  }
-
-  .app-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 4px 0;
-    color: #333;
-  }
-
-  .app-property {
-    font-size: 13px;
-    color: #666;
-    margin: 0;
-  }
-
-  .app-status {
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-
-  .app-status-submitted,
-  .app-status-processing {
-    background: #fff3cd;
-    color: #856404;
-  }
-
-  .app-status-accepted,
-  .app-status-activated {
-    background: #d4edda;
-    color: #155724;
-  }
-
-  .app-status-rejected {
-    background: #f8d7da;
-    color: #721c24;
-  }
-
-  .app-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-    padding: 16px 0;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .detail-label {
-    font-size: 11px;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .detail-value {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .app-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-block;
-  }
-
-  .btn-primary {
-    background: #2196F3;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #1976D2;
-  }
-
-  .btn-secondary {
-    background: #f0f0f0;
-    color: #333;
-  }
-
-  .btn-secondary:hover {
-    background: #e0e0e0;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-  }
-
-  .empty-state p {
-    margin-bottom: 20px;
-    font-size: 16px;
-  }
-</style>

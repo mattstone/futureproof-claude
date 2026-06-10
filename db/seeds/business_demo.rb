@@ -71,9 +71,9 @@ contract_defs = [
   [15, 2, :in_holiday, 19, 8.5],
   [16, 0, :in_holiday, 13, 5.0],
   [17, 3, :in_holiday, 9,  -2.5],
-  # In arrears (losses)
-  [18, 1, :in_arrears, 17, -12.0],
-  [19, 3, :in_arrears, 7,  -15.0],
+  # Investment at risk (losses)
+  [18, 1, :investment_at_risk, 17, -12.0],
+  [19, 3, :investment_at_risk, 7,  -15.0],
   # Complete
   [20, 0, :complete, 24, 14.0],
   [21, 2, :complete, 23, -5.0],

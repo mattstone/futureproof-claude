@@ -246,7 +246,7 @@ class Admin::ContractsController < Admin::BaseController
       @ai_agents.find_by(name: 'Funding Specialist') || @ai_agents.first
     when 'awaiting_investment'
       @ai_agents.find_by(name: 'Investment Advisor') || @ai_agents.first
-    when 'in_arrears'
+    when 'investment_at_risk'
       @ai_agents.find_by(name: 'Support Specialist') || @ai_agents.first
     else
       @ai_agents.find_by(name: 'Customer Success Manager') || @ai_agents.first
@@ -261,7 +261,7 @@ class Admin::ContractsController < Admin::BaseController
       @ai_agents.find_by(name: 'Funding Specialist') || @ai_agents.first
     when 'awaiting_investment'
       @ai_agents.find_by(name: 'Investment Advisor') || @ai_agents.first
-    when 'in_arrears'
+    when 'investment_at_risk'
       @ai_agents.find_by(name: 'Support Specialist') || @ai_agents.first
     else
       @ai_agents.find_by(name: 'Customer Success Manager') || @ai_agents.first

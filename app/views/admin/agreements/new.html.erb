@@ -1,0 +1,83 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page">
+  <nav class="ld-breadcrumb">
+    <%= link_to "Dashboard", admin_root_path %> >
+    <%= link_to "Agreements", admin_agreements_path %> >
+    <span>New Agreement</span>
+  </nav>
+
+<% content_for :page_title, "New Agreement" %>
+
+  <div class="ld-show-header">
+    <p class="ld-text-muted">Select a party and template to create a customised agreement.</p>
+  </div>
+
+  <%= form_tag admin_agreements_path, method: :post, class: "agreement-form" do %>
+    <div class="agreement-form-section">
+      <h3>1. Select Party</h3>
+
+      <div class="agreement-form-row">
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Party Type</label>
+          <select name="agreement[agreeable_type]" class="ld-filter-select" data-controller="auto-submit" data-action="change->auto-submit#filterChanged" id="party-type-select">
+            <option value="Lender" <%= 'selected' if @party_type == 'Lender' %>>Lender</option>
+            <option value="WholesaleFunder" <%= 'selected' if @party_type == 'WholesaleFunder' %>>Wholesale Funder</option>
+            <option value="Broker" <%= 'selected' if @party_type == 'Broker' %>>Broker</option>
+          </select>
+        </div>
+
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Select Party</label>
+          <select name="agreement[agreeable_id]" class="ld-filter-select" required>
+            <option value="">Choose...</option>
+            <% @parties.each do |party| %>
+              <option value="<%= party.id %>"><%= party.name %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="agreement-form-section">
+      <h3>2. Select Template</h3>
+
+      <div class="agreement-form-field">
+        <label class="ld-filter-label">Agreement Template</label>
+        <select name="agreement[legal_document_id]" class="ld-filter-select" required>
+          <option value="">Choose a template...</option>
+          <% @templates.each do |template| %>
+            <option value="<%= template.id %>"><%= template.display_name %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+
+    <div class="agreement-form-section">
+      <h3>3. Customise (optional)</h3>
+      <p class="ld-text-muted">Fill in party-specific details. You can also edit the full agreement after generation.</p>
+
+      <div class="agreement-form-row">
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Party Name</label>
+          <input type="text" name="customizations[Party Name]" class="ld-filter-input" placeholder="e.g. ABC Finance Pty Ltd">
+        </div>
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Registration Number</label>
+          <input type="text" name="customizations[Number]" class="ld-filter-input" placeholder="e.g. ACN 123 456 789">
+        </div>
+      </div>
+      <div class="agreement-form-row">
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Registered Address</label>
+          <input type="text" name="customizations[Registered Address]" class="ld-filter-input" placeholder="e.g. Level 10, 123 Collins St, Melbourne VIC 3000">
+        </div>
+      </div>
+    </div>
+
+    <div class="ld-action-bar">
+      <%= link_to "Cancel", admin_agreements_path, class: "ld-btn ld-btn-outline" %>
+      <button type="submit" class="ld-btn ld-btn-primary">Generate Agreement</button>
+    </div>
+  <% end %>
+</div>

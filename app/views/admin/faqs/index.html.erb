@@ -1,0 +1,64 @@
+<% content_for(:title) { "FAQs" } %>
+<%= content_for :page_title, "FAQs" %>
+
+<%= stylesheet_link_tag "admin/legal_documents", "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag "admin/faqs", "data-turbo-track": "reload" %>
+
+<div class="ld-page">
+  <div class="ld-header">
+    <h1>Frequently Asked Questions</h1>
+    <%= link_to "New FAQ", new_admin_faq_path, class: "ld-btn ld-btn-primary" %>
+  </div>
+
+  <!-- Stats -->
+  <div class="ld-stats-grid ld-stats-3">
+    <div class="ld-stat-card">
+      <div class="ld-stat-value"><%= @total_faqs %></div>
+      <div class="ld-stat-label">Total FAQs</div>
+    </div>
+    <div class="ld-stat-card">
+      <div class="ld-stat-value"><%= @published_faqs %></div>
+      <div class="ld-stat-label">Published</div>
+    </div>
+    <div class="ld-stat-card">
+      <div class="ld-stat-value"><%= @draft_faqs %></div>
+      <div class="ld-stat-label">Drafts</div>
+    </div>
+  </div>
+
+  <% if @faqs.any? %>
+    <div <%= "data-controller=sortable-list data-sortable-list-url-value=#{reorder_admin_faqs_path}".html_safe unless @is_summary %>>
+      <div class="faq-sortable-list">
+        <% @faqs.each do |faq| %>
+          <div class="faq-sortable-item<%= ' faq-readonly-item' if @is_summary %>"
+               <%= "draggable=true data-faq-id=#{faq.id}" unless @is_summary %>>
+            <% unless @is_summary %>
+              <span class="faq-drag-handle">⠿</span>
+            <% end %>
+            <div class="faq-item-content">
+              <div class="faq-item-question"><%= faq.question %></div>
+              <div class="faq-item-answer"><%= truncate(faq.answer, length: 120) %></div>
+            </div>
+            <div class="faq-item-meta">
+              <span class="ld-badge ld-badge-jurisdiction"><%= faq.jurisdiction %></span>
+              <% if faq.published? %>
+                <span class="ld-badge ld-badge-status ld-status-active">Published</span>
+              <% else %>
+                <span class="ld-badge ld-badge-status ld-status-draft">Draft</span>
+              <% end %>
+              <div class="ld-actions">
+                <%= link_to "Edit", edit_admin_faq_path(faq), class: "ld-btn ld-btn-outline ld-btn-sm" %>
+                <%= link_to "Delete", admin_faq_path(faq), data: { turbo_method: :delete, turbo_confirm: "Delete this FAQ?" }, class: "ld-btn ld-btn-danger ld-btn-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="faq-empty">
+      <p>No FAQs yet.</p>
+      <%= link_to "Create your first FAQ", new_admin_faq_path, class: "ld-btn ld-btn-primary" %>
+    </div>
+  <% end %>
+</div>

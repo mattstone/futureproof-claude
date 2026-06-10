@@ -14,7 +14,7 @@ class Contract < ApplicationRecord
     awaiting_investment: 1,
     ok: 2,
     in_holiday: 3,
-    in_arrears: 4,
+    investment_at_risk: 4,
     complete: 5
   }, prefix: true, default: :awaiting_funding
   

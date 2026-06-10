@@ -9,7 +9,7 @@ class SupportController < ApplicationController
   end
 
   def send_message
-    @region = params[:region] || "au"
+    @region = params[:region] || "us"
     @session_id = session[:support_session_id] ||= SecureRandom.uuid
 
     message = params[:message]&.strip
@@ -24,7 +24,7 @@ class SupportController < ApplicationController
     end
 
     # Get response
-    service = CustomerSupportService.new(session_id: @session_id, region: @region)
+    service = CustomerSupportService.new(session_id: @session_id, region: @region, user: current_user)
     result = service.respond(user_message: message, conversation_history: history)
 
     # Store in session

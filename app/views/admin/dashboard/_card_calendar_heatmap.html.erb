@@ -1,0 +1,16 @@
+<section id="calendar-heatmap" class="dashboard-overview-card dashboard-funnel-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Application volume — last 12 months</h3>
+    <span class="dashboard-overview-meta"><%= number_with_delimiter(calendar[:total]) %> applications across <%= calendar[:days].size %> days</span>
+  </header>
+  <div class="dashboard-trend-chart"
+       data-controller="calendar-heatmap"
+       data-calendar-heatmap-days-value="<%= calendar[:days].to_json %>"
+       data-calendar-heatmap-max-value="<%= calendar[:max] %>"
+       data-calendar-heatmap-total-value="<%= calendar[:total] %>"></div>
+  <div class="dashboard-heatmap-legend">
+    <span>Quieter</span>
+    <div class="dashboard-heatmap-legend-bar dashboard-heatmap-legend-bar-blue"></div>
+    <span>Busier</span>
+  </div>
+</section>

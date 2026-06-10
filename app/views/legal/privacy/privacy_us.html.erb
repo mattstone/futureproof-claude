@@ -1,35 +1,282 @@
-<div class="legal-document">
-  <h1>Privacy Policy — US</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  <p>FutureProof Financial is committed to protecting your privacy.</p>
-  
-  <h2>Personal Information</h2>
-  <p>We collect: name, address, DOB, income, property details, credit information, health information (if relevant).</p>
-  
-  <h2>Use of Information</h2>
-  <ul>
-    <li>Process applications and service loans</li>
-    <li>Assess creditworthiness and lending risk</li>
-    <li>Comply with legal and tax obligations</li>
-    <li>Fraud prevention and risk management</li>
-  </ul>
-  
-  <h2>Disclosure</h2>
-  <p>We may disclose to: credit agencies, lenders, insurers, valuers, government agencies, legal/financial advisors, service providers.</p>
-  
-  <h2>Your Rights</h2>
-  <ul>
-    <li>Access your personal information</li>
-    <li>Request correction of inaccurate information</li>
-    <li>Lodge a complaint with us or the applicable regulator</li>
-  </ul>
-  
-  <h2>Contact</h2>
-  <p>Privacy Officer: [email] | [phone]</p>
-</div>
+<% details = legal_details("us") %>
+<% config = RegionHelper.region_config("us") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Privacy Policy</h1>
+    <p class="legal-jurisdiction">United States of America</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+  </div>
+
+  <div class="legal-body">
+
+    <h2>1. INTRODUCTION</h2>
+    <p><strong>1.1</strong> FutureProof Financial Inc. ("FutureProof," "we," "us," or "our") is committed to protecting your personal information and respecting your privacy rights. This Privacy Policy explains how we collect, use, disclose, retain, and protect your personal information when you access or use the FutureProof platform ("Platform") and our Equity Preservation Mortgage ("EPM") products and services.</p>
+    <p><strong>1.2</strong> This Privacy Policy is designed to comply with the <%= details[:privacy_act] %>, and all other applicable federal and state privacy and data protection laws.</p>
+    <p><strong>1.3</strong> As a financial services provider, we are also subject to the privacy provisions of the Gramm-Leach-Bliley Act (GLBA), which governs the collection, use, and disclosure of nonpublic personal information by financial institutions. This Privacy Policy serves as our GLBA privacy notice.</p>
+    <p><strong>1.4</strong> By accessing or using the Platform, submitting an application, or providing your personal information to us, you acknowledge that you have read and understood this Privacy Policy.</p>
+    <p><strong>1.5</strong> Our <%= details[:data_protection_officer] %> can be contacted at privacy@futureprooffinancial.co for any privacy-related inquiries.</p>
+
+    <h2>2. INFORMATION WE COLLECT</h2>
+    <p><strong>2.1 Personal and Identity Information:</strong></p>
+    <ul>
+      <li>(a) Full legal name, including any former names or aliases;</li>
+      <li>(b) Date of birth and age;</li>
+      <li>(c) Social Security Number (SSN) or Individual Taxpayer Identification Number (ITIN);</li>
+      <li>(d) Government-issued identification (driver's license, passport, state ID);</li>
+      <li>(e) Citizenship and immigration status;</li>
+      <li>(f) Marital status and dependents (where relevant to the application);</li>
+      <li>(g) Photographs and biometric data for identity verification purposes.</li>
+    </ul>
+    <p><strong>2.2 Contact Information:</strong></p>
+    <ul>
+      <li>(a) Residential address and mailing address;</li>
+      <li>(b) Email address;</li>
+      <li>(c) Phone number (home, mobile, and/or work);</li>
+      <li>(d) Emergency contact details.</li>
+    </ul>
+    <p><strong>2.3 Financial Information:</strong></p>
+    <ul>
+      <li>(a) Income details (employment income, pension, Social Security, investment income, rental income);</li>
+      <li>(b) Assets and liabilities;</li>
+      <li>(c) Bank account details and statements;</li>
+      <li>(d) Credit history and credit scores obtained from credit reporting agencies;</li>
+      <li>(e) Tax returns and W-2 or 1099 forms;</li>
+      <li>(f) Existing mortgage and loan information;</li>
+      <li>(g) Investment account information and statements.</li>
+    </ul>
+    <p><strong>2.4 Property Information:</strong></p>
+    <ul>
+      <li>(a) Property address and legal description;</li>
+      <li>(b) Property type, size, and condition;</li>
+      <li>(c) Ownership history and title information;</li>
+      <li>(d) Property valuation and appraisal data;</li>
+      <li>(e) Homeowners insurance details;</li>
+      <li>(f) Property tax records;</li>
+      <li>(g) Homeowners association (HOA) information, if applicable;</li>
+      <li>(h) Flood zone designation.</li>
+    </ul>
+    <p><strong>2.5 Technical and Usage Information:</strong></p>
+    <ul>
+      <li>(a) Device information (browser type and version, operating system, device type);</li>
+      <li>(b) IP address and approximate geolocation;</li>
+      <li>(c) Unique device identifiers;</li>
+      <li>(d) Pages visited, features used, and time spent on the Platform;</li>
+      <li>(e) Referring and exit pages;</li>
+      <li>(f) Click patterns and navigation paths;</li>
+      <li>(g) Error logs and performance data.</li>
+    </ul>
+    <p><strong>2.6 Cookies and Tracking Technologies:</strong></p>
+    <ul>
+      <li>(a) Essential cookies required for Platform functionality and security;</li>
+      <li>(b) Analytics cookies to understand usage patterns and improve our services;</li>
+      <li>(c) Preference cookies to remember your settings and choices;</li>
+      <li>(d) We do not use third-party advertising or behavioral tracking cookies.</li>
+    </ul>
+
+    <h2>3. HOW WE USE YOUR INFORMATION</h2>
+    <p><strong>3.1 Application Processing and Servicing:</strong></p>
+    <ul>
+      <li>(a) Evaluate your EPM application and determine eligibility;</li>
+      <li>(b) Process and underwrite your loan application;</li>
+      <li>(c) Arrange property valuations and appraisals;</li>
+      <li>(d) Manage your Investment Account and generate monthly income payments;</li>
+      <li>(e) Service your EPM throughout its term, including statements and reporting;</li>
+      <li>(f) Process Profit Share calculations and distributions.</li>
+    </ul>
+    <p><strong>3.2 Identity Verification and Regulatory Compliance:</strong></p>
+    <ul>
+      <li>(a) Conduct Know Your Customer (KYC) checks as required by applicable law;</li>
+      <li>(b) Perform anti-money laundering (AML) screening as required by the <%= details[:aml_act] %>;</li>
+      <li>(c) Verify your identity against government databases and watchlists, including the Office of Foreign Assets Control (OFAC) Specially Designated Nationals (SDN) list;</li>
+      <li>(d) File Suspicious Activity Reports (SARs) and Currency Transaction Reports (CTRs) as required by the Financial Crimes Enforcement Network (FinCEN);</li>
+      <li>(e) Comply with IRS reporting requirements, including 1099 and 1098 forms.</li>
+    </ul>
+    <p><strong>3.3 Credit Assessment:</strong></p>
+    <ul>
+      <li>(a) Obtain and review credit reports from one or more consumer reporting agencies;</li>
+      <li>(b) Assess creditworthiness and lending risk;</li>
+      <li>(c) Verify employment, income, and asset information;</li>
+      <li>(d) Conduct affordability assessments as required by applicable lending regulations.</li>
+    </ul>
+    <p><strong>3.4 Fraud Prevention and Security:</strong></p>
+    <ul>
+      <li>(a) Detect, prevent, and investigate fraudulent or unauthorized activity;</li>
+      <li>(b) Monitor accounts for suspicious transactions or behavior;</li>
+      <li>(c) Verify the authenticity of documents and information provided;</li>
+      <li>(d) Protect the security and integrity of the Platform and our systems.</li>
+    </ul>
+    <p><strong>3.5 Communications:</strong></p>
+    <ul>
+      <li>(a) Send transactional communications (application updates, payment confirmations, statements);</li>
+      <li>(b) Provide customer support and respond to inquiries;</li>
+      <li>(c) Send regulatory notices and disclosures;</li>
+      <li>(d) Send marketing and promotional communications (with your consent, and subject to your right to opt out).</li>
+    </ul>
+    <p><strong>3.6 Platform Improvement:</strong></p>
+    <ul>
+      <li>(a) Analyze usage patterns to improve Platform functionality and user experience;</li>
+      <li>(b) Conduct research and analytics on product performance;</li>
+      <li>(c) Develop new products and services;</li>
+      <li>(d) Test and improve our technology and security measures.</li>
+    </ul>
+
+    <h2>4. LEGAL BASIS FOR PROCESSING</h2>
+    <p><strong>4.1</strong> We collect and process your personal information on the following legal bases:</p>
+    <ul>
+      <li>(a) <strong>Contractual Necessity:</strong> Processing necessary to perform our contract with you, including processing your EPM application, managing your Investment Account, and servicing your loan;</li>
+      <li>(b) <strong>Legal Obligation:</strong> Processing required to comply with applicable laws and regulations, including TILA, RESPA, BSA, PATRIOT Act, GLBA, CCPA, IRS reporting requirements, and state financial regulations;</li>
+      <li>(c) <strong>Legitimate Business Interest:</strong> Processing necessary for our legitimate interests, including fraud prevention, risk management, Platform security, and service improvement, where such interests are not overridden by your privacy rights;</li>
+      <li>(d) <strong>Consent:</strong> Processing based on your express consent, including marketing communications and certain uses of cookies. You may withdraw consent at any time without affecting the lawfulness of prior processing.</li>
+    </ul>
+
+    <h2>5. DATA SHARING AND DISCLOSURE</h2>
+    <p><strong>5.1</strong> We may share your personal information with the following categories of recipients, solely for the purposes described in this Privacy Policy:</p>
+    <ul>
+      <li>(a) <strong>Lenders:</strong> Licensed mortgage lenders that originate and fund EPM loans. Lenders receive your application data, credit information, property details, and financial information necessary to underwrite and approve your loan;</li>
+      <li>(b) <strong>Investment Managers:</strong> SEC-registered investment advisers appointed to manage your Investment Account. Investment Managers receive financial and identity information necessary to establish and manage your account;</li>
+      <li>(c) <strong>Property Valuers/Appraisers:</strong> Licensed appraisers who conduct independent property valuations. Appraisers receive property address and access information;</li>
+      <li>(d) <strong>KYC/AML Providers:</strong> Third-party identity verification and anti-money laundering service providers. These providers receive identity documents and personal information for verification purposes;</li>
+      <li>(e) <strong>Credit Reporting Agencies:</strong> We may report your loan information to consumer reporting agencies as permitted by the Fair Credit Reporting Act (FCRA);</li>
+      <li>(f) <strong>Insurers:</strong> Insurance companies providing Lenders Mortgage Insurance, NNEG coverage, or title insurance. Insurers receive property, loan, and borrower information;</li>
+      <li>(g) <strong>Regulators and Government Authorities:</strong> Federal and state regulatory authorities, including the <%= details[:regulator] %>, state financial regulators, the IRS, and FinCEN, as required by law;</li>
+      <li>(h) <strong>Service Providers:</strong> Technology providers, cloud hosting services, payment processors, document management providers, and other vendors who assist in operating the Platform, subject to contractual obligations to protect your information;</li>
+      <li>(i) <strong>Professional Advisors:</strong> Legal counsel, accountants, auditors, and other professional advisors retained by FutureProof;</li>
+      <li>(j) <strong>Title Companies and Settlement Agents:</strong> Entities involved in the loan closing process.</li>
+    </ul>
+    <p><strong>5.2</strong> All third-party recipients are required to maintain the confidentiality and security of your personal information and to use it only for the purposes for which it was disclosed.</p>
+
+    <h2>6. NO SALE OF PERSONAL INFORMATION</h2>
+    <p><strong>6.1</strong> FutureProof does not sell your personal information to third parties. We have not sold personal information in the preceding twelve (12) months and do not intend to do so.</p>
+    <p><strong>6.2</strong> For purposes of the California Consumer Privacy Act (CCPA), "sale" means the disclosure of personal information to a third party for monetary or other valuable consideration. None of the data sharing described in Section 5 constitutes a "sale" under the CCPA, as all sharing is conducted for business purposes in connection with the provision of our services.</p>
+    <p><strong>6.3</strong> We do not share your personal information for cross-context behavioral advertising purposes.</p>
+
+    <h2>7. DATA SECURITY</h2>
+    <p><strong>7.1</strong> We implement and maintain comprehensive technical, administrative, and physical security measures to protect your personal information against unauthorized access, disclosure, alteration, or destruction, including:</p>
+    <ul>
+      <li>(a) <strong>Encryption at Rest:</strong> All personal and financial data is encrypted using AES-256 encryption when stored in our systems;</li>
+      <li>(b) <strong>Encryption in Transit:</strong> All data transmitted between your device and our servers is protected using TLS 1.3 encryption;</li>
+      <li>(c) <strong>Multi-Factor Authentication (MFA):</strong> Required for all user account access and administrative functions;</li>
+      <li>(d) <strong>Role-Based Access Control (RBAC):</strong> Access to personal information is restricted to authorized personnel on a need-to-know basis;</li>
+      <li>(e) <strong>Intrusion Detection and Prevention:</strong> Real-time monitoring systems to detect and respond to security threats;</li>
+      <li>(f) <strong>Regular Security Assessments:</strong> Periodic penetration testing, vulnerability assessments, and security audits conducted by independent third parties;</li>
+      <li>(g) <strong>Employee Training:</strong> All employees with access to personal information receive regular training on data protection and information security;</li>
+      <li>(h) <strong>Incident Response Plan:</strong> Documented procedures for identifying, containing, and responding to data security incidents, including notification to affected individuals and regulators as required by law.</li>
+    </ul>
+    <p><strong>7.2</strong> While we implement industry-standard security measures, no method of electronic transmission or storage is completely secure. We cannot guarantee the absolute security of your information.</p>
+
+    <h2>8. DATA RETENTION</h2>
+    <p><strong>8.1</strong> We retain your personal information for the following periods:</p>
+    <ul>
+      <li>(a) <strong>Active Accounts:</strong> For the duration of your account and EPM relationship, plus seven (7) years following the closure or termination of the account;</li>
+      <li>(b) <strong>Closed Accounts:</strong> Seven (7) years from the date of account closure or loan payoff, in accordance with federal and state record retention requirements;</li>
+      <li>(c) <strong>Unsuccessful Applications:</strong> Two (2) years from the date of the application decision, unless a longer period is required by law;</li>
+      <li>(d) <strong>Marketing and Communications Data:</strong> Until you withdraw consent or opt out of marketing communications;</li>
+      <li>(e) <strong>Technical and Usage Data:</strong> Up to twenty-four (24) months from the date of collection.</li>
+    </ul>
+    <p><strong>8.2</strong> Certain information may be retained for longer periods where required by law, including BSA/AML record-keeping requirements (which mandate retention of certain records for five years) and IRS reporting requirements.</p>
+    <p><strong>8.3</strong> When personal information is no longer required, it is securely deleted or de-identified in accordance with our data destruction policies.</p>
+
+    <h2>9. YOUR RIGHTS UNDER THE CCPA</h2>
+    <p><strong>9.1</strong> If you are a California resident, you have the following rights under the California Consumer Privacy Act (CCPA), as amended by the California Privacy Rights Act (CPRA):</p>
+    <ul>
+      <li>(a) <strong>Right to Know:</strong> You have the right to request that we disclose the categories and specific pieces of personal information we have collected about you, the categories of sources from which we collected it, the business or commercial purposes for collection, and the categories of third parties with whom we share it;</li>
+      <li>(b) <strong>Right to Delete:</strong> You have the right to request the deletion of personal information we have collected from you, subject to certain exceptions (including where retention is required by law or necessary to complete a transaction);</li>
+      <li>(c) <strong>Right to Correct:</strong> You have the right to request that we correct inaccurate personal information we maintain about you;</li>
+      <li>(d) <strong>Right to Opt-Out of Sale or Sharing:</strong> You have the right to opt out of the sale or sharing of your personal information. As stated in Section 6, we do not sell or share your personal information;</li>
+      <li>(e) <strong>Right to Limit Use of Sensitive Personal Information:</strong> You have the right to limit our use of sensitive personal information to purposes necessary to provide our services;</li>
+      <li>(f) <strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising any of your CCPA rights. We will not deny you services, charge different prices, provide a different level of service, or suggest that you will receive a different price or quality of service for exercising your rights.</li>
+    </ul>
+    <p><strong>9.2</strong> To exercise any of your CCPA rights, you may:</p>
+    <ul>
+      <li>(a) Email us at privacy@futureprooffinancial.co;</li>
+      <li>(b) Submit a request through the Platform's privacy settings;</li>
+      <li>(c) Call our privacy hotline (number available on the Platform).</li>
+    </ul>
+    <p><strong>9.3</strong> We will verify your identity before processing any CCPA request. You may designate an authorized agent to make a request on your behalf, provided that the agent presents a valid power of attorney or other written authorization.</p>
+    <p><strong>9.4</strong> We will respond to verified CCPA requests within forty-five (45) days. If additional time is needed, we will notify you of the extension (up to an additional forty-five days) and the reason for the delay.</p>
+
+    <h2>10. YOUR RIGHTS UNDER THE GLBA</h2>
+    <p><strong>10.1</strong> Under the Gramm-Leach-Bliley Act (GLBA), you have the right to opt out of certain information sharing with nonaffiliated third parties.</p>
+    <p><strong>10.2</strong> As described in Section 5, we share your nonpublic personal information with third parties only as necessary to provide our services, as permitted by law, or with your consent. You may opt out of any non-essential information sharing by contacting us at privacy@futureprooffinancial.co.</p>
+    <p><strong>10.3</strong> The following types of information sharing are permitted under the GLBA and are not subject to your opt-out right:</p>
+    <ul>
+      <li>(a) Sharing with service providers who perform services on our behalf and are contractually bound to protect your information;</li>
+      <li>(b) Sharing required by law or regulation, including reporting to regulatory authorities;</li>
+      <li>(c) Sharing with consumer reporting agencies;</li>
+      <li>(d) Sharing necessary to process transactions you have authorized.</li>
+    </ul>
+    <p><strong>10.4</strong> We will provide you with an annual GLBA privacy notice, which may be delivered electronically with your consent.</p>
+
+    <h2>11. COOKIES AND TRACKING TECHNOLOGIES</h2>
+    <p><strong>11.1</strong> We use the following categories of cookies and tracking technologies:</p>
+    <ul>
+      <li>(a) <strong>Strictly Necessary Cookies:</strong> Required for the Platform to function, including session management, authentication, and security. These cookies cannot be disabled;</li>
+      <li>(b) <strong>Functional Cookies:</strong> Enable enhanced functionality and personalization, such as remembering your preferences and settings;</li>
+      <li>(c) <strong>Analytics Cookies:</strong> Help us understand how visitors interact with the Platform, which pages are most visited, and how we can improve the user experience. We use analytics data in aggregate form;</li>
+      <li>(d) <strong>Performance Cookies:</strong> Monitor Platform performance and help us identify and resolve technical issues.</li>
+    </ul>
+    <p><strong>11.2</strong> We do not use third-party advertising cookies, behavioral tracking cookies, or cross-site tracking technologies.</p>
+    <p><strong>11.3</strong> You can manage cookie preferences through your browser settings. Disabling certain cookies may affect Platform functionality.</p>
+    <p><strong>11.4</strong> We honor Do Not Track (DNT) signals transmitted by your browser.</p>
+
+    <h2>12. INTERNATIONAL DATA TRANSFERS</h2>
+    <p><strong>12.1</strong> Your personal information is primarily stored and processed in the United States. However, some of our service providers may process data in other countries.</p>
+    <p><strong>12.2</strong> Where personal information is transferred outside the United States, we ensure that appropriate safeguards are in place, including:</p>
+    <ul>
+      <li>(a) Standard contractual clauses approved by relevant authorities;</li>
+      <li>(b) Certification under recognized data transfer frameworks;</li>
+      <li>(c) Binding corporate rules of the receiving organization;</li>
+      <li>(d) The recipient country having been recognized as providing adequate data protection.</li>
+    </ul>
+    <p><strong>12.3</strong> We ensure that all international data transfers comply with applicable U.S. privacy laws and that your information receives a level of protection consistent with this Privacy Policy.</p>
+
+    <h2>13. CHILDREN'S PRIVACY</h2>
+    <p><strong>13.1</strong> The Platform and our services are not intended for use by persons under the age of eighteen (18). We do not knowingly collect personal information from children under 18.</p>
+    <p><strong>13.2</strong> If we become aware that we have collected personal information from a person under 18, we will take steps to promptly delete such information from our systems.</p>
+    <p><strong>13.3</strong> If you are a parent or guardian and believe that your child has provided personal information to us, please contact us at privacy@futureprooffinancial.co.</p>
+
+    <h2>14. CALIFORNIA-SPECIFIC PROVISIONS</h2>
+    <p><strong>14.1 Shine the Light Law (California Civil Code Section 1798.83):</strong> California residents have the right to request information about the disclosure of personal information to third parties for their direct marketing purposes. As stated in this Privacy Policy, we do not disclose personal information to third parties for their direct marketing purposes.</p>
+    <p><strong>14.2 California Online Privacy Protection Act (CalOPPA):</strong> In accordance with CalOPPA, we disclose the following:</p>
+    <ul>
+      <li>(a) This Privacy Policy identifies the categories of personal information collected and the third parties with whom it may be shared;</li>
+      <li>(b) You may review and request changes to your personal information by logging into your account or contacting us;</li>
+      <li>(c) We honor Do Not Track signals as described in Section 11.4;</li>
+      <li>(d) Third parties are not permitted to collect personal information about your online activities over time and across different websites when you use the Platform.</li>
+    </ul>
+    <p><strong>14.3 CCPA Categories of Personal Information:</strong> In the preceding twelve (12) months, we have collected the following categories of personal information as defined by the CCPA:</p>
+    <ul>
+      <li>(a) Identifiers (name, SSN, address, email, phone number);</li>
+      <li>(b) Customer records information (financial information, property information);</li>
+      <li>(c) Protected classification characteristics (age, marital status);</li>
+      <li>(d) Commercial information (loan application details, transaction history);</li>
+      <li>(e) Biometric information (for identity verification only);</li>
+      <li>(f) Internet or electronic network activity information (browsing history, Platform usage);</li>
+      <li>(g) Geolocation data (approximate location from IP address);</li>
+      <li>(h) Professional or employment-related information (employer, occupation);</li>
+      <li>(i) Inferences drawn from the above categories (creditworthiness assessments, risk profiles).</li>
+    </ul>
+
+    <h2>15. CHANGES TO THIS PRIVACY POLICY</h2>
+    <p><strong>15.1</strong> We may update this Privacy Policy from time to time to reflect changes in our practices, technologies, legal requirements, or other factors.</p>
+    <p><strong>15.2</strong> For material changes that affect how we collect, use, or share your personal information, we will provide you with at least thirty (30) days' prior written notice via email and a prominent notice on the Platform before the changes take effect.</p>
+    <p><strong>15.3</strong> The "Effective" date at the top of this Privacy Policy indicates when it was last updated. We encourage you to review this Privacy Policy periodically.</p>
+    <p><strong>15.4</strong> Your continued use of the Platform after the effective date of any changes constitutes your acceptance of the updated Privacy Policy.</p>
+
+    <h2>16. CONTACT INFORMATION</h2>
+    <p><strong>16.1</strong> For privacy inquiries, requests to exercise your rights, or concerns about how your personal information is handled:</p>
+    <div class="contact-info">
+      <p><strong><%= details[:data_protection_officer] %></strong></p>
+      <p>FutureProof Financial Inc.</p>
+      <p>Email: privacy@futureprooffinancial.co</p>
+      <p>Website: www.futureprooffinancial.co</p>
+    </div>
+    <p><strong>16.2</strong> If you are not satisfied with our response, you may file a complaint with:</p>
+    <div class="contact-info">
+      <p><strong><%= details[:complaint_body] %></strong></p>
+      <p>You may also contact the California Attorney General's office for CCPA-related complaints, or your state attorney general for privacy concerns under applicable state law.</p>
+    </div>
+    <p><strong>16.3</strong> We aim to respond to all privacy inquiries within thirty (30) days of receipt.</p>
+  </div>
+</div>

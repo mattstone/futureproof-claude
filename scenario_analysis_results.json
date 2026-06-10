@@ -1,0 +1,72 @@
+{
+  "tenure_metrics": {
+    "15": {
+      "pod_at_maturity": 27.086,
+      "mean_surplus": 493645.9032817231,
+      "median_surplus": 429898.53685655096,
+      "p10": -485988.5567559803,
+      "p20": -161261.44218390548,
+      "p30": 58997.54243929435
+    },
+    "20": {
+      "pod_at_maturity": 21.337999999999997,
+      "mean_surplus": 835141.0820008514,
+      "median_surplus": 704805.0991772433,
+      "p10": -416871.0677008335,
+      "p20": -38632.41685449947,
+      "p30": 226769.50696865882
+    },
+    "25": {
+      "pod_at_maturity": 17.274,
+      "mean_surplus": 1232226.57247811,
+      "median_surplus": 1025556.13149214,
+      "p10": -337581.1281953014,
+      "p20": 100439.71055470307,
+      "p30": 414798.2921906875
+    },
+    "30": {
+      "pod_at_maturity": 14.252,
+      "mean_surplus": 1682641.718490672,
+      "median_surplus": 1376589.596675522,
+      "p10": -237887.72021355655,
+      "p20": 260823.8832023888,
+      "p30": 641935.2951678236
+    }
+  },
+  "scenario1": {
+    "baseline_pod": 19.987499999999997,
+    "test_pod": 17.621333333333332,
+    "baseline_poc": 0.0,
+    "test_poc": 0.0,
+    "baseline_mean_surplus": 1060913.8190628393,
+    "test_mean_surplus": 1250003.1243232111
+  },
+  "scenario2": {
+    "individual_30yr": {
+      "P10": {
+        "top_cover": 237887.72021355655,
+        "fair_premium": 7642.10217433091,
+        "loaded_premium": 11463.153261496365,
+        "premium_pct": 0.7164470788435228,
+        "reinsurance_premium": 22740.290185515973,
+        "paths_exceeding_cover": 5000
+      },
+      "P20": {
+        "top_cover": 0.0,
+        "fair_premium": 0.0,
+        "loaded_premium": 0.0,
+        "premium_pct": 0.0,
+        "reinsurance_premium": 34203.44344701234,
+        "paths_exceeding_cover": 7126
+      },
+      "P30": {
+        "top_cover": 0.0,
+        "fair_premium": 0.0,
+        "loaded_premium": 0.0,
+        "premium_pct": 0.0,
+        "reinsurance_premium": 34203.44344701234,
+        "paths_exceeding_cover": 7126
+      }
+    }
+  }
+}

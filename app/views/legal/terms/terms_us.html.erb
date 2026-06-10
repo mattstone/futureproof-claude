@@ -1,39 +1,280 @@
-<div class="legal-document">
-  <h1>Terms of Service — United States</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  
-  <h2>1. Acceptance</h2>
-  <p>By accessing FutureProof Financial, you accept these Terms and our Privacy Policy.</p>
-  
-  <h2>2. Service Description</h2>
-  <p>We provide Equity Preservation Mortgage (EPM) products regulated under TILA, RESPA, and state mortgage laws.</p>
-  
-  <h2>3. Eligibility</h2>
-  <ul>
-    <li>Minimum age: 55 years</li>
-    <li>Property value: $500,000+</li>
-    <li>U.S. citizen or permanent resident</li>
-    <li>Pass credit assessment</li>
-  </ul>
-  
-  <h2>4. Your Obligations</h2>
-  <p>You agree to: (a) provide accurate information; (b) maintain homeowners insurance; (c) pay property taxes; (d) maintain property in good condition; (e) notify us if property is no longer your primary residence.</p>
-  
-  <h2>5. Non-Traditional Mortgage Acknowledgment</h2>
-  <p>You acknowledge that this is a non-traditional mortgage with features differing from conventional mortgages, including potential for debt to exceed equity in declining markets (mitigated by NNEG insurance).</p>
-  
-  <h2>6. Limitation of Liability</h2>
-  <p>To the maximum extent permitted by applicable law, our liability is limited to the loan principal amount.</p>
-  
-  <h2>7. Governing Law</h2>
-  <p>These Terms are governed by [State] law. Disputes are resolved in [State/Federal] courts.</p>
-  
-  <h2>8. Contact</h2>
-  <p>For questions: [email] | [phone]</p>
-</div>
+<% details = legal_details("us") %>
+<% config = RegionHelper.region_config("us") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Terms of Use</h1>
+    <p class="legal-jurisdiction">United States of America</p>
+    <p class="legal-version">Version 2.0 | Effective: 1 March 2026</p>
+  </div>
+
+  <div class="legal-body">
+
+    <h2>1. INTRODUCTION AND ACCEPTANCE</h2>
+    <p><strong>1.1</strong> These Terms of Use ("Terms") govern your access to and use of the FutureProof Financial platform ("Platform"), operated by FutureProof Financial Inc. ("FutureProof," "we," "us," or "our"), a <%= details[:company_registration] %>, and the Equity Preservation Mortgage ("EPM") products and services offered through it.</p>
+    <p><strong>1.2</strong> By accessing or using the Platform, creating an account, submitting an application, or entering into any agreement with FutureProof, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy, which is incorporated herein by reference.</p>
+    <p><strong>1.3</strong> If you do not agree to these Terms, you must not access or use the Platform or any of our services.</p>
+    <p><strong>1.4</strong> The Platform and services are regulated under <%= details[:consumer_credit_act] %>. FutureProof is registered with the <%= details[:licensing_act] %>.</p>
+    <p><strong>1.5</strong> These Terms constitute a legally binding agreement between you and FutureProof Financial Inc. Nothing in these Terms is intended to limit any rights you may have under applicable federal or state consumer protection laws.</p>
+
+    <h2>2. DEFINITIONS</h2>
+    <p><strong>2.1</strong> In these Terms, unless the context otherwise requires, the following definitions apply:</p>
+    <ul>
+      <li>(a) <strong>"EPM" or "Equity Preservation Mortgage"</strong> means the non-traditional mortgage product offered through the Platform, whereby loan proceeds secured against residential property are invested in a managed portfolio to generate monthly income for the Borrower while preserving property equity;</li>
+      <li>(b) <strong>"Platform"</strong> means the FutureProof Financial website, web application, mobile application, and all associated digital interfaces and services accessible at www.futureprooffinancial.co;</li>
+      <li>(c) <strong>"Borrower"</strong> means a natural person who has applied for, been approved for, or entered into an EPM contract through the Platform;</li>
+      <li>(d) <strong>"Investment Account"</strong> means the segregated investment account established in the Borrower's name, into which EPM loan proceeds are deposited and managed in accordance with the investment strategy;</li>
+      <li>(e) <strong>"Holiday Period"</strong> means a temporary period during which monthly income payments to the Borrower are suspended due to adverse investment performance, with accrued income deferred until portfolio recovery;</li>
+      <li>(f) <strong>"NNEG" or "No Negative Equity Guarantee"</strong> means the contractual guarantee and associated insurance protection ensuring that the Borrower (or their estate) will never owe more than the market value of the secured property at the time of loan settlement;</li>
+      <li>(g) <strong>"Hedging Collar"</strong> means the portfolio protection mechanism consisting of protective put options and covered call options applied to the equity component of the Investment Account to limit downside exposure;</li>
+      <li>(h) <strong>"Loan-to-Value Ratio" or "LTV"</strong> means the ratio of the EPM loan amount to the independently appraised value of the secured property, expressed as a percentage;</li>
+      <li>(i) <strong>"Monthly Income"</strong> means the regular payments made to the Borrower from Investment Account returns, calculated at approximately 1.5% per annum of the property value, paid monthly in arrears;</li>
+      <li>(j) <strong>"Property"</strong> means the residential real property owned by the Borrower that serves as security for the EPM;</li>
+      <li>(k) <strong>"Profit Share"</strong> means the periodic distribution of surplus investment returns to the Borrower, calculated and paid every five (5) years during the loan term;</li>
+      <li>(l) <strong>"Lender"</strong> means the licensed mortgage lender that provides the EPM loan funds through the Platform;</li>
+      <li>(m) <strong>"Investment Manager"</strong> means the SEC-registered investment adviser appointed by FutureProof to manage the Investment Account portfolio;</li>
+      <li>(n) <strong>"Valuation"</strong> means the independent appraisal of the Property conducted by a licensed appraiser in accordance with Uniform Standards of Professional Appraisal Practice (USPAP).</li>
+    </ul>
+
+    <h2>3. SERVICE DESCRIPTION</h2>
+    <p><strong>3.1</strong> FutureProof operates a technology platform that facilitates the origination, management, and servicing of Equity Preservation Mortgages. The Platform connects Borrowers with licensed Lenders, Investment Managers, and ancillary service providers.</p>
+    <p><strong>3.2</strong> The EPM product works as follows:</p>
+    <ul>
+      <li>(a) The Borrower applies for a mortgage secured against their residential property;</li>
+      <li>(b) Upon approval, loan proceeds are advanced by the Lender and deposited into a segregated Investment Account;</li>
+      <li>(c) The Investment Account is managed by the Investment Manager in accordance with a diversified investment strategy comprising approximately 70% equity index-linked ETFs (primarily S&amp;P 500 tracking) and approximately 30% fixed income securities;</li>
+      <li>(d) A Hedging Collar is applied to the equity component to provide downside protection;</li>
+      <li>(e) Investment returns are used to service the mortgage interest payments and generate Monthly Income for the Borrower;</li>
+      <li>(f) The Borrower receives Monthly Income of approximately 1.5% per annum of the property value;</li>
+      <li>(g) At the end of the loan term, or upon sale of the Property, the mortgage is repaid from the Investment Account and any surplus is returned to the Borrower;</li>
+      <li>(h) The NNEG ensures the Borrower never owes more than the property value.</li>
+    </ul>
+    <p><strong>3.3</strong> FutureProof acts as a platform operator and mortgage servicer. FutureProof is not the Lender and does not provide investment advice. All lending decisions are made by the Lender, and all investment management decisions are made by the Investment Manager.</p>
+    <p><strong>3.4</strong> The Platform also provides ancillary services including financial calculators, educational content, document management, and customer support.</p>
+
+    <h2>4. ELIGIBILITY</h2>
+    <p><strong>4.1</strong> To use the Platform and apply for an EPM, you must satisfy all of the following criteria:</p>
+    <ul>
+      <li>(a) Be aged fifty-five (55) years or older at the time of application;</li>
+      <li>(b) Be a United States citizen or lawful permanent resident;</li>
+      <li>(c) Own residential real property located in the United States with an independently appraised value of not less than five hundred thousand dollars ($500,000);</li>
+      <li>(d) The Property must be your primary residence;</li>
+      <li>(e) Successfully pass credit assessment, identity verification, and anti-money laundering checks as required by the <%= details[:aml_act] %>;</li>
+      <li>(f) Have legal capacity to enter into a mortgage contract and to grant a security interest in the Property;</li>
+      <li>(g) Not be an undischarged bankrupt, subject to insolvency proceedings, or subject to any court order restricting financial transactions;</li>
+      <li>(h) Not have any existing liens, judgments, or encumbrances on the Property that would prevent the Lender from obtaining a first-priority mortgage lien, unless such encumbrances can be satisfied from loan proceeds at closing.</li>
+    </ul>
+    <p><strong>4.2</strong> Meeting the eligibility criteria does not guarantee approval. All applications are subject to underwriting by the Lender, property valuation, and credit assessment.</p>
+    <p><strong>4.3</strong> You represent and warrant that all information provided in connection with your application is true, accurate, complete, and not misleading. Providing false or misleading information may constitute federal mortgage fraud under 18 U.S.C. Section 1014.</p>
+
+    <h2>5. ACCOUNT REGISTRATION AND SECURITY</h2>
+    <p><strong>5.1</strong> To access Platform services, you must create an account by providing accurate and complete registration information, including your legal name, email address, phone number, and date of birth.</p>
+    <p><strong>5.2</strong> You are responsible for:</p>
+    <ul>
+      <li>(a) Maintaining the confidentiality of your account credentials, including passwords and multi-factor authentication devices;</li>
+      <li>(b) All activities that occur under your account, whether or not authorized by you;</li>
+      <li>(c) Notifying FutureProof immediately of any unauthorized access to or use of your account;</li>
+      <li>(d) Ensuring that your contact information remains accurate and up to date.</li>
+    </ul>
+    <p><strong>5.3</strong> Multi-factor authentication is required for account access and for all financial transactions conducted through the Platform.</p>
+    <p><strong>5.4</strong> FutureProof reserves the right to suspend or terminate your account if we reasonably believe that your account has been compromised, is being used fraudulently, or in violation of these Terms.</p>
+    <p><strong>5.5</strong> You must not share your account credentials with any third party or permit any third party to access the Platform through your account.</p>
+
+    <h2>6. EPM PRODUCT TERMS</h2>
+    <p><strong>6.1 Loan-to-Value Ratio:</strong> The maximum LTV for an EPM is eighty percent (80%) of the independently appraised value of the Property. The actual LTV approved will depend on the Borrower's age, property type, location, and credit profile.</p>
+    <p><strong>6.2 Loan Terms:</strong> EPM loans are available for terms of ten (10), fifteen (15), twenty (20), twenty-five (25), or thirty (30) years. The appropriate term will be determined based on the Borrower's age, financial circumstances, and preferences.</p>
+    <p><strong>6.3 Investment Strategy:</strong> Loan proceeds deposited in the Investment Account are invested in accordance with the following strategy:</p>
+    <ul>
+      <li>(a) Approximately seventy percent (70%) in equity index-linked exchange-traded funds (ETFs), primarily tracking the S&amp;P 500 Index;</li>
+      <li>(b) Approximately thirty percent (30%) in fixed income securities, including government bonds and investment-grade corporate bonds;</li>
+      <li>(c) A Hedging Collar is applied to the equity component, consisting of protective put options to limit downside risk and covered call options to generate additional income;</li>
+      <li>(d) The Investment Manager may make tactical adjustments within approved parameters based on market conditions.</li>
+    </ul>
+    <p><strong>6.4 Monthly Income Payments:</strong> The Borrower receives Monthly Income calculated at approximately 1.5% per annum of the property value, paid monthly in arrears. The exact amount is determined at origination and may be adjusted in accordance with the EPM contract terms. Monthly Income is sourced from investment returns and is not a drawdown of equity.</p>
+    <p><strong>6.5 Profit Share:</strong> Every five (5) years during the loan term, surplus investment returns (returns exceeding those required for interest payments, Monthly Income, and fees) are calculated and distributed to the Borrower as a Profit Share payment.</p>
+    <p><strong>6.6 Interest Rate:</strong> The interest rate applicable to the EPM will be disclosed in the Loan Estimate and Closing Disclosure in accordance with TILA requirements, expressed as an <%= details[:interest_disclosure] %>.</p>
+    <p><strong>6.7 Equity Preservation:</strong> The EPM is designed to preserve one hundred percent (100%) of the Borrower's property equity throughout the loan term. Interest and fees are paid from investment returns, not from the Borrower's equity.</p>
+
+    <h2>7. FEES AND CHARGES</h2>
+    <p><strong>7.1</strong> The following fees and charges apply to EPM products. All fees will be disclosed in full in the Loan Estimate provided before you commit to the application, in compliance with TILA and RESPA:</p>
+    <ul>
+      <li>(a) <strong>Application Fee:</strong> A non-refundable fee payable upon submission of a formal EPM application, as disclosed in the Loan Estimate;</li>
+      <li>(b) <strong>Valuation Fee:</strong> The cost of the independent property appraisal conducted by a USPAP-compliant appraiser, payable by the Borrower;</li>
+      <li>(c) <strong>Lenders Mortgage Insurance (LMI):</strong> A one-time premium of 1.6% of the loan amount, payable at closing and deducted from loan proceeds;</li>
+      <li>(d) <strong>Platform Fee:</strong> An ongoing fee of 0.25% per annum of the Investment Account balance, deducted monthly from investment returns;</li>
+      <li>(e) <strong>Hedging Fee:</strong> An ongoing fee of 0.25% per annum of the equity portfolio value, covering the cost of maintaining the Hedging Collar, deducted monthly from investment returns;</li>
+      <li>(f) <strong>Legal and Settlement Fees:</strong> Third-party costs associated with loan closing, title insurance, recording fees, and other settlement services, as itemized in the Closing Disclosure;</li>
+      <li>(g) <strong>Early Termination Fee:</strong> If applicable, as disclosed in the EPM contract. Any prepayment penalties will comply with applicable federal and state law.</li>
+    </ul>
+    <p><strong>7.2</strong> All fees are disclosed in the Loan Estimate and Closing Disclosure before you commit to the application. You have the right to shop for third-party settlement services as permitted under RESPA.</p>
+    <p><strong>7.3</strong> FutureProof does not charge hidden fees. If any fee changes during the application process, you will be notified in writing and provided with an updated Closing Disclosure at least three (3) business days before closing.</p>
+
+    <h2>8. INVESTMENT RISKS AND DISCLAIMERS</h2>
+    <p><strong>8.1</strong> You acknowledge and agree that:</p>
+    <ul>
+      <li>(a) <strong>Market Risk:</strong> The Investment Account is subject to market fluctuations. The value of investments may go down as well as up. Past performance is not indicative of future results;</li>
+      <li>(b) <strong>Income Variability:</strong> While Monthly Income is targeted at approximately 1.5% per annum of property value, actual payments may be reduced or suspended during Holiday Periods if investment returns are insufficient;</li>
+      <li>(c) <strong>No Guaranteed Returns:</strong> FutureProof, the Lender, and the Investment Manager do not guarantee any specific level of investment return, income amount, or profit share;</li>
+      <li>(d) <strong>Hedging Limitations:</strong> The Hedging Collar reduces but does not eliminate investment risk. In extreme market conditions, losses may exceed the protection provided by the collar;</li>
+      <li>(e) <strong>Concentration Risk:</strong> The equity component is primarily invested in S&amp;P 500 tracking ETFs, which means performance is concentrated in the U.S. large-cap equity market;</li>
+      <li>(f) <strong>Interest Rate Risk:</strong> Changes in interest rates may affect the fixed income component of the portfolio and the overall investment return;</li>
+      <li>(g) <strong>Counterparty Risk:</strong> The EPM involves multiple counterparties including the Lender, Investment Manager, and insurers. The failure of any counterparty could affect the operation of the EPM.</li>
+    </ul>
+    <p><strong>8.2</strong> All projections, estimates, and illustrations provided through the Platform are based on historical data and financial modelling. They are provided for informational purposes only and should not be relied upon as predictions of future performance.</p>
+    <p><strong>8.3</strong> You should obtain independent financial, legal, and tax advice before entering into an EPM. FutureProof does not provide financial, investment, legal, or tax advice.</p>
+
+    <h2>9. HOLIDAY MECHANISM</h2>
+    <p><strong>9.1</strong> The Holiday Mechanism is a protective feature of the EPM designed to preserve the long-term sustainability of the investment portfolio during periods of adverse market performance.</p>
+    <p><strong>9.2</strong> A Holiday Period is triggered when the Investment Account balance falls below the minimum threshold required to sustain Monthly Income payments while maintaining the integrity of the overall investment strategy. Specifically:</p>
+    <ul>
+      <li>(a) If investment returns in any period are insufficient to cover both the mortgage interest payment and the Monthly Income payment, the Monthly Income payment will be suspended;</li>
+      <li>(b) Mortgage interest payments continue to be serviced from the Investment Account during a Holiday Period;</li>
+      <li>(c) Suspended Monthly Income accrues and is paid to the Borrower when the portfolio recovers to a level sufficient to resume payments;</li>
+      <li>(d) The Holiday Period ends automatically when the Investment Account recovers to the required threshold.</li>
+    </ul>
+    <p><strong>9.3</strong> During a Holiday Period, you will be notified in writing, and the Platform will provide regular updates on portfolio performance and the expected timeline for resumption of payments.</p>
+    <p><strong>9.4</strong> The Holiday Mechanism is designed to protect the Investment Account from forced selling of assets during market downturns, thereby preserving long-term portfolio value and your equity.</p>
+
+    <h2>10. INSURANCE AND PROTECTION</h2>
+    <p><strong>10.1 No Negative Equity Guarantee (NNEG):</strong> Every EPM includes NNEG protection, which guarantees that:</p>
+    <ul>
+      <li>(a) The Borrower (or their estate) will never owe more than the market value of the Property at the time of loan settlement;</li>
+      <li>(b) If the outstanding loan balance exceeds the property value at settlement (due to sustained market decline), the NNEG insurance absorbs the shortfall;</li>
+      <li>(c) No deficiency judgment can be pursued against the Borrower or their estate for any amount exceeding the property value;</li>
+      <li>(d) NNEG protection remains in force for the entire duration of the EPM, regardless of market conditions.</li>
+    </ul>
+    <p><strong>10.2 Lenders Mortgage Insurance (LMI):</strong> LMI is required on all EPM loans and provides additional protection to the Lender. The LMI premium of 1.6% of the loan amount is a one-time charge deducted from loan proceeds at closing.</p>
+    <p><strong>10.3 Hedging Collar Protection:</strong> The Hedging Collar applied to the equity portfolio provides structural protection against significant market downturns by limiting the maximum loss on the equity component to a predefined range.</p>
+
+    <h2>11. PROPERTY OBLIGATIONS</h2>
+    <p><strong>11.1</strong> As a condition of the EPM, you agree to maintain the following obligations with respect to the Property throughout the loan term:</p>
+    <ul>
+      <li>(a) <strong>Insurance:</strong> Maintain comprehensive homeowners insurance on the Property at all times, with coverage at least equal to the replacement cost of the dwelling, naming the Lender as loss payee. Proof of insurance must be provided annually;</li>
+      <li>(b) <strong>Property Taxes:</strong> Pay all real property taxes, assessments, and government charges when due. Failure to pay property taxes constitutes an event of default;</li>
+      <li>(c) <strong>Maintenance:</strong> Maintain the Property in good condition and repair, and not permit waste, deterioration, or destruction. You must not make material alterations to the Property without prior written consent of the Lender;</li>
+      <li>(d) <strong>Primary Residence:</strong> Occupy the Property as your primary residence throughout the loan term. You must notify FutureProof immediately if the Property ceases to be your primary residence, as this may constitute an event of default;</li>
+      <li>(e) <strong>No Additional Liens:</strong> Not create, permit, or suffer any additional liens, mortgages, or encumbrances on the Property without the prior written consent of the Lender;</li>
+      <li>(f) <strong>Compliance with Laws:</strong> Comply with all applicable federal, state, and local laws, ordinances, regulations, and restrictive covenants affecting the Property;</li>
+      <li>(g) <strong>Flood Insurance:</strong> If the Property is located in a Special Flood Hazard Area as determined by the Federal Emergency Management Agency (FEMA), maintain flood insurance as required by the National Flood Insurance Act;</li>
+      <li>(h) <strong>Condominium/HOA Compliance:</strong> If applicable, comply with all condominium or homeowners association rules and pay all assessments when due.</li>
+    </ul>
+    <p><strong>11.2</strong> Failure to comply with any of the obligations set forth in Section 11.1 may constitute an event of default under the EPM contract, entitling the Lender to exercise its remedies, including acceleration of the loan.</p>
+
+    <h2>12. NON-TRADITIONAL MORTGAGE ACKNOWLEDGMENT</h2>
+    <p><strong>12.1</strong> As required by the Truth in Lending Act (TILA) and Regulation Z, you acknowledge and confirm that:</p>
+    <ul>
+      <li>(a) The EPM is a non-traditional mortgage product with features that differ materially from conventional fixed-rate or adjustable-rate mortgages;</li>
+      <li>(b) Your monthly income payments are derived from investment returns, which are subject to market risk and are not guaranteed;</li>
+      <li>(c) There may be periods (Holiday Periods) during which monthly income payments are suspended;</li>
+      <li>(d) While the NNEG protects against negative equity, property values may decline, potentially reducing your equity below the original level in severe market conditions;</li>
+      <li>(e) The EPM involves both lending and investment risk, and you should fully understand both before proceeding;</li>
+      <li>(f) You have been advised to obtain independent financial, legal, and tax advice before entering into an EPM;</li>
+      <li>(g) You have received and reviewed the TILA disclosure statement, Loan Estimate, and all required disclosures.</li>
+    </ul>
+    <p><strong>12.2</strong> You have a right to rescind this transaction within <%= details[:cooling_off] %> of closing, as provided under TILA Section 125 and Regulation Z Section 1026.23.</p>
+
+    <h2>13. ELECTRONIC COMMUNICATIONS CONSENT</h2>
+    <p><strong>13.1</strong> By creating an account on the Platform, you consent to receive electronic communications from FutureProof, including:</p>
+    <ul>
+      <li>(a) Application status updates and notifications;</li>
+      <li>(b) Monthly statements and investment performance reports;</li>
+      <li>(c) Legal notices, disclosures, and regulatory communications;</li>
+      <li>(d) Changes to these Terms, the Privacy Policy, or other agreements;</li>
+      <li>(e) Marketing and promotional communications (from which you may opt out at any time).</li>
+    </ul>
+    <p><strong>13.2</strong> Electronic communications will be delivered to the email address associated with your account. You agree that electronic communications satisfy any legal requirement that such communications be in writing, to the extent permitted by the Electronic Signatures in Global and National Commerce Act (E-SIGN Act, 15 U.S.C. Section 7001 et seq.) and applicable state law.</p>
+    <p><strong>13.3</strong> You may withdraw your consent to receive electronic communications by contacting us at legal@futureprooffinancial.co, provided that withdrawal of consent may limit your ability to use certain Platform features.</p>
+
+    <h2>14. INTELLECTUAL PROPERTY</h2>
+    <p><strong>14.1</strong> All content, software, technology, designs, trademarks, logos, and other intellectual property displayed on or used in connection with the Platform (collectively, "Platform IP") are the property of FutureProof Financial Inc. or its licensors and are protected by United States and international copyright, trademark, patent, and other intellectual property laws.</p>
+    <p><strong>14.2</strong> You are granted a limited, non-exclusive, non-transferable, revocable license to access and use the Platform for personal, non-commercial purposes in accordance with these Terms.</p>
+    <p><strong>14.3</strong> You may not:</p>
+    <ul>
+      <li>(a) Reproduce, distribute, modify, create derivative works of, publicly display, or publicly perform any Platform IP;</li>
+      <li>(b) Reverse engineer, decompile, or disassemble any software or technology used in the Platform;</li>
+      <li>(c) Use any data mining, robots, scraping, or similar data gathering or extraction methods on the Platform;</li>
+      <li>(d) Use the Platform IP for any commercial purpose without prior written consent from FutureProof.</li>
+    </ul>
+
+    <h2>15. LIMITATION OF LIABILITY</h2>
+    <p><strong>15.1</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FUTUREPROOF, ITS OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AFFILIATES, AND LICENSORS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR IN CONNECTION WITH:</p>
+    <ul>
+      <li>(a) Your use of, or inability to use, the Platform or any EPM product;</li>
+      <li>(b) Any investment losses, reduction in Monthly Income, or Holiday Periods;</li>
+      <li>(c) Any unauthorized access to, or alteration of, your data or transmissions;</li>
+      <li>(d) Any conduct or content of any third party on the Platform;</li>
+      <li>(e) Any decline in property value or changes in market conditions.</li>
+    </ul>
+    <p><strong>15.2</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FUTUREPROOF'S TOTAL AGGREGATE LIABILITY FOR ALL CLAIMS ARISING OUT OF OR IN CONNECTION WITH THESE TERMS OR YOUR USE OF THE PLATFORM SHALL NOT EXCEED THE TOTAL FEES PAID BY YOU TO FUTUREPROOF IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.</p>
+    <p><strong>15.3</strong> THE LIMITATIONS IN THIS SECTION APPLY REGARDLESS OF THE THEORY OF LIABILITY, WHETHER BASED ON WARRANTY, CONTRACT, STATUTE, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND REGARDLESS OF WHETHER FUTUREPROOF HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+    <p><strong>15.4</strong> Nothing in these Terms excludes or limits liability for fraud, willful misconduct, death, or personal injury caused by negligence, or any other liability that cannot be excluded or limited under applicable federal or state law.</p>
+
+    <h2>16. INDEMNIFICATION</h2>
+    <p><strong>16.1</strong> You agree to indemnify, defend, and hold harmless FutureProof Financial Inc., its officers, directors, employees, agents, affiliates, and licensors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or in connection with:</p>
+    <ul>
+      <li>(a) Your use of the Platform or any EPM product in violation of these Terms;</li>
+      <li>(b) Any information you provide that is false, inaccurate, or misleading;</li>
+      <li>(c) Your violation of any applicable federal, state, or local law or regulation;</li>
+      <li>(d) Your breach of any representation or warranty made in these Terms or in any application;</li>
+      <li>(e) Any third-party claim arising from your use of the Platform.</li>
+    </ul>
+    <p><strong>16.2</strong> FutureProof reserves the right to assume the exclusive defense and control of any matter subject to indemnification by you, at your expense.</p>
+
+    <h2>17. DISPUTE RESOLUTION</h2>
+    <p><strong>17.1 Informal Resolution:</strong> Before initiating any formal dispute resolution proceedings, you agree to first contact FutureProof at legal@futureprooffinancial.co to attempt to resolve the dispute informally. The parties shall negotiate in good faith for a period of thirty (30) days.</p>
+    <p><strong>17.2 Binding Arbitration:</strong> If the dispute cannot be resolved informally, you agree that the dispute shall be resolved by <%= details[:dispute_resolution] %>. The arbitration shall be conducted in New York, New York, in the English language.</p>
+    <p><strong>17.3 Arbitration Procedures:</strong></p>
+    <ul>
+      <li>(a) The arbitration shall be conducted by a single arbitrator with expertise in financial services;</li>
+      <li>(b) The arbitrator's decision shall be final and binding on both parties;</li>
+      <li>(c) Judgment on the arbitration award may be entered in any court of competent jurisdiction;</li>
+      <li>(d) Each party shall bear its own costs of arbitration, except that FutureProof shall pay all arbitration filing fees and administrative costs if you are the consumer party.</li>
+    </ul>
+    <p><strong>17.4 Class Action Waiver:</strong> YOU AGREE THAT ANY DISPUTE RESOLUTION PROCEEDINGS WILL BE CONDUCTED ONLY ON AN INDIVIDUAL BASIS AND NOT IN A CLASS, CONSOLIDATED, OR REPRESENTATIVE ACTION. You waive any right to participate in a class action lawsuit or class-wide arbitration.</p>
+    <p><strong>17.5 Exceptions:</strong> Notwithstanding the foregoing, either party may seek injunctive or equitable relief in <%= details[:courts] %> for the protection of intellectual property rights or to prevent irreparable harm.</p>
+    <p><strong>17.6 Regulatory Complaints:</strong> Nothing in this Section prevents you from filing a complaint with the <%= details[:complaint_body] %> or any other applicable regulatory authority.</p>
+
+    <h2>18. GOVERNING LAW</h2>
+    <p><strong>18.1</strong> These Terms and any dispute arising out of or in connection with them shall be governed by and construed in accordance with <%= details[:governing_law] %>, without regard to its conflict of laws principles.</p>
+    <p><strong>18.2</strong> To the extent that any litigation is permitted under these Terms, the parties consent to the exclusive jurisdiction of <%= details[:courts] %>.</p>
+    <p><strong>18.3</strong> Notwithstanding the choice of governing law, nothing in these Terms deprives you of the protection of mandatory consumer protection provisions of the state in which you reside.</p>
+
+    <h2>19. AMENDMENTS AND MODIFICATIONS</h2>
+    <p><strong>19.1</strong> FutureProof reserves the right to modify these Terms at any time. Modifications will be effective upon posting to the Platform, except as provided below.</p>
+    <p><strong>19.2</strong> For material changes that adversely affect your rights or obligations, we will provide you with at least thirty (30) days' prior written notice via email and Platform notification before the changes take effect.</p>
+    <p><strong>19.3</strong> Your continued use of the Platform after the effective date of any modification constitutes your acceptance of the modified Terms. If you do not agree to the modified Terms, you must discontinue use of the Platform.</p>
+    <p><strong>19.4</strong> Amendments to EPM contract terms are governed by the specific EPM contract and applicable law, and are not subject to unilateral modification under this Section.</p>
+
+    <h2>20. TERMINATION</h2>
+    <p><strong>20.1</strong> You may terminate your account at any time by contacting FutureProof at legal@futureprooffinancial.co. Account termination does not affect any existing EPM contract, which shall continue in accordance with its terms.</p>
+    <p><strong>20.2</strong> FutureProof may suspend or terminate your access to the Platform:</p>
+    <ul>
+      <li>(a) If you breach any material provision of these Terms;</li>
+      <li>(b) If required by law, regulation, or court order;</li>
+      <li>(c) If we reasonably believe your account is being used fraudulently or in connection with illegal activity;</li>
+      <li>(d) If you fail to provide requested information for identity verification or regulatory compliance.</li>
+    </ul>
+    <p><strong>20.3</strong> Upon termination, your right to access the Platform ceases immediately, but the following provisions survive: Sections 2 (Definitions), 8 (Investment Risks), 14 (Intellectual Property), 15 (Limitation of Liability), 16 (Indemnification), 17 (Dispute Resolution), 18 (Governing Law), and this Section 20.</p>
+    <p><strong>20.4</strong> Termination of Platform access does not affect the Borrower's rights or obligations under any existing EPM contract, which are governed by the separate EPM contract terms.</p>
+
+    <h2>21. GENERAL PROVISIONS</h2>
+    <p><strong>21.1 Severability:</strong> If any provision of these Terms is held to be invalid, illegal, or unenforceable, the remaining provisions shall continue in full force and effect.</p>
+    <p><strong>21.2 Entire Agreement:</strong> These Terms, together with the Privacy Policy, the EPM contract (if applicable), and any other agreements referenced herein, constitute the entire agreement between you and FutureProof with respect to the subject matter hereof.</p>
+    <p><strong>21.3 Waiver:</strong> The failure of FutureProof to enforce any right or provision of these Terms shall not constitute a waiver of such right or provision.</p>
+    <p><strong>21.4 Assignment:</strong> You may not assign or transfer these Terms or any rights or obligations hereunder without the prior written consent of FutureProof. FutureProof may assign these Terms without restriction.</p>
+    <p><strong>21.5 Force Majeure:</strong> FutureProof shall not be liable for any failure or delay in performing its obligations under these Terms due to circumstances beyond its reasonable control, including natural disasters, war, terrorism, pandemics, government actions, or systemic failures of financial markets or infrastructure.</p>
+
+    <h2>22. CONTACT INFORMATION</h2>
+    <p><strong>22.1</strong> For questions, concerns, or complaints regarding these Terms or the Platform:</p>
+    <div class="contact-info">
+      <p><strong>FutureProof Financial Inc.</strong></p>
+      <p>Email: legal@futureprooffinancial.co</p>
+      <p>Website: www.futureprooffinancial.co</p>
+    </div>
+    <p><strong>22.2</strong> For regulatory complaints:</p>
+    <div class="contact-info">
+      <p><strong><%= details[:complaint_body] %></strong></p>
+      <p>You may also submit a complaint to your state attorney general or state financial regulator.</p>
+    </div>
+  </div>
+</div>

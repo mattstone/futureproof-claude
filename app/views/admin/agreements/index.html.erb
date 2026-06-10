@@ -1,0 +1,134 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page">
+<% content_for :page_title, "Agreements" %>
+
+  <div class="ld-header">
+    <div>
+      <p class="ld-text-muted">Party agreements for lenders, wholesale funders, and brokers</p>
+    </div>
+    <%= link_to "New Agreement", new_admin_agreement_path, class: "ld-btn ld-btn-primary" %>
+  </div>
+
+  <%= turbo_frame_tag "agreements_results" do %>
+    <div class="ld-stats-grid ld-stats-3">
+      <div class="ld-stat-card">
+        <div class="ld-stat-value"><%= @total %></div>
+        <div class="ld-stat-label">Total</div>
+      </div>
+      <div class="ld-stat-card">
+        <div class="ld-stat-value ld-text-amber"><%= @pending %></div>
+        <div class="ld-stat-label">Pending Signature</div>
+      </div>
+      <div class="ld-stat-card">
+        <div class="ld-stat-value ld-text-green"><%= @executed %></div>
+        <div class="ld-stat-label">Fully Executed</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="ld-filters">
+      <%= form_tag admin_agreements_path, method: :get, class: "ld-filter-form", data: { controller: "auto-submit", turbo_frame: "agreements_results" } do %>
+        <div class="ld-filter-row">
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Party Type</label>
+            <select name="party_type" class="ld-filter-select" data-action="change->auto-submit#filterChanged">
+              <option value="">All</option>
+              <option value="Lender" <%= 'selected' if params[:party_type] == 'Lender' %>>Lenders</option>
+              <option value="WholesaleFunder" <%= 'selected' if params[:party_type] == 'WholesaleFunder' %>>Wholesale Funders</option>
+              <option value="Broker" <%= 'selected' if params[:party_type] == 'Broker' %>>Brokers</option>
+            </select>
+          </div>
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Status</label>
+            <select name="status" class="ld-filter-select" data-action="change->auto-submit#filterChanged">
+              <option value="">All</option>
+              <option value="draft" <%= 'selected' if params[:status] == 'draft' %>>Draft</option>
+              <option value="sent" <%= 'selected' if params[:status] == 'sent' %>>Sent</option>
+              <option value="counterparty_signed" <%= 'selected' if params[:status] == 'counterparty_signed' %>>Counterparty Signed</option>
+              <option value="fully_executed" <%= 'selected' if params[:status] == 'fully_executed' %>>Fully Executed</option>
+              <option value="cancelled" <%= 'selected' if params[:status] == 'cancelled' %>>Cancelled</option>
+            </select>
+          </div>
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Search</label>
+            <input type="text" name="q" value="<%= params[:q] %>" placeholder="Search by title..." class="ld-filter-input" data-action="input->auto-submit#searchChanged">
+          </div>
+          <div class="ld-filter-actions">
+            <noscript><button type="submit" class="ld-btn ld-btn-secondary ld-btn-sm">Filter</button></noscript>
+            <% if params[:party_type].present? || params[:status].present? || params[:q].present? %>
+              <%= link_to "Clear", admin_agreements_path, class: "ld-btn ld-btn-outline ld-btn-sm", data: { turbo_frame: "agreements_results" } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Active Filter Tags -->
+    <% if params[:party_type].present? || params[:status].present? || params[:q].present? %>
+      <div class="ld-active-filters">
+        <span class="ld-text-muted">Showing:</span>
+        <% if params[:party_type].present? %>
+          <span class="ld-badge ld-badge-neutral"><%= params[:party_type] == 'WholesaleFunder' ? 'Wholesale Funder' : params[:party_type] %></span>
+        <% end %>
+        <% if params[:status].present? %>
+          <span class="ld-badge ld-badge-status agreement-status-<%= params[:status] %>"><%= params[:status].titleize %></span>
+        <% end %>
+        <% if params[:q].present? %>
+          <span class="ld-badge ld-badge-neutral">"<%= params[:q] %>"</span>
+        <% end %>
+        <%= link_to "Clear all", admin_agreements_path, class: "ld-filter-clear-link", data: { turbo_frame: "agreements_results" } %>
+      </div>
+    <% end %>
+
+    <div class="ld-table-wrap">
+      <% if @agreements.any? %>
+        <table class="ld-table">
+          <thead>
+            <tr>
+              <th>Agreement</th>
+              <th>Party</th>
+              <th>Type</th>
+              <th>Jurisdiction</th>
+              <th>Status</th>
+              <th>Signatures</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @agreements.each do |agreement| %>
+              <tr>
+                <td><strong><%= link_to agreement.title, admin_agreement_path(agreement), data: { turbo_frame: "_top" } %></strong></td>
+                <td><%= agreement.agreeable.name %></td>
+                <td><span class="ld-text-muted"><%= agreement.party_type_label %></span></td>
+                <td><span class="ld-badge ld-badge-jurisdiction"><%= agreement.jurisdiction %></span></td>
+                <td>
+                  <span class="ld-badge ld-badge-status agreement-status-<%= agreement.status %>">
+                    <%= agreement.status.titleize %>
+                  </span>
+                </td>
+                <td>
+                  <span class="ld-badge ld-badge-neutral"><%= agreement.signature_count %> / 2</span>
+                </td>
+                <td class="ld-text-muted"><%= agreement.created_at.strftime("%b %d, %Y") %></td>
+                <td class="ld-actions">
+                  <%= link_to "View", admin_agreement_path(agreement), class: "ld-btn ld-btn-sm ld-btn-outline", data: { turbo_frame: "_top" } %>
+                  <% if agreement.editable? %>
+                    <%= link_to "Edit", edit_admin_agreement_path(agreement), class: "ld-btn ld-btn-sm ld-btn-outline", data: { turbo_frame: "_top" } %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="ld-empty-state">
+          <p>No agreements match your filters.</p>
+          <%= link_to "Clear Filters", admin_agreements_path, class: "ld-btn ld-btn-secondary", data: { turbo_frame: "agreements_results" } %>
+          <%= link_to "Create Agreement", new_admin_agreement_path, class: "ld-btn ld-btn-primary", data: { turbo_frame: "_top" } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

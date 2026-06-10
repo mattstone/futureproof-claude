@@ -1,383 +1,249 @@
-class Admin::DashboardController < Admin::BaseController
-  before_action :load_dashboard_data
+module Admin
+  class DashboardController < Admin::BaseController
+    include Admin::AdminHelper
+    include ActionView::Helpers::NumberHelper
 
-  def index
-    # Executive summary & KPIs
-    @summary = build_summary
-    
-    # Portfolio health
-    @portfolio = build_portfolio
-    
-    # Performance metrics
-    @performance = build_performance
-    
-    # Risk & alerts
-    @alerts = build_alerts
-    
-    # Trend data (charts)
-    @trends = build_trends
-    
-    # Top performers
-    @top_performers = build_top_performers
-  end
+    def index
+      apps = jurisdiction_filtered_scope(Application.all, :region)
+      contracts = jurisdiction_filtered_contracts(apps)
+      portfolio = AdminPortfolioMetricsService.new(applications_scope: apps, contracts_scope: contracts, users_scope: scoped_users)
+      financial = AdminFinancialMetricsService.new(applications_scope: apps, contracts_scope: contracts).call
+      risk = AdminRiskMetricsService.new(applications_scope: apps, contracts_scope: contracts).call
 
-  # Webhooks management page (placeholder)
-  def webhooks
-    redirect_to admin_dashboard_path, notice: 'Webhooks section coming soon'
-  end
+      @recommendations = AdminManagementAttentionService.new.call
 
-  # Retry a failed webhook (placeholder)
-  def retry_webhook
-    redirect_to admin_dashboard_path, notice: 'Webhook retry feature coming soon'
-  end
+      @financial_overview = build_financial_overview(portfolio, financial)
+      @customer_acquisition_overview = build_customer_acquisition_overview(apps, portfolio)
+      @customer_service_overview = build_customer_service_overview
+      @risk_overview = build_risk_overview(risk)
 
-  # Toggle webhook active/inactive (placeholder)
-  def toggle_webhook
-    head :ok
-  end
+      @trends = build_trends(portfolio, apps)
+      @funnel = build_funnel(apps)
+      @gauges = build_gauges(portfolio, risk, apps)
+      @calendar = build_calendar(apps)
+      @geo = build_geo(portfolio)
 
-  # Applications list page (placeholder)
-  def applications
-    redirect_to admin_dashboard_path, notice: 'Applications section coming soon'
-  end
+      @current_jurisdiction = current_admin_jurisdiction
+    end
 
-  # Payments list page (placeholder)
-  def payments
-    redirect_to admin_dashboard_path, notice: 'Payments section coming soon'
-  end
+    private
 
-  private
+    def jurisdiction_filtered_contracts(apps)
+      app_ids = apps.pluck(:id)
+      return Contract.none if app_ids.empty?
+      Contract.where(application_id: app_ids)
+    end
 
-  def load_dashboard_data
-    @jurisdiction = session[:admin_jurisdiction] || "AU"
-  end
+    def build_financial_overview(portfolio, financial)
+      capital = portfolio.capital_overview
+      revenue = financial[:revenue]
+      contracts = portfolio.contract_summary
 
-  # ============================================================================
-  # EXECUTIVE SUMMARY - The "at a glance" view
-  # ============================================================================
-  def build_summary
-    {
-      # Capital metrics
-      total_capital_raised: FunderPool.sum(:amount),
-      capital_deployed: Contract.sum(:allocated_amount),
-      capital_utilization: calculate_capital_utilization,
-      
-      # Active business
-      active_contracts: Contract.where(status: [:ok, :in_holiday]).count,
-      total_applications: Application.where(status: ['submitted', 'processing', 'accepted']).count,
-      
-      # Financial performance
-      monthly_income_generated: calculate_monthly_income,
-      portfolio_pl_ytd: calculate_portfolio_pl,
-      
-      # Health indicators
-      contracts_in_arrears: Contract.where(status: :in_arrears).count,
-      lenders_active: Lender.joins(:contracts).distinct.count
-    }
-  end
+      {
+        total_aum: capital[:total_capital_raised],
+        capital_deployed: capital[:capital_deployed],
+        capital_available: capital[:capital_available],
+        wacc: capital[:wacc],
+        portfolio_pl: contracts[:portfolio_pl],
+        net_margin_annual: revenue[:net_margin_annual]
+      }
+    end
 
-  # ============================================================================
-  # PORTFOLIO HEALTH - Breakdown by status and type
-  # ============================================================================
-  def build_portfolio
-    {
-      # Contract status distribution
-      status_distribution: Contract.group(:status).count.transform_keys { |k| k.humanize },
-      
-      # Contracts by lender (top 5)
-      top_lenders: Lender.joins(:contracts)
-                          .group('lenders.id, lenders.name')
-                          .select('lenders.id, lenders.name, COUNT(contracts.id) as contract_count, SUM(contracts.allocated_amount) as total_allocated')
-                          .order('total_allocated DESC')
-                          .limit(5)
-                          .map { |l| { name: l.name, count: l.contract_count, total: l.total_allocated } },
-      
-      # Contracts by pool (top 5)
-      top_pools: FunderPool.joins(:contracts)
-                           .group('funder_pools.id, funder_pools.name')
-                           .select('funder_pools.id, funder_pools.name, COUNT(contracts.id) as contract_count, SUM(contracts.allocated_amount) as total_allocated')
-                           .order('total_allocated DESC')
-                           .limit(5)
-                           .map { |p| { name: p.name, count: p.contract_count, total: p.total_allocated } },
-      
-      # Wholesale funders performance
-      funders_overview: WholesaleFunder.map { |f|
+    def build_customer_acquisition_overview(apps, portfolio)
+      this_month = apps.where('created_at >= ?', Date.today.beginning_of_month).count
+      last_month = apps.where('created_at >= ?', 1.month.ago.beginning_of_month).where('created_at < ?', Date.today.beginning_of_month).count
+
+      top_brokers = Application.joins(:broker)
+                               .where('applications.created_at >= ?', 90.days.ago)
+                               .group('brokers.name')
+                               .order('count_all DESC')
+                               .limit(3)
+                               .count
+
+      regions = portfolio.top_line[:applications_by_region]
+
+      submitted = apps.where(status: %w[submitted processing accepted rejected]).count
+      accepted = apps.where(status: 'accepted').count
+      conversion = submitted.positive? ? (accepted.to_f / submitted * 100).round(1) : 0
+
+      {
+        applications_this_month: this_month,
+        applications_last_month: last_month,
+        delta_pct: last_month.positive? ? (((this_month - last_month).to_f / last_month) * 100).round(0) : 0,
+        top_brokers: top_brokers,
+        regional_split: regions,
+        conversion_rate: conversion
+      }
+    end
+
+    def build_customer_service_overview
+      open_conversations = ChatConversation.where(status: 'active').count
+      borrower_total_30d = BorrowerMessage.by_borrower.where('created_at >= ?', 30.days.ago).count
+      awaiting = BorrowerMessage.by_borrower.where(read_at: nil).where('created_at < ?', 24.hours.ago).count
+      awaiting_pct = borrower_total_30d.positive? ? (awaiting.to_f / borrower_total_30d * 100).round(1) : 0
+      escalations = ChatConversation.where(status: 'escalated').where('updated_at >= ?', 1.week.ago).count
+      stalled = Application.where(status: 'processing').where('updated_at < ?', 7.days.ago).count
+
+      {
+        open_conversations: open_conversations,
+        awaiting_reply_count: awaiting,
+        awaiting_reply_pct: awaiting_pct,
+        escalations_this_week: escalations,
+        stalled_applications: stalled
+      }
+    end
+
+    def build_risk_overview(risk)
+      health = risk[:portfolio_health]
+      alerts = risk[:alerts] || []
+      total = health[:total_contracts].to_i
+      performing = total - health[:holiday_contracts].to_i
+
+      {
+        health_score: health[:health_score],
+        health_rating: health[:health_rating],
+        investment_health_pct: (100 - health[:holiday_pct].to_f).round(1),
+        performing_contracts: performing,
+        total_contracts: total,
+        holiday_pct: health[:holiday_pct],
+        alert_count: alerts.count { |a| a[:severity] != :success }
+      }
+    end
+
+    def build_geo(portfolio)
+      regions = portfolio.top_line
+      iso_for = { 'AU' => '036', 'US' => '840', 'NZ' => '554', 'UK' => '826' }
+      iso_for.map do |region, iso|
         {
-          name: f.name,
-          country: f.country,
-          total_capital: f.total_capital,
-          deployed: f.total_allocated,
-          utilization: f.capital_allocation_percentage,
-          contracts: f.funder_pools.joins(:contracts).distinct.count(:contracts)
+          region: region,
+          iso: iso,
+          applications: regions[:applications_by_region][region].to_i,
+          capital: regions[:capital_by_region][region].to_f
         }
+      end
+    end
+
+    def build_calendar(apps)
+      from = 364.days.ago.to_date
+      counts = apps.where('created_at >= ?', from.beginning_of_day)
+                   .group("DATE(created_at)").count
+                   .transform_keys { |k| k.is_a?(String) ? Date.parse(k) : k }
+      days = (from..Date.today).map do |date|
+        { date: date.iso8601, count: counts[date].to_i, weekday: date.wday }
+      end
+      { days: days, max: counts.values.max.to_i, total: days.sum { |d| d[:count] } }
+    end
+
+    def build_gauges(portfolio, risk, apps)
+      capital = portfolio.capital_overview
+      health = risk[:portfolio_health]
+
+      pool_capacity = FunderPool.sum(:amount).to_f
+      pool_allocated = FunderPool.sum(:allocated).to_f
+      pool_pct = pool_capacity.positive? ? (pool_allocated / pool_capacity * 100).round(1) : 0
+
+      submitted = apps.where(status: %w[submitted processing accepted rejected]).count
+      accepted = apps.where(status: 'accepted').count
+      conversion = submitted.positive? ? (accepted.to_f / submitted * 100).round(1) : 0
+
+      [
+        {
+          label: 'Health Score',
+          value: health[:health_score],
+          max: 100,
+          unit: '%',
+          detail: health[:health_rating],
+          higher_is_better: true,
+          warning_at: 75,
+          critical_at: 60
+        },
+        {
+          label: 'Pool Utilisation',
+          value: pool_pct,
+          max: 100,
+          unit: '%',
+          detail: "#{number_to_currency(pool_allocated, precision: 0, unit: '$')} of #{number_to_currency(pool_capacity, precision: 0, unit: '$')}",
+          higher_is_better: false,
+          warning_at: 90,
+          critical_at: 95
+        },
+        {
+          label: 'Investment Health',
+          value: (100 - health[:holiday_pct].to_f).round(1),
+          max: 100,
+          unit: '%',
+          detail: "#{health[:total_contracts] - health[:holiday_contracts]} of #{health[:total_contracts]} contracts performing",
+          higher_is_better: true,
+          warning_at: 75,
+          critical_at: 60
+        },
+        {
+          label: 'Conversion Rate',
+          value: conversion,
+          max: 100,
+          unit: '%',
+          detail: "#{accepted} accepted of #{submitted} submitted",
+          higher_is_better: true,
+          warning_at: 50,
+          critical_at: 30
+        }
+      ]
+    end
+
+    def build_funnel(apps)
+      stages = %w[created user_details property_details income_and_loan_options submitted processing accepted]
+      stage_labels = {
+        'created' => 'Started',
+        'user_details' => 'User details',
+        'property_details' => 'Property details',
+        'income_and_loan_options' => 'Income & loan',
+        'submitted' => 'Submitted',
+        'processing' => 'Processing',
+        'accepted' => 'Accepted'
       }
-    }
-  end
+      counts = apps.group(:status).count
+      rejected = counts['rejected'].to_i
 
-  # ============================================================================
-  # PERFORMANCE - Financial metrics and ROI
-  # ============================================================================
-  def build_performance
-    {
-      # Return metrics
-      weighted_investment_return: calculate_weighted_return,
-      weighted_cost_of_capital: calculate_weighted_coc,
-      net_margin: calculate_net_margin,
-      
-      # Income metrics
-      monthly_payment_volume: Contract.where(status: [:ok, :in_holiday]).sum(:monthly_payment),
-      total_paid_to_date: Contract.sum(:total_payments_made),
-      average_contract_value: Contract.where.not(allocated_amount: 0).average(:allocated_amount).to_i,
-      
-      # Age analysis
-      average_contract_age_months: calculate_average_contract_age,
-      contracts_by_age: contracts_by_age_group
-    }
-  end
+      ever_reached = stages.each_with_index.map do |stage, i|
+        stages[i..].sum { |s| counts[s].to_i }
+      end
 
-  # ============================================================================
-  # RISK & ALERTS - What needs attention right now
-  # ============================================================================
-  def build_alerts
-    alerts = []
-    
-    # 1. Contracts in arrears
-    arrears_contracts = Contract.where(status: :in_arrears).includes(:application, :lender)
-    if arrears_contracts.any?
-      alerts << {
-        type: :critical,
-        icon: '🚨',
-        title: "#{arrears_contracts.count} Contracts in Arrears",
-        description: "Immediate action required on overdue payments",
-        action_url: '#',
-        contracts: arrears_contracts.map { |c| {
-          id: c.id,
-          lender: c.lender&.name,
-          amount: c.allocated_amount,
-          status: c.status
-        }}
+      nodes = stages.each_with_index.map { |s, i| { name: stage_labels[s], value: ever_reached[i] } }
+
+      links = []
+      stages.each_cons(2).with_index do |(_from, _to), i|
+        next if ever_reached[i + 1].zero?
+        links << { source: i, target: i + 1, value: ever_reached[i + 1] }
+      end
+
+      drop_index = nodes.size
+      stages.each_with_index do |stage, i|
+        next if i == stages.size - 1
+        dropped = ever_reached[i] - ever_reached[i + 1]
+        next if dropped <= 0
+        nodes << { name: "#{stage_labels[stage]} dropped", value: dropped, drop: true }
+        links << { source: i, target: drop_index, value: dropped }
+        drop_index += 1
+      end
+
+      if rejected.positive?
+        nodes << { name: 'Rejected', value: rejected, rejected: true }
+        links << { source: stages.index('processing'), target: nodes.size - 1, value: rejected }
+      end
+
+      { nodes: nodes, links: links, total_started: ever_reached[0] }
+    end
+
+    def build_trends(portfolio, apps)
+      monthly_apps = portfolio.growth_data(scope: apps, months: 12)
+      monthly_pl = portfolio.monthly_pl(months: 12)
+      monthly_fum = portfolio.monthly_fum(months: 12)
+
+      {
+        applications_monthly: monthly_apps,
+        pl_monthly: monthly_pl,
+        fum_monthly: monthly_fum
       }
     end
-    
-    # 2. Applications pending approval (> 7 days)
-    old_pending = Application.where(status: 'processing')
-                              .where('updated_at < ?', 7.days.ago)
-                              .count
-    if old_pending > 0
-      alerts << {
-        type: :warning,
-        icon: '⏱️',
-        title: "#{old_pending} Applications Pending >7 Days",
-        description: "Old processing applications need review/approval",
-        action_url: '#',
-        count: old_pending
-      }
-    end
-    
-    # 3. Low pool utilization
-    underutilized_pools = FunderPool.where('(allocated / amount) < ?', 0.3)
-    if underutilized_pools.any?
-      alerts << {
-        type: :info,
-        icon: '💡',
-        title: "#{underutilized_pools.count} Pools Underutilized",
-        description: "Capital available for deployment",
-        action_url: '#',
-        pools: underutilized_pools.map { |p| { name: p.name, utilization: (p.allocated / p.amount * 100).round(1) } }
-      }
-    end
-    
-    # 4. Upcoming contract maturity (next 30 days)
-    maturing_soon = Contract.where('end_date IS NOT NULL AND end_date BETWEEN ? AND ?', Date.today, 30.days.from_now)
-    if maturing_soon.any?
-      alerts << {
-        type: :warning,
-        icon: '📅',
-        title: "#{maturing_soon.count} Contracts Mature in 30 Days",
-        description: "Plan for contract renewals or closures",
-        action_url: '#',
-        count: maturing_soon.count
-      }
-    end
-    
-    alerts
-  end
-
-  # ============================================================================
-  # TRENDS - Historical performance & projections
-  # ============================================================================
-  def build_trends
-    {
-      # Monthly capital deployment (last 12 months)
-      monthly_deployment: generate_monthly_deployment_data,
-      
-      # Monthly P&L trend
-      monthly_pl: generate_monthly_pl_data,
-      
-      # Portfolio growth
-      portfolio_growth: generate_portfolio_growth_data,
-      
-      # Contract health trend
-      contract_health_trend: generate_contract_health_trend
-    }
-  end
-
-  # ============================================================================
-  # TOP PERFORMERS - What's working well
-  # ============================================================================
-  def build_top_performers
-    {
-      # Best performing lenders (by ROI)
-      top_lenders: Lender.joins(:contracts)
-                         .select('lenders.*, AVG(contracts.investment_return_rate) as avg_return')
-                         .group('lenders.id')
-                         .order('avg_return DESC')
-                         .limit(3)
-                         .map { |l| {
-                           name: l.name,
-                           contracts: l.contracts.count,
-                           avg_return: l.avg_return.round(1),
-                           total_deployed: l.contracts.sum(:allocated_amount)
-                         }},
-      
-      # Best performing pools
-      top_pools: FunderPool.joins(:contracts)
-                           .select('funder_pools.*, AVG(contracts.investment_return_rate) as avg_return')
-                           .group('funder_pools.id')
-                           .order('avg_return DESC')
-                           .limit(3)
-                           .map { |p| {
-                             name: p.name,
-                             contracts: p.contracts.count,
-                             avg_return: p.avg_return.round(1),
-                             total_deployed: p.contracts.sum(:allocated_amount)
-                           }},
-      
-      # Best performing contracts (highest ROI)
-      top_contracts: Contract.where.not(investment_return_rate: nil)
-                             .order(investment_return_rate: :desc)
-                             .limit(5)
-                             .map { |c| {
-                               id: c.id,
-                               lender: c.lender&.name,
-                               return_rate: c.investment_return_rate.round(1),
-                               allocated: c.allocated_amount,
-                               status: c.status
-                             }}
-    }
-  end
-
-  # ============================================================================
-  # CALCULATION HELPERS
-  # ============================================================================
-
-  def calculate_capital_utilization
-    total = FunderPool.sum(:amount)
-    deployed = Contract.sum(:allocated_amount)
-    return 0 if total == 0
-    ((deployed / total) * 100).round(1)
-  end
-
-  def calculate_monthly_income
-    Contract.where(status: [:ok, :in_holiday]).sum(:monthly_payment).to_f
-  end
-
-  def calculate_portfolio_pl
-    active_contracts = Contract.where(status: [:ok, :in_holiday])
-    pl = 0
-    active_contracts.each do |c|
-      months_active = c.start_date ? [(Date.today - c.start_date).to_i / 30.0, 0].max : 0
-      inv_return = c.investment_balance.to_f * (c.investment_return_rate.to_f / 100.0)
-      coc = c.allocated_amount.to_f * (c.cost_of_capital_rate.to_f / 100.0) * (months_active / 12.0)
-      monthly_cost = c.monthly_payment.to_f
-      pl += (inv_return - monthly_cost - coc)
-    end
-    pl.round(2)
-  end
-
-  def calculate_weighted_return
-    total_investment = Contract.where('investment_balance > 0').sum(:investment_balance)
-    return 0 if total_investment == 0
-    weighted = Contract.where('investment_balance > 0')
-                       .sum('investment_balance * investment_return_rate')
-    (weighted / total_investment).round(2)
-  end
-
-  def calculate_weighted_coc
-    total_allocated = Contract.sum(:allocated_amount)
-    return 0 if total_allocated == 0
-    weighted = Contract.sum('allocated_amount * cost_of_capital_rate')
-    (weighted / total_allocated).round(2)
-  end
-
-  def calculate_net_margin
-    calculate_weighted_return - calculate_weighted_coc
-  end
-
-  def calculate_average_contract_age
-    active = Contract.where.not(start_date: nil)
-    return 0 if active.empty?
-    total_days = active.sum { |c| (Date.today - c.start_date).to_i }
-    (total_days / active.count / 30.0).round(1)
-  end
-
-  def contracts_by_age_group
-    active = Contract.where.not(start_date: nil)
-    {
-      new: active.where('start_date > ?', 3.months.ago).count,
-      growing: active.where('start_date BETWEEN ? AND ?', 3.months.ago, 12.months.ago).count,
-      mature: active.where('start_date < ?', 12.months.ago).count
-    }
-  end
-
-  def generate_monthly_deployment_data
-    data = {}
-    12.times do |i|
-      month_start = i.months.ago.beginning_of_month
-      month_end = i.months.ago.end_of_month
-      month_name = month_start.strftime('%b')
-      deployed = Contract.where('start_date BETWEEN ? AND ?', month_start, month_end).sum(:allocated_amount)
-      data[month_name] = deployed
-    end
-    data.reverse_each.to_h
-  end
-
-  def generate_monthly_pl_data
-    data = {}
-    12.times do |i|
-      month_start = i.months.ago.beginning_of_month
-      month_end = i.months.ago.end_of_month
-      month_name = month_start.strftime('%b')
-      # Simplified: sum monthly payments for active contracts during that month
-      monthly_pl = Contract.where('start_date <= ? AND (end_date IS NULL OR end_date >= ?)', month_end, month_start)
-                           .where(status: [:ok, :in_holiday])
-                           .sum(:monthly_payment)
-      data[month_name] = monthly_pl
-    end
-    data.reverse_each.to_h
-  end
-
-  def generate_portfolio_growth_data
-    data = {}
-    cumulative = 0
-    12.times do |i|
-      month_start = i.months.ago.beginning_of_month
-      month_end = i.months.ago.end_of_month
-      month_name = month_start.strftime('%b %y')
-      deployed_this_month = Contract.where('start_date BETWEEN ? AND ?', month_start, month_end).sum(:allocated_amount)
-      cumulative += deployed_this_month
-      data[month_name] = cumulative
-    end
-    data.reverse_each.to_h
-  end
-
-  def generate_contract_health_trend
-    {
-      ok: Contract.where(status: :ok).count,
-      in_holiday: Contract.where(status: :in_holiday).count,
-      in_arrears: Contract.where(status: :in_arrears).count,
-      complete: Contract.where(status: :complete).count,
-      awaiting: Contract.where(status: :awaiting_funding).count
-    }
   end
 end

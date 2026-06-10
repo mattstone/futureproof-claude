@@ -14,41 +14,59 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%= stylesheet_link_tag "application", "admin", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "admin", "lexxy-variables", "lexxy", "lexxy-content", "lexxy-editor", "admin/dashboard", "admin/dashboard_v2", "admin/business_dashboard", "admin/legal_documents", "admin/faqs", "admin/support_tickets", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="admin-body">
     <div class="admin-container">
       <!-- Admin Sidebar -->
-      <aside class="admin-sidebar">
+      <aside id="admin-sidebar" class="admin-sidebar" data-turbo-permanent data-controller="admin-nav" data-action="turbo:frame-load@document->admin-nav#updateActive turbo:load@document->admin-nav#updateActive">
         <div class="admin-brand">
-          <%= link_to admin_root_path, class: "admin-brand-link" do %>
+          <%= link_to admin_root_path, class: "admin-brand-link", data: { turbo_frame: "admin_main" } do %>
             <%= image_tag "futureproof-logo.png", class: "admin-logo" %>
           <% end %>
         </div>
-        
-        <nav class="admin-nav">
-          <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'admin_dashboard_v2' || (controller_name == 'old_dashboard' && action_name == 'index')}" do %>
+
+        <nav class="admin-nav" data-turbo-frame="admin_main">
+          <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard'}", data: { admin_nav_target: "link" } do %>
             <span>📊 Dashboard</span>
           <% end %>
-          <%= link_to admin_business_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard' && action_name == 'business'}" do %>
-            <span>💼 Business</span>
-          <% end %>
 
-          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[operations_summary applications contracts users]) %>>
+          <details class="admin-nav-group" <%= 'open' if controller_name == 'support_tickets' %>>
+            <summary class="admin-nav-group-header">Support</summary>
+            <div class="admin-nav-group-items">
+              <%= link_to admin_support_tickets_path, class: "admin-nav-link #{'active' if controller_name == 'support_tickets'}", data: { admin_nav_target: "link" } do %>
+                <span>Support Tickets</span>
+              <% end %>
+            </div>
+          </details>
+
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[audit_logs chat_conversations]) %>>
+            <summary class="admin-nav-group-header">Compliance</summary>
+            <div class="admin-nav-group-items">
+              <%= link_to admin_audit_logs_path, class: "admin-nav-link #{'active' if controller_name == 'audit_logs'}", data: { admin_nav_target: "link" } do %>
+                <span>📜 Audit Log</span>
+              <% end %>
+              <%= link_to admin_chat_conversations_path, class: "admin-nav-link #{'active' if controller_name == 'chat_conversations'}", data: { admin_nav_target: "link" } do %>
+                <span>💬 AI Conversations</span>
+              <% end %>
+            </div>
+          </details>
+
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[customer_service applications contracts users]) %>>
             <summary class="admin-nav-group-header">Operations</summary>
             <div class="admin-nav-group-items">
-              <%= link_to admin_operations_summary_path, class: "admin-nav-link #{'active' if controller_name == 'operations_summary'}" do %>
-                <span>📊 Summary</span>
+              <%= link_to admin_customer_service_path, class: "admin-nav-link #{'active' if controller_name == 'customer_service'}", data: { admin_nav_target: "link" } do %>
+                <span>🛟 Customer Service</span>
               <% end %>
-              <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}" do %>
+              <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}", data: { admin_nav_target: "link" } do %>
                 <span>📋 Applications</span>
               <% end %>
-              <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}" do %>
+              <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}", data: { admin_nav_target: "link" } do %>
                 <span>📄 Contracts</span>
               <% end %>
-              <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}" do %>
+              <%= link_to admin_users_path, class: "admin-nav-link #{'active' if controller_name == 'users'}", data: { admin_nav_target: "link" } do %>
                 <span>👥 Users</span>
               <% end %>
             </div>
@@ -58,10 +76,10 @@
             <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %>>
               <summary class="admin-nav-group-header">AI Agents</summary>
               <div class="admin-nav-group-items">
-                <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}" do %>
+                <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}", data: { admin_nav_target: "link" } do %>
                   <span>🤖 Agent Overview</span>
                 <% end %>
-                <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}" do %>
+                <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}", data: { admin_nav_target: "link" } do %>
                   <span>📧 Email Templates</span>
                 <% end %>
               </div>
@@ -70,47 +88,44 @@
             <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders brokers wholesale_funders calculators]) %>>
               <summary class="admin-nav-group-header">Products</summary>
               <div class="admin-nav-group-items">
-                <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}" do %>
+                <%= link_to admin_mortgages_path, class: "admin-nav-link #{'active' if controller_name == 'mortgages'}", data: { admin_nav_target: "link" } do %>
                   <span>🏠 Mortgages</span>
                 <% end %>
-                <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}" do %>
+                <%= link_to admin_lenders_path, class: "admin-nav-link #{'active' if controller_name == 'lenders'}", data: { admin_nav_target: "link" } do %>
                   <span>🏢 Lenders</span>
                 <% end %>
-                <%= link_to admin_brokers_path, class: "admin-nav-link #{'active' if controller_name == 'brokers'}" do %>
+                <%= link_to admin_brokers_path, class: "admin-nav-link #{'active' if controller_name == 'brokers'}", data: { admin_nav_target: "link" } do %>
                   <span>🤝 Brokers</span>
                 <% end %>
-                <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}" do %>
+                <%= link_to admin_wholesale_funders_path, class: "admin-nav-link #{'active' if controller_name == 'wholesale_funders'}", data: { admin_nav_target: "link" } do %>
                   <span>💰 Wholesale Funders</span>
                 <% end %>
-                <%= link_to admin_calculators_path, class: "admin-nav-link #{'active' if controller_name == 'calculators'}" do %>
+                <%= link_to admin_calculators_path, class: "admin-nav-link #{'active' if controller_name == 'calculators'}", data: { admin_nav_target: "link" } do %>
                   <span>🧮 Calculator</span>
                 <% end %>
               </div>
             </details>
 
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[terms_of_uses privacy_policies terms_and_conditions legal_documents core_logic_test]) %>>
+            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[legal_documents agreements faqs core_logic_test]) %>>
               <summary class="admin-nav-group-header">Configuration</summary>
               <div class="admin-nav-group-items">
-                <%= link_to admin_legal_documents_path, class: "admin-nav-link #{'active' if controller_name == 'legal_documents'}" do %>
-                  <span>📜 Legal Documents</span>
+                <%= link_to admin_legal_documents_path, class: "admin-nav-link #{'active' if controller_name == 'legal_documents'}", data: { admin_nav_target: "link" } do %>
+                  <span>Legal Documents</span>
                 <% end %>
-                <%= link_to admin_terms_of_uses_path, class: "admin-nav-link #{'active' if controller_name == 'terms_of_uses'}" do %>
-                  <span>📄 Terms of Use</span>
+                <%= link_to admin_agreements_path, class: "admin-nav-link #{'active' if controller_name == 'agreements'}", data: { admin_nav_target: "link" } do %>
+                  <span>Agreements</span>
                 <% end %>
-                <%= link_to admin_privacy_policies_path, class: "admin-nav-link #{'active' if controller_name == 'privacy_policies'}" do %>
-                  <span>🔒 Privacy Policies</span>
+                <%= link_to admin_faqs_path, class: "admin-nav-link #{'active' if controller_name == 'faqs'}", data: { admin_nav_target: "link" } do %>
+                  <span>FAQs</span>
                 <% end %>
-                <%= link_to admin_terms_and_conditions_path, class: "admin-nav-link #{'active' if controller_name == 'terms_and_conditions'}" do %>
-                  <span>📋 Terms & Conditions</span>
-                <% end %>
-                <%= link_to admin_core_logic_test_index_path, class: "admin-nav-link #{'active' if controller_name == 'core_logic_test'}" do %>
-                  <span>🏠 CoreLogic API Test</span>
+                <%= link_to admin_core_logic_test_index_path, class: "admin-nav-link #{'active' if controller_name == 'core_logic_test'}", data: { admin_nav_target: "link" } do %>
+                  <span>CoreLogic API Test</span>
                 <% end %>
               </div>
             </details>
           <% end %>
         </nav>
-        
+
         <div class="admin-user-info">
           <div class="admin-current-user">
             <strong><%= current_user.display_name %></strong>
@@ -125,47 +140,27 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="admin-main">
-        <div class="admin-header">
-          <div class="admin-header-title-section">
-            <h1><%= yield(:page_title) || "Back Office" %></h1>
+      <%= turbo_frame_tag "admin_main", data: { turbo_action: "advance" } do %>
+        <main class="admin-main">
+          <div class="admin-header">
+            <div class="admin-header-title-section">
+              <h1><%= yield(:page_title) || "Back Office" %></h1>
+            </div>
+            <%= render 'admin/shared/jurisdiction_switcher' %>
           </div>
-          <%= render 'admin/shared/jurisdiction_switcher' %>
-        </div>
 
-        <div class="admin-content">
-          <% if notice %>
-            <div class="alert alert-success"><%= notice %></div>
-          <% end %>
-          <% if alert %>
-            <div class="alert alert-danger"><%= alert %></div>
-          <% end %>
-          
-          <%= yield %>
-        </div>
-      </main>
+          <div class="admin-content">
+            <% if notice %>
+              <div class="alert alert-success"><%= notice %></div>
+            <% end %>
+            <% if alert %>
+              <div class="alert alert-danger"><%= alert %></div>
+            <% end %>
+
+            <%= yield %>
+          </div>
+        </main>
+      <% end %>
     </div>
-    <script>
-      // Scroll active nav item into view on page load
-      document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.querySelector('.admin-nav');
-        const active = sidebar && sidebar.querySelector('.admin-nav-link.active');
-        if (active && sidebar) {
-          // Use saved scroll position if available, otherwise scroll to active item
-          const saved = sessionStorage.getItem('admin-nav-scroll');
-          if (saved) {
-            sidebar.scrollTop = parseInt(saved, 10);
-          } else {
-            active.scrollIntoView({ block: 'center', behavior: 'instant' });
-          }
-        }
-        // Save scroll position on nav clicks
-        if (sidebar) {
-          sidebar.addEventListener('scroll', function() {
-            sessionStorage.setItem('admin-nav-scroll', sidebar.scrollTop);
-          });
-        }
-      });
-    </script>
   </body>
 </html>

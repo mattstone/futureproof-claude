@@ -39,7 +39,7 @@ class LoanActivationTest < ActionDispatch::IntegrationTest
     get loan_activation_path(:au, @application)
 
     assert_response :success
-    assert_select "h1", /Activate Your EPM Investment/
+    assert_select "h1", /Activate Your Guaranteed Income Plan/
     assert_select "h2", /Before You Activate/
   end
 

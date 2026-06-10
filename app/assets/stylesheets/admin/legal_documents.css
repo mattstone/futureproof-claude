@@ -113,13 +113,70 @@
 .ld-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; padding: 16px 0; }
 .ld-page-info { font-size: 0.875rem; color: #64748b; }
 
+/* Filter bar */
+.ld-filters { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+.ld-filter-form { margin: 0; }
+.ld-filter-row { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.ld-filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+.ld-filter-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em; }
+.ld-filter-select, .ld-filter-input { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; background: #fff; box-sizing: border-box; width: 100%; }
+.ld-filter-select:focus, .ld-filter-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+.ld-filter-actions { display: flex; gap: 8px; align-items: flex-end; padding-bottom: 1px; }
+.ld-active-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.ld-filter-clear-link { font-size: 0.8rem; color: #3b82f6; text-decoration: none; margin-left: 4px; }
+.ld-filter-clear-link:hover { text-decoration: underline; }
+
 /* Empty state */
 .ld-empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
 .ld-empty-state h2 { color: #334155; margin-bottom: 8px; }
 
 /* Utility */
 .ld-text-green { color: #16a34a; }
+.ld-text-amber { color: #f59e0b; }
 .ld-text-muted { color: #94a3b8; font-size: 0.875rem; }
+
+/* Agreement status badges */
+.agreement-status-draft { background: #94a3b8; }
+.agreement-status-sent { background: #3b82f6; }
+.agreement-status-counterparty_signed { background: #f59e0b; }
+.agreement-status-fully_executed { background: #16a34a; }
+.agreement-status-expired { background: #6b7280; }
+.agreement-status-cancelled { background: #ef4444; }
+
+/* Agreement form */
+.agreement-form-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+.agreement-form-section h3 { margin: 0 0 12px 0; font-size: 1.1rem; font-weight: 600; }
+.agreement-form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.agreement-form-field { flex: 1; min-width: 200px; margin-bottom: 12px; }
+.agreement-form-field label { display: block; margin-bottom: 4px; }
+.agreement-form-field textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; font-family: inherit; resize: vertical; }
+
+/* Signature panel */
+.agreement-signatures-panel { margin-bottom: 24px; }
+.agreement-signatures-panel h3 { margin: 0 0 12px 0; font-size: 1rem; font-weight: 600; }
+.agreement-sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.agreement-sig-card { border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; text-align: center; }
+.agreement-sig-signed { border-color: #16a34a; background: #f0fdf4; }
+.agreement-sig-pending { border-color: #e2e8f0; background: #fafbfc; }
+.agreement-sig-role { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; margin-bottom: 8px; }
+.agreement-sig-name { font-family: "Georgia", "Times New Roman", serif; font-size: 1.5rem; font-style: italic; color: #1e293b; margin-bottom: 4px; }
+.agreement-sig-detail { font-size: 0.85rem; color: #475569; }
+.agreement-sig-date { font-size: 0.8rem; color: #94a3b8; margin-top: 8px; }
+.agreement-sig-pending-text { color: #94a3b8; font-style: italic; padding: 16px 0; }
+
+/* Signing page */
+.agreement-sign-content { display: grid; grid-template-columns: 1fr 400px; gap: 24px; }
+.agreement-sign-preview { overflow: hidden; }
+.agreement-sign-preview h3, .agreement-sign-form-panel h3 { margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
+.agreement-sign-document { max-height: 500px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; background: #fff; }
+.agreement-sign-form-panel { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+.agreement-sign-form { display: flex; flex-direction: column; gap: 4px; }
+.agreement-signature-input { width: 100%; box-sizing: border-box; padding: 12px; border: 2px solid #d1d5db; border-radius: 6px; font-family: "Georgia", "Times New Roman", serif; font-size: 1.25rem; font-style: italic; text-align: center; }
+.agreement-signature-input:focus { outline: none; border-color: #3b82f6; }
+.agreement-signature-preview { min-height: 48px; border-bottom: 2px solid #1e293b; margin: 8px 0 16px; padding: 8px; text-align: center; font-family: "Georgia", "Times New Roman", serif; font-size: 1.5rem; font-style: italic; color: #1e293b; }
+.agreement-signature-preview--active { background: #fffbeb; }
+.agreement-confirm-label { font-size: 0.85rem; color: #475569; display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.agreement-confirm-label input { margin-top: 3px; }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -130,6 +187,8 @@
   .ld-diff-viewer, .ld-inline-diff { grid-template-columns: 1fr; }
   .ld-tab-nav { overflow-x: auto; }
   .ld-tab-btn { white-space: nowrap; padding: 10px 14px; font-size: 0.8rem; }
+  .ld-filter-row { flex-direction: column; }
+  .ld-filter-group { min-width: 100%; }
 }
 @media (max-width: 480px) {
   .ld-stats-grid { grid-template-columns: 1fr; }

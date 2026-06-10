@@ -18,7 +18,7 @@
             <div class="step-connector"></div>
             <div class="step-item completed">
               <div class="step-number">3</div>
-              <div class="step-label">Income & Loan</div>
+              <div class="step-label">Income & Mortgage</div>
             </div>
             <div class="step-connector"></div>
             <div class="step-item active">
@@ -51,7 +51,7 @@
 
           <!-- Loan Summary -->
           <div class="summary-section">
-            <h3 class="summary-section-title">Loan Summary</h3>
+            <h3 class="summary-section-title">Mortgage Summary</h3>
             <div class="summary-grid">
               <div class="summary-item">
                 <span class="summary-label">Mortgage Type:</span>
@@ -63,14 +63,14 @@
               </div>
               <div class="summary-item">
                 <span class="summary-label">Interest Rate:</span>
-                <span class="summary-value">7.45%</span>
+                <span class="summary-value"><%= EpmModelConfig.indicative_borrower_rate_pct %>%</span>
               </div>
               <div class="summary-item">
-                <span class="summary-label">Loan Term:</span>
+                <span class="summary-label">Mortgage Term:</span>
                 <span class="summary-value"><%= @application.loan_term %> years</span>
               </div>
               <div class="summary-item">
-                <span class="summary-label">Loan Value:</span>
+                <span class="summary-label">Mortgage Value:</span>
                 <span class="summary-value"><%= @application.formatted_loan_value %></span>
               </div>
               <div class="summary-note">
@@ -102,7 +102,7 @@
                 <span class="summary-value"><%= @application.formatted_growth_rate %></span>
               </div>
               <div class="summary-item">
-                <span class="summary-label">Home value at end of loan:</span>
+                <span class="summary-label">Home value at end of mortgage:</span>
                 <span class="summary-value"><%= @application.formatted_future_property_value %></span>
               </div>
               <div class="summary-item">
@@ -133,11 +133,11 @@
                 <span class="summary-value"><%= @application.formatted_interest_paid_on_behalf %></span>
               </div>
               <div class="summary-item">
-                <span class="summary-label">Loan principal paid on your behalf:</span>
+                <span class="summary-label">Mortgage principal paid on your behalf:</span>
                 <span class="summary-value"><%= @application.formatted_loan_principal_paid_on_behalf %></span>
               </div>
               <div class="summary-item">
-                <span class="summary-label">Repayment due at end of loan:</span>
+                <span class="summary-label">Repayment due at end of mortgage:</span>
                 <span class="summary-value"><%= @application.formatted_repayment_due_at_end_of_loan %></span>
               </div>
             </div>
@@ -182,7 +182,7 @@
               <% if @application.mortgage&.mortgage_type_interest_only? %>
                 <div class="repayment-info">
                   <span class="money-icon">💰</span>
-                  <span>Loan repayment at end of term: <span data-application-summary-target="repaymentAmount">Calculating...</span></span>
+                  <span>Mortgage repayment at end of term: <span data-application-summary-target="repaymentAmount">Calculating...</span></span>
                 </div>
               <% else %>
                 <div class="repayment-info">
@@ -215,7 +215,7 @@
                 <div class="step-icon">3</div>
                 <div class="step-content">
                   <h4>Final Approval</h4>
-                  <p>Once all requirements are met, we'll provide your final loan approval and settlement details.</p>
+                  <p>Once all requirements are met, we'll provide your final approval and settlement details.</p>
                 </div>
               </div>
             </div>
@@ -227,7 +227,7 @@
           <%= form_with model: @application, url: submit_application_path(@application), method: :patch, local: true do |f| %>
             <%= f.submit "Submit Application", class: "btn btn-primary btn-lg application-submit-btn" %>
           <% end %>
-          <%= link_to "Back to Loan Details", income_and_loan_application_path(@application), class: "btn btn-secondary" %>
+          <%= link_to "Back to Income & Mortgage Details", income_and_loan_application_path(@application), class: "btn btn-secondary" %>
         </div>
       </div>
 

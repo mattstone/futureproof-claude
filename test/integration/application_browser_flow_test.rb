@@ -67,7 +67,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify step indicator shows correct step
-    assert_select '.step-item.active .step-label', text: 'Income & Loan'
+    assert_select '.step-item.active .step-label', text: 'Income & Mortgage'
     assert_select '.step-item.completed .step-label', text: 'Property Details'
 
     # Verify demo badge and context
@@ -135,6 +135,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_select 'input[type=submit], button[type=submit]'
 
     # Step 8: Submit application
+    application.reload
     patch submit_application_path(application)
 
     assert_response :redirect
@@ -309,7 +310,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
       { path: apply_path, title: 'Application Process' },
       { path: new_application_path, title: 'Property Details' },
       { path: edit_application_path(application), title: 'Edit Property Details' },
-      { path: income_and_loan_application_path(application), title: 'Income & Loan Options' }
+      { path: income_and_loan_application_path(application), title: 'Income & Mortgage Options' }
     ]
 
     pages_to_test.each do |page|

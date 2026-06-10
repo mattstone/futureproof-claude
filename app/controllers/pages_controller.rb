@@ -1,11 +1,12 @@
 class PagesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :privacy_policy, :terms_of_use, :terms_and_conditions, :apply, :hero_option_1, :hero_option_2, :hero_option_3, :get_started]
+  skip_before_action :authenticate_user!, only: [:index, :privacy_policy, :terms_of_use, :terms_and_conditions, :apply, :hero_option_1, :hero_option_2, :hero_option_3, :get_started, :tax_discussion]
 
   def index
     # Homepage
   end
 
   def get_started
+    @show_akane_chat = true
     # React webapp replica - mobile-first calculator experience
     # Loan lookup table for calculations (matches React app exactly)
     @loan_lookup = {
@@ -22,9 +23,39 @@ class PagesController < ApplicationController
 
     # Detect market from params, or geo-detect from IP/headers
     @detected_market = params[:market].presence || detect_market_from_request
+
+    # Load published FAQs for this jurisdiction
+    jurisdiction = detect_jurisdiction_for_legal
+    @faqs = Faq.published.for_jurisdiction(jurisdiction).ordered
+  end
+
+  def tax_discussion
+    @jurisdiction = detect_jurisdiction_for_legal
+    @region_config = region_tax_config(@jurisdiction)
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        render pdf: "FutureProof_Tax_Discussion_#{@jurisdiction}",
+               template: "pages/tax_discussion.pdf",
+               layout: "pdf",
+               disposition: "attachment"
+      end
+    end
   end
 
   private
+
+  # Map URL region prefix to LegalDocument jurisdiction code
+  def detect_jurisdiction_for_legal
+    region = params[:region]&.downcase
+    case region
+    when "au" then "AU"
+    when "nz" then "NZ"
+    when "uk" then "UK"
+    else "US"
+    end
+  end
 
   # Detect market based on IP geolocation or browser hints
   # Returns 'au' for Australia/New Zealand, 'us' for everywhere else
@@ -62,19 +93,76 @@ class PagesController < ApplicationController
     'us'
   end
 
+  def region_tax_config(jurisdiction)
+    configs = {
+      "AU" => {
+        country: "Australia",
+        currency: "AUD",
+        regulator: "Australian Prudential Regulation Authority (APRA)",
+        tax_authority: "Australian Taxation Office (ATO)",
+        gst_vat: "GST (10%)",
+        capital_gains: "Capital Gains Tax (CGT) with 50% discount for assets held >12 months",
+        income_tax: "Progressive rates 0%–45% plus 2% Medicare levy",
+        stamp_duty: "State-based stamp duty on property transfers",
+        reporting: "Annual tax return lodgement, BAS for GST-registered entities"
+      },
+      "NZ" => {
+        country: "New Zealand",
+        currency: "NZD",
+        regulator: "Reserve Bank of New Zealand (RBNZ)",
+        tax_authority: "Inland Revenue (IRD)",
+        gst_vat: "GST (15%)",
+        capital_gains: "No general CGT; Bright-line test applies to residential property",
+        income_tax: "Progressive rates 10.5%–39%",
+        stamp_duty: "No stamp duty in New Zealand",
+        reporting: "Annual tax return, GST returns for registered persons"
+      },
+      "UK" => {
+        country: "United Kingdom",
+        currency: "GBP",
+        regulator: "Financial Conduct Authority (FCA) & Prudential Regulation Authority (PRA)",
+        tax_authority: "HM Revenue & Customs (HMRC)",
+        gst_vat: "VAT (20%)",
+        capital_gains: "Capital Gains Tax at 10%/20% (basic/higher rate) for non-residential, 18%/28% for residential",
+        income_tax: "Progressive rates 20%–45%",
+        stamp_duty: "Stamp Duty Land Tax (SDLT) on property purchases",
+        reporting: "Self-Assessment tax returns, Making Tax Digital (MTD)"
+      },
+      "US" => {
+        country: "United States",
+        currency: "USD",
+        regulator: "Consumer Financial Protection Bureau (CFPB) & State regulators",
+        tax_authority: "Internal Revenue Service (IRS)",
+        gst_vat: "No federal sales tax; state sales tax varies 0%–10.25%",
+        capital_gains: "Long-term CGT at 0%/15%/20% (income dependent); NIIT 3.8% surcharge",
+        income_tax: "Federal progressive rates 10%–37% plus state income tax",
+        stamp_duty: "Transfer taxes vary by state and county",
+        reporting: "Annual federal (Form 1040) and state tax returns, 1098/1099 reporting"
+      }
+    }
+    configs[jurisdiction] || configs["US"]
+  end
+
   def privacy_policy
-    @privacy_policy = PrivacyPolicy.current
+    jurisdiction = detect_jurisdiction_for_legal
+    @legal_document = LegalDocument.current_for("privacy_policy", jurisdiction)
+    @privacy_policy = @legal_document || PrivacyPolicy.current
   end
 
   def terms_of_use
-    @terms_of_use = TermsOfUse.current
+    jurisdiction = detect_jurisdiction_for_legal
+    @legal_document = LegalDocument.current_for("terms_of_use", jurisdiction)
+    @terms_of_use = @legal_document || TermsOfUse.current
   end
 
   def terms_and_conditions
-    @terms_and_conditions = TermsAndCondition.current
+    jurisdiction = detect_jurisdiction_for_legal
+    @legal_document = LegalDocument.current_for("terms_conditions", jurisdiction)
+    @terms_and_conditions = @legal_document || TermsAndCondition.current
   end
 
   def apply
+    @show_akane_chat = true
     # Apply page - Application process steps
   end
 

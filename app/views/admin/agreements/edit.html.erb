@@ -1,0 +1,47 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page">
+  <nav class="ld-breadcrumb">
+    <%= link_to "Dashboard", admin_root_path %> >
+    <%= link_to "Agreements", admin_agreements_path %> >
+    <%= link_to @agreement.title, admin_agreement_path(@agreement) %> >
+    <span>Edit</span>
+  </nav>
+
+<% content_for :page_title, "Edit: #{@agreement.title}" %>
+
+  <div class="ld-show-header">
+    <div class="ld-badge-row">
+      <span class="ld-badge ld-badge-status agreement-status-draft">Draft</span>
+      <span class="ld-badge ld-badge-jurisdiction"><%= @agreement.jurisdiction %></span>
+      <span class="ld-badge ld-badge-neutral"><%= @agreement.party_type_label %>: <%= @agreement.agreeable.name %></span>
+    </div>
+  </div>
+
+  <%= form_with model: @agreement, url: admin_agreement_path(@agreement), method: :patch, class: "agreement-form" do |f| %>
+    <div class="agreement-form-section">
+      <div class="agreement-form-field">
+        <label class="ld-filter-label">Title</label>
+        <%= f.text_field :title, class: "ld-filter-input" %>
+      </div>
+    </div>
+
+    <div class="agreement-form-section">
+      <h3>Agreement Content</h3>
+      <p class="ld-text-muted">Edit the agreement using the rich text editor below.</p>
+      <%= f.rich_text_area :rich_content %>
+    </div>
+
+    <div class="agreement-form-section">
+      <div class="agreement-form-field">
+        <label class="ld-filter-label">Admin Notes (internal only)</label>
+        <%= f.text_area :notes, class: "ld-filter-input", rows: 3 %>
+      </div>
+    </div>
+
+    <div class="ld-action-bar">
+      <%= link_to "Cancel", admin_agreement_path(@agreement), class: "ld-btn ld-btn-outline" %>
+      <button type="submit" class="ld-btn ld-btn-primary">Save Changes</button>
+    </div>
+  <% end %>
+</div>

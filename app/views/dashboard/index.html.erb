@@ -96,11 +96,21 @@
             </div>
           <% end %>
 
+          <!-- Status Tracker for Submitted Applications -->
+          <% @submitted_applications.each do |app| %>
+            <div class="summary-section">
+              <h3 class="summary-section-title">
+                Application #<%= app.id.to_s.rjust(6, '0') %> — <%= truncate(app.address, length: 40) %>
+              </h3>
+              <%= render 'shared/application_status_tracker', application: app %>
+            </div>
+          <% end %>
+
           <!-- Income Summary Section -->
           <div class="summary-section">
             <h3 class="summary-section-title">Income Summary</h3>
-            <div style="padding: 20px; text-align: center; color: #64748b;">
-              <p>Your income summary will be displayed here for all active Equity Preservation Mortgages®</p>
+            <div class="empty-state">
+              <p>Your income summary will be displayed here for all active Equity Preservation Mortgages.</p>
             </div>
           </div>
 

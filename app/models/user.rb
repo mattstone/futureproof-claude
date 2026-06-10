@@ -26,6 +26,9 @@ class User < ApplicationRecord
   has_many :legal_document_acceptances, dependent: :destroy
   has_many :accepted_legal_documents, through: :legal_document_acceptances, source: :legal_document
 
+  # Support tickets
+  has_many :support_tickets, dependent: :nullify
+
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value
   

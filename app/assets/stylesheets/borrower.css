@@ -1,0 +1,1744 @@
+/* =============================================================
+   Borrower Portal & Dashboard Styles
+   Extracted from inline styles for CSP compliance
+   ============================================================= */
+
+/* --- Borrower Layout --- */
+.borrower-body {
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+}
+
+.borrower-header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0;
+}
+
+.borrower-header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.borrower-logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.borrower-logo img {
+  height: 32px;
+  width: auto;
+}
+
+.borrower-nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.borrower-nav-link {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.borrower-nav-link:hover {
+  color: #333;
+  background: #f0f0f0;
+}
+
+.borrower-nav-link.active {
+  color: #2196F3;
+  font-weight: 500;
+}
+
+.borrower-nav-user {
+  color: #666;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.borrower-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* --- Borrower Dashboard (Index) --- */
+.borrower-dashboard {
+  padding: 0;
+}
+
+.borrower-dashboard h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.borrower-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.borrower-stats .stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.borrower-stats .stat-label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.borrower-stats .stat-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: #2196F3;
+}
+
+.borrower-dashboard .applications-list {
+  display: grid;
+  gap: 16px;
+}
+
+.borrower-dashboard .application-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.borrower-dashboard .application-card:hover {
+  border-color: #2196F3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+}
+
+.borrower-dashboard .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.borrower-dashboard .app-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #333;
+}
+
+.borrower-dashboard .app-property {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.borrower-dashboard .app-status {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.borrower-dashboard .app-status-submitted,
+.borrower-dashboard .app-status-processing {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.borrower-dashboard .app-status-accepted,
+.borrower-dashboard .app-status-activated {
+  background: #d4edda;
+  color: #155724;
+}
+
+.borrower-dashboard .app-status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.borrower-dashboard .app-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.borrower-dashboard .detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.borrower-dashboard .detail-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.borrower-dashboard .detail-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.borrower-dashboard .app-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.borrower-dashboard .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.borrower-dashboard .empty-state p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* --- Borrower Detail (Show) --- */
+.borrower-detail {
+  padding: 0;
+}
+
+.borrower-detail .detail-header {
+  margin-bottom: 30px;
+}
+
+.borrower-detail .back-link {
+  color: #2196F3;
+  text-decoration: none;
+  font-size: 13px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.borrower-detail .back-link:hover {
+  text-decoration: underline;
+}
+
+.borrower-detail .detail-header h1 {
+  font-size: 28px;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.borrower-detail .loan-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.borrower-detail .action-link {
+  color: #2196F3;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #f0f7ff;
+  transition: all 0.2s;
+}
+
+.borrower-detail .action-link:hover {
+  background: #e3f2fd;
+}
+
+.borrower-detail .detail-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.borrower-detail .detail-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.borrower-detail .detail-card.next-income {
+  background: #f0f7ff;
+  border-color: #2196F3;
+}
+
+.borrower-detail .card-label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.borrower-detail .card-status {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.borrower-detail .card-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.borrower-detail .card-meta {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.borrower-detail .app-status-submitted,
+.borrower-detail .app-status-processing {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.borrower-detail .app-status-accepted,
+.borrower-detail .app-status-activated {
+  background: #d4edda;
+  color: #155724;
+}
+
+.borrower-detail .app-status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Income Summary */
+.borrower-detail .income-summary-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.borrower-detail .income-summary-section h2 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+}
+
+.borrower-detail .income-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.borrower-detail .summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.borrower-detail .summary-label {
+  color: #666;
+  font-size: 14px;
+}
+
+.borrower-detail .summary-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Schedule Table */
+.borrower-detail .schedule-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.borrower-detail .schedule-section h2 {
+  font-size: 16px;
+  margin: 0 0 20px 0;
+}
+
+.borrower-detail .schedule-table {
+  overflow-x: auto;
+}
+
+.borrower-detail .schedule-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.borrower-detail .schedule-table th {
+  text-align: left;
+  padding: 12px;
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.borrower-detail .schedule-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.borrower-detail .income-row.income-completed {
+  background: #f9f9f9;
+}
+
+.borrower-detail .status-badge {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.borrower-detail .status-completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.borrower-detail .status-pending,
+.borrower-detail .status-processing {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.borrower-detail .empty-schedule {
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Plan Details */
+.borrower-detail .plan-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.borrower-detail .plan-section h2 {
+  font-size: 16px;
+  margin: 0 0 20px 0;
+}
+
+.borrower-detail .plan-details {
+  display: grid;
+  gap: 16px;
+}
+
+.borrower-detail .plan-item {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.borrower-detail .plan-label {
+  font-size: 13px;
+  color: #333;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.borrower-detail .plan-desc {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Documents */
+.borrower-detail .documents-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.borrower-detail .documents-section h2 {
+  font-size: 16px;
+  margin: 0 0 20px 0;
+}
+
+.borrower-detail .documents-list {
+  display: grid;
+  gap: 16px;
+}
+
+.borrower-detail .document-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+}
+
+.borrower-detail .doc-icon {
+  font-size: 24px;
+}
+
+.borrower-detail .doc-info {
+  flex: 1;
+}
+
+.borrower-detail .doc-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.borrower-detail .doc-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+.borrower-detail .doc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Lender Info */
+.borrower-detail .lender-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.borrower-detail .lender-section h2 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+}
+
+.borrower-detail .lender-card {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.borrower-detail .lender-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.borrower-detail .lender-details {
+  display: grid;
+  gap: 8px;
+}
+
+.borrower-detail .lender-details .detail {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.borrower-detail .lender-details .label {
+  color: #666;
+  min-width: 80px;
+}
+
+.borrower-detail .lender-details .value {
+  color: #333;
+  flex: 1;
+}
+
+.borrower-detail .lender-details .value a {
+  color: #2196F3;
+  text-decoration: none;
+}
+
+.borrower-detail .lender-details .value a:hover {
+  text-decoration: underline;
+}
+
+/* Borrower btn overrides */
+.borrower-detail .btn,
+.borrower-dashboard .btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.borrower-detail .btn-primary,
+.borrower-dashboard .btn-primary {
+  background: #2196F3;
+  color: white;
+}
+
+.borrower-detail .btn-primary:hover,
+.borrower-dashboard .btn-primary:hover {
+  background: #1976D2;
+}
+
+.borrower-detail .btn-secondary,
+.borrower-dashboard .btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.borrower-detail .btn-secondary:hover,
+.borrower-dashboard .btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+/* =============================================================
+   Application Status Tracker
+   Visual timeline for post-submission flow
+   ============================================================= */
+
+.app-status-tracker {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 30px;
+}
+
+.app-status-tracker h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 24px 0;
+}
+
+.tracker-timeline {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding: 0 10px;
+}
+
+.tracker-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.tracker-step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  border: 3px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #999;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.tracker-step.completed .tracker-step-dot {
+  background: #4caf50;
+  border-color: #4caf50;
+  color: white;
+}
+
+.tracker-step.active .tracker-step-dot {
+  background: white;
+  border-color: #2196F3;
+  color: #2196F3;
+  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.15);
+}
+
+.tracker-step.rejected .tracker-step-dot {
+  background: #f44336;
+  border-color: #f44336;
+  color: white;
+}
+
+.tracker-step-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+  max-width: 100px;
+}
+
+.tracker-step.completed .tracker-step-label {
+  color: #4caf50;
+}
+
+.tracker-step.active .tracker-step-label {
+  color: #2196F3;
+  font-weight: 600;
+}
+
+.tracker-step.rejected .tracker-step-label {
+  color: #f44336;
+}
+
+.tracker-step-date {
+  font-size: 10px;
+  color: #bbb;
+  margin-top: 2px;
+}
+
+/* Connector line between steps */
+.tracker-connector {
+  flex: 1;
+  height: 3px;
+  background: #e0e0e0;
+  margin-top: 18px;
+  position: relative;
+  min-width: 20px;
+}
+
+.tracker-connector.completed {
+  background: #4caf50;
+}
+
+.tracker-connector.active {
+  background: linear-gradient(to right, #4caf50, #e0e0e0);
+}
+
+/* Status detail card below tracker */
+.tracker-status-detail {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tracker-status-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.tracker-status-text h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.tracker-status-text p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tracker-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.tracker-actions .btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.tracker-actions .btn-primary {
+  background: #2196F3;
+  color: white;
+}
+
+.tracker-actions .btn-primary:hover {
+  background: #1976D2;
+}
+
+.tracker-actions .btn-success {
+  background: #4caf50;
+  color: white;
+}
+
+.tracker-actions .btn-success:hover {
+  background: #43a047;
+}
+
+/* =============================================================
+   Loan Activation Page
+   ============================================================= */
+
+.loan-activation {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loan-activation .back-link {
+  color: #2196F3;
+  text-decoration: none;
+  font-size: 13px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.loan-activation .back-link:hover {
+  text-decoration: underline;
+}
+
+.loan-activation h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 24px 0;
+}
+
+.activation-approved-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #22c55e;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.activation-approved-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #166534;
+  margin: 0 0 16px 0;
+}
+
+.activation-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.activation-metric-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.activation-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.activation-info-card {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.activation-info-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+}
+
+.activation-info-card p {
+  font-size: 14px;
+  color: #1e3a5f;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.activation-info-card p:last-child {
+  margin-bottom: 0;
+}
+
+.activation-checklist {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.activation-checklist h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px 0;
+}
+
+.activation-checklist-items {
+  display: grid;
+  gap: 12px;
+}
+
+.activation-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.activation-checklist-item .check-icon {
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.activation-confirm {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 24px;
+  text-align: center;
+}
+
+.activation-confirm p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px 0;
+}
+
+.activation-confirm .btn-activate {
+  display: inline-block;
+  padding: 14px 32px;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.activation-confirm .btn-activate:hover {
+  background: #16a34a;
+}
+
+@media (max-width: 640px) {
+  .activation-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================
+   Dashboard Layout (extracted from inline)
+   ============================================================= */
+
+.dashboard-html {
+  color-scheme: light;
+  background-color: #f8fafc;
+}
+
+.dashboard-html body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.dashboard-logo img {
+  height: 32px;
+  width: auto;
+}
+
+.dashboard-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  color: #475569;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+.dashboard-content {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  gap: 30px;
+  align-items: start;
+}
+
+.dashboard-sidebar {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  position: sticky;
+  top: 100px;
+}
+
+.dashboard-main {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 30px;
+}
+
+.dashboard-help {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  position: sticky;
+  top: 100px;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 8px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 12px 16px;
+  color: #64748b;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background: #f1f5f9;
+  color: #0891b2;
+}
+
+.sidebar-nav-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-nav-arcade {
+  margin-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.unread-badge {
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 2px solid white;
+  animation: pulse-once 0.5s ease-out;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 15px;
+}
+
+.dashboard-help .summary-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.dashboard-help .help-section p {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.dashboard-help .contact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-help .contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.dashboard-help .contact-icon {
+  font-size: 18px;
+}
+
+.dashboard-help .contact-details strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.dashboard-help .contact-details p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.dashboard-footer {
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-top: auto;
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+/* Dashboard application page overrides */
+.dashboard-main .application-page {
+  background: none;
+  padding: 0;
+  min-height: auto;
+}
+
+.dashboard-main .application-container {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-main .application-card {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.dashboard-main .application-header {
+  background: none;
+  border: none;
+  padding: 0 0 30px 0;
+  text-align: left;
+}
+
+.dashboard-main .application-title {
+  font-size: 32px;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.dashboard-main .application-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.dashboard-main .application-form {
+  padding: 0;
+}
+
+/* Alert override for dashboard layout */
+.dashboard-layout .alert-notice {
+  margin: 0;
+  border-radius: 0;
+}
+
+.dashboard-layout .alert-alert {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard-sidebar {
+    order: 2;
+    position: static;
+  }
+
+  .dashboard-main {
+    order: 1;
+  }
+
+  .dashboard-help {
+    order: 3;
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-nav {
+    padding: 12px 16px;
+  }
+
+  .dashboard-logo img {
+    height: 28px;
+  }
+
+  .dashboard-content {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .dashboard-main {
+    padding: 20px;
+  }
+
+  .dashboard-sidebar,
+  .dashboard-help {
+    padding: 16px;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .dashboard-user-menu {
+    gap: 10px;
+  }
+
+  .btn-logout {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .tracker-timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .tracker-step {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+  }
+
+  .tracker-step-dot {
+    margin-bottom: 0;
+  }
+
+  .tracker-connector {
+    width: 3px;
+    height: 24px;
+    margin-top: 0;
+    margin-left: 17px;
+    min-width: unset;
+  }
+
+  .tracker-connector.active {
+    background: linear-gradient(to bottom, #4caf50, #e0e0e0);
+  }
+}
+
+/* =============================================================
+   Application Management (Dashboard)
+   ============================================================= */
+
+.application-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.application-card.enhanced {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.application-card.enhanced:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.application-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.application-info h3 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.application-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.application-actions-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.message-count {
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.application-summary {
+  padding: 20px 24px;
+}
+
+.dashboard-main .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.dashboard-main .summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-item.message-item {
+  grid-column: 1 / -1;
+}
+
+.summary-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.summary-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-main .summary-label {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.dashboard-main .summary-value {
+  display: block;
+  color: #1e293b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.summary-subvalue {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.dashboard-main .summary-value.no-data {
+  color: #9ca3af;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.dashboard-main .summary-value.income-amount {
+  color: #059669;
+  font-weight: 700;
+}
+
+.summary-date {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.latest-message-preview {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.message-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #1e40af;
+}
+
+.preview-label { font-weight: 600; font-size: 14px; }
+.preview-date { color: #6b7280; font-size: 12px; margin-left: auto; }
+
+.message-preview-content strong { display: block; color: #1f2937; margin-bottom: 4px; }
+.message-preview-content p { color: #4b5563; font-size: 14px; margin: 4px 0; line-height: 1.4; }
+.message-from { color: #6b7280; font-size: 12px; font-style: italic; }
+
+.application-details-section,
+.application-messages-section {
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.detail-group h5 {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.detail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-main .detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-main .detail-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 140px;
+}
+
+.dashboard-main .detail-value {
+  color: #1f2937;
+  font-size: 13px;
+  text-align: right;
+  flex: 1;
+}
+
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.message-thread {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.message-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agent-avatar img,
+.default-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3b82f6;
+}
+
+.default-avatar {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.sender-name { color: #1f2937; font-size: 14px; margin-bottom: 2px; }
+.ai-badge { background: #3b82f6; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 500; margin-left: 6px; }
+.sender-role { color: #6b7280; font-size: 12px; }
+
+.message-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.message-status { padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+.message-status.status-sent { background: #dbeafe; color: #1e40af; }
+.message-status.status-read { background: #d1fae5; color: #059669; }
+
+.message-content { margin-bottom: 16px; }
+.message-subject { color: #1f2937; font-size: 16px; font-weight: 600; margin: 0 0 8px 0; }
+.message-body { background: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid #3b82f6; color: #374151; line-height: 1.6; }
+
+.message-replies { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 16px; margin: 16px 0; }
+.message-replies h6 { color: #0369a1; font-size: 14px; font-weight: 600; margin: 0 0 12px 0; }
+.message-reply { background: white; border: 1px solid #e0f2fe; border-radius: 4px; padding: 12px; margin-bottom: 8px; }
+.reply-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
+.reply-content { color: #374151; font-size: 14px; line-height: 1.5; }
+
+.message-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+
+.reply-form-container { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin: 16px 0; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; color: #374151; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.form-input, .form-textarea { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; background: white; box-sizing: border-box; }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+.form-hint { color: #6b7280; font-size: 12px; margin-top: 4px; display: block; }
+.dashboard-main .form-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+
+.empty-messages-state { text-align: center; padding: 40px 20px; color: #6b7280; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-messages-state h5 { color: #374151; font-size: 18px; margin: 0 0 8px 0; }
+.empty-messages-state p { font-size: 14px; margin: 0; }
+
+/* Customer Checklist */
+.customer-checklist-section { margin-top: 0; }
+.checklist-status-card { background: white; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; margin-bottom: 0; }
+.checklist-status-card.processing { border-left: 4px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+.checklist-status-card.rejected { border-left: 4px solid #dc2626; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+.checklist-status-card.accepted { border-left: 4px solid #059669; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+
+.status-header { padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.status-title { display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0; color: #1f2937; font-size: 16px; font-weight: 600; }
+.status-icon { font-size: 18px; }
+.checklist-status-card.processing .status-icon { color: #d97706; }
+.checklist-status-card.rejected .status-icon { color: #dc2626; }
+.checklist-status-card.accepted .status-icon { color: #059669; }
+.status-meta { color: #6b7280; font-size: 12px; font-weight: 500; }
+.status-message { padding: 0 20px 16px 20px; }
+
+.info-box.customer { background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #1e40af; margin: 0; }
+.alert-box { border-radius: 6px; padding: 12px 16px; font-size: 14px; margin: 0; }
+.alert-box.success { background-color: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
+.alert-box.warning { background-color: #fef3c7; border: 1px solid #f59e0b; color: #92400e; }
+
+.checklist-progress-section, .checklist-final-section { padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.05); }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.progress-header h5 { color: #374151; font-size: 14px; font-weight: 600; margin: 0; }
+.progress-summary { color: #6b7280; font-size: 12px; font-weight: 500; }
+
+.customer-progress-bar { width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.customer-progress-bar .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #1d4ed8); transition: width 0.5s ease; }
+.customer-progress-bar.completed .progress-fill { background: linear-gradient(90deg, #059669, #047857); }
+.progress-percentage { text-align: center; font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 16px; }
+.progress-percentage.completed { color: #059669; }
+
+.checklist-items-customer { display: flex; flex-direction: column; gap: 12px; }
+.checklist-item-customer { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.05); border-radius: 6px; transition: background-color 0.2s ease; }
+.checklist-item-customer.completed { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+.item-status { flex-shrink: 0; margin-top: 2px; }
+.completed-icon { color: #10b981; font-size: 16px; }
+.pending-icon { color: #9ca3af; font-size: 16px; }
+.item-content { flex: 1; min-width: 0; }
+.item-title { color: #1f2937; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.item-completion { display: flex; align-items: center; gap: 6px; color: #059669; font-size: 12px; font-weight: 500; }
+.item-status-text { display: flex; align-items: center; gap: 6px; color: #6b7280; font-size: 12px; font-style: italic; }
+.checklist-final-section h5 { color: #374151; font-size: 14px; font-weight: 600; margin: 0 0 4px 0; }
+.section-subtitle { color: #6b7280; font-size: 12px; margin: 0 0 16px 0; }
+
+@media (max-width: 768px) {
+  .application-card-header { flex-direction: column; align-items: stretch; gap: 16px; }
+  .application-actions-header { justify-content: stretch; }
+  .application-actions-header .btn { flex: 1; }
+  .dashboard-main .summary-grid { grid-template-columns: 1fr; }
+  .details-grid { grid-template-columns: 1fr; }
+  .message-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .messages-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .dashboard-main .form-actions { flex-direction: column; }
+}

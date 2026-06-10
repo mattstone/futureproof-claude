@@ -44,29 +44,32 @@ class MortgageCalculatorService
   private
 
   def set_default_values
-    # Set defaults only for missing or empty values
-    @params[:house_value] = @params[:house_value].present? ? @params[:house_value] : 1500000
-    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration] : 30
-    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration] : 10
+    # Defaults sourced from EpmModelConfig (single source of truth)
+    mc = EpmModelConfig.mc_defaults
+    ep = EpmModelConfig.params
+
+    @params[:house_value] = @params[:house_value].present? ? @params[:house_value] : ep[:base_property_value]
+    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration] : ep[:tenure_years]
+    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration] : ep[:annuity_term_years]
     @params[:loan_type] = @params[:loan_type].present? ? @params[:loan_type] : 'Interest only'
     @params[:principal_repayment] = @params[:principal_repayment].present? ? @params[:principal_repayment] : false
-    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value] : 80
-    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income] : 30000
+    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value] : (ep[:max_ltv] * 100)
+    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income] : ep[:annuity_pa]
     @params[:at_risk_captital_fraction] = @params[:at_risk_captital_fraction].present? ? @params[:at_risk_captital_fraction] : 0
-    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return] : 10.8
-    @params[:volatility] = @params[:volatility].present? ? @params[:volatility] : 15
+    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return] : (ep[:equity_mean] * 100)
+    @params[:volatility] = @params[:volatility].present? ? @params[:volatility] : (ep[:equity_vol] * 100)
     @params[:total_paths] = @params[:total_paths].present? ? @params[:total_paths] : 1000
     @params[:random_seed] = @params[:random_seed].present? ? @params[:random_seed] : 0
-    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate] : 3.85
+    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate] : (ep[:cash_rate_initial] * 100)
     @params[:insurer_profit_margin] = @params[:insurer_profit_margin].present? ? @params[:insurer_profit_margin] : 50
     @params[:hedged] = @params[:hedged].present? ? @params[:hedged] : false
-    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa] : 0.5
-    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss] : 10
-    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap] : 20
-    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin] : 2
-    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins] : 1.25
-    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction] : 0.9
-    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction] : 1.458
+    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa] : (ep[:hedging_fee] * 100)
+    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss] : ((1.0 - ep[:buffer_floor]) * 100)
+    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap] : ((ep[:buffer_cap] - 1.0) * 100)
+    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin] : (ep[:wholesale_margin] * 100)
+    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins] : ((ep[:retail_margin] + ep[:fp_margin] + ep[:hedging_fee]) * 100)
+    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction] : ep[:holiday_entry_level]
+    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction] : ep[:holiday_exit_level]
     @params[:subperform_loan_threshold_quarters] = @params[:subperform_loan_threshold_quarters].present? ? @params[:subperform_loan_threshold_quarters] : 12
     @params[:max_superpay_factor] = @params[:max_superpay_factor].present? ? @params[:max_superpay_factor] : 1.261
     @params[:superpay_start_factor] = @params[:superpay_start_factor].present? ? @params[:superpay_start_factor] : 1.50

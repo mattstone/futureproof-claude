@@ -1,19 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  event: MyString
-  url: MyString
+  event: application_created
+  url: https://example.com/webhooks
   active: false
-  lender: one
-  secret: MyString
+  lender: futureproof
+  secret: webhook_secret_one
   created_at: 2026-03-11 00:55:17
   updated_at: 2026-03-11 00:55:17
 
 two:
-  event: MyString
-  url: MyString
+  event: distribution_completed
+  url: https://example.com/webhooks/alt
   active: false
-  lender: two
-  secret: MyString
+  lender: broker
+  secret: webhook_secret_two
   created_at: 2026-03-11 00:55:17
   updated_at: 2026-03-11 00:55:17

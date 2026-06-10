@@ -36,12 +36,12 @@ class Api::QuotesApiTest < ActionDispatch::IntegrationTest
     assert json['result']['monthly_income'].present?
   end
 
-  test "quotes API defaults to original model when not specified" do
+  test "quotes API defaults to the validated pavel model when not specified" do
     get api_quotes_path, params: { home_value: 1_500_000, term: 10 }
     assert_response :success
 
     json = JSON.parse(response.body)
-    assert_equal 'original', json['model']
+    assert_equal 'pavel', json['model']
   end
 
   test "quotes API returns error for unknown model" do

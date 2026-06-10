@@ -276,7 +276,7 @@ class Admin::EmailTemplatesController < Admin::BaseController
       id: 1,
       name: 'Premium Equity Preservation Mortgage®',
       lvr: '60',
-      interest_rate: '7.45',
+      interest_rate: EpmModelConfig.indicative_borrower_rate_pct.to_s,
       mortgage_type_display: 'Equity Preservation'
     )
   end

@@ -1,0 +1,32 @@
+<section id="recommendations" class="dashboard-section">
+  <div class="dashboard-section-header">
+    <h2 class="section-title">Agent Recommendations</h2>
+    <p class="admin-section-subtitle">Issues flagged by the system for management review.</p>
+  </div>
+
+  <% if recommendations.any? %>
+    <div class="dashboard-recommendations-grid">
+      <% recommendations.each do |signal| %>
+        <div class="dashboard-pain-card dashboard-pain-<%= signal.severity %>">
+          <div class="dashboard-pain-header">
+            <span class="dashboard-pain-severity"><%= signal.severity.to_s.upcase %></span>
+            <strong><%= signal.category %></strong>
+          </div>
+          <div class="dashboard-recommendation-headline"><%= signal.headline %></div>
+          <div class="dashboard-pain-description"><%= signal.detail %></div>
+          <div class="dashboard-pain-action">
+            <%= link_to "Review →", signal.drill_down_path, class: "dashboard-recommendation-link" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="dashboard-pain-card dashboard-pain-success">
+      <div class="dashboard-pain-header">
+        <span class="dashboard-pain-severity">HEALTHY</span>
+        <strong>All systems healthy</strong>
+      </div>
+      <div class="dashboard-pain-description">No issues currently require management attention.</div>
+    </div>
+  <% end %>
+</section>

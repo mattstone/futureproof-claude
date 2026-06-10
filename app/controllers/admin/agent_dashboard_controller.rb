@@ -3,7 +3,7 @@ module Admin
     # authenticate_user! and authorization already applied by BaseController
 
     def index
-      @agents = AgentPerformance.includes(:daily_metrics).order(:agent_type)
+      @agents = AgentPerformance.order(:agent_type)
       @recent_tasks = AgentTask.completed.order(completed_at: :desc).limit(20)
     end
 

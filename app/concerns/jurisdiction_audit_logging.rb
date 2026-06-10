@@ -64,11 +64,15 @@ module JurisdictionAuditLogging
     # Log to security log
     Rails.logger.warn "[SECURITY] #{log_entry.to_json}"
     
-    # Store in audit trail for investigation
-    JurisdictionAuditLog.create!(log_entry)
-    
-    # Alert admin (can trigger email/notification)
-    AdminMailer.security_alert(log_entry).deliver_later
+    # Store in audit trail for investigation (if model exists)
+    if defined?(JurisdictionAuditLog)
+      JurisdictionAuditLog.create!(log_entry)
+    end
+
+    # Alert admin (if mailer exists)
+    if defined?(AdminMailer) && AdminMailer.respond_to?(:security_alert)
+      AdminMailer.security_alert(log_entry).deliver_later
+    end
   end
 
   # ✅ CRITICAL: Scope queries by user's jurisdiction

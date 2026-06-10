@@ -91,8 +91,13 @@ class Distribution < ApplicationRecord
       }
     }
     
-    application.lender.webhook_endpoints.active.for_event('distribution_completed').find_each do |endpoint|
+    lender = application.lender
+    return unless lender.respond_to?(:webhook_endpoints)
+
+    lender.webhook_endpoints.active.for_event('distribution_completed').find_each do |endpoint|
       endpoint.trigger_event('distribution_completed', payload)
     end
+  rescue NoMethodError
+    Rails.logger.debug "Webhook skipped: lender has no webhook_endpoints association"
   end
 end

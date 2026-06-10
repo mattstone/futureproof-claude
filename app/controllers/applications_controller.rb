@@ -6,6 +6,9 @@ class ApplicationsController < ApplicationController
   before_action :authenticate_user!, only: [:messages], unless: -> { params[:token].present? }
   before_action :prevent_admin_access, except: [:messages] + DEMO_ACTIONS
   before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations, :messages, :reply_to_message, :mark_all_messages_as_read]
+  # Adviser-led jurisdictions (e.g. UK under FCA MCOB) cannot use the
+  # self-service application flow — show the adviser notice instead.
+  before_action :require_self_service_jurisdiction, only: [:new, :create, :show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit]
   before_action :load_demo_application, only: DEMO_ACTIONS
 
   def new
@@ -99,8 +102,10 @@ class ApplicationsController < ApplicationController
     @application.status = :income_and_loan_options
     
     if @application.valid?(:income_loan_update) && @application.save
-      # Status is now income_and_loan_options after completing income and loan step
-      redirect_to summary_application_path(@application), notice: 'Income and loan details saved successfully!'
+      # Persist an immutable, versioned snapshot of the quote the borrower was
+      # shown — the quote of record for this application (reproducibility/audit)
+      Quote.snapshot_for(@application).save!
+      redirect_to summary_application_path(@application), notice: 'Income and mortgage details saved successfully!'
     else
       render :income_and_loan, status: :unprocessable_entity
     end
@@ -314,6 +319,18 @@ class ApplicationsController < ApplicationController
 
   def set_application
     @application = current_user.applications.find(params[:id])
+  end
+
+  def require_self_service_jurisdiction
+    code = @application&.region.presence || user_jurisdiction_code
+    return if code.blank?
+    return unless EpmJurisdictionService.adviser_led?(code)
+
+    render :adviser_led_region
+  end
+
+  def user_jurisdiction_code
+    Application::COUNTRY_TO_ISO[current_user&.country_of_residence]
   end
 
   def application_params

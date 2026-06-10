@@ -1,0 +1,159 @@
+<% content_for :page_title, "Ticket ##{@ticket.id}" %>
+
+<div class="st-page">
+  <!-- Breadcrumb -->
+  <div class="st-breadcrumb">
+    <%= link_to "Support Tickets", admin_support_tickets_path %> / #<%= @ticket.id %>
+  </div>
+
+  <!-- Header -->
+  <div class="st-show-header">
+    <div class="st-show-header-left">
+      <h2 class="st-show-title"><%= @ticket.subject %></h2>
+      <div class="st-show-badges">
+        <span class="st-badge st-badge-status st-status-<%= @ticket.status %>"><%= @ticket.status.titleize %></span>
+        <span class="st-badge st-badge-priority st-priority-<%= @ticket.priority %>"><%= @ticket.priority.titleize %></span>
+        <span class="st-badge st-badge-contact-<%= @ticket.existing_customer? ? 'customer' : 'new' %>"><%= @ticket.contact_type %></span>
+        <span class="st-badge st-badge-category"><%= @ticket.category.titleize %></span>
+      </div>
+    </div>
+    <div class="st-show-header-actions">
+      <% unless @ticket.closed? %>
+        <%= link_to "Close Ticket", close_admin_support_ticket_path(@ticket), method: :patch, class: "st-btn st-btn-secondary",
+            data: { turbo_method: :patch, turbo_confirm: "Close this ticket?" } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="st-show-layout">
+    <!-- Sidebar -->
+    <aside class="st-sidebar">
+      <div class="st-sidebar-section">
+        <h4 class="st-sidebar-heading">Details</h4>
+        <div class="st-detail-row">
+          <span class="st-detail-label">From</span>
+          <span class="st-detail-value"><%= @ticket.sender_name || @ticket.sender_email %></span>
+        </div>
+        <div class="st-detail-row">
+          <span class="st-detail-label">Email</span>
+          <span class="st-detail-value st-detail-email"><%= @ticket.sender_email %></span>
+        </div>
+        <% if @ticket.user.present? %>
+          <div class="st-detail-row">
+            <span class="st-detail-label">Customer</span>
+            <span class="st-detail-value">
+              <%= link_to @ticket.user.display_name, admin_user_path(@ticket.user), class: "st-detail-link" %>
+            </span>
+          </div>
+        <% end %>
+        <% if @ticket.application.present? %>
+          <div class="st-detail-row">
+            <span class="st-detail-label">Application</span>
+            <span class="st-detail-value">
+              <%= link_to "##{@ticket.application.id}", admin_application_path(@ticket.application), class: "st-detail-link" %>
+            </span>
+          </div>
+        <% end %>
+        <div class="st-detail-row">
+          <span class="st-detail-label">Created</span>
+          <span class="st-detail-value"><%= @ticket.created_at.strftime("%d %b %Y %H:%M") %></span>
+        </div>
+        <div class="st-detail-row">
+          <span class="st-detail-label">Source</span>
+          <span class="st-detail-value"><%= @ticket.source&.titleize || "Email" %></span>
+        </div>
+      </div>
+
+      <!-- Update Controls -->
+      <div class="st-sidebar-section">
+        <h4 class="st-sidebar-heading">Manage</h4>
+        <%= form_with model: [:admin, @ticket], local: true, class: "st-manage-form" do |f| %>
+          <div class="st-manage-group">
+            <label class="st-manage-label">Status</label>
+            <%= f.select :status, SupportTicket::STATUSES.map { |s| [s.titleize, s] }, {}, class: "st-manage-select" %>
+          </div>
+          <div class="st-manage-group">
+            <label class="st-manage-label">Priority</label>
+            <%= f.select :priority, SupportTicket::PRIORITIES.map { |p| [p.titleize, p] }, {}, class: "st-manage-select" %>
+          </div>
+          <div class="st-manage-group">
+            <label class="st-manage-label">Category</label>
+            <%= f.select :category, SupportTicket::CATEGORIES.map { |c| [c.titleize, c] }, {}, class: "st-manage-select" %>
+          </div>
+          <div class="st-manage-actions">
+            <%= f.submit "Update", class: "st-btn st-btn-primary st-btn-sm st-btn-full" %>
+          </div>
+        <% end %>
+      </div>
+    </aside>
+
+    <!-- Main Content: Message Thread -->
+    <div class="st-thread">
+      <% @messages.each do |message| %>
+        <div class="st-message st-message-<%= message.sender_type %>">
+          <div class="st-message-header">
+            <div class="st-message-sender">
+              <span class="st-message-avatar st-avatar-<%= message.sender_type %>">
+                <%= message.from_customer? ? "C" : "A" %>
+              </span>
+              <div>
+                <span class="st-message-name"><%= message.sender_name || message.sender_email || "System" %></span>
+                <span class="st-message-type-badge"><%= message.sender_type.titleize %></span>
+              </div>
+            </div>
+            <span class="st-message-time"><%= message.created_at.strftime("%d %b %Y %H:%M") %></span>
+          </div>
+          <div class="st-message-body">
+            <% if message.body_html.present? %>
+              <%= sanitize(message.body_html, tags: %w[p br strong em ul ol li a h1 h2 h3 h4 blockquote pre code span div], attributes: %w[href class]) %>
+            <% else %>
+              <%= simple_format(message.body_text) %>
+            <% end %>
+          </div>
+          <% if message.attachments.any? %>
+            <div class="st-message-attachments">
+              <% message.attachments.each do |attachment| %>
+                <div class="st-attachment">
+                  <%= link_to url_for(attachment), class: "st-attachment-link", target: "_blank" do %>
+                    <span class="st-attachment-icon">📎</span>
+                    <span class="st-attachment-name"><%= attachment.filename %></span>
+                    <span class="st-attachment-size">(<%= number_to_human_size(attachment.byte_size) %>)</span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Reply Form -->
+      <% unless @ticket.closed? %>
+        <div class="st-reply-section">
+          <h4 class="st-reply-heading">Reply</h4>
+          <%= form_with url: reply_admin_support_ticket_path(@ticket), local: true, class: "st-reply-form" do |f| %>
+            <div class="st-reply-from">
+              Replying as <strong><%= current_user.display_name %></strong> from matt.stone@futureprooffinancial.co
+            </div>
+            <div class="st-reply-group">
+              <textarea name="support_ticket_message[body_text]" class="st-reply-textarea" rows="6"
+                        placeholder="Type your reply..." required></textarea>
+            </div>
+            <div class="st-reply-group">
+              <label class="st-reply-attach-label">
+                <span class="st-attachment-icon">📎</span> Attach files
+                <input type="file" name="support_ticket_message[attachments][]" multiple class="st-reply-file-input">
+              </label>
+            </div>
+            <div class="st-reply-actions">
+              <button type="submit" class="st-btn st-btn-primary">Send Reply</button>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="st-closed-notice">
+          This ticket was closed on <%= @ticket.closed_at&.strftime("%d %b %Y %H:%M") %>.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

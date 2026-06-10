@@ -78,6 +78,9 @@ GEM
     addressable (2.8.8)
       public_suffix (>= 2.0.2, < 8.0)
     amazing_print (2.0.0)
+    anthropic (1.36.0)
+      cgi
+      connection_pool
     ast (2.4.3)
     async (2.36.0)
       console (~> 1.29)
@@ -104,6 +107,7 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
+    cgi (0.5.1)
     childprocess (5.1.0)
       logger (~> 1.5)
     claude-code-sdk-ruby (0.1.6)
@@ -278,6 +282,8 @@ GEM
       logger (~> 1.6)
     letter_opener (1.10.0)
       launchy (>= 2.2, < 4)
+    lexxy (0.8.2.beta)
+      rails (>= 8.0.2)
     lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.25.0)
@@ -610,6 +616,7 @@ PLATFORMS
 
 DEPENDENCIES
   amazing_print
+  anthropic (~> 1.36)
   bootsnap
   brakeman
   capybara
@@ -626,6 +633,7 @@ DEPENDENCIES
   kamal
   kaminari
   letter_opener
+  lexxy
   omniauth
   omniauth-entra-id
   omniauth-google-oauth2

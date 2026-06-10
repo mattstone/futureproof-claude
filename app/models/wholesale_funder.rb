@@ -6,6 +6,7 @@ class WholesaleFunder < ApplicationRecord
   track_changes :name, :country, :currency
   
   # Associations
+  has_many :agreements, as: :agreeable, dependent: :restrict_with_exception
   has_many :funder_pools, dependent: :destroy
   has_many :wholesale_funder_contracts, dependent: :destroy
   

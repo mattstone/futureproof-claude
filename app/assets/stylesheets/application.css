@@ -26,6 +26,7 @@
 @import url("admin/email_workflows.css");
 @import url("agent_lifecycle.css");
 @import url("demo_webapp.css");
+@import url("akane_chat.css");
 
 /* HTML theme styles - moved from inline to fix CSP */
 html.theme-light {

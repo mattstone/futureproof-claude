@@ -1,0 +1,28 @@
+<section id="customer-service-overview" class="dashboard-overview-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Customer Service</h3>
+    <%= link_to "View customer service →", admin_customer_service_path, class: "dashboard-overview-link" %>
+  </header>
+  <dl class="dashboard-overview-stats">
+    <div>
+      <dt>Open conversations</dt>
+      <dd><%= number_with_delimiter(data[:open_conversations]) %></dd>
+    </div>
+    <div>
+      <dt>Awaiting reply > 24h</dt>
+      <dd><%= data[:awaiting_reply_count] %></dd>
+    </div>
+    <div>
+      <dt>% awaiting (30d)</dt>
+      <dd><%= data[:awaiting_reply_pct] %>%</dd>
+    </div>
+    <div>
+      <dt>Escalations this week</dt>
+      <dd><%= data[:escalations_this_week] %></dd>
+    </div>
+    <div>
+      <dt>Stalled applications</dt>
+      <dd><%= data[:stalled_applications] %></dd>
+    </div>
+  </dl>
+</section>

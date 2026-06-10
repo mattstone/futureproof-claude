@@ -275,6 +275,26 @@
         </div>
       </div>
     </div>
+
+    <% if @faqs.present? %>
+      <!-- FAQs Section -->
+      <section class="gs-faq-section" id="faqs" data-controller="faq-accordion">
+        <h2 class="gs-faq-title">Frequently Asked Questions</h2>
+        <div class="gs-faq-list">
+          <% @faqs.each do |faq| %>
+            <div class="gs-faq-item" data-faq-accordion-target="item">
+              <button type="button" class="gs-faq-question" data-action="faq-accordion#toggle">
+                <span><%= faq.question %></span>
+                <span class="gs-faq-icon" aria-hidden="true"></span>
+              </button>
+              <div class="gs-faq-body">
+                <div class="gs-faq-answer"><%= simple_format(faq.answer) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
   </main>
 
   <!-- Help Modal -->
@@ -404,7 +424,8 @@
           <div class="gs-footer-menu">
             <%= link_to "Terms of Use", terms_of_use_path, class: "gs-footer-link" %>
             <%= link_to "Contact Us", "mailto:info@futureprooffinancial.co", class: "gs-footer-link" %>
-            <span class="gs-footer-link gs-footer-link-disabled">FAQs - Coming Soon</span>
+            <%= link_to "FAQs", "#faqs", class: "gs-footer-link" %>
+            <%= link_to "Tax Discussion", tax_discussion_path, class: "gs-footer-link" %>
           </div>
         </div>
       </div>

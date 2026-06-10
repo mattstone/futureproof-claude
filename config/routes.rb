@@ -22,16 +22,35 @@ Rails.application.routes.draw do
     
     # Dashboard
     get 'dashboard', to: 'dashboard#index'
-    get 'dashboard/webhooks', to: 'dashboard#webhooks'
-    post 'dashboard/retry_webhook/:id', to: 'dashboard#retry_webhook', as: 'retry_webhook'
-    patch 'dashboard/toggle_webhook/:id', to: 'dashboard#toggle_webhook', as: 'toggle_webhook'
-    get 'dashboard/applications', to: 'dashboard#applications'
-    get 'dashboard/payments', to: 'dashboard#payments'
     
-    # Operations Summary
-    get 'operations_summary', to: 'operations_summary#index'
+    # Customer service operational view
+    get 'customer_service', to: 'customer_service#index'
+
+    # Audit log (read-only)
+    resources :audit_logs, only: [:index, :show]
+
+    # AI conversations (read-only)
+    resources :chat_conversations, only: [:index, :show]
+
+    # Vintage cohort report
+    resources :cohorts, only: [:index]
+
+    # Support Tickets
+    resources :support_tickets, only: [:index, :show, :update] do
+      member do
+        post :reply
+        patch :close
+      end
+      collection do
+        post :poll_emails
+      end
+    end
+
     
     resources :lenders do
+      collection do
+        get :scorecard
+      end
       member do
         get :available_wholesale_funders
       end
@@ -66,6 +85,9 @@ Rails.application.routes.draw do
     end
     
     resources :brokers do
+      collection do
+        get :scorecard
+      end
       member do
         patch :toggle_active
         post :assign_lender
@@ -84,7 +106,6 @@ Rails.application.routes.draw do
     
     # Direct access to all funder pools
     resources :funder_pools, only: [:index]
-    get 'business', to: 'old_dashboard#business'
     resources :users
     resources :mortgages do
       resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do
@@ -284,6 +305,7 @@ Rails.application.routes.draw do
         patch :approve
         patch :activate
         patch :archive
+        patch :restore
       end
       collection do
         get :compliance_dashboard
@@ -294,8 +316,24 @@ Rails.application.routes.draw do
       end
     end
 
-    get 'old', to: 'old_dashboard#index', as: 'old_dashboard'
-    root "admin_dashboard_v2#dashboard_v2"
+    # FAQs Management
+    resources :faqs, except: [:show] do
+      collection do
+        post :reorder
+      end
+    end
+
+    # Agreements (party onboarding contracts)
+    resources :agreements do
+      member do
+        patch :send_for_signing
+        get :sign
+        post :record_signature
+        patch :cancel
+      end
+    end
+
+    root "dashboard#index"
   end
 
   # API routes
@@ -313,11 +351,6 @@ Rails.application.routes.draw do
     get 'quotes/regional', to: 'quotes#regional'
     get 'regions', to: 'quotes#regions'
 
-    # AI Chat API
-    post 'chat', to: 'chat#create'
-    post 'chat/guest', to: 'chat#guest_message'
-    get 'chat/conversations', to: 'chat#conversations'
-    get 'chat/conversations/:id/messages', to: 'chat#messages'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -336,6 +369,7 @@ Rails.application.routes.draw do
     get "terms-and-conditions", to: "pages#terms_and_conditions", as: :regional_terms_and_conditions
     get "apply", to: "pages#apply", as: :regional_apply
     get "get-started", to: "pages#get_started", as: :regional_get_started
+    get "tax-discussion", to: "pages#tax_discussion", as: :regional_tax_discussion
     get "/", to: "pages#get_started", as: :regional_root
 
     # Customer Support (24/7 AI chat)
@@ -395,11 +429,17 @@ Rails.application.routes.draw do
   get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
   get "terms-and-conditions", to: "pages#terms_and_conditions", as: :terms_and_conditions
   
+  # Akane AI chat support (non-regional, defaults to US)
+  post 'support/send_message', to: 'support#send_message'
+
   # Apply page
   get "apply", to: "pages#apply"
 
   # React webapp replica (get started flow with inline registration)
   get "get-started", to: "pages#get_started", as: :get_started
+
+  # Tax Discussion PDF
+  get "tax-discussion", to: "pages#tax_discussion", as: :tax_discussion
 
   # Hero design previews
   get "hero-option-1", to: "pages#hero_option_1"
@@ -412,11 +452,7 @@ Rails.application.routes.draw do
   
   # Games (authenticated users only)
   get "arcade", to: "games#arcade"
-  get "honky-pong", to: "games#honky_pong"
   get "lace-invaders", to: "games#lace_invaders"
-  get "hackman", to: "games#hackman"
-  get "defendher", to: "games#defendher"
-  get "hemorrhoids", to: "games#hemorrhoids", as: :hemorrhoids
   
 
   # Application routes

@@ -2,7 +2,7 @@
   <div class="breadcrumb">
     <%= link_to 'Legal Documents', admin_legal_documents_path %><span>›</span> New
   </div>
-  <h1>Create New Legal Document</h1>
+<% content_for :page_title, "New Legal Document" %>
   <p>Create from scratch or use a template.</p>
   <%= render 'form', legal_document: @legal_document %>
 </div>

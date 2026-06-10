@@ -1,4 +1,7 @@
 class LegalDocument < ApplicationRecord
+  # Rich text content (ActionText + Lexxy editor)
+  has_rich_text :rich_content
+
   # Relationships
   has_many :legal_document_versions, dependent: :destroy
   has_many :legal_document_acceptances, dependent: :destroy
@@ -19,6 +22,7 @@ class LegalDocument < ApplicationRecord
   # Document types
   DOCUMENT_TYPES = {
     privacy_policy: "Privacy Policy",
+    terms_of_use: "Terms of Use",
     terms_conditions: "Terms & Conditions",
     customer_contract: "Customer Mortgage Contract",
     lender_contract: "Lender Agreement",
@@ -38,7 +42,7 @@ class LegalDocument < ApplicationRecord
   validates :jurisdiction, presence: true, inclusion: { in: JURISDICTIONS }
   validates :party_type, presence: true, inclusion: { in: PARTY_TYPES }
   validates :title, presence: true
-  validates :content, presence: true
+  validate :content_or_rich_content_present
   validates :version, presence: true
   validates :effective_from, presence: true
   validates :status, presence: true
@@ -202,9 +206,15 @@ class LegalDocument < ApplicationRecord
     DOCUMENT_TYPES[document_type.to_sym] || document_type.humanize
   end
 
-  # Markdown to HTML rendering
+  # Returns rendered HTML content (rich_content preferred, falls back to plain text)
   def rendered_content
-    MarkdownRenderer.render(content)
+    if rich_content.body.present?
+      rich_content.body.to_s
+    elsif content.present?
+      content
+    else
+      ""
+    end
   end
 
   # Version comparison
@@ -248,6 +258,12 @@ class LegalDocument < ApplicationRecord
   end
 
   private
+
+  def content_or_rich_content_present
+    if content.blank? && !rich_content.body.present?
+      errors.add(:base, "Content is required (use the rich text editor or provide plain text)")
+    end
+  end
 
   def validate_jurisdiction_specific
     # Could add jurisdiction-specific validation here

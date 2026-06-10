@@ -71,7 +71,7 @@ class ContractChangeTrackingTest < ActiveSupport::TestCase
     @contract.current_admin_user = @admin
     
     assert_difference '@contract.contract_versions.count', 1 do
-      @contract.update!(status: :in_arrears)
+      @contract.update!(status: :investment_at_risk)
     end
     
     update_version = @contract.contract_versions.last
@@ -79,7 +79,7 @@ class ContractChangeTrackingTest < ActiveSupport::TestCase
     assert_equal @admin, update_version.admin_user
     assert_includes update_version.change_details, 'Changed status'
     assert_equal @contract.status_before_last_save, update_version.previous_status
-    assert_equal 'in_arrears', update_version.new_status
+    assert_equal 'investment_at_risk', update_version.new_status
   end
 
   test "should not log update when no changes made" do
@@ -225,7 +225,7 @@ class ContractChangeTrackingTest < ActiveSupport::TestCase
   test "should prioritize status_changed action for status-only updates" do
     @contract.current_admin_user = @admin
     
-    @contract.update!(status: :in_arrears)
+    @contract.update!(status: :investment_at_risk)
     
     update_version = @contract.contract_versions.last
     assert_equal 'status_changed', update_version.action

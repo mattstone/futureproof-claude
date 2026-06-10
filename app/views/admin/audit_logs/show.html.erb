@@ -1,0 +1,47 @@
+<% content_for :page_title, "Audit log entry ##{@log.id}" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Audit log entry ##{@log.id}</h2>
+  <%= link_to "← Back to audit log", admin_audit_logs_path, class: "fp-btn fp-btn-outline" %>
+</div>
+
+<div class="fp-card">
+  <table class="admin-table">
+    <tbody>
+      <tr><th>When</th><td><%= @log.created_at.strftime('%Y-%m-%d %H:%M:%S %Z') %></td></tr>
+      <tr><th>User</th><td><%= @log.user&.email %> (ID <%= @log.user_id %>)</td></tr>
+      <tr><th>Action</th><td><span class="status-badge"><%= @log.action %></span></td></tr>
+      <tr><th>Resource</th><td><%= @log.resource_type %><% if @log.resource_id %> #<%= @log.resource_id %><% end %></td></tr>
+      <tr><th>Region</th><td><%= @log.region || "-" %></td></tr>
+      <tr><th>IP address</th><td><%= @log.ip_address || "-" %></td></tr>
+      <tr><th>Reason</th><td><%= @log.reason || "-" %></td></tr>
+      <tr><th>Notes</th><td><%= @log.notes || "-" %></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<% if @parsed_changes.any? %>
+  <div class="admin-section-header">
+    <h3 class="section-subtitle">Changes</h3>
+  </div>
+  <div class="fp-card">
+    <table class="admin-table">
+      <thead>
+        <tr><th>Field</th><th>Before</th><th>After</th></tr>
+      </thead>
+      <tbody>
+        <% @parsed_changes.each do |field, change| %>
+          <tr>
+            <td><strong><%= field %></strong></td>
+            <% if change.is_a?(Array) && change.size == 2 %>
+              <td><%= change[0].inspect %></td>
+              <td><%= change[1].inspect %></td>
+            <% else %>
+              <td colspan="2"><%= change.inspect %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

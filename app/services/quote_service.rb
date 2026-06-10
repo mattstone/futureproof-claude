@@ -1,23 +1,32 @@
+require "bigdecimal"
+require "bigdecimal/util"
+
 # QuoteService - Customer Quote Calculator
 #
 # Supports two models:
-#   - :tom (original model from React webapp)
-#   - :pavel (new model from Pavel v5 Excel spreadsheet)
+#   - :pavel (DEFAULT — v14d Optimised, Monte Carlo validated)
+#   - :tom   (legacy lookup table from the original React webapp demo;
+#             kept for comparison only, not validated)
+#
+# Every quote carries :product_version and :issued_at so a persisted quote
+# is reproducible against the exact model that priced it.
 #
 # Usage:
 #   QuoteService.quote(home_value: 1_500_000, term: 10)                    # Uses default model
-#   QuoteService.quote(home_value: 1_500_000, term: 10, model: :tom)       # Tom's model
-#   QuoteService.quote(home_value: 1_500_000, term: 10, model: :pavel)     # Pavel's model
+#   QuoteService.quote(home_value: 1_500_000, term: 10, model: :tom)       # Legacy model
 #
 class QuoteService
-  # Default model - change this to switch the entire application
-  DEFAULT_MODEL = :tom
+  # Default model - the validated production model
+  DEFAULT_MODEL = :pavel
 
   # Supported annuity terms (years)
-  SUPPORTED_TERMS = [10, 15, 20, 25, 30].freeze
+  SUPPORTED_TERMS = [ 10, 15, 20, 25, 30 ].freeze
 
-  # Property value constraints
-  MIN_PROPERTY_VALUE = 800_000
+  # Global property value envelope. Region-specific bounds (config/regions.yml)
+  # are enforced by CalculationEngine and the Application model; this is the
+  # widest envelope any region allows. Out-of-bounds inputs are rejected,
+  # never clamped.
+  MIN_PROPERTY_VALUE = 300_000
   MAX_PROPERTY_VALUE = 10_000_000
   BASE_PROPERTY_VALUE = 1_500_000
 
@@ -26,17 +35,17 @@ class QuoteService
       validate_inputs!(home_value, term, model)
 
       case model.to_sym
-      when :tom
-        TomModel.calculate(home_value: home_value, term: term)
       when :pavel
         PavelModel.calculate(home_value: home_value, term: term)
+      when :tom
+        TomModel.calculate(home_value: home_value, term: term)
       else
-        raise ArgumentError, "Unknown model: #{model}. Supported: :tom, :pavel"
+        raise ArgumentError, "Unknown model: #{model}. Supported: :pavel, :tom"
       end
     end
 
     def available_models
-      [:tom, :pavel]
+      [ :pavel, :tom ]
     end
 
     def model_info(model)
@@ -55,6 +64,10 @@ class QuoteService
         raise ArgumentError, "home_value must be a positive number"
       end
 
+      if home_value < MIN_PROPERTY_VALUE || home_value > MAX_PROPERTY_VALUE
+        raise ArgumentError, "home_value must be between #{MIN_PROPERTY_VALUE} and #{MAX_PROPERTY_VALUE}"
+      end
+
       unless SUPPORTED_TERMS.include?(term)
         raise ArgumentError, "term must be one of: #{SUPPORTED_TERMS.join(', ')}"
       end
@@ -66,10 +79,76 @@ class QuoteService
   end
 
   # =============================================================================
-  # TOM'S MODEL (Original - from React webapp)
+  # PAVEL'S MODEL — v14d Optimised (current production)
   # =============================================================================
-  # Based on total income lookup table for $1.5M base property
-  # Higher monthly payments, more aggressive assumptions
+  # All parameters sourced from EpmModelConfig (single source of truth)
+  # Source: FutureProofCalculator_Pavel_v14d (Optimised Paramters).xlsm
+  # Validated: 50,000-path Monte Carlo simulation (xlsm-verified)
+  #
+  module PavelModel
+    class << self
+      def calculate(home_value:, term:)
+        rate = EpmModelConfig.annuity_rate(term: term).to_d
+        lvr = EpmModelConfig.params[:max_ltv]
+        hv = home_value.to_d
+
+        # Money math in BigDecimal; round once at the edge.
+        annual_income = (hv * rate).round(0).to_i
+        monthly_income = (hv * rate / 12).round(0).to_i
+        total_income = (hv * rate * term).round(0).to_i
+
+        {
+          model: :pavel,
+          model_name: "Pavel's Model v14d Optimised",
+          product_version: EpmModelConfig.model_version,
+          issued_at: Time.current,
+          home_value: home_value,
+          term_years: term,
+          term_validated: EpmModelConfig.validated_term?(term),
+          lvr: lvr,
+          max_loan: (hv * lvr.to_d).round(0).to_i,
+          monthly_income: monthly_income,
+          annual_income: annual_income,
+          total_income: total_income,
+          annuity_rate: rate.to_f
+        }
+      end
+
+      def info
+        config = EpmModelConfig.model_info
+        metrics = EpmModelConfig.risk_metrics
+
+        {
+          name: config[:name],
+          description: "Monte Carlo validated model (v14d Optimised). P&I + index-linked ETF with asymmetric hedging collar (+40%/-20%).",
+          source: config[:source],
+          version: config[:version],
+          assumptions: {
+            base_property_value: QuoteService::BASE_PROPERTY_VALUE,
+            lvr: EpmModelConfig.params[:max_ltv],
+            loan_type: "Principal+Interest",
+            equity_return: "#{(EpmModelConfig.params[:equity_mean] * 100).round(1)}% mean, #{(EpmModelConfig.params[:equity_vol] * 100).round(1)}% vol (GBM + stochastic drift + mean reversion)",
+            cash_rate: "#{(EpmModelConfig.params[:cash_rate_initial] * 100).round(2)}% initial, mean-reverting",
+            monte_carlo_paths: 50_000
+          },
+          risk_metrics: {
+            prob_deficit_year15: "#{metrics[:pod_yr15].round(0)}%",
+            prob_deficit_year30: "#{metrics[:pod_yr30]}%",
+            mean_surplus_year30: "$#{metrics[:mean_surplus_yr30].to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+          },
+          annuity_rates: config[:annuity_rates],
+          validated_terms: config[:validated_terms],
+          model_params: EpmModelConfig.params
+        }
+      end
+    end
+  end
+
+  # =============================================================================
+  # TOM'S MODEL (Legacy - from React webapp demo)
+  # =============================================================================
+  # Frozen lookup table for a $1.5M base property. NOT Monte Carlo validated.
+  # Kept for comparison via the API only; never the default.
   #
   module TomModel
     # Total income over the term for a $1.5M property
@@ -86,32 +165,36 @@ class QuoteService
 
     class << self
       def calculate(home_value:, term:)
-        lookup = TOTAL_INCOME_LOOKUP[term]
-        multiplier = home_value.to_f / QuoteService::BASE_PROPERTY_VALUE
+        lookup = TOTAL_INCOME_LOOKUP[term].to_d
+        multiplier = home_value.to_d / QuoteService::BASE_PROPERTY_VALUE
 
-        total_income = (lookup * multiplier).round(0)
-        annual_income = (total_income.to_f / term).round(0)
-        monthly_income = (annual_income.to_f / 12).round(0)
+        total_income = (lookup * multiplier).round(0).to_i
+        annual_income = (total_income.to_d / term).round(0).to_i
+        monthly_income = (annual_income.to_d / 12).round(0).to_i
 
         {
           model: :tom,
-          model_name: "Tom's Model",
+          model_name: "Tom's Model (legacy)",
+          product_version: "legacy-tom",
+          issued_at: Time.current,
           home_value: home_value,
           term_years: term,
+          term_validated: false,
           lvr: DEFAULT_LVR,
-          max_loan: (home_value * DEFAULT_LVR).round(0),
+          max_loan: (home_value.to_d * DEFAULT_LVR.to_d).round(0).to_i,
           monthly_income: monthly_income,
           annual_income: annual_income,
           total_income: total_income,
-          annuity_rate: (annual_income.to_f / home_value).round(4)
+          annuity_rate: (annual_income.to_d / home_value.to_d).round(4).to_f
         }
       end
 
       def info
         {
-          name: "Tom's Model",
-          description: "Original model from React webapp. Uses total income lookup table.",
+          name: "Tom's Model (legacy)",
+          description: "Legacy model from the React webapp demo. Uses a frozen total income lookup table. Not Monte Carlo validated — comparison only.",
           source: "React webapp calculator",
+          version: "legacy-tom",
           assumptions: {
             base_property_value: QuoteService::BASE_PROPERTY_VALUE,
             lvr: DEFAULT_LVR,
@@ -121,106 +204,6 @@ class QuoteService
             annual = total.to_f / TOTAL_INCOME_LOOKUP.key(total)
             (annual / QuoteService::BASE_PROPERTY_VALUE * 100).round(2)
           end.transform_keys { |k| "#{k}yr" }
-        }
-      end
-    end
-  end
-
-  # =============================================================================
-  # PAVEL'S MODEL (New - from Pavel v5 Excel spreadsheet)
-  # =============================================================================
-  # Based on annuity as percentage of home value
-  # More conservative assumptions, validated by Monte Carlo
-  #
-  # Excel source: data/Copy of FutureProofCalculator_Pavel_v5.xlsm
-  #
-  module PavelModel
-    # Annuity rate as percentage of home value (annual)
-    # These rates result in ~11% probability of deficit at Year 30
-    # with 80% LVR, 10% equity return, 10% volatility
-    ANNUITY_RATES = {
-      10 => 0.015,    # 1.5% - base case from Excel
-      15 => 0.0137,   # Interpolated
-      20 => 0.0125,   # Interpolated
-      25 => 0.0115,   # Interpolated
-      30 => 0.0105    # Interpolated
-    }.freeze
-
-    DEFAULT_LVR = 0.80
-
-    # Pavel v5 model parameters (for reference/documentation)
-    MODEL_PARAMS = {
-      # Interest rate model (Vasicek/Ornstein-Uhlenbeck)
-      cash_rate_initial: 0.044,
-      cash_rate_mean_rev_level: 0.044,
-      cash_rate_mean_rev_speed: 0.8,
-      cash_rate_vol: 0.015,
-
-      # Cost structure
-      wholesale_margin: 0.02,
-      retail_margin: 0.0075,
-      hedging_cost: 0.0036,
-      fp_margin: 0.0025,
-      total_spread: 0.0336,
-
-      # Investment return model (GBM)
-      equity_return_mean: 0.10,
-      equity_return_vol: 0.10,
-      equity_cap: 1.4,
-      equity_floor: 0.8,
-
-      # Interest holiday thresholds
-      holiday_threshold_entry: 0.9,
-      holiday_threshold_exit: 1.458,
-      holiday_threshold_repay: 1.5,
-
-      # Insurance
-      lmi_upfront: 0.02
-    }.freeze
-
-    class << self
-      def calculate(home_value:, term:)
-        rate = ANNUITY_RATES[term]
-
-        annual_income = (home_value * rate).round(0)
-        monthly_income = (annual_income.to_f / 12).round(0)
-        total_income = (annual_income * term).round(0)
-
-        {
-          model: :pavel,
-          model_name: "Pavel's Model",
-          home_value: home_value,
-          term_years: term,
-          lvr: DEFAULT_LVR,
-          max_loan: (home_value * DEFAULT_LVR).round(0),
-          monthly_income: monthly_income,
-          annual_income: annual_income,
-          total_income: total_income,
-          annuity_rate: rate
-        }
-      end
-
-      def info
-        {
-          name: "Pavel's Model",
-          description: "Monte Carlo validated model from Pavel v5 Excel spreadsheet. More conservative assumptions.",
-          source: "data/Copy of FutureProofCalculator_Pavel_v5.xlsm",
-          assumptions: {
-            base_property_value: QuoteService::BASE_PROPERTY_VALUE,
-            lvr: DEFAULT_LVR,
-            loan_type: "Principal+Interest",
-            equity_return: "10% mean, 10% vol (GBM)",
-            cash_rate: "4.4% initial, mean-reverting",
-            monte_carlo_paths: 20_000
-          },
-          risk_metrics: {
-            prob_deficit_year1: "58%",
-            prob_deficit_year30: "11%",
-            mean_surplus_year30: "$4.6M"
-          },
-          annuity_rates: ANNUITY_RATES.transform_values { |v| "#{(v * 100).round(2)}%" }
-                                      .transform_keys { |k| "#{k}yr" },
-          model_params: MODEL_PARAMS
         }
       end
     end

@@ -401,11 +401,12 @@ class CalculationEngine
   end
 
   def insurance_details
+    lmi_rate = EpmModelConfig.params[:lmi_upfront_pct]
     {
       covered: true,
       type: "Pool Coverage / Lenders Mortgage Insurance",
-      lmi_upfront_rate: 0.02,
-      lmi_amount: (home_value * region_config["max_ltv"].to_f * 0.02).round(0),
+      lmi_upfront_rate: lmi_rate,
+      lmi_amount: (home_value * region_config["max_ltv"].to_f * lmi_rate).round(0),
       description: "Insurance covers any shortfall between investment returns and required payments. Your income is guaranteed regardless of market performance."
     }
   end

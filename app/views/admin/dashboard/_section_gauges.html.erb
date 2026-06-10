@@ -1,0 +1,25 @@
+<section id="gauges" class="dashboard-section">
+  <div class="dashboard-section-header">
+    <h2 class="section-title">Business Health</h2>
+    <p class="admin-section-subtitle">Real-time indicators across the four core operating dimensions.</p>
+  </div>
+
+  <div class="dashboard-gauges">
+    <% gauges.each do |gauge| %>
+      <div class="dashboard-gauge">
+        <div data-controller="radial-gauge"
+             data-radial-gauge-value-value="<%= gauge[:value] %>"
+             data-radial-gauge-max-value="<%= gauge[:max] %>"
+             data-radial-gauge-unit-value="<%= gauge[:unit] %>"
+             data-radial-gauge-label-value="<%= gauge[:label] %>"
+             data-radial-gauge-detail-value="<%= gauge[:detail] %>"
+             data-radial-gauge-higher-is-better-value="<%= gauge[:higher_is_better] %>"
+             data-radial-gauge-warning-at-value="<%= gauge[:warning_at] %>"
+             data-radial-gauge-critical-at-value="<%= gauge[:critical_at] %>">
+        </div>
+        <div class="dashboard-gauge-label"><%= gauge[:label] %></div>
+        <div class="dashboard-gauge-detail"><%= gauge[:detail] %></div>
+      </div>
+    <% end %>
+  </div>
+</section>

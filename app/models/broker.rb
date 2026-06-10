@@ -4,6 +4,7 @@ class Broker < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  has_many :agreements, as: :agreeable, dependent: :restrict_with_exception
   has_many :broker_lenders, dependent: :destroy
   has_many :lenders, through: :broker_lenders
   has_many :applications, dependent: :nullify

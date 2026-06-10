@@ -2,66 +2,72 @@
 
 mortgage_application:
   user: regular_user
-  address: 123 Main Street, Portland, OR 97201
+  address: 123 Main Street, Sydney, NSW 2000
   home_value: 500000
   status: property_details
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 65
+  region: AU
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.week.ago %>
 
 second_application:
   user: admin_user
-  address: 456 Oak Avenue, Seattle, WA 98101
+  address: 456 Oak Avenue, Melbourne, VIC 3000
   home_value: 750000
   status: property_details
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 70
+  region: AU
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.week.ago %>
 
 submitted_application:
   user: regular_user
-  address: 789 Elm Street, San Francisco, CA 94102
+  address: 789 Elm Street, Brisbane, QLD 4000
   home_value: 1200000
   status: submitted
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 68
+  region: AU
   created_at: <%= 2.months.ago %>
   updated_at: <%= 1.week.ago %>
 
 processing_application:
   user: regular_user
-  address: 321 Processing Lane, Denver, CO 80202
+  address: 321 Processing Lane, Perth, WA 6000
   home_value: 650000
   status: processing
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 62
+  region: AU
   created_at: <%= 1.month.ago %>
   updated_at: <%= 2.days.ago %>
 
 completed_application:
   user: regular_user
-  address: 654 Completed Drive, Austin, TX 78701
+  address: 654 Completed Drive, Adelaide, SA 5000
   home_value: 850000
   status: processing
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 59
+  region: AU
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.day.ago %>
 
 accepted_application:
   user: regular_user
-  address: 987 Accepted Boulevard, Miami, FL 33101
+  address: 987 Accepted Boulevard, Gold Coast, QLD 4217
   home_value: 950000
   status: accepted
   ownership_status: individual
   property_state: primary_residence
   borrower_age: 64
+  region: AU
   created_at: <%= 2.months.ago %>
   updated_at: <%= 1.day.ago %>

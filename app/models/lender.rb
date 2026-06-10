@@ -8,6 +8,7 @@ class Lender < ApplicationRecord
   enum :lender_type, { futureproof: 0, lender: 1 }, prefix: true
   
   # Associations
+  has_many :agreements, as: :agreeable, dependent: :restrict_with_exception
   has_many :users, dependent: :restrict_with_exception
   
   # Mortgage relationships (many-to-many)
@@ -57,6 +58,18 @@ class Lender < ApplicationRecord
   validates :lender_type, presence: true
   validates :contact_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :country, presence: true, inclusion: { in: VALID_COUNTRY_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
+
+  before_validation :normalize_country
+
+  def normalize_country
+    if country.blank?
+      self.country = "AU"
+    else
+      # Normalize full names to ISO codes
+      mapping = { "Australia" => "AU", "United States" => "US", "New Zealand" => "NZ", "United Kingdom" => "UK" }
+      self.country = mapping[country] || country.upcase
+    end
+  end
   
   # Ensure only one futureproof lender can exist
   validate :only_one_futureproof_lender, if: :lender_type_futureproof?

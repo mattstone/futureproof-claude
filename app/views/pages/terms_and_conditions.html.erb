@@ -2,7 +2,18 @@
 
 <div class="legal-page">
   <div class="legal-container">
-    <% if @terms_and_conditions %>
+    <% if @legal_document %>
+      <h1><%= @legal_document.title %></h1>
+      <p class="last-updated">Last updated: <%= @legal_document.updated_at.strftime("%B %d, %Y") %></p>
+
+      <div class="legal-content">
+        <% if @legal_document.rich_content.body.present? %>
+          <%= @legal_document.rich_content %>
+        <% else %>
+          <%= raw @legal_document.content %>
+        <% end %>
+      </div>
+    <% elsif @terms_and_conditions %>
       <h1><%= @terms_and_conditions.title %></h1>
       <p class="last-updated">Last updated: <%= @terms_and_conditions.formatted_last_updated %></p>
 
@@ -22,7 +33,7 @@
     <% end %>
 
     <div class="legal-footer">
-      <%= link_to "← Back to Home", root_path, class: "back-link" %>
+      <%= link_to "Back to Home", root_path, class: "back-link" %>
     </div>
   </div>
 </div>

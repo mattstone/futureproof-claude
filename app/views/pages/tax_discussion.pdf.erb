@@ -1,0 +1,60 @@
+<style>
+  body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; font-size: 11pt; }
+  h1 { color: #1a1a2e; font-size: 22pt; margin-bottom: 4px; }
+  h2 { color: #1a1a2e; font-size: 14pt; margin-top: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+  h3 { color: #334155; font-size: 12pt; margin-top: 16px; margin-bottom: 4px; }
+  p { margin: 6px 0 12px 0; }
+  .subtitle { color: #64748b; font-size: 13pt; margin-bottom: 20px; }
+  .logo-text { color: #1799E8; font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th, td { padding: 8px 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 10pt; }
+  th { background: #f8f9fa; font-weight: 600; width: 200px; color: #475569; }
+  .disclaimer { font-size: 9pt; color: #64748b; margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+  .footer { text-align: center; font-size: 8pt; color: #94a3b8; margin-top: 36px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+</style>
+
+<div class="logo-text">Futureproof Financial</div>
+<h1>Tax Discussion</h1>
+<p class="subtitle"><%= @region_config[:country] %> — Equity Preservation Mortgage</p>
+
+<h2>Regulatory Environment</h2>
+<table>
+  <tr><th>Regulator</th><td><%= @region_config[:regulator] %></td></tr>
+  <tr><th>Tax Authority</th><td><%= @region_config[:tax_authority] %></td></tr>
+  <tr><th>Currency</th><td><%= @region_config[:currency] %></td></tr>
+</table>
+
+<h2>Tax Overview</h2>
+<table>
+  <tr><th>Income Tax</th><td><%= @region_config[:income_tax] %></td></tr>
+  <tr><th>Capital Gains</th><td><%= @region_config[:capital_gains] %></td></tr>
+  <tr><th><%= @region_config[:gst_vat].split("(").first.strip %></th><td><%= @region_config[:gst_vat] %></td></tr>
+  <tr><th>Stamp Duty / Transfer Tax</th><td><%= @region_config[:stamp_duty] %></td></tr>
+  <tr><th>Reporting Obligations</th><td><%= @region_config[:reporting] %></td></tr>
+</table>
+
+<h2>Stakeholder Tax Treatment</h2>
+
+<h3>Homeowner</h3>
+<p>The EPM annuity income received by the homeowner is structured as mortgage proceeds, not income. In <%= @region_config[:country] %>, mortgage drawdowns are generally not considered assessable income. The homeowner's property remains in their name and any capital appreciation accrues to their estate. Interest deductibility depends on the use of funds and local tax rules.</p>
+
+<h3>Lender</h3>
+<p>The lender earns interest income on the mortgage, which is assessable income under <%= @region_config[:country] %> tax law. The lender must comply with reporting obligations to <%= @region_config[:tax_authority] %>. Provisioning for credit losses follows applicable accounting standards (IFRS 9 / local GAAP).</p>
+
+<h3>Wholesale Funder</h3>
+<p>Wholesale funders providing capital to the lender earn returns through the funding margin. Income is assessable in their jurisdiction of incorporation. Withholding tax may apply to cross-border interest payments. Transfer pricing rules apply to related-party funding arrangements.</p>
+
+<h3>Investment Provider</h3>
+<p>The investment provider manages the pooled investment portfolio (approximately 70%% S&P 500 ETFs, 30%% fixed income). Investment returns (dividends, interest, capital gains) are subject to fund-level taxation per <%= @region_config[:country] %> rules. Distribution to the EPM structure follows the payments waterfall. Franking credits (AU), imputation credits (NZ), or foreign tax credits may apply.</p>
+
+<h3>Broker / Referral Partner</h3>
+<p>Commission income earned by brokers is assessable income. Brokers must be licensed under <%= @region_config[:regulator] %> requirements. Trail commissions are recognised as income when received. GST/VAT treatment depends on the broker's registration status.</p>
+
+<div class="disclaimer">
+  <strong>Disclaimer:</strong> This document is for general information purposes only and does not constitute tax, legal, or financial advice. Tax treatment depends on individual circumstances and may change. All stakeholders should seek independent professional tax advice specific to their situation. Futureproof Financial Group Limited accepts no liability for any reliance placed on this information.
+</div>
+
+<div class="footer">
+  &copy; <%= Date.current.year %> Futureproof Financial Group Limited | All Rights Reserved<br>
+  "Equity Preservation Mortgage" is a registered trademark of Futureproof Financial Group Limited.
+</div>

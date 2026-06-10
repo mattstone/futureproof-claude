@@ -1,0 +1,27 @@
+faq_au_one:
+  jurisdiction: AU
+  question: "What is an Equity Preservation Mortgage?"
+  answer: "An EPM allows homeowners to access the equity in their property as a guaranteed monthly income stream while retaining full ownership of their home."
+  position: 0
+  published: true
+
+faq_au_two:
+  jurisdiction: AU
+  question: "How much income can I receive?"
+  answer: "The income amount depends on your property value, chosen term (10-30 years), and current interest rates. Use our calculator for an estimate."
+  position: 1
+  published: true
+
+faq_au_draft:
+  jurisdiction: AU
+  question: "Is my home at risk?"
+  answer: "No. You retain full ownership of your home throughout the EPM term."
+  position: 2
+  published: false
+
+faq_us_one:
+  jurisdiction: US
+  question: "What is an Equity Preservation Mortgage?"
+  answer: "An EPM is an innovative financial product that allows homeowners to unlock their home equity as guaranteed monthly income without selling their property."
+  position: 0
+  published: true

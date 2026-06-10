@@ -162,34 +162,37 @@ class MortgageCalculatorAdvancedService
   end
 
   def set_default_values
-    # Match Python defaults exactly
-    @params[:house_value] = @params[:house_value].present? ? @params[:house_value].to_f : 1500000.0
-    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration].to_i : 30
-    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration].to_i : 15
+    # All defaults sourced from EpmModelConfig (single source of truth)
+    ep = EpmModelConfig.params
+    mc = EpmModelConfig.mc_defaults
+
+    @params[:house_value] = @params[:house_value].present? ? @params[:house_value].to_f : ep[:base_property_value].to_f
+    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration].to_i : ep[:tenure_years]
+    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration].to_i : ep[:annuity_term_years]
     @params[:loan_type] = @params[:loan_type].present? ? @params[:loan_type] : "Interest only"
-    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value].to_f : 0.8
-    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income].to_f : 30000.0
+    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value].to_f : ep[:max_ltv]
+    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income].to_f : ep[:annuity_pa].to_f
     @params[:at_risk_capital_fraction] = @params[:at_risk_capital_fraction].present? ? @params[:at_risk_capital_fraction].to_f : 0.0
     @params[:annual_house_price_appreciation] = @params[:annual_house_price_appreciation].present? ? @params[:annual_house_price_appreciation].to_f : 0.04
     @params[:insurer_profit_margin] = @params[:insurer_profit_margin].present? ? @params[:insurer_profit_margin].to_f : 0.5
-    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin].to_f : 0.02
-    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins].to_f : 0.015
-    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction].to_f : 1.35
-    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction].to_f : 1.95
+    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin].to_f : mc[:wholesale_lending_margin]
+    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins].to_f : mc[:additional_loan_margins]
+    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction].to_f : mc[:holiday_enter_fraction]
+    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction].to_f : mc[:holiday_exit_fraction]
     @params[:subperform_loan_threshold_quarters] = @params[:subperform_loan_threshold_quarters].present? ? @params[:subperform_loan_threshold_quarters].to_i : 6
-    @params[:insurance_cost_pa] = @params[:insurance_cost_pa].present? ? @params[:insurance_cost_pa].to_f : 0.02
+    @params[:insurance_cost_pa] = @params[:insurance_cost_pa].present? ? @params[:insurance_cost_pa].to_f : ep[:lmi_upfront_pct]
     @params[:start_year] = @params[:start_year].present? ? @params[:start_year].to_i : 2000
     @params[:hedged] = @params[:hedged].present? ? @params[:hedged] : false
-    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss].to_f : 0.1
-    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap].to_f : 0.2
-    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa].to_f : 0.01
-    
+    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss].to_f : mc[:hedging_max_loss]
+    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap].to_f : mc[:hedging_cap]
+    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa].to_f : mc[:hedging_cost_pa]
+
     # Monte Carlo parameters
-    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return].to_f : 0.108
-    @params[:volatility] = @params[:volatility].present? ? @params[:volatility].to_f : 0.15
+    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return].to_f : mc[:equity_return]
+    @params[:volatility] = @params[:volatility].present? ? @params[:volatility].to_f : mc[:volatility]
     @params[:total_paths] = @params[:total_paths].present? ? @params[:total_paths].to_i : 1000
     @params[:random_seed] = @params[:random_seed].present? ? @params[:random_seed].to_i : 42
-    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate].to_f : 0.04
+    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate].to_f : mc[:cash_rate]
     
     # Calculate derived values
     @total_loan = @params[:house_value] * @params[:loan_to_value]

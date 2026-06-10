@@ -10,6 +10,27 @@ module Admin
       @brokers = @brokers.page(params[:page]).per(20)
     end
 
+    def scorecard
+      @scorecards = Broker.includes(:applications, :broker_commissions).order(:name).map do |broker|
+        apps = broker.applications
+        submitted = apps.where(status: %w[submitted processing accepted rejected])
+        accepted = apps.where(status: 'accepted')
+        last_referral = apps.maximum(:created_at)
+
+        {
+          broker: broker,
+          referrals_30d: apps.where('created_at >= ?', 30.days.ago).count,
+          referrals_90d: apps.where('created_at >= ?', 90.days.ago).count,
+          referrals_365d: apps.where('created_at >= ?', 365.days.ago).count,
+          approval_rate: submitted.count.positive? ? (accepted.count.to_f / submitted.count * 100).round(1) : 0,
+          avg_age_at_decision: average_age_at_decision(apps),
+          commission_earned: broker.broker_commissions.where(status: %w[earned paid]).sum(:commission_amount),
+          last_referral_at: last_referral,
+          dormant: last_referral.nil? || last_referral < 90.days.ago
+        }
+      end
+    end
+
     def show
       @lenders = @broker.lenders
       @applications = @broker.applications.order(created_at: :desc).limit(10)
@@ -82,6 +103,14 @@ module Admin
 
     def broker_params
       params.require(:broker).permit(:name, :email, :country, :jurisdiction, :contact_telephone, :contact_telephone_country_code, :password, :password_confirmation)
+    end
+
+    def average_age_at_decision(apps)
+      decided = apps.where(status: %w[accepted rejected]).where.not(created_at: nil, updated_at: nil)
+      return 0 if decided.empty?
+
+      total = decided.sum { |a| (a.updated_at.to_date - a.created_at.to_date).to_i }
+      (total.to_f / decided.count).round(1)
     end
   end
 end

@@ -25,7 +25,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     get borrower_applications_path
     
     assert_response :success
-    assert_select "h1", text: "My EPM Loans"
+    assert_select "h1", text: "My Guaranteed Income Plans"
   end
 
   test "borrower can view application details" do
@@ -89,6 +89,6 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     get borrower_root_path
     
     assert_response :success
-    assert_select "h1", text: "My EPM Loans"
+    assert_select "h1", text: "My Guaranteed Income Plans"
   end
 end
