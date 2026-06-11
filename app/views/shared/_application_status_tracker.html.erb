@@ -1,0 +1,99 @@
+<%# Application Status Tracker - Visual timeline for post-submission flow
+    Expects: application (Application instance) %>
+<%
+  steps = [
+    { key: "submitted", label: "Submitted" },
+    { key: "processing", label: "Under Review" },
+    { key: "accepted", label: "Approved" },
+    { key: "activated", label: "Active" }
+  ]
+
+  status_order = %w[submitted processing accepted activated]
+  current_index = status_order.index(application.status) || 0
+  is_rejected = application.status == "rejected"
+%>
+
+<div class="app-status-tracker">
+  <h2>Application Progress</h2>
+
+  <div class="tracker-timeline">
+    <% steps.each_with_index do |step, index| %>
+      <% if index > 0 %>
+        <div class="tracker-connector <%= 'completed' if current_index > index - 1 %> <%= 'active' if current_index == index - 1 && !is_rejected %>"></div>
+      <% end %>
+
+      <%
+        step_class = if is_rejected && index == current_index
+                       "rejected"
+                     elsif index < current_index
+                       "completed"
+                     elsif index == current_index
+                       "active"
+                     else
+                       ""
+                     end
+      %>
+      <div class="tracker-step <%= step_class %>">
+        <div class="tracker-step-dot">
+          <% if step_class == "completed" %>
+            &#10003;
+          <% elsif step_class == "rejected" %>
+            &#10007;
+          <% else %>
+            <%= index + 1 %>
+          <% end %>
+        </div>
+        <div>
+          <div class="tracker-step-label"><%= step[:label] %></div>
+          <% if step_class == "completed" || step_class == "active" %>
+            <div class="tracker-step-date">
+              <%= application.updated_at.strftime("%b %d") %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="tracker-status-detail">
+    <% case application.status %>
+    <% when "submitted", "processing" %>
+      <div class="tracker-status-icon">&#9998;</div>
+      <div class="tracker-status-text">
+        <h3>Your application is being reviewed</h3>
+        <p>Our team is reviewing your Equity Preservation Mortgage application. We'll assess your property details and verify documentation. You'll be notified when there's an update.</p>
+      </div>
+    <% when "accepted" %>
+      <div class="tracker-status-icon">&#10004;</div>
+      <div class="tracker-status-text">
+        <h3>Your EPM has been approved!</h3>
+        <p>Congratulations! Your Equity Preservation Mortgage has been approved. You can now activate your guaranteed income plan to begin receiving monthly payments.</p>
+      </div>
+    <% when "activated" %>
+      <div class="tracker-status-icon">&#9733;</div>
+      <div class="tracker-status-text">
+        <h3>Your guaranteed income plan is active</h3>
+        <p>Your EPM is active and your income payments are scheduled. Visit your borrower portal to view your payment schedule and documents.</p>
+      </div>
+    <% when "rejected" %>
+      <div class="tracker-status-icon">&#10007;</div>
+      <div class="tracker-status-text">
+        <h3>Application not approved</h3>
+        <p><%= application.rejected_reason.presence || "Unfortunately your application was not approved at this time. Please contact our team for more information." %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if application.status == "accepted" %>
+    <div class="tracker-actions">
+      <% region_slug = application.region&.downcase %>
+      <% if region_slug.present? && region_slug != "us" %>
+        <%= link_to "Activate Guaranteed Income Plan", loan_activation_path(region_slug, application), class: "btn btn-success" %>
+      <% end %>
+    </div>
+  <% elsif application.status == "activated" %>
+    <div class="tracker-actions">
+      <%= link_to "View Income Portal", borrower_application_path(application), class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

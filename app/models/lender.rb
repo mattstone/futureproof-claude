@@ -8,6 +8,7 @@ class Lender < ApplicationRecord
   enum :lender_type, { futureproof: 0, lender: 1 }, prefix: true
   
   # Associations
+  has_many :agreements, as: :agreeable, dependent: :restrict_with_exception
   has_many :users, dependent: :restrict_with_exception
   
   # Mortgage relationships (many-to-many)
@@ -30,6 +31,14 @@ class Lender < ApplicationRecord
   
   # Contract relationships
   has_many :contracts, dependent: :restrict_with_exception
+  
+  # Application relationships (EPM applications)
+  has_many :applications, dependent: :restrict_with_exception
+
+  # Broker relationships
+  has_many :broker_lenders, dependent: :destroy
+  has_many :brokers, through: :broker_lenders
+  has_many :broker_commission_rates, dependent: :destroy
 
   # Lender Clauses relationships
   has_many :lender_clauses, dependent: :destroy
@@ -37,11 +46,30 @@ class Lender < ApplicationRecord
            class_name: 'LenderClause'
   has_many :published_lender_clauses, -> { where(is_draft: false) }, 
            class_name: 'LenderClause'
+
+  # Legal document acceptance (lender agreements, etc.)
+  has_many :legal_document_acceptances, dependent: :destroy
+  has_many :accepted_legal_documents, through: :legal_document_acceptances, source: :legal_document
   
+  # ISO 3166-1 alpha-2 country codes
+  VALID_COUNTRY_CODES = ["AU", "US", "NZ", "UK"].freeze
+
   validates :name, presence: true
   validates :lender_type, presence: true
   validates :contact_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :country, presence: true
+  validates :country, presence: true, inclusion: { in: VALID_COUNTRY_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
+
+  before_validation :normalize_country
+
+  def normalize_country
+    if country.blank?
+      self.country = "AU"
+    else
+      # Normalize full names to ISO codes
+      mapping = { "Australia" => "AU", "United States" => "US", "New Zealand" => "NZ", "United Kingdom" => "UK" }
+      self.country = mapping[country] || country.upcase
+    end
+  end
   
   # Ensure only one futureproof lender can exist
   validate :only_one_futureproof_lender, if: :lender_type_futureproof?
@@ -95,6 +123,28 @@ class Lender < ApplicationRecord
     return "No clause" unless has_clause?
     truncated = custom_clause_content.strip
     truncated.length > 50 ? "#{truncated[0..47]}..." : truncated
+  end
+
+  # Legal document acceptance
+  def accepted?(legal_document)
+    legal_document_acceptances.exists?(legal_document: legal_document)
+  end
+
+  def acceptance_of(legal_document)
+    legal_document_acceptances.find_by(legal_document: legal_document)
+  end
+
+  def accept!(legal_document, acceptance_type = "explicit")
+    legal_document_acceptances.find_or_create_by!(
+      legal_document: legal_document
+    ) do |acceptance|
+      acceptance.accepted_at = Time.current
+      acceptance.acceptance_type = acceptance_type
+    end
+  end
+
+  def jurisdiction
+    country  # Map 'country' to 'jurisdiction' for legal document system
   end
   
   private

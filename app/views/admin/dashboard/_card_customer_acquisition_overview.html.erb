@@ -1,0 +1,48 @@
+<section id="customer-acquisition-overview" class="dashboard-overview-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Customer Acquisition</h3>
+    <%= link_to "View brokers →", scorecard_admin_brokers_path, class: "dashboard-overview-link" %>
+  </header>
+  <dl class="dashboard-overview-stats">
+    <div>
+      <dt>This month</dt>
+      <dd><%= number_with_delimiter(data[:applications_this_month]) %> apps</dd>
+    </div>
+    <div>
+      <dt>Last month</dt>
+      <dd><%= number_with_delimiter(data[:applications_last_month]) %> apps</dd>
+    </div>
+    <div>
+      <dt>Month-over-month</dt>
+      <dd class="dashboard-trend-<%= data[:delta_pct].positive? ? 'up' : data[:delta_pct].negative? ? 'down' : 'flat' %>">
+        <%= data[:delta_pct] >= 0 ? "+#{data[:delta_pct]}" : data[:delta_pct] %>%
+      </dd>
+    </div>
+    <div>
+      <dt>Conversion rate</dt>
+      <dd><%= data[:conversion_rate] %>%</dd>
+    </div>
+  </dl>
+
+  <% if data[:top_brokers].any? %>
+    <div class="dashboard-overview-list">
+      <div class="dashboard-overview-list-label">Top brokers (last 90 days)</div>
+      <ul>
+        <% data[:top_brokers].each do |name, count| %>
+          <li><%= name %> <span class="dashboard-overview-list-value"><%= count %></span></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if data[:regional_split].any? %>
+    <div class="dashboard-overview-list">
+      <div class="dashboard-overview-list-label">By region</div>
+      <ul>
+        <% data[:regional_split].each do |region, count| %>
+          <li><%= region %> <span class="dashboard-overview-list-value"><%= count %></span></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</section>

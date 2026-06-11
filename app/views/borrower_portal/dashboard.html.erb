@@ -1,0 +1,151 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Dashboard", dashboard_path, class: "text-blue-600 hover:underline" %>
+  </div>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2">Borrower Portal</h1>
+    <p class="text-gray-600">Application #<%= @application.id %> - <%= @application.status.humanize %></p>
+  </div>
+
+  <!-- Status Overview Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Equity Investment</p>
+      <p class="text-2xl font-bold text-green-600">
+        <%= number_to_currency(@application.equity_investment_amount || 0) %>
+      </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Equity Percentage</p>
+      <p class="text-2xl font-bold text-blue-600">
+        <%= @application.equity_percentage&.round(2) || 0 %>%
+      </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Total Distributed</p>
+      <p class="text-2xl font-bold text-green-600">
+        <%= number_to_currency(@total_distributions) %>
+      </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Pending Distributions</p>
+      <p class="text-2xl font-bold text-yellow-600">
+        <%= number_to_currency(@pending_distributions) %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <%= link_to borrower_portal_annuity_schedule_path(region: @region, application_id: @application.id), 
+        class: "bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow block" do %>
+      <div class="flex items-center">
+        <div class="bg-blue-100 rounded-lg p-3 mr-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold">Distribution Schedule</h3>
+          <p class="text-gray-600 text-sm">View expected distributions</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to borrower_portal_loan_details_path(region: @region, application_id: @application.id), 
+        class: "bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow block" do %>
+      <div class="flex items-center">
+        <div class="bg-green-100 rounded-lg p-3 mr-4">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold">EPM Details</h3>
+          <p class="text-gray-600 text-sm">Equity investment terms</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to borrower_portal_property_details_path(region: @region, application_id: @application.id), 
+        class: "bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow block" do %>
+      <div class="flex items-center">
+        <div class="bg-purple-100 rounded-lg p-3 mr-4">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold">Property Details</h3>
+          <p class="text-gray-600 text-sm">Property information</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= link_to borrower_portal_documents_path(region: @region, application_id: @application.id), 
+        class: "bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow block" do %>
+      <div class="flex items-center">
+        <div class="bg-red-100 rounded-lg p-3 mr-4">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold">Documents</h3>
+          <p class="text-gray-600 text-sm">Contracts & paperwork</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Recent Distributions -->
+  <% if @distributions.any? %>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-lg font-semibold">Recent Distributions</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="text-left p-4">Date</th>
+              <th class="text-right p-4">Amount</th>
+              <th class="text-left p-4">Status</th>
+              <th class="text-left p-4">Transaction ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @distributions.each do |distribution| %>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-4"><%= distribution.distribution_date&.strftime("%d %b %Y") %></td>
+                <td class="p-4 text-right font-semibold">
+                  <%= number_to_currency(distribution.amount || 0) %>
+                </td>
+                <td class="p-4">
+                  <span class="px-2 py-1 rounded text-xs font-semibold
+                    <%= case distribution.status
+                        when 'completed' then 'bg-green-100 text-green-800'
+                        when 'pending' then 'bg-yellow-100 text-yellow-800'
+                        when 'processing' then 'bg-blue-100 text-blue-800'
+                        when 'failed' then 'bg-red-100 text-red-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>
+                  "><%= distribution.status&.humanize %></span>
+                </td>
+                <td class="p-4 font-mono text-xs">
+                  <%= distribution.transaction_id || "—" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <p class="text-gray-600 text-lg">No distributions recorded yet.</p>
+      <p class="text-gray-500 text-sm mt-2">Distributions will appear here once your equity investment becomes active.</p>
+    </div>
+  <% end %>
+</div>

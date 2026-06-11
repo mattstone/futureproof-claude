@@ -1,0 +1,168 @@
+<div data-controller="akane-chat"
+     data-akane-chat-region-value="<%= params[:region] || 'us' %>"
+     data-akane-chat-page-value="<%= action_name %>"
+     data-akane-chat-open-value="false"
+     class="akane-chat-container">
+
+  <!-- Floating Bubble -->
+  <button class="akane-chat-bubble"
+          data-akane-chat-target="bubble"
+          data-action="click->akane-chat#toggle"
+          aria-label="Chat with the FutureProof assistant"
+          aria-expanded="false"
+          type="button">
+    <span class="akane-orb akane-orb--bubble">
+      <span class="akane-orb-core"></span>
+      <span class="akane-orb-ring akane-orb-ring--1"></span>
+      <span class="akane-orb-ring akane-orb-ring--2"></span>
+      <span class="akane-orb-ring akane-orb-ring--3"></span>
+      <span class="akane-orb-glow"></span>
+    </span>
+    <span class="akane-chat-bubble-pulse"></span>
+  </button>
+
+  <!-- Chat Panel -->
+  <div class="akane-chat-panel"
+       data-akane-chat-target="panel"
+       role="dialog"
+       aria-label="Chat with the FutureProof assistant">
+
+    <!-- Header -->
+    <div class="akane-chat-header">
+      <div class="akane-chat-header-info">
+        <span class="akane-orb akane-orb--header">
+          <span class="akane-orb-core"></span>
+          <span class="akane-orb-ring akane-orb-ring--1"></span>
+          <span class="akane-orb-ring akane-orb-ring--2"></span>
+        </span>
+        <div>
+          <div class="akane-chat-header-name">FutureProof assistant</div>
+          <div class="akane-chat-header-status">
+            <span class="akane-chat-status-dot"></span> Online
+          </div>
+        </div>
+      </div>
+      <button class="akane-chat-clear"
+              data-action="click->akane-chat#clearConversation"
+              aria-label="Clear conversation"
+              title="Clear conversation"
+              type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/>
+        </svg>
+      </button>
+      <button class="akane-chat-close"
+              data-action="click->akane-chat#toggle"
+              aria-label="Close chat"
+              type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Escalation Bar -->
+    <div class="akane-chat-escalation" data-akane-chat-target="escalationBar" hidden>
+      <span>Need human assistance?</span>
+      <button type="button" class="akane-chat-escalation-btn"
+              data-action="click->akane-chat#escalateToHuman">
+        Talk to a human
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="akane-chat-messages"
+         data-akane-chat-target="messages"
+         role="log"
+         aria-live="polite"
+         aria-label="Chat messages">
+
+      <!-- Welcome -->
+      <div class="akane-chat-welcome" data-akane-chat-target="welcome">
+        <span class="akane-orb akane-orb--welcome">
+          <span class="akane-orb-core"></span>
+          <span class="akane-orb-ring akane-orb-ring--1"></span>
+          <span class="akane-orb-ring akane-orb-ring--2"></span>
+          <span class="akane-orb-ring akane-orb-ring--3"></span>
+          <span class="akane-orb-glow"></span>
+        </span>
+        <div class="akane-chat-welcome-title">FutureProof assistant</div>
+        <p class="akane-chat-welcome-subtitle">
+          EPM specialist. Ask me about how the Equity Preservation Mortgage works,
+          eligibility, the application process, or how it compares to other products.
+        </p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="akane-chat-quick-actions" data-akane-chat-target="quickActions">
+        <button type="button" class="akane-chat-chip"
+                data-action="click->akane-chat#sendQuickQuestion"
+                data-question="What is an EPM?">What is an EPM?</button>
+        <button type="button" class="akane-chat-chip"
+                data-action="click->akane-chat#sendQuickQuestion"
+                data-question="How does it work?">How does it work?</button>
+        <button type="button" class="akane-chat-chip"
+                data-action="click->akane-chat#sendQuickQuestion"
+                data-question="Am I eligible?">Am I eligible?</button>
+        <button type="button" class="akane-chat-chip"
+                data-action="click->akane-chat#sendQuickQuestion"
+                data-question="How is EPM different from a reverse mortgage?">EPM vs Reverse Mortgage</button>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="akane-chat-typing" data-akane-chat-target="typingIndicator" hidden>
+      <span class="akane-orb akane-orb--tiny">
+        <span class="akane-orb-core"></span>
+        <span class="akane-orb-ring akane-orb-ring--1"></span>
+      </span>
+      <div class="akane-chat-typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Voice Recording Bar -->
+    <div class="akane-chat-voice-bar" data-akane-chat-target="voiceBar" hidden>
+      <div class="akane-chat-voice-bar-dots">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <span class="akane-chat-voice-bar-text">Listening...</span>
+    </div>
+
+    <!-- Input Area -->
+    <div class="akane-chat-input-area">
+      <div class="akane-chat-input-row">
+        <textarea data-akane-chat-target="input"
+                  class="akane-chat-textarea"
+                  placeholder="Ask us anything..."
+                  rows="1"
+                  maxlength="5000"
+                  aria-label="Type your message"
+                  data-action="input->akane-chat#autoResize keydown->akane-chat#handleKeydown"></textarea>
+        <button type="button"
+                class="akane-chat-mic-btn"
+                data-akane-chat-target="micButton"
+                data-action="click->akane-chat#toggleVoice"
+                aria-label="Voice input"
+                hidden>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V19h4v2H8v-2h4v-3.07z"/>
+          </svg>
+          <span class="akane-chat-mic-recording" data-akane-chat-target="micIndicator"></span>
+        </button>
+        <button type="button"
+                class="akane-chat-send-btn"
+                data-akane-chat-target="sendButton"
+                data-action="click->akane-chat#sendMessage"
+                aria-label="Send message">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="akane-chat-input-meta">
+        <span class="akane-chat-char-count" data-akane-chat-target="charCount">0/5000</span>
+      </div>
+    </div>
+  </div>
+</div>

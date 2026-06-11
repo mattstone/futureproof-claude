@@ -1,0 +1,128 @@
+<div class="password-reset-container">
+  <div class="password-reset-card">
+    <h1>Reset Your Password</h1>
+    <p class="subtitle">Enter your new password below</p>
+
+    <%= form_with model: @broker, url: broker_password_path(token: params[:token]), method: :patch, local: true, class: "password-form" do |f| %>
+      <div class="form-group">
+        <%= f.label :password, "New Password" %>
+        <%= f.password_field :password, required: true, class: "form-input", placeholder: "Enter a secure password" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password_confirmation, "Confirm Password" %>
+        <%= f.password_field :password_confirmation, required: true, class: "form-input", placeholder: "Confirm your password" %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Reset Password", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="back-link">
+      <%= link_to "Back to Sign In", new_broker_session_path %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .password-reset-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+  }
+
+  .password-reset-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 3rem;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .password-reset-card h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+    color: #333;
+  }
+
+  .subtitle {
+    margin: 0 0 2rem 0;
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  .password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .form-input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .form-actions {
+    margin-top: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-primary {
+    background-color: #667eea;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #5568d3;
+  }
+
+  .back-link {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .back-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+</style>

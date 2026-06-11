@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: admin_user
+  payment_email: false
+  payment_sms: false
+  message_email: false
+
+two:
+  user: regular_user
+  payment_email: false
+  payment_sms: false
+  message_email: false

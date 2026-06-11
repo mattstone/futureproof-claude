@@ -1,0 +1,168 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back to Plans", borrower_applications_path, class: "back-link" %>
+    <h1>Your Guaranteed Income Plan</h1>
+    <div class="loan-actions">
+      <%= link_to "Payment History", payment_history_borrower_application_path(@application), class: "action-link" %>
+      <%= link_to "Documents", documents_borrower_application_path(@application), class: "action-link" %>
+      <%= link_to "Messages", borrower_application_path(@application), class: "action-link" %>
+    </div>
+  </div>
+
+  <!-- Status & Quick Info -->
+  <div class="detail-cards">
+    <div class="detail-card status-card">
+      <div class="card-label">Status</div>
+      <div class="card-status app-status-<%= @application.status %>">
+        <%= @application.status.humanize %>
+      </div>
+      <div class="card-meta">
+        Applied <%= time_ago_in_words(@application.created_at) %> ago
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Your Property Value</div>
+      <div class="card-value">$<%= number_with_precision(@income_summary[:property_value], precision: 0) %></div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Mortgage Amount (LTV)</div>
+      <div class="card-value">$<%= number_with_precision(@income_summary[:mortgage_amount], precision: 0) %></div>
+      <div class="card-meta"><%= number_with_precision(@income_summary[:ltv], precision: 1) %>% LTV</div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-label">Income Term</div>
+      <div class="card-value"><%= @income_summary[:term_years] %> years</div>
+    </div>
+
+    <% if @income_summary[:next_income] %>
+      <div class="detail-card next-income">
+        <div class="card-label">Next Income Payment</div>
+        <div class="card-value">$<%= number_with_precision(@income_summary[:next_income][:amount], precision: 2) %></div>
+        <div class="card-meta">Due <%= @income_summary[:next_income][:date]&.strftime('%B %d, %Y') %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Income Summary -->
+  <div class="income-summary-section">
+    <h2>Income Summary</h2>
+    <div class="income-summary">
+      <div class="summary-item">
+        <span class="summary-label">Total Income Received</span>
+        <span class="summary-value">$<%= number_with_precision(@income_summary[:total_income_received], precision: 2) %></span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Remaining Income Payments</span>
+        <span class="summary-value"><%= @income_summary[:remaining_income_payments] %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income Schedule -->
+  <div class="schedule-section">
+    <h2>Income Payment Schedule</h2>
+    
+    <% if @distributions.any? %>
+      <div class="schedule-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment #</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Received Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @distributions.each_with_index do |dist, index| %>
+              <tr class="income-row income-<%= dist.status %>">
+                <td><%= index + 1 %></td>
+                <td>${<%= number_with_precision(dist.amount, precision: 2) %></td>
+                <td><%= dist.distribution_date&.strftime('%B %d, %Y') || 'TBD' %></td>
+                <td>
+                  <% if dist.status == "completed" %>
+                    <%= dist.processed_at&.strftime('%B %d, %Y') %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= dist.status %>">
+                    <%= dist.status.humanize %>
+                  </span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="empty-schedule">No income schedule available yet. Payments will begin once your plan is activated.</p>
+    <% end %>
+  </div>
+
+  <!-- Plan Details -->
+  <div class="plan-section">
+    <h2>Your Plan Details</h2>
+    <div class="plan-details">
+      <div class="plan-item">
+        <span class="plan-label">How It Works</span>
+        <span class="plan-desc">Your property is mortgaged and the funds are invested. The investment returns generate your monthly guaranteed income while maintaining your No Negative Equity Guarantee (NNEG).</span>
+      </div>
+      <div class="plan-item">
+        <span class="plan-label">Your Rights</span>
+        <span class="plan-desc">You retain full ownership and the right to live in your property. You never make monthly repayments. The mortgage is repaid when you sell the property or pass it to your estate.</span>
+      </div>
+      <div class="plan-item">
+        <span class="plan-label">Loan-to-Value (LTV)</span>
+        <span class="plan-desc"><%= number_with_precision(@income_summary[:ltv], precision: 1) %>% — Your property secures the mortgage. NNEG protection means you'll never owe more than your property is worth.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract & Documents -->
+  <div class="documents-section">
+    <h2>Documents</h2>
+    <div class="documents-list">
+      <% if @contract %>
+        <div class="document-item">
+          <div class="doc-icon">📄</div>
+          <div class="doc-info">
+            <div class="doc-name">Income Plan Contract</div>
+            <div class="doc-meta">Created <%= time_ago_in_words(@contract.created_at) %> ago</div>
+          </div>
+          <div class="doc-actions">
+            <%= link_to "View Contract", "#", class: "btn btn-secondary", title: "Download contract PDF" %>
+          </div>
+        </div>
+      <% else %>
+        <p>No contract available yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Lender Info -->
+  <% if @lender %>
+    <div class="lender-section">
+      <h2>Lender Information</h2>
+      <div class="lender-card">
+        <div class="lender-name"><%= @lender.name %></div>
+        <div class="lender-details">
+          <div class="detail">
+            <span class="label">Address:</span>
+            <span class="value"><%= @lender.address %> <%= @lender.postcode %></span>
+          </div>
+          <div class="detail">
+            <span class="label">Contact:</span>
+            <span class="value"><%= link_to @lender.contact_email, "mailto:#{@lender.contact_email}" %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+

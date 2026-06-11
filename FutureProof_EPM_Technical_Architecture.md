@@ -1,5 +1,12 @@
 # FutureProof EPM Income from Property Equity — Technical Architecture
 
+> ## ⚠️ SUPERSEDED — 2026-06-04
+> **This document is retired. Do not cite it.** It described systems in the present tense that were never built (Kafka, a full AWS estate, ISO 27001 / SOC 2 certification), lists Tailwind (which our own rules ban), uses a four-agent model that no longer matches us, and predates the joint-venture / platform direction entirely.
+>
+> **Current tech strategy:** `docs/pdfs/FutureProof_Platform_and_AI_Strategy_Jun2026.pdf` (generator: `generate_platform_ai_strategy.py`).
+>
+> Kept below for history only.
+
 **Version 5.0** | Commercial in Confidence
 
 ---

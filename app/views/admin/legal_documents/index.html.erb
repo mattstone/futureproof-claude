@@ -1,0 +1,164 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page">
+<% content_for :page_title, "Legal Documents" %>
+
+  <!-- Header -->
+  <div class="ld-header">
+    <div>
+      <p class="ld-text-muted">Manage multi-region legal documents and compliance tracking</p>
+    </div>
+    <%= link_to "Add New Document", new_admin_legal_document_path, class: "ld-btn ld-btn-primary" %>
+  </div>
+
+  <%= turbo_frame_tag "legal_documents_results" do %>
+    <!-- Quick Stats -->
+    <div class="ld-stats-grid">
+      <div class="ld-stat-card">
+        <div class="ld-stat-value"><%= @total_documents %></div>
+        <div class="ld-stat-label">Total Documents</div>
+      </div>
+      <div class="ld-stat-card">
+        <div class="ld-stat-value ld-text-green"><%= @active_documents %></div>
+        <div class="ld-stat-label">Active</div>
+      </div>
+      <div class="ld-stat-card">
+        <div class="ld-stat-value"><%= @pending_documents %></div>
+        <div class="ld-stat-label">Draft</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="ld-filters">
+      <%= form_tag admin_legal_documents_path, method: :get, class: "ld-filter-form", data: { controller: "auto-submit", turbo_frame: "legal_documents_results" } do %>
+        <div class="ld-filter-row">
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Document Type</label>
+            <select name="document_type" class="ld-filter-select" data-action="change->auto-submit#filterChanged">
+              <option value="">All Types</option>
+              <% LegalDocument::DOCUMENT_TYPES.each do |key, label| %>
+                <option value="<%= key %>" <%= 'selected' if params[:document_type] == key.to_s %>><%= label %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Party Type</label>
+            <select name="party_type" class="ld-filter-select" data-action="change->auto-submit#filterChanged">
+              <option value="">All Parties</option>
+              <% LegalDocument::PARTY_TYPES.each do |pt| %>
+                <option value="<%= pt %>" <%= 'selected' if params[:party_type] == pt %>><%= pt.titleize %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Status</label>
+            <select name="status" class="ld-filter-select" data-action="change->auto-submit#filterChanged">
+              <option value="">All Statuses</option>
+              <option value="active" <%= 'selected' if params[:status] == 'active' %>>Active</option>
+              <option value="draft" <%= 'selected' if params[:status] == 'draft' %>>Draft</option>
+              <option value="in_review" <%= 'selected' if params[:status] == 'in_review' %>>In Review</option>
+              <option value="approved" <%= 'selected' if params[:status] == 'approved' %>>Approved</option>
+              <option value="archived" <%= 'selected' if params[:status] == 'archived' %>>Archived</option>
+            </select>
+          </div>
+
+          <div class="ld-filter-group">
+            <label class="ld-filter-label">Search</label>
+            <input type="text" name="q" value="<%= params[:q] %>" placeholder="Search by title..." class="ld-filter-input" data-action="input->auto-submit#searchChanged">
+          </div>
+
+          <div class="ld-filter-actions">
+            <noscript><button type="submit" class="ld-btn ld-btn-secondary ld-btn-sm">Filter</button></noscript>
+            <% if params[:document_type].present? || params[:party_type].present? || params[:status].present? || params[:q].present? %>
+              <%= link_to "Clear", admin_legal_documents_path, class: "ld-btn ld-btn-outline ld-btn-sm", data: { turbo_frame: "legal_documents_results" } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Active Filter Tags -->
+    <% if params[:document_type].present? || params[:party_type].present? || params[:status].present? || params[:q].present? %>
+      <div class="ld-active-filters">
+        <span class="ld-text-muted">Showing:</span>
+        <% if params[:document_type].present? %>
+          <span class="ld-badge ld-badge-jurisdiction"><%= LegalDocument::DOCUMENT_TYPES[params[:document_type].to_sym] || params[:document_type].titleize %></span>
+        <% end %>
+        <% if params[:party_type].present? %>
+          <span class="ld-badge ld-badge-neutral"><%= params[:party_type].titleize %></span>
+        <% end %>
+        <% if params[:status].present? %>
+          <span class="ld-badge ld-badge-status ld-status-<%= params[:status] %>"><%= params[:status].titleize %></span>
+        <% end %>
+        <% if params[:q].present? %>
+          <span class="ld-badge ld-badge-neutral">"<%= params[:q] %>"</span>
+        <% end %>
+        <%= link_to "Clear all", admin_legal_documents_path, class: "ld-filter-clear-link", data: { turbo_frame: "legal_documents_results" } %>
+      </div>
+    <% end %>
+
+    <!-- Documents Table -->
+    <div class="ld-table-wrap">
+      <% if @legal_documents.any? %>
+        <table class="ld-table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Jurisdiction</th>
+              <th>Type</th>
+              <th>Party</th>
+              <th>Status</th>
+              <th>Version</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @legal_documents.each do |document| %>
+              <tr>
+                <td>
+                  <strong><%= link_to document.title, admin_legal_document_path(document), data: { turbo_frame: "_top" } %></strong>
+                </td>
+                <td>
+                  <span class="ld-badge ld-badge-jurisdiction"><%= document.jurisdiction %></span>
+                </td>
+                <td>
+                  <span class="ld-badge ld-badge-neutral">
+                    <%= document.document_type_display %>
+                  </span>
+                </td>
+                <td>
+                  <span class="ld-text-muted"><%= document.party_type.titleize %></span>
+                </td>
+                <td>
+                  <span class="ld-badge ld-badge-status ld-status-<%= document.status %>">
+                    <%= document.status.titleize %>
+                  </span>
+                </td>
+                <td><code>v<%= document.version %></code></td>
+                <td class="ld-text-muted">
+                  <%= document.updated_at.strftime("%b %d, %Y") %>
+                </td>
+                <td class="ld-actions">
+                  <%= link_to "View", admin_legal_document_path(document), class: "ld-btn ld-btn-sm ld-btn-outline", data: { turbo_frame: "_top" } %>
+                  <%= link_to "Edit", edit_admin_legal_document_path(document), class: "ld-btn ld-btn-sm ld-btn-outline", data: { turbo_frame: "_top" } %>
+                  <% if document.status != 'active' %>
+                    <%= button_to "Activate", activate_admin_legal_document_path(document), method: :patch, class: "ld-btn ld-btn-sm ld-btn-primary", data: { turbo_frame: "_top" } %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="ld-empty-state">
+          <p>No legal documents match your filters.</p>
+          <%= link_to "Clear Filters", admin_legal_documents_path, class: "ld-btn ld-btn-secondary", data: { turbo_frame: "legal_documents_results" } %>
+          <%= link_to "Create Document", new_admin_legal_document_path, class: "ld-btn ld-btn-primary", data: { turbo_frame: "_top" } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

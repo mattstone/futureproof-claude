@@ -1514,7 +1514,7 @@ export default class extends Controller {
       { key: 'awaiting_investment', value: 1, label: 'Awaiting Investment' },
       { key: 'ok', value: 2, label: 'OK' },
       { key: 'in_holiday', value: 3, label: 'In Holiday' },
-      { key: 'in_arrears', value: 4, label: 'In Arrears' },
+      { key: 'investment_at_risk', value: 4, label: 'Investment At Risk' },
       { key: 'complete', value: 5, label: 'Complete' }
     ]
   }

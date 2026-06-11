@@ -1,0 +1,15 @@
+<section id="regional-map" class="dashboard-overview-card dashboard-funnel-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Geographic distribution</h3>
+    <span class="dashboard-overview-meta">AU · US · NZ · UK</span>
+  </header>
+  <div class="dashboard-trend-chart"
+       data-controller="regional-choropleth"
+       data-regional-choropleth-regions-value="<%= geo.to_json %>"
+       data-regional-choropleth-atlas-url-value="/data/world-110m.json"></div>
+  <div class="dashboard-heatmap-legend">
+    <span>Less capital</span>
+    <div class="dashboard-heatmap-legend-bar dashboard-heatmap-legend-bar-blue"></div>
+    <span>More capital</span>
+  </div>
+</section>

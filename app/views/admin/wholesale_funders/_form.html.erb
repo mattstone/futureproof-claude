@@ -1,0 +1,78 @@
+<%= form_with(model: [:admin, @wholesale_funder], local: true) do |form| %>
+  <% if @wholesale_funder.errors.any? %>
+    <div class="admin-alert admin-alert-error">
+      <h4><%= pluralize(@wholesale_funder.errors.count, "error") %> prohibited this record:</h4>
+      <ul>
+        <% @wholesale_funder.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="admin-form-container">
+    <div class="admin-form-row">
+      <!-- Name -->
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :name, "Funder Name" %>
+          <%= form.text_field :name, 
+              class: "admin-form-input",
+              placeholder: "e.g., ABC Wholesale Funding" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-form-row">
+      <!-- Country -->
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :country, "Country" %>
+          <%= form.select :country,
+              [
+                ["Australia", "Australia"],
+                ["United States", "United States"],
+                ["New Zealand", "New Zealand"],
+                ["United Kingdom", "United Kingdom"]
+              ],
+              { prompt: "Select a country" },
+              class: "admin-form-select" %>
+        </div>
+      </div>
+
+      <!-- Currency -->
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :currency, "Currency" %>
+          <%= form.select :currency,
+              [["AUD", "AUD"], ["USD", "USD"], ["GBP", "GBP"]],
+              { prompt: "Select currency" },
+              class: "admin-form-select" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Allocated Amount -->
+    <div class="admin-form-row">
+      <div>
+        <div class="admin-form-group">
+          <%= form.label :total_allocated_amount, "Total Allocated Amount" %>
+          <div class="admin-form-currency-wrapper">
+            <span class="admin-form-currency-symbol"><%= @wholesale_funder.currency_symbol %></span>
+            <%= form.number_field :total_allocated_amount,
+                class: "admin-form-input admin-form-input-currency",
+                step: "0.01",
+                placeholder: "0.00" %>
+          </div>
+          <small class="admin-form-help">Total funding available for deployment to lenders</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="admin-form-actions">
+      <%= form.submit class: "admin-btn admin-btn-primary" %>
+      <%= link_to "Cancel", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
+    </div>
+  </div>
+<% end %>

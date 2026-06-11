@@ -1,0 +1,36 @@
+NEW MESSAGE FROM YOUR LENDER
+<%= "=" * 50 %>
+
+Hi <%= @user.first_name %>,
+
+You have received a new message regarding your Equity Partner Mortgage.
+
+MESSAGE DETAILS
+<%= "-" * 50 %>
+From:       <%= @lender.company_name || @lender.full_name %>
+Property:   <%= @application.property_address %>
+Date:       <%= @message.created_at.strftime('%d %B %Y, %H:%M') %>
+
+MESSAGE PREVIEW
+<%= "-" * 50 %>
+<%= @preview %>
+
+[Full message available in your borrower portal]
+
+WHAT TO DO NEXT
+<%= "-" * 50 %>
+1. View the full message and reply:
+   <%= borrower_application_messages_url(@application) %>
+
+2. View all messages with your lender:
+   <%= borrower_application_messages_url(@application) %>
+
+3. View your loan details:
+   <%= borrower_application_url(@application) %>
+
+UPDATE PREFERENCES
+<%= "-" * 50 %>
+To disable these notifications or change your preferences:
+<%= edit_borrower_account_url %>
+
+This is an automated notification from your EPM borrower portal.

@@ -1,0 +1,179 @@
+<% content_for :page_title, "Customer Service" %>
+<%= stylesheet_link_tag "admin/dashboard", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Customer Service</h2>
+  <p class="admin-section-subtitle">Operational view of every customer thread, escalation, and stalled application that needs action right now.</p>
+</div>
+
+<%# Health snapshot %>
+<div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Open conversations</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(@health_snapshot[:open_conversations]) %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Awaiting reply > 24h</div>
+      <div class="admin-stat-value"><%= @health_snapshot[:awaiting_reply_count] %></div>
+      <div class="admin-stat-label"><%= @health_snapshot[:awaiting_reply_pct] %>% of last 30 days</div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Avg response time</div>
+      <div class="admin-stat-value"><%= @health_snapshot[:avg_response_time_hours] %>h</div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Escalations this week</div>
+      <div class="admin-stat-value"><%= @health_snapshot[:escalations_this_week] %></div>
+    </div>
+  </div>
+</div>
+
+<%# Pipeline aging %>
+<% if @pipeline_aging[:rows].any? %>
+  <div class="dashboard-section-header">
+    <h3 class="section-subtitle">Pipeline aging</h3>
+    <p class="admin-section-subtitle">How long applications have sat in each stage. Red bands = applications stuck more than 60 days.</p>
+  </div>
+  <div class="fp-card">
+    <div class="dashboard-trend-chart"
+         data-controller="pipeline-aging"
+         data-pipeline-aging-rows-value="<%= @pipeline_aging[:rows].to_json %>"
+         data-pipeline-aging-buckets-value="<%= @pipeline_aging[:buckets].to_json %>"></div>
+  </div>
+<% end %>
+
+<%# Priority inbox %>
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Priority inbox</h3>
+</div>
+<div class="priority-inbox <%= 'priority-inbox-clear' if @priority_inbox.empty? %>">
+  <% if @priority_inbox.any? %>
+    <div class="priority-inbox-items">
+      <% @priority_inbox.each do |item| %>
+        <div class="priority-item">
+          <div class="priority-item-icon"><%= item.icon %></div>
+          <div class="priority-item-content">
+            <div class="priority-item-title"><%= item.title %></div>
+            <div class="priority-item-subtitle"><%= item.subtitle %></div>
+            <% if item.detail.present? %>
+              <div class="priority-item-detail"><%= item.detail %></div>
+            <% end %>
+          </div>
+          <div class="priority-item-actions">
+            <% if item.resource_type == 'Application' %>
+              <%= link_to "Review", admin_application_path(item.resource_id), class: "priority-action-btn priority-action-primary" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="priority-inbox-empty">
+      <span class="priority-inbox-status">All clear — nothing in the priority inbox right now.</span>
+    </div>
+  <% end %>
+</div>
+
+<%# Unanswered borrower threads %>
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Borrower messages awaiting reply > 24h</h3>
+</div>
+<table class="admin-table">
+  <thead>
+    <tr><th>Application</th><th>Customer</th><th>Last message</th><th class="text-right">Age</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @unanswered_threads.each do |thread| %>
+      <tr>
+        <td>#<%= thread[:application].id %></td>
+        <td><%= thread[:application].user&.email %></td>
+        <td><%= thread[:message_preview] %></td>
+        <td class="text-right"><%= thread[:age_hours] %>h</td>
+        <td><%= link_to "Reply", admin_application_path(thread[:application]), class: "fp-btn fp-btn-sm fp-btn-primary" %></td>
+      </tr>
+    <% end %>
+    <% if @unanswered_threads.empty? %>
+      <tr><td colspan="5"><em>No unanswered borrower threads.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%# Stalled applications %>
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Stalled applications (processing > 7 days)</h3>
+</div>
+<table class="admin-table">
+  <thead>
+    <tr><th>App</th><th>Customer</th><th>Region</th><th>Status</th><th class="text-right">Age (days)</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @stalled_applications.each do |app| %>
+      <tr>
+        <td>#<%= app.id %></td>
+        <td><%= app.user&.email %></td>
+        <td><%= app.region %></td>
+        <td><span class="status-badge"><%= app.status %></span></td>
+        <td class="text-right"><%= (Date.today - app.updated_at.to_date).to_i %></td>
+        <td><%= link_to "View", admin_application_path(app), class: "fp-btn fp-btn-sm fp-btn-outline" %></td>
+      </tr>
+    <% end %>
+    <% if @stalled_applications.empty? %>
+      <tr><td colspan="6"><em>No stalled applications.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%# Escalated conversations %>
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Escalated chat conversations</h3>
+</div>
+<table class="admin-table">
+  <thead>
+    <tr><th>Conversation</th><th>Customer</th><th>Region</th><th>Updated</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @escalated_conversations.each do |conv| %>
+      <tr>
+        <td>#<%= conv.id %></td>
+        <td><%= conv.user&.email || "(guest)" %></td>
+        <td><%= conv.region %></td>
+        <td><%= time_ago_in_words(conv.updated_at) %> ago</td>
+        <td><%= link_to "View", admin_chat_conversation_path(conv), class: "fp-btn fp-btn-sm fp-btn-outline" %></td>
+      </tr>
+    <% end %>
+    <% if @escalated_conversations.empty? %>
+      <tr><td colspan="5"><em>No escalated conversations.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%# Open support tickets %>
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Open support tickets</h3>
+</div>
+<table class="admin-table">
+  <thead>
+    <tr><th>Ticket</th><th>Priority</th><th>Status</th><th>Updated</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @open_tickets.each do |ticket| %>
+      <tr>
+        <td>#<%= ticket.id %></td>
+        <td><span class="status-badge"><%= ticket.priority %></span></td>
+        <td><%= ticket.status %></td>
+        <td><%= time_ago_in_words(ticket.updated_at) %> ago</td>
+        <td><%= link_to "View", admin_support_ticket_path(ticket), class: "fp-btn fp-btn-sm fp-btn-outline" %></td>
+      </tr>
+    <% end %>
+    <% if @open_tickets.empty? %>
+      <tr><td colspan="5"><em>No open support tickets.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>

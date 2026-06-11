@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -110,6 +110,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["task_type"], name: "index_agent_tasks_on_task_type"
   end
 
+  create_table "agreement_signatures", force: :cascade do |t|
+    t.bigint "agreement_id", null: false
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.string "signature_method", default: "typed", null: false
+    t.datetime "signed_at", null: false
+    t.string "signer_email", null: false
+    t.string "signer_name", null: false
+    t.string "signer_role", null: false
+    t.string "signer_title"
+    t.string "typed_signature", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.index ["agreement_id", "signer_role"], name: "index_agreement_signatures_on_agreement_id_and_signer_role", unique: true
+    t.index ["agreement_id"], name: "index_agreement_signatures_on_agreement_id"
+  end
+
+  create_table "agreements", force: :cascade do |t|
+    t.bigint "agreeable_id", null: false
+    t.string "agreeable_type", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.datetime "executed_at"
+    t.datetime "expires_at"
+    t.string "jurisdiction", null: false
+    t.bigint "legal_document_id", null: false
+    t.text "notes"
+    t.datetime "sent_at"
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.string "version"
+    t.index ["agreeable_type", "agreeable_id"], name: "index_agreements_on_agreeable_type_and_agreeable_id"
+    t.index ["created_by_id"], name: "index_agreements_on_created_by_id"
+    t.index ["legal_document_id"], name: "index_agreements_on_legal_document_id"
+    t.index ["status"], name: "index_agreements_on_status"
+  end
+
   create_table "ai_agents", force: :cascade do |t|
     t.jsonb "agent_config", default: {}
     t.string "agent_type", null: false
@@ -131,6 +170,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["business_rules"], name: "index_ai_agents_on_business_rules", using: :gin
     t.index ["is_active"], name: "index_ai_agents_on_is_active"
     t.index ["lifecycle_stages"], name: "index_ai_agents_on_lifecycle_stages", using: :gin
+  end
+
+  create_table "aml_checks", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "checked_at"
+    t.datetime "created_at"
+    t.text "failure_reason"
+    t.datetime "passed_at"
+    t.string "risk_level"
+    t.integer "status"
+    t.datetime "updated_at"
+    t.index ["application_id"], name: "index_aml_checks_on_application_id"
   end
 
   create_table "application_checklists", force: :cascade do |t|
@@ -213,16 +264,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
 
   create_table "applications", force: :cascade do |t|
     t.string "address"
-    t.decimal "approved_interest_rate", precision: 5, scale: 3
-    t.decimal "approved_loan_amount", precision: 15, scale: 2
-    t.integer "approved_term_years"
     t.string "bank_account_number"
     t.integer "borrower_age", default: 0
     t.text "borrower_names"
+    t.bigint "broker_id"
     t.string "company_name"
     t.text "corelogic_data"
     t.datetime "created_at", null: false
     t.string "credit_score"
+    t.decimal "equity_investment_amount", precision: 15, scale: 2
+    t.decimal "equity_percentage", precision: 5, scale: 3
     t.decimal "existing_mortgage_amount", precision: 12, scale: 2, default: "0.0"
     t.string "existing_mortgage_lender"
     t.string "government_id"
@@ -230,10 +281,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.boolean "has_existing_mortgage", default: false, null: false
     t.integer "home_value"
     t.integer "income_payout_term"
+    t.integer "investment_term"
     t.bigint "lender_id"
-    t.integer "loan_term"
     t.bigint "mortgage_id"
     t.integer "ownership_status", default: 0, null: false
+    t.integer "participation_term_years"
     t.string "property_id"
     t.text "property_images"
     t.integer "property_state", default: 0, null: false
@@ -241,21 +293,117 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.integer "property_valuation_high"
     t.integer "property_valuation_low"
     t.integer "property_valuation_middle"
-    t.bigint "referral_partner_id"
-    t.string "region", default: "us"
+    t.string "region", default: "US"
     t.text "rejected_reason"
     t.integer "status", default: 0, null: false
     t.string "super_fund_name"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["broker_id", "status"], name: "index_applications_on_broker_id_and_status"
+    t.index ["broker_id"], name: "index_applications_on_broker_id"
     t.index ["lender_id", "status"], name: "index_applications_on_lender_id_and_status"
     t.index ["lender_id"], name: "index_applications_on_lender_id"
     t.index ["mortgage_id", "status"], name: "index_applications_on_mortgage_id_and_status"
     t.index ["mortgage_id"], name: "index_applications_on_mortgage_id"
-    t.index ["referral_partner_id"], name: "index_applications_on_referral_partner_id"
     t.index ["region"], name: "index_applications_on_region"
     t.index ["user_id", "status"], name: "index_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "application_id"
+    t.text "changes"
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.integer "kyc_verification_id"
+    t.text "notes"
+    t.string "reason"
+    t.string "region", limit: 2
+    t.string "resource_id"
+    t.string "resource_type"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["action"], name: "index_audit_logs_on_action"
+    t.index ["application_id"], name: "index_audit_logs_on_application_id"
+    t.index ["created_at"], name: "index_audit_logs_on_created_at"
+    t.index ["resource_type", "created_at"], name: "index_audit_logs_on_resource_type_and_created_at"
+    t.index ["user_id", "created_at"], name: "index_audit_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "borrower_messages", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "lender_id"
+    t.text "message", null: false
+    t.datetime "read_at"
+    t.string "sender_type", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["application_id", "created_at"], name: "index_borrower_messages_on_application_id_and_created_at"
+    t.index ["application_id"], name: "index_borrower_messages_on_application_id"
+    t.index ["lender_id"], name: "index_borrower_messages_on_lender_id"
+    t.index ["user_id"], name: "index_borrower_messages_on_user_id"
+  end
+
+  create_table "broker_commission_rates", force: :cascade do |t|
+    t.boolean "active"
+    t.bigint "broker_id", null: false
+    t.decimal "commission_percentage"
+    t.datetime "created_at", null: false
+    t.bigint "lender_id", null: false
+    t.string "payment_trigger"
+    t.datetime "updated_at", null: false
+    t.index ["broker_id", "lender_id"], name: "index_broker_commission_rates_on_broker_id_and_lender_id", unique: true
+    t.index ["broker_id"], name: "index_broker_commission_rates_on_broker_id"
+    t.index ["lender_id"], name: "index_broker_commission_rates_on_lender_id"
+  end
+
+  create_table "broker_commissions", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.bigint "broker_id", null: false
+    t.decimal "commission_amount"
+    t.decimal "commission_rate"
+    t.datetime "created_at", null: false
+    t.datetime "earned_date"
+    t.datetime "paid_date"
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_broker_commissions_on_application_id"
+    t.index ["broker_id", "earned_date"], name: "index_broker_commissions_on_broker_id_and_earned_date"
+    t.index ["broker_id", "status"], name: "index_broker_commissions_on_broker_id_and_status"
+    t.index ["broker_id"], name: "index_broker_commissions_on_broker_id"
+    t.index ["status"], name: "index_broker_commissions_on_status"
+  end
+
+  create_table "broker_lenders", force: :cascade do |t|
+    t.integer "access_level"
+    t.boolean "active", default: true
+    t.bigint "broker_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "lender_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["broker_id", "lender_id"], name: "index_broker_lenders_on_broker_id_and_lender_id", unique: true
+    t.index ["broker_id"], name: "index_broker_lenders_on_broker_id"
+    t.index ["lender_id"], name: "index_broker_lenders_on_lender_id"
+  end
+
+  create_table "brokers", force: :cascade do |t|
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "jurisdiction", default: "AU"
+    t.string "name"
+    t.string "phone"
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_brokers_on_email", unique: true
+    t.index ["jurisdiction"], name: "index_brokers_on_jurisdiction"
+    t.index ["reset_password_token"], name: "index_brokers_on_reset_password_token", unique: true
   end
 
   create_table "business_process_workflows", force: :cascade do |t|
@@ -425,11 +573,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.bigint "mortgage_id"
     t.text "notes"
     t.string "payment_method"
+    t.integer "payment_period_month"
+    t.integer "payment_period_year"
     t.datetime "processed_at"
     t.integer "status", default: 0
     t.string "transaction_id"
     t.datetime "updated_at", null: false
     t.index ["application_id", "distribution_date"], name: "index_distributions_on_application_id_and_distribution_date"
+    t.index ["application_id", "status"], name: "index_distributions_on_application_id_and_status"
     t.index ["application_id"], name: "index_distributions_on_application_id"
     t.index ["distribution_date"], name: "index_distributions_on_distribution_date"
     t.index ["mortgage_id"], name: "index_distributions_on_mortgage_id"
@@ -481,6 +632,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.json "workflow_builder_data"
     t.index ["created_by_id"], name: "index_email_workflows_on_created_by_id"
     t.index ["trigger_type", "active"], name: "index_email_workflows_on_trigger_type_and_active"
+  end
+
+  create_table "faqs", force: :cascade do |t|
+    t.text "answer", null: false
+    t.datetime "created_at", null: false
+    t.string "jurisdiction", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "published", default: false, null: false
+    t.string "question", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jurisdiction", "position"], name: "index_faqs_on_jurisdiction_and_position"
+    t.index ["jurisdiction", "published"], name: "index_faqs_on_jurisdiction_and_published"
   end
 
   create_table "funder_pool_versions", force: :cascade do |t|
@@ -535,6 +698,101 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["region"], name: "index_investment_partners_on_region"
     t.index ["status"], name: "index_investment_partners_on_status"
     t.index ["wholesale_funder_id"], name: "index_investment_partners_on_wholesale_funder_id"
+  end
+
+  create_table "kyc_submissions", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.datetime "created_at"
+    t.string "document_url"
+    t.text "notes"
+    t.integer "status"
+    t.datetime "submitted_at"
+    t.datetime "updated_at"
+    t.string "verification_type"
+    t.datetime "verified_at"
+    t.string "verified_by"
+    t.index ["application_id"], name: "index_kyc_submissions_on_application_id"
+  end
+
+  create_table "legal_document_acceptances", force: :cascade do |t|
+    t.string "acceptance_type"
+    t.datetime "accepted_at", null: false
+    t.bigint "application_id"
+    t.datetime "created_at", null: false
+    t.bigint "legal_document_id", null: false
+    t.bigint "lender_id"
+    t.text "notes"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["application_id"], name: "index_legal_document_acceptances_on_application_id"
+    t.index ["legal_document_id", "lender_id", "accepted_at"], name: "idx_legal_acceptances_lender"
+    t.index ["legal_document_id", "user_id", "accepted_at"], name: "idx_legal_acceptances_user"
+    t.index ["legal_document_id"], name: "index_legal_document_acceptances_on_legal_document_id"
+    t.index ["lender_id"], name: "index_legal_document_acceptances_on_lender_id"
+    t.index ["user_id"], name: "index_legal_document_acceptances_on_user_id"
+  end
+
+  create_table "legal_document_signatures", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.bigint "legal_document_acceptance_id", null: false
+    t.text "signature_data"
+    t.string "signature_method"
+    t.string "signature_provider"
+    t.datetime "signed_at"
+    t.string "signer_email", null: false
+    t.string "signer_name", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.index ["legal_document_acceptance_id", "signed_at"], name: "idx_legal_signatures"
+    t.index ["legal_document_acceptance_id"], name: "idx_on_legal_document_acceptance_id_5c0490665d"
+  end
+
+  create_table "legal_document_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "document_type", null: false
+    t.text "instructions"
+    t.boolean "is_active", default: true
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.integer "sort_order", default: 0
+    t.text "template_content", null: false
+    t.string "template_name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_type", "jurisdiction", "party_type"], name: "idx_legal_templates_lookup"
+  end
+
+  create_table "legal_document_versions", force: :cascade do |t|
+    t.string "action"
+    t.bigint "admin_user_id"
+    t.text "change_details"
+    t.datetime "created_at", null: false
+    t.bigint "legal_document_id", null: false
+    t.text "new_content"
+    t.text "previous_content"
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_legal_document_versions_on_admin_user_id"
+    t.index ["legal_document_id", "created_at"], name: "idx_legal_doc_versions"
+    t.index ["legal_document_id"], name: "index_legal_document_versions_on_legal_document_id"
+  end
+
+  create_table "legal_documents", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.string "document_type", null: false
+    t.datetime "effective_from", null: false
+    t.datetime "effective_to"
+    t.boolean "is_active", default: false, null: false
+    t.boolean "is_draft", default: true, null: false
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.integer "status", default: 0
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.string "version", null: false
+    t.index ["document_type", "jurisdiction", "party_type", "is_active"], name: "idx_legal_docs_lookup"
+    t.index ["document_type", "jurisdiction", "party_type", "version"], name: "idx_legal_docs_unique", unique: true
+    t.index ["is_active", "effective_from"], name: "idx_legal_docs_active"
   end
 
   create_table "lender_clause_versions", force: :cascade do |t|
@@ -754,6 +1012,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["status"], name: "index_mortgages_on_status"
   end
 
+  create_table "notification_preferences", force: :cascade do |t|
+    t.boolean "message_email"
+    t.boolean "payment_email"
+    t.boolean "payment_sms"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_notification_preferences_on_user_id"
+  end
+
   create_table "privacy_policies", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
@@ -775,6 +1041,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.bigint "user_id", null: false
     t.index ["privacy_policy_id"], name: "index_privacy_policy_versions_on_privacy_policy_id"
     t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
+  end
+
+  create_table "prompt_change_requests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.integer "github_number"
+    t.string "github_type"
+    t.string "github_url"
+    t.integer "impact_answer", null: false
+    t.text "impact_details"
+    t.string "impact_question", null: false
+    t.integer "kind", default: 0, null: false
+    t.string "state_cache"
+    t.datetime "state_checked_at"
+    t.string "target_slot"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["target_slot"], name: "index_prompt_change_requests_on_target_slot"
+    t.index ["user_id", "created_at"], name: "index_prompt_change_requests_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_prompt_change_requests_on_user_id"
+  end
+
+  create_table "quotes", force: :cascade do |t|
+    t.bigint "annual_income"
+    t.decimal "annuity_rate", precision: 8, scale: 6
+    t.bigint "application_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "home_value", null: false
+    t.integer "income_payout_term"
+    t.datetime "issued_at", null: false
+    t.decimal "lvr", precision: 5, scale: 4
+    t.bigint "max_loan"
+    t.bigint "monthly_income", null: false
+    t.string "mortgage_type"
+    t.string "pricing_model"
+    t.string "product_version", null: false
+    t.string "region"
+    t.integer "term_years", null: false
+    t.bigint "total_income"
+    t.datetime "updated_at", null: false
+    t.index ["application_id", "issued_at"], name: "index_quotes_on_application_id_and_issued_at"
+    t.index ["application_id"], name: "index_quotes_on_application_id"
   end
 
   create_table "referral_partners", force: :cascade do |t|
@@ -820,6 +1129,55 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
     t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
     t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
+  end
+
+  create_table "support_ticket_messages", force: :cascade do |t|
+    t.bigint "agent_user_id"
+    t.text "body_html"
+    t.text "body_text"
+    t.datetime "created_at", null: false
+    t.datetime "email_sent_at"
+    t.jsonb "metadata", default: {}
+    t.string "microsoft_graph_message_id"
+    t.string "sender_email"
+    t.string "sender_name"
+    t.string "sender_type", null: false
+    t.bigint "support_ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_user_id"], name: "index_support_ticket_messages_on_agent_user_id"
+    t.index ["microsoft_graph_message_id"], name: "index_support_ticket_messages_on_microsoft_graph_message_id", unique: true
+    t.index ["sender_type"], name: "index_support_ticket_messages_on_sender_type"
+    t.index ["support_ticket_id"], name: "index_support_ticket_messages_on_support_ticket_id"
+  end
+
+  create_table "support_tickets", force: :cascade do |t|
+    t.decimal "ai_confidence_score", precision: 5, scale: 4
+    t.text "ai_draft_reply"
+    t.string "ai_suggested_category"
+    t.bigint "application_id"
+    t.string "category", default: "general", null: false
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "microsoft_graph_conversation_id"
+    t.string "microsoft_graph_message_id"
+    t.string "priority", default: "normal", null: false
+    t.datetime "resolved_at"
+    t.string "sender_email", null: false
+    t.string "sender_name"
+    t.string "source", default: "email"
+    t.string "status", default: "open", null: false
+    t.string "subject", null: false
+    t.string "ticket_number", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["application_id"], name: "index_support_tickets_on_application_id"
+    t.index ["microsoft_graph_message_id"], name: "index_support_tickets_on_microsoft_graph_message_id", unique: true
+    t.index ["priority"], name: "index_support_tickets_on_priority"
+    t.index ["sender_email"], name: "index_support_tickets_on_sender_email"
+    t.index ["status"], name: "index_support_tickets_on_status"
+    t.index ["ticket_number"], name: "index_support_tickets_on_ticket_number", unique: true
+    t.index ["user_id"], name: "index_support_tickets_on_user_id"
   end
 
   create_table "terms_and_condition_versions", force: :cascade do |t|
@@ -967,6 +1325,71 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "webhook_deliveries", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "delivered_at"
+    t.integer "delivery_status", default: 0
+    t.string "event"
+    t.datetime "failed_at"
+    t.jsonb "payload"
+    t.text "response_body"
+    t.integer "response_code"
+    t.integer "retry_count"
+    t.bigint "webhook_id", null: false
+    t.index ["created_at"], name: "index_webhook_deliveries_on_created_at"
+    t.index ["delivery_status"], name: "index_webhook_deliveries_on_delivery_status"
+    t.index ["webhook_id"], name: "index_webhook_deliveries_on_webhook_id"
+  end
+
+  create_table "webhook_endpoints", force: :cascade do |t|
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.text "events"
+    t.datetime "last_triggered_at"
+    t.string "secret"
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_webhook_endpoints_on_user_id"
+  end
+
+  create_table "webhook_events", force: :cascade do |t|
+    t.integer "attempt_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at"
+    t.text "error_message"
+    t.string "event_type"
+    t.jsonb "payload"
+    t.integer "status", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "webhook_endpoint_id", null: false
+    t.index ["webhook_endpoint_id"], name: "index_webhook_events_on_webhook_endpoint_id"
+  end
+
+  create_table "webhooks", force: :cascade do |t|
+    t.boolean "active"
+    t.datetime "created_at"
+    t.string "event"
+    t.string "jurisdiction"
+    t.bigint "lender_id", null: false
+    t.string "secret"
+    t.datetime "updated_at"
+    t.string "url"
+    t.index ["lender_id"], name: "index_webhooks_on_lender_id"
+  end
+
+  create_table "wholesale_funder_contracts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "html_content", null: false
+    t.string "jurisdiction", null: false
+    t.string "party_type", null: false
+    t.datetime "updated_at", null: false
+    t.string "version", default: "1.0"
+    t.bigint "wholesale_funder_id", null: false
+    t.index ["wholesale_funder_id", "jurisdiction", "party_type"], name: "index_wf_contracts_unique", unique: true
+    t.index ["wholesale_funder_id"], name: "index_wholesale_funder_contracts_on_wholesale_funder_id"
+  end
+
   create_table "wholesale_funder_versions", force: :cascade do |t|
     t.string "action", null: false
     t.text "change_details"
@@ -991,6 +1414,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
     t.datetime "created_at", null: false
     t.string "currency", default: "AUD", null: false
     t.string "name", null: false
+    t.decimal "total_allocated_amount", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
     t.index ["country"], name: "index_wholesale_funders_on_country"
     t.index ["currency"], name: "index_wholesale_funders_on_currency"
@@ -1069,6 +1493,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_actions", "ai_agents"
   add_foreign_key "agent_tasks", "agent_performances"
+  add_foreign_key "agreement_signatures", "agreements"
+  add_foreign_key "agreements", "legal_documents"
+  add_foreign_key "agreements", "users", column: "created_by_id"
+  add_foreign_key "aml_checks", "applications"
   add_foreign_key "application_checklists", "applications"
   add_foreign_key "application_checklists", "users", column: "completed_by_id"
   add_foreign_key "application_documents", "applications"
@@ -1077,10 +1505,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "application_messages", "applications"
   add_foreign_key "application_versions", "applications"
   add_foreign_key "application_versions", "users"
+  add_foreign_key "applications", "brokers"
   add_foreign_key "applications", "lenders"
   add_foreign_key "applications", "mortgages"
-  add_foreign_key "applications", "referral_partners"
   add_foreign_key "applications", "users"
+  add_foreign_key "audit_logs", "applications"
+  add_foreign_key "audit_logs", "users"
+  add_foreign_key "borrower_messages", "applications"
+  add_foreign_key "borrower_messages", "lenders"
+  add_foreign_key "borrower_messages", "users"
+  add_foreign_key "broker_commission_rates", "brokers"
+  add_foreign_key "broker_commission_rates", "lenders"
+  add_foreign_key "broker_commissions", "applications"
+  add_foreign_key "broker_commissions", "brokers"
+  add_foreign_key "broker_lenders", "brokers"
+  add_foreign_key "broker_lenders", "lenders"
   add_foreign_key "chat_conversations", "chat_agents"
   add_foreign_key "chat_conversations", "users"
   add_foreign_key "chat_messages", "chat_conversations"
@@ -1107,6 +1546,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "funder_pool_versions", "users"
   add_foreign_key "funder_pools", "wholesale_funders"
   add_foreign_key "investment_partners", "wholesale_funders"
+  add_foreign_key "kyc_submissions", "applications"
+  add_foreign_key "legal_document_acceptances", "applications"
+  add_foreign_key "legal_document_acceptances", "legal_documents"
+  add_foreign_key "legal_document_acceptances", "lenders"
+  add_foreign_key "legal_document_acceptances", "users"
+  add_foreign_key "legal_document_signatures", "legal_document_acceptances"
+  add_foreign_key "legal_document_versions", "legal_documents"
+  add_foreign_key "legal_document_versions", "users", column: "admin_user_id"
   add_foreign_key "lender_clause_versions", "lender_clauses"
   add_foreign_key "lender_clause_versions", "users"
   add_foreign_key "lender_clauses", "lenders"
@@ -1134,11 +1581,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "mortgage_lenders", "mortgages"
   add_foreign_key "mortgage_versions", "mortgages"
   add_foreign_key "mortgage_versions", "users"
+  add_foreign_key "notification_preferences", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "prompt_change_requests", "users"
+  add_foreign_key "quotes", "applications"
   add_foreign_key "referral_partners", "lenders"
   add_foreign_key "scheduled_workflow_jobs", "workflow_executions", column: "execution_id"
   add_foreign_key "scheduled_workflow_jobs", "workflow_steps", column: "step_id"
+  add_foreign_key "support_ticket_messages", "support_tickets"
+  add_foreign_key "support_ticket_messages", "users", column: "agent_user_id"
+  add_foreign_key "support_tickets", "applications"
+  add_foreign_key "support_tickets", "users"
   add_foreign_key "terms_and_condition_versions", "terms_and_conditions"
   add_foreign_key "terms_and_condition_versions", "users"
   add_foreign_key "terms_and_conditions", "users", column: "created_by_id"
@@ -1147,6 +1601,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131953) do
   add_foreign_key "user_versions", "users"
   add_foreign_key "user_versions", "users", column: "admin_user_id"
   add_foreign_key "users", "lenders"
+  add_foreign_key "webhook_deliveries", "webhooks"
+  add_foreign_key "webhook_endpoints", "users"
+  add_foreign_key "webhook_events", "webhook_endpoints"
+  add_foreign_key "webhooks", "lenders"
+  add_foreign_key "wholesale_funder_contracts", "wholesale_funders"
   add_foreign_key "wholesale_funder_versions", "users"
   add_foreign_key "wholesale_funder_versions", "wholesale_funders"
   add_foreign_key "workflow_execution_trackers", "email_workflows"

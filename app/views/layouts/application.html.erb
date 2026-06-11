@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="light" lan="en" class="theme-light">
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Futureproof" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,36 +10,16 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <a href="#main-content" class="fp-skip-link">Skip to main content</a>
-    <% if notice %>
-      <div class="alert alert-success alert-notice" data-controller="alert">
-        <%= notice %>
-        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
-      </div>
-    <% end %>
-    <% if alert %>
-      <div class="alert alert-danger alert-alert" data-controller="alert">
-        <%= alert %>
-        <button type="button" class="alert-dismiss" data-action="click->alert#dismiss" aria-label="Dismiss">&times;</button>
-      </div>
-    <% end %>
-    
-    <main class="homepage-main">
-      <%= yield %>
-    </main>
+    <%= yield %>
+    <%= render 'shared/akane_chat' if @show_akane_chat %>
   </body>
 </html>

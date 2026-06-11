@@ -1,0 +1,387 @@
+<% content_for :page_title, "Dashboard" %>
+
+<div class="lender-dashboard">
+  <!-- Key Metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Total Applications</div>
+      <div class="metric-value"><%= @stats[:total] %></div>
+      <div class="metric-detail">Assigned to you</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Pending Review</div>
+      <div class="metric-value stat-count--warning"><%= @stats[:pending] %></div>
+      <div class="metric-detail">Awaiting approval</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Active Loans</div>
+      <div class="metric-value stat-count--success"><%= @stats[:active] %></div>
+      <div class="metric-detail">Paying out income</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Total Portfolio Value</div>
+      <div class="metric-value stat-count--info">
+        <%= format_portfolio_value(@stats[:total_loan_amount]) %>
+      </div>
+      <div class="metric-detail">Loan amount outstanding</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Overview -->
+  <div class="section">
+    <h2>Application Pipeline</h2>
+    <div class="pipeline-bars">
+      <% pipeline_bar_config(@stats).each do |bar| %>
+        <div class="pipeline-item">
+          <div class="pipeline-bar pipeline-bar--<%= bar[:color] %>" 
+               style="width: <%= bar[:percentage] %>%;"></div>
+          <div class="pipeline-label">
+            <%= bar[:label] %>
+            <span class="count"><%= bar[:count] %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Recent Applications</h2>
+      <%= link_to "View All", lender_dashboard_applications_path, class: "btn btn-secondary" %>
+    </div>
+
+    <% if @recent_applications.any? %>
+      <table class="applications-table">
+        <thead>
+          <tr>
+            <th>Borrower</th>
+            <th>Property</th>
+            <th>Loan Amount</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_applications.each do |app| %>
+            <tr>
+              <td class="borrower-name">
+                <strong><%= app.user.full_name %></strong>
+                <div class="borrower-email"><%= app.user.email %></div>
+              </td>
+              <td><%= truncate(app.property_address, length: 40) %></td>
+              <td class="loan-amount">
+                $<%= number_with_precision(app.loan_amount, precision: 0, delimiter: ',') %>
+              </td>
+              <td>
+                <span class="status-badge status-<%= app.status %>">
+                  <%= app.status.humanize %>
+                </span>
+              </td>
+              <td class="date-cell">
+                <%= app.created_at.strftime('%b %d, %Y') %>
+              </td>
+              <td class="action-cell">
+                <%= link_to "Review", lender_dashboard_application_detail_path(app), class: "btn btn-secondary" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="empty-state">
+        <p>No applications assigned yet.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Top Borrowers by Income -->
+  <% if @top_borrowers.any? %>
+    <div class="section">
+      <h2>Top Performing Loans</h2>
+      <div class="borrowers-grid">
+        <% @top_borrowers.each do |app| %>
+          <div class="borrower-card">
+            <div class="card-header">
+              <div class="borrower-initials">
+                <%= app.user.first_name[0].upcase %><%= app.user.last_name[0].upcase %>
+              </div>
+              <div>
+                <div class="borrower-name"><%= app.user.full_name %></div>
+                <div class="borrower-property"><%= truncate(app.property_address, length: 35) %></div>
+              </div>
+            </div>
+            <div class="card-stats">
+              <div class="stat">
+                <span class="stat-label">Loan</span>
+                <span class="stat-value">$<%= number_with_precision(app.loan_amount, precision: 0, delimiter: ',') %></span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Distributed</span>
+                <span class="stat-value">$<%= number_with_precision(app.distributions.sum(&:amount), precision: 0, delimiter: ',') %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Monthly Distribution Trend -->
+  <% if @monthly_distributions.any? %>
+    <div class="section">
+      <h2>Monthly Distribution Trend</h2>
+      <div class="chart-placeholder">
+        <p style="text-align: center; padding: 40px; color: #999;">
+          📊 Distribution chart coming soon<br>
+          <small>Total Distributed This Year: $<%= number_with_precision(@monthly_distributions.values.sum, precision: 0, delimiter: ',') %></small>
+        </p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .lender-dashboard {
+    max-width: 1400px;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .metric-card {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .metric-label {
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #10B981;
+    margin-bottom: 8px;
+  }
+
+  .metric-detail {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section h2 {
+    font-size: 18px;
+    color: #1f2937;
+    margin-bottom: 20px;
+  }
+
+  .pipeline-bars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .pipeline-item {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 6px;
+  }
+
+  .pipeline-bar {
+    height: 8px;
+    background: #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .pipeline-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .pipeline-label .count {
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  .applications-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+  }
+
+  .applications-table th {
+    background: #f9fafb;
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: bold;
+    color: #666;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .applications-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .applications-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .borrower-name {
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .borrower-email {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .loan-amount {
+    color: #10B981;
+    font-weight: bold;
+  }
+
+  .date-cell {
+    font-size: 13px;
+    color: #666;
+  }
+
+  .action-cell {
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .status-processing { background: #FEF3C7; color: #92400E; }
+  .status-accepted { background: #DBEAFE; color: #1E40AF; }
+  .status-activated { background: #D1FAE5; color: #065F46; }
+  .status-rejected { background: #FEE2E2; color: #991B1B; }
+
+  .borrowers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .borrower-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #f9fafb;
+  }
+
+  .card-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .borrower-initials {
+    width: 48px;
+    height: 48px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .card-header div {
+    flex: 1;
+  }
+
+  .borrower-name {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .borrower-property {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat {
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-weight: bold;
+    color: #10B981;
+  }
+
+  .chart-placeholder {
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 2px dashed #e5e7eb;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+</style>

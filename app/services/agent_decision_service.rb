@@ -33,7 +33,7 @@ class AgentDecisionService
 
   private
 
-  # Motoko: initial application quality check
+  # Akane: initial application quality check
   def evaluate_application
     flags = []
     reasons = []
@@ -79,7 +79,7 @@ class AgentDecisionService
     build_result(flags, reasons, risk)
   end
 
-  # Rei: processing readiness check
+  # Rie: processing readiness check
   def evaluate_for_processing
     flags = []
     reasons = []

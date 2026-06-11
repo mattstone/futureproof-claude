@@ -1,0 +1,281 @@
+<div class="borrower-detail">
+  <div class="detail-header">
+    <%= link_to "← Back", borrower_account_path, class: "back-link" %>
+    <h1>Change Password</h1>
+  </div>
+
+  <div class="form-container">
+    <%= form_with model: current_user, local: true, class: "password-form" do |f| %>
+      <div class="security-notice">
+        <strong>Security Tip:</strong> Use a strong password with a mix of uppercase, lowercase, numbers, and special characters.
+      </div>
+
+      <div class="form-group">
+        <%= f.label :current_password, "Current Password", class: "form-label" %>
+        <%= f.password_field :current_password, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password, "New Password", class: "form-label" %>
+        <%= f.password_field :password, class: "form-input" %>
+        <div class="password-strength">
+          <div class="strength-bar"><div id="strength-fill" class="strength-fill"></div></div>
+          <span id="strength-text" class="strength-text">Strength: <strong>None</strong></span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+        <%= f.password_field :password_confirmation, class: "form-input" %>
+      </div>
+
+      <div class="password-requirements">
+        <h3>Password Requirements</h3>
+        <ul>
+          <li id="req-length">At least 8 characters</li>
+          <li id="req-upper">At least one uppercase letter</li>
+          <li id="req-lower">At least one lowercase letter</li>
+          <li id="req-number">At least one number</li>
+          <li id="req-special">At least one special character (!@#$%)</li>
+        </ul>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Change Password", class: "btn btn-primary" %>
+        <%= link_to "Cancel", borrower_account_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .borrower-detail {
+    padding: 0;
+  }
+
+  .detail-header {
+    margin-bottom: 30px;
+  }
+
+  .back-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .detail-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #333;
+  }
+
+  .form-container {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    max-width: 600px;
+  }
+
+  .password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .security-notice {
+    background: #e3f2fd;
+    padding: 12px;
+    border-radius: 4px;
+    border-left: 4px solid #2196F3;
+    color: #1565c0;
+    font-size: 13px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .form-input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  }
+
+  .password-strength {
+    margin-top: 8px;
+  }
+
+  .strength-bar {
+    width: 100%;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .strength-fill {
+    height: 100%;
+    width: 0%;
+    background: #ccc;
+    transition: all 0.3s;
+  }
+
+  .strength-text {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .password-requirements {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .password-requirements h3 {
+    font-size: 13px;
+    margin: 0 0 12px 0;
+    color: #333;
+  }
+
+  .password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .password-requirements li {
+    font-size: 12px;
+    color: #999;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .password-requirements li:before {
+    content: "✗";
+    position: absolute;
+    left: 0;
+    color: #ccc;
+    font-weight: bold;
+  }
+
+  .password-requirements li.met {
+    color: #4CAF50;
+  }
+
+  .password-requirements li.met:before {
+    content: "✓";
+    color: #4CAF50;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: #2196F3;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #1976D2;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e0e0e0;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.querySelector('input[name="user[password]"]');
+    const strengthFill = document.querySelector('#strength-fill');
+    const strengthText = document.querySelector('#strength-text');
+    const requirements = {
+      length: document.querySelector('#req-length'),
+      upper: document.querySelector('#req-upper'),
+      lower: document.querySelector('#req-lower'),
+      number: document.querySelector('#req-number'),
+      special: document.querySelector('#req-special')
+    };
+
+    function checkStrength(password) {
+      let strength = 0;
+      const checks = {
+        length: password.length >= 8,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%]/.test(password)
+      };
+
+      Object.entries(checks).forEach(([key, met]) => {
+        if (met) {
+          strength++;
+          requirements[key].classList.add('met');
+        } else {
+          requirements[key].classList.remove('met');
+        }
+      });
+
+      const strengthLabel = ['None', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'][strength];
+      const strengthColor = ['#ccc', '#f44336', '#ff9800', '#ffc107', '#8bc34a', '#4caf50'][strength];
+      
+      strengthFill.style.width = (strength * 20) + '%';
+      strengthFill.style.background = strengthColor;
+      strengthText.innerHTML = `Strength: <strong>${strengthLabel}</strong>`;
+    }
+
+    if (passwordInput) {
+      passwordInput.addEventListener('input', function() {
+        checkStrength(this.value);
+      });
+    }
+  });
+</script>

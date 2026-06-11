@@ -1,0 +1,153 @@
+<div class="container">
+  <div class="breadcrumb">
+    <%= link_to "Dashboard", admin_path %> <span>›</span>
+    <%= link_to "Legal Documents", admin_legal_documents_path %> <span>›</span>
+    <span>Templates</span>
+  </div>
+
+<% content_for :page_title, "Legal Document Templates" %>
+  <p>Reusable templates for quick document creation.</p>
+
+  <!-- Filter -->
+  <div class="card" style="margin-bottom: 20px;">
+    <form method="get" style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: flex-end;">
+      <div style="display: flex; flex-direction: column;">
+        <label for="jurisdiction">Filter by Jurisdiction</label>
+        <select name="jurisdiction" id="jurisdiction">
+          <option value="">All Jurisdictions</option>
+          <% LegalDocument::JURISDICTIONS.each do |jur| %>
+            <option value="<%= jur %>" <%= params[:jurisdiction] == jur ? 'selected' : '' %>>
+              <%= jur %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary" style="padding: 10px 20px;">Filter</button>
+    </form>
+  </div>
+
+  <!-- Templates Table -->
+  <div class="card">
+    <% if @templates.any? %>
+      <table>
+        <thead>
+          <tr>
+            <th>Template Name</th>
+            <th>Document Type</th>
+            <th>Jurisdiction</th>
+            <th>Party Type</th>
+            <th>Variables</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @templates.each do |template| %>
+            <tr>
+              <td><strong><%= template.template_name %></strong></td>
+              <td><%= template.document_type_display %></td>
+              <td><span class="badge" style="background: #dbeafe; color: #1e40af;"><%= template.jurisdiction_name %></span></td>
+              <td><%= template.party_type.titleize %></td>
+              <td style="font-size: 12px; color: #6b7280;">
+                <% vars = template.available_variables %>
+                <% if vars.any? %>
+                  <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px;">
+                    <%= vars.map { |v| "{{#{v}}}" }.join(", ") %>
+                  </code>
+                <% else %>
+                  <em>None</em>
+                <% end %>
+              </td>
+              <td>
+                <% if template.is_active %>
+                  <span class="badge" style="background: #dcfce7; color: #166534;">✓ Active</span>
+                <% else %>
+                  <span class="badge" style="background: #f3f4f6; color: #6b7280;">Inactive</span>
+                <% end %>
+              </td>
+              <td style="font-size: 13px;">
+                <a href="<%= admin_legal_documents_templates_path(id: template.id, action: 'preview') %>" class="btn-secondary" style="display: inline-block; padding: 6px 12px; text-decoration: none; margin-right: 5px;">Preview</a>
+                <%= button_to "Create Doc", admin_legal_documents_path, method: :post, params: { template_id: template.id }, class: 'btn-primary', style: 'display: inline-block; padding: 6px 12px;' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p style="padding: 20px; text-align: center; color: #6b7280;">No templates found.</p>
+    <% end %>
+  </div>
+
+  <!-- Template Instructions -->
+  <div style="margin-top: 30px;">
+    <h2>How to Use Templates</h2>
+    <div class="card">
+      <ol style="line-height: 1.8;">
+        <li><strong>Preview:</strong> Click [Preview] to see the template content with variable placeholders highlighted.</li>
+        <li><strong>Create Document:</strong> Click [Create Doc] to create a new legal document from this template.
+          <ul>
+            <li>The form will be pre-filled with the template content</li>
+            <li>You'll be prompted to customize template variables ({{var_name}})</li>
+            <li>Complete the form and save as draft or publish</li>
+          </ul>
+        </li>
+        <li><strong>Customization:</strong> Each template may have {{variables}} that get substituted:
+          <ul>
+            <li><code>{{company_name}}</code> → Your company name</li>
+            <li><code>{{contact_email}}</code> → Support email</li>
+            <li><code>{{jurisdiction_specific_text}}</code> → Jurisdiction-specific clauses</li>
+          </ul>
+        </li>
+        <li><strong>Markdown:</strong> Templates use markdown syntax. You can edit and enhance after creation.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<style>
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f3f4f6;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover {
+  background: #f9fafb;
+}
+
+code {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+}
+</style>

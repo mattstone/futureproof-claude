@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akane · Layer 1 Mockup</title>
+<style>
+:root {
+    --navy: #1F3864;
+    --navy-dark: #142647;
+    --blue: #1E88E5;
+    --blue-light: #E8F0FB;
+    --akane: #C0392B;
+    --akane-dark: #962E22;
+    --akane-light: #FBE9E7;
+    --gray-50: #FAFBFC;
+    --gray-100: #F4F6FA;
+    --gray-200: #E5E9F0;
+    --gray-300: #CDD3DC;
+    --gray-500: #8896AB;
+    --gray-700: #4A5568;
+    --gray-900: #1A202C;
+    --green: #1B7C4F;
+    --green-light: #E0F5EA;
+    --amber: #B26A00;
+    --amber-light: #FFF4E5;
+    --shadow: 0 1px 3px rgba(31,56,100,0.08), 0 4px 12px rgba(31,56,100,0.04);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0; padding: 0;
+    font-family: 'Avenir Next', 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+    color: var(--gray-900);
+    background: var(--gray-100);
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Top bar ===== */
+.topbar {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.akane-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--akane);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(192,57,43,0.3);
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+}
+
+.brand-tag {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 2px;
+    font-style: italic;
+}
+
+.topbar-stamp {
+    background: var(--amber-light);
+    color: var(--amber);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 4px 10px;
+    border-radius: 10px;
+}
+
+.topbar-spacer { flex: 1; }
+
+.region-pill {
+    background: var(--blue-light);
+    color: var(--navy);
+    padding: 5px 11px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.reset-btn {
+    background: white;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-700);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.reset-btn:hover {
+    background: var(--gray-50);
+    border-color: var(--navy);
+}
+
+/* ===== Main 2-pane layout ===== */
+.main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    overflow: hidden;
+    min-height: 0;
+}
+
+@media (max-width: 1100px) {
+    .main { grid-template-columns: 1fr; }
+    .recommendation-pane { display: none; }
+    .recommendation-pane.visible { display: flex; }
+}
+
+/* ===== Conversation pane ===== */
+.chat-pane {
+    background: var(--gray-50);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--gray-200);
+    min-width: 0;
+}
+
+.chat-thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 36px 16px 36px;
+    scroll-behavior: smooth;
+}
+
+.chat-msg {
+    margin-bottom: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    animation: msgIn 0.32s ease-out;
+}
+
+@keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-msg.user {
+    flex-direction: row-reverse;
+}
+
+.chat-msg .bubble {
+    max-width: 78%;
+    padding: 12px 15px;
+    border-radius: 14px;
+    line-height: 1.45;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(31,56,100,0.05);
+}
+
+.chat-msg.akane .bubble {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-top-left-radius: 4px;
+    color: var(--gray-900);
+}
+
+.chat-msg.user .bubble {
+    background: var(--navy);
+    color: white;
+    border-top-right-radius: 4px;
+}
+
+.chat-msg .mini-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--akane);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+
+.chat-msg.user .mini-avatar {
+    background: var(--navy);
+    color: white;
+    font-size: 12px;
+}
+
+.chat-msg .bubble p { margin: 0 0 8px 0; }
+.chat-msg .bubble p:last-child { margin-bottom: 0; }
+.chat-msg .bubble strong { color: var(--navy); }
+
+.typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 2px 0;
+}
+
+.typing span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gray-500);
+    animation: typingBounce 1.2s infinite;
+}
+
+.typing span:nth-child(2) { animation-delay: 0.15s; }
+.typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Inline widgets that appear inside chat */
+.inline-widget {
+    margin-top: 10px;
+    padding: 14px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+}
+
+.inline-widget label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.inline-widget .value {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+}
+
+.inline-widget input[type="range"] {
+    width: 100%;
+    accent-color: var(--akane);
+}
+
+.inline-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.chip {
+    background: white;
+    border: 1px solid var(--gray-300);
+    padding: 7px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--gray-700);
+    font-weight: 500;
+    font-family: inherit;
+    transition: all 0.12s;
+}
+
+.chip:hover {
+    border-color: var(--akane);
+    color: var(--akane);
+    background: var(--akane-light);
+}
+
+.chip.selected {
+    border-color: var(--akane);
+    background: var(--akane);
+    color: white;
+}
+
+/* ===== Input bar ===== */
+.input-bar {
+    border-top: 1px solid var(--gray-200);
+    background: white;
+    padding: 14px 36px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.input-bar input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--gray-300);
+    border-radius: 22px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+}
+
+.input-bar input:focus {
+    border-color: var(--akane);
+    box-shadow: 0 0 0 3px var(--akane-light);
+}
+
+.input-bar button {
+    background: var(--akane);
+    color: white;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.input-bar button:hover { background: var(--akane-dark); }
+
+.input-bar button:disabled {
+    background: var(--gray-300);
+    cursor: not-allowed;
+}
+
+.input-bar .hint {
+    flex: 1;
+    color: var(--gray-500);
+    font-size: 13px;
+    font-style: italic;
+    padding: 11px 0;
+}
+
+/* Suggested replies row */
+.suggestions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 36px 0 36px;
+    background: white;
+    border-top: 1px solid var(--gray-200);
+}
+
+.suggestion {
+    background: var(--blue-light);
+    border: 1px solid #C5DCEF;
+    color: var(--navy);
+    padding: 7px 13px;
+    border-radius: 18px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.suggestion:hover {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+}
+
+/* ===== Recommendation pane ===== */
+.recommendation-pane {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 28px 32px;
+    transition: opacity 0.3s;
+    opacity: 0.4;
+}
+
+.recommendation-pane.visible { opacity: 1; }
+
+.rec-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.rec-empty .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.rec-empty .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+}
+
+.rec-empty .desc { font-size: 13px; max-width: 280px; line-height: 1.5; }
+
+.rec-content { display: none; }
+.rec-content.visible { display: block; }
+
+.rec-header {
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.rec-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--akane);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+}
+
+.rec-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.15;
+    margin-bottom: 6px;
+}
+
+.rec-subtitle {
+    font-size: 13px;
+    color: var(--gray-700);
+    line-height: 1.4;
+}
+
+/* Headline number cards */
+.rec-numbers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.num-card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.num-card.primary {
+    background: var(--akane-light);
+    border-color: #F5C7C0;
+}
+
+.num-card .num-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.num-card.primary .num-label { color: var(--akane-dark); }
+
+.num-card .num-value {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.05;
+}
+
+.num-card .num-sub {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 2px;
+}
+
+/* Sliders to adjust */
+.rec-sliders {
+    margin-bottom: 16px;
+}
+
+.rec-sliders h3 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px 0;
+}
+
+.slider-row {
+    margin-bottom: 12px;
+}
+
+.slider-row .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.slider-row .slider-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.slider-row .slider-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--akane);
+}
+
+.slider-row input[type="range"] {
+    width: 100%;
+    accent-color: var(--akane);
+}
+
+/* Mini income chart */
+.mini-chart {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.mini-chart h3 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 0;
+}
+
+.bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 80px;
+    margin-bottom: 6px;
+}
+
+.bar {
+    flex: 1;
+    background: var(--akane);
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: height 0.3s ease-out;
+    opacity: 0.85;
+}
+
+.bar.first  { background: var(--akane-dark); opacity: 1; }
+.bar.last   { background: var(--gray-300); }
+
+.bar-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--gray-500);
+}
+
+/* Alternatives */
+.rec-alts h3 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 0;
+}
+
+.alt-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 11px 13px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.12s;
+}
+
+.alt-card:hover {
+    border-color: var(--akane);
+    box-shadow: 0 1px 3px rgba(192,57,43,0.12);
+}
+
+.alt-card .alt-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 2px;
+}
+
+.alt-card .alt-desc {
+    font-size: 12px;
+    color: var(--gray-700);
+    line-height: 1.4;
+}
+
+/* Compliance bar */
+.compliance-gate {
+    margin-top: 16px;
+    background: var(--amber-light);
+    border-left: 4px solid var(--amber);
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+    display: none;
+}
+
+.compliance-gate.visible { display: block; }
+
+.compliance-gate .cg-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+}
+
+.compliance-gate p {
+    font-size: 12px;
+    color: var(--gray-700);
+    margin: 0 0 8px 0;
+    line-height: 1.45;
+}
+
+.compliance-gate .cg-checkbox {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--gray-900);
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+
+.compliance-gate .cg-checkbox input { margin-top: 2px; }
+
+/* Adviser handoff */
+.handoff {
+    margin-top: 16px;
+    background: var(--green-light);
+    border: 1px solid #B2E0C7;
+    padding: 14px;
+    border-radius: 8px;
+    display: none;
+}
+
+.handoff.visible { display: block; }
+
+.handoff .h-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+}
+
+.handoff p {
+    font-size: 12px;
+    color: var(--gray-700);
+    margin: 0 0 10px 0;
+    line-height: 1.45;
+}
+
+.handoff button {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+}
+
+.handoff button:hover { background: #156B43; }
+
+/* Stage indicator at top of right pane */
+.stage-indicator {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.stage-dot {
+    flex: 1;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    transition: background 0.3s;
+}
+
+.stage-dot.done { background: var(--akane); }
+.stage-dot.current { background: var(--akane); animation: pulse 1.5s ease-in-out infinite; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">
+        <div class="akane-avatar">茜</div>
+        <div>
+            <div class="brand-name">Akane <span style="font-weight:400;color:var(--gray-500);font-size:11px;">(internal codename)</span></div>
+            <div class="brand-tag">Customer Acquisition · Layer 1 · Mockup</div>
+        </div>
+    </div>
+    <div class="topbar-stamp">Prototype</div>
+    <div style="font-size:10px;color:var(--gray-500);font-style:italic;max-width:230px;line-height:1.3;">Customer never sees "Akane" — they see a neutral FutureProof assistant.</div>
+    <div class="topbar-spacer"></div>
+    <div class="region-pill">🇦🇺 AU · English</div>
+    <button class="reset-btn" onclick="resetDemo()">Reset</button>
+</div>
+
+<div class="main">
+
+    <div class="chat-pane">
+        <div class="chat-thread" id="thread"></div>
+        <div class="suggestions" id="suggestions"></div>
+        <div class="input-bar">
+            <input type="text" id="userInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter') sendUserMessage()">
+            <button id="sendBtn" onclick="sendUserMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="recommendation-pane" id="recPane">
+        <div class="rec-empty" id="recEmpty">
+            <div class="icon">↗</div>
+            <div class="title">Gathering context...</div>
+            <div class="desc">Once there's enough to recommend something, it will appear here. You can keep adjusting it after.</div>
+        </div>
+
+        <div class="rec-content" id="recContent">
+            <div class="stage-indicator">
+                <div class="stage-dot done"></div>
+                <div class="stage-dot done"></div>
+                <div class="stage-dot done"></div>
+                <div class="stage-dot done"></div>
+                <div class="stage-dot current"></div>
+                <div class="stage-dot"></div>
+            </div>
+
+            <div class="rec-header">
+                <div class="rec-eyebrow">For Margaret · 68 · NSW</div>
+                <div class="rec-title" id="recTitle">EPM 25-year · 55% LTV</div>
+                <div class="rec-subtitle" id="recSubtitle">Based on what you've shared, this gives you the most stable monthly income while keeping a ~$420k inheritance projection.</div>
+            </div>
+
+            <div class="rec-numbers">
+                <div class="num-card primary">
+                    <div class="num-label">Projected monthly income</div>
+                    <div class="num-value" id="numIncome">$5,950</div>
+                    <div class="num-sub">tax-free, paid 1st of month</div>
+                </div>
+                <div class="num-card">
+                    <div class="num-label">Term</div>
+                    <div class="num-value" id="numTerm">25 yrs</div>
+                    <div class="num-sub">to age 93</div>
+                </div>
+                <div class="num-card">
+                    <div class="num-label">LTV (initial)</div>
+                    <div class="num-value" id="numLtv">55%</div>
+                    <div class="num-sub">$770k of $1.4M home</div>
+                </div>
+                <div class="num-card">
+                    <div class="num-label">Projected residual</div>
+                    <div class="num-value" id="numResidual">$420k</div>
+                    <div class="num-sub">after final settlement</div>
+                </div>
+            </div>
+
+            <div class="rec-sliders">
+                <h3>Adjust to see how the trade-off changes</h3>
+
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span class="slider-name">Term</span>
+                        <span class="slider-val"><span id="sliderTermVal">25</span> years</span>
+                    </div>
+                    <input type="range" id="sliderTerm" min="10" max="30" step="5" value="25" oninput="updateRec()">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span class="slider-name">LTV</span>
+                        <span class="slider-val"><span id="sliderLtvVal">55</span>%</span>
+                    </div>
+                    <input type="range" id="sliderLtv" min="30" max="80" step="5" value="55" oninput="updateRec()">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span class="slider-name">Income vs inheritance preference</span>
+                        <span class="slider-val" id="prefLabel">Balanced</span>
+                    </div>
+                    <input type="range" id="sliderPref" min="0" max="100" step="10" value="50" oninput="updateRec()">
+                </div>
+            </div>
+
+            <div class="mini-chart">
+                <h3>Projected monthly income — years 1 → 25</h3>
+                <div class="bars" id="bars"></div>
+                <div class="bar-axis">
+                    <span>Yr 1</span><span>Yr 13</span><span>Yr 25</span>
+                </div>
+            </div>
+
+            <div class="rec-alts">
+                <h3>Other shapes worth considering</h3>
+                <div class="alt-card" onclick="pickAlt('20yr-higher')">
+                    <div class="alt-title">20-year, higher income</div>
+                    <div class="alt-desc">~$7,100/mo, residual ~$210k. Front-loads cash flow but smaller inheritance.</div>
+                </div>
+                <div class="alt-card" onclick="pickAlt('30yr-lower')">
+                    <div class="alt-title">30-year, lower income</div>
+                    <div class="alt-desc">~$5,100/mo, residual ~$610k. Stretches term, preserves more inheritance.</div>
+                </div>
+                <div class="alt-card" onclick="pickAlt('phased')">
+                    <div class="alt-title">Phased drawdown (year-stepped)</div>
+                    <div class="alt-desc">$4,800/mo for 10 years, $6,400/mo after. Useful if you expect lower needs early on.</div>
+                </div>
+            </div>
+
+            <div class="compliance-gate" id="complianceGate">
+                <div class="cg-title">⚠ Important — read before continuing</div>
+                <p>This is <strong>general guidance only</strong>. I'm not a licensed financial adviser. The shape above is based on what you've told me — a real recommendation needs a licensed adviser to confirm it's right for your full situation.</p>
+                <label class="cg-checkbox">
+                    <input type="checkbox" id="ack1" onchange="checkCompliance()">
+                    <span>I understand this is general guidance, not personal financial advice.</span>
+                </label>
+                <label class="cg-checkbox">
+                    <input type="checkbox" id="ack2" onchange="checkCompliance()">
+                    <span>I'd like to speak with a licensed FutureProof adviser before any decision.</span>
+                </label>
+            </div>
+
+            <div class="handoff" id="handoff">
+                <div class="h-title">✓ Ready for adviser handoff</div>
+                <p>I'll send this conversation, your numbers, and your priorities to an adviser. They'll have everything when you meet — no need to repeat yourself.</p>
+                <button onclick="alert('In production: opens calendar booking. The adviser receives the full conversation transcript + recommendation card before the call.')">Book an adviser conversation →</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const HOME_VALUE = 1400000;
+
+const SCRIPT = [
+    {
+        from: 'akane',
+        text: "<p>Hi — I'm the <strong>FutureProof assistant</strong>. I help people work out whether an Equity Preservation Mortgage might suit them, and what shape would actually fit your life.</p><p>I'll keep this short. To start: are you exploring this for <strong>yourself</strong>, or for a parent or relative?</p>",
+        suggestions: ["For myself", "For my parent", "Just exploring"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Got it. A few quick details so my suggestions are actually grounded — not generic.</p><p>Roughly <strong>how old are you</strong>, and which region are you in?</p>",
+        suggestions: ["68, NSW Australia", "72, London UK", "65, California US"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Perfect — Margaret, 68, NSW. I'll use AU rules.</p><p>What's your <strong>home roughly worth</strong>, and is the mortgage paid off?</p>",
+        widget: {
+            type: 'slider',
+            label: 'Estimated home value',
+            id: 'homeValue',
+            min: 500000, max: 3000000, step: 50000, value: 1400000,
+            format: 'currency'
+        },
+        suggestions: ["~$1.4M, fully paid off", "~$1.4M, ~$200k mortgage"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Great. And outside the home — roughly what do you have in <strong>super, savings, and other investments</strong>? A rough number is fine.</p>",
+        suggestions: ["~$300k super, $50k cash", "~$600k super", "Less than $200k total"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Understood. Now the part I really need to get right — <strong>what would you actually like the income for?</strong></p><p>Not the total amount yet, but the shape of life you want it to fund.</p>",
+        suggestions: ["Travel + helping family", "Just steady, comfortable", "Move to a smaller home"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Lovely. One more — these three matter to most people in different proportions. Drag whichever feels closest:</p>",
+        widget: {
+            type: 'priorities',
+            id: 'priorities'
+        },
+        suggestions: ["Done — show me a recommendation"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Thinking about this for you...</p>",
+        delay: 2000,
+        triggers: 'showRecommendation'
+    },
+    {
+        from: 'akane',
+        text: "<p>Here's what I'd suggest as a <strong>starting point</strong> →</p><p>An <strong>EPM, 25-year term, 55% LTV</strong>. Projected ~$5,950/month tax-free, with around $420k of home equity left at the end for inheritance.</p><p>The recommendation panel on the right is fully adjustable. Pull the sliders — you'll see how income, term, and residual move together. There's no single 'right answer'; there's the one that fits how you want the next 25 years to feel.</p>",
+        suggestions: ["I want to explore the trade-offs", "What about a 20-year version?", "Talk to a real adviser"]
+    },
+    {
+        from: 'akane',
+        text: "<p>Good — explore freely. When you're ready, please read the orange compliance note in the right panel and tick both boxes. That unlocks the adviser handoff. <strong>I'm not licensed to advise — only a human FutureProof adviser is.</strong> They'll have this entire conversation when you meet them.</p>",
+        triggers: 'showCompliance'
+    }
+];
+
+let stepIndex = 0;
+let waitingForUser = false;
+
+function thread() { return document.getElementById('thread'); }
+function sugBox() { return document.getElementById('suggestions'); }
+
+function addAkane(html, withTyping = true) {
+    return new Promise(resolve => {
+        if (!withTyping) {
+            renderAkaneMsg(html);
+            resolve();
+            return;
+        }
+        const typing = document.createElement('div');
+        typing.className = 'chat-msg akane';
+        typing.innerHTML = `<div class="mini-avatar">FP</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+        thread().appendChild(typing);
+        scrollDown();
+        setTimeout(() => {
+            typing.remove();
+            renderAkaneMsg(html);
+            resolve();
+        }, 900);
+    });
+}
+
+function renderAkaneMsg(html) {
+    const m = document.createElement('div');
+    m.className = 'chat-msg akane';
+    m.innerHTML = `<div class="mini-avatar">FP</div><div class="bubble">${html}</div>`;
+    thread().appendChild(m);
+    scrollDown();
+}
+
+function addUser(text) {
+    const m = document.createElement('div');
+    m.className = 'chat-msg user';
+    m.innerHTML = `<div class="mini-avatar">M</div><div class="bubble">${escapeHtml(text)}</div>`;
+    thread().appendChild(m);
+    scrollDown();
+}
+
+function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function scrollDown() {
+    const t = thread();
+    setTimeout(() => { t.scrollTop = t.scrollHeight; }, 50);
+}
+
+function setSuggestions(list) {
+    sugBox().innerHTML = '';
+    if (!list || !list.length) return;
+    list.forEach(s => {
+        const b = document.createElement('button');
+        b.className = 'suggestion';
+        b.textContent = s;
+        b.onclick = () => { sendUserMessage(s); };
+        sugBox().appendChild(b);
+    });
+}
+
+function renderInlineWidget(w) {
+    const lastBubble = thread().querySelector('.chat-msg.akane:last-child .bubble');
+    if (!lastBubble) return;
+
+    if (w.type === 'slider') {
+        const wrap = document.createElement('div');
+        wrap.className = 'inline-widget';
+        wrap.innerHTML = `
+            <label>${w.label}</label>
+            <div class="value" id="${w.id}-display">$${(w.value/1000).toFixed(0)}k</div>
+            <input type="range" id="${w.id}" min="${w.min}" max="${w.max}" step="${w.step}" value="${w.value}">
+        `;
+        lastBubble.appendChild(wrap);
+        const slider = wrap.querySelector('input');
+        const display = wrap.querySelector('.value');
+        slider.addEventListener('input', () => {
+            const v = +slider.value;
+            display.textContent = `$${(v/1000).toFixed(0)}k`;
+        });
+    } else if (w.type === 'priorities') {
+        const wrap = document.createElement('div');
+        wrap.className = 'inline-widget';
+        wrap.innerHTML = `
+            <label>How important is staying in this home?</label>
+            <input type="range" min="0" max="100" value="80" id="p-stay">
+            <label style="margin-top:10px;">How important is income certainty?</label>
+            <input type="range" min="0" max="100" value="70" id="p-cert">
+            <label style="margin-top:10px;">How important is leaving an inheritance?</label>
+            <input type="range" min="0" max="100" value="60" id="p-inh">
+        `;
+        lastBubble.appendChild(wrap);
+    }
+    scrollDown();
+}
+
+async function runStep(idx) {
+    if (idx >= SCRIPT.length) {
+        setSuggestions([]);
+        document.getElementById('userInput').placeholder = "Conversation paused — use Reset to start over";
+        return;
+    }
+    const step = SCRIPT[idx];
+    if (step.delay) {
+        await new Promise(r => setTimeout(r, step.delay));
+    }
+    await addAkane(step.text, true);
+    if (step.widget) renderInlineWidget(step.widget);
+    if (step.triggers === 'showRecommendation') {
+        showRecommendation();
+        stepIndex = idx + 1;
+        await runStep(stepIndex);
+        return;
+    }
+    if (step.triggers === 'showCompliance') {
+        document.getElementById('complianceGate').classList.add('visible');
+    }
+    setSuggestions(step.suggestions || []);
+    waitingForUser = true;
+}
+
+function sendUserMessage(text) {
+    const inp = document.getElementById('userInput');
+    const msg = (text || inp.value || '').trim();
+    if (!msg) return;
+    addUser(msg);
+    inp.value = '';
+    setSuggestions([]);
+    waitingForUser = false;
+    stepIndex++;
+    runStep(stepIndex);
+}
+
+function showRecommendation() {
+    document.getElementById('recPane').classList.add('visible');
+    document.getElementById('recEmpty').style.display = 'none';
+    document.getElementById('recContent').classList.add('visible');
+    drawBars();
+}
+
+function updateRec() {
+    const term = +document.getElementById('sliderTerm').value;
+    const ltv = +document.getElementById('sliderLtv').value;
+    const pref = +document.getElementById('sliderPref').value;
+
+    const homePart = HOME_VALUE * (ltv / 100);
+    const baseAnnual = homePart * 0.058;
+    const termAdj = 1 + (25 - term) * 0.012;
+    const prefBoost = 1 + (pref - 50) / 200;
+    const monthly = (baseAnnual / 12) * termAdj * prefBoost;
+
+    const residual = HOME_VALUE - homePart * (0.6 + (term - 10) * 0.012) * (1 + (50 - pref) / 250);
+
+    document.getElementById('sliderTermVal').textContent = term;
+    document.getElementById('sliderLtvVal').textContent = ltv;
+    document.getElementById('numIncome').textContent = '$' + Math.round(monthly).toLocaleString();
+    document.getElementById('numTerm').textContent = term + ' yrs';
+    document.getElementById('numLtv').textContent = ltv + '%';
+    document.getElementById('numResidual').textContent = '$' + (Math.max(0, residual) / 1000).toFixed(0) + 'k';
+
+    const prefLabels = ['All income, no inheritance','Heavily income','Income-leaning','Balanced','Inheritance-leaning','Heavily inheritance','All inheritance, low income'];
+    const prefIdx = Math.min(prefLabels.length - 1, Math.floor(pref / 17));
+    document.getElementById('prefLabel').textContent = prefLabels[prefIdx];
+
+    document.getElementById('recTitle').textContent = `EPM ${term}-year · ${ltv}% LTV`;
+    drawBars();
+}
+
+function drawBars() {
+    const term = +document.getElementById('sliderTerm').value;
+    const ltv = +document.getElementById('sliderLtv').value;
+    const pref = +document.getElementById('sliderPref').value;
+
+    const baseAnnual = HOME_VALUE * (ltv/100) * 0.058;
+    const termAdj = 1 + (25 - term) * 0.012;
+    const prefBoost = 1 + (pref - 50) / 200;
+    const baseMonthly = (baseAnnual / 12) * termAdj * prefBoost;
+
+    const N = Math.max(8, Math.min(25, term));
+    const bars = document.getElementById('bars');
+    bars.innerHTML = '';
+    for (let i = 0; i < N; i++) {
+        const t = i / (N - 1);
+        const v = baseMonthly * (0.92 + t * 0.22);
+        const max = baseMonthly * 1.18;
+        const h = (v / max) * 100;
+        const div = document.createElement('div');
+        div.className = 'bar' + (i === 0 ? ' first' : '') + (i === N - 1 ? ' last' : '');
+        div.style.height = h + '%';
+        bars.appendChild(div);
+    }
+}
+
+function pickAlt(kind) {
+    const t = document.getElementById('sliderTerm');
+    const l = document.getElementById('sliderLtv');
+    const p = document.getElementById('sliderPref');
+    if (kind === '20yr-higher') { t.value = 20; l.value = 60; p.value = 30; }
+    if (kind === '30yr-lower')  { t.value = 30; l.value = 50; p.value = 70; }
+    if (kind === 'phased')      { t.value = 25; l.value = 55; p.value = 50; }
+    updateRec();
+}
+
+function checkCompliance() {
+    const a = document.getElementById('ack1').checked;
+    const b = document.getElementById('ack2').checked;
+    document.getElementById('handoff').classList.toggle('visible', a && b);
+}
+
+function resetDemo() {
+    thread().innerHTML = '';
+    sugBox().innerHTML = '';
+    document.getElementById('recEmpty').style.display = 'flex';
+    document.getElementById('recContent').classList.remove('visible');
+    document.getElementById('recPane').classList.remove('visible');
+    document.getElementById('complianceGate').classList.remove('visible');
+    document.getElementById('handoff').classList.remove('visible');
+    document.getElementById('ack1').checked = false;
+    document.getElementById('ack2').checked = false;
+    document.getElementById('sliderTerm').value = 25;
+    document.getElementById('sliderLtv').value = 55;
+    document.getElementById('sliderPref').value = 50;
+    updateRec();
+    stepIndex = 0;
+    runStep(0);
+}
+
+resetDemo();
+</script>
+
+</body>
+</html>

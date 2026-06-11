@@ -1,0 +1,49 @@
+/* FAQ Admin Styles */
+
+/* Sortable list */
+.faq-sortable-list { list-style: none; padding: 0; margin: 0; }
+
+.faq-sortable-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.faq-sortable-item:hover { border-color: #cbd5e1; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+.faq-drag-handle {
+  color: #94a3b8;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.faq-item-content { flex: 1; min-width: 0; }
+.faq-item-question { font-weight: 600; font-size: 0.95rem; color: #1a1a2e; margin-bottom: 2px; }
+.faq-item-answer { font-size: 0.85rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px; }
+
+.faq-item-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Drag feedback */
+.sortable-dragging { opacity: 0.4; cursor: grabbing; }
+.sortable-drop-target { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+
+/* Summary mode (read-only, no drag) */
+.faq-readonly-item { cursor: default; }
+
+/* Empty state */
+.faq-empty { text-align: center; padding: 48px 24px; color: #64748b; }
+.faq-empty p { font-size: 1.1rem; margin-bottom: 16px; }
+
+/* Form actions */
+.faq-form-actions { margin-top: 16px; }
+
+/* Reorder form (hidden) */
+.faq-reorder-form { display: none; }

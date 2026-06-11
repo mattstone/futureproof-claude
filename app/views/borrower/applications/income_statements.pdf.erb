@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; line-height: 1.5; }
+      h1 { color: #1F2937; border-bottom: 2px solid #059669; padding-bottom: 10px; font-size: 22px; }
+      h2 { color: #374151; margin-top: 20px; margin-bottom: 10px; font-size: 14px; }
+      .header { margin-bottom: 20px; }
+      .loan-summary { background: #F9FAFB; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+      .loan-summary-row { display: inline-block; width: 48%; margin-right: 2%; vertical-align: top; }
+      .statement-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+      .statement-table th { background: #F3F4F6; padding: 10px; text-align: left; border-bottom: 2px solid #059669; font-weight: bold; }
+      .statement-table td { padding: 10px; border-bottom: 1px solid #E5E7EB; text-align: right; }
+      .statement-table td:first-child { text-align: left; }
+      .total-row { background: #F0FDF4; font-weight: bold; border-top: 2px solid #059669; }
+      .page-break { page-break-after: always; margin-top: 40px; }
+      .footer { font-size: 12px; color: #6B7280; margin-top: 20px; border-top: 1px solid #E5E7EB; padding-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Monthly Income Statements Schedule</h1>
+      <p style="color: #6B7280;">12-Month Income Payment Projection</p>
+    </div>
+
+    <div class="loan-summary">
+      <div class="loan-summary-row">
+        <strong>Property:</strong> <%= @application.property_address %><br>
+        <strong>Loan Amount:</strong> $<%= number_with_precision(@application.loan_amount, precision: 0, delimiter: ',') %><br>
+        <strong>Loan Term:</strong> <%= @application.loan_term_years %> years
+      </div>
+      <div class="loan-summary-row">
+        <strong>Monthly Income:</strong> $<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %><br>
+        <strong>Interest Rate:</strong> <%= number_with_precision(@application.interest_rate * 100, precision: 2) %>% p.a.<br>
+        <strong>LTV:</strong> <%= number_with_precision(@application.ltv_ratio * 100, precision: 1) %>%
+      </div>
+    </div>
+
+    <h2>Year 1 Income Payment Schedule</h2>
+    <table class="statement-table">
+      <thead>
+        <tr>
+          <th>Payment #</th>
+          <th>Month</th>
+          <th>Scheduled Payment Date</th>
+          <th>Payment Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% (1..12).each do |month| %>
+          <% payment_date = Date.today.beginning_of_year + (month - 1).months + 14.days %>
+          <tr>
+            <td><%= month %></td>
+            <td><%= Date::MONTHNAMES[month] %></td>
+            <td><%= payment_date.strftime('%d %b %Y') %></td>
+            <td>$<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="3">Year 1 Total Income</td>
+          <td>$<%= number_with_precision(@application.monthly_payment * 12, precision: 2, delimiter: ',') %></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="footer">
+      <p><strong>Important Notes:</strong></p>
+      <ul>
+        <li>Payment dates are scheduled for the 15th of each month</li>
+        <li>Payments will be deposited to your nominated bank account</li>
+        <li>This is your guaranteed income, paid regardless of market conditions</li>
+        <li>You will receive a payment confirmation email after each deposit</li>
+        <li>If you need to change your payment date or account details, please contact us</li>
+      </ul>
+      
+      <p style="margin-top: 15px;">
+        <strong>Generated:</strong> <%= Time.current.strftime('%d %B %Y at %H:%M') %><br>
+        <strong>Agreement ID:</strong> <%= @application.id %>
+      </p>
+    </div>
+  </body>
+</html>

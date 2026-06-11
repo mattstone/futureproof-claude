@@ -2,16 +2,16 @@ require "test_helper"
 
 class AgentDecisionServiceTest < ActiveSupport::TestCase
   setup do
-    @motoko = ai_agents(:customer_success_manager)  # applications type
-    @rei = ai_agents(:funding_specialist)            # backoffice type
+    @akane = ai_agents(:customer_success_manager)  # applications type
+    @rie = ai_agents(:funding_specialist)            # backoffice type
     @yumi = ai_agents(:support_specialist)           # investment type
   end
 
-  # === Motoko (applications) tests ===
+  # === Akane (applications) tests ===
 
-  test "Motoko approves valid application in range" do
+  test "Akane approves valid application in range" do
     app = applications(:submitted_application) # home_value 1_200_000, age 68
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :approve, result.decision
     assert_equal :advance, result.next_action
@@ -20,47 +20,47 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     assert_equal 0, result.risk_score
   end
 
-  test "Motoko flags application with property value below minimum" do
+  test "Akane flags application with property value below minimum" do
     app = applications(:mortgage_application) # home_value 500_000
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :reject, result.decision
     assert_includes result.flags, 'property_value_too_low'
     assert_includes result.reasoning, 'below minimum'
   end
 
-  test "Motoko flags senior borrower over 75" do
+  test "Akane flags senior borrower over 75" do
     app = applications(:second_application) # borrower_age 70
     # 70 is under 75, so should be fine. Let's test with a higher age.
     # We need an app with age > 75. Let's use submitted_application and stub.
     app = applications(:submitted_application)
     app.borrower_age = 78
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :flag, result.decision
     assert_includes result.flags, 'borrower_age_senior'
     assert_includes result.reasoning, 'shorter loan term'
   end
 
-  test "Motoko rejects application with property value too high" do
+  test "Akane rejects application with property value too high" do
     app = applications(:submitted_application)
     app.home_value = 15_000_000
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :reject, result.decision
     assert_includes result.flags, 'property_value_too_high'
   end
 
-  # === Rei (backoffice) tests ===
+  # === Rie (backoffice) tests ===
 
-  test "Rei approves application with all fields present and valuation" do
+  test "Rie approves application with all fields present and valuation" do
     app = applications(:submitted_application)
     # Give it a valuation
     app.property_valuation_middle = 1_200_000
     app.property_valuation_low = 1_100_000
     app.property_valuation_high = 1_300_000
 
-    result = AgentDecisionService.new(@rei, app).evaluate
+    result = AgentDecisionService.new(@rie, app).evaluate
 
     # Should flag missing documents but not reject
     if result.flags.include?('missing_documents')
@@ -70,23 +70,23 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "Rei flags application missing property valuation" do
+  test "Rie flags application missing property valuation" do
     app = applications(:submitted_application)
     app.property_valuation_middle = nil
 
-    result = AgentDecisionService.new(@rei, app).evaluate
+    result = AgentDecisionService.new(@rie, app).evaluate
 
     assert_includes result.flags, 'no_property_valuation'
   end
 
-  test "Rei flags low income" do
+  test "Rie flags low income" do
     app = applications(:submitted_application)
     app.property_valuation_middle = 1_200_000
 
     # Mock monthly income to return low value
     app.define_singleton_method(:monthly_income_amount) { 200.0 }
 
-    result = AgentDecisionService.new(@rei, app).evaluate
+    result = AgentDecisionService.new(@rie, app).evaluate
 
     assert_includes result.flags, 'low_income'
     assert_includes result.reasoning, 'below minimum'
@@ -110,7 +110,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
 
   test "risk score increases with more flags" do
     app = applications(:mortgage_application) # low value
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert result.risk_score > 0
     assert result.risk_score <= 100
@@ -118,7 +118,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
 
   test "approved result has zero or low risk score" do
     app = applications(:submitted_application)
-    result = AgentDecisionService.new(@motoko, app).evaluate
+    result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :approve, result.decision
     assert_equal 0, result.risk_score
@@ -146,7 +146,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     result = AgentLifecycleService.new(app, 'application_submitted').execute!
 
     assert result[:success]
-    # Should have logged multiple actions (Motoko eval + handoff + Rei eval)
+    # Should have logged multiple actions (Akane eval + handoff + Rie eval)
     assert AgentAction.count >= 1
   end
 

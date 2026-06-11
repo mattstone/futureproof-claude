@@ -1,0 +1,61 @@
+<% provide :page_title, "Contracts for #{@wholesale_funder.name}" %>
+
+<div class="admin-card">
+  <h2>Contracts for <%= @wholesale_funder.name %></h2>
+  <p class="form-help-text">Manage sample contracts across jurisdictions</p>
+
+  <!-- Back Link -->
+  <div style="margin-bottom: 16px; margin-top: 16px;">
+    <%= link_to "← Back to Wholesale Funders", admin_wholesale_funders_path, class: "admin-btn admin-btn-secondary" %>
+  </div>
+
+  <!-- Add Contract Button -->
+  <div style="margin-bottom: 24px; display: flex; justify-content: flex-end;">
+    <%= link_to "Add Contract", new_admin_wholesale_funder_contract_path(@wholesale_funder), 
+        class: "admin-btn admin-btn-primary" %>
+  </div>
+</div>
+
+<!-- Contracts Table -->
+<div class="admin-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Jurisdiction</th>
+        <th>Party Type</th>
+        <th>Version</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @contracts.any? %>
+        <% @contracts.each do |contract| %>
+          <tr>
+            <td>
+              <span class="admin-badge admin-badge-secondary" style="background: #3b82f6;">
+                <%= contract.jurisdiction %>
+              </span>
+            </td>
+            <td><%= contract.party_type %></td>
+            <td><%= contract.version %></td>
+            <td><%= contract.created_at.strftime("%b %d, %Y") %></td>
+            <td style="display: flex; gap: 8px;">
+              <%= link_to "Edit", edit_admin_wholesale_funder_contract_path(@wholesale_funder, contract), 
+                  class: "admin-btn admin-btn-sm", style: "background: #8b5cf6; color: white; padding: 6px 12px; text-decoration: none;" %>
+              <%= link_to "Delete", admin_wholesale_funder_contract_path(@wholesale_funder, contract), 
+                  method: :delete, data: { confirm: "Are you sure?" },
+                  class: "admin-btn admin-btn-sm", style: "background: #dc2626; color: white; padding: 6px 12px; text-decoration: none;" %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 32px; color: #6b7280;">
+            <p style="margin: 0;">No contracts found. <%= link_to "Add one", new_admin_wholesale_funder_contract_path(@wholesale_funder), class: "text-blue-600" %></p>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

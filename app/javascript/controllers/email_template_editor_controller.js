@@ -46,7 +46,7 @@ export default class extends Controller {
           id: '12345', reference_number: '000123', address: '123 Main Street, Sydney NSW 2000',
           formatted_home_value: '$1,500,000', formatted_loan_value: '$900,000', loan_term: '25'
         },
-        mortgage: { name: 'Premium Equity Mortgage', lvr: '60', interest_rate: '7.45' }
+        mortgage: { name: 'Premium Equity Mortgage', lvr: '60', interest_rate: '7.66' }
       },
       'security_notification': {
         user: { first_name: 'Michael', full_name: 'Michael Brown', email: 'michael.brown@example.com' },

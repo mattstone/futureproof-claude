@@ -1,0 +1,74 @@
+<%= form_with(model: [@webhook], local: true, class: "space-y-6") do |form| %>
+  <% if @webhook.errors.any? %>
+    <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+      <h4 class="text-sm font-semibold text-red-900 mb-2"><%= pluralize(@webhook.errors.count, "error") %> prohibited this webhook:</h4>
+      <ul class="text-sm text-red-800 list-disc list-inside space-y-1">
+        <% @webhook.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- URL Field -->
+  <div>
+    <%= form.label :url, "Webhook URL", class: "block text-sm font-semibold text-slate-900 mb-2" %>
+    <p class="text-xs text-slate-600 mb-2">The HTTPS endpoint that will receive webhook payloads</p>
+    <%= form.text_field :url, placeholder: "https://example.com/webhooks", class: "input input-bordered w-full", required: true %>
+    <p class="text-xs text-slate-500 mt-1">Must be HTTPS and publicly accessible</p>
+  </div>
+
+  <!-- Events Selection -->
+  <div>
+    <label class="block text-sm font-semibold text-slate-900 mb-3">Subscribe to Events</label>
+    <p class="text-xs text-slate-600 mb-3">Choose which events trigger webhooks to your endpoint</p>
+    
+    <div class="space-y-3 bg-slate-50 rounded-lg p-4 border border-slate-200">
+      <div class="flex items-start gap-3">
+        <div class="flex items-center h-5">
+          <%= form.check_box :events, { multiple: true, include_hidden: false }, "application_created", nil %>
+        </div>
+        <div class="flex-1">
+          <label class="font-medium text-slate-900 text-sm">Application Created</label>
+          <p class="text-xs text-slate-600 mt-0.5">Triggered when a new application is submitted</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="flex items-center h-5">
+          <%= form.check_box :events, { multiple: true, include_hidden: false }, "application_approved", nil %>
+        </div>
+        <div class="flex-1">
+          <label class="font-medium text-slate-900 text-sm">Application Approved</label>
+          <p class="text-xs text-slate-600 mt-0.5">Triggered when you approve an application</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="flex items-center h-5">
+          <%= form.check_box :events, { multiple: true, include_hidden: false }, "application_rejected", nil %>
+        </div>
+        <div class="flex-1">
+          <label class="font-medium text-slate-900 text-sm">Application Rejected</label>
+          <p class="text-xs text-slate-600 mt-0.5">Triggered when you reject an application</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="flex items-center h-5">
+          <%= form.check_box :events, { multiple: true, include_hidden: false }, "distribution_completed", nil %>
+        </div>
+        <div class="flex-1">
+          <label class="font-medium text-slate-900 text-sm">Distribution Completed</label>
+          <p class="text-xs text-slate-600 mt-0.5">Triggered when a monthly income payment is completed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex gap-3 pt-4">
+    <%= form.submit @webhook.new_record? ? "Create Webhook" : "Update Webhook", class: "btn btn-primary" %>
+    <%= link_to "Cancel", lender_dashboard_webhooks_path, class: "btn btn-outline" %>
+  </div>
+<% end %>

@@ -1,0 +1,65 @@
+<div class="loan-activation">
+  <%= link_to "← Back to Portal", borrower_portal_path(@region, @application), class: "back-link" %>
+
+  <h1>Activate Your Guaranteed Income Plan</h1>
+
+  <div class="activation-approved-card">
+    <h2>Your EPM application has been approved!</h2>
+    <div class="activation-metrics">
+      <div>
+        <div class="activation-metric-label">Mortgage Amount</div>
+        <div class="activation-metric-value">
+          <%= number_to_currency(@application.equity_investment_amount || 0) %>
+        </div>
+      </div>
+      <div>
+        <div class="activation-metric-label">LTV Ratio</div>
+        <div class="activation-metric-value">
+          <%= @application.equity_percentage&.round(1) || 0 %>%
+        </div>
+      </div>
+      <div>
+        <div class="activation-metric-label">Income Term</div>
+        <div class="activation-metric-value">
+          <%= @application.participation_term_years || @application.investment_term || "TBD" %> years
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="activation-info-card">
+    <h3>How Your EPM Works</h3>
+    <p><strong>Your Lender:</strong> <%= @application.lender&.name || "FutureProof" %></p>
+    <p><strong>What happens next:</strong> Your property is mortgaged and the funds are invested. The investment returns generate your guaranteed monthly income while maintaining your No Negative Equity Guarantee (NNEG).</p>
+    <p><strong>No monthly repayments:</strong> You never make monthly repayments. The mortgage is repaid when you sell the property or pass it to your estate. You retain full ownership and the right to live in your home.</p>
+  </div>
+
+  <div class="activation-checklist">
+    <h2>Before You Activate</h2>
+    <div class="activation-checklist-items">
+      <div class="activation-checklist-item">
+        <span class="check-icon">&#10003;</span>
+        <span>Review all EPM terms and conditions carefully</span>
+      </div>
+      <div class="activation-checklist-item">
+        <span class="check-icon">&#10003;</span>
+        <span>Ensure your property details are correct: <strong><%= @application.address %></strong></span>
+      </div>
+      <div class="activation-checklist-item">
+        <span class="check-icon">&#10003;</span>
+        <span>Confirm your identity documents have been verified</span>
+      </div>
+      <div class="activation-checklist-item">
+        <span class="check-icon">&#10003;</span>
+        <span>Understand that activation begins your guaranteed income payments</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="activation-confirm">
+    <%= form_with url: loan_activation_confirm_path(@region, @application), method: :post do %>
+      <p>By clicking below, you confirm that you have reviewed and agree to all EPM terms and conditions.</p>
+      <%= submit_tag "Activate Guaranteed Income Plan", class: "btn-activate" %>
+    <% end %>
+  </div>
+</div>

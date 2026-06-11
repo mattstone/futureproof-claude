@@ -1,0 +1,84 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page" data-controller="agreement-signature">
+  <nav class="ld-breadcrumb">
+    <%= link_to "Dashboard", admin_root_path %> >
+    <%= link_to "Agreements", admin_agreements_path %> >
+    <%= link_to @agreement.title, admin_agreement_path(@agreement) %> >
+    <span>Sign</span>
+  </nav>
+
+<% content_for :page_title, "Sign Agreement" %>
+
+  <div class="ld-show-header">
+    <div class="ld-badge-row">
+      <span class="ld-badge ld-badge-neutral"><%= @agreement.title %></span>
+      <span class="ld-badge ld-badge-jurisdiction"><%= @agreement.jurisdiction %></span>
+    </div>
+  </div>
+
+  <div class="agreement-sign-content">
+    <div class="agreement-sign-preview">
+      <h3>Agreement Preview</h3>
+      <div class="ld-document-content agreement-sign-document">
+        <% if @agreement.rich_content.body.present? %>
+          <%= @agreement.rich_content %>
+        <% else %>
+          <%= @agreement.content.html_safe %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="agreement-sign-form-panel">
+      <h3>
+        <% if @signer_role == "futureproof" %>
+          Sign as FutureProof Financial
+        <% else %>
+          Sign as <%= @agreement.party_type_label %>
+        <% end %>
+      </h3>
+
+      <%= form_tag record_signature_admin_agreement_path(@agreement), method: :post, class: "agreement-sign-form" do %>
+        <%= hidden_field_tag "signature[signer_role]", @signer_role %>
+
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Full Name</label>
+          <input type="text" name="signature[signer_name]" class="ld-filter-input" required placeholder="Enter your full name">
+        </div>
+
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Email</label>
+          <input type="email" name="signature[signer_email]" class="ld-filter-input" required placeholder="Enter your email address">
+        </div>
+
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Title / Position</label>
+          <input type="text" name="signature[signer_title]" class="ld-filter-input" placeholder="e.g. Director, CEO, Authorised Signatory">
+        </div>
+
+        <div class="agreement-form-field">
+          <label class="ld-filter-label">Electronic Signature</label>
+          <p class="ld-text-muted">Type your full name as your electronic signature.</p>
+          <input type="text" name="signature[typed_signature]" class="agreement-signature-input" required placeholder="Type your name here" data-agreement-signature-target="input" data-action="input->agreement-signature#updatePreview">
+        </div>
+
+        <div class="agreement-signature-preview" data-agreement-signature-target="preview">
+        </div>
+
+        <div class="agreement-form-field">
+          <label class="agreement-confirm-label">
+            <input type="checkbox" required data-agreement-signature-target="confirm" data-action="change->agreement-signature#toggleSubmit">
+            I confirm that by typing my name above, I am providing my electronic signature and agree to be bound by this agreement.
+          </label>
+        </div>
+
+        <div class="ld-action-bar">
+          <%= link_to "Cancel", admin_agreement_path(@agreement), class: "ld-btn ld-btn-outline" %>
+          <button type="submit" class="ld-btn ld-btn-primary" data-agreement-signature-target="submit" disabled>
+            Sign Agreement
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

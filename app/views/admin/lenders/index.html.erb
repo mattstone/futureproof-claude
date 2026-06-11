@@ -1,241 +1,107 @@
 <% content_for :page_title, "Lenders" %>
 
-<div class="admin-actions-bar">
-  <div class="admin-search">
-    <%= form_with(url: admin_lenders_path, method: :get, local: true, class: "search-form") do |form| %>
-      <%= form.text_field :search, placeholder: "Search by name or type...", value: params[:search] %>
+<div class="admin-content-wrapper">
+  <!-- Summary Card -->
+  <div class="admin-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h2 style="margin: 0 0 0.5rem 0;">Lenders Management</h2>
+        <p class="form-help-text" style="margin: 0;">Manage equity partners, funding allocations, and applications</p>
+      </div>
+      <%= link_to "➕ New Lender", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="admin-metrics-grid">
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Lenders</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_lenders] %></p>
+        <small><%= @current_jurisdiction %> jurisdiction</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Wholesale Funders</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_funders] %></p>
+        <small>Connected funders</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Total Applications</span>
+        </div>
+        <p class="admin-metric-value"><%= @summary_stats[:total_applications] %></p>
+        <small>Active investments</small>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-top">
+          <span class="admin-metric-label">Capital Deployed</span>
+        </div>
+        <p class="admin-metric-value"><%= number_to_currency(@summary_stats[:total_capital_deployed], precision: 0) %></p>
+        <small>Total invested</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lenders Table -->
+  <div class="admin-table-wrapper">
+    <% if @lenders.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Country</th>
+            <th>Funders</th>
+            <th>Applications</th>
+            <th class="admin-actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @lenders.each do |lender| %>
+            <tr>
+              <td>
+                <strong><%= lender.name %></strong>
+                <% if lender.lender_type_futureproof? %>
+                  <span class="admin-badge admin-badge-futureproof">FUTUREPROOF</span>
+                <% end %>
+              </td>
+              <td>
+                <span class="admin-badge admin-badge-<%= lender.lender_type %>">
+                  <%= lender.lender_type.humanize %>
+                </span>
+              </td>
+              <td>
+                <code><%= lender.country %></code>
+              </td>
+              <td>
+                <span class="admin-badge"><%= lender.wholesale_funders.count %></span>
+              </td>
+              <td>
+                <span class="admin-badge"><%= lender.applications.count %></span>
+              </td>
+              <td class="admin-actions-cell">
+                <%= link_to "View", admin_lender_path(lender), class: "admin-link-btn" %>
+                <%= link_to "Edit", edit_admin_lender_path(lender), class: "admin-link-btn" %>
+                <% unless lender.lender_type_futureproof? %>
+                  <%= link_to "Delete", admin_lender_path(lender), method: :delete,
+                      data: { confirm: "Delete #{lender.name}?" },
+                      class: "admin-link-btn admin-link-btn-danger" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="admin-table-empty">
+        <p>No lenders found for this jurisdiction.</p>
+        <%= link_to "Create one", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
+      </div>
     <% end %>
   </div>
-  
-  <div class="admin-actions">
-    <div class="lenders-summary">
-      Total Lenders: <span class="count-badge"><%= @lenders.count %></span>
-    </div>
-    <%= link_to "New Lender", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
-  </div>
 </div>
-
-<div class="admin-table">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Country</th>
-        <th>Wholesale Funders</th>
-        <th>Fund Pools</th>
-        <th>Active Loans</th>
-        <th>Total Allocated</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @lenders.each do |lender| %>
-        <tr>
-          <td>
-            <div class="lender-name">
-              <%= lender.name %>
-              <% if lender.lender_type_futureproof? %>
-                <span class="futureproof-badge">FUTUREPROOF</span>
-              <% end %>
-            </div>
-          </td>
-          <td>
-            <span class="lender-type lender-type-<%= lender.lender_type %>">
-              <%= lender.lender_type.humanize %>
-            </span>
-          </td>
-          <td>
-            <div class="country-info">
-              <span class="country-flag">🌍</span>
-              <%= lender.country %>
-            </div>
-          </td>
-          <td>
-            <div class="wholesale-funders-info">
-              <span class="count-badge"><%= lender.wholesale_funders_count %></span>
-              <% if lender.wholesale_funders_count > 0 %>
-                <span class="info-label">funders</span>
-              <% else %>
-                <span class="text-muted">No funders</span>
-              <% end %>
-            </div>
-          </td>
-          <td>
-            <div class="fund-pools-info">
-              <% if lender.total_fund_pool_amount > 0 %>
-                <span class="fund-amount"><%= lender.formatted_total_fund_pool_amount %></span>
-                <span class="info-label">(<%= lender.funder_pools.count %> pools)</span>
-              <% else %>
-                <span class="text-muted">No pools</span>
-              <% end %>
-            </div>
-          </td>
-          <td>
-            <div class="loans-info">
-              <% if lender.loans_count > 0 %>
-                <span class="count-badge"><%= lender.loans_count %></span>
-                <span class="info-label">loans</span>
-              <% else %>
-                <span class="text-muted">No loans</span>
-              <% end %>
-            </div>
-          </td>
-          <td>
-            <div class="allocated-funds-info">
-              <% if lender.total_allocated_amount > 0 %>
-                <span class="allocated-amount"><%= lender.formatted_total_allocated_amount %></span>
-              <% else %>
-                <span class="text-muted">$0</span>
-              <% end %>
-            </div>
-          </td>
-          <td class="actions-cell">
-            <div class="admin-actions">
-              <%= link_to "View", admin_lender_path(lender), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-              <%= link_to "Edit", edit_admin_lender_path(lender), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-              <% unless lender.lender_type_futureproof? %>
-                <%= link_to "Delete", admin_lender_path(lender), method: :delete,
-                    data: { confirm: "Are you sure you want to delete #{lender.name}?" },
-                    class: "admin-btn admin-btn-sm admin-btn-danger" %>
-              <% end %>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
-
-<% if @lenders.empty? %>
-  <div class="empty-state">
-    <div class="empty-state-content">
-      <h3>No lenders found</h3>
-      <p>Get started by creating your first lender.</p>
-      <%= link_to "Create Lender", new_admin_lender_path, class: "admin-btn admin-btn-primary" %>
-    </div>
-  </div>
-<% end %>
-
-<style>
-/* Lender-specific styles */
-.lender-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-}
-
-.futureproof-badge {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 12px;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.lender-type {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.lender-type-futureproof {
-  background-color: #ede9fe;
-  color: #7c3aed;
-}
-
-.lender-type-lender {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.country-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.country-flag {
-  font-size: 16px;
-}
-
-.wholesale-funders-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.fund-pools-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 14px;
-}
-
-.fund-amount {
-  font-weight: 600;
-  color: #059669;
-}
-
-.loans-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.allocated-funds-info {
-  text-align: right;
-  font-size: 14px;
-}
-
-.allocated-amount {
-  font-weight: 600;
-  color: #dc2626;
-}
-
-.info-label {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.text-muted {
-  color: #9ca3af;
-}
-
-.lenders-summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #374151;
-  margin-right: 16px;
-}
-
-.count-badge {
-  background-color: #f3f4f6;
-  color: #1f2937;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-.actions-cell {
-  white-space: nowrap;
-}
-
-.admin-actions {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-</style>

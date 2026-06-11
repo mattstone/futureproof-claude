@@ -1,0 +1,208 @@
+<div class="container">
+  <div class="breadcrumb">
+    <%= link_to "Dashboard", admin_path %> <span>›</span>
+    <%= link_to "Legal Documents", admin_legal_documents_path %> <span>›</span>
+    <span>Compliance Dashboard</span>
+  </div>
+
+<% content_for :page_title, "Compliance Dashboard" %>
+  <p>Jurisdiction coverage and regulatory status across all document types.</p>
+
+  <!-- Compliance Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Document Coverage Matrix</h2>
+    </div>
+
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th style="width: 120px;">Jurisdiction</th>
+          <th>Privacy Policy</th>
+          <th>Terms & Conditions</th>
+          <th>Customer Contract</th>
+          <th>Lender Agreement</th>
+          <th>Wholesale Funder</th>
+          <th>Broker Agreement</th>
+          <th>Investment Provider</th>
+          <th>Key Facts Sheet</th>
+          <th>Disclosure</th>
+          <th>Risk Warning</th>
+          <th style="width: 100px;">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% LegalDocument::JURISDICTIONS.each do |jurisdiction| %>
+          <tr>
+            <td><strong><%= jurisdiction %></strong></td>
+            <% LegalDocument::DOCUMENT_TYPES.keys.map(&:to_s).each do |doc_type| %>
+              <% doc = LegalDocument.where(document_type: doc_type, jurisdiction: jurisdiction).first %>
+              <td class="matrix-cell <%= doc.present? ? (doc.is_active? ? 'matrix-cell-active' : 'matrix-cell-draft') : 'matrix-cell-missing' %>">
+                <% if doc.blank? %>
+                  ✗
+                <% elsif doc.is_active? %>
+                  ✓
+                <% else %>
+                  ⏳
+                <% end %>
+              </td>
+            <% end %>
+            <td>
+              <% score = LegalDocumentService.jurisdiction_compliance_status(jurisdiction)[:compliance_score] %>
+              <span class="compliance-score <%= score > 80 ? 'score-green' : (score > 50 ? 'score-yellow' : 'score-red') %>">
+                <%= score.round(0) %>%
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+      <span style="display: inline-block; margin-right: 20px;">
+        <span class="matrix-cell matrix-cell-active">✓</span> = Active document
+      </span>
+      <span style="display: inline-block; margin-right: 20px;">
+        <span class="matrix-cell matrix-cell-draft">⏳</span> = Draft document
+      </span>
+      <span style="display: inline-block;">
+        <span class="matrix-cell matrix-cell-missing">✗</span> = Missing
+      </span>
+    </div>
+  </div>
+
+  <!-- Regulatory Notes -->
+  <div style="margin-top: 30px;">
+    <h2>Regulatory Requirements by Jurisdiction</h2>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <h3 style="margin-top: 0; color: #1f2937;">🇦🇺 Australia (ASIC)</h3>
+      <p>
+        <strong>ASIC compliance required.</strong> Must have:
+        <br>• Privacy Policy (with credit reporting disclosure)
+        <br>• Terms & Conditions (NCCP obligations, cooling-off rights, NNEG guarantee)
+        <br>• Lender Agreement (responsible lending, capital adequacy)
+        <br>
+        <% if (doc = LegalDocument.where(document_type: 'privacy_policy', jurisdiction: 'AU', is_active: true).first).present? %>
+          <%= link_to "[Setup AU]", admin_legal_documents_setup_jurisdiction_path(jurisdiction: 'AU'), method: :post, class: 'btn-secondary', style: 'display: inline-block; margin-top: 10px; padding: 8px 15px; text-decoration: none;' %>
+        <% end %>
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <h3 style="margin-top: 0; color: #1f2937;">🇺🇸 United States (CCPA/TILA)</h3>
+      <p>
+        <strong>CCPA and state-law compliant.</strong> Must have:
+        <br>• Privacy Policy (CCPA consumer rights, breach notification, state-specific clauses)
+        <br>• Terms & Conditions (TILA compliance, Dodd-Frank, state usury laws, fair lending)
+        <br>
+        <% if (doc = LegalDocument.where(document_type: 'privacy_policy', jurisdiction: 'US', is_active: true).first).present? %>
+          <%= link_to "[Setup US]", admin_legal_documents_setup_jurisdiction_path(jurisdiction: 'US'), method: :post, class: 'btn-secondary', style: 'display: inline-block; margin-top: 10px; padding: 8px 15px; text-decoration: none;' %>
+        <% end %>
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <h3 style="margin-top: 0; color: #1f2937;">🇳🇿 New Zealand (Privacy Act 2020)</h3>
+      <p>
+        <strong>Privacy Act 2020 compliant.</strong> Must have:
+        <br>• Privacy Policy (10 Privacy Principles, overseas disclosure, Māori data rights)
+        <br>
+        <% if (doc = LegalDocument.where(document_type: 'privacy_policy', jurisdiction: 'NZ', is_active: true).first).present? %>
+          <%= link_to "[Setup NZ]", admin_legal_documents_setup_jurisdiction_path(jurisdiction: 'NZ'), method: :post, class: 'btn-secondary', style: 'display: inline-block; margin-top: 10px; padding: 8px 15px; text-decoration: none;' %>
+        <% end %>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top: 0; color: #1f2937;">🇬🇧 United Kingdom (UK GDPR/DPA 2018)</h3>
+      <p>
+        <strong>UK GDPR and Data Protection Act 2018 compliant.</strong> Must have:
+        <br>• Privacy Policy (UK GDPR Articles, ICO enforcement, Data Retention Schedule, SARs)
+        <br>
+        <% if (doc = LegalDocument.where(document_type: 'privacy_policy', jurisdiction: 'UK', is_active: true).first).present? %>
+          <%= link_to "[Setup UK]", admin_legal_documents_setup_jurisdiction_path(jurisdiction: 'UK'), method: :post, class: 'btn-secondary', style: 'display: inline-block; margin-top: 10px; padding: 8px 15px; text-decoration: none;' %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Export Button -->
+  <div style="margin-top: 30px; text-align: right;">
+    <%= link_to "[Export Compliance Report]", admin_legal_documents_export_compliance_report_path(format: 'csv'), class: 'btn-primary', style: 'display: inline-block; padding: 10px 20px; text-decoration: none;' %>
+  </div>
+</div>
+
+<style>
+.compliance-score {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: white;
+}
+
+.score-green {
+  background: #16a34a;
+}
+
+.score-yellow {
+  background: #ea580c;
+}
+
+.score-red {
+  background: #dc2626;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.matrix-table th {
+  background: #f3f4f6;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.matrix-table td {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.matrix-cell {
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.matrix-cell-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.matrix-cell-draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.matrix-cell-missing {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .matrix-table {
+    font-size: 11px;
+  }
+  
+  .matrix-table th, .matrix-table td {
+    padding: 6px 4px;
+  }
+}
+</style>

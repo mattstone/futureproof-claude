@@ -1,0 +1,10 @@
+<h2>Re: [<%= @ticket.ticket_number %>] <%= @ticket.subject %></h2>
+
+<%= simple_format(@message.body_text) %>
+
+<hr>
+<p><small>
+  This reply was sent by <%= @agent&.display_name || "FutureProof Support" %>.
+  Please reply to this email to continue the conversation.
+  Reference: <%= @ticket.ticket_number %>
+</small></p>

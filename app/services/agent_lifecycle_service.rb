@@ -77,23 +77,23 @@ class AgentLifecycleService
   end
 
   def handle_application_submitted
-    # Motoko final check
-    motoko = AiAgent.find_by(name: 'Motoko')
-    if motoko && @agent.id == motoko.id
+    # Akane final check
+    akane = AiAgent.find_by(name: 'Akane')
+    if akane && @agent.id == akane.id
       decision_result = run_evaluation('evaluate')
-      log_action('handoff', decision_result&.decision&.to_s, decision_result, "Handing off to Rei")
+      log_action('handoff', decision_result&.decision&.to_s, decision_result, "Handing off to Rie")
 
-      # Hand off to Rei
-      rei = AiAgent.find_by(name: 'Rei')
-      if rei
-        @agent = rei
-        rei_result = run_evaluation('evaluate')
-        if rei_result&.decision == :approve
-          log_action('decide', 'advance', rei_result, "Ready for processing")
+      # Hand off to Rie
+      rie = AiAgent.find_by(name: 'Rie')
+      if rie
+        @agent = rie
+        rie_result = run_evaluation('evaluate')
+        if rie_result&.decision == :approve
+          log_action('decide', 'advance', rie_result, "Ready for processing")
         else
-          log_action('decide', rei_result&.decision&.to_s, rei_result, "Not ready for processing")
+          log_action('decide', rie_result&.decision&.to_s, rie_result, "Not ready for processing")
         end
-        return rei_result
+        return rie_result
       end
     end
 
@@ -107,7 +107,7 @@ class AgentLifecycleService
 
     case new_status
     when 'processing', '5'
-      # Rei evaluates processing readiness
+      # Rie evaluates processing readiness
       decision_result = run_evaluation('evaluate')
       if decision_result&.decision == :approve
         log_action('decide', 'advance', decision_result, "Processing complete, recommending acceptance")
@@ -201,9 +201,9 @@ class AgentLifecycleService
   def agent_for_application_stage
     case @event_type
     when 'user_registered', 'application_created', 'application_started'
-      AiAgent.find_by(name: 'Motoko') # Acquisition
+      AiAgent.find_by(name: 'Akane') # Acquisition
     when 'application_submitted', 'application_processing', 'application_review'
-      AiAgent.find_by(name: 'Rei') # Operations
+      AiAgent.find_by(name: 'Rie') # Operations
     when 'application_accepted', 'contract_created', 'contract_active'
       AiAgent.find_by(name: 'Yumi') # Lifetime management
     else
@@ -217,13 +217,13 @@ class AgentLifecycleService
 
     case @entity.status.to_s
     when 'created', 'user_details', 'property_details', 'income_and_loan_options'
-      AiAgent.find_by(name: 'Motoko')
+      AiAgent.find_by(name: 'Akane')
     when 'submitted', 'processing'
-      AiAgent.find_by(name: 'Rei')
+      AiAgent.find_by(name: 'Rie')
     when 'accepted'
       AiAgent.find_by(name: 'Yumi')
     else
-      AiAgent.find_by(name: 'Motoko') # Default to Motoko for unknown statuses
+      AiAgent.find_by(name: 'Akane') # Default to Akane for unknown statuses
     end
   end
 

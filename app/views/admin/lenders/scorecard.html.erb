@@ -1,0 +1,67 @@
+<% content_for :page_title, "Lender Scorecard" %>
+<%= stylesheet_link_tag "admin/dashboard", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Lender Capacity & Utilisation</h2>
+  <p class="admin-section-subtitle">Pool capacity, utilisation, weighted cost of capital, and concentration index.</p>
+</div>
+
+<% if @capital_flow[:nodes].any? %>
+  <div class="dashboard-section-header">
+    <h3 class="section-subtitle">Capital flow</h3>
+    <p class="admin-section-subtitle">Wholesale funders → pools → lenders → contracts. Width = capital. Hover for amounts.</p>
+  </div>
+  <div class="fp-card">
+    <div class="dashboard-funnel-chart"
+         data-controller="capital-flow"
+         data-capital-flow-nodes-value="<%= @capital_flow[:nodes].to_json %>"
+         data-capital-flow-links-value="<%= @capital_flow[:links].to_json %>"></div>
+  </div>
+<% end %>
+
+<div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Concentration index (HHI)</div>
+      <div class="admin-stat-value"><%= number_with_delimiter(@herfindahl) %></div>
+      <div class="admin-stat-label">
+        <% if @herfindahl < 1500 %>Unconcentrated
+        <% elsif @herfindahl < 2500 %>Moderately concentrated
+        <% else %>Highly concentrated
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Lender</th>
+      <th class="text-right">Capacity</th>
+      <th class="text-right">Allocated</th>
+      <th class="text-right">Available</th>
+      <th class="text-right">Utilisation</th>
+      <th class="text-right">Active contracts</th>
+      <th class="text-right">Total contracts</th>
+      <th class="text-right">Weighted cost of capital</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @scorecards.each do |s| %>
+      <tr>
+        <td><%= link_to s[:lender].name, admin_lender_path(s[:lender]) %></td>
+        <td class="text-right"><%= number_to_currency(s[:capacity], precision: 0) %></td>
+        <td class="text-right"><%= number_to_currency(s[:allocated], precision: 0) %></td>
+        <td class="text-right"><%= number_to_currency(s[:available], precision: 0) %></td>
+        <td class="text-right"><%= s[:utilisation] %>%</td>
+        <td class="text-right"><%= s[:active_contracts] %></td>
+        <td class="text-right"><%= s[:total_contracts] %></td>
+        <td class="text-right"><%= s[:weighted_cost_of_capital] %>%</td>
+      </tr>
+    <% end %>
+    <% if @scorecards.empty? %>
+      <tr><td colspan="8"><em>No lenders found.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>

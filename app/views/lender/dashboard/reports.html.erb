@@ -1,0 +1,459 @@
+<% content_for :page_title, "Reports" %>
+
+<div class="reports-page">
+  <div class="page-header">
+    <h1>Portfolio Reports & Analytics</h1>
+  </div>
+
+  <!-- Key Performance Indicators -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Approval Rate</div>
+      <div class="kpi-value"><%= @performance[:approval_rate] %>%</div>
+      <div class="kpi-bar">
+        <div class="kpi-fill" style="width: <%= @performance[:approval_rate] %>%"></div>
+      </div>
+      <div class="kpi-detail">
+        <% approved = Application.where(lender_id: @current_lender.id).where("status IN (?)", [:accepted, :activated]).count %>
+        <%= approved %> of <%= @applications.count %> applications
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Activation Rate</div>
+      <div class="kpi-value"><%= @performance[:activation_rate] %>%</div>
+      <div class="kpi-bar">
+        <div class="kpi-fill" style="width: <%= @performance[:activation_rate] %>%"></div>
+      </div>
+      <div class="kpi-detail">
+        <% activated = Application.where(lender_id: @current_lender.id, status: :activated).count %>
+        <%= activated %> of <%= Application.where(lender_id: @current_lender.id, status: :accepted).count %> approved
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Time to Approval</div>
+      <div class="kpi-value"><%= @performance[:avg_time_to_approval] %> <span class="kpi-unit">days</span></div>
+      <div class="kpi-bar">
+        <div class="kpi-fill" style="width: <%= [@performance[:avg_time_to_approval] / 30 * 100, 100].min %>%"></div>
+      </div>
+      <div class="kpi-detail">From submission to approval</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Portfolio Yield</div>
+      <div class="kpi-value"><%= @performance[:avg_portfolio_yield] %>%</div>
+      <div class="kpi-bar">
+        <div class="kpi-fill" style="width: <%= [@performance[:avg_portfolio_yield] / 10 * 100, 100].min %>%"></div>
+      </div>
+      <div class="kpi-detail">Average annual interest rate</div>
+    </div>
+  </div>
+
+  <!-- Portfolio Metrics -->
+  <div class="metrics-section">
+    <h2>Portfolio Overview</h2>
+    <div class="metrics-grid">
+      <div class="metric-box">
+        <div class="metric-icon">💰</div>
+        <div class="metric-content">
+          <div class="metric-title">Total Loan Amount</div>
+          <div class="metric-amount">
+            $<%= number_with_precision(@portfolio[:total_loan_amount], precision: 0, delimiter: ',') %>
+          </div>
+          <div class="metric-subtitle">Outstanding principal</div>
+        </div>
+      </div>
+
+      <div class="metric-box">
+        <div class="metric-icon">📊</div>
+        <div class="metric-content">
+          <div class="metric-title">Active Loans</div>
+          <div class="metric-amount"><%= @portfolio[:total_active_loans] %></div>
+          <div class="metric-subtitle">Loans in distribution phase</div>
+        </div>
+      </div>
+
+      <div class="metric-box">
+        <div class="metric-icon">💸</div>
+        <div class="metric-content">
+          <div class="metric-title">Total Distributed</div>
+          <div class="metric-amount">
+            $<%= number_with_precision(@portfolio[:total_distributed], precision: 0, delimiter: ',') %>
+          </div>
+          <div class="metric-subtitle">Income paid to borrowers</div>
+        </div>
+      </div>
+
+      <div class="metric-box">
+        <div class="metric-icon">🏠</div>
+        <div class="metric-content">
+          <div class="metric-title">Avg Property Value</div>
+          <div class="metric-amount">
+            $<%= number_with_precision(@portfolio[:average_property_value], precision: 0, delimiter: ',') %>
+          </div>
+          <div class="metric-subtitle">Across portfolio</div>
+        </div>
+      </div>
+
+      <div class="metric-box">
+        <div class="metric-icon">📈</div>
+        <div class="metric-content">
+          <div class="metric-title">Average LTV</div>
+          <div class="metric-amount"><%= number_with_precision(@portfolio[:average_ltv] * 100, precision: 1) %>%</div>
+          <div class="metric-subtitle">Loan-to-value ratio</div>
+        </div>
+      </div>
+
+      <div class="metric-box">
+        <div class="metric-icon">⚖️</div>
+        <div class="metric-content">
+          <div class="metric-title">Total Applications</div>
+          <div class="metric-amount"><%= @applications.count %></div>
+          <div class="metric-subtitle">In all statuses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio by Status -->
+  <div class="section">
+    <h2>Applications by Status</h2>
+    <div class="status-breakdown">
+      <% statuses = [{name: 'Processing', status: 'processing', color: '#F59E0B'}, {name: 'Approved', status: 'accepted', color: '#3B82F6'}, {name: 'Active', status: 'activated', color: '#10B981'}, {name: 'Rejected', status: 'rejected', color: '#EF4444'}] %>
+      
+      <% statuses.each do |s| %>
+        <% count = @applications.where(status: s[:status]).count %>
+        <% percentage = @applications.any? ? (count.to_f / @applications.count * 100).round(1) : 0 %>
+        <div class="status-item">
+          <div class="status-info">
+            <div class="status-name"><%= s[:name] %></div>
+            <div class="status-count"><%= count %> applications</div>
+          </div>
+          <div class="status-bar">
+            <div class="status-fill" style="width: <%= percentage %>%; background: <%= s[:color] %>;"></div>
+          </div>
+          <div class="status-percent"><%= percentage %>%</div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Property Distribution by LTV -->
+  <div class="section">
+    <h2>Portfolio LTV Distribution</h2>
+    <div class="ltv-breakdown">
+      <% ltv_ranges = [{range: '< 50%', min: 0, max: 0.5}, {range: '50-60%', min: 0.5, max: 0.6}, {range: '60-70%', min: 0.6, max: 0.7}, {range: '> 70%', min: 0.7, max: 1.0}] %>
+      
+      <% ltv_ranges.each do |range| %>
+        <% count = @applications.where(status: :activated).select { |a| a.ltv_ratio >= range[:min] && a.ltv_ratio < range[:max] }.count %>
+        <% active_count = @applications.where(status: :activated).count %>
+        <% percentage = active_count > 0 ? (count.to_f / active_count * 100).round(1) : 0 %>
+        
+        <div class="ltv-item">
+          <div class="ltv-range"><%= range[:range] %></div>
+          <div class="ltv-bar">
+            <div class="ltv-fill" style="width: <%= percentage %>%;"></div>
+          </div>
+          <div class="ltv-stats">
+            <span class="ltv-count"><%= count %> loans</span>
+            <span class="ltv-percent"><%= percentage %>%</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Export Section -->
+  <div class="section export-section">
+    <h2>Export Reports</h2>
+    <div class="export-buttons">
+      <button class="btn btn-secondary" onclick="exportReportCSV()">📥 Download as CSV</button>
+      <button class="btn btn-secondary" onclick="exportReportPDF()">📄 Download as PDF</button>
+      <button class="btn btn-secondary" onclick="printReport()">🖨️ Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function exportReportCSV() {
+  alert('CSV export coming soon')
+}
+
+function exportReportPDF() {
+  alert('PDF export coming soon')
+}
+
+function printReport() {
+  window.print()
+}
+</script>
+
+<style>
+  .reports-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 30px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .kpi-card {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #10B981;
+    margin-bottom: 12px;
+  }
+
+  .kpi-unit {
+    font-size: 14px;
+  }
+
+  .kpi-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .kpi-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #059669);
+    transition: width 0.3s ease;
+  }
+
+  .kpi-detail {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .section h2 {
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    color: #1f2937;
+  }
+
+  .metrics-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .metrics-section h2 {
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    color: #1f2937;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .metric-box {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    gap: 16px;
+  }
+
+  .metric-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .metric-content {
+    flex: 1;
+  }
+
+  .metric-title {
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .metric-amount {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .metric-subtitle {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .status-breakdown {
+    display: grid;
+    gap: 16px;
+  }
+
+  .status-item {
+    display: grid;
+    grid-template-columns: 150px 1fr 60px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .status-info {
+    min-width: 0;
+  }
+
+  .status-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+  }
+
+  .status-count {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .status-bar {
+    background: #e5e7eb;
+    height: 24px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .status-fill {
+    height: 100%;
+  }
+
+  .status-percent {
+    text-align: right;
+    font-weight: bold;
+    color: #1f2937;
+    font-size: 14px;
+  }
+
+  .ltv-breakdown {
+    display: grid;
+    gap: 16px;
+  }
+
+  .ltv-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .ltv-range {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+  }
+
+  .ltv-bar {
+    background: #e5e7eb;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ltv-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #3B82F6);
+  }
+
+  .ltv-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .ltv-count {
+    color: #666;
+  }
+
+  .ltv-percent {
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  .export-section {
+    text-align: center;
+  }
+
+  .export-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e5e7eb;
+  }
+
+  @media print {
+    .export-buttons {
+      display: none;
+    }
+  }
+</style>

@@ -1,1444 +1,209 @@
 <% content_for :page_title, @lender.name %>
 
-<!-- Flash messages container -->
-<div id="flash-messages">
-  <% if notice %>
-    <div class="alert alert-success" id="temp-notice">
-      <%= notice %>
-    </div>
-  <% end %>
-</div>
-
-<div class="admin-actions-bar">
-  <div></div>
-  <div class="admin-actions">
-    <%= link_to "Edit Lender", edit_admin_lender_path(@lender), class: "admin-btn admin-btn-primary" %>
-    <% unless @lender.lender_type_futureproof? %>
-      <%= link_to "Delete", admin_lender_path(@lender), method: :delete,
-          data: { confirm: "Are you sure you want to delete #{@lender.name}?" },
-          class: "admin-btn admin-btn-danger" %>
-    <% end %>
-    <%= link_to "Back to Lenders", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
-  </div>
-</div>
-
-<!-- Lender Details -->
-<div class="admin-card">
-  <div class="lender-header">
-    <div class="lender-title">
-      <h3><%= @lender.name %></h3>
-      <div class="lender-badges">
-        <span class="lender-type lender-type-<%= @lender.lender_type %>">
-          <%= @lender.lender_type.humanize %>
-        </span>
-        <% if @lender.lender_type_futureproof? %>
-          <span class="futureproof-badge">FUTUREPROOF</span>
-        <% end %>
-      </div>
-    </div>
-  </div>
-
-  <div class="lender-details-grid">
-    <!-- Basic Information -->
-    <div class="detail-section">
-      <h4>Basic Information</h4>
-      <div class="detail-list">
-        <div class="detail-row">
-          <span class="detail-label">Lender Name</span>
-          <span class="detail-value"><%= @lender.name %></span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Lender Type</span>
-          <span class="detail-value">
-            <span class="lender-type lender-type-<%= @lender.lender_type %>">
-              <%= @lender.lender_type.humanize %>
-            </span>
+<div class="admin-content-wrapper">
+  <!-- Header with Actions -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div>
+        <h2><%= @lender.name %></h2>
+        <div class="admin-badges">
+          <span class="admin-badge admin-badge-<%= @lender.lender_type %>">
+            <%= @lender.lender_type.humanize %>
           </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Country</span>
-          <span class="detail-value">
-            <span class="country-flag">🌍</span>
-            <%= @lender.country %>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Address Information -->
-    <div class="detail-section">
-      <h4>Address Information</h4>
-      <div class="detail-list">
-        <div class="detail-row">
-          <span class="detail-label">Address</span>
-          <span class="detail-value">
-            <% if @lender.address.present? %>
-              <%= simple_format(@lender.address) %>
-            <% else %>
-              <span class="text-muted">Not provided</span>
-            <% end %>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Postcode</span>
-          <span class="detail-value">
-            <% if @lender.postcode.present? %>
-              <%= @lender.postcode %>
-            <% else %>
-              <span class="text-muted">Not provided</span>
-            <% end %>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Contact Information -->
-    <div class="detail-section">
-      <h4>Contact Information</h4>
-      <div class="detail-list">
-        <div class="detail-row">
-          <span class="detail-label">Email</span>
-          <span class="detail-value">
-            <%= mail_to @lender.contact_email, @lender.contact_email, class: "email-link" %>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Phone</span>
-          <span class="detail-value">
-            <% if @lender.contact_telephone.present? %>
-              <div class="phone-number">
-                <%= @lender.contact_telephone_country_code %> <%= @lender.contact_telephone %>
-              </div>
-            <% else %>
-              <span class="text-muted">Not provided</span>
-            <% end %>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Meta Information -->
-    <div class="detail-section">
-      <h4>System Information</h4>
-      <div class="detail-list">
-        <div class="detail-row">
-          <span class="detail-label">Created</span>
-          <span class="detail-value"><%= @lender.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Last Updated</span>
-          <span class="detail-value"><%= @lender.updated_at.strftime("%B %d, %Y at %I:%M %p") %></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Wholesale Funder Relationships & Available Funder Pools -->
-<div class="admin-card" 
-     data-controller="wholesale-funder-selector"
-     data-wholesale-funder-selector-lender-id-value="<%= @lender.id %>"
-     data-wholesale-funder-selector-available-wholesale-funders-path-value="<%= available_wholesale_funders_admin_lender_path(@lender) %>">
-  <div class="section-header">
-    <h3>Wholesale Funder Relationships & Available Funder Pools</h3>
-    <div class="header-actions">
-      <button type="button" 
-              data-wholesale-funder-selector-target="toggleButton"
-              data-action="click->wholesale-funder-selector#toggleSelection"
-              class="admin-btn admin-btn-primary">
-        Add Wholesale Funder
-      </button>
-    </div>
-  </div>
-
-  <div class="two-column-layout">
-    <!-- Left Column: Wholesale Funder Relationships -->
-    <div class="left-column">
-      <h4 class="column-title">Wholesale Funders</h4>
-      
-      <!-- Wholesale Funder Selection Interface (hidden by default) -->
-      <div id="wholesale-funder-selection-container">
-        <div data-wholesale-funder-selector-target="selectionInterface" 
-             class="wholesale-funder-selection" style="display: none;">
-        <div class="selection-header">
-          <h5>Available Wholesale Funders</h5>
-          <button type="button" 
-                  data-wholesale-funder-selector-target="closeButton"
-                  data-action="click->wholesale-funder-selector#closeSelection"
-                  class="close-btn">×</button>
-        </div>
-        <div data-wholesale-funder-selector-target="availableFundersContainer" 
-             class="wholesale-funders-list">
-          <!-- Loaded via AJAX -->
-        </div>
-        </div>
-      </div>
-
-      <div data-wholesale-funder-selector-target="existingRelationships" id="existing-relationships">
-        <% if @lender.lender_wholesale_funders.any? %>
-          <div class="relationship-list">
-            <% @lender.lender_wholesale_funders.includes(:wholesale_funder).each do |relationship| %>
-              <div class="relationship-card" data-wholesale-funder-id="<%= relationship.wholesale_funder.id %>">
-                <div class="relationship-header">
-                  <h5><%= relationship.wholesale_funder.name %></h5>
-                  <div class="relationship-actions">
-                    <%= button_to relationship.status_display, toggle_active_admin_lender_wholesale_funder_path(@lender, relationship),
-                                  method: :patch, remote: true, class: "status-badge clickable-status-badge #{relationship.status_badge_class}",
-                                  role: "button", tabindex: "0", 
-                                  data: { confirm: "Are you sure you want to change the status of this wholesale funder relationship?" },
-                                  'aria-label': "Toggle wholesale funder status (currently #{relationship.status_display})",
-                                  form: { style: "display: inline;" } %>
-                    <%= button_to "Remove", admin_lender_wholesale_funder_path(@lender, relationship),
-                                  method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
-                                  remote: true, data: { confirm: "Are you sure you want to remove #{relationship.wholesale_funder.name}?" },
-                                  form: { style: "display: inline;" } %>
-                  </div>
-                </div>
-                <div class="relationship-details">
-                  <div class="detail-row">
-                    <span class="detail-label">Country</span>
-                    <span class="detail-value"><%= relationship.wholesale_funder.country %></span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-label">Currency</span>
-                    <span class="detail-value"><%= relationship.wholesale_funder.currency_display %></span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-label">Created</span>
-                    <span class="detail-value"><%= relationship.created_at.strftime("%b %d, %Y") %></span>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="empty-state">
-            <p>No wholesale funder relationships established.</p>
-            <p>Use the "Add Wholesale Funder" button above to create your first relationship.</p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-    
-    <!-- Right Column: Available Funder Pools -->
-    <div class="right-column" 
-         data-controller="funder-pool-selector"
-         data-funder-pool-selector-lender-id-value="<%= @lender.id %>"
-         data-funder-pool-selector-available-pools-path-value="<%= available_pools_admin_lender_funder_pools_path(@lender) %>">
-      <div class="column-header">
-        <h4 class="column-title">Available Funder Pools</h4>
-        <% if @lender.active_wholesale_funders.any? %>
-          <button type="button" 
-                  data-funder-pool-selector-target="addButton"
-                  data-action="click->funder-pool-selector#toggleSelection"
-                  class="admin-btn admin-btn-primary admin-btn-sm">
-            Add Funder Pool
-          </button>
-        <% end %>
-      </div>
-      
-      <!-- Funder Pool Selection Interface (hidden by default) -->
-      <div data-funder-pool-selector-target="selectionInterface" 
-           class="funder-pool-selection" style="display: none;">
-        <div class="selection-header">
-          <h5>Available Funder Pools</h5>
-          <button type="button" 
-                  data-funder-pool-selector-target="closeButton"
-                  data-action="click->funder-pool-selector#closeSelection"
-                  class="close-btn">×</button>
-        </div>
-        <div data-funder-pool-selector-target="availablePoolsContainer" 
-             class="funder-pools-list">
-          <!-- Loaded via AJAX -->
-        </div>
-      </div>
-      
-      <div data-funder-pool-selector-target="existingPools" id="existing-pools">
-        <div id="pool-list-content">
-          <% if @lender.lender_funder_pools.any? %>
-            <div class="pool-list">
-            <% @lender.lender_funder_pools.includes(:funder_pool => :wholesale_funder).order(active: :desc).each do |pool_relationship| %>
-              <% pool = pool_relationship.funder_pool %>
-              <div class="pool-card">
-                <div class="pool-header">
-                  <h5><%= pool.name %></h5>
-                  <div class="pool-actions">
-                    <%= button_to pool_relationship.status_display, toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
-                                  method: :patch, remote: true, class: "status-badge clickable-status-badge #{pool_relationship.status_badge_class}",
-                                  role: "button", tabindex: "0",
-                                  data: { confirm: "Are you sure you want to change the status of this funder pool relationship?" },
-                                  'aria-label': "Toggle funder pool status (currently #{pool_relationship.status_display})",
-                                  form: { style: "display: inline;" } %>
-                    <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
-                                  method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
-                                  remote: true, data: { confirm: "Are you sure?" },
-                                  form: { style: "display: inline;" } %>
-                  </div>
-                </div>
-                <div class="pool-details">
-                  <div class="detail-row">
-                    <span class="detail-label">Wholesale Funder</span>
-                    <span class="detail-value"><%= pool.wholesale_funder.name %></span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-label">Total Amount</span>
-                    <span class="detail-value"><%= pool.formatted_amount %></span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-label">Available</span>
-                    <span class="detail-value"><%= pool.formatted_available %></span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-label">Added</span>
-                    <span class="detail-value"><%= pool_relationship.created_at.strftime("%b %d, %Y") %></span>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-            </div>
-          <% else %>
-            <div class="empty-state">
-              <% if @lender.active_wholesale_funders.any? %>
-                <% available_pools = FunderPool.joins(:wholesale_funder)
-                                               .joins("INNER JOIN lender_wholesale_funders ON lender_wholesale_funders.wholesale_funder_id = wholesale_funders.id")
-                                               .where(lender_wholesale_funders: { lender_id: @lender.id, active: true })
-                                               .includes(:wholesale_funder)
-                                               .order('wholesale_funders.name, funder_pools.name') %>
-                
-                <% if available_pools.any? %>
-                  <div class="empty-state-with-options">
-                    <h4>Available Funder Pools</h4>
-                    <p>Select from the pools available through your wholesale funder relationships:</p>
-                    
-                    <div class="available-pools-preview">
-                      <% available_pools.each do |pool| %>
-                        <div class="pool-preview-card">
-                          <div class="pool-preview-info">
-                            <h5><%= pool.name %></h5>
-                            <p class="pool-wholesale-funder">from <%= pool.wholesale_funder.name %></p>
-                            <div class="pool-preview-details">
-                              <span class="detail-amount">Total: <%= pool.formatted_amount %></span>
-                              <span class="detail-available">Available: <%= pool.formatted_available %></span>
-                            </div>
-                          </div>
-                          <div class="pool-preview-actions">
-                            <%= form_with url: add_pool_admin_lender_funder_pools_path(@lender), 
-                                method: :post, 
-                                remote: true,
-                                local: false,
-                                class: "pool-add-form" do |f| %>
-                              <%= f.hidden_field :funder_pool_id, value: pool.id %>
-                              <%= f.submit "Add Pool", class: "admin-btn admin-btn-primary admin-btn-sm" %>
-                            <% end %>
-                          </div>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                <% else %>
-                  <p>No funder pools available from your current wholesale funders.</p>
-                  <p>Contact your wholesale funders to set up funder pools.</p>
-                <% end %>
-              <% else %>
-                <p>Add wholesale funder relationships first to access their funder pools.</p>
-              <% end %>
-            </div>
+          <% if @lender.lender_type_futureproof? %>
+            <span class="admin-badge admin-badge-futureproof">FUTUREPROOF</span>
           <% end %>
         </div>
       </div>
+      <div class="admin-card-actions">
+        <%= link_to "Edit", edit_admin_lender_path(@lender), class: "admin-btn admin-btn-primary" %>
+        <% unless @lender.lender_type_futureproof? %>
+          <%= link_to "Delete", admin_lender_path(@lender), method: :delete,
+              data: { confirm: "Delete #{@lender.name}?" },
+              class: "admin-btn admin-btn-danger" %>
+        <% end %>
+        <%= link_to "Back", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="admin-detail-grid">
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Country</span>
+        <span class="admin-detail-value"><code><%= @lender.country %></code></span>
+      </div>
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Email</span>
+        <span class="admin-detail-value">
+          <%= link_to @lender.contact_email, "mailto:#{@lender.contact_email}", class: "admin-link" %>
+        </span>
+      </div>
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Phone</span>
+        <span class="admin-detail-value">
+          <% if @lender.contact_telephone.present? %>
+            <%= "#{@lender.contact_telephone_country_code} #{@lender.contact_telephone}" %>
+          <% else %>
+            <em class="admin-text-muted">Not set</em>
+          <% end %>
+        </span>
+      </div>
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Applications</span>
+        <span class="admin-detail-value"><strong><%= @lender.applications.count %></strong></span>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Active Loans -->
-<div class="admin-card">
-  <div class="section-header">
-    <h3>Active Loans</h3>
-    <div class="loans-summary">
-      <span class="count-badge"><%= @lender.contracts.count %></span>
-      <span class="summary-text">
-        <%= @lender.contracts.count == 1 ? 'loan' : 'loans' %> • 
-        <%= @lender.formatted_total_allocated_amount %> total allocated
-      </span>
+  <!-- Wholesale Funders -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h2>Wholesale Funders</h2>
+      <div class="admin-card-actions">
+        <%= link_to "➕ Add Funder", new_admin_lender_wholesale_funder_path(@lender), class: "admin-btn admin-btn-primary admin-btn-sm" %>
+      </div>
     </div>
-  </div>
 
-  <% if @lender.contracts.any? %>
-    <div class="admin-table">
-      <table>
+    <% if @lender.lender_wholesale_funders.any? %>
+      <table class="admin-table admin-table-compact">
         <thead>
           <tr>
-            <th>Customer</th>
-            <th>Property Address</th>
-            <th>Loan Amount</th>
-            <th>Funding Pool</th>
-            <th>Wholesale Funder</th>
+            <th>Name</th>
+            <th>Country</th>
+            <th>Currency</th>
             <th>Status</th>
-            <th>Start Date</th>
-            <th>Actions</th>
+            <th class="admin-actions-cell">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <% @lender.contracts.includes(:application => :user, :funder_pool => :wholesale_funder).order(:created_at).each do |contract| %>
+          <% @lender.lender_wholesale_funders.includes(:wholesale_funder).each do |rel| %>
             <tr>
+              <td><strong><%= rel.wholesale_funder.name %></strong></td>
+              <td><code><%= rel.wholesale_funder.country %></code></td>
+              <td><%= rel.wholesale_funder.currency %></td>
               <td>
-                <div class="customer-info">
-                  <strong><%= contract.application.user.display_name %></strong>
-                  <div class="customer-email">
-                    <%= contract.application.user.email %>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="address-cell">
-                  <%= contract.application.address.truncate(50) %>
-                </div>
-              </td>
-              <td class="amount-cell">
-                <span class="loan-amount"><%= contract.formatted_allocated_amount %></span>
-              </td>
-              <td>
-                <div class="funding-pool-info">
-                  <% if contract.funder_pool %>
-                    <div class="pool-name">
-                      <%= link_to contract.funder_pool.name, 
-                          admin_wholesale_funder_funder_pool_path(contract.funder_pool.wholesale_funder, contract.funder_pool), 
-                          class: "pool-link" %>
-                    </div>
-                    <div class="pool-details">
-                      Available: <%= contract.funder_pool.formatted_available %>
-                    </div>
-                  <% else %>
-                    <span class="text-muted">No pool assigned</span>
-                  <% end %>
-                </div>
-              </td>
-              <td>
-                <% if contract.funder_pool&.wholesale_funder %>
-                  <div class="wholesale-funder-info">
-                    <%= link_to contract.funder_pool.wholesale_funder.name,
-                        admin_wholesale_funder_path(contract.funder_pool.wholesale_funder),
-                        class: "funder-link" %>
-                    <div class="funder-currency">
-                      <%= contract.funder_pool.wholesale_funder.currency_display %>
-                    </div>
-                  </div>
-                <% else %>
-                  <span class="text-muted">No funder</span>
-                <% end %>
-              </td>
-              <td class="status-cell">
-                <span class="status-badge status-<%= contract.status %>">
-                  <%= contract.status_display %>
+                <span class="admin-badge <%= rel.active? ? 'admin-badge-active' : 'admin-badge-inactive' %>">
+                  <%= rel.active? ? 'Active' : 'Inactive' %>
                 </span>
               </td>
-              <td>
-                <%= contract.start_date.strftime("%b %d, %Y") if contract.start_date %>
-              </td>
-              <td class="actions-cell">
-                <div class="admin-actions">
-                  <%= link_to "View Contract", admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary" %>
-                  <%= link_to "View Application", admin_application_path(contract.application), class: "admin-btn admin-btn-sm admin-btn-primary" %>
-                </div>
+              <td class="admin-actions-cell">
+                <%= link_to "Remove", admin_lender_wholesale_funder_path(@lender, rel), 
+                    method: :delete, data: { confirm: "Remove?" },
+                    class: "admin-link-btn admin-link-btn-danger" %>
               </td>
             </tr>
           <% end %>
         </tbody>
       </table>
-    </div>
-  <% else %>
-    <div class="empty-state">
-      <div class="empty-state-content">
-        <h4>No active loans</h4>
-        <p>This lender has no active loan contracts. Contracts will appear here when applications are accepted and funding is allocated.</p>
+    <% else %>
+      <p class="admin-text-muted">No wholesale funders connected. Use the "Add Funder" button to create relationships.</p>
+    <% end %>
+  </div>
+
+  <!-- Funder Pools -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h2>Funder Pools</h2>
+      <div class="admin-card-actions">
+        <% if @lender.active_wholesale_funders.any? %>
+          <%= link_to "➕ Add Pool", new_admin_lender_funder_pool_path(@lender), class: "admin-btn admin-btn-primary admin-btn-sm" %>
+        <% end %>
       </div>
     </div>
-  <% end %>
+
+    <% if @lender.lender_funder_pools.any? %>
+      <table class="admin-table admin-table-compact">
+        <thead>
+          <tr>
+            <th>Pool Name</th>
+            <th>Wholesale Funder</th>
+            <th>Amount</th>
+            <th>Available</th>
+            <th>Status</th>
+            <th class="admin-actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @lender.lender_funder_pools.includes(funder_pool: :wholesale_funder).each do |rel| %>
+            <% pool = rel.funder_pool %>
+            <tr>
+              <td><strong><%= pool.name %></strong></td>
+              <td><%= pool.wholesale_funder.name %></td>
+              <td><%= number_to_currency(pool.amount, precision: 0) %></td>
+              <td><%= number_to_currency(pool.available_amount, precision: 0) %></td>
+              <td>
+                <span class="admin-badge <%= rel.active? ? 'admin-badge-active' : 'admin-badge-inactive' %>">
+                  <%= rel.active? ? 'Active' : 'Inactive' %>
+                </span>
+              </td>
+              <td class="admin-actions-cell">
+                <%= link_to "Remove", admin_lender_funder_pool_path(@lender, rel), 
+                    method: :delete, data: { confirm: "Remove?" },
+                    class: "admin-link-btn admin-link-btn-danger" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-text-muted">No funder pools connected. <% if @lender.active_wholesale_funders.any? %>Use "Add Pool" to add one.<% else %>Add wholesale funders first.<% end %></p>
+    <% end %>
+  </div>
+
+  <!-- Active Applications -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h2>Active Applications</h2>
+      <div class="admin-badge"><%= @lender.applications.count %></div>
+    </div>
+
+    <% if @lender.applications.any? %>
+      <div class="admin-table-wrapper">
+        <table class="admin-table admin-table-compact">
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th class="admin-actions-cell">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @lender.applications.includes(:user).order(created_at: :desc).limit(10).each do |app| %>
+              <tr>
+                <td><strong><%= app.user.display_name %></strong></td>
+                <td><span class="admin-text-muted"><%= app.address.truncate(40) %></span></td>
+                <td><%= number_to_currency(app.equity_investment_amount || 0, precision: 0) %></td>
+                <td>
+                  <span class="admin-badge admin-badge-<%= app.status %>">
+                    <%= app.status.humanize %>
+                  </span>
+                </td>
+                <td class="admin-actions-cell">
+                  <%= link_to "View", admin_application_path(app), class: "admin-link-btn" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="admin-text-muted">No applications from this lender yet.</p>
+    <% end %>
+  </div>
+
+  <!-- System Info -->
+  <div class="admin-card admin-card-minimal">
+    <div class="admin-detail-grid admin-detail-grid-minimal">
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Created</span>
+        <span class="admin-detail-value"><%= @lender.created_at.strftime("%b %d, %Y") %></span>
+      </div>
+      <div class="admin-detail-item">
+        <span class="admin-detail-label">Last Updated</span>
+        <span class="admin-detail-value"><%= @lender.updated_at.strftime("%b %d, %Y %H:%M") %></span>
+      </div>
+    </div>
+  </div>
 </div>
-
-<!-- Change History -->
-<%= render 'shared/change_history', versions: @all_versions %>
-
-<style>
-/* Lender Show Page Styles */
-.lender-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.lender-title h3 {
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.lender-badges {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.lender-type {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.lender-type-futureproof {
-  background-color: #ede9fe;
-  color: #7c3aed;
-}
-
-.lender-type-lender {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.futureproof-badge {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 12px;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.lender-details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-}
-
-.detail-section {
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
-}
-
-.detail-section h4 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 8px;
-}
-
-.detail-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 8px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  flex-shrink: 0;
-  width: 40%;
-}
-
-.detail-value {
-  font-size: 14px;
-  color: #374151;
-  font-weight: 600;
-  text-align: right;
-  flex: 1;
-}
-
-.country-flag {
-  font-size: 16px;
-  margin-right: 4px;
-}
-
-.email-link {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.email-link:hover {
-  text-decoration: underline;
-}
-
-.phone-number {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  font-size: 13px;
-}
-
-.text-muted {
-  color: #9ca3af;
-  font-style: italic;
-  font-weight: normal;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .lender-details-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  
-  .detail-section {
-    padding: 16px;
-  }
-  
-  .detail-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  
-  .detail-label {
-    width: 100%;
-  }
-  
-  .detail-value {
-    text-align: left;
-  }
-  
-  .lender-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-}
-
-/* New Relationship and Pool Sections */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.relationship-grid, .pool-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.relationship-card, .pool-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.relationship-header, .pool-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.relationship-header h4, .pool-header h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  flex: 1;
-}
-
-.relationship-actions, .pool-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.status-badge {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.clickable-status-badge {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-  user-select: none;
-  border: 2px solid transparent;
-  background: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
-  text-transform: inherit;
-  letter-spacing: inherit;
-}
-
-.clickable-status-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  text-decoration: none;
-}
-
-.clickable-status-badge:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-.clickable-status-badge:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-.clickable-status-badge.status-active:hover {
-  background-color: #bbf7d0;
-  border-color: #059669;
-  color: #065f46;
-}
-
-.clickable-status-badge.status-inactive:hover {
-  background-color: #fca5a5;
-  border-color: #dc2626;
-  color: #7f1d1d;
-}
-
-.status-active {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-inactive {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.admin-btn-sm {
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-}
-
-.relationship-details, .pool-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #6b7280;
-}
-
-.empty-state p {
-  margin: 0 0 16px 0;
-  font-size: 14px;
-}
-
-/* Empty state with available options styling */
-.empty-state-with-options {
-  text-align: left;
-  padding: 24px;
-}
-
-.empty-state-with-options h4 {
-  color: #374151;
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.empty-state-with-options > p {
-  color: #6b7280;
-  margin: 0 0 20px 0;
-  font-size: 14px;
-}
-
-.available-pools-preview {
-  display: grid;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.pool-preview-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  background: white;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 8px;
-  border-left: 5px solid #e5e7eb;
-}
-
-/* Alternating strong colors for clear distinction */
-.pool-preview-card:nth-child(odd) {
-  border-left-color: #3b82f6;
-  background: linear-gradient(135deg, white 0%, #f0f9ff 100%);
-}
-
-.pool-preview-card:nth-child(even) {
-  border-left-color: #10b981;
-  background: linear-gradient(135deg, white 0%, #f0fdf4 100%);
-}
-
-.pool-preview-card:nth-child(3n) {
-  border-left-color: #f59e0b;
-  background: linear-gradient(135deg, white 0%, #fffbeb 100%);
-}
-
-.pool-preview-card:nth-child(4n) {
-  border-left-color: #8b5cf6;
-  background: linear-gradient(135deg, white 0%, #f5f3ff 100%);
-}
-
-.pool-preview-card:hover {
-  border-color: #3b82f6;
-  background: #f8fafc;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
-  transform: translateY(-2px);
-}
-
-.pool-preview-info h5 {
-  margin: 0 0 6px 0;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 700;
-  border-bottom: 1px solid rgba(107, 114, 128, 0.2);
-  padding-bottom: 4px;
-}
-
-.pool-wholesale-funder {
-  margin: 0 0 12px 0;
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.pool-preview-details {
-  display: flex;
-  gap: 24px;
-  font-size: 13px;
-}
-
-.detail-amount, .detail-available {
-  color: #374151;
-  font-weight: 600;
-  padding: 4px 8px;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.pool-add-form {
-  margin: 0;
-}
-
-/* Two-column layout for wholesale funders and funder pools */
-.two-column-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-top: 16px;
-}
-
-.left-column, .right-column {
-  min-height: 200px;
-}
-
-.column-title {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.relationship-list, .pool-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.relationship-header h5, .pool-header h5 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  flex: 1;
-}
-
-@media (max-width: 768px) {
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .two-column-layout {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .relationship-grid, .pool-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .relationship-header, .pool-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .relationship-actions, .pool-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-}
-
-/* Wholesale Funder Selection Interface */
-.wholesale-funder-selection {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.selection-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.selection-header h5 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.wholesale-funders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 8px;
-}
-
-.wholesale-funder-option {
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin-bottom: 4px;
-  border-left: 4px solid #e5e7eb;
-}
-
-/* Alternating blue and green accents for visual separation */
-.wholesale-funder-option:nth-child(odd) {
-  border-left-color: #3b82f6;
-  background: linear-gradient(135deg, white 0%, #f8fafc 100%);
-}
-
-.wholesale-funder-option:nth-child(even) {
-  border-left-color: #10b981;
-  background: linear-gradient(135deg, white 0%, #f0fdf4 100%);
-}
-
-.wholesale-funder-option:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  background: #f8fafc;
-  transform: translateY(-1px);
-}
-
-.wholesale-funder-option:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-}
-
-.wholesale-funder-option.processing {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.wholesale-funder-option.loading {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Clickable card styles */
-.clickable-card {
-  user-select: none;
-}
-
-.clickable-card:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-.click-indicator {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #3b82f6;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.wholesale-funder-option:hover .click-indicator {
-  opacity: 1;
-}
-
-.wholesale-funder-option.processing .click-indicator {
-  background: #6b7280;
-}
-
-.wholesale-funder-option.processing .click-indicator .click-text::after {
-  content: 'ing...';
-}
-
-/* Funder card internal structure */
-.funder-info {
-  position: relative;
-}
-
-.funder-info h5 {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #1f2937;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.funder-details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.funder-details .detail-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px;
-  background: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #f3f4f6;
-}
-
-.funder-details .detail-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 2px;
-}
-
-.funder-details .detail-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.option-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.option-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-}
-
-.option-details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  font-size: 12px;
-}
-
-.detail-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.detail-line .label {
-  color: #6b7280;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.detail-line .value {
-  color: #1f2937;
-  font-weight: 600;
-}
-
-.loading-message {
-  text-align: center;
-  padding: 20px;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.error-message {
-  text-align: center;
-  padding: 12px;
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  margin: 8px 0;
-  font-size: 14px;
-}
-
-/* Flash messages */
-.alert {
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-.alert-success {
-  background: #dcfce7;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-}
-
-.alert-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-}
-
-/* Column Header */
-.column-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-/* Funder Pool Selection Interface */
-.funder-pool-selection {
-  background: white;
-  border: 2px solid #3b82f6;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.funder-pools-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.funder-pool-option {
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  transition: all 0.2s ease;
-  margin-bottom: 8px;
-}
-
-.funder-pool-option:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.pool-info {
-  flex: 1;
-}
-
-.pool-info h5 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.pool-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-}
-
-.pool-details .detail-row {
-  display: flex;
-  justify-content: space-between;
-  border: none;
-  padding: 2px 0;
-}
-
-.pool-details .detail-label {
-  color: #6b7280;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: auto;
-}
-
-.pool-details .detail-value {
-  color: #1f2937;
-  font-weight: 600;
-  text-align: left;
-  flex: none;
-}
-
-.pool-actions {
-  flex-shrink: 0;
-}
-
-.loading-state, .error-state {
-  text-align: center;
-  padding: 20px;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.error-state {
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-}
-
-/* Active Loans Section */
-.loans-summary {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: #374151;
-}
-
-.summary-text {
-  font-weight: 500;
-}
-
-.customer-info strong {
-  display: block;
-  font-size: 14px;
-  color: #1f2937;
-  margin-bottom: 2px;
-}
-
-.customer-email {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.address-cell {
-  color: #6b7280;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.loan-amount {
-  color: #dc2626;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.funding-pool-info {
-  font-size: 14px;
-}
-
-.pool-name {
-  margin-bottom: 4px;
-}
-
-.pool-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.pool-link:hover {
-  text-decoration: underline;
-}
-
-.pool-details {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.wholesale-funder-info {
-  font-size: 14px;
-}
-
-.funder-link {
-  color: #7c3aed;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.funder-link:hover {
-  text-decoration: underline;
-}
-
-.funder-currency {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-.status-awaiting_funding {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-awaiting_investment {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.status-ok {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-in_holiday {
-  background-color: #f3e8ff;
-  color: #7c3aed;
-}
-
-.status-in_arrears {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.status-complete {
-  background-color: #e5e7eb;
-  color: #374151;
-}
-
-.empty-state-content h4 {
-  margin: 0 0 8px 0;
-  color: #374151;
-  font-size: 16px;
-}
-
-.empty-state-content p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-/* Mobile responsive for loans table */
-@media (max-width: 768px) {
-  .loans-summary {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .admin-actions {
-    flex-direction: column;
-    gap: 2px;
-  }
-}
-</style>
-</script>

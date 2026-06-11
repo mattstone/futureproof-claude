@@ -1,11 +1,24 @@
 # FutureProof Regional Compliance Audit & Gap Analysis
 
-**Version:** 1.0  
+**Version:** 1.2  
 **Created:** 2026-03-06  
 **Scope:** Financial regulations, security standards, currency/tax treatment per region (AU, NZ, UK, US)  
 **Purpose:** Identify gaps in REFACTOR_PROMPT.md and build implementation plan
 
 ---
+
+> ## ⏱️ STATUS UPDATE — 2026-06-03
+>
+> **This document is the originating gap analysis. The gaps it identified have since been closed.** The four per-market compliance documents it proposes now exist:
+> `docs/compliance/AUSTRALIA_COMPLIANCE.md`, `NZ_COMPLIANCE.md`, `UK_COMPLIANCE.md`, `US_COMPLIANCE.md` (plus `REGULATORY_ASSESSMENT_AU.md`).
+>
+> - **Board-level summary:** use `docs/pdfs/FutureProof_Regional_Regulatory_Readiness_Jun2026.pdf` — the distilled, decision-focused briefing built from this analysis and the per-market docs.
+> - **Sections 6, 7 and 9** (model selection, token/timeline budgeting, the "should we do Phase 0A?" decision) describe the *internal build process*, which is now complete. They are retained only as a historical record.
+> - **Terminology:** the EPM is a **mortgage**, not a loan the customer repays — the customer receives income and makes **no repayments**; the lender bears the investment risk. Where "loan" appears below in that consumer-obligation sense, read "mortgage / EPM". Genuine regulatory terms (e.g. "loan-to-value", the US "Loan Estimate", "Australian Credit Licence") are left as-is.
+> - **Two factual corrections** were applied: UK tax treatment (§3.2) and the insurance framing (§4.2) — see those sections.
+> - **AU classification fork added** (§1.1) — the binding AU question is **ACL vs AFSL** (personal-advice AFSL is a ~6–12 month path), plus the comparison-rate problem and the Age Pension income test. See the board briefing for the cross-market view of this fork.
+>
+> ---
 
 ## EXECUTIVE SUMMARY
 
@@ -26,6 +39,8 @@
 ## SECTION 1: REGULATORY GAPS — FINANCIAL & LENDING
 
 ### 1.1 Australia (AU) — Missing Regulatory Details
+
+> **⚠️ Update (2026-06-03) — the AU classification fork.** Subsequent analysis (`docs/compliance/AUSTRALIA_COMPLIANCE.md`, `docs/compliance/REGULATORY_ASSESSMENT_AU.md`, and the board briefing PDF) shows the binding AU question is **ACL vs AFSL**, not the ACL alone. An **ACL** (credit) is almost certain; but managing the investment portfolio and giving income projections **likely triggers an AFSL**. *General*-advice-only is the lighter route; ***personal* advice** is much heavier — Statement of Advice, Best Interests Duty, qualified advisers — a ~6–12 month path. Two more AU-specific items confirmed since: the **comparison-rate problem** (the mandatory comparison rate assumes repayments the EPM does not have — needs ASIC guidance/exemption) and the **Age Pension income test** (EPM income is assessable and can reduce pension entitlements — must be disclosed). Net: AU is **not** the clear "fast" market the gap list below implies — its timeline depends entirely on this fork.
 
 **What's Missing:**
 
@@ -321,7 +336,7 @@
 | Tax Aspect | AU | NZ | UK | US |
 |---|---|---|---|---|
 | Income Tax (Monthly Disbursement) | ⚠️ Unclear | ⚠️ Unclear | ⚠️ Unclear | ⚠️ Unclear |
-| Capital Gains on Investment | Taxable | Taxable | **Not taxable** | Taxable |
+| Capital Gains on Investment | Taxable | Taxable | Taxable (wrapper-dependent) | Taxable |
 | Inheritance Tax (Estate) | No IHT | No IHT | **Yes (40%)** | No federal IHT |
 | Superannuation Impact | ⚠️ May block access | N/A | N/A | Affects Medicare |
 | Debt Interest Deductibility | No (personal) | No (personal) | No (personal) | Yes (primary residence excluded) |
@@ -343,7 +358,7 @@
 
 3. **United Kingdom:**
    - Monthly income = taxable (self-assessment)
-   - Investment gains = **NOT taxable** (important selling point!)
+   - Investment gains = **taxable (CGT), wrapper-dependent** — confirm with UK tax counsel; the genuine UK advantage is **Inheritance Tax efficiency** (below), not a CGT exemption
    - Inheritance: IHT on estate (40% >£325k threshold)
    - Reporting: HMRC self-assessment
 
@@ -438,28 +453,21 @@
 
 **Current Prompt:** Mentions "insurance coverage" but **undefined**
 
-**What's Missing:**
+**⚠️ Correction (2026-06-03):** An earlier version of this section framed insurance around the borrower being unable to make repayments (mortgage protection, income protection, "can't pay interest → default"). **That does not apply to the EPM** — the customer makes no repayments, so the failure mode those products exist to cover does not arise. The risks worth managing are property-side (the customer's responsibility) and lender-side (investment / tail risk).
 
-1. **Mortgage Protection Insurance**
-   - If borrower dies → insurance pays loan
-   - Required? Optional? Cost?
-   - Varies by region & lender
+**What actually matters:**
 
-2. **Investment Protection**
-   - Market downturns: does insurance cover shortfall?
-   - Minimum guaranteed returns?
-   - Varies by product structure
+1. **Buildings insurance (customer obligation)**
+   - The customer must keep the property insured and maintained — a disclosure and serviceability point (see the responsible-lending sections), not a product feature.
 
-3. **Disability/Unemployment**
-   - If borrower loses income, can't pay interest → default
-   - Insurance coverage options?
+2. **Lender-side investment / tail risk**
+   - Market downturns are borne by the lender and its funders, not the customer.
+   - Managed through the reinsurance structure (see the EPM Reinsurance Structure paper), not through consumer insurance.
 
-**Solution Task:** Create INSURANCE_FRAMEWORK.md specifying:
-- Mortgage protection (life insurance) requirements
-- Investment shortfall insurance (if applicable)
-- Disability/income protection options
-- Premium calculation per region
-- Claims process & documentation
+3. **Optional life cover (estate planning only)**
+   - Not required by the product — no repayment falls due on death (see §3.3) — but customers may choose life cover for separate estate-planning reasons.
+
+**Solution Task:** Folded into the per-market compliance docs and the reinsurance paper. The originally-proposed consumer-centric INSURANCE_FRAMEWORK.md is not required as scoped.
 
 ---
 

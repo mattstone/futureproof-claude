@@ -11,6 +11,8 @@ class User < ApplicationRecord
   # Associations
   belongs_to :lender, optional: true
   has_many :applications, dependent: :destroy
+  has_one :notification_preference, dependent: :destroy
+  has_many :webhook_endpoints, dependent: :destroy
   belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
   has_many :user_versions, dependent: :destroy
   
@@ -20,6 +22,13 @@ class User < ApplicationRecord
   has_many :mortgage_contract_users, dependent: :destroy
   has_many :additional_mortgage_contracts, through: :mortgage_contract_users, source: :mortgage_contract
 
+  # Legal document acceptance
+  has_many :legal_document_acceptances, dependent: :destroy
+  has_many :accepted_legal_documents, through: :legal_document_acceptances, source: :legal_document
+
+  # Support tickets
+  has_many :support_tickets, dependent: :nullify
+
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value
   
@@ -27,7 +36,7 @@ class User < ApplicationRecord
   attr_accessor :current_admin_user
   
   # Callbacks for change tracking
-  after_create :log_creation
+  after_create :log_creation, :create_notification_preference
   after_create :create_initial_application, unless: :admin?
   after_update :log_update
 
@@ -84,6 +93,14 @@ class User < ApplicationRecord
 
   def admin?
     admin
+  end
+
+  def lender?
+    lender.present?
+  end
+
+  def borrower?
+    !lender? && !admin?
   end
 
   def display_name
@@ -247,6 +264,26 @@ class User < ApplicationRecord
     current_terms = TermsOfUse.current
     return false if current_terms.blank?
     terms_version == current_terms.version
+  end
+
+  # Check if user has accepted a specific legal document
+  def accepted?(legal_document)
+    legal_document_acceptances.exists?(legal_document: legal_document)
+  end
+
+  # Get acceptance record for a document
+  def acceptance_of(legal_document)
+    legal_document_acceptances.find_by(legal_document: legal_document)
+  end
+
+  # Mark user acceptance of a legal document
+  def accept!(legal_document, acceptance_type = "explicit")
+    legal_document_acceptances.find_or_create_by!(
+      legal_document: legal_document
+    ) do |acceptance|
+      acceptance.accepted_at = Time.current
+      acceptance.acceptance_type = acceptance_type
+    end
   end
   
   # Log when admin views user profile
@@ -471,5 +508,9 @@ class User < ApplicationRecord
     unless valid_mobile_phone?
       errors.add(:mobile_number, "is not a valid phone number for the selected country")
     end
+  end
+
+  def create_notification_preference
+    NotificationPreference.create!(user: self, payment_email: true, payment_sms: true, message_email: true)
   end
 end

@@ -1,0 +1,134 @@
+<%= stylesheet_link_tag "admin/legal_documents", media: "all" %>
+
+<div class="ld-page" data-controller="legal-document-tabs">
+  <nav class="ld-breadcrumb">
+    <%= link_to "Dashboard", admin_root_path %> >
+    <%= link_to "Agreements", admin_agreements_path %> >
+    <span><%= @agreement.title %></span>
+  </nav>
+
+<% content_for :page_title, @agreement.title %>
+
+  <div class="ld-show-header">
+    <div class="ld-badge-row">
+      <span class="ld-badge ld-badge-status agreement-status-<%= @agreement.status %>"><%= @agreement.status.titleize %></span>
+      <span class="ld-badge ld-badge-jurisdiction"><%= @agreement.jurisdiction %></span>
+      <span class="ld-badge ld-badge-neutral"><%= @agreement.party_type_label %></span>
+      <span class="ld-badge ld-badge-neutral">v<%= @agreement.version %></span>
+      <% if @agreement.executed_at %>
+        <span class="ld-badge ld-badge-neutral">Executed: <%= @agreement.executed_at.strftime("%d %b %Y") %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="ld-action-bar">
+    <% if @agreement.editable? %>
+      <%= link_to "Edit Agreement", edit_admin_agreement_path(@agreement), class: "ld-btn ld-btn-secondary" %>
+      <%= button_to "Send for Signing", send_for_signing_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-primary" %>
+      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { confirm: "Cancel this agreement?" } %>
+    <% elsif @agreement.signable? %>
+      <% unless @agreement.signed_by?("counterparty") %>
+        <%= link_to "Sign as Counterparty", sign_admin_agreement_path(@agreement, role: "counterparty"), class: "ld-btn ld-btn-primary" %>
+      <% end %>
+      <% unless @agreement.signed_by?("futureproof") %>
+        <%= link_to "Sign as FutureProof", sign_admin_agreement_path(@agreement, role: "futureproof"), class: "ld-btn ld-btn-secondary" %>
+      <% end %>
+      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { confirm: "Cancel this agreement?" } %>
+    <% end %>
+  </div>
+
+  <!-- Signature Panel -->
+  <div class="agreement-signatures-panel">
+    <h3>Signatures</h3>
+    <div class="agreement-sig-grid">
+      <!-- Counterparty signature -->
+      <div class="agreement-sig-card <%= @agreement.signed_by?('counterparty') ? 'agreement-sig-signed' : 'agreement-sig-pending' %>">
+        <div class="agreement-sig-role"><%= @agreement.party_type_label %></div>
+        <% if (sig = @agreement.counterparty_signature) %>
+          <div class="agreement-sig-name"><%= sig.typed_signature %></div>
+          <div class="agreement-sig-detail"><%= sig.signer_name %> — <%= sig.signer_title %></div>
+          <div class="agreement-sig-detail"><%= sig.signer_email %></div>
+          <div class="agreement-sig-date">Signed: <%= sig.signed_at.strftime("%d %b %Y at %H:%M") %></div>
+        <% else %>
+          <div class="agreement-sig-pending-text">Awaiting signature</div>
+        <% end %>
+      </div>
+
+      <!-- FutureProof signature -->
+      <div class="agreement-sig-card <%= @agreement.signed_by?('futureproof') ? 'agreement-sig-signed' : 'agreement-sig-pending' %>">
+        <div class="agreement-sig-role">FutureProof Financial</div>
+        <% if (sig = @agreement.futureproof_signature) %>
+          <div class="agreement-sig-name"><%= sig.typed_signature %></div>
+          <div class="agreement-sig-detail"><%= sig.signer_name %> — <%= sig.signer_title %></div>
+          <div class="agreement-sig-detail"><%= sig.signer_email %></div>
+          <div class="agreement-sig-date">Signed: <%= sig.signed_at.strftime("%d %b %Y at %H:%M") %></div>
+        <% else %>
+          <div class="agreement-sig-pending-text">Awaiting signature</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ld-tabs">
+    <div class="ld-tab-nav">
+      <button class="ld-tab-btn active" data-action="click->legal-document-tabs#switch" data-legal-document-tabs-tab-param="content">Agreement Content</button>
+      <button class="ld-tab-btn" data-action="click->legal-document-tabs#switch" data-legal-document-tabs-tab-param="details">Details</button>
+      <button class="ld-tab-btn" data-action="click->legal-document-tabs#switch" data-legal-document-tabs-tab-param="audit">Audit Trail</button>
+    </div>
+
+    <div class="ld-tab-panel active" data-legal-document-tabs-target="panel" data-tab="content">
+      <div class="ld-document-content">
+        <% if @agreement.rich_content.body.present? %>
+          <%= @agreement.rich_content %>
+        <% elsif @agreement.content.present? %>
+          <%= @agreement.content.html_safe %>
+        <% else %>
+          <div class="ld-empty-state"><p>No content.</p></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="ld-tab-panel" data-legal-document-tabs-target="panel" data-tab="details">
+      <table class="ld-table ld-meta-table">
+        <tbody>
+          <tr><th>Party</th><td><%= @agreement.agreeable.name %> (<%= @agreement.party_type_label %>)</td></tr>
+          <tr><th>Template</th><td><%= @agreement.legal_document.display_name %></td></tr>
+          <tr><th>Jurisdiction</th><td><%= @agreement.jurisdiction %></td></tr>
+          <tr><th>Version</th><td><%= @agreement.version %></td></tr>
+          <tr><th>Status</th><td><span class="ld-badge ld-badge-status agreement-status-<%= @agreement.status %>"><%= @agreement.status.titleize %></span></td></tr>
+          <tr><th>Created By</th><td><%= @agreement.created_by.display_name %></td></tr>
+          <tr><th>Created</th><td><%= @agreement.created_at.strftime("%d %b %Y %H:%M") %></td></tr>
+          <% if @agreement.sent_at %><tr><th>Sent</th><td><%= @agreement.sent_at.strftime("%d %b %Y %H:%M") %></td></tr><% end %>
+          <% if @agreement.executed_at %><tr><th>Executed</th><td><%= @agreement.executed_at.strftime("%d %b %Y %H:%M") %></td></tr><% end %>
+          <% if @agreement.notes.present? %><tr><th>Notes</th><td><%= @agreement.notes %></td></tr><% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ld-tab-panel" data-legal-document-tabs-target="panel" data-tab="audit">
+      <% if @agreement.agreement_signatures.any? %>
+        <table class="ld-table">
+          <thead><tr><th>Event</th><th>Who</th><th>When</th><th>IP Address</th></tr></thead>
+          <tbody>
+            <tr><td>Agreement created</td><td><%= @agreement.created_by.display_name %></td><td><%= @agreement.created_at.strftime("%d %b %Y %H:%M") %></td><td>—</td></tr>
+            <% if @agreement.sent_at %>
+              <tr><td>Sent for signing</td><td>—</td><td><%= @agreement.sent_at.strftime("%d %b %Y %H:%M") %></td><td>—</td></tr>
+            <% end %>
+            <% @agreement.agreement_signatures.order(:signed_at).each do |sig| %>
+              <tr>
+                <td>Signed as <%= sig.role_label %></td>
+                <td><%= sig.signer_name %> (<%= sig.signer_email %>)</td>
+                <td><%= sig.signed_at.strftime("%d %b %Y %H:%M") %></td>
+                <td><%= sig.ip_address || "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="ld-empty-state"><p>No activity yet.</p></div>
+      <% end %>
+    </div>
+  </div>
+</div>

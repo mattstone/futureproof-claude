@@ -1,0 +1,299 @@
+<div class="broker-detail">
+  <div class="detail-header">
+    <div>
+      <h1><%= @broker.name %></h1>
+      <p class="subtitle"><%= @broker.email %></p>
+    </div>
+    <div class="header-actions">
+      <%= link_to "Edit", edit_admin_broker_path(@broker), class: "btn btn-primary" %>
+      <%= link_to "Back to Brokers", admin_brokers_path, class: "btn btn-outline" %>
+    </div>
+  </div>
+
+  <!-- Broker Info -->
+  <div class="info-section">
+    <h2>Broker Information</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Email:</span>
+        <span class="info-value"><%= @broker.email %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Jurisdiction:</span>
+        <span class="info-value"><span class="jurisdiction-badge"><%= @broker.jurisdiction %></span></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Phone:</span>
+        <span class="info-value"><%= @broker.contact_telephone || "Not provided" %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Status:</span>
+        <span class="info-value">
+          <% if @broker.active %>
+            <span class="status-badge status-active">Active</span>
+          <% else %>
+            <span class="status-badge status-inactive">Inactive</span>
+          <% end %>
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Member Since:</span>
+        <span class="info-value"><%= @broker.created_at.strftime("%B %d, %Y") %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assigned Lenders -->
+  <div class="lenders-section">
+    <h2>Assigned Lenders (<%= @lenders.count %>)</h2>
+    <% if @lenders.any? %>
+      <div class="lenders-list">
+        <% @lenders.each do |lender| %>
+          <div class="lender-card">
+            <div class="lender-info">
+              <h3><%= link_to lender.name, admin_lender_path(lender) %></h3>
+              <p><%= lender.jurisdiction %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-message">No lenders assigned to this broker.</p>
+    <% end %>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="applications-section">
+    <h2>Recent Applications (<%= @broker.applications.count %> total)</h2>
+    <% if @applications.any? %>
+      <table class="applications-table">
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Lender</th>
+            <th>Status</th>
+            <th>Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @applications.each do |app| %>
+            <tr>
+              <td><%= link_to app.user.full_name, lender_application_path(app) %></td>
+              <td><%= app.lender&.name || "Unknown" %></td>
+              <td><span class="status-badge <%= app.status %>"><%= app.status.titleize %></span></td>
+              <td><%= time_ago_in_words(app.created_at) %> ago</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="empty-message">No applications from this broker.</p>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .broker-detail {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .detail-header h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    margin: 0.5rem 0 0 0;
+    color: #666;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background-color: #0066cc;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0052a3;
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: #0066cc;
+    border: 1px solid #0066cc;
+  }
+
+  .btn-outline:hover {
+    background-color: #0066cc;
+    color: white;
+  }
+
+  .info-section,
+  .lenders-section,
+  .applications-section {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-section h2,
+  .lenders-section h2,
+  .applications-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-value {
+    color: #333;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    width: fit-content;
+  }
+
+  .status-active {
+    background-color: #4caf50;
+  }
+
+  .status-inactive {
+    background-color: #f44336;
+  }
+
+  .jurisdiction-badge {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #d0d0d0;
+  }
+
+  .lenders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .lender-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1rem;
+    background-color: #f9f9f9;
+  }
+
+  .lender-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+  }
+
+  .lender-info h3 a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .lender-info h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .lender-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .applications-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .applications-table thead {
+    background-color: #f5f5f5;
+  }
+
+  .applications-table th {
+    text-align: left;
+    padding: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .applications-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .applications-table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+
+  .applications-table a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .applications-table a:hover {
+    text-decoration: underline;
+  }
+
+  .empty-message {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+  }
+</style>

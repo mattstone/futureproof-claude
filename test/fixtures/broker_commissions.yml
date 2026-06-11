@@ -1,0 +1,3 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# This file is intentionally empty - broker commissions are created programmatically in tests
+# Using fixtures would create foreign key constraint violations

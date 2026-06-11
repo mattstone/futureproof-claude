@@ -1,0 +1,55 @@
+name: Claude Code
+
+# Turns plain-language change requests into draft pull requests.
+#
+# Triggered by issues labelled `change-request` (opened from the admin's
+# "Request a change" form via GithubBridge) and by @claude mentions in
+# issue/PR comments. Claude implements on a branch and opens a DRAFT PR.
+# It never merges: the CTO reviews, tests, and merges — merge deploys.
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issues' && (contains(github.event.issue.labels.*.name, 'change-request') || contains(github.event.issue.body, '@claude'))) ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are implementing a change request from a FutureProof business user.
+
+            Rules:
+            - Follow CLAUDE.md exactly (terminology, CSP, custom CSS, data safety).
+            - Prompt files live in docs/prompts/ — the live support-chat prompt is
+              docs/prompts/runtime/. The advice wall and other non-negotiables live
+              ONLY in docs/prompts/master.md.
+            - Never call the EPM a "loan". It is a mortgage / Guaranteed Income Plan.
+            - Run `bundle exec rails test` and make it pass before opening the PR.
+            - Open a DRAFT pull request describing what you changed and why,
+              and link the originating issue. Never merge, never push to master.
+            - If the request is ambiguous or would affect data/functionality in a
+              way the issue's impact assessment does not acknowledge, say so in
+              the PR description and ask for clarification instead of guessing.

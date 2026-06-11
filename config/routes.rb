@@ -13,9 +13,53 @@ Rails.application.routes.draw do
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  # Global jurisdiction setting (accessible from anywhere)
+  post 'set_jurisdiction', to: 'admin/base#set_jurisdiction'
+
   # Admin routes
   namespace :admin do
+    post 'set_jurisdiction', to: 'base#set_jurisdiction'
+    
+    # Dashboard
+    get 'dashboard', to: 'dashboard#index'
+    
+    # Customer service operational view
+    get 'customer_service', to: 'customer_service#index'
+
+    # Audit log (read-only)
+    resources :audit_logs, only: [:index, :show]
+
+    # AI conversations (read-only)
+    resources :chat_conversations, only: [:index, :show]
+
+    # Vintage cohort report
+    resources :cohorts, only: [:index]
+
+    # Prompt management — read-only browser over docs/prompts/ (git is the
+    # source of truth); proposals become GitHub PRs/issues via GithubBridge
+    resources :prompts, only: [:index, :show], param: :key
+    resources :prompt_change_requests, only: [:index, :new, :create, :show] do
+      member do
+        post :refresh
+      end
+    end
+
+    # Support Tickets
+    resources :support_tickets, only: [:index, :show, :update] do
+      member do
+        post :reply
+        patch :close
+      end
+      collection do
+        post :poll_emails
+      end
+    end
+
+    
     resources :lenders do
+      collection do
+        get :scorecard
+      end
       member do
         get :available_wholesale_funders
       end
@@ -40,18 +84,37 @@ Rails.application.routes.draw do
       end
       # Singleton clause resource - one clause per lender
       resource :clause, controller: 'lender_clauses', except: [:show]
+      
+      # Broker commission rates
+      resources :broker_commission_rates do
+        member do
+          patch :toggle_active
+        end
+      end
     end
+    
+    resources :brokers do
+      collection do
+        get :scorecard
+      end
+      member do
+        patch :toggle_active
+        post :assign_lender
+        delete :remove_lender
+      end
+    end
+    
     resources :wholesale_funders do
       collection do
         post :search
+        get :by_jurisdiction
       end
       resources :funder_pools, except: [:index]
+      resources :contracts, controller: 'wholesale_funder_contracts', only: [:index, :new, :create, :edit, :update, :destroy]
     end
     
     # Direct access to all funder pools
     resources :funder_pools, only: [:index]
-    resources :dashboard, only: [:index]
-    get 'business', to: 'dashboard#business'
     resources :users
     resources :mortgages do
       resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do
@@ -190,6 +253,23 @@ Rails.application.routes.draw do
       end
     end
 
+    # Broker Management
+    resources :brokers, except: [:destroy] do
+      member do
+        patch :toggle_active
+      end
+      resources :lenders, controller: 'broker_lenders', only: [] do
+        member do
+          patch :toggle_active
+        end
+        collection do
+          get :available_lenders
+          post :add_lender
+          delete :remove_lender
+        end
+      end
+    end
+
     # Agent Lifecycle Management (NEW - replaces complex workflow builders)
     resources :agent_lifecycle, only: [:index, :show, :edit, :update] do
       member do
@@ -227,6 +307,41 @@ Rails.application.routes.draw do
       end
     end
     
+    # Legal Documents Management
+    resources :legal_documents do
+      member do
+        patch :publish
+        patch :approve
+        patch :activate
+        patch :archive
+        patch :restore
+      end
+      collection do
+        get :compliance_dashboard
+        get :templates
+        post :setup_jurisdiction
+        get :export_compliance_report
+        get :acceptance_tracking
+      end
+    end
+
+    # FAQs Management
+    resources :faqs, except: [:show] do
+      collection do
+        post :reorder
+      end
+    end
+
+    # Agreements (party onboarding contracts)
+    resources :agreements do
+      member do
+        patch :send_for_signing
+        get :sign
+        post :record_signature
+        patch :cancel
+      end
+    end
+
     root "dashboard#index"
   end
 
@@ -245,11 +360,6 @@ Rails.application.routes.draw do
     get 'quotes/regional', to: 'quotes#regional'
     get 'regions', to: 'quotes#regions'
 
-    # AI Chat API
-    post 'chat', to: 'chat#create'
-    post 'chat/guest', to: 'chat#guest_message'
-    get 'chat/conversations', to: 'chat#conversations'
-    get 'chat/conversations/:id/messages', to: 'chat#messages'
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -268,7 +378,48 @@ Rails.application.routes.draw do
     get "terms-and-conditions", to: "pages#terms_and_conditions", as: :regional_terms_and_conditions
     get "apply", to: "pages#apply", as: :regional_apply
     get "get-started", to: "pages#get_started", as: :regional_get_started
+    get "tax-discussion", to: "pages#tax_discussion", as: :regional_tax_discussion
     get "/", to: "pages#get_started", as: :regional_root
+
+    # Customer Support (24/7 AI chat)
+    get 'support', to: 'support#chat', as: 'support_chat'
+    post 'support/send_message', to: 'support#send_message', as: 'support_send_message'
+    delete 'support/clear', to: 'support#clear', as: 'support_clear'
+
+    # Borrower Portal (authenticated borrowers only)
+    get 'borrower_portal/:application_id', to: 'borrower_portal#dashboard', as: 'borrower_portal'
+    get 'borrower_portal/:application_id/annuity_schedule', to: 'borrower_portal#annuity_schedule', as: 'borrower_portal_annuity_schedule'
+    get 'borrower_portal/:application_id/loan_details', to: 'borrower_portal#loan_details', as: 'borrower_portal_loan_details'
+    get 'borrower_portal/:application_id/property_details', to: 'borrower_portal#property_details', as: 'borrower_portal_property_details'
+    get 'borrower_portal/:application_id/documents', to: 'borrower_portal#documents', as: 'borrower_portal_documents'
+
+    # Key Facts Sheet (legal document)
+    get 'key_facts_sheet/:application_id', to: 'legal_documents#key_facts_sheet', as: 'key_facts_sheet'
+
+    # Loan Activation (authenticated borrowers - approved applications only)
+    get 'loan_activation/:application_id', to: 'loan_activation#show', as: 'loan_activation'
+    post 'loan_activation/:application_id', to: 'loan_activation#activate', as: 'loan_activation_confirm'
+
+    # Lender Dashboard (authenticated lenders only)
+    namespace :lender_dashboard do
+      get '/', to: 'lender_dashboard#index', as: 'index'
+      get 'applications', to: 'lender_dashboard#applications', as: 'applications'
+      get 'applications/:id', to: 'lender_dashboard#application_detail', as: 'application_detail'
+      get 'payments', to: 'lender_dashboard#payments', as: 'payments'
+      get 'reports', to: 'lender_dashboard#reports', as: 'reports'
+      get 'account', to: 'lender_dashboard#account', as: 'account'
+      patch 'account', to: 'lender_dashboard#update_account', as: 'update_account'
+      
+      # Webhook management
+      resources :webhooks do
+        member do
+          get :test
+          post :test
+          get :delivery_log
+          post :retry
+        end
+      end
+    end
   end
 
   # Legal document routes (region-specific contracts, agreements, terms, privacy)
@@ -287,11 +438,17 @@ Rails.application.routes.draw do
   get "terms-of-use", to: "pages#terms_of_use", as: :terms_of_use
   get "terms-and-conditions", to: "pages#terms_and_conditions", as: :terms_and_conditions
   
+  # Akane AI chat support (non-regional, defaults to US)
+  post 'support/send_message', to: 'support#send_message'
+
   # Apply page
   get "apply", to: "pages#apply"
 
   # React webapp replica (get started flow with inline registration)
   get "get-started", to: "pages#get_started", as: :get_started
+
+  # Tax Discussion PDF
+  get "tax-discussion", to: "pages#tax_discussion", as: :tax_discussion
 
   # Hero design previews
   get "hero-option-1", to: "pages#hero_option_1"
@@ -304,11 +461,7 @@ Rails.application.routes.draw do
   
   # Games (authenticated users only)
   get "arcade", to: "games#arcade"
-  get "honky-pong", to: "games#honky_pong"
   get "lace-invaders", to: "games#lace_invaders"
-  get "hackman", to: "games#hackman"
-  get "defendher", to: "games#defendher"
-  get "hemorrhoids", to: "games#hemorrhoids", as: :hemorrhoids
   
 
   # Application routes
@@ -375,13 +528,47 @@ Rails.application.routes.draw do
   end
 
   # Lender portal routes
-  namespace :lender do
+  namespace :lender_portal do
     resources :applications, only: [:index, :show] do
       member do
         post :approve
         post :reject
       end
     end
+    
+    # Legal Documents - Lender can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
+  end
+
+  # Broker portal routes
+  devise_for :brokers, controllers: {
+    registrations: 'broker_portal/registrations',
+    sessions: 'broker_portal/sessions'
+  }
+
+  namespace :broker_portal do
+    root 'applications#index'
+    resources :applications, only: [:index, :show]
+    resources :commissions, only: [:index]
+    
+    # Legal Documents - Broker can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
+    
+    # Password setup and reset (no authentication required)
+    get '/password/new', to: 'passwords#new'
+    post '/password', to: 'passwords#create'
+    get '/password/reset/:token', to: 'passwords#edit'
+    patch '/password/:token', to: 'passwords#update'
   end
 
   # Debug routes
@@ -390,6 +577,43 @@ Rails.application.routes.draw do
 
   # SAML metadata route
   get 'saml/metadata', to: 'saml#metadata'
+
+  # Borrower portal routes (EPM loan servicing)
+  namespace :borrower do
+    root 'applications#index'
+    resources :applications, only: [:index, :show] do
+      member do
+        get :payment_history
+        get :documents
+        get :download_contract
+        get :download_statements
+        get :download_key_facts
+      end
+      resources :messages, only: [:index, :create]
+    end
+    resources :distributions, only: [] do
+      member do
+        get :download_receipt
+      end
+    end
+    resources :messages, only: [] do
+      member do
+        patch :mark_as_read
+      end
+    end
+    resource :account, only: [:show, :edit, :update]
+    resource :password, only: [:edit, :update]
+    
+    # Legal Documents - Borrower can view and accept required documents
+    resources :legal_documents, only: [:index, :show] do
+      member do
+        post :accept
+        post :reject
+      end
+    end
+  end
+
+
 
   # Defines the root path route ("/")
   root "pages#get_started"

@@ -1,0 +1,16 @@
+<section id="application-funnel" class="dashboard-overview-card dashboard-funnel-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Application Funnel</h3>
+    <span class="dashboard-overview-meta"><%= number_with_delimiter(funnel[:total_started]) %> applications started</span>
+  </header>
+  <div class="dashboard-funnel-chart"
+       data-controller="application-funnel"
+       data-application-funnel-nodes-value="<%= funnel[:nodes].to_json %>"
+       data-application-funnel-links-value="<%= funnel[:links].to_json %>"
+       data-application-funnel-total-started-value="<%= funnel[:total_started] %>"></div>
+  <p class="dashboard-funnel-legend">
+    <span class="dashboard-legend-swatch" data-color="progress"></span> Progressing
+    <span class="dashboard-legend-swatch" data-color="dropped"></span> Dropped at stage
+    <span class="dashboard-legend-swatch" data-color="rejected"></span> Rejected at processing
+  </p>
+</section>

@@ -1,27 +1,17 @@
 <% content_for :page_title, "New Lender" %>
 
-<div class="admin-actions-bar">
-  <div>
-    <h1>New Lender</h1>
-    <p class="page-subtitle">Create a new lender record</p>
-  </div>
-  
-  <div class="admin-actions">
-    <%= link_to "Back to Lenders", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+<div class="admin-content-wrapper">
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div>
+        <h2>New Lender</h2>
+        <p class="admin-section-subtitle">Create a new lender record</p>
+      </div>
+      <div class="admin-card-actions">
+        <%= link_to "Back", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
+      </div>
+    </div>
+
+    <%= render 'form', lender: @lender %>
   </div>
 </div>
-
-<!-- New Lender Form -->
-<div class="admin-card">
-  <h3>Lender Details</h3>
-  
-  <%= render 'form', lender: @lender %>
-</div>
-
-<style>
-.page-subtitle {
-  color: #6b7280;
-  font-size: 14px;
-  margin: 0;
-}
-</style>

@@ -1,0 +1,32 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <h1>Edit Commission Rate</h1>
+    <p class="subtitle"><%= @lender.name %> — <%= @commission_rate.broker.name %></p>
+  </div>
+
+  <%= render "form", lender: @lender, commission_rate: @commission_rate %>
+</div>
+
+<style>
+  .admin-container {
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .admin-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .admin-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    margin: 0.5rem 0 0 0;
+    color: #666;
+  }
+</style>

@@ -1,13 +1,13 @@
 # Create AI Agents for customer service
 puts "🤖 Creating AI Agents..."
 
-# Applications Agent - Motoko
-motoko = AiAgent.find_or_create_by(name: 'Motoko') do |agent|
+# Acquisition Agent - Akane
+akane = AiAgent.find_or_create_by(name: 'Akane') do |agent|
   agent.agent_type = 'applications'
-  agent.avatar_filename = 'Motoko.png'
-  agent.role_title = 'Application Processing Specialist'
-  agent.description = 'Specializes in guiding customers through the application process, reviewing documentation, and providing updates on application status.'
-  agent.specialties = 'Application reviews, document verification, status updates, eligibility assessments'
+  agent.avatar_filename = 'Akane.png'
+  agent.role_title = 'Customer Acquisition Specialist'
+  agent.description = 'Guides prospective customers through EPM questions, eligibility, and structured intake before handoff to a licensed adviser.'
+  agent.specialties = 'EPM FAQs, eligibility assessments, structured intake, application guidance'
   agent.greeting_style = 'professional'
   agent.is_active = true
 end
@@ -35,7 +35,7 @@ yumi = AiAgent.find_or_create_by(name: 'Yumi') do |agent|
 end
 
 puts "✅ Created AI Agents:"
-puts "   - #{motoko.display_name} (#{motoko.role_title})"
+puts "   - #{akane.display_name} (#{akane.role_title})"
 puts "   - #{rie.display_name} (#{rie.role_title})"
 puts "   - #{yumi.display_name} (#{yumi.role_title})"
 puts ""

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "My EPM Loan - Futureproof" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "application", "borrower", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="borrower-body">
+    <nav class="borrower-header">
+      <div class="borrower-header-container">
+        <%= link_to borrower_root_path, class: "borrower-logo" do %>
+          <%= image_tag "futureproof-logo.png", alt: "FutureProof" %>
+        <% end %>
+        
+        <div class="borrower-nav">
+          <%= link_to "My Loans", borrower_applications_path, class: "borrower-nav-link #{'active' if controller_name == 'applications' && action_name == 'index'}" %>
+          <%= link_to current_user.email, "#", class: "borrower-nav-user" %>
+          <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "borrower-nav-link" %>
+        </div>
+      </div>
+    </nav>
+
+    <main class="borrower-main">
+      <% if notice %>
+        <div class="alert alert-success"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-danger"><%= alert %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
+  </body>
+</html>

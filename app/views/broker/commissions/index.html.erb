@@ -1,0 +1,328 @@
+<div class="broker-commissions">
+  <div class="page-header">
+    <h1>Your Commissions</h1>
+    <p class="subtitle">Track your earned and pending commissions</p>
+  </div>
+
+  <!-- Period Selector & Export -->
+  <div class="period-selector">
+    <%= form_with url: broker_commissions_path, method: :get, local: true do |f| %>
+      <%= f.select :period, 
+          [["Last 30 Days", "month"], ["Last Quarter", "quarter"], ["Last Year", "year"], ["Custom", "custom"]],
+          { selected: params[:period] || "month" },
+          class: "period-select" %>
+      <% if params[:period] == "custom" %>
+        <%= f.date_field :start_date, value: params[:start_date], class: "date-input" %>
+        <span class="date-separator">to</span>
+        <%= f.date_field :end_date, value: params[:end_date], class: "date-input" %>
+      <% end %>
+      <%= submit_tag "Filter", class: "btn btn-secondary" %>
+      <%= link_to "Export CSV", broker_commissions_path(period: params[:period], format: :csv), class: "btn btn-secondary" %>
+    <% end %>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card card-earned">
+      <div class="card-label">Earned & Paid</div>
+      <div class="card-value"><%= number_to_currency(@total_earned) %></div>
+      <div class="card-sublabel">Completed</div>
+    </div>
+
+    <div class="card card-unpaid">
+      <div class="card-label">Earned & Unpaid</div>
+      <div class="card-value"><%= number_to_currency(@total_unpaid) %></div>
+      <div class="card-sublabel">Ready to Pay</div>
+    </div>
+
+    <div class="card card-pending">
+      <div class="card-label">Pending</div>
+      <div class="card-value"><%= number_to_currency(@total_pending) %></div>
+      <div class="card-sublabel">Not Yet Earned</div>
+    </div>
+
+    <div class="card card-total">
+      <div class="card-label">Total Potential</div>
+      <div class="card-value"><%= number_to_currency(@total_earned + @total_unpaid + @total_pending) %></div>
+      <div class="card-sublabel">All Commissions</div>
+    </div>
+  </div>
+
+  <!-- Top Applications -->
+  <% if @top_applications.any? %>
+    <div class="section">
+      <h2>Top Earning Applications</h2>
+      <table class="applications-table">
+        <thead>
+          <tr>
+            <th>Application</th>
+            <th>Loan Amount</th>
+            <th>Commission Rate</th>
+            <th>Commission</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @top_applications.each do |commission| %>
+            <tr>
+              <td><strong><%= commission.application.user.full_name %></strong></td>
+              <td><%= number_to_currency(commission.application.approved_loan_amount) %></td>
+              <td><%= number_to_percentage(commission.commission_rate, precision: 2) %></td>
+              <td><strong><%= number_to_currency(commission.commission_amount) %></strong></td>
+              <td>
+                <span class="status-badge status-<%= commission.status %>">
+                  <%= commission.status.titleize %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- All Commissions -->
+  <div class="section">
+    <h2>Commission Details (<%= @period_label %>)</h2>
+    
+    <% if @commissions.any? %>
+      <table class="commissions-table">
+        <thead>
+          <tr>
+            <th>Application</th>
+            <th>Applicant</th>
+            <th>Loan Amount</th>
+            <th>Commission Rate</th>
+            <th>Commission</th>
+            <th>Earned Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @commissions.each do |commission| %>
+            <tr>
+              <td>
+                <strong><%= commission.application.id %></strong>
+              </td>
+              <td><%= commission.application.user.full_name %></td>
+              <td><%= number_to_currency(commission.application.approved_loan_amount) %></td>
+              <td><%= number_to_percentage(commission.commission_rate, precision: 2) %></td>
+              <td><strong><%= number_to_currency(commission.commission_amount) %></strong></td>
+              <td><%= commission.earned_date&.strftime("%b %d, %Y") || "—" %></td>
+              <td>
+                <span class="status-badge status-<%= commission.status %>">
+                  <%= commission.status.titleize %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <%= paginate @commissions %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p>No commissions for the selected period.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .broker-commissions {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .page-header h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    margin: 0.5rem 0 0 0;
+    color: #666;
+  }
+
+  .period-selector {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .period-select,
+  .date-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  .date-separator {
+    margin: 0 0.5rem;
+    color: #666;
+  }
+
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .card-earned {
+    border-top: 4px solid #4caf50;
+  }
+
+  .card-unpaid {
+    border-top: 4px solid #ff9800;
+  }
+
+  .card-pending {
+    border-top: 4px solid #2196f3;
+  }
+
+  .card-total {
+    border-top: 4px solid #9c27b0;
+  }
+
+  .card-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-sublabel {
+    font-size: 0.85rem;
+    color: #999;
+  }
+
+  .section {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .applications-table,
+  .commissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .applications-table thead,
+  .commissions-table thead {
+    background-color: #f5f5f5;
+  }
+
+  .applications-table th,
+  .commissions-table th {
+    text-align: left;
+    padding: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .applications-table td,
+  .commissions-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .applications-table tbody tr:hover,
+  .commissions-table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .status-paid {
+    background-color: #4caf50;
+  }
+
+  .status-earned {
+    background-color: #ff9800;
+  }
+
+  .status-pending {
+    background-color: #2196f3;
+  }
+
+  .pagination-section {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #999;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+</style>

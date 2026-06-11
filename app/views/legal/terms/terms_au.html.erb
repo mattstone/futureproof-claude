@@ -1,39 +1,308 @@
-<div class="legal-document">
-  <h1>Terms of Service — Australia</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  
-  <h2>1. Acceptance</h2>
-  <p>By accessing FutureProof Financial, you accept these Terms of Service and our Privacy Policy.</p>
-  
-  <h2>2. Service Description</h2>
-  <p>We provide Equity Preservation Mortgage (EPM) products and related financial services regulated under the National Consumer Credit Protection Act 2009.</p>
-  
-  <h2>3. Eligibility</h2>
-  <ul>
-    <li>Minimum age: 55 years</li>
-    <li>Property value: A$500,000+</li>
-    <li>Australian resident</li>
-    <li>Pass credit assessment</li>
-  </ul>
-  
-  <h2>4. User Responsibilities</h2>
-  <p>You agree to: (a) provide accurate information; (b) maintain property insurance; (c) pay all rates and taxes; (d) not create additional liens without consent.</p>
-  
-  <h2>5. Limitation of Liability</h2>
-  <p>To the extent permitted by law, we are not liable for indirect, consequential, or punitive damages. Our liability is limited to the amount of the loan principal.</p>
-  
-  <h2>6. Governing Law</h2>
-  <p>These Terms are governed by the laws of [State/Territory], Australia. Disputes are subject to Australian courts and AFCA jurisdiction.</p>
-  
-  <h2>7. Changes to Terms</h2>
-  <p>We may update these Terms. Material changes will be communicated in writing. Continued use constitutes acceptance.</p>
-  
-  <h2>8. Contact</h2>
-  <p>For questions, contact us at [email] or [phone].</p>
-</div>
+<% details = legal_details("au") %>
+<% config = RegionHelper.region_config("au") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-document">
+  <div class="legal-header">
+    <h1>Terms of Service</h1>
+    <p class="legal-jurisdiction">Australia (AU) — National Consumer Credit Protection Act 2009 (Cth)</p>
+    <p class="legal-version">Version <%= legal_version %> | Effective: 1 March 2026</p>
+  </div>
+
+  <div class="legal-body">
+
+    <h2>1. INTRODUCTION AND ACCEPTANCE</h2>
+    <p><strong>1.1</strong> These Terms of Service ("Terms") govern your access to and use of the FutureProof Financial platform ("Platform") and the Equity Preservation Mortgage ("EPM") products and services offered through it.</p>
+    <p><strong>1.2</strong> The Platform is operated by FutureProof Financial Pty Ltd, ACN [TBD], holder of <%= details[:licensing_act] %> ("FutureProof", "we", "us", "our").</p>
+    <p><strong>1.3</strong> By accessing the Platform, creating an account, submitting an application, or using any of our services, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy.</p>
+    <p><strong>1.4</strong> If you do not agree to these Terms, you must not access or use the Platform or our services.</p>
+    <p><strong>1.5</strong> These Terms constitute a binding agreement between you and FutureProof Financial Pty Ltd. Where you are applying jointly, references to "you" include each applicant jointly and severally.</p>
+
+    <h2>2. DEFINITIONS</h2>
+    <p><strong>2.1</strong> In these Terms, unless the context otherwise requires:</p>
+    <ul>
+      <li><strong>"AFCA"</strong> means the Australian Financial Complaints Authority;</li>
+      <li><strong>"AML/CTF Act"</strong> means the <%= details[:aml_act] %>;</li>
+      <li><strong>"ASIC"</strong> means the <%= details[:regulator] %>;</li>
+      <li><strong>"Borrower"</strong> means a person who has entered into an EPM contract through the Platform;</li>
+      <li><strong>"Comparison Rate"</strong> means the rate calculated in accordance with the National Credit Code to help you identify the true cost of a loan;</li>
+      <li><strong>"EPM"</strong> or <strong>"Equity Preservation Mortgage"</strong> means a mortgage product where loan proceeds are invested to generate income for the Borrower while preserving the Borrower's equity in the secured property;</li>
+      <li><strong>"Hedging Collar"</strong> means the protective options strategy applied to the Investment Portfolio to limit downside risk while allowing participation in market gains;</li>
+      <li><strong>"Holiday Period"</strong> means a period during which the Borrower may elect to suspend Monthly Income payments, with investment returns being reinvested into the Investment Portfolio;</li>
+      <li><strong>"Investment Account"</strong> means the custodial account holding the Investment Portfolio established in connection with an EPM;</li>
+      <li><strong>"Investment Portfolio"</strong> means the portfolio of investments (primarily international index-linked ETFs and fixed income instruments) managed by the appointed Investment Manager;</li>
+      <li><strong>"LTV Ratio"</strong> or <strong>"Loan-to-Value Ratio"</strong> means the ratio of the Loan Amount to the independently assessed market value of the Property;</li>
+      <li><strong>"Monthly Income"</strong> means the regular monthly payment made to the Borrower from investment returns;</li>
+      <li><strong>"National Credit Code"</strong> means the National Credit Code set out in Schedule 1 to the National Consumer Credit Protection Act 2009 (Cth);</li>
+      <li><strong>"NCCP Act"</strong> means the National Consumer Credit Protection Act 2009 (Cth);</li>
+      <li><strong>"NNEG"</strong> or <strong>"No Negative Equity Guarantee"</strong> means the protection ensuring the Borrower's mortgage debt does not exceed the property value at settlement;</li>
+      <li><strong>"Platform"</strong> means the FutureProof Financial website, applications, and related technology services;</li>
+      <li><strong>"Profit Share"</strong> means the distribution of surplus investment returns to the Borrower, assessed every five (5) years;</li>
+      <li><strong>"Property"</strong> means the residential real property offered as security for the EPM;</li>
+      <li><strong>"Responsible Lending"</strong> means the obligations imposed on credit licensees under Part 3-1 of the NCCP Act to ensure credit contracts are not unsuitable for consumers.</li>
+    </ul>
+
+    <h2>3. SERVICE DESCRIPTION</h2>
+    <p><strong>3.1</strong> FutureProof provides a technology platform that facilitates access to Equity Preservation Mortgage products. Our services include:</p>
+    <ul>
+      <li>(a) EPM product information, quotation, and application processing;</li>
+      <li>(b) Property valuation coordination;</li>
+      <li>(c) Credit assessment and responsible lending evaluation;</li>
+      <li>(d) Investment portfolio establishment and ongoing management;</li>
+      <li>(e) Monthly Income distribution;</li>
+      <li>(f) Ongoing loan servicing, reporting, and account management;</li>
+      <li>(g) Customer support and financial literacy resources.</li>
+    </ul>
+    <p><strong>3.2</strong> We act as a platform connecting Borrowers with approved lenders and investment managers. We are not the lender of record for any EPM contract unless expressly stated.</p>
+    <p><strong>3.3</strong> All quotes, projections, and estimates provided through the Platform are indicative only and are subject to formal valuation, credit assessment, and lender approval.</p>
+
+    <h2>4. REGULATORY STATUS</h2>
+    <p><strong>4.1</strong> FutureProof Financial Pty Ltd holds an <%= details[:licensing_act] %>, authorising us to provide financial services in relation to EPM products.</p>
+    <p><strong>4.2</strong> We are regulated by the <%= details[:regulator] %> and are subject to the requirements of the Corporations Act 2001 (Cth), the <%= details[:consumer_credit_act] %>, and all applicable ASIC Regulatory Guides.</p>
+    <p><strong>4.3</strong> We hold an Australian Credit Licence authorising us to engage in credit activities as defined under the NCCP Act.</p>
+    <p><strong>4.4</strong> We are a member of the <%= details[:dispute_resolution] %>, providing external dispute resolution services to our clients.</p>
+    <p><strong>4.5</strong> We comply with our obligations under the <%= details[:aml_act] %>, including customer identification, verification, and ongoing monitoring requirements.</p>
+
+    <h2>5. ELIGIBILITY</h2>
+    <p><strong>5.1</strong> To be eligible for an EPM through the Platform, you must:</p>
+    <ul>
+      <li>(a) Be at least 55 years of age at the date of application (or such other minimum age as we may approve on a case-by-case basis with appropriate suitability assessment);</li>
+      <li>(b) Be an Australian citizen or permanent resident;</li>
+      <li>(c) Own residential real property in Australia with a minimum market value of A$500,000;</li>
+      <li>(d) Have legal capacity to enter into a mortgage contract;</li>
+      <li>(e) Not be an undischarged bankrupt or subject to any form of insolvency administration;</li>
+      <li>(f) Satisfy our responsible lending assessment (see Section 8);</li>
+      <li>(g) Satisfy our identity verification and AML/CTF requirements.</li>
+    </ul>
+    <p><strong>5.2</strong> Meeting the above criteria does not guarantee approval. All applications are subject to a comprehensive assessment including property valuation, credit assessment, and lender approval.</p>
+    <p><strong>5.3</strong> We reserve the right to decline any application at our sole discretion, including where the EPM would not be suitable for you based on our responsible lending assessment.</p>
+
+    <h2>6. ACCOUNT REGISTRATION</h2>
+    <p><strong>6.1</strong> You must create an account on the Platform to access our services. When registering, you agree to:</p>
+    <ul>
+      <li>(a) Provide accurate, current, and complete information;</li>
+      <li>(b) Promptly update your information if it changes;</li>
+      <li>(c) Maintain the confidentiality of your login credentials;</li>
+      <li>(d) Accept responsibility for all activity conducted under your account;</li>
+      <li>(e) Notify us immediately of any unauthorised access or security breach.</li>
+    </ul>
+    <p><strong>6.2</strong> We may require multi-factor authentication for account access and certain transactions.</p>
+    <p><strong>6.3</strong> We reserve the right to suspend or terminate your account if we reasonably believe information provided is inaccurate, incomplete, or fraudulent, or if you breach these Terms.</p>
+
+    <h2>7. EPM PRODUCT TERMS</h2>
+    <p><strong>7.1 Loan-to-Value Ratio:</strong> The maximum LTV Ratio for any EPM is 80% of the independently assessed market value of the Property. The actual LTV approved will depend on your individual circumstances, property type, and our risk assessment.</p>
+    <p><strong>7.2 Loan Terms:</strong> EPMs are available for terms of 10, 15, 20, 25, or 30 years. The appropriate term will be determined based on your age, objectives, and our suitability assessment.</p>
+    <p><strong>7.3 Investment Structure:</strong> EPM loan proceeds are invested in a diversified portfolio comprising:</p>
+    <ul>
+      <li>(a) Approximately 70% in international index-linked ETFs (primarily S&amp;P 500 and equivalent broad market index funds);</li>
+      <li>(b) Approximately 30% in fixed income and defensive instruments;</li>
+      <li>(c) A hedging collar strategy to provide downside protection on the equity component.</li>
+    </ul>
+    <p><strong>7.4 Monthly Income:</strong> Borrowers receive Monthly Income payments estimated at approximately 1.5% per annum of the property value, paid monthly in arrears. The actual income amount may vary based on investment performance and market conditions.</p>
+    <p><strong>7.5 Payments Waterfall:</strong> Investment returns from the Portfolio are applied in the following priority:</p>
+    <ul>
+      <li>(a) First, to pay all mortgage interest due to the Lender;</li>
+      <li>(b) Second, to pay the hedging collar premium;</li>
+      <li>(c) Third, to pay the platform and management fees;</li>
+      <li>(d) Fourth, to pay the Monthly Income to the Borrower;</li>
+      <li>(e) Fifth, any surplus to be reinvested in the Investment Portfolio.</li>
+    </ul>
+    <p><strong>7.6 Profit Share:</strong> Every five (5) years from the EPM commencement date, surplus investment returns (after all obligations in the payments waterfall have been satisfied) will be assessed and distributed to the Borrower as a Profit Share payment.</p>
+    <p><strong>7.7 Equity Preservation:</strong> The EPM is structured so that the Loan Amount remains static (no compounding interest on principal). Upon sale or settlement, the Borrower (or their estate) receives the property proceeds less only the original Loan Amount and any outstanding fees.</p>
+
+    <h2>8. RESPONSIBLE LENDING OBLIGATIONS</h2>
+    <p><strong>8.1</strong> We take our responsible lending obligations under Part 3-1 of the NCCP Act seriously. Before entering into any EPM contract, we will:</p>
+    <ul>
+      <li>(a) Make reasonable inquiries about your financial situation, requirements, and objectives;</li>
+      <li>(b) Take reasonable steps to verify your financial information;</li>
+      <li>(c) Conduct a preliminary assessment that the EPM is not unsuitable for you;</li>
+      <li>(d) Provide you with a copy of the assessment on request.</li>
+    </ul>
+    <p><strong>8.2</strong> Our assessment will consider, among other factors:</p>
+    <ul>
+      <li>(a) Your current income, assets, and liabilities;</li>
+      <li>(b) Your ongoing living expenses and financial commitments;</li>
+      <li>(c) The impact of the EPM on your Centrelink Age Pension entitlements (if applicable);</li>
+      <li>(d) Your age and health circumstances;</li>
+      <li>(e) Your stated financial objectives and requirements;</li>
+      <li>(f) Whether the EPM product features are suitable for your circumstances.</li>
+    </ul>
+    <p><strong>8.3</strong> We may decline your application if, in our assessment, the EPM would be unsuitable for you, even if you meet the eligibility criteria in Section 5.</p>
+    <p><strong>8.4</strong> You are entitled to request a written copy of our preliminary assessment at any time during the first two (2) years of your EPM. We will provide this within seven (7) business days of your request.</p>
+
+    <h2>9. FEES AND CHARGES</h2>
+    <p><strong>9.1</strong> The following fees and charges apply to EPM products (all amounts in Australian Dollars):</p>
+    <ul>
+      <li>(a) <strong>Lenders Mortgage Insurance (LMI):</strong> 1.6% of the Loan Amount, payable at settlement and added to the loan balance;</li>
+      <li>(b) <strong>Platform Fee:</strong> 0.25% per annum of the Investment Portfolio value, deducted monthly from investment returns;</li>
+      <li>(c) <strong>Hedging Collar Premium:</strong> 0.25% per annum of the equity component of the Investment Portfolio, deducted from investment returns;</li>
+      <li>(d) <strong>Application Fee:</strong> A$[Amount], payable upon submission of a formal application;</li>
+      <li>(e) <strong>Valuation Fee:</strong> A$[Amount], payable upon engagement of the independent valuer;</li>
+      <li>(f) <strong>Legal and Settlement Fees:</strong> A$[Amount], payable at settlement;</li>
+      <li>(g) <strong>Annual Account Fee:</strong> A$[Amount] per annum (if applicable).</li>
+    </ul>
+    <p><strong>9.2</strong> All fees will be fully disclosed in your credit proposal disclosure document and loan contract before you enter into any binding commitment.</p>
+    <p><strong>9.3</strong> The Comparison Rate for your EPM will be calculated and disclosed in accordance with the National Credit Code.</p>
+    <p><strong>9.4</strong> We will not charge any fee that has not been disclosed to you in advance, and you will be given the opportunity to review all fees before committing to the EPM.</p>
+    <p><strong>9.5</strong> Fees may be varied from time to time with at least 30 days' written notice. Any fee increase during an existing EPM term will be subject to the terms of your loan contract.</p>
+
+    <h2>10. INVESTMENT RISKS AND DISCLAIMERS</h2>
+    <p><strong>10.1</strong> The EPM involves investment in financial markets. You acknowledge and accept the following risks:</p>
+    <ul>
+      <li>(a) <strong>Market Risk:</strong> The value of the Investment Portfolio may fluctuate due to changes in equity markets, interest rates, and economic conditions;</li>
+      <li>(b) <strong>Income Variability:</strong> Monthly Income payments are derived from investment returns and may vary. In periods of sustained poor market performance, income may be reduced or temporarily suspended;</li>
+      <li>(c) <strong>Currency Risk:</strong> The Investment Portfolio includes international investments denominated in foreign currencies, exposing you to exchange rate fluctuations;</li>
+      <li>(d) <strong>Hedging Risk:</strong> The hedging collar provides protection against significant market declines but limits participation in strong market gains;</li>
+      <li>(e) <strong>Counterparty Risk:</strong> The risk that a counterparty to an investment transaction may default on its obligations;</li>
+      <li>(f) <strong>Regulatory Risk:</strong> Changes in laws, regulations, or tax treatment may affect the EPM product or its returns.</li>
+    </ul>
+    <p><strong>10.2</strong> Past performance is not a reliable indicator of future performance. All projections, estimates, and illustrations provided through the Platform are based on historical data and financial modelling and should not be relied upon as guarantees of future returns.</p>
+    <p><strong>10.3</strong> The information provided on the Platform does not constitute personal financial advice. You should consider obtaining independent financial, legal, and tax advice before entering into an EPM.</p>
+    <p><strong>10.4</strong> We do not guarantee any specific investment return, Monthly Income amount, or investment outcome.</p>
+
+    <h2>11. HOLIDAY MECHANISM</h2>
+    <p><strong>11.1</strong> The EPM includes a Holiday Period feature allowing you to temporarily suspend Monthly Income payments under certain conditions.</p>
+    <p><strong>11.2</strong> During a Holiday Period:</p>
+    <ul>
+      <li>(a) Monthly Income payments to you will cease;</li>
+      <li>(b) Investment returns that would otherwise be paid to you will be reinvested in the Investment Portfolio;</li>
+      <li>(c) All mortgage interest and fee obligations continue to be met from investment returns;</li>
+      <li>(d) The Holiday Period builds a buffer in the Investment Portfolio that may enhance future income or provide additional protection.</li>
+    </ul>
+    <p><strong>11.3</strong> You may request a Holiday Period by written notice to FutureProof. The maximum duration and frequency of Holiday Periods will be set out in your loan contract.</p>
+    <p><strong>11.4</strong> A Holiday Period may also be triggered automatically if the Investment Portfolio falls below certain thresholds, as specified in your loan contract.</p>
+
+    <h2>12. INSURANCE AND NNEG PROTECTION</h2>
+    <p><strong>12.1 Lenders Mortgage Insurance (LMI):</strong> An LMI premium of 1.6% of the Loan Amount is paid at settlement. This insurance protects the lender (not you) in the event of default.</p>
+    <p><strong>12.2 No Negative Equity Guarantee (NNEG):</strong> Your EPM includes NNEG protection, which ensures that:</p>
+    <ul>
+      <li>(a) Your total mortgage debt (principal plus accrued interest) will never exceed the market value of the Property at the time of settlement;</li>
+      <li>(b) If, upon sale or settlement, the Property value is less than the outstanding debt, the NNEG mechanism absorbs the shortfall;</li>
+      <li>(c) Neither you nor your estate will be pursued for any deficit between the debt and the property value;</li>
+      <li>(d) NNEG protection is maintained through a combination of pool coverage insurance and reserve mechanisms.</li>
+    </ul>
+    <p><strong>12.3 Pool Coverage:</strong> FutureProof maintains a pool coverage mechanism that provides additional protection for income continuity and interest servicing during periods of adverse market conditions.</p>
+    <p><strong>12.4</strong> You acknowledge that NNEG protection applies at the point of settlement only and does not prevent the nominal debt from temporarily exceeding the property value during the EPM term.</p>
+
+    <h2>13. PROPERTY OBLIGATIONS</h2>
+    <p><strong>13.1</strong> As a condition of your EPM, you must:</p>
+    <ul>
+      <li>(a) Maintain comprehensive building insurance over the Property for its full replacement value, with the lender noted as an interested party;</li>
+      <li>(b) Pay all council rates, water rates, land tax, and other statutory charges when due;</li>
+      <li>(c) Pay all strata levies, body corporate fees, and special levies (if the Property is a strata or community title property) when due;</li>
+      <li>(d) Maintain the Property in good repair and condition (fair wear and tear excepted);</li>
+      <li>(e) Not make any structural alterations to the Property without the lender's prior written consent;</li>
+      <li>(f) Not create any additional mortgage, charge, or encumbrance over the Property without the lender's prior written consent;</li>
+      <li>(g) Allow the lender or its agent to inspect the Property upon reasonable notice;</li>
+      <li>(h) Notify FutureProof immediately of any material change in circumstances, including change of occupancy, damage to the Property, resumption proceedings, or any event that may affect the Property's value;</li>
+      <li>(i) Provide proof of current insurance upon request and annually.</li>
+    </ul>
+    <p><strong>13.2</strong> Failure to comply with these obligations may constitute an event of default under your loan contract.</p>
+
+    <h2>14. CONSUMER PROTECTIONS UNDER NATIONAL CREDIT CODE</h2>
+    <p><strong>14.1</strong> As a regulated credit product, your EPM is subject to the consumer protections in the <%= details[:consumer_credit_act] %>, including:</p>
+    <ul>
+      <li>(a) The right to receive a pre-contractual statement setting out all material terms, fees, and charges;</li>
+      <li>(b) The right to receive a credit proposal disclosure document;</li>
+      <li>(c) The right to receive periodic statements of your loan account;</li>
+      <li>(d) Protection against unjust transactions (sections 76-77 of the National Credit Code);</li>
+      <li>(e) The right to apply for a hardship variation if you experience financial difficulty;</li>
+      <li>(f) The right to apply to a court to reopen an unjust transaction;</li>
+      <li>(g) The right to receive a copy of your loan contract and related documents.</li>
+    </ul>
+    <p><strong>14.2</strong> If you experience financial difficulty (for example, changes in health, loss of other income, or unexpected expenses), you may apply for a hardship variation under section 72 of the National Credit Code. We will respond to any hardship application within 21 days.</p>
+    <p><strong>14.3</strong> You have the right to pay out your EPM in full at any time, subject to any early repayment fees disclosed in your loan contract.</p>
+
+    <h2>15. COOLING-OFF PERIOD</h2>
+    <p><strong>15.1</strong> You have a cooling-off period of <%= details[:cooling_off] %> from the date you receive your signed loan contract, during which you may cancel the EPM without penalty.</p>
+    <p><strong>15.2</strong> To exercise your cooling-off right, you must provide written notice to FutureProof before the cooling-off period expires. Notice may be sent to legal@futureprooffinancial.co or by post to our registered office.</p>
+    <p><strong>15.3</strong> If you cancel during the cooling-off period:</p>
+    <ul>
+      <li>(a) Any funds advanced will be returned to the lender;</li>
+      <li>(b) You will not be charged any establishment or exit fees;</li>
+      <li>(c) You may be liable for reasonable costs incurred (such as valuation fees and government charges) as permitted by the National Credit Code;</li>
+      <li>(d) Any registered mortgage will be discharged at our cost.</li>
+    </ul>
+
+    <h2>16. COMPLAINTS AND DISPUTE RESOLUTION</h2>
+    <p><strong>16.1 Internal Complaints:</strong> If you are dissatisfied with any aspect of our service, you may lodge a complaint with our internal complaints team:</p>
+    <ul>
+      <li>(a) Email: legal@futureprooffinancial.co</li>
+      <li>(b) In writing to: Complaints Officer, FutureProof Financial Pty Ltd, [Registered Address]</li>
+    </ul>
+    <p><strong>16.2</strong> We will acknowledge your complaint within two (2) business days and provide a final response within 30 calendar days (or 21 days for hardship-related complaints), in accordance with ASIC Regulatory Guide 271 (Internal Dispute Resolution).</p>
+    <p><strong>16.3 External Dispute Resolution:</strong> If you are not satisfied with our response, or if we do not respond within the required timeframe, you may escalate your complaint to <%= details[:dispute_resolution] %>:</p>
+    <ul>
+      <li>(a) Website: afca.org.au</li>
+      <li>(b) Phone: 1800 931 678 (free call)</li>
+      <li>(c) Email: info@afca.org.au</li>
+      <li>(d) Post: GPO Box 3, Melbourne VIC 3001</li>
+    </ul>
+    <p><strong>16.4</strong> You may also lodge a complaint with ASIC by contacting the ASIC Infoline on 1300 300 630 or visiting asic.gov.au.</p>
+    <p><strong>16.5</strong> The dispute resolution procedures described in this section are provided at no cost to you.</p>
+
+    <h2>17. ELECTRONIC COMMUNICATIONS</h2>
+    <p><strong>17.1</strong> By using the Platform, you consent to receiving communications from us electronically, including:</p>
+    <ul>
+      <li>(a) Account statements and transaction confirmations;</li>
+      <li>(b) Notices regarding changes to these Terms or our policies;</li>
+      <li>(c) Regulatory notices and disclosures;</li>
+      <li>(d) Marketing communications (which you may opt out of at any time).</li>
+    </ul>
+    <p><strong>17.2</strong> Electronic communications satisfy any legal requirement for communications to be in writing, to the extent permitted by law.</p>
+    <p><strong>17.3</strong> You may request paper copies of any document by contacting us. Fees may apply for paper copies of documents that are available electronically.</p>
+
+    <h2>18. INTELLECTUAL PROPERTY</h2>
+    <p><strong>18.1</strong> All content, software, designs, logos, trademarks, data, financial models, and technology on or underlying the Platform are the intellectual property of FutureProof Financial Pty Ltd or its licensors.</p>
+    <p><strong>18.2</strong> You are granted a limited, non-exclusive, non-transferable licence to access and use the Platform for personal, non-commercial purposes in connection with your EPM application or account.</p>
+    <p><strong>18.3</strong> You must not reproduce, distribute, modify, reverse engineer, or create derivative works from any Platform content without our prior written consent.</p>
+    <p><strong>18.4</strong> Any feedback, suggestions, or ideas you submit to us regarding the Platform may be used by us without restriction or compensation.</p>
+
+    <h2>19. LIMITATION OF LIABILITY</h2>
+    <p><strong>19.1</strong> To the maximum extent permitted by law, FutureProof, its directors, officers, employees, and agents are not liable for any indirect, incidental, special, consequential, or punitive damages arising out of or in connection with your use of the Platform or any EPM product.</p>
+    <p><strong>19.2</strong> Our total aggregate liability to you for any claim arising under or in connection with these Terms or any EPM product is limited to the total fees paid by you to FutureProof in the twelve (12) months preceding the claim.</p>
+    <p><strong>19.3 Australian Consumer Law:</strong> Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy conferred on you by the Australian Consumer Law (Schedule 2 to the Competition and Consumer Act 2010 (Cth)) or any other applicable law that cannot be excluded, restricted, or modified by agreement.</p>
+    <p><strong>19.4</strong> Where our liability cannot be excluded but can be limited under the Australian Consumer Law, our liability is limited to (at our election):</p>
+    <ul>
+      <li>(a) The resupply of the relevant services; or</li>
+      <li>(b) The payment of the cost of having the relevant services resupplied.</li>
+    </ul>
+    <p><strong>19.5</strong> You acknowledge that the EPM involves investment risk and that we do not guarantee any specific investment outcome, income amount, or property value. The limitations in this section apply to the fullest extent permitted by applicable law.</p>
+
+    <h2>20. GOVERNING LAW</h2>
+    <p><strong>20.1</strong> These Terms are governed by and shall be construed in accordance with <%= details[:governing_law] %>.</p>
+    <p><strong>20.2</strong> The parties submit to the non-exclusive jurisdiction of <%= details[:courts] %> for the resolution of any dispute arising under or in connection with these Terms.</p>
+    <p><strong>20.3</strong> Nothing in this clause limits your right to bring proceedings in any court or tribunal with jurisdiction, or to lodge a complaint with AFCA or ASIC.</p>
+
+    <h2>21. AMENDMENTS</h2>
+    <p><strong>21.1</strong> We may amend these Terms from time to time. Any amendments will be effective upon posting the updated Terms on the Platform.</p>
+    <p><strong>21.2</strong> For material changes, we will provide you with at least 30 days' written notice via email or Platform notification before the changes take effect.</p>
+    <p><strong>21.3</strong> If you do not agree to the amended Terms, you may close your account by contacting us. Continued use of the Platform after the effective date of any amendment constitutes your acceptance of the amended Terms.</p>
+    <p><strong>21.4</strong> Amendments to these Terms do not affect the terms of any existing EPM loan contract, which are governed by the loan contract itself.</p>
+
+    <h2>22. UNFAIR CONTRACT TERMS</h2>
+    <p><strong>22.1</strong> We are committed to ensuring that these Terms comply with the unfair contract terms provisions in Part 2-3 of the Australian Consumer Law.</p>
+    <p><strong>22.2</strong> If any term of these Terms is found to be unfair within the meaning of section 24 of the Australian Consumer Law, that term is void and unenforceable. The remainder of these Terms will continue to apply.</p>
+    <p><strong>22.3</strong> We have endeavoured to draft these Terms in plain language and to ensure that all terms are reasonably necessary to protect our legitimate interests and are not unduly burdensome to you.</p>
+    <p><strong>22.4</strong> If you believe any term is unfair, you may raise this with us through our complaints process (Section 16) or with ASIC.</p>
+
+    <h2>23. GENERAL PROVISIONS</h2>
+    <p><strong>23.1 Severability:</strong> If any provision of these Terms is held to be invalid or unenforceable, the remaining provisions will continue in full force and effect.</p>
+    <p><strong>23.2 Waiver:</strong> Our failure to enforce any provision of these Terms does not constitute a waiver of that provision or any other provision.</p>
+    <p><strong>23.3 Assignment:</strong> You may not assign or transfer your rights or obligations under these Terms without our prior written consent. We may assign our rights and obligations to a related entity or successor.</p>
+    <p><strong>23.4 Entire Agreement:</strong> These Terms, together with our Privacy Policy and any EPM loan contract, constitute the entire agreement between you and FutureProof regarding the subject matter hereof.</p>
+    <p><strong>23.5 Force Majeure:</strong> We are not liable for any failure to perform our obligations where that failure results from circumstances beyond our reasonable control, including natural disasters, pandemics, government actions, or failures of third-party systems.</p>
+
+    <h2>24. CONTACT</h2>
+    <p><strong>24.1</strong> For questions about these Terms or our services:</p>
+    <div class="contact-info">
+      <p><strong>FutureProof Financial Pty Ltd</strong></p>
+      <p>ACN: [TBD]</p>
+      <p>AFSL: [TBD]</p>
+      <p>Email: legal@futureprooffinancial.co</p>
+      <p>Website: futureprooffinancial.co</p>
+    </div>
+    <p><strong>24.2</strong> For complaints or disputes, see Section 16.</p>
+    <p><strong>24.3</strong> For privacy-related enquiries, contact our Privacy Officer at privacy@futureprooffinancial.co (see our Privacy Policy for details).</p>
+
+  </div>
+</div>

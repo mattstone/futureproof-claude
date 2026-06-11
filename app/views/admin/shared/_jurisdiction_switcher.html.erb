@@ -1,0 +1,18 @@
+<!-- Jurisdiction Switcher -->
+<div class="admin-jurisdiction-switcher">
+  <% jurisdiction_path = local_assigns[:path] || admin_set_jurisdiction_path %>
+  <%= form_with url: jurisdiction_path, method: :post, local: true, class: "admin-jurisdiction-form", data: { controller: "auto-submit", turbo_frame: "admin_main" } do |f| %>
+    <fieldset class="admin-jurisdiction-options">
+      <legend class="admin-jurisdiction-label">Jurisdiction:</legend>
+      <% ["Summary", "AU", "US", "NZ", "UK"].each do |jurisdiction| %>
+        <label class="admin-jurisdiction-radio">
+          <%= radio_button_tag :admin_jurisdiction, jurisdiction,
+              (session[:admin_jurisdiction] || "Summary") == jurisdiction,
+              class: "admin-jurisdiction-input",
+              data: { action: "auto-submit#submitForm" } %>
+          <span class="admin-jurisdiction-text"><%= jurisdiction %></span>
+        </label>
+      <% end %>
+    </fieldset>
+  <% end %>
+</div>

@@ -1,0 +1,249 @@
+<% content_for :page_title, "Applications" %>
+
+<div class="applications-page">
+  <div class="page-controls">
+    <div class="filter-group">
+      <%= form_with url: lender_dashboard_applications_path, method: :get, local: true, class: "filter-form" do |f| %>
+        <div class="form-group">
+          <label for="status-filter" class="form-label">Filter by Status:</label>
+          <%= f.select :status, 
+            options_for_select(
+              [['All', ''], ['Pending', 'processing'], ['Approved', 'accepted'], ['Active', 'activated'], ['Rejected', 'rejected']], 
+              params[:status]
+            ), 
+            {}, 
+            id: "status-filter",
+            class: "filter-select",
+            'aria-label' => "Filter applications by status" %>
+        </div>
+        
+        <div class="form-group">
+          <label for="sort-select" class="form-label">Sort by:</label>
+          <%= f.select :sort,
+            options_for_select(
+              [['Newest First', 'newest'], ['Oldest First', 'oldest'], ['Highest Value', 'value_high'], ['Lowest Value', 'value_low']],
+              params[:sort] || 'newest'
+            ),
+            {},
+            id: "sort-select",
+            class: "filter-select",
+            'aria-label' => "Sort applications" %>
+        </div>
+        
+        <%= f.submit "Apply Filters", class: "btn btn-primary" %>
+        <%= link_to "Clear", lender_dashboard_applications_path, class: "btn btn-secondary" %>
+      <% end %>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-count" role="status" aria-label="Total applications: <%= @stats[:total] %>"><%= @stats[:total] %></span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-count stat-count--warning" role="status" aria-label="Pending applications: <%= @stats[:pending] %>"><%= @stats[:pending] %></span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-count stat-count--info" role="status" aria-label="Approved applications: <%= @stats[:approved] %>"><%= @stats[:approved] %></span>
+        <span class="stat-label">Approved</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-count stat-count--success" role="status" aria-label="Active applications: <%= @stats[:active] %>"><%= @stats[:active] %></span>
+        <span class="stat-label">Active</span>
+      </div>
+    </div>
+  </div>
+
+  <% if @applications.any? %>
+    <div class="applications-list">
+      <% @applications.each do |app| %>
+        <div class="application-item">
+          <div class="app-header">
+            <div class="app-info">
+              <h3><%= app.user.full_name %></h3>
+              <p class="app-property"><%= app.property_address %></p>
+            </div>
+            <div class="app-status">
+              <span class="status-badge status-<%= app.status %>"><%= app.status.humanize %></span>
+            </div>
+          </div>
+
+          <div class="app-details">
+            <div class="detail">
+              <span class="label">Loan Amount</span>
+              <span class="value">$<%= number_with_precision(app.loan_amount, precision: 0, delimiter: ',') %></span>
+            </div>
+            <div class="detail">
+              <span class="label">Property Value</span>
+              <span class="value">$<%= number_with_precision(app.property_value, precision: 0, delimiter: ',') %></span>
+            </div>
+            <div class="detail">
+              <span class="label">LTV</span>
+              <span class="value"><%= number_with_precision(app.ltv_ratio * 100, precision: 1) %>%</span>
+            </div>
+            <div class="detail">
+              <span class="label">Interest Rate</span>
+              <span class="value"><%= number_with_precision(app.interest_rate * 100, precision: 2) %>%</span>
+            </div>
+          </div>
+
+          <div class="app-footer">
+            <span class="app-date">Created <%= app.created_at.strftime('%b %d, %Y') %></span>
+            <%= link_to "View Details", lender_dashboard_application_detail_path(app), class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>No applications found with the selected filters.</p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .applications-page {
+    max-width: 1000px;
+  }
+
+  .page-controls {
+    margin-bottom: 30px;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-select {
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-pill {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-count {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .applications-list {
+    display: grid;
+    gap: 16px;
+  }
+
+  .application-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .app-info h3 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    color: #1f2937;
+  }
+
+  .app-property {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+  }
+
+  .app-status {
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .status-processing { background: #FEF3C7; color: #92400E; }
+  .status-accepted { background: #DBEAFE; color: #1E40AF; }
+  .status-activated { background: #D1FAE5; color: #065F46; }
+  .status-rejected { background: #FEE2E2; color: #991B1B; }
+
+  .app-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail .label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .detail .value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  .app-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .app-date {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+</style>

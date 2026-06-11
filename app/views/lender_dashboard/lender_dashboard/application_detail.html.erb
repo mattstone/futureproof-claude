@@ -1,0 +1,89 @@
+<div class="container mx-auto px-4 py-8">
+  <%= link_to "← Back to Applications", lender_dashboard_applications_path(region: @region), class: "text-blue-600 hover:underline mb-4 inline-block" %>
+
+  <h1 class="text-3xl font-bold mb-6">Application Detail</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Borrower Information</h2>
+      <div class="space-y-3">
+        <p class="text-gray-600">Name: <span class="font-semibold"><%= @application.borrower_names || "Not provided" %></span></p>
+        <p class="text-gray-600">Age: <span class="font-semibold"><%= @application.borrower_age || "N/A" %></span></p>
+        <p class="text-gray-600">Credit Score: <span class="font-semibold"><%= @application.credit_score || "N/A" %></span></p>
+        <p class="text-gray-600">Ownership: <span class="font-semibold"><%= @application.ownership_status&.humanize || "N/A" %></span></p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Property Details</h2>
+      <div class="space-y-3">
+        <p class="text-gray-600">Address: <span class="font-semibold"><%= @application.address || "Not provided" %></span></p>
+        <p class="text-gray-600">Type: <span class="font-semibold"><%= @application.property_type&.humanize || "N/A" %></span></p>
+        <p class="text-gray-600">Home Value: <span class="font-semibold"><%= number_to_currency(@application.home_value || 0) %></span></p>
+        <p class="text-gray-600">Use: <span class="font-semibold"><%= @application.property_state&.humanize || "N/A" %></span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">EPM Investment Terms</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="border-l-4 border-blue-600 pl-4">
+        <p class="text-gray-600 text-sm">Status</p>
+        <p class="text-xl font-bold"><%= @application.status.humanize %></p>
+      </div>
+      <div class="border-l-4 border-green-600 pl-4">
+        <p class="text-gray-600 text-sm">Capital Investment</p>
+        <p class="text-xl font-bold text-green-600"><%= number_to_currency(@application.equity_investment_amount || 0) %></p>
+      </div>
+      <div class="border-l-4 border-purple-600 pl-4">
+        <p class="text-gray-600 text-sm">Equity Stake</p>
+        <p class="text-xl font-bold"><%= (@application.equity_percentage || 0).round(2) %>%</p>
+      </div>
+      <div class="border-l-4 border-orange-600 pl-4">
+        <p class="text-gray-600 text-sm">Investment Date</p>
+        <p class="text-xl font-bold"><%= @application.updated_at.strftime("%d %b %Y") %></p>
+      </div>
+    </div>
+  </div>
+
+  <% if @application.has_existing_mortgage %>
+    <div class="bg-yellow-50 border-l-4 border-yellow-600 rounded-lg shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Existing Mortgage</h2>
+      <p class="text-gray-600">Amount: <span class="font-semibold"><%= number_to_currency(@application.existing_mortgage_amount || 0) %></span></p>
+      <p class="text-gray-600">Lender: <span class="font-semibold"><%= @application.existing_mortgage_lender || "Not provided" %></span></p>
+    </div>
+  <% end %>
+
+  <!-- Distributions for this application -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">Distributions</h2>
+    <% distributions = @application.distributions %>
+    <% if distributions.any? %>
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 border-b">
+          <tr>
+            <th class="text-left p-3">Date</th>
+            <th class="text-right p-3">Amount</th>
+            <th class="text-right p-3">Lender Margin</th>
+            <th class="text-left p-3">Status</th>
+            <th class="text-left p-3">Transaction ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% distributions.order(distribution_date: :desc).each do |dist| %>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="p-3"><%= dist.distribution_date&.strftime("%d %b %Y") %></td>
+              <td class="p-3 text-right font-semibold"><%= number_to_currency(dist.amount || 0) %></td>
+              <td class="p-3 text-right"><%= number_to_currency(dist.lender_margin || 0) %></td>
+              <td class="p-3"><span class="px-2 py-1 rounded text-xs font-semibold <%= dist.status == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>"><%= dist.status&.humanize %></span></td>
+              <td class="p-3 font-mono text-xs"><%= dist.transaction_id || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-gray-600 py-4 text-center">No distributions recorded yet.</p>
+    <% end %>
+  </div>
+</div>

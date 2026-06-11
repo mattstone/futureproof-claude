@@ -1,35 +1,379 @@
-<div class="legal-document">
-  <h1>Privacy Policy — UK</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  <p>FutureProof Financial is committed to protecting your privacy.</p>
-  
-  <h2>Personal Information</h2>
-  <p>We collect: name, address, DOB, income, property details, credit information, health information (if relevant).</p>
-  
-  <h2>Use of Information</h2>
-  <ul>
-    <li>Process applications and service loans</li>
-    <li>Assess creditworthiness and lending risk</li>
-    <li>Comply with legal and tax obligations</li>
-    <li>Fraud prevention and risk management</li>
-  </ul>
-  
-  <h2>Disclosure</h2>
-  <p>We may disclose to: credit agencies, lenders, insurers, valuers, government agencies, legal/financial advisors, service providers.</p>
-  
-  <h2>Your Rights</h2>
-  <ul>
-    <li>Access your personal information</li>
-    <li>Request correction of inaccurate information</li>
-    <li>Lodge a complaint with us or the applicable regulator</li>
-  </ul>
-  
-  <h2>Contact</h2>
-  <p>Privacy Officer: [email] | [phone]</p>
-</div>
+<% details = legal_details("uk") %>
+<% config = RegionHelper.region_config("uk") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-page">
+  <div class="legal-container">
+    <h1>Privacy Policy — United Kingdom</h1>
+    <p class="last-updated">Version <%= legal_version %> | Effective: <%= legal_date %></p>
+
+    <div class="legal-content">
+
+      <div class="legal-section">
+        <h2>1. Introduction</h2>
+        <p><strong>1.1</strong> FutureProof Financial Ltd ("we", "us", "our", "FutureProof") is committed to protecting the privacy and security of your personal data in accordance with the <%= details[:privacy_act] %>.</p>
+        <p><strong>1.2</strong> This Privacy Policy explains how we collect, use, store, share, and protect your personal data when you use the FutureProof Financial platform ("Platform") and our Equity Preservation Mortgage ("EPM") services.</p>
+        <p><strong>1.3</strong> We are registered with the Information Commissioner's Office (ICO), registration number [TBD]. You can verify our registration at ico.org.uk.</p>
+        <p><strong>1.4</strong> This Privacy Policy should be read alongside our Terms and Conditions and any other privacy information we provide to you at the time of collecting your personal data.</p>
+        <p><strong>1.5</strong> We keep this Privacy Policy under regular review and will notify you of any material changes. This policy was last updated on the date shown above.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Data Controller</h2>
+        <p><strong>2.1</strong> FutureProof Financial Ltd is the data controller for the personal data we process in connection with our services. This means we are responsible for deciding how we hold and use your personal data.</p>
+        <p><strong>2.2</strong> Our contact details are:</p>
+        <div class="contact-info">
+          <p><strong>FutureProof Financial Ltd</strong></p>
+          <p>FCA Firm Reference Number: [TBD]</p>
+          <p>Companies House Registration: [TBD]</p>
+          <p>Email: privacy@futureprooffinancial.co</p>
+        </div>
+        <p><strong>2.3</strong> We have appointed a <%= details[:data_protection_officer] %> who is responsible for overseeing questions in relation to this Privacy Policy. If you have any questions about this Privacy Policy or our data protection practices, please contact the DPO:</p>
+        <div class="contact-info">
+          <p><strong>Data Protection Officer</strong></p>
+          <p>Email: dpo@futureprooffinancial.co</p>
+          <p>Post: Data Protection Officer, FutureProof Financial Ltd, [registered address]</p>
+        </div>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Information We Collect</h2>
+        <p><strong>3.1</strong> We collect and process the following categories of personal data:</p>
+
+        <h3>3.1.1 Identity Data</h3>
+        <p>Full name, date of birth, gender, marital status, nationality, National Insurance number, passport or driving licence details, photograph (for identity verification).</p>
+
+        <h3>3.1.2 Contact Data</h3>
+        <p>Residential address (current and previous), email address, telephone numbers (landline and mobile), preferred method of communication.</p>
+
+        <h3>3.1.3 Financial Data</h3>
+        <p>Income details (salary, pension, benefits, investment income), bank account details, existing mortgage and loan information, credit history, tax information, savings and investment holdings, monthly expenditure and financial commitments.</p>
+
+        <h3>3.1.4 Property Data</h3>
+        <p>Property address, property type and description, estimated and independently valued property value, Land Registry title number, tenure (freehold or leasehold), existing charges or encumbrances, building insurance details, council tax band.</p>
+
+        <h3>3.1.5 Employment Data</h3>
+        <p>Employment status, employer details, occupation, retirement date or status, pension provider details.</p>
+
+        <h3>3.1.6 Technical Data</h3>
+        <p>IP address, browser type and version, device type, operating system, time zone, login data, pages visited and interactions with the Platform, referring website, cookie identifiers.</p>
+
+        <h3>3.1.7 Communications Data</h3>
+        <p>Records of correspondence and communications between you and FutureProof, including emails, chat messages, telephone call recordings (where you have been informed), and notes of meetings.</p>
+
+        <h3>3.1.8 Cookies and Tracking Data</h3>
+        <p>Information collected through cookies, pixels, and similar technologies as described in Section 15 of this policy.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Lawful Basis for Processing</h2>
+        <p><strong>4.1</strong> Under Article 6 of the UK GDPR, we must have a lawful basis for processing your personal data. We rely on the following bases:</p>
+
+        <h3>4.1.1 Performance of a Contract (Article 6(1)(b))</h3>
+        <p>We process your personal data where it is necessary for the performance of a contract with you, or to take steps at your request prior to entering into a contract. This includes:</p>
+        <ul>
+          <li>(a) Processing your EPM application;</li>
+          <li>(b) Conducting property valuations;</li>
+          <li>(c) Assessing your eligibility and affordability;</li>
+          <li>(d) Managing your EPM account and making monthly income payments;</li>
+          <li>(e) Managing the investment portfolio associated with your EPM;</li>
+          <li>(f) Communicating with you about your application or account.</li>
+        </ul>
+
+        <h3>4.1.2 Legal Obligation (Article 6(1)(c))</h3>
+        <p>We process your personal data where it is necessary to comply with a legal obligation to which we are subject. This includes:</p>
+        <ul>
+          <li>(a) Anti-money laundering (AML) and know-your-customer (KYC) checks under the <%= details[:aml_act] %>;</li>
+          <li>(b) Regulatory reporting to the <%= details[:regulator] %>;</li>
+          <li>(c) Tax reporting to HM Revenue and Customs (HMRC);</li>
+          <li>(d) Complying with court orders, legal proceedings, or regulatory investigations;</li>
+          <li>(e) Maintaining records as required by FCA rules (including MCOB and SYSC);</li>
+          <li>(f) Responding to subject access requests and other data protection requests.</li>
+        </ul>
+
+        <h3>4.1.3 Legitimate Interests (Article 6(1)(f))</h3>
+        <p>We process your personal data where it is necessary for our legitimate interests (or those of a third party), provided that your interests and fundamental rights do not override those interests. We have conducted a Legitimate Interest Assessment (LIA) for each purpose below:</p>
+        <ul>
+          <li>(a) <strong>Fraud prevention and detection:</strong> Protecting our business and customers from financial crime. We consider this proportionate given the significant financial nature of EPM transactions;</li>
+          <li>(b) <strong>Service improvement:</strong> Analysing how customers use the Platform to improve our products and services. We use aggregated and anonymised data where possible;</li>
+          <li>(c) <strong>Risk management:</strong> Assessing and managing credit, investment, and operational risks;</li>
+          <li>(d) <strong>Business administration:</strong> Managing our business operations, including IT security, business continuity, and internal auditing;</li>
+          <li>(e) <strong>Legal claims:</strong> Establishing, exercising, or defending legal claims.</li>
+        </ul>
+        <p>You have the right to object to processing based on legitimate interests (see Section 12).</p>
+
+        <h3>4.1.4 Consent (Article 6(1)(a))</h3>
+        <p>We process your personal data based on your consent for:</p>
+        <ul>
+          <li>(a) Marketing communications (email, SMS, or telephone);</li>
+          <li>(b) Non-essential cookies and tracking technologies;</li>
+          <li>(c) Sharing your data with selected third-party partners for marketing purposes.</li>
+        </ul>
+        <p>You may withdraw your consent at any time by contacting us or using the unsubscribe mechanism in our communications. Withdrawal of consent does not affect the lawfulness of processing carried out before withdrawal.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Special Category Data</h2>
+        <p><strong>5.1</strong> Under Article 9 of the UK GDPR, certain types of personal data are classified as "special category data" and require additional protections. This includes data about health, racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic data, biometric data, sex life, and sexual orientation.</p>
+        <p><strong>5.2</strong> We may process limited special category data in the following circumstances:</p>
+        <ul>
+          <li>(a) <strong>Health data:</strong> Where relevant to the assessment of your EPM application (e.g., if health conditions affect your life expectancy or ability to maintain the property). We will only collect this with your explicit consent (Article 9(2)(a));</li>
+          <li>(b) <strong>Biometric data:</strong> Where used for identity verification purposes, with your explicit consent.</li>
+        </ul>
+        <p><strong>5.3</strong> We will always inform you before collecting special category data and explain why it is needed. You have the right to refuse, although this may affect our ability to process your application.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. How We Use Your Information</h2>
+        <p><strong>6.1</strong> We use your personal data for the following purposes:</p>
+        <ul>
+          <li>(a) To process and assess your EPM application;</li>
+          <li>(b) To conduct identity verification, credit checks, and affordability assessments;</li>
+          <li>(c) To arrange property valuations;</li>
+          <li>(d) To administer your EPM, including managing the investment portfolio and making monthly income payments;</li>
+          <li>(e) To conduct AML/KYC checks as required by law;</li>
+          <li>(f) To comply with our regulatory obligations to the FCA;</li>
+          <li>(g) To communicate with you about your application, account, or our services;</li>
+          <li>(h) To detect and prevent fraud and financial crime;</li>
+          <li>(i) To manage risk across our portfolio;</li>
+          <li>(j) To improve the Platform and develop new products and services;</li>
+          <li>(k) To provide customer support;</li>
+          <li>(l) To send marketing communications (where you have consented);</li>
+          <li>(m) To comply with tax and reporting obligations;</li>
+          <li>(n) To establish, exercise, or defend legal claims;</li>
+          <li>(o) To conduct internal auditing and business analysis.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Data Sharing</h2>
+        <p><strong>7.1</strong> We may share your personal data with the following categories of third parties, as necessary for the purposes described in this policy:</p>
+        <ul>
+          <li>(a) <strong>Lenders and wholesale funders:</strong> To arrange and administer your EPM;</li>
+          <li>(b) <strong>Investment managers:</strong> To manage the investment portfolio associated with your EPM;</li>
+          <li>(c) <strong>Property valuers:</strong> RICS-registered valuers appointed to value your property;</li>
+          <li>(d) <strong>KYC and identity verification providers:</strong> To conduct identity checks and AML screening;</li>
+          <li>(e) <strong>Credit reference agencies:</strong> To conduct credit checks (a record of the search may be left on your credit file);</li>
+          <li>(f) <strong>Insurance providers:</strong> For NNEG insurance and other insurance products;</li>
+          <li>(g) <strong>Solicitors and conveyancers:</strong> To conduct the legal work in connection with your mortgage;</li>
+          <li>(h) <strong>Financial Conduct Authority (FCA):</strong> As required by our regulatory obligations;</li>
+          <li>(i) <strong>HM Revenue and Customs (HMRC):</strong> For tax reporting purposes;</li>
+          <li>(j) <strong>Financial Ombudsman Service (FOS):</strong> In connection with the resolution of complaints;</li>
+          <li>(k) <strong>Financial Services Compensation Scheme (FSCS):</strong> If required in connection with a claim;</li>
+          <li>(l) <strong>Law enforcement and regulatory bodies:</strong> Where required by law or in connection with the prevention or detection of crime;</li>
+          <li>(m) <strong>IT service providers and cloud hosting:</strong> Who process data on our behalf under strict contractual terms;</li>
+          <li>(n) <strong>Professional advisers:</strong> Including auditors, accountants, and legal advisers.</li>
+        </ul>
+        <p><strong>7.2</strong> All third parties are required to process your data in accordance with applicable data protection laws and our contractual requirements.</p>
+        <p><strong>7.3</strong> We require all third-party data processors to enter into data processing agreements that include appropriate technical and organisational security measures.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. No Sale of Personal Information</h2>
+        <p><strong>8.1</strong> We do not sell your personal data to any third party.</p>
+        <p><strong>8.2</strong> We do not share your personal data with third parties for their own marketing purposes without your explicit consent.</p>
+        <p><strong>8.3</strong> If you have given consent for third-party marketing, you may withdraw it at any time.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. International Transfers</h2>
+        <p><strong>9.1</strong> Your personal data may be transferred to, stored, or processed in countries outside the United Kingdom. This may occur, for example, where our service providers or investment managers are located outside the UK.</p>
+        <p><strong>9.2</strong> In accordance with Chapter V of the UK GDPR, we will only transfer personal data outside the UK where one of the following safeguards is in place:</p>
+        <ul>
+          <li>(a) <strong>Adequacy Decision:</strong> The UK Secretary of State has determined that the recipient country provides an adequate level of data protection (UK GDPR Article 45);</li>
+          <li>(b) <strong>Standard Contractual Clauses (SCCs):</strong> We have entered into the UK International Data Transfer Agreement (IDTA) or the UK Addendum to the EU SCCs approved by the ICO;</li>
+          <li>(c) <strong>Binding Corporate Rules:</strong> The recipient organisation has adopted binding corporate rules approved by the relevant supervisory authority;</li>
+          <li>(d) <strong>Other Safeguards:</strong> An appropriate derogation under Article 49 of the UK GDPR applies (e.g., your explicit consent, or the transfer is necessary for the performance of a contract).</li>
+        </ul>
+        <p><strong>9.3</strong> We conduct Transfer Risk Assessments (TRAs) for all international data transfers to ensure that the level of protection afforded to your data is not undermined.</p>
+        <p><strong>9.4</strong> You may request details of the safeguards in place for any international transfer of your data by contacting our DPO.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>10. Data Security</h2>
+        <p><strong>10.1</strong> In accordance with Article 32 of the UK GDPR, we implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, including:</p>
+        <ul>
+          <li>(a) <strong>Encryption:</strong> All personal data is encrypted in transit (TLS 1.2+) and at rest (AES-256);</li>
+          <li>(b) <strong>Multi-Factor Authentication (MFA):</strong> Required for all staff access to systems containing personal data and available for customer accounts;</li>
+          <li>(c) <strong>Role-Based Access Control (RBAC):</strong> Access to personal data is restricted to authorised personnel on a need-to-know basis;</li>
+          <li>(d) <strong>Regular Security Testing:</strong> Including penetration testing, vulnerability scanning, and code reviews;</li>
+          <li>(e) <strong>Incident Response Plan:</strong> Documented procedures for detecting, responding to, and recovering from security incidents;</li>
+          <li>(f) <strong>Staff Training:</strong> Regular data protection and information security training for all staff;</li>
+          <li>(g) <strong>Physical Security:</strong> Physical access controls for premises where personal data is processed;</li>
+          <li>(h) <strong>Business Continuity:</strong> Regular backups and disaster recovery procedures.</li>
+        </ul>
+        <p><strong>10.2</strong> We conduct Data Protection Impact Assessments (DPIAs) where required by Article 35 of the UK GDPR, including for any new processing activity that is likely to result in a high risk to your rights and freedoms.</p>
+        <p><strong>10.3</strong> While we take all reasonable precautions to protect your data, no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>11. Data Retention</h2>
+        <p><strong>11.1</strong> In accordance with the storage limitation principle (Article 5(1)(e) of the UK GDPR), we retain your personal data only for as long as necessary for the purposes for which it was collected.</p>
+        <p><strong>11.2</strong> Our retention periods are as follows:</p>
+        <ul>
+          <li>(a) <strong>EPM application data (successful):</strong> For the duration of the mortgage term plus 6 years after redemption or discharge, in accordance with the Limitation Act 1980;</li>
+          <li>(b) <strong>EPM application data (unsuccessful):</strong> 3 years from the date of the application decision;</li>
+          <li>(c) <strong>AML/KYC records:</strong> 5 years after the end of the business relationship, as required by the Money Laundering Regulations 2017;</li>
+          <li>(d) <strong>Financial transaction records:</strong> 6 years, in accordance with HMRC requirements;</li>
+          <li>(e) <strong>FCA regulatory records:</strong> As required by the FCA Handbook (typically 5-6 years, or longer for certain records);</li>
+          <li>(f) <strong>Marketing consent records:</strong> Until consent is withdrawn, plus 1 year;</li>
+          <li>(g) <strong>Complaints records:</strong> 5 years from the date of resolution, as required by FCA DISP rules;</li>
+          <li>(h) <strong>Website analytics and cookie data:</strong> Up to 26 months;</li>
+          <li>(i) <strong>Telephone call recordings:</strong> 6 months to 6 years, depending on the nature of the call.</li>
+        </ul>
+        <p><strong>11.3</strong> When personal data is no longer required, it is securely deleted or anonymised in accordance with our data destruction procedures.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>12. Your Rights Under UK GDPR</h2>
+        <p><strong>12.1</strong> Under the UK GDPR, you have the following rights in relation to your personal data:</p>
+
+        <h3>12.1.1 Right of Access (Article 15)</h3>
+        <p>You have the right to request a copy of the personal data we hold about you (a Subject Access Request or SAR). We will respond within one calendar month of receiving your request and verifying your identity. This may be extended by a further two months for complex or numerous requests, in which case we will inform you.</p>
+
+        <h3>12.1.2 Right to Rectification (Article 16)</h3>
+        <p>You have the right to request that we correct any inaccurate personal data we hold about you, and to have incomplete data completed.</p>
+
+        <h3>12.1.3 Right to Erasure (Article 17)</h3>
+        <p>You have the right to request the deletion of your personal data (the "right to be forgotten") where:</p>
+        <ul>
+          <li>(a) The data is no longer necessary for the purpose it was collected;</li>
+          <li>(b) You withdraw your consent (where consent was the lawful basis);</li>
+          <li>(c) You object to the processing and there are no overriding legitimate grounds;</li>
+          <li>(d) The data has been unlawfully processed;</li>
+          <li>(e) Erasure is required to comply with a legal obligation.</li>
+        </ul>
+        <p>This right is not absolute. We may refuse erasure where processing is necessary for compliance with legal obligations, the establishment or defence of legal claims, or regulatory record-keeping requirements.</p>
+
+        <h3>12.1.4 Right to Restrict Processing (Article 18)</h3>
+        <p>You have the right to request that we restrict the processing of your personal data where:</p>
+        <ul>
+          <li>(a) You contest the accuracy of the data (during the period of verification);</li>
+          <li>(b) The processing is unlawful but you do not wish the data to be erased;</li>
+          <li>(c) We no longer need the data but you require it for legal claims;</li>
+          <li>(d) You have objected to the processing (pending verification of legitimate grounds).</li>
+        </ul>
+
+        <h3>12.1.5 Right to Data Portability (Article 20)</h3>
+        <p>You have the right to receive the personal data you have provided to us in a structured, commonly used, and machine-readable format, and to transmit that data to another controller, where the processing is based on consent or contract and is carried out by automated means.</p>
+
+        <h3>12.1.6 Right to Object (Article 21)</h3>
+        <p>You have the right to object to the processing of your personal data where we rely on legitimate interests as the lawful basis. We will cease processing unless we can demonstrate compelling legitimate grounds that override your interests, rights, and freedoms, or the processing is necessary for the establishment, exercise, or defence of legal claims.</p>
+        <p>You have an absolute right to object to direct marketing at any time.</p>
+
+        <h3>12.1.7 Rights Related to Automated Decision-Making (Article 22)</h3>
+        <p>You have the right not to be subject to a decision based solely on automated processing, including profiling, which produces legal effects or similarly significantly affects you. See Section 13 for further details.</p>
+
+        <h3>12.1.8 Right to Withdraw Consent</h3>
+        <p>Where we rely on your consent to process personal data, you have the right to withdraw that consent at any time. This does not affect the lawfulness of processing carried out before withdrawal.</p>
+
+        <h3>12.1.9 Right to Lodge a Complaint with the ICO</h3>
+        <p>You have the right to lodge a complaint with the Information Commissioner's Office (ICO) if you believe that your data protection rights have been infringed:</p>
+        <div class="contact-info">
+          <p><strong>Information Commissioner's Office</strong></p>
+          <p>Website: ico.org.uk</p>
+          <p>Telephone: 0303 123 1113</p>
+          <p>Post: Information Commissioner's Office, Wycliffe House, Water Lane, Wilmslow, Cheshire, SK9 5AF</p>
+        </div>
+        <p>We would appreciate the opportunity to address your concerns before you contact the ICO, so please contact our DPO in the first instance.</p>
+
+        <p><strong>12.2</strong> To exercise any of these rights, please contact our DPO at dpo@futureprooffinancial.co. We may need to verify your identity before processing your request.</p>
+        <p><strong>12.3</strong> There is no fee for exercising your rights, unless a request is manifestly unfounded or excessive, in which case we may charge a reasonable fee or refuse the request.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>13. Automated Decision-Making and Profiling</h2>
+        <p><strong>13.1</strong> We may use automated decision-making and profiling in the following areas:</p>
+        <ul>
+          <li>(a) <strong>Credit assessment:</strong> Automated scoring based on credit reference agency data and financial information you provide;</li>
+          <li>(b) <strong>Affordability assessment:</strong> Automated analysis of income, expenditure, and financial commitments;</li>
+          <li>(c) <strong>Fraud screening:</strong> Automated checks against fraud databases and suspicious activity indicators;</li>
+          <li>(d) <strong>AML/KYC screening:</strong> Automated checks against sanctions lists, politically exposed persons (PEP) databases, and adverse media.</li>
+        </ul>
+        <p><strong>13.2</strong> Where automated processing produces a legally significant decision (such as declining an application), you have the right to:</p>
+        <ul>
+          <li>(a) Obtain meaningful information about the logic involved;</li>
+          <li>(b) Express your point of view;</li>
+          <li>(c) Contest the decision and request human intervention.</li>
+        </ul>
+        <p><strong>13.3</strong> All automated decisions relating to EPM applications are subject to human review before a final decision is communicated to you.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>14. Data Breach Notification</h2>
+        <p><strong>14.1</strong> In accordance with Articles 33 and 34 of the UK GDPR, we have procedures in place to detect, report, and investigate personal data breaches.</p>
+        <p><strong>14.2</strong> If we become aware of a personal data breach that is likely to result in a risk to your rights and freedoms, we will:</p>
+        <ul>
+          <li>(a) Notify the ICO within 72 hours of becoming aware of the breach (Article 33), unless the breach is unlikely to result in a risk to your rights and freedoms;</li>
+          <li>(b) Notify you without undue delay if the breach is likely to result in a high risk to your rights and freedoms (Article 34);</li>
+          <li>(c) Document the breach, including its effects and the remedial action taken, regardless of whether notification to the ICO is required.</li>
+        </ul>
+        <p><strong>14.3</strong> Our notification to you will describe the nature of the breach, the likely consequences, the measures we have taken or propose to take, and contact details for our DPO.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>15. Cookies</h2>
+        <p><strong>15.1</strong> Our Platform uses cookies and similar tracking technologies in accordance with the Privacy and Electronic Communications Regulations 2003 (PECR) and UK GDPR.</p>
+        <p><strong>15.2</strong> We use the following categories of cookies:</p>
+        <ul>
+          <li>(a) <strong>Strictly Necessary Cookies:</strong> Essential for the operation of the Platform (e.g., session management, security tokens, authentication). These do not require consent under PECR;</li>
+          <li>(b) <strong>Functional Cookies:</strong> Enable enhanced functionality and personalisation (e.g., language preferences, saved form data). These require your consent;</li>
+          <li>(c) <strong>Analytics Cookies:</strong> Help us understand how visitors use the Platform (e.g., page views, session duration). These require your consent;</li>
+          <li>(d) <strong>Marketing Cookies:</strong> Used to deliver relevant advertisements and measure campaign effectiveness. These require your consent.</li>
+        </ul>
+        <p><strong>15.3</strong> When you first visit our Platform, you will be presented with a cookie consent banner that allows you to accept or reject non-essential cookies. You can change your cookie preferences at any time through the cookie settings on our Platform.</p>
+        <p><strong>15.4</strong> You can also control cookies through your browser settings. Please note that disabling certain cookies may affect the functionality of the Platform.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>16. Children's Privacy</h2>
+        <p><strong>16.1</strong> Our Platform and services are not directed at individuals under the age of 18 (or 55 for EPM products).</p>
+        <p><strong>16.2</strong> We do not knowingly collect personal data from children under the age of 18. If we become aware that we have collected personal data from a child under 18, we will take steps to delete that data as soon as reasonably practicable.</p>
+        <p><strong>16.3</strong> If you believe that we have inadvertently collected data from a child, please contact our DPO immediately.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>17. Changes to This Policy</h2>
+        <p><strong>17.1</strong> We may update this Privacy Policy from time to time to reflect changes in law, regulatory guidance, our business practices, or the way we process personal data.</p>
+        <p><strong>17.2</strong> Material changes will be notified to you by email or through a prominent notice on the Platform at least 30 days before the changes take effect.</p>
+        <p><strong>17.3</strong> We encourage you to review this Privacy Policy periodically to stay informed about how we protect your personal data.</p>
+        <p><strong>17.4</strong> The "last updated" date at the top of this policy indicates when it was most recently revised.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>18. Contact</h2>
+        <p><strong>18.1</strong> If you have any questions or concerns about this Privacy Policy or how we handle your personal data, please contact us:</p>
+
+        <h3>Data Protection Officer</h3>
+        <div class="contact-info">
+          <p>Email: dpo@futureprooffinancial.co</p>
+          <p>Post: Data Protection Officer, FutureProof Financial Ltd, [registered address]</p>
+        </div>
+
+        <h3>General Privacy Enquiries</h3>
+        <div class="contact-info">
+          <p>Email: privacy@futureprooffinancial.co</p>
+        </div>
+
+        <h3>Information Commissioner's Office (ICO)</h3>
+        <div class="contact-info">
+          <p>Website: ico.org.uk</p>
+          <p>Telephone: 0303 123 1113</p>
+          <p>Post: Information Commissioner's Office, Wycliffe House, Water Lane, Wilmslow, Cheshire, SK9 5AF</p>
+        </div>
+
+        <h3>Financial Ombudsman Service (FOS)</h3>
+        <div class="contact-info">
+          <p>Website: financial-ombudsman.org.uk</p>
+          <p>Telephone: 0800 023 4567</p>
+          <p>Post: Financial Ombudsman Service, Exchange Tower, London E14 9SR</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <p>This Privacy Policy was last updated on <%= legal_date %>.</p>
+      <p>FutureProof Financial Ltd is authorised and regulated by the Financial Conduct Authority (FCA), Firm Reference Number [TBD]. Registered in England and Wales, Companies House number [TBD]. ICO Registration Number [TBD].</p>
+    </div>
+  </div>
+</div>

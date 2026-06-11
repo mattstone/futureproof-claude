@@ -61,29 +61,33 @@ class PythonMonteCarloService
   private
 
   def set_default_values
-    @params[:house_value] = @params[:house_value].present? ? @params[:house_value].to_f : 1500000.0
-    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration].to_i : 30
-    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration].to_i : 15
+    # Defaults sourced from EpmModelConfig (single source of truth)
+    ep = EpmModelConfig.params
+    mc = EpmModelConfig.mc_defaults
+
+    @params[:house_value] = @params[:house_value].present? ? @params[:house_value].to_f : ep[:base_property_value].to_f
+    @params[:loan_duration] = @params[:loan_duration].present? ? @params[:loan_duration].to_i : ep[:tenure_years]
+    @params[:annuity_duration] = @params[:annuity_duration].present? ? @params[:annuity_duration].to_i : ep[:annuity_term_years]
     @params[:loan_type] = @params[:loan_type].present? ? @params[:loan_type] : "Interest only"
-    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value].to_f / 100.0 : 0.8
-    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income].to_f : 30000.0
+    @params[:loan_to_value] = @params[:loan_to_value].present? ? @params[:loan_to_value].to_f / 100.0 : ep[:max_ltv]
+    @params[:annual_income] = @params[:annual_income].present? ? @params[:annual_income].to_f : ep[:annuity_pa].to_f
     @params[:at_risk_capital_fraction] = @params[:at_risk_capital_fraction].present? ? @params[:at_risk_capital_fraction].to_f / 100.0 : 0.0
-    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return].to_f / 100.0 : 0.0975
-    @params[:volatility] = @params[:volatility].present? ? @params[:volatility].to_f / 100.0 : 0.15
+    @params[:equity_return] = @params[:equity_return].present? ? @params[:equity_return].to_f / 100.0 : ep[:equity_mean]
+    @params[:volatility] = @params[:volatility].present? ? @params[:volatility].to_f / 100.0 : ep[:equity_vol]
     @params[:total_paths] = @params[:total_paths].present? ? @params[:total_paths].to_i : 1000
     @params[:random_seed] = @params[:random_seed].present? ? @params[:random_seed].to_i : 0
-    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate].to_f / 100.0 : 0.04
+    @params[:cash_rate] = @params[:cash_rate].present? ? @params[:cash_rate].to_f / 100.0 : ep[:cash_rate_initial]
     @params[:insurer_profit_margin] = @params[:insurer_profit_margin].present? ? @params[:insurer_profit_margin].to_f / 100.0 : 0.5
-    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin].to_f : 0.02
-    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins].to_f : 0.015
-    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction].to_f : 1.35
-    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction].to_f : 1.95
+    @params[:wholesale_lending_margin] = @params[:wholesale_lending_margin].present? ? @params[:wholesale_lending_margin].to_f : ep[:wholesale_margin]
+    @params[:additional_loan_margins] = @params[:additional_loan_margins].present? ? @params[:additional_loan_margins].to_f : mc[:additional_loan_margins]
+    @params[:holiday_enter_fraction] = @params[:holiday_enter_fraction].present? ? @params[:holiday_enter_fraction].to_f : ep[:holiday_entry_level]
+    @params[:holiday_exit_fraction] = @params[:holiday_exit_fraction].present? ? @params[:holiday_exit_fraction].to_f : ep[:holiday_exit_level]
     @params[:subperform_loan_threshold_quarters] = @params[:subperform_loan_threshold_quarters].present? ? @params[:subperform_loan_threshold_quarters].to_i : 6
-    @params[:insurance_cost_pa] = @params[:insurance_cost_pa].present? ? @params[:insurance_cost_pa].to_f : 0.02
+    @params[:insurance_cost_pa] = @params[:insurance_cost_pa].present? ? @params[:insurance_cost_pa].to_f : ep[:lmi_upfront_pct]
     @params[:hedged] = @params[:hedged].present? && @params[:hedged] != "false" && @params[:hedged] != "0" ? true : false
-    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss].to_f : 0.1
-    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap].to_f : 0.2
-    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa].to_f : 0.01
+    @params[:hedging_max_loss] = @params[:hedging_max_loss].present? ? @params[:hedging_max_loss].to_f : (1.0 - ep[:buffer_floor])
+    @params[:hedging_cap] = @params[:hedging_cap].present? ? @params[:hedging_cap].to_f : (ep[:buffer_cap] - 1.0)
+    @params[:hedging_cost_pa] = @params[:hedging_cost_pa].present? ? @params[:hedging_cost_pa].to_f : ep[:hedging_fee]
   end
 
   def generate_python_monte_carlo_script

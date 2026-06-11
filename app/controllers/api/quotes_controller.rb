@@ -19,7 +19,7 @@ class Api::QuotesController < ApplicationController
   def show
     home_value = params[:home_value]&.to_f || 1_500_000
     term = params[:term]&.to_i || 10
-    model = params[:model]&.to_sym || :original
+    model = params[:model]&.to_sym || QuoteService::DEFAULT_MODEL
     mortgage_type = params[:mortgage_type] || 'interest_only'
 
     begin
@@ -113,15 +113,15 @@ class Api::QuotesController < ApplicationController
           supports_monte_carlo: false
         },
         tom: {
-          name: "Tom's Model",
-          description: "Total income lookup table for $1.5M base property",
+          name: "Tom's Model (legacy)",
+          description: "Legacy total income lookup table for $1.5M base property. Not validated — comparison only.",
           speed: "instant",
           supports_monte_carlo: false,
           info: QuoteService.model_info(:tom)
         },
         pavel: {
-          name: "Pavel's Model",
-          description: "Annuity rate based, Monte Carlo validated",
+          name: "Pavel's Model v14d Optimised (default)",
+          description: "Annuity rate based, 50,000-path Monte Carlo validated",
           speed: "instant",
           supports_monte_carlo: false,
           info: QuoteService.model_info(:pavel)
@@ -174,45 +174,29 @@ class Api::QuotesController < ApplicationController
   private
 
   # Original model - matches demo_webapp_controller.js lookup tables (Tom's model)
+  # P&I variant applies the legacy demo factor to interest-only values
+  # (EpmModelConfig::PI_INCOME_FACTOR)
   def calculate_original(home_value, term, mortgage_type)
-    base_property_value = 1_500_000.0
-    multiplier = home_value / base_property_value
+    result = QuoteService.quote(home_value: home_value, term: term, model: :tom)
+    lvr = EpmModelConfig.params[:max_ltv]
 
-    # Lookup tables from demo_webapp_controller.js - based on Tom's model (ReferenceTableV2.csv)
-    # Values derived from total_income: 10yr=$300K, 15yr=$410K, 20yr=$443K, 25yr=$498K, 30yr=$553K
-    interest_only_lookup = {
-      10 => { monthly: 2500, loan_balance: 553088 },   # $300,000 / 10 / 12 = $2,500
-      15 => { monthly: 2280, loan_balance: 553088 },   # $410,468 / 15 / 12 = $2,280
-      20 => { monthly: 1847, loan_balance: 553088 },   # $443,306 / 20 / 12 = $1,847
-      25 => { monthly: 1662, loan_balance: 553088 },   # $498,478 / 25 / 12 = $1,662
-      30 => { monthly: 1536, loan_balance: 553088 }    # $553,088 / 30 / 12 = $1,536
-    }
+    monthly = result[:monthly_income]
+    if mortgage_type == 'principal_and_interest'
+      monthly = (monthly * EpmModelConfig::PI_INCOME_FACTOR).round(0)
+    end
 
-    # Principal + Interest: ~77% of interest-only values
-    principal_interest_lookup = {
-      10 => { monthly: 1925, loan_balance: 0 },
-      15 => { monthly: 1756, loan_balance: 0 },
-      20 => { monthly: 1422, loan_balance: 0 },
-      25 => { monthly: 1280, loan_balance: 0 },
-      30 => { monthly: 1183, loan_balance: 0 }
-    }
-
-    lookup = mortgage_type == 'principal_and_interest' ? principal_interest_lookup : interest_only_lookup
-    data = lookup[term] || lookup[10]
-
-    monthly_income = (data[:monthly] * multiplier).round(2)
-    total_income = (monthly_income * 12 * term).round(0)
-    loan_balance = (data[:loan_balance] * multiplier).round(0)
+    annual = (monthly * 12).round(0)
+    total = (annual * term).round(0)
 
     {
-      monthly_income: monthly_income.round(0),
-      annual_income: (monthly_income * 12).round(0),
-      total_income: total_income,
-      loan_balance_at_end: loan_balance,
-      lvr: 0.80,
-      max_loan: (home_value * 0.80).round(0),
-      base_property_value: base_property_value.to_i,
-      multiplier: multiplier.round(4)
+      monthly_income: monthly,
+      annual_income: annual,
+      total_income: total,
+      loan_balance_at_end: mortgage_type == 'principal_and_interest' ? 0 : result[:max_loan],
+      lvr: lvr,
+      max_loan: result[:max_loan],
+      base_property_value: QuoteService::BASE_PROPERTY_VALUE,
+      multiplier: (home_value.to_f / QuoteService::BASE_PROPERTY_VALUE).round(4)
     }
   end
 
@@ -257,12 +241,13 @@ class Api::QuotesController < ApplicationController
     annual_income = pavel_result[:annual_income]
 
     begin
+      ep = EpmModelConfig.params
       service = PythonMonteCarloService.new({
         house_value: home_value,
-        loan_duration: 30, # Standard loan duration
+        loan_duration: ep[:tenure_years],
         annuity_duration: term,
         loan_type: loan_type,
-        loan_to_value: 80, # 80% LVR
+        loan_to_value: ep[:max_ltv] * 100, # PythonMonteCarloService expects percentage
         annual_income: annual_income,
         total_paths: paths,
         random_seed: 42 # For reproducibility
@@ -270,12 +255,13 @@ class Api::QuotesController < ApplicationController
 
       result = service.calculate
 
+      lvr = EpmModelConfig.params[:max_ltv]
       {
         monthly_income: (annual_income / 12.0).round(0),
         annual_income: annual_income,
         total_income: (annual_income * term).round(0),
-        lvr: 0.80,
-        max_loan: (home_value * 0.80).round(0),
+        lvr: lvr,
+        max_loan: (home_value * lvr).round(0),
         monte_carlo: {
           paths: paths,
           execution_time_seconds: result[:execution_time],
@@ -288,12 +274,13 @@ class Api::QuotesController < ApplicationController
     rescue => e
       # Python not available or failed - return basic calculation with error info
       Rails.logger.warn "Python Monte Carlo failed: #{e.message}"
+      lvr = EpmModelConfig.params[:max_ltv]
       {
         monthly_income: (annual_income / 12.0).round(0),
         annual_income: annual_income,
         total_income: (annual_income * term).round(0),
-        lvr: 0.80,
-        max_loan: (home_value * 0.80).round(0),
+        lvr: lvr,
+        max_loan: (home_value * lvr).round(0),
         monte_carlo: {
           error: "Python Monte Carlo service unavailable: #{e.message}",
           note: "Install numpy and pandas in Python environment to enable Monte Carlo"

@@ -52,7 +52,7 @@
                     <span class="allocated-amount"><%= wholesale_funder.formatted_total_allocated %></span>
                     <% if wholesale_funder.total_capital > 0 %>
                       <div class="mini-allocation-bar">
-                        <div class="mini-allocation-progress" style="width: <%= wholesale_funder.capital_allocation_percentage %>%"></div>
+                        <div class="mini-allocation-progress" style="width: <%= wholesale_funder.capital_allocation_percentage %>%;"></div>
                         <span class="mini-allocation-text"><%= wholesale_funder.capital_allocation_percentage %>%</span>
                       </div>
                     <% end %>

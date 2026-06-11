@@ -221,7 +221,7 @@ class EmailTemplate < ApplicationRecord
       processed_text.gsub!(/{{mortgage\.name}}/i, safe_field_value(mortgage, :name))
       processed_text.gsub!(/{{mortgage\.lvr}}/i, safe_field_value(mortgage, :lvr))
       processed_text.gsub!(/{{mortgage\.formatted_lvr}}/i, safe_field_value(mortgage, :formatted_lvr))
-      processed_text.gsub!(/{{mortgage\.interest_rate}}/i, '7.45') # Static for now
+      processed_text.gsub!(/{{mortgage\.interest_rate}}/i, EpmModelConfig.indicative_borrower_rate_pct.to_s)
       processed_text.gsub!(/{{mortgage\.mortgage_type_display}}/i, safe_field_value(mortgage, :mortgage_type_display))
     end
     

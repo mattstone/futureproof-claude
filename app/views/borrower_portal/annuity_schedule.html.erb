@@ -1,0 +1,111 @@
+<div class="container mx-auto px-4 py-8">
+  <%= link_to "← Back to Borrower Portal", borrower_portal_path(region: @region, application_id: @application.id), class: "text-blue-600 hover:underline mb-4 inline-block" %>
+
+  <h1 class="text-3xl font-bold mb-6">Distribution Schedule</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Summary Cards -->
+    <div class="lg:col-span-1">
+      <div class="space-y-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Investment Summary</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Equity Investment:</span>
+              <span class="font-semibold"><%= number_to_currency(@application.equity_investment_amount || 0) %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Equity Percentage:</span>
+              <span class="font-semibold"><%= @application.equity_percentage&.round(2) || 0 %>%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Participation Term:</span>
+              <span class="font-semibold"><%= @application.participation_term_years || 0 %> years</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Property Value:</span>
+              <span class="font-semibold"><%= number_to_currency(@application.home_value || 0) %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-6">
+          <h4 class="font-semibold text-blue-900 mb-2">How EPM Distributions Work</h4>
+          <p class="text-blue-800 text-sm">
+            Distributions are based on your property's performance and are approved by your equity partner.
+            Unlike traditional loans, there are no fixed monthly payments.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribution Timeline -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold">Distribution Timeline</h3>
+          <p class="text-gray-600 text-sm">Historical and projected distributions</p>
+        </div>
+
+        <% if @distributions.any? %>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-100 border-b-2 border-gray-300">
+                <tr>
+                  <th class="text-left p-4">Distribution Date</th>
+                  <th class="text-right p-4">Amount</th>
+                  <th class="text-left p-4">Status</th>
+                  <th class="text-left p-4">Period</th>
+                  <th class="text-left p-4">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @distributions.each do |distribution| %>
+                  <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4">
+                      <%= distribution.distribution_date&.strftime("%d %b %Y") || "—" %>
+                    </td>
+                    <td class="p-4 text-right font-semibold">
+                      <%= number_to_currency(distribution.amount || 0) %>
+                    </td>
+                    <td class="p-4">
+                      <span class="px-2 py-1 rounded text-xs font-semibold
+                        <%= case distribution.status
+                            when 'completed' then 'bg-green-100 text-green-800'
+                            when 'pending' then 'bg-yellow-100 text-yellow-800'
+                            when 'processing' then 'bg-blue-100 text-blue-800'
+                            when 'failed' then 'bg-red-100 text-red-800'
+                            else 'bg-gray-100 text-gray-800'
+                            end %>
+                      "><%= distribution.status&.humanize %></span>
+                    </td>
+                    <td class="p-4">
+                      <% if distribution.payment_period_year && distribution.payment_period_month %>
+                        <%= Date.new(distribution.payment_period_year, distribution.payment_period_month, 1).strftime("%B %Y") %>
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                    <td class="p-4 text-xs text-gray-600">
+                      <%= distribution.notes&.truncate(50) || "—" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="p-8 text-center">
+            <div class="text-gray-400 mb-4">
+              <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-900 mb-2">No Distributions Yet</h4>
+            <p class="text-gray-600">Distributions will appear here once your EPM investment is activated.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

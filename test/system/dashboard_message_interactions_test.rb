@@ -22,8 +22,8 @@ class DashboardMessageInteractionsTest < ApplicationSystemTestCase
       borrower_age: 65
     )
     
-    @ai_agent = AiAgent.find_or_create_by(name: 'Motoko') do |agent|
-      agent.avatar_filename = 'Motoko.png'
+    @ai_agent = AiAgent.find_or_create_by(name: 'Akane') do |agent|
+      agent.avatar_filename = 'Akane.png'
       agent.agent_type = 'applications'
       agent.is_active = true
       agent.greeting_style = 'friendly'
@@ -215,7 +215,7 @@ class DashboardMessageInteractionsTest < ApplicationSystemTestCase
     
     # Should show AI agent name and badge
     within('.message-thread') do
-      assert page.has_text?('Motoko')
+      assert page.has_text?('Akane')
       assert page.has_selector?('.ai-badge', text: 'AI Assistant')
       assert page.has_text?('AI Financial Assistant')
       

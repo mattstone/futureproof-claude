@@ -1,0 +1,55 @@
+<% content_for :page_title, "Vintage Cohort Report" %>
+<%= stylesheet_link_tag "admin/dashboard", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Vintage Cohort Report</h2>
+  <p class="admin-section-subtitle">Contract performance grouped by origination quarter. The heatmap normalises each metric across cohorts — green = better, red = worse, blue = informational.</p>
+</div>
+
+<% if @heatmap[:rows].any? %>
+  <div class="dashboard-heatmap"
+       data-controller="cohort-heatmap"
+       data-cohort-heatmap-rows-value="<%= @heatmap[:rows].to_json %>"
+       data-cohort-heatmap-metrics-value="<%= @heatmap[:metrics].to_json %>"></div>
+  <div class="dashboard-heatmap-legend">
+    <span>Better</span>
+    <div class="dashboard-heatmap-legend-bar"></div>
+    <span>Worse</span>
+  </div>
+<% end %>
+
+<div class="admin-section-header">
+  <h3 class="section-subtitle">Detail by cohort</h3>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Cohort</th>
+      <th class="text-right">Count</th>
+      <th class="text-right">Allocated</th>
+      <th class="text-right">Investment balance</th>
+      <th class="text-right">Offset balance</th>
+      <th class="text-right">On payment holiday</th>
+      <th class="text-right">Completed</th>
+      <th class="text-right">P&amp;L</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @cohorts.each do |c| %>
+      <tr>
+        <td><strong><%= c[:label] %></strong></td>
+        <td class="text-right"><%= c[:count] %></td>
+        <td class="text-right"><%= number_to_currency(c[:total_allocated], precision: 0) %></td>
+        <td class="text-right"><%= number_to_currency(c[:investment_balance], precision: 0) %></td>
+        <td class="text-right"><%= number_to_currency(c[:offset_balance], precision: 0) %></td>
+        <td class="text-right"><%= c[:in_holiday] %></td>
+        <td class="text-right"><%= c[:completed] %></td>
+        <td class="text-right"><%= number_to_currency(c[:pl], precision: 0) %></td>
+      </tr>
+    <% end %>
+    <% if @cohorts.empty? %>
+      <tr><td colspan="8"><em>No contracts with start dates yet.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>

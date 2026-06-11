@@ -1,0 +1,93 @@
+<div class="container mx-auto px-4 py-8">
+  <%= link_to "← Back to Dashboard", lender_dashboard_index_path(region: @region), class: "text-blue-600 hover:underline mb-4 inline-block" %>
+
+  <h1 class="text-3xl font-bold mb-6">Portfolio Reports</h1>
+
+  <% apps = @lender.applications %>
+  <% accepted = apps.where(status: :accepted) %>
+  <% distributions = Distribution.joins(:application).where(applications: { lender: @lender }) %>
+
+  <!-- Portfolio Overview -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Portfolio Summary</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div>
+        <p class="text-gray-600 text-sm">Total Applications</p>
+        <p class="text-2xl font-bold"><%= apps.count %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Approved</p>
+        <p class="text-2xl font-bold text-green-600"><%= accepted.count %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Rejected</p>
+        <p class="text-2xl font-bold text-red-600"><%= apps.where(status: :rejected).count %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Pending</p>
+        <p class="text-2xl font-bold text-yellow-600"><%= apps.where(status: [:submitted, :processing]).count %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Summary -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Financial Summary</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="border-l-4 border-green-600 pl-4">
+        <p class="text-gray-600 text-sm">Total Capital Deployed</p>
+        <p class="text-2xl font-bold text-green-600"><%= number_to_currency(accepted.sum(:equity_investment_amount)) %></p>
+      </div>
+      <div class="border-l-4 border-blue-600 pl-4">
+        <p class="text-gray-600 text-sm">Total Distributions</p>
+        <p class="text-2xl font-bold text-blue-600"><%= number_to_currency(distributions.where(status: :completed).sum(:amount)) %></p>
+      </div>
+      <div class="border-l-4 border-purple-600 pl-4">
+        <p class="text-gray-600 text-sm">Total Lender Margin</p>
+        <p class="text-2xl font-bold text-purple-600"><%= number_to_currency(distributions.where(status: :completed).sum(:lender_margin)) %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Breakdown by Status -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Application Status Breakdown</h2>
+    <% status_counts = apps.group(:status).count %>
+    <div class="space-y-3">
+      <% status_counts.each do |status, count| %>
+        <div class="flex items-center justify-between">
+          <span class="font-semibold"><%= status.humanize %></span>
+          <div class="flex items-center gap-4">
+            <div class="w-48 bg-gray-200 rounded-full h-4">
+              <% pct = apps.count > 0 ? (count.to_f / apps.count * 100) : 0 %>
+              <div class="bg-blue-600 h-4 rounded-full" style="width: <%= pct %>%"></div>
+            </div>
+            <span class="text-gray-600 w-12 text-right"><%= count %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- EPM Metrics -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold mb-4">EPM Metrics</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <p class="text-gray-600 text-sm">Average Equity Investment</p>
+        <% avg_investment = accepted.count > 0 ? accepted.sum(:equity_investment_amount).to_f / accepted.count : 0 %>
+        <p class="text-xl font-bold"><%= number_to_currency(avg_investment) %></p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Average Equity Percentage</p>
+        <% avg_equity_pct = accepted.count > 0 ? accepted.average(:equity_percentage).to_f : 0 %>
+        <p class="text-xl font-bold"><%= avg_equity_pct.round(2) %>%</p>
+      </div>
+      <div>
+        <p class="text-gray-600 text-sm">Average Borrower Age</p>
+        <% avg_age = accepted.count > 0 ? accepted.average(:borrower_age).to_f.round : 0 %>
+        <p class="text-xl font-bold"><%= avg_age %> years</p>
+      </div>
+    </div>
+  </div>
+</div>

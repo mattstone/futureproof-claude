@@ -44,8 +44,13 @@
 claude-swarm.log
 
 /config/credentials/production.key
+# Never commit decrypted credentials
+/config/credentials/production.yml
 
 /config/credentials/test.key
 # Rust build artifacts
 python/rust_monte_carlo/target/
 python/__pycache__/
+
+# Motoko engineering-agent audit trail (local, regenerated per session)
+.claude/motoko-activity.log

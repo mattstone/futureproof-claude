@@ -1,0 +1,2 @@
+module Lender::BaseHelper
+end

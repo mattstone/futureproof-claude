@@ -7,7 +7,7 @@
   <div class="agent-profile-header">
     <%= image_tag @agent.avatar_path, class: "avatar-xl" %>
     <div>
-      <h1><%= @agent.name %></h1>
+      <div class="agent-profile-name"><%= @agent.name %></div>
       <div class="agent-profile-subtitle"><%= @agent.agent_type.titleize %> Agent</div>
       <% if @agent.respond_to?(:description) && @agent.description.present? %>
         <div class="agent-profile-description"><%= @agent.description %></div>

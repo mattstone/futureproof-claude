@@ -25,7 +25,7 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
   test "demo mortgage details page is accessible without authentication" do
     get demo_mortgage_details_applications_path
     assert_response :success
-    assert_select "h1.demo-section-title-numbered", text: "2. Set income and loan options"
+    assert_select "h1.demo-section-title-numbered", text: "2. Set income and mortgage options"
     assert_select ".demo-property-card-v2", count: 1
     assert_select ".demo-mortgage-option-card", count: 2
   end

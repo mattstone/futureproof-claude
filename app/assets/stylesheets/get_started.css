@@ -1233,8 +1233,298 @@
 }
 
 /* ============================================
+   FAQ SECTION
+   ============================================ */
+.gs-faq-section {
+  max-width: 48rem;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.gs-faq-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gs-slate-900);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.gs-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gs-faq-item {
+  background: var(--gs-white);
+  border: 1px solid var(--gs-slate-200);
+  border-radius: 12px;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.gs-faq-item.is-open {
+  border-color: var(--gs-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Question button — full-width, no default button styles */
+.gs-faq-question {
+  width: 100%;
+  padding: 18px 20px;
+  margin: 0;
+  border: none;
+  background: none;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gs-slate-800);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 0.2s ease;
+  border-radius: 12px;
+}
+
+.gs-faq-question:hover {
+  color: var(--gs-primary);
+}
+
+.gs-faq-question:focus-visible {
+  outline: 2px solid var(--gs-primary);
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+
+/* Plus/minus icon */
+.gs-faq-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.gs-faq-icon::before,
+.gs-faq-icon::after {
+  content: "";
+  position: absolute;
+  background: var(--gs-slate-400);
+  border-radius: 1px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.35s ease;
+}
+
+/* Horizontal bar (always visible) */
+.gs-faq-icon::before {
+  top: 50%;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+/* Vertical bar (rotates to 0 when open) */
+.gs-faq-icon::after {
+  left: 50%;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  transform: translateX(-50%) rotate(0deg);
+}
+
+.gs-faq-item.is-open .gs-faq-icon::before,
+.gs-faq-item.is-open .gs-faq-icon::after {
+  background: var(--gs-primary);
+}
+
+.gs-faq-item.is-open .gs-faq-icon::after {
+  transform: translateX(-50%) rotate(90deg);
+}
+
+/* Collapsible body — CSS grid 0fr → 1fr animation */
+.gs-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gs-faq-item.is-open .gs-faq-body {
+  grid-template-rows: 1fr;
+}
+
+.gs-faq-answer {
+  overflow: hidden;
+  padding: 0 20px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--gs-slate-600);
+  transition: opacity 0.3s ease, padding 0.35s ease;
+  opacity: 0;
+}
+
+.gs-faq-item.is-open .gs-faq-answer {
+  padding: 0 20px 20px 20px;
+  opacity: 1;
+}
+
+.gs-faq-answer p {
+  margin: 0 0 8px 0;
+}
+
+.gs-faq-answer p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   TAX DISCUSSION PAGE
+   ============================================ */
+.tax-discussion-page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.tax-discussion-container {
+  background: var(--gs-white);
+  border-radius: 16px;
+  padding: 2.5rem;
+  border: 1px solid var(--gs-slate-200);
+}
+
+.tax-discussion-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gs-slate-900);
+  margin: 0 0 4px 0;
+}
+
+.tax-discussion-subtitle {
+  font-size: 1.1rem;
+  color: var(--gs-slate-500);
+  margin: 0 0 1.5rem 0;
+}
+
+.tax-discussion-download {
+  margin-bottom: 2rem;
+}
+
+.tax-section {
+  margin-bottom: 2rem;
+}
+
+.tax-section-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gs-slate-900);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gs-slate-200);
+  margin-bottom: 12px;
+}
+
+.tax-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.tax-info-table th,
+.tax-info-table td {
+  padding: 10px 14px;
+  border: 1px solid var(--gs-slate-200);
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.tax-info-table th {
+  background: var(--gs-slate-50);
+  font-weight: 600;
+  color: var(--gs-slate-700);
+  width: 200px;
+}
+
+.tax-stakeholder-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gs-slate-800);
+  margin: 16px 0 4px 0;
+}
+
+.tax-stakeholder-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--gs-slate-600);
+  margin: 0 0 12px 0;
+}
+
+.tax-discussion-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gs-slate-200);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--gs-slate-500);
+}
+
+.tax-discussion-footer p {
+  margin: 2px 0;
+}
+
+.tax-print-btn {
+  background: var(--gs-slate-700);
+  margin-left: 8px;
+}
+
+.tax-print-btn:hover {
+  background: var(--gs-slate-800);
+}
+
+.tax-print-only { display: none; }
+
+.tax-print-logo {
+  max-width: 180px;
+  margin-bottom: 12px;
+}
+
+.tax-disclaimer {
+  font-size: 0.85rem;
+  color: var(--gs-slate-500);
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: var(--gs-slate-50);
+  border-radius: 8px;
+  border: 1px solid var(--gs-slate-200);
+}
+
+/* ============================================
    ANIMATIONS
    ============================================ */
 .gs-slot-counter {
   transition: all 0.1s ease-out;
+}
+
+/* ============================================
+   PRINT STYLES (Tax Discussion PDF)
+   ============================================ */
+@media print {
+  .tax-print-hide { display: none !important; }
+  .tax-print-only { display: block !important; }
+
+  .gs-page { background: #fff; }
+  .tax-discussion-page { padding: 0; }
+  .tax-discussion-container {
+    border: none;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .tax-section { page-break-inside: avoid; }
+  .tax-discussion-footer { margin-top: 1rem; }
 }

@@ -19,8 +19,8 @@ sleep 1
 
 echo "Starting development server..."
 
-# Start server in background
-bin/rails server -d 2>/dev/null || bin/rails server &
+# Start server on port 3001 in background
+bin/rails server -p 3001 -d 2>/dev/null || bin/rails server -p 3001 &
 
 # Wait for server to start
 sleep 2

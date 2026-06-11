@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FutureProof — initial design</title>
+<style>
+/* ============================================================
+   FutureProof — initial design (seed for design_system.css)
+   Apple-HIG structure, evolved to the FutureProof brand.
+   Audience: homeowners 55+. Calm, trustworthy, generous, large type.
+   White-label: every brand value below is a token a lender re-skins.
+   ============================================================ */
+:root{
+  /* brand (per-tenant overridable) */
+  --fp-ink:#1d2b36;          /* primary text — deep navy ink */
+  --fp-ink-2:#5b6b76;        /* secondary text */
+  --fp-ink-3:#8a98a1;        /* tertiary / captions */
+  --fp-primary:#2e7d8a;      /* trust teal — primary actions */
+  --fp-primary-700:#245e69;  /* hover */
+  --fp-income:#1e8a5a;       /* positive green — income / growth (money to you) */
+  --fp-income-bg:#eaf6ef;
+  --fp-amber:#b7791f;        /* gentle attention */
+  --fp-amber-bg:#fbf3e3;
+  --fp-surface:#f6f5f1;      /* warm-neutral page */
+  --fp-card:#ffffff;
+  --fp-line:#e7e5df;         /* hairlines */
+  --fp-line-2:#d9d6cd;
+  /* type */
+  --fp-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  /* radius + shadow */
+  --r-card:18px; --r-ctl:11px;
+  --sh-1:0 1px 2px rgba(29,43,54,.05),0 1px 1px rgba(29,43,54,.04);
+  --sh-2:0 10px 30px rgba(29,43,54,.08),0 2px 6px rgba(29,43,54,.05);
+}
+*{box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  margin:0;background:var(--fp-surface);color:var(--fp-ink);
+  font-family:var(--fp-sans);font-size:18px;line-height:1.55;  /* 18px base for 55+ readability */
+}
+@media (prefers-reduced-motion:no-preference){a,button{transition:.18s ease}}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* ---- top bar ---- */
+.topbar{border-bottom:1px solid var(--fp-line);background:#fff}
+.topbar .wrap{position:relative;display:flex;align-items:center;justify-content:center;height:74px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .mark{width:22px;height:22px;border-radius:6px;transform:rotate(45deg);
+  background:linear-gradient(135deg,var(--fp-primary),var(--fp-income))}
+.brand .wm{font-weight:700;letter-spacing:-.01em;font-size:22px;color:var(--fp-ink)}
+.brand .wm b{color:var(--fp-primary);font-weight:700}
+.topbar-cta{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.reg{color:var(--fp-ink-2);font-size:14px;display:flex;align-items:center;gap:7px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--fp-primary)}
+
+/* ---- buttons (component) ---- */
+.fp-btn{appearance:none;border:1px solid transparent;border-radius:var(--r-ctl);font:inherit;font-weight:600;
+  padding:14px 22px;cursor:pointer;min-height:48px;display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+.fp-btn-primary{background:var(--fp-primary);color:#fff}
+.fp-btn-primary:hover{background:var(--fp-primary-700)}
+.fp-btn-secondary{background:#fff;color:var(--fp-ink);border-color:var(--fp-line-2)}
+.fp-btn-secondary:hover{border-color:var(--fp-ink-3)}
+.fp-btn-outline{background:transparent;color:var(--fp-primary);border-color:var(--fp-primary)}
+.fp-btn-lg{font-size:19px;padding:17px 28px;min-height:56px}
+.fp-btn:focus-visible{outline:3px solid #7fb8c2;outline-offset:2px}
+
+/* ---- hero: content + calculator left; large home image on the right ---- */
+.hero{position:relative;overflow:hidden;background:#fff;padding:46px 0 54px}
+.hero .wrap{position:relative;z-index:1}
+.hero-content{max-width:440px}
+.hero h1{font-size:40px;line-height:1.12;letter-spacing:-.02em;margin:12px 0 12px;font-weight:700}
+.hero .lead{font-size:18px;line-height:1.52;color:var(--fp-ink-2);margin:0 0 22px;max-width:30em}
+.hero .income{max-width:440px;box-shadow:var(--sh-2)}
+.hero .income .cta-row{margin-top:16px}
+.hero .income .cta-row .fp-btn{width:100%;justify-content:center}
+.hero-figure{position:absolute;z-index:0;top:0;right:0;height:100%;width:62%;
+  display:flex;align-items:center;justify-content:flex-start;pointer-events:none}
+.hero-figure img{height:100%;width:auto;max-width:none}
+
+/* ---- income card (the moment) ---- */
+.income{background:var(--fp-card);border:1px solid var(--fp-line);border-radius:var(--r-card);box-shadow:var(--sh-2);padding:30px 30px 26px}
+.income .basis{display:flex;align-items:center;justify-content:space-between;color:var(--fp-ink-2);font-size:15px;border-bottom:1px solid var(--fp-line);padding-bottom:16px}
+.income .basis b{color:var(--fp-ink);font-weight:600}
+.income .adjust{color:var(--fp-primary);font-weight:600;text-decoration:none;font-size:15px}
+.income .figure{padding:22px 0 6px;text-align:center}
+.income .amount{font-size:64px;line-height:1;font-weight:700;letter-spacing:-.03em;color:var(--fp-income)}
+.income .amount span{font-size:24px;font-weight:600;color:var(--fp-ink-2);letter-spacing:0}
+.income .paid{color:var(--fp-ink);font-weight:600;margin-top:8px;font-size:18px}
+.income .sub{color:var(--fp-ink-2);font-size:15px;margin-top:2px}
+.ticks{list-style:none;margin:20px 0 0;padding:18px 0 0;border-top:1px solid var(--fp-line);display:grid;gap:13px}
+.ticks li{display:flex;align-items:flex-start;gap:11px;font-size:16px}
+.ticks .ic{flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:var(--fp-income-bg);color:var(--fp-income);display:grid;place-items:center;margin-top:1px}
+.illus{margin-top:16px;color:var(--fp-ink-3);font-size:13px;text-align:center}
+
+/* ---- sections ---- */
+.section{padding:46px 0}
+.section h2{font-size:30px;letter-spacing:-.015em;margin:0 0 6px;font-weight:700}
+.section .desc{color:var(--fp-ink-2);font-size:18px;margin:0 0 30px;max-width:36em}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.step{background:var(--fp-card);border:1px solid var(--fp-line);border-radius:var(--r-card);padding:26px;box-shadow:var(--sh-1)}
+.step .n{width:38px;height:38px;border-radius:10px;background:var(--fp-income-bg);color:var(--fp-income);font-weight:700;display:grid;place-items:center;font-size:18px;margin-bottom:14px}
+.step h3{margin:0 0 6px;font-size:19px}
+.step p{margin:0;color:var(--fp-ink-2);font-size:16px}
+
+.trust{background:var(--fp-card);border:1px solid var(--fp-line);border-radius:var(--r-card);padding:30px;box-shadow:var(--sh-1)}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.trust .item{display:flex;flex-direction:column;gap:9px}
+.trust .ic{width:40px;height:40px;border-radius:11px;background:#eef4f5;color:var(--fp-primary);display:grid;place-items:center}
+.trust h4{margin:0;font-size:17px}
+.trust p{margin:0;color:var(--fp-ink-2);font-size:15px}
+
+/* ---- advice-wall note (honest, calm) ---- */
+.note{display:flex;gap:14px;align-items:flex-start;background:var(--fp-amber-bg);border:1px solid #ecd8ad;border-radius:14px;padding:16px 18px;color:#6f5316;font-size:15px;margin:30px 0 0}
+.note .ic{flex:0 0 22px;color:var(--fp-amber);margin-top:1px}
+
+/* ---- design-system gallery ---- */
+.sys{border-top:1px solid var(--fp-line);background:#fff}
+.sys .label{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--fp-ink-3);font-weight:700;margin:0 0 18px}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.tile{border:1px solid var(--fp-line);border-radius:14px;padding:22px}
+.tile .cap{font-size:13px;color:var(--fp-ink-3);font-weight:600;margin:0 0 14px;letter-spacing:.02em;text-transform:uppercase}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:14px;font-weight:600}
+.badge::before{content:"";width:8px;height:8px;border-radius:50%}
+.badge-ok{background:var(--fp-income-bg);color:#13653f}.badge-ok::before{background:var(--fp-income)}
+.badge-holiday{background:var(--fp-amber-bg);color:#7a5610}.badge-holiday::before{background:var(--fp-amber)}
+.badge-info{background:#eaf2f4;color:#1f5b66}.badge-info::before{background:var(--fp-primary)}
+.field label{display:block;font-weight:600;font-size:15px;margin-bottom:7px}
+.field input{width:100%;font:inherit;font-size:17px;padding:13px 15px;border:1px solid var(--fp-line-2);border-radius:var(--r-ctl);background:#fff;color:var(--fp-ink)}
+.field input:focus{outline:3px solid #7fb8c2;outline-offset:1px;border-color:var(--fp-primary)}
+.field .fh{color:var(--fp-ink-3);font-size:14px;margin-top:7px}
+.alert{display:flex;gap:11px;align-items:flex-start;background:#eaf2f4;border:1px solid #cfe2e6;border-radius:12px;padding:14px 16px;color:#1f5b66;font-size:15px}
+.health .top{display:flex;align-items:baseline;justify-content:space-between}
+.health .pct{font-size:34px;font-weight:700;color:var(--fp-income);letter-spacing:-.02em}
+.health .bar{height:10px;border-radius:999px;background:#e9ece9;margin-top:12px;overflow:hidden}
+.health .bar > i{display:block;height:100%;width:96%;background:var(--fp-income);border-radius:999px}
+.health .cap2{color:var(--fp-ink-2);font-size:14px;margin-top:9px}
+
+footer{padding:34px 0 56px;color:var(--fp-ink-3);font-size:14px;border-top:1px solid var(--fp-line);background:#fff}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+@media (max-width:880px){
+  .steps,.trust-grid,.gal{grid-template-columns:1fr}
+  .hero h1{font-size:32px}.income .amount{font-size:54px}
+  .hero-content{max-width:none}
+  .hero-figure{position:static;width:auto;height:auto;justify-content:center;margin:18px 0 0}
+  .hero-figure img{height:auto;width:100%;max-width:460px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar"><div class="wrap">
+  <div class="brand"><span class="mark"></span><span class="wm">future<b>proof</b></span></div>
+  <a class="fp-btn fp-btn-primary topbar-cta" href="#">Calculate</a>
+</div></header>
+
+<main>
+  <!-- HERO + INCOME MOMENT -->
+  <section class="hero">
+    <div class="wrap"><div class="hero-grid">
+    <div class="hero-content">
+      <span class="eyebrow">Guaranteed Income Plan</span>
+      <h1>A mortgage that pays&nbsp;<span style="color:var(--fp-income)">you</span> an income.</h1>
+      <p class="lead">Turn the equity in your home into a guaranteed monthly income — while you keep living there, and keep your home. You never make a repayment.</p>
+    <div class="income" role="group" aria-label="Your estimated income">
+      <div class="basis">
+        <span>Your home <b>$1,500,000</b> · age <b>67</b> · over <b>20 years</b></span>
+        <a class="adjust" href="#">Adjust</a>
+      </div>
+      <div class="figure">
+        <div class="amount">$1,560<span> / month</span></div>
+        <div class="paid">paid to you, guaranteed</div>
+        <div class="sub">for the full 20 years — with no repayments, ever</div>
+      </div>
+      <ul class="ticks">
+        <li><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span> You keep living in your home</li>
+        <li><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span> 100% of your equity is protected</li>
+        <li><span class="ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span> You never make a payment</li>
+      </ul>
+      <p class="illus">Illustrative example — your actual income comes from a full quote.</p>
+      <div class="cta-row"><a class="fp-btn fp-btn-primary fp-btn-lg" href="#">See your income</a></div>
+    </div>
+    </div>
+    <div class="hero-figure"><img src="../../app/assets/images/hero-homepage.png" alt="A happy retired couple enjoying their retirement"></div>
+  </div></div></section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section"><div class="wrap">
+    <h2>How it works</h2>
+    <p class="desc">Three simple steps. We do the complicated part; you receive the income.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>See your income</h3><p>Tell us about your home and choose how long you'd like the income to last. Get a clear figure in minutes.</p></div>
+      <div class="step"><div class="n">2</div><h3>We set up your plan</h3><p>We arrange the mortgage and fund an investment account that pays your income and covers the interest — so you don't.</p></div>
+      <div class="step"><div class="n">3</div><h3>You receive your income</h3><p>A guaranteed amount arrives every month, for your chosen term. Your home, and your equity, stay yours.</p></div>
+    </div>
+  </div></section>
+
+  <!-- TRUST -->
+  <section class="section" style="padding-top:8px"><div class="wrap"><div class="trust">
+    <div class="trust-grid">
+      <div class="item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7M5 10v9h14v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h4>Your home stays yours</h4><p>You keep living in it and you keep ownership — for life.</p></div>
+      <div class="item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><h4>Equity protected</h4><p>You can never owe more than your home is worth. Guaranteed.</p></div>
+      <div class="item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M7 7h7a3 3 0 010 6H9a3 3 0 000 6h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><h4>No payments — ever</h4><p>The investment account behind your mortgage covers the interest.</p></div>
+      <div class="item"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m4 14v-8m4 8V8m4 11v-5m4 5V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><h4>Looked after</h4><p>Your account is managed and monitored, with you informed every step.</p></div>
+    </div>
+    <div class="note">
+      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8h.01M11 12h1v4h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>This is general information to help you understand the Guaranteed Income Plan — it isn't personal financial advice. When you're ready, we'll connect you with a qualified adviser to talk about what's right for you.</span>
+    </div>
+  </div></div></section>
+
+  <!-- DESIGN SYSTEM GALLERY -->
+  <section class="sys section"><div class="wrap">
+    <p class="label">The building blocks · design system</p>
+    <div class="gal">
+      <div class="tile"><p class="cap">Buttons</p><div class="row">
+        <button class="fp-btn fp-btn-primary">See your income</button>
+        <button class="fp-btn fp-btn-secondary">Talk to us</button>
+        <button class="fp-btn fp-btn-outline">Learn more</button>
+      </div></div>
+      <div class="tile"><p class="cap">Status (EPM-correct — never "arrears")</p><div class="row">
+        <span class="badge badge-ok">Good standing</span>
+        <span class="badge badge-holiday">Investment holiday</span>
+        <span class="badge badge-info">Being set up</span>
+      </div></div>
+      <div class="tile field"><p class="cap">Form field</p>
+        <label for="hv">What is your home worth?</label>
+        <input id="hv" type="text" value="$1,500,000">
+        <p class="fh">A rough figure is fine — we'll confirm it later.</p>
+      </div>
+      <div class="tile health"><p class="cap">Investment Health (your plan)</p>
+        <div class="top"><span style="font-weight:600">Healthy</span><span class="pct">96%</span></div>
+        <div class="bar"><i></i></div>
+        <p class="cap2">Your income is fully on track. We'll always tell you first if anything changes.</p>
+        <div class="alert" style="margin-top:16px"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8h.01M11 12h1v4h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Your next income payment of <b>$1,560</b> arrives on the 1st.</span></div>
+      </div>
+    </div>
+  </div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>FutureProof Financial — General information only, not personal financial advice.</span>
+  <span>Regulated by ASIC · AFSL. Your home stays yours. No negative equity, guaranteed.</span>
+</div></footer>
+
+</body>
+</html>

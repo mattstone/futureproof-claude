@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: admin_user
+  url: https://example.com/webhooks/one
+  secret: abc123def456
+  events: application_created, application_approved
+  active: false
+  last_triggered_at: 2026-03-10 23:09:56
+
+two:
+  user: regular_user
+  url: https://example.com/webhooks/two
+  secret: xyz789ghi012
+  events: distribution_completed, distribution_failed
+  active: false
+  last_triggered_at: 2026-03-10 23:09:56

@@ -18,9 +18,9 @@ class Distribution < ApplicationRecord
   validates :status, presence: true
   validates :payment_method, presence: true, if: -> { processing? || completed? }
   
-  scope :for_month, ->(year, month) { where("EXTRACT(YEAR FROM distribution_date) = ? AND EXTRACT(MONTH FROM distribution_date) = ?", year, month) }
-  scope :pending_payments, -> { where(status: :pending) }
-  scope :completed_payments, -> { where(status: :completed) }
+  scope :for_period, ->(year, month) { where(payment_period_year: year, payment_period_month: month) }
+  scope :pending_distributions, -> { where(status: :pending) }
+  scope :completed_distributions, -> { where(status: :completed) }
   scope :recent, -> { order(distribution_date: :desc) }
   
   def mark_as_processing!(transaction_id = nil)
@@ -35,9 +35,28 @@ class Distribution < ApplicationRecord
       
       # Log the completion
       if application.user.present?
-        Rails.logger.info("Monthly distribution of $#{amount.to_i} paid to #{application.user.email} on #{distribution_date}")
+        Rails.logger.info("EPM distribution of $#{amount.to_i} completed to #{application.user.email} on #{distribution_date}")
       end
+      
+      # Send email notification
+      deliver_payment_notification
+      
+      # Trigger webhook
+      trigger_distribution_webhook
     end
+  end
+  
+  def deliver_payment_notification
+    return unless application.user.present?
+    
+    # Check if notifications are enabled
+    if application.user.notification_preference&.payment_email == false
+      Rails.logger.info("Payment notification skipped for #{application.user.email} (disabled in preferences)")
+      return
+    end
+    
+    BorrowerMailer.payment_distributed(self).deliver_later
+    Rails.logger.info("Payment notification email queued for distribution #{id}")
   end
   
   def mark_as_failed!(reason = nil)
@@ -50,6 +69,35 @@ class Distribution < ApplicationRecord
   def retry!
     return if status == 'processing'
     update!(status: :pending, failed_at: nil, transaction_id: nil)
-    Rails.logger.info("Distribution #{id} retrying payment")
+    Rails.logger.info("Distribution #{id} retrying EPM distribution")
+  end
+
+  def trigger_distribution_webhook
+    return unless application.lender_id.present?
+    
+    payload = {
+      event: 'distribution_completed',
+      timestamp: processed_at.iso8601,
+      distribution: {
+        id: id,
+        application_id: application_id,
+        borrower_name: application.user.full_name,
+        borrower_email: application.user.email,
+        amount: amount,
+        currency: 'AUD',
+        transaction_id: transaction_id,
+        processed_at: processed_at.iso8601,
+        property_address: application.property_address
+      }
+    }
+    
+    lender = application.lender
+    return unless lender.respond_to?(:webhook_endpoints)
+
+    lender.webhook_endpoints.active.for_event('distribution_completed').find_each do |endpoint|
+      endpoint.trigger_event('distribution_completed', payload)
+    end
+  rescue NoMethodError
+    Rails.logger.debug "Webhook skipped: lender has no webhook_endpoints association"
   end
 end

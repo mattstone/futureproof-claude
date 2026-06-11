@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Note: The fixture values are used but mostly overridden in test setup
+# (Tests create their own commission rates as needed)
+
+one:
+  broker: one
+  lender: futureproof
+  commission_percentage: 2.5
+  payment_trigger: on_approval
+  active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+
+two:
+  broker: two
+  lender: futureproof
+  commission_percentage: 3.0
+  payment_trigger: on_approval
+  active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tuna Lander</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: #000; color: #4ff;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh; overflow: hidden;
+  }
+  .stage {
+    position: relative; width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 45%, #001626 0%, #000 75%);
+  }
+  canvas {
+    display: block;
+    border: 2px solid #0aa;
+    background: #000;
+    box-shadow:
+      0 0 35px rgba(0, 200, 255, 0.35),
+      inset 0 0 60px rgba(0, 40, 60, 0.35);
+  }
+  .corner {
+    position: fixed; top: 14px; color: #0cc; font-size: 11px;
+    letter-spacing: 1px; text-shadow: 0 0 6px #0ff;
+    pointer-events: none; user-select: none;
+  }
+  .corner.left { left: 16px; }
+  .corner.right { right: 16px; text-align: right; }
+  .scan {
+    position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 255, 0) 0px,
+      rgba(0, 255, 255, 0) 2px,
+      rgba(0, 30, 40, 0.14) 3px,
+      rgba(0, 30, 40, 0.14) 3px);
+    mix-blend-mode: overlay; z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="game" width="900" height="680"></canvas>
+</div>
+<div class="scan"></div>
+<div class="corner left">TUNA LANDER<br><span style="color:#f80">insert credit</span></div>
+<div class="corner right">&larr; &rarr; ROTATE<br>&uarr; THRUST &middot; SPACE ABORT &middot; P PAUSE</div>
+
+<script>
+(() => {
+  const cvs = document.getElementById('game');
+  const ctx = cvs.getContext('2d');
+  const W = cvs.width, H = cvs.height;
+
+  // ---------- audio ----------
+  let actx = null;
+  const audio = () => {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+    return actx;
+  };
+  function beep(freq, dur, type = 'square', vol = 0.08) {
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(); o.stop(a.currentTime + dur);
+  }
+  function noise(dur = 0.4, vol = 0.15) {
+    const a = audio(); if (!a) return;
+    const buf = a.createBuffer(1, a.sampleRate * dur, a.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const src = a.createBufferSource(); src.buffer = buf;
+    const g = a.createGain(); g.gain.value = vol;
+    src.connect(g); g.connect(a.destination);
+    src.start();
+  }
+  let thrustOsc = null, thrustGain = null;
+  function thrustOn() {
+    const a = audio(); if (!a || thrustOsc) return;
+    thrustOsc = a.createOscillator(); thrustOsc.type = 'sawtooth';
+    thrustOsc.frequency.value = 110;
+    thrustGain = a.createGain(); thrustGain.gain.value = 0;
+    thrustGain.gain.linearRampToValueAtTime(0.05, a.currentTime + 0.04);
+    thrustOsc.connect(thrustGain); thrustGain.connect(a.destination);
+    thrustOsc.start();
+  }
+  function thrustOff() {
+    if (!thrustOsc) return;
+    const a = audio();
+    thrustGain.gain.linearRampToValueAtTime(0, a.currentTime + 0.08);
+    thrustOsc.stop(a.currentTime + 0.1);
+    thrustOsc = null; thrustGain = null;
+  }
+  const sfx = {
+    land:  () => { beep(660, 0.1); setTimeout(() => beep(880, 0.1), 100); setTimeout(() => beep(1320, 0.2), 200); },
+    crash: () => { noise(0.7, 0.28); beep(80, 0.6, 'sawtooth', 0.14); },
+    start: () => { beep(440, 0.08); setTimeout(() => beep(660, 0.12), 80); },
+    beep:  () => beep(1100, 0.05, 'square', 0.04),
+    alert: () => beep(1400, 0.04, 'square', 0.03),
+  };
+
+  // ---------- state ----------
+  const ST = { MENU: 0, PLAY: 1, LANDED: 2, CRASH: 3, OVER: 4, PAUSE: 5 };
+  let state = ST.MENU;
+  let prevState = ST.MENU;
+  let stateT = 0;
+  let frame = 0;
+
+  let score = 0;
+  let hi = parseInt(localStorage.getItem('tunaLanderHigh') || '5000', 10);
+  let lives = 3;
+  let level = 1;
+  let deliveries = 0;
+  let missionTime = 0;
+
+  const tuna = {
+    x: W / 2, y: 80, vx: 0, vy: 0, angle: 0,
+    fuel: 1000, maxFuel: 1000,
+    thrusting: false, alive: true,
+    lastLanding: null,
+  };
+
+  let terrain = [];
+  let pads = [];
+  let bubbles = [];
+  let debris = [];
+  const bioLights = [];
+  for (let i = 0; i < 70; i++) {
+    bioLights.push({
+      x: Math.random() * W, y: Math.random() * H,
+      size: 0.7 + Math.random() * 1.6,
+      pulse: Math.random() * Math.PI * 2,
+      speed: 0.012 + Math.random() * 0.025,
+      c: Math.random() > 0.55 ? '#0aa' : '#066',
+    });
+  }
+
+  const keys = {};
+  document.addEventListener('keydown', e => {
+    if (!keys[e.key]) {
+      // on-press events
+      if (e.key === ' ' && state === ST.PLAY) abort();
+      if ((e.key === 'Enter' || e.key === ' ') && (state === ST.MENU || state === ST.OVER)) newGame();
+      if (e.key === 'p' || e.key === 'P') {
+        if (state === ST.PLAY) { prevState = state; state = ST.PAUSE; }
+        else if (state === ST.PAUSE) state = prevState;
+      }
+    }
+    keys[e.key] = true;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+    audio();
+  });
+  document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+  // ---------- setup ----------
+  function newGame() {
+    score = 0; lives = 3; level = 1; deliveries = 0; missionTime = 0;
+    tuna.fuel = 1000; tuna.maxFuel = 1000;
+    startLevel();
+  }
+
+  function startLevel() {
+    generateTerrain();
+    resetTuna();
+    state = ST.PLAY;
+    stateT = 0;
+    sfx.start();
+  }
+
+  function resetTuna() {
+    tuna.x = 100 + Math.random() * (W - 200);
+    tuna.y = 80;
+    tuna.vx = (Math.random() - 0.5) * 1.0;
+    tuna.vy = 0;
+    tuna.angle = 0;
+    tuna.alive = true;
+    tuna.thrusting = false;
+    tuna.maxFuel = Math.max(500, 1050 - (level - 1) * 40);
+    tuna.fuel = tuna.maxFuel;
+  }
+
+  function generateTerrain() {
+    terrain = [];
+    pads = [];
+    const padCount = Math.min(3 + Math.floor((level - 1) / 2), 6);
+    const segW = W / (padCount + 1);
+    const padDefs = [];
+    for (let i = 0; i < padCount; i++) {
+      const cx = segW * (i + 1) + (Math.random() - 0.5) * segW * 0.3;
+      const widths = [130, 95, 65, 42];
+      const mults =  [2,   3,  4,  5];
+      let idx;
+      if (level === 1 && i === 0) idx = 0; // always one easy 2x pad on level 1
+      else {
+        const maxIdx = Math.min(widths.length - 1, 1 + Math.floor(level / 2));
+        idx = Math.floor(Math.random() * (maxIdx + 1));
+      }
+      padDefs.push({ cx, width: widths[idx], multiplier: mults[idx] });
+    }
+    padDefs.sort((a, b) => a.cx - b.cx);
+
+    const baseY = H - 95;
+    const roughness = 0.55 + Math.min(0.4, (level - 1) * 0.03);
+    let pts = [
+      { x: 0, y: baseY - 20 + Math.random() * 40 },
+      { x: W, y: baseY - 20 + Math.random() * 40 },
+    ];
+    for (let pass = 0; pass < 7; pass++) {
+      const next = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        next.push(pts[i]);
+        const mx = (pts[i].x + pts[i+1].x) / 2;
+        const my = (pts[i].y + pts[i+1].y) / 2;
+        const dy = (Math.random() - 0.5) * (pts[i+1].x - pts[i].x) * roughness / (pass + 1);
+        next.push({ x: mx, y: Math.min(H - 25, Math.max(H - 220, my + dy)) });
+      }
+      next.push(pts[pts.length - 1]);
+      pts = next;
+    }
+    for (const pd of padDefs) {
+      const half = pd.width / 2;
+      const left = pd.cx - half, right = pd.cx + half;
+      let sum = 0, n = 0;
+      for (const p of pts) if (p.x >= left && p.x <= right) { sum += p.y; n++; }
+      const avg = n ? sum / n : baseY;
+      const y = Math.min(H - 35, Math.max(H - 200, avg));
+      for (const p of pts) if (p.x >= left - 8 && p.x <= right + 8) p.y = y;
+      pads.push({ x: left, y: y, width: pd.width, multiplier: pd.multiplier });
+    }
+    terrain = pts;
+  }
+
+  function abort() {
+    if (tuna.fuel > 100) {
+      tuna.fuel -= 100;
+      tuna.x = 100 + Math.random() * (W - 200);
+      tuna.y = 70;
+      tuna.vx = 0; tuna.vy = 0; tuna.angle = 0;
+      sfx.beep();
+    }
+  }
+
+  // ---------- update ----------
+  function update() {
+    frame++;
+    for (const b of bioLights) b.pulse += b.speed;
+
+    if (state === ST.MENU) {
+      // attract-mode drift
+      tuna.x = W / 2 + Math.sin(frame * 0.02) * 180;
+      tuna.y = 210 + Math.cos(frame * 0.015) * 42;
+      tuna.angle = Math.sin(frame * 0.025) * 0.28;
+      tuna.thrusting = false;
+      updateParticles();
+      return;
+    }
+    if (state === ST.PAUSE || state === ST.OVER) return;
+
+    if (state !== ST.PLAY) {
+      stateT++;
+      updateParticles();
+      if (state === ST.LANDED && stateT > 140) {
+        level++;
+        startLevel();
+      } else if (state === ST.CRASH && stateT > 150) {
+        if (lives <= 0) {
+          state = ST.OVER; stateT = 0;
+          if (score > hi) { hi = score; localStorage.setItem('tunaLanderHigh', hi); }
+        } else {
+          resetTuna(); state = ST.PLAY; stateT = 0;
+        }
+      }
+      return;
+    }
+
+    stateT++; missionTime++;
+
+    if (keys['ArrowLeft']) tuna.angle -= 0.045;
+    if (keys['ArrowRight']) tuna.angle += 0.045;
+
+    tuna.thrusting = false;
+    if (keys['ArrowUp'] && tuna.fuel > 0) {
+      tuna.thrusting = true;
+      const P = 0.040;
+      tuna.vx += Math.sin(tuna.angle) * P;
+      tuna.vy -= Math.cos(tuna.angle) * P;
+      tuna.fuel = Math.max(0, tuna.fuel - 1);
+      thrustOn();
+      for (let i = 0; i < 2; i++) {
+        bubbles.push({
+          x: tuna.x - Math.sin(tuna.angle) * 14 + (Math.random()-0.5)*6,
+          y: tuna.y + Math.cos(tuna.angle) * 14 + (Math.random()-0.5)*6,
+          vx: -Math.sin(tuna.angle) * (0.8 + Math.random()*0.7) + (Math.random()-0.5)*0.4,
+          vy: Math.cos(tuna.angle) * (0.8 + Math.random()*0.7) + (Math.random()-0.5)*0.4,
+          life: 24 + Math.random()*14,
+          size: 1.4 + Math.random()*2,
+          kind: 'thrust',
+        });
+      }
+    } else {
+      thrustOff();
+    }
+
+    const gravity = 0.009 + (level - 1) * 0.0015;
+    tuna.vy += gravity;
+    tuna.vx *= 0.9996;
+
+    tuna.x += tuna.vx;
+    tuna.y += tuna.vy;
+
+    if (tuna.x < -30) tuna.x = W + 30;
+    if (tuna.x > W + 30) tuna.x = -30;
+    if (tuna.y < 20) { tuna.y = 20; tuna.vy = Math.max(0, tuna.vy); }
+
+    if (frame % 11 === 0) {
+      bubbles.push({
+        x: Math.random() * W, y: H + 4,
+        vx: (Math.random()-0.5) * 0.2, vy: -(0.22 + Math.random()*0.32),
+        life: 220, size: 0.7 + Math.random()*1.4,
+        kind: 'ambient',
+      });
+    }
+
+    updateParticles();
+    checkLanding();
+  }
+
+  function updateParticles() {
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      b.x += b.vx; b.y += b.vy;
+      b.life--;
+      if (b.life <= 0 || b.y < -10 || b.y > H + 15) bubbles.splice(i, 1);
+    }
+    for (let i = debris.length - 1; i >= 0; i--) {
+      const d = debris[i];
+      d.x += d.vx; d.y += d.vy; d.vy += 0.05;
+      d.angle += d.spin; d.life--;
+      if (d.life <= 0) debris.splice(i, 1);
+    }
+  }
+
+  function normAngle(a) {
+    while (a > Math.PI) a -= Math.PI * 2;
+    while (a < -Math.PI) a += Math.PI * 2;
+    return a;
+  }
+
+  function altitudeAt(x) {
+    for (let i = 0; i < terrain.length - 1; i++) {
+      if (x >= terrain[i].x && x <= terrain[i+1].x) {
+        const t = (x - terrain[i].x) / (terrain[i+1].x - terrain[i].x);
+        return terrain[i].y + t * (terrain[i+1].y - terrain[i].y);
+      }
+    }
+    return H;
+  }
+
+  function checkLanding() {
+    const terrainY = altitudeAt(tuna.x);
+    const bottom = tuna.y + 12;
+    if (bottom >= terrainY) {
+      let onPad = null;
+      for (const p of pads) {
+        if (tuna.x >= p.x && tuna.x <= p.x + p.width) { onPad = p; break; }
+      }
+      const hs = Math.abs(tuna.vx);
+      const vs = Math.abs(tuna.vy);
+      const safeV = 1.7;
+      const safeH = 1.1;
+      const absA = Math.abs(normAngle(tuna.angle));
+      if (onPad && vs < safeV && hs < safeH && absA < 0.26) {
+        landed(onPad);
+      } else {
+        crash();
+      }
+    }
+  }
+
+  function landed(pad) {
+    thrustOff();
+    state = ST.LANDED; stateT = 0;
+    deliveries++;
+    const landingScore = pad.multiplier * 50 * level;
+    const fuelBonus = Math.floor(tuna.fuel / 4);
+    score += landingScore + fuelBonus;
+    tuna.lastLanding = { landingScore, fuelBonus, multiplier: pad.multiplier };
+    tuna.vx = 0; tuna.vy = 0;
+    tuna.y = pad.y - 12;
+    if (score > hi) { hi = score; localStorage.setItem('tunaLanderHigh', hi); }
+    sfx.land();
+  }
+
+  function crash() {
+    thrustOff();
+    state = ST.CRASH; stateT = 0;
+    lives--;
+    tuna.alive = false;
+    for (let i = 0; i < 28; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const s = 0.8 + Math.random() * 3.2;
+      debris.push({
+        x: tuna.x, y: tuna.y,
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s - 1,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.35,
+        length: 4 + Math.random() * 10,
+        life: 45 + Math.random() * 35,
+      });
+    }
+    sfx.crash();
+  }
+
+  // ---------- render ----------
+  function draw() {
+    // deep-water bg
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#000814');
+    bg.addColorStop(1, '#001628');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // bio lights
+    for (const b of bioLights) {
+      const a = 0.35 + 0.4 * Math.sin(b.pulse);
+      ctx.fillStyle = b.c;
+      ctx.globalAlpha = a;
+      ctx.fillRect(b.x, b.y, b.size, b.size);
+    }
+    ctx.globalAlpha = 1;
+
+    // bubbles
+    for (const b of bubbles) {
+      const a = Math.min(1, b.life / 30);
+      ctx.strokeStyle = `rgba(120,220,255,${a * 0.5})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    drawTerrain();
+    drawPads();
+
+    if (state === ST.CRASH) drawDebris();
+    else if (state !== ST.OVER) drawTuna();
+
+    drawHUD();
+
+    if (state === ST.MENU) drawMenu();
+    else if (state === ST.OVER) drawGameOver();
+    else if (state === ST.LANDED) drawLanded();
+    else if (state === ST.CRASH) drawCrashed();
+    else if (state === ST.PAUSE) drawPause();
+  }
+
+  function drawTerrain() {
+    if (terrain.length === 0) return;
+    ctx.save();
+    ctx.strokeStyle = '#6ff';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#0ff';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(terrain[0].x, terrain[0].y);
+    for (let i = 1; i < terrain.length; i++) ctx.lineTo(terrain[i].x, terrain[i].y);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    // subtle fill below to hide terrain underside
+    ctx.fillStyle = 'rgba(0,20,36,0.85)';
+    ctx.beginPath();
+    ctx.moveTo(terrain[0].x, terrain[0].y);
+    for (let i = 1; i < terrain.length; i++) ctx.lineTo(terrain[i].x, terrain[i].y);
+    ctx.lineTo(W, H); ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPads() {
+    for (const p of pads) {
+      ctx.save();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#9ff';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + p.width, p.y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      // multiplier label
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#0ff';
+      ctx.shadowBlur = 5;
+      ctx.fillText(p.multiplier + 'X', p.x + p.width / 2, p.y - 7);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+  }
+
+  function drawTuna() {
+    ctx.save();
+    ctx.translate(tuna.x, tuna.y);
+    ctx.rotate(tuna.angle);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#9ff';
+    ctx.shadowBlur = 6;
+    // Tuna body (vector outline, nose up, forked tail down)
+    ctx.beginPath();
+    ctx.moveTo(0, -16);
+    ctx.lineTo(5, -10);
+    ctx.lineTo(7, -2);
+    ctx.lineTo(6, 6);
+    ctx.lineTo(10, 14);
+    ctx.lineTo(0, 9);
+    ctx.lineTo(-10, 14);
+    ctx.lineTo(-6, 6);
+    ctx.lineTo(-7, -2);
+    ctx.lineTo(-5, -10);
+    ctx.closePath();
+    ctx.stroke();
+    // dorsal fin
+    ctx.beginPath();
+    ctx.moveTo(0, -4); ctx.lineTo(2, -9); ctx.lineTo(0, -1);
+    ctx.stroke();
+    // pectoral fins
+    ctx.beginPath();
+    ctx.moveTo(-5, 2); ctx.lineTo(-10, 5); ctx.lineTo(-4, 4);
+    ctx.moveTo(5, 2); ctx.lineTo(10, 5); ctx.lineTo(4, 4);
+    ctx.stroke();
+    // eye dots
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(-2, -9, 1.5, 1.5);
+    ctx.fillRect(1, -9, 1.5, 1.5);
+    ctx.shadowBlur = 0;
+    // thrust flame (classic vector)
+    if (tuna.thrusting) {
+      const flick = Math.random();
+      ctx.strokeStyle = flick > 0.5 ? '#0ff' : '#9ff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-6, 12);
+      ctx.lineTo(-3 + (Math.random()-0.5)*3, 20 + Math.random()*6);
+      ctx.lineTo(0, 14);
+      ctx.lineTo(3 + (Math.random()-0.5)*3, 20 + Math.random()*6);
+      ctx.lineTo(6, 12);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawDebris() {
+    ctx.save();
+    ctx.strokeStyle = '#fff';
+    ctx.shadowColor = '#0ff';
+    ctx.shadowBlur = 4;
+    ctx.lineWidth = 1.5;
+    for (const d of debris) {
+      const a = Math.min(1, d.life / 40);
+      ctx.globalAlpha = a;
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      ctx.rotate(d.angle);
+      ctx.beginPath();
+      ctx.moveTo(-d.length/2, 0);
+      ctx.lineTo(d.length/2, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
+  function drawHUD() {
+    ctx.save();
+    ctx.shadowColor = '#0f0';
+    ctx.shadowBlur = 4;
+    ctx.font = 'bold 12px "Courier New", monospace';
+
+    // Left panel: mission status
+    const lx = 20, ly = 26;
+    const leftRows = [
+      ['MISSION',   String(level).padStart(2, '0')],
+      ['SHIPS',     String(lives)],
+      ['DELIVERED', String(deliveries)],
+    ];
+    leftRows.forEach((r, i) => {
+      ctx.fillStyle = '#0f8';
+      ctx.textAlign = 'left';
+      ctx.fillText(r[0], lx, ly + i * 16);
+      ctx.fillStyle = '#5ff';
+      ctx.fillText(r[1], lx + 110, ly + i * 16);
+    });
+    // fuel bar
+    const fx = lx, fy = ly + 56;
+    ctx.fillStyle = '#0f8';
+    ctx.textAlign = 'left';
+    ctx.fillText('FUEL', fx, fy - 4);
+    ctx.strokeStyle = '#0f8';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(fx, fy, 160, 9);
+    const ratio = tuna.fuel / Math.max(1, tuna.maxFuel);
+    const lowFuel = ratio < 0.22;
+    ctx.fillStyle = lowFuel ? (frame % 20 < 10 ? '#f44' : '#f80') : '#0f8';
+    ctx.fillRect(fx + 1, fy + 1, (160 - 2) * Math.max(0, ratio), 7);
+
+    // Right panel: readouts
+    const rx = W - 260, ry = 26;
+    const altitude = Math.max(0, Math.floor(altitudeAt(tuna.x) - tuna.y - 12));
+    const rightRows = [
+      ['SCORE',    String(score).padStart(6,'0'), '#5ff'],
+      ['HIGH',     String(hi).padStart(6,'0'),    '#5ff'],
+      ['TIME',     (missionTime / 60).toFixed(1) + 'S', '#5ff'],
+      ['ALTITUDE', String(altitude).padStart(4,' '), '#5ff'],
+      ['H-SPEED',  (tuna.vx * 20).toFixed(1),
+                   Math.abs(tuna.vx) > 1.1 ? (frame % 20 < 10 ? '#f44' : '#f80') : '#5ff'],
+      ['V-SPEED',  (tuna.vy * 20).toFixed(1),
+                   Math.abs(tuna.vy) > 1.6 ? (frame % 20 < 10 ? '#f44' : '#f80') : '#5ff'],
+    ];
+    rightRows.forEach((r, i) => {
+      ctx.fillStyle = '#0f8';
+      ctx.textAlign = 'left';
+      ctx.fillText(r[0], rx, ry + i * 16);
+      ctx.fillStyle = r[2];
+      ctx.textAlign = 'right';
+      ctx.fillText(r[1], rx + 220, ry + i * 16);
+    });
+    ctx.shadowBlur = 0;
+
+    // center alerts
+    if (state === ST.PLAY) {
+      const msgs = [];
+      if (tuna.fuel < 150) msgs.push({ t: 'FUEL CRITICAL', c: '#f44' });
+      if (Math.abs(tuna.vy) > 1.6 || Math.abs(tuna.vx) > 1.1) msgs.push({ t: 'EXCESSIVE VELOCITY', c: '#f80' });
+      if (Math.abs(normAngle(tuna.angle)) > 0.55) msgs.push({ t: 'ATTITUDE WARNING', c: '#ff0' });
+      msgs.forEach((m, i) => {
+        if (frame % 30 < 22) {
+          ctx.fillStyle = m.c;
+          ctx.font = 'bold 14px "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = m.c;
+          ctx.shadowBlur = 8;
+          ctx.fillText(m.t, W / 2, 32 + i * 20);
+          ctx.shadowBlur = 0;
+        }
+      });
+    }
+    ctx.restore();
+  }
+
+  function drawMenu() {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,5,20,0.55)';
+    ctx.fillRect(0, 0, W, H);
+    // title
+    const pulse = 0.8 + 0.2 * Math.sin(frame * 0.05);
+    ctx.shadowColor = '#0ff';
+    ctx.shadowBlur = 28 * pulse;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 72px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('TUNA LANDER', W/2, H/2 - 160);
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#5ff';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    ctx.fillText('>>  DEEP-SEA SUSHI DELIVERY  <<', W/2, H/2 - 124);
+    ctx.shadowBlur = 0;
+
+    // mission briefing
+    ctx.fillStyle = '#0f8';
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.textAlign = 'left';
+    const bx = W/2 - 240;
+    const by = H/2 - 40;
+    ctx.fillText('MISSION BRIEFING:', bx, by);
+    const lines = [
+      '>  LAND ON MARKED SUSHI PLATES',
+      '>  APPROACH SLOWLY  (V-SPEED BELOW 34)',
+      '>  KEEP ATTITUDE NEAR VERTICAL',
+      '>  NARROWER PLATES PAY HIGHER MULTIPLIERS',
+      '>  ABORT BURNS 100 FUEL — USE SPARINGLY',
+    ];
+    ctx.fillStyle = '#5ff';
+    lines.forEach((l, i) => ctx.fillText(l, bx, by + 24 + i * 19));
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#0f8';
+    ctx.font = 'bold 12px "Courier New", monospace';
+    ctx.fillText('CONTROLS:  < >  ROTATE     ^  THRUST     SPACE  ABORT', W/2, H/2 + 115);
+
+    if (Math.floor(frame / 28) % 2) {
+      ctx.fillStyle = '#ff0';
+      ctx.shadowColor = '#ff0';
+      ctx.shadowBlur = 12;
+      ctx.font = 'bold 22px "Courier New", monospace';
+      ctx.fillText('>>  PRESS ENTER / SPACE TO DIVE  <<', W/2, H/2 + 165);
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.fillStyle = '#068';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.fillText('© FUTUREPROOF ARCADE — HOMAGE TO ATARI 1979', W/2, H - 22);
+    ctx.restore();
+  }
+
+  function drawGameOver() {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,5,20,0.78)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.shadowColor = '#f44';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = '#f44';
+    ctx.font = 'bold 52px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('MISSION FAILED', W/2, H/2 - 40);
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px "Courier New", monospace';
+    ctx.fillText(`SCORE  ${String(score).padStart(6,'0')}`, W/2, H/2 + 4);
+    ctx.fillStyle = '#5ff';
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText(`DELIVERIES  ${deliveries}    MISSION  ${level}`, W/2, H/2 + 28);
+    ctx.shadowBlur = 0;
+    if (Math.floor(frame / 30) % 2) {
+      ctx.fillStyle = '#ff0';
+      ctx.font = 'bold 16px "Courier New", monospace';
+      ctx.fillText('PRESS ENTER / SPACE TO TRY AGAIN', W/2, H/2 + 74);
+    }
+    ctx.restore();
+  }
+
+  function drawLanded() {
+    ctx.save();
+    ctx.shadowColor = '#0f8';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = '#0f8';
+    ctx.font = 'bold 38px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SUSHI DELIVERED!', W/2, 140);
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    if (tuna.lastLanding) {
+      ctx.fillText(`${tuna.lastLanding.multiplier}X  LANDING  +${tuna.lastLanding.landingScore}`, W/2, 172);
+      ctx.fillStyle = '#5ff';
+      ctx.fillText(`FUEL BONUS  +${tuna.lastLanding.fuelBonus}`, W/2, 192);
+    }
+    ctx.restore();
+  }
+
+  function drawCrashed() {
+    if (frame % 24 < 14) {
+      ctx.save();
+      ctx.shadowColor = '#f44';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#f44';
+      ctx.font = 'bold 42px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TUNA DOWN!', W/2, 160);
+      ctx.restore();
+    }
+  }
+
+  function drawPause() {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,5,20,0.55)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 36px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('PAUSE', W/2, H/2);
+    ctx.restore();
+  }
+
+  // populate something for the menu backdrop
+  level = 1;
+  generateTerrain();
+  resetTuna();
+  tuna.y = 210;
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

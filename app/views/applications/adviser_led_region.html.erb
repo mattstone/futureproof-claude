@@ -1,0 +1,67 @@
+<%= render 'shared/header' %>
+
+<div class="application-page">
+  <div class="application-container">
+    <div class="application-card">
+      <div class="application-header">
+        <h1 class="application-title">Speak to a Qualified Adviser</h1>
+        <p class="application-subtitle">
+          In the United Kingdom, the Equity Preservation Mortgage® is a lifetime mortgage and
+          cannot be arranged online.
+        </p>
+      </div>
+
+      <div class="application-form">
+        <div class="summary-sections">
+          <div class="summary-section">
+            <h3 class="summary-section-title">Why an adviser is required</h3>
+            <p>
+              FCA rules require that lifetime mortgages are recommended by a qualified
+              equity release adviser, who will assess your circumstances and provide a
+              personalised illustration before any application is made.
+            </p>
+            <p>
+              This is a lifetime mortgage. To understand the features and risks, ask for a
+              personalised illustration. Your home is used as security. The value of
+              investments can go down as well as up. You should seek independent
+              financial advice.
+            </p>
+          </div>
+
+          <div class="summary-section">
+            <h3 class="summary-section-title">What happens next</h3>
+            <div class="next-steps-content">
+              <div class="next-step-item">
+                <div class="step-icon">1</div>
+                <div class="step-content">
+                  <h4>Contact us</h4>
+                  <p>Request a call back and we will connect you with a qualified equity release adviser.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">2</div>
+                <div class="step-content">
+                  <h4>Personalised illustration</h4>
+                  <p>Your adviser will prepare a personalised illustration covering income, balances, and estate impact.</p>
+                </div>
+              </div>
+              <div class="next-step-item">
+                <div class="step-icon">3</div>
+                <div class="step-content">
+                  <h4>Adviser-led application</h4>
+                  <p>If the EPM is right for you, your adviser completes the application on your behalf.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= link_to "Back to Home", root_path, class: "btn btn-primary btn-lg" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'shared/footer' %>

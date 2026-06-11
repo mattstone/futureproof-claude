@@ -1,0 +1,32 @@
+<section id="risk-overview" class="dashboard-overview-card">
+  <header class="dashboard-overview-header">
+    <h3 class="dashboard-overview-title">Risk &amp; Investment Health</h3>
+    <%= link_to "View cohorts →", admin_cohorts_path, class: "dashboard-overview-link" %>
+  </header>
+  <dl class="dashboard-overview-stats">
+    <div>
+      <dt>Health score</dt>
+      <dd><%= data[:health_score] %>%</dd>
+    </div>
+    <div>
+      <dt>Rating</dt>
+      <dd><%= data[:health_rating] %></dd>
+    </div>
+    <div>
+      <dt>Investment health</dt>
+      <dd><%= data[:investment_health_pct] %>%</dd>
+    </div>
+    <div>
+      <dt>Performing</dt>
+      <dd><%= data[:performing_contracts] %> / <%= data[:total_contracts] %></dd>
+    </div>
+    <div>
+      <dt>On payment holiday</dt>
+      <dd><%= data[:holiday_pct] %>%</dd>
+    </div>
+    <div>
+      <dt>Active alerts</dt>
+      <dd><%= data[:alert_count] %></dd>
+    </div>
+  </dl>
+</section>

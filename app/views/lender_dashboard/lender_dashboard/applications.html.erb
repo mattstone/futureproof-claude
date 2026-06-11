@@ -1,0 +1,163 @@
+<div class="container mx-auto px-4 py-8">
+  <%= link_to "← Back to Dashboard", lender_dashboard_index_path(region: @region), class: "text-blue-600 hover:underline mb-4 inline-block" %>
+  
+  <h1 class="text-3xl font-bold mb-6">EPM Investment Applications</h1>
+  
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Pending Review</p>
+      <p class="text-2xl font-bold text-yellow-600"><%= @pending_applications.count %></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Active Investments</p>
+      <p class="text-2xl font-bold text-green-600"><%= @accepted_applications.count %></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <p class="text-gray-600 text-sm">Declined</p>
+      <p class="text-2xl font-bold text-red-600"><%= @rejected_applications.count %></p>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8 px-6" aria-label="Tabs">
+        <button class="py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+          Pending Review (<%= @pending_applications.count %>)
+        </button>
+        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+          Active Investments (<%= @accepted_applications.count %>)
+        </button>
+        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+          Declined (<%= @rejected_applications.count %>)
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Pending Applications -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-4 border-b">
+      <h3 class="text-lg font-semibold">Pending Review</h3>
+      <p class="text-gray-600 text-sm">EPM applications requiring your decision</p>
+    </div>
+    
+    <% if @pending_applications.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b-2 border-gray-300">
+            <tr>
+              <th class="text-left p-4 font-semibold">Borrower</th>
+              <th class="text-left p-4 font-semibold">Property</th>
+              <th class="text-right p-4 font-semibold">Equity Investment</th>
+              <th class="text-left p-4 font-semibold">Equity %</th>
+              <th class="text-left p-4 font-semibold">Property Value</th>
+              <th class="text-left p-4 font-semibold">Applied</th>
+              <th class="text-center p-4 font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @pending_applications.each do |app| %>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">
+                  <p class="font-semibold"><%= app.borrower_names || "Anonymous" %></p>
+                  <p class="text-gray-600 text-xs">ID: <%= app.id %></p>
+                </td>
+                <td class="p-4">
+                  <p class="text-gray-700"><%= app.address&.truncate(30) || "Address pending" %></p>
+                  <p class="text-gray-500 text-xs"><%= app.region&.upcase %></p>
+                </td>
+                <td class="p-4 text-right">
+                  <p class="font-bold text-lg text-green-600">
+                    <%= number_to_currency(app.equity_investment_amount || 0) %>
+                  </p>
+                </td>
+                <td class="p-4">
+                  <p class="font-semibold"><%= app.equity_percentage&.round(2) || 0 %>%</p>
+                </td>
+                <td class="p-4">
+                  <p class="font-semibold">
+                    <%= number_to_currency(app.home_value || 0) %>
+                  </p>
+                </td>
+                <td class="p-4 text-gray-600"><%= app.created_at.strftime("%d %b %Y") %></td>
+                <td class="p-4 text-center">
+                  <%= link_to "Review", lender_dashboard_application_detail_path(region: @region, id: app.id), 
+                      class: "bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="p-8 text-center">
+        <p class="text-gray-600 text-lg">No pending applications.</p>
+        <p class="text-gray-500 text-sm mt-2">New EPM applications will appear here for review.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Active Investments -->
+  <div class="bg-white rounded-lg shadow overflow-hidden mt-8">
+    <div class="px-6 py-4 border-b">
+      <h3 class="text-lg font-semibold">Active EPM Investments</h3>
+      <p class="text-gray-600 text-sm">Your approved equity partnerships</p>
+    </div>
+    
+    <% if @accepted_applications.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b">
+            <tr>
+              <th class="text-left p-4">Borrower</th>
+              <th class="text-left p-4">Property</th>
+              <th class="text-right p-4">Investment</th>
+              <th class="text-left p-4">Equity %</th>
+              <th class="text-right p-4">Distributed</th>
+              <th class="text-left p-4">Activated</th>
+              <th class="text-center p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @accepted_applications.each do |app| %>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">
+                  <p class="font-semibold"><%= app.borrower_names || "Anonymous" %></p>
+                  <p class="text-gray-600 text-xs">ID: <%= app.id %></p>
+                </td>
+                <td class="p-4">
+                  <p class="text-gray-700"><%= app.address&.truncate(30) || "—" %></p>
+                  <p class="text-gray-500 text-xs"><%= app.region&.upcase %></p>
+                </td>
+                <td class="p-4 text-right font-semibold text-green-600">
+                  <%= number_to_currency(app.equity_investment_amount || 0) %>
+                </td>
+                <td class="p-4 font-semibold">
+                  <%= app.equity_percentage&.round(2) || 0 %>%
+                </td>
+                <td class="p-4 text-right">
+                  <% distributed = app.distributions.completed_distributions.sum(:amount) %>
+                  <%= number_to_currency(distributed) %>
+                </td>
+                <td class="p-4 text-gray-600">
+                  <%= app.updated_at.strftime("%d %b %Y") %>
+                </td>
+                <td class="p-4 text-center">
+                  <%= link_to "Manage", lender_dashboard_application_detail_path(region: @region, id: app.id), 
+                      class: "text-blue-600 hover:underline font-semibold" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="p-8 text-center">
+        <p class="text-gray-600 text-lg">No active investments yet.</p>
+        <p class="text-gray-500 text-sm mt-2">Approved EPM applications will appear here.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

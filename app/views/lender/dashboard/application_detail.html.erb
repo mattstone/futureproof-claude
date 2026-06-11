@@ -1,0 +1,681 @@
+<% content_for :page_title, "Application Review — #{@borrower.full_name}" %>
+
+<div class="application-detail-page">
+  <!-- Header with status and actions -->
+  <div class="detail-header">
+    <div class="borrower-info">
+      <div class="borrower-avatar">
+        <%= @borrower.first_name[0].upcase %><%= @borrower.last_name[0].upcase %>
+      </div>
+      <div class="borrower-details">
+        <h1><%= @borrower.full_name %></h1>
+        <p class="borrower-email"><%= @borrower.email %></p>
+        <p class="borrower-phone"><%= @borrower.full_mobile_number %></p>
+      </div>
+    </div>
+    <div class="app-status-section">
+      <span class="status-badge status-<%= @application.status %>">
+        <%= @application.status.humanize %>
+      </span>
+      <div class="status-actions">
+        <% if @application.status == 'processing' %>
+          <%= link_to "Approve", "#", class: "btn btn-primary", data: { action: "approve" } %>
+          <%= link_to "Reject", "#", class: "btn btn-danger", data: { action: "reject" } %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="detail-tabs">
+    <a href="#overview" class="tab-link active" data-tab="overview">Overview</a>
+    <a href="#messages" class="tab-link" data-tab="messages">Messages (<%= @messages.count %>)</a>
+    <a href="#documents" class="tab-link" data-tab="documents">Documents</a>
+    <a href="#history" class="tab-link" data-tab="history">History</a>
+  </div>
+
+  <!-- Overview Tab -->
+  <div id="overview" class="tab-content active">
+    <div class="detail-grid">
+      <!-- Property Details -->
+      <div class="detail-section">
+        <h2>Property Details</h2>
+        <div class="detail-fields">
+          <div class="field">
+            <span class="label">Address</span>
+            <span class="value"><%= @application.property_address %></span>
+          </div>
+          <div class="field">
+            <span class="label">Property Value</span>
+            <span class="value">$<%= number_with_precision(@application.property_value, precision: 0, delimiter: ',') %></span>
+          </div>
+          <div class="field">
+            <span class="label">Property State</span>
+            <span class="value"><%= @application.property_state.humanize %></span>
+          </div>
+          <div class="field">
+            <span class="label">Ownership Status</span>
+            <span class="value"><%= @application.ownership_status.humanize %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loan Details -->
+      <div class="detail-section">
+        <h2>Loan Details</h2>
+        <div class="detail-fields">
+          <div class="field">
+            <span class="label">Loan Amount</span>
+            <span class="value" style="color: #10B981; font-weight: bold;">
+              $<%= number_with_precision(@application.loan_amount, precision: 0, delimiter: ',') %>
+            </span>
+          </div>
+          <div class="field">
+            <span class="label">Loan-to-Value (LTV)</span>
+            <span class="value"><%= number_with_precision(@application.ltv_ratio * 100, precision: 1) %>%</span>
+          </div>
+          <div class="field">
+            <span class="label">Interest Rate</span>
+            <span class="value"><%= number_with_precision(@application.interest_rate * 100, precision: 2) %>% p.a.</span>
+          </div>
+          <div class="field">
+            <span class="label">Loan Term</span>
+            <span class="value"><%= @application.loan_term_years %> years</span>
+          </div>
+          <div class="field">
+            <span class="label">Monthly Income Payment</span>
+            <span class="value" style="color: #2196F3; font-weight: bold;">
+              $<%= number_with_precision(@application.monthly_payment, precision: 2, delimiter: ',') %>
+            </span>
+          </div>
+          <div class="field">
+            <span class="label">Annual Guaranteed Income</span>
+            <span class="value">
+              $<%= number_with_precision(@application.monthly_payment * 12, precision: 0, delimiter: ',') %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Borrower Details -->
+      <div class="detail-section">
+        <h2>Borrower Information</h2>
+        <div class="detail-fields">
+          <div class="field">
+            <span class="label">Full Name</span>
+            <span class="value"><%= @borrower.full_name %></span>
+          </div>
+          <div class="field">
+            <span class="label">Email</span>
+            <span class="value"><%= @borrower.email %></span>
+          </div>
+          <div class="field">
+            <span class="label">Phone</span>
+            <span class="value"><%= @borrower.full_mobile_number || "Not provided" %></span>
+          </div>
+          <div class="field">
+            <span class="label">Country of Residence</span>
+            <span class="value"><%= @borrower.country_of_residence %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribution Summary -->
+      <% if @application.distributions.any? %>
+        <div class="detail-section">
+          <h2>Distribution Summary</h2>
+          <div class="distribution-stats">
+            <div class="stat-card">
+              <span class="stat-label">Total Distributed</span>
+              <span class="stat-value">
+                $<%= number_with_precision(@application.distributions.where(status: :completed).sum(:amount), precision: 0, delimiter: ',') %>
+              </span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Payments Made</span>
+              <span class="stat-value">
+                <%= @application.distributions.where(status: :completed).count %>
+              </span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Pending Payments</span>
+              <span class="stat-value">
+                <%= @application.distributions.where(status: [:pending, :processing]).count %>
+              </span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Next Payment</span>
+              <span class="stat-value">
+                <% next_dist = @application.distributions.where(status: [:pending, :processing]).order(:distribution_date).first %>
+                <% if next_dist %>
+                  <%= next_dist.distribution_date.strftime('%b %d, %Y') %>
+                <% else %>
+                  —
+                <% end %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Recent Distributions Table -->
+          <h3>Recent Distributions</h3>
+          <table class="distributions-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Transaction ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @application.distributions.order(distribution_date: :desc).limit(5).each do |dist| %>
+                <tr>
+                  <td><%= dist.processed_at&.strftime('%b %d, %Y') || dist.distribution_date&.strftime('%b %d, %Y') %></td>
+                  <td class="amount">$<%= number_with_precision(dist.amount, precision: 2, delimiter: ',') %></td>
+                  <td>
+                    <span class="dist-status status-<%= dist.status %>">
+                      <%= dist.status.humanize %>
+                    </span>
+                  </td>
+                  <td class="transaction-id"><%= dist.transaction_id || "—" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Messages Tab -->
+  <div id="messages" class="tab-content">
+    <div class="messages-section">
+      <% if @messages.any? %>
+        <div class="message-thread">
+          <% @messages.each do |msg| %>
+            <div class="message-item message-from-<%= msg.sender_type %>">
+              <div class="message-avatar">
+                <% if msg.from_borrower? %>
+                  <%= @borrower.first_name[0].upcase %><%= @borrower.last_name[0].upcase %>
+                <% else %>
+                  L
+                <% end %>
+              </div>
+              <div class="message-body">
+                <div class="message-header">
+                  <span class="sender-name">
+                    <% if msg.from_borrower? %>
+                      <%= @borrower.full_name %>
+                    <% else %>
+                      You
+                    <% end %>
+                  </span>
+                  <span class="message-time"><%= msg.created_at.strftime('%b %d, %Y %H:%M') %></span>
+                </div>
+                <div class="message-text"><%= simple_format(msg.message) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="empty-messages">No messages yet. Start a conversation with the borrower.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Documents Tab -->
+  <div id="documents" class="tab-content">
+    <div class="documents-section">
+      <p class="section-info">Borrower documents are available in their portal. You can access them here for review once integrated with document management system.</p>
+    </div>
+  </div>
+
+  <!-- History Tab -->
+  <div id="history" class="tab-content">
+    <div class="history-section">
+      <div class="history-item">
+        <span class="history-date"><%= @application.created_at.strftime('%b %d, %Y') %></span>
+        <span class="history-event">Application Created</span>
+      </div>
+      <% if @application.submitted_at %>
+        <div class="history-item">
+          <span class="history-date"><%= @application.submitted_at.strftime('%b %d, %Y') %></span>
+          <span class="history-event">Application Submitted</span>
+        </div>
+      <% end %>
+      <% if @application.approved_at %>
+        <div class="history-item">
+          <span class="history-date"><%= @application.approved_at.strftime('%b %d, %Y') %></span>
+          <span class="history-event">Application Approved</span>
+        </div>
+      <% end %>
+      <% if @application.activated_at %>
+        <div class="history-item">
+          <span class="history-date"><%= @application.activated_at.strftime('%b %d, %Y') %></span>
+          <span class="history-event">Loan Activated</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Back Link -->
+  <div class="detail-footer">
+    <%= link_to "← Back to Applications", lender_dashboard_applications_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Tab switching
+  document.querySelectorAll('.tab-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault()
+      const tabName = link.dataset.tab
+      
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'))
+      document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'))
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active')
+      link.classList.add('active')
+    })
+  })
+})
+</script>
+
+<style>
+  .application-detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+  }
+
+  .borrower-info {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .borrower-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #10B981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .borrower-details h1 {
+    font-size: 22px;
+    margin: 0 0 4px 0;
+    color: #1f2937;
+  }
+
+  .borrower-email,
+  .borrower-phone {
+    font-size: 13px;
+    color: #666;
+    margin: 2px 0;
+  }
+
+  .app-status-section {
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+
+  .status-processing { background: #FEF3C7; color: #92400E; }
+  .status-accepted { background: #DBEAFE; color: #1E40AF; }
+  .status-activated { background: #D1FAE5; color: #065F46; }
+  .status-rejected { background: #FEE2E2; color: #991B1B; }
+
+  .status-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: #10B981;
+    color: white;
+  }
+
+  .btn-danger {
+    background: #EF4444;
+    color: white;
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #333;
+  }
+
+  .detail-tabs {
+    display: flex;
+    gap: 0;
+    background: white;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 24px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .tab-link {
+    padding: 16px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-link:hover {
+    color: #1f2937;
+    background: #f9fafb;
+  }
+
+  .tab-link.active {
+    color: #10B981;
+    border-bottom-color: #10B981;
+  }
+
+  .tab-content {
+    display: none;
+    background: white;
+    padding: 24px;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+  }
+
+  .detail-section {
+    background: white;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .detail-section h2 {
+    font-size: 16px;
+    margin: 0 0 16px 0;
+    color: #1f2937;
+  }
+
+  .detail-section h3 {
+    font-size: 14px;
+    margin: 16px 0 12px 0;
+    color: #1f2937;
+  }
+
+  .detail-fields {
+    display: grid;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .field:last-child {
+    border-bottom: none;
+  }
+
+  .field .label {
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field .value {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .distribution-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #10B981;
+  }
+
+  .distributions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .distributions-table th {
+    background: #f9fafb;
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .distributions-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .distributions-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .amount {
+    color: #10B981;
+    font-weight: bold;
+  }
+
+  .transaction-id {
+    font-family: monospace;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .dist-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  .dist-status.status-completed { background: #D1FAE5; color: #065F46; }
+  .dist-status.status-pending { background: #FEF3C7; color: #92400E; }
+  .dist-status.status-processing { background: #DBEAFE; color: #1E40AF; }
+  .dist-status.status-failed { background: #FEE2E2; color: #991B1B; }
+
+  .messages-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .message-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .message-item {
+    display: flex;
+    gap: 12px;
+  }
+
+  .message-from-borrower {
+    flex-direction: row-reverse;
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #10B981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .message-body {
+    flex: 1;
+    max-width: 70%;
+  }
+
+  .message-from-borrower .message-body {
+    text-align: right;
+  }
+
+  .message-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  .message-from-borrower .message-header {
+    flex-direction: row-reverse;
+  }
+
+  .sender-name {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .message-time {
+    color: #999;
+  }
+
+  .message-text {
+    background: #f0f0f0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+
+  .message-from-borrower .message-text {
+    background: #10B981;
+    color: white;
+  }
+
+  .empty-messages {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+
+  .documents-section,
+  .history-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .section-info {
+    color: #666;
+    font-size: 13px;
+  }
+
+  .history-item {
+    display: flex;
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .history-item:last-child {
+    border-bottom: none;
+  }
+
+  .history-date {
+    font-size: 12px;
+    color: #999;
+    min-width: 120px;
+  }
+
+  .history-event {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .detail-footer {
+    margin-top: 24px;
+    text-align: left;
+  }
+</style>

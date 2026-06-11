@@ -1,3 +1,10 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- FutureProof favicon: geometric mark from logo -->
+  <!-- Two overlapping tilted diamond/parallelogram shapes -->
+
+  <!-- Upper diamond (lighter blue) -->
+  <path d="M 280 56 L 432 160 L 232 304 L 80 200 Z" fill="#2196F3"/>
+
+  <!-- Lower diamond (darker blue, smaller, offset down-left) -->
+  <path d="M 200 228 L 328 320 L 180 432 L 52 340 Z" fill="#1565C0"/>
 </svg>

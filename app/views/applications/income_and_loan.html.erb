@@ -18,7 +18,7 @@
             <div class="step-connector"></div>
             <div class="step-item active">
               <div class="step-number">3</div>
-              <div class="step-label">Income & Loan</div>
+              <div class="step-label">Income & Mortgage</div>
             </div>
             <div class="step-connector"></div>
             <div class="step-item">
@@ -28,7 +28,7 @@
           </div>
         </div>
         <h1 class="application-title">
-          Income & Loan Options
+          Income & Mortgage Options
           <span class="site-demo-badge">
             <svg viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -36,7 +36,7 @@
             Demo
           </span>
         </h1>
-        <p class="application-subtitle">Configure your loan terms to calculate your potential monthly income</p>
+        <p class="application-subtitle">Configure your mortgage terms to calculate your potential monthly income</p>
         <div class="site-demo-context">
           Income calculations and property valuations are illustrative estimates only. Final figures will be determined during the formal approval process.
         </div>
@@ -112,7 +112,7 @@
                         <div class="repayment-info">
                           <% if mortgage.mortgage_type_interest_only? %>
                             <span class="money-icon">💰</span>
-                            <span>Loan repayment at end of term <span data-income-loan-form-target="interestOnlyRepayment">Calculating...</span></span>
+                            <span>Mortgage repayment at end of term <span data-income-loan-form-target="interestOnlyRepayment">Calculating...</span></span>
                           <% else %>
                             <span class="money-icon">💰</span>
                             <span>No repayment at end of term</span>
@@ -129,7 +129,7 @@
 
             <div class="form-row">
               <div class="form-group">
-                <%= f.label :loan_term, "Loan Term", class: "form-label" %>
+                <%= f.label :loan_term, "Mortgage Term", class: "form-label" %>
                 <div class="slider-container">
                   <%= f.range_field :loan_term,
                       min: 10,
@@ -145,7 +145,7 @@
                     <%= @application.loan_term || 30 %> years
                   </div>
                 </div>
-                <div class="form-hint">Choose your loan repayment period</div>
+                <div class="form-hint">Choose your mortgage term</div>
               </div>
 
               <div class="form-group">
@@ -171,7 +171,7 @@
           </div>
 
           <div class="form-section">
-            <h3 class="form-section-title">Estimated Property Value at End of Loan</h3>
+            <h3 class="form-section-title">Estimated Property Value at End of Mortgage</h3>
             
             <div class="property-appreciation-section">
               <div class="growth-rate-options">

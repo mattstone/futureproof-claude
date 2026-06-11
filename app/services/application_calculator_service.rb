@@ -78,7 +78,7 @@ class ApplicationCalculatorService
     affordable_monthly_payment = monthly_income * 0.30
 
     # Calculate loan amount based on interest rate and term
-    interest_rate = (application.mortgage&.interest_rate || 7.45) / 100.0 / 12
+    interest_rate = (application.mortgage&.interest_rate || EpmModelConfig.indicative_borrower_rate_pct) / 100.0 / 12
     term_months = (application.loan_term || 30) * 12
 
     if interest_rate.zero?

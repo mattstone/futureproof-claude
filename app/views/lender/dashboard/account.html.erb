@@ -1,0 +1,510 @@
+<% content_for :page_title, "Account Settings" %>
+
+<div class="account-page">
+  <div class="page-header">
+    <h1>Account Settings</h1>
+    <p class="page-subtitle">Manage your lender account information and preferences</p>
+  </div>
+
+  <!-- Profile Section -->
+  <div class="settings-section">
+    <h2>Profile Information</h2>
+    
+    <div class="profile-card">
+      <div class="profile-avatar">
+        <%= @lender.first_name[0].upcase %><%= @lender.last_name[0].upcase %>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name"><%= @lender.full_name %></div>
+        <div class="profile-role">Lender</div>
+        <div class="profile-member-since">Member since <%= @lender.created_at.strftime('%B %Y') %></div>
+      </div>
+    </div>
+
+    <%= form_with model: @lender, url: lender_dashboard_update_account_path, method: :patch, local: true do |f| %>
+      <% if @lender.errors.any? %>
+        <div class="error-alert">
+          <h3><%= pluralize(@lender.errors.count, "error") %> prohibited this account from being saved:</h3>
+          <ul>
+            <% @lender.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :first_name, "First Name" %>
+        <%= f.text_field :first_name, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :last_name, "Last Name" %>
+        <%= f.text_field :last_name, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :email, "Email Address" %>
+        <%= f.email_field :email, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :phone_number, "Phone Number" %>
+        <%= f.telephone_field :phone_number, class: "form-input", placeholder: "+61 2 1234 5678" %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Save Changes", class: "btn btn-primary" %>
+        <%= link_to "Cancel", lender_dashboard_account_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Email Preferences -->
+  <div class="settings-section">
+    <h2>Email Preferences</h2>
+    <p class="section-description">Manage which emails you receive from FutureProof</p>
+
+    <div class="preference-list">
+      <div class="preference-item">
+        <div class="preference-header">
+          <div class="preference-title">New Applications</div>
+          <div class="preference-description">Receive email when a new application is assigned to you</div>
+        </div>
+        <div class="preference-toggle">
+          <input type="checkbox" id="pref-new-apps" checked>
+        </div>
+      </div>
+
+      <div class="preference-item">
+        <div class="preference-header">
+          <div class="preference-title">Payment Updates</div>
+          <div class="preference-description">Receive email when payments are processed or fail</div>
+        </div>
+        <div class="preference-toggle">
+          <input type="checkbox" id="pref-payments" checked>
+        </div>
+      </div>
+
+      <div class="preference-item">
+        <div class="preference-header">
+          <div class="preference-title">Borrower Messages</div>
+          <div class="preference-description">Receive email when a borrower sends you a message</div>
+        </div>
+        <div class="preference-toggle">
+          <input type="checkbox" id="pref-messages" checked>
+        </div>
+      </div>
+
+      <div class="preference-item">
+        <div class="preference-header">
+          <div class="preference-title">Weekly Reports</div>
+          <div class="preference-description">Receive weekly summary of portfolio activity</div>
+        </div>
+        <div class="preference-toggle">
+          <input type="checkbox" id="pref-reports">
+        </div>
+      </div>
+
+      <div class="preference-item">
+        <div class="preference-header">
+          <div class="preference-title">Marketing & Updates</div>
+          <div class="preference-description">Receive news about new features and product updates</div>
+        </div>
+        <div class="preference-toggle">
+          <input type="checkbox" id="pref-marketing">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+    </div>
+  </div>
+
+  <!-- Security -->
+  <div class="settings-section">
+    <h2>Security</h2>
+
+    <div class="security-card">
+      <div class="security-header">
+        <div class="security-title">Password</div>
+        <div class="security-description">Last changed <%= @lender.updated_at.strftime('%B %d, %Y') %></div>
+      </div>
+      <%= link_to "Change Password", "#", class: "btn btn-secondary" %>
+    </div>
+
+    <div class="security-card">
+      <div class="security-header">
+        <div class="security-title">Two-Factor Authentication</div>
+        <div class="security-description">Add an extra layer of security to your account</div>
+      </div>
+      <%= link_to "Enable 2FA", "#", class: "btn btn-secondary" %>
+    </div>
+
+    <div class="security-card">
+      <div class="security-header">
+        <div class="security-title">Active Sessions</div>
+        <div class="security-description">Manage devices that have access to your account</div>
+      </div>
+      <button class="btn btn-secondary" onclick="manageSessions()">View Sessions</button>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="settings-section danger-zone">
+    <h2>Danger Zone</h2>
+
+    <div class="danger-card">
+      <div class="danger-header">
+        <div class="danger-title">Deactivate Account</div>
+        <div class="danger-description">Temporarily disable your account. You can reactivate it anytime.</div>
+      </div>
+      <button class="btn btn-danger" onclick="deactivateAccount()">Deactivate</button>
+    </div>
+
+    <div class="danger-card">
+      <div class="danger-header">
+        <div class="danger-title">Delete Account</div>
+        <div class="danger-description">Permanently delete your account and all associated data. This action cannot be undone.</div>
+      </div>
+      <button class="btn btn-danger" onclick="deleteAccount()">Delete</button>
+    </div>
+  </div>
+
+  <!-- Support -->
+  <div class="settings-section">
+    <h2>Need Help?</h2>
+    <div class="help-cards">
+      <a href="#" class="help-card">
+        <div class="help-icon">❓</div>
+        <div class="help-title">Documentation</div>
+        <div class="help-description">Read our comprehensive guides and FAQs</div>
+      </a>
+      <a href="#" class="help-card">
+        <div class="help-icon">💬</div>
+        <div class="help-title">Contact Support</div>
+        <div class="help-description">Reach out to our support team</div>
+      </a>
+      <a href="#" class="help-card">
+        <div class="help-icon">🐛</div>
+        <div class="help-title">Report Issue</div>
+        <div class="help-description">Report a bug or request a feature</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function savePreferences() {
+  alert('Email preferences saving coming soon')
+}
+
+function manageSessions() {
+  alert('Session management coming soon')
+}
+
+function deactivateAccount() {
+  if (confirm('Are you sure you want to deactivate your account? You can reactivate it anytime.')) {
+    alert('Account deactivation coming soon')
+  }
+}
+
+function deleteAccount() {
+  if (confirm('Are you absolutely sure? This action cannot be undone. All your data will be permanently deleted.')) {
+    alert('Account deletion coming soon')
+  }
+}
+</script>
+
+<style>
+  .account-page {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 30px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .page-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin: 8px 0 0 0;
+  }
+
+  .settings-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+  }
+
+  .settings-section h2 {
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    color: #1f2937;
+  }
+
+  .section-description {
+    color: #666;
+    font-size: 13px;
+    margin: 0 0 20px 0;
+  }
+
+  .profile-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #10B981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .profile-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .profile-role {
+    font-size: 13px;
+    color: #999;
+  }
+
+  .profile-member-since {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .error-alert {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .error-alert h3 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+  }
+
+  .error-alert ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .preference-list {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 6px;
+  }
+
+  .preference-header {
+    flex: 1;
+  }
+
+  .preference-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .preference-description {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .preference-toggle input {
+    width: 48px;
+    height: 24px;
+    cursor: pointer;
+  }
+
+  .security-card,
+  .danger-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .security-title,
+  .danger-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .security-description,
+  .danger-description {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: #10B981;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #059669;
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #e5e7eb;
+  }
+
+  .btn-danger {
+    background: #EF4444;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #DC2626;
+  }
+
+  .danger-zone {
+    border-color: #FCA5A5;
+    background: #FEF2F2;
+  }
+
+  .danger-zone h2 {
+    color: #991B1B;
+  }
+
+  .danger-card {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+  }
+
+  .danger-title {
+    color: #991B1B;
+  }
+
+  .danger-description {
+    color: #7F1D1D;
+  }
+
+  .help-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .help-card {
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+  }
+
+  .help-card:hover {
+    border-color: #10B981;
+    background: #f0fdf4;
+  }
+
+  .help-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .help-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .help-description {
+    font-size: 12px;
+    color: #666;
+  }
+</style>

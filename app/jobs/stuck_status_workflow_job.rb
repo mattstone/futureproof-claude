@@ -1,5 +1,7 @@
 class StuckStatusWorkflowJob < ApplicationJob
   queue_as :default
+
+  LEGACY_CONTRACT_STATUS_ALIASES = { 'in_arrears' => 'investment_at_risk' }.freeze
   
   def perform
     Rails.logger.info "Starting StuckStatusWorkflowJob execution"
@@ -84,6 +86,8 @@ class StuckStatusWorkflowJob < ApplicationJob
     return unless config
 
     status = config['stuck_contract_status']
+    # Contract status 'in_arrears' was renamed; normalise configs saved before the rename
+    status = LEGACY_CONTRACT_STATUS_ALIASES.fetch(status, status)
     duration = config['stuck_duration']&.to_i
     unit = config['stuck_unit'] || 'days'
     run_once = config['run_once'] || false

@@ -1,39 +1,365 @@
-<div class="legal-document">
-  <h1>Terms of Service — New Zealand</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  
-  <h2>1. Acceptance</h2>
-  <p>By accessing FutureProof Financial, you accept these Terms and our Privacy Policy.</p>
-  
-  <h2>2. Service Description</h2>
-  <p>We provide Equity Preservation Mortgage (EPM) products regulated under the Credit Contracts and Consumer Finance Act 2003 (CCCFA).</p>
-  
-  <h2>3. Eligibility</h2>
-  <ul>
-    <li>Minimum age: 55 years</li>
-    <li>Property value: NZ$400,000+</li>
-    <li>New Zealand resident</li>
-    <li>Pass credit assessment</li>
-  </ul>
-  
-  <h2>4. Your Obligations</h2>
-  <p>You agree to: (a) provide accurate information; (b) maintain insurance; (c) pay rates and levies; (d) maintain property; (e) notify of material changes.</p>
-  
-  <h2>5. Relationship Property Act 1976</h2>
-  <p>If your property is relationship property, your spouse/partner consent may be required. You acknowledge potential implications under the Relationship Property Act.</p>
-  
-  <h2>6. Limitation of Liability</h2>
-  <p>To the extent permitted by law, our liability is limited to the loan principal.</p>
-  
-  <h2>7. Governing Law</h2>
-  <p>These Terms are governed by New Zealand law. Disputes resolved in New Zealand courts.</p>
-  
-  <h2>8. Contact</h2>
-  <p>[email] | [phone]</p>
-</div>
+<% details = legal_details("nz") %>
+<% config = RegionHelper.region_config("nz") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-page">
+  <div class="legal-container">
+    <h1>Terms of Service — New Zealand</h1>
+    <p class="last-updated">Version <%= legal_version %> | Effective: 17 March 2026 | Last Updated: <%= legal_date %></p>
+
+    <div class="legal-content">
+
+      <div class="legal-section">
+        <h2>1. Introduction and Acceptance</h2>
+        <p><strong>1.1</strong> These Terms of Service ("Terms") govern your access to and use of the FutureProof Financial platform ("Platform") and all Equity Preservation Mortgage ("EPM") products, services, and features offered through it.</p>
+        <p><strong>1.2</strong> The Platform is operated by FutureProof Financial Limited (NZ) ("FutureProof", "we", "us", "our"), a company registered with the New Zealand Companies Office.</p>
+        <p><strong>1.3</strong> By creating an account, submitting an application, or otherwise using the Platform, you ("you", "your", "Borrower") agree to be bound by these Terms, our Privacy Policy, and any supplementary terms or disclosures provided to you.</p>
+        <p><strong>1.4</strong> If you do not agree to these Terms, you must not access or use the Platform.</p>
+        <p><strong>1.5</strong> These Terms should be read in conjunction with any Key Information Document, loan contract, or disclosure statement provided to you as part of the EPM application process.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Definitions</h2>
+        <p><strong>2.1</strong> In these Terms, the following definitions apply:</p>
+        <ul>
+          <li><strong>"EPM" or "Equity Preservation Mortgage"</strong> means a mortgage product offered through the Platform whereby a borrower converts a portion of their home equity into regular income through a managed investment strategy, while preserving 100% of their property equity;</li>
+          <li><strong>"CCCFA"</strong> means the Credit Contracts and Consumer Finance Act 2003 and any regulations made under it;</li>
+          <li><strong>"FMA"</strong> means the Financial Markets Authority of New Zealand;</li>
+          <li><strong>"FMCA"</strong> means the Financial Markets Conduct Act 2013;</li>
+          <li><strong>"Lender Responsibility Principles"</strong> means the responsible lending obligations set out in Part 1A of the CCCFA, including the duty to make reasonable inquiries, the duty not to lend unless satisfied the loan is suitable, and the duty to assist borrowers in financial difficulty;</li>
+          <li><strong>"LTV" or "Loan-to-Value Ratio"</strong> means the ratio of the loan amount to the appraised value of the mortgaged property;</li>
+          <li><strong>"NNEG"</strong> means No-Negative-Equity Guarantee, ensuring the borrower will never owe more than the value of the property;</li>
+          <li><strong>"Hedging Collar"</strong> means the protective options strategy applied to the investment portfolio to limit downside risk;</li>
+          <li><strong>"Holiday Mechanism"</strong> means the feature allowing temporary suspension of income payments during adverse market conditions;</li>
+          <li><strong>"Platform"</strong> means the FutureProof Financial website, application portal, and all related technology systems;</li>
+          <li><strong>"Working Day"</strong> means any day other than a Saturday, Sunday, or public holiday in New Zealand.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Service Description</h2>
+        <p><strong>3.1</strong> FutureProof provides the following services through the Platform:</p>
+        <ul>
+          <li>(a) EPM product quotation and comparison tools;</li>
+          <li>(b) Online application and document submission for EPM products;</li>
+          <li>(c) Property valuation coordination;</li>
+          <li>(d) Credit assessment and eligibility verification;</li>
+          <li>(e) Investment portfolio management for EPM-linked investments;</li>
+          <li>(f) Monthly income distribution from investment returns;</li>
+          <li>(g) Ongoing loan servicing, reporting, and account management;</li>
+          <li>(h) Customer support and financial guidance.</li>
+        </ul>
+        <p><strong>3.2</strong> The Platform is a technology-enabled financial services platform. All lending decisions are made by licensed lenders in accordance with the CCCFA and applicable regulations.</p>
+        <p><strong>3.3</strong> Any quotes, projections, or estimates provided through the Platform are indicative only and do not constitute an offer of credit or a guarantee of investment returns.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Regulatory Status</h2>
+        <p><strong>4.1</strong> FutureProof Financial Limited (NZ) is regulated by the <%= details[:regulator] %>.</p>
+        <p><strong>4.2</strong> We hold a <%= details[:licensing_act] %> and operate in compliance with the FMCA and the CCCFA.</p>
+        <p><strong>4.3</strong> Our financial advice services are provided by licensed financial advisers who are required to meet competency, knowledge, and ethical standards prescribed by the FMA.</p>
+        <p><strong>4.4</strong> We are a member of an approved dispute resolution scheme as required by the Financial Service Providers (Registration and Dispute Resolution) Act 2008. Details of our scheme membership are set out in Section 17 of these Terms.</p>
+        <p><strong>4.5</strong> We comply with the <%= details[:aml_act] %> ("AML/CFT Act") and maintain a compliance programme approved by our AML/CFT supervisor.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Eligibility</h2>
+        <p><strong>5.1</strong> To use the Platform and apply for an EPM, you must meet the following criteria:</p>
+        <ul>
+          <li>(a) Be aged 55 years or older at the time of application;</li>
+          <li>(b) Be a New Zealand citizen or permanent resident;</li>
+          <li>(c) Own residential property in New Zealand with a current market value of at least NZ$400,000;</li>
+          <li>(d) Have legal capacity to enter into a credit contract under New Zealand law;</li>
+          <li>(e) Not be an undischarged bankrupt or subject to a No Asset Procedure under the Insolvency Act 2006;</li>
+          <li>(f) Not be subject to a property order under the Protection of Personal and Property Rights Act 1988;</li>
+          <li>(g) Satisfy all identity verification and AML/CFT checks required by law.</li>
+        </ul>
+        <p><strong>5.2</strong> Meeting the above criteria does not guarantee approval. All applications are subject to full credit assessment in accordance with the Lender Responsibility Principles under the CCCFA.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Account Registration</h2>
+        <p><strong>6.1</strong> To access Platform services, you must create an account by providing accurate and complete personal information.</p>
+        <p><strong>6.2</strong> You are responsible for:</p>
+        <ul>
+          <li>(a) Maintaining the confidentiality of your login credentials;</li>
+          <li>(b) All activity that occurs under your account;</li>
+          <li>(c) Notifying us immediately of any unauthorised access or security breach;</li>
+          <li>(d) Keeping your contact details and personal information up to date.</li>
+        </ul>
+        <p><strong>6.3</strong> Multi-factor authentication is required for all financial transactions and sensitive account changes.</p>
+        <p><strong>6.4</strong> We may suspend or terminate your account if we reasonably believe it has been compromised or is being used in breach of these Terms.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. EPM Product Terms</h2>
+        <p><strong>7.1</strong> The EPM is a mortgage product with the following key features:</p>
+        <ul>
+          <li>(a) <strong>Maximum LTV:</strong> Up to 80% of the appraised property value;</li>
+          <li>(b) <strong>Loan Terms:</strong> 10, 15, 20, 25, or 30 years;</li>
+          <li>(c) <strong>Monthly Income:</strong> Approximately 1.5% per annum of the property value, derived from investment returns;</li>
+          <li>(d) <strong>Investment Strategy:</strong> Approximately 70% S&P 500-linked ETFs and approximately 30% fixed income securities;</li>
+          <li>(e) <strong>Hedging Collar:</strong> Protective options strategy to limit downside risk on the investment portfolio;</li>
+          <li>(f) <strong>Equity Preservation:</strong> 100% of property equity is preserved throughout the loan term;</li>
+          <li>(g) <strong>NNEG Insurance:</strong> No-Negative-Equity Guarantee ensuring the borrower never owes more than the property value;</li>
+          <li>(h) <strong>Profit Share:</strong> Surplus investment returns are shared with the borrower every 5 years.</li>
+        </ul>
+        <p><strong>7.2</strong> The specific terms of your EPM will be set out in a loan contract and disclosure statement provided to you before signing. The loan contract will include all information required by the CCCFA, including the annual interest rate, total cost of credit, and all fees and charges.</p>
+        <p><strong>7.3</strong> All investment returns are subject to market conditions. Past performance is not indicative of future results. The income figures quoted are estimates based on historical data and financial modelling and are not guaranteed.</p>
+        <p><strong>7.4</strong> The investment portfolio is managed by a licensed investment manager in accordance with the FMCA and the terms of the Investment Management Agreement.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Lender Responsibility Principles</h2>
+        <p><strong>8.1</strong> In accordance with Part 1A of the CCCFA, we and our lending partners adhere to the Lender Responsibility Principles, which require that:</p>
+        <ul>
+          <li>(a) <strong>Reasonable inquiries:</strong> Before entering into a credit contract, we must make reasonable inquiries to be satisfied that the loan is affordable and suitable for you, having regard to your financial position, needs, and objectives;</li>
+          <li>(b) <strong>Suitability assessment:</strong> We must not enter into a credit contract unless we are satisfied that the credit is suitable for the borrower and meets the borrower's requirements and objectives;</li>
+          <li>(c) <strong>Adequate information:</strong> We must ensure you receive adequate information and explanations about the credit contract to enable you to make an informed decision, including the key terms, total cost of credit, and your rights and obligations;</li>
+          <li>(d) <strong>Responsible advertising:</strong> All advertising and marketing must not be misleading or deceptive and must comply with the Fair Trading Act 1986;</li>
+          <li>(e) <strong>Assistance in financial difficulty:</strong> If you experience financial difficulty, we are required to consider your request for a variation to the terms of the contract (see Section 16 — Hardship Provisions).</li>
+        </ul>
+        <p><strong>8.2</strong> These obligations are statutory requirements that cannot be contracted out of. If you believe we have not met these obligations, you have the right to complain through our internal complaints process or to the dispute resolution scheme identified in Section 17.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. Fees and Charges</h2>
+        <p><strong>9.1</strong> The following fees may apply to your EPM (all amounts in NZD):</p>
+        <ul>
+          <li>(a) <strong>Application fee:</strong> NZ$500 (payable on submission of a full application);</li>
+          <li>(b) <strong>Property valuation fee:</strong> NZ$600 – NZ$1,200 (depending on property type and location);</li>
+          <li>(c) <strong>Legal and settlement fee:</strong> NZ$1,500 – NZ$2,500;</li>
+          <li>(d) <strong>Lenders Mortgage Insurance (LMI):</strong> Up to 2% of the loan amount (if applicable);</li>
+          <li>(e) <strong>NNEG insurance premium:</strong> Included in the annual management fee;</li>
+          <li>(f) <strong>Annual platform and management fee:</strong> Disclosed in the loan contract;</li>
+          <li>(g) <strong>Early repayment fee:</strong> May apply during the first 5 years (details in loan contract);</li>
+          <li>(h) <strong>Variation fee:</strong> NZ$250 per variation request;</li>
+          <li>(i) <strong>Discharge fee:</strong> NZ$350.</li>
+        </ul>
+        <p><strong>9.2</strong> All fees will be fully disclosed in the disclosure statement provided to you before you enter into a credit contract, as required by the CCCFA.</p>
+        <p><strong>9.3</strong> Fees are inclusive of GST where applicable.</p>
+        <p><strong>9.4</strong> We will not charge any fee that has not been disclosed to you in advance.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>10. Investment Risks and Disclaimers</h2>
+        <p><strong>10.1</strong> The EPM involves investment in financial markets. You acknowledge and accept the following risks:</p>
+        <ul>
+          <li>(a) <strong>Market risk:</strong> Investment values may fluctuate due to market conditions, economic events, and other factors beyond our control;</li>
+          <li>(b) <strong>Income variability:</strong> Monthly income payments may vary depending on investment performance. Income is not guaranteed at any specific level;</li>
+          <li>(c) <strong>Currency risk:</strong> As a portion of the investment portfolio is denominated in foreign currencies (USD), exchange rate movements may affect returns;</li>
+          <li>(d) <strong>Counterparty risk:</strong> The risk that an investment counterparty may default on its obligations;</li>
+          <li>(e) <strong>Regulatory risk:</strong> Changes to tax laws, financial regulations, or government policy may affect the product or its returns.</li>
+        </ul>
+        <p><strong>10.2</strong> The hedging collar strategy is designed to limit — but cannot entirely eliminate — downside risk.</p>
+        <p><strong>10.3</strong> Past performance is not a reliable indicator of future performance. All projections and scenarios provided are based on modelling and historical data, and actual results may differ materially.</p>
+        <p><strong>10.4</strong> You should obtain independent financial advice before entering into an EPM. We recommend you consult a licensed financial adviser who is not affiliated with FutureProof.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>11. Holiday Mechanism</h2>
+        <p><strong>11.1</strong> The EPM includes a Holiday Mechanism that allows for the temporary suspension of monthly income payments during periods of sustained adverse market performance.</p>
+        <p><strong>11.2</strong> The Holiday Mechanism may be triggered when:</p>
+        <ul>
+          <li>(a) The investment portfolio falls below a predefined threshold due to market declines;</li>
+          <li>(b) Continuing income payments would materially impair the long-term sustainability of the EPM;</li>
+          <li>(c) Extraordinary market conditions (as determined by the investment manager) warrant a temporary suspension.</li>
+        </ul>
+        <p><strong>11.3</strong> During an income holiday:</p>
+        <ul>
+          <li>(a) No monthly income payments will be made to you;</li>
+          <li>(b) The investment portfolio will continue to be managed and monitored;</li>
+          <li>(c) Income payments will resume automatically when the portfolio recovers above the threshold;</li>
+          <li>(d) You will be notified in writing at least 10 Working Days before any income holiday commences.</li>
+        </ul>
+        <p><strong>11.4</strong> The terms of the Holiday Mechanism are set out in full in the loan contract.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>12. Insurance and NNEG</h2>
+        <p><strong>12.1</strong> The EPM includes a No-Negative-Equity Guarantee ("NNEG"), which ensures that you will never be required to repay more than the market value of the mortgaged property at the time of repayment.</p>
+        <p><strong>12.2</strong> The NNEG is supported by:</p>
+        <ul>
+          <li>(a) Pool-based loss-sharing arrangements among EPM borrowers;</li>
+          <li>(b) NNEG insurance underwritten by approved insurers;</li>
+          <li>(c) Reserve funds maintained by FutureProof.</li>
+        </ul>
+        <p><strong>12.3</strong> The cost of the NNEG is included in the annual management fee and is not charged separately.</p>
+        <p><strong>12.4</strong> You are required to maintain comprehensive building insurance on the mortgaged property at all times during the loan term, with the sum insured being not less than the full replacement value. FutureProof must be noted as an interested party on the policy.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>13. Property Obligations</h2>
+        <p><strong>13.1</strong> For the duration of the EPM, you must:</p>
+        <ul>
+          <li>(a) Maintain the property in good repair and condition;</li>
+          <li>(b) Pay all rates, levies, body corporate fees, and other outgoings on time;</li>
+          <li>(c) Maintain comprehensive building insurance as described in Section 12.4;</li>
+          <li>(d) Not make material alterations or additions to the property without our prior written consent;</li>
+          <li>(e) Not grant any additional mortgage, charge, or encumbrance over the property without our prior written consent;</li>
+          <li>(f) Allow access for property inspections with reasonable notice (not more than once per year unless there is a reasonable basis for concern);</li>
+          <li>(g) Notify us promptly of any material damage to the property or any event that may affect its value.</li>
+        </ul>
+
+        <h3>13.2 Relationship Property</h3>
+        <p><strong>13.2.1</strong> If the mortgaged property is relationship property under the Property (Relationships) Act 1976, you acknowledge that:</p>
+        <ul>
+          <li>(a) The consent of your spouse, civil union partner, or de facto partner may be required before an EPM can be granted;</li>
+          <li>(b) The EPM may affect the division of relationship property in the event of separation;</li>
+          <li>(c) You are strongly advised to obtain independent legal advice about the implications of the EPM for your relationship property rights;</li>
+          <li>(d) We may require a certificate from an independent solicitor confirming that your partner has received independent advice before we proceed with the EPM.</li>
+        </ul>
+        <p><strong>13.2.2</strong> FutureProof accepts no liability for any relationship property claims arising from or in connection with the EPM.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>14. Consumer Protections Under CCCFA</h2>
+        <p><strong>14.1</strong> As a borrower under a consumer credit contract, you are entitled to the following protections under the CCCFA:</p>
+        <ul>
+          <li>(a) The right to receive a disclosure statement before entering into the credit contract, containing all material terms including the annual interest rate, total interest charges, total amount payable, and all fees;</li>
+          <li>(b) The right to receive continuing disclosure, including regular statements of account;</li>
+          <li>(c) Protection against unreasonable fees — all fees must be reasonable, and you may challenge any fee you believe is unreasonable;</li>
+          <li>(d) The right to make early repayment at any time (subject to any early repayment fee disclosed in the contract);</li>
+          <li>(e) The right to request a variation of the contract terms in the event of hardship (see Section 16);</li>
+          <li>(f) The right to cancel the contract within the cooling-off period (see Section 15);</li>
+          <li>(g) Protection against oppressive credit contracts — the court may reopen any credit contract it considers oppressive.</li>
+        </ul>
+        <p><strong>14.2</strong> Nothing in these Terms limits or overrides any right you have under the CCCFA. In the event of any conflict between these Terms and the CCCFA, the CCCFA prevails.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>15. Cooling-Off Period</h2>
+        <p><strong>15.1</strong> You have the right to cancel the EPM credit contract within <%= details[:cooling_off] %> of signing, in accordance with the CCCFA.</p>
+        <p><strong>15.2</strong> To exercise your right of cancellation, you must provide written notice to FutureProof within the cooling-off period. Notice may be given by email to legal@futureprooffinancial.co or by post to our registered office.</p>
+        <p><strong>15.3</strong> If you cancel within the cooling-off period:</p>
+        <ul>
+          <li>(a) You must repay any loan funds that have been advanced to you;</li>
+          <li>(b) You will be liable for any reasonable costs incurred by FutureProof up to the date of cancellation (for example, valuation fees and legal fees already incurred);</li>
+          <li>(c) Any mortgage registered over your property will be discharged at our cost.</li>
+        </ul>
+        <p><strong>15.4</strong> The cooling-off period is a statutory right and cannot be waived.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>16. Hardship Provisions</h2>
+        <p><strong>16.1</strong> If you are unable to meet your obligations under the EPM due to unforeseen hardship (including illness, injury, loss of employment, relationship breakdown, or other reasonable cause), you may apply to us for a variation of the contract terms under Part 2 of the CCCFA.</p>
+        <p><strong>16.2</strong> A hardship application must be made in writing and should include:</p>
+        <ul>
+          <li>(a) An explanation of the nature of the hardship;</li>
+          <li>(b) Evidence supporting your claim (for example, medical certificates, redundancy notice);</li>
+          <li>(c) Your proposed variation to the contract terms;</li>
+          <li>(d) An indication of when you expect your circumstances to improve.</li>
+        </ul>
+        <p><strong>16.3</strong> We are required under the CCCFA to consider your hardship application and respond within a reasonable time (generally 10 Working Days). We may grant a variation including but not limited to:</p>
+        <ul>
+          <li>(a) Extending the term of the loan;</li>
+          <li>(b) Temporarily reducing or suspending repayment obligations;</li>
+          <li>(c) Capitalising arrears;</li>
+          <li>(d) Any other variation that is appropriate in the circumstances.</li>
+        </ul>
+        <p><strong>16.4</strong> If we decline your hardship application, we will provide written reasons. You may then escalate the matter to our dispute resolution scheme (see Section 17).</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>17. Complaints and Dispute Resolution</h2>
+        <p><strong>17.1</strong> If you have a complaint about any aspect of our service:</p>
+
+        <h3>Step 1 — Internal Complaints</h3>
+        <p><strong>17.2</strong> Contact our internal complaints team at legal@futureprooffinancial.co. We aim to acknowledge your complaint within 2 Working Days and resolve it within 20 Working Days.</p>
+
+        <h3>Step 2 — External Dispute Resolution</h3>
+        <p><strong>17.3</strong> If you are not satisfied with our response, or if we have not resolved your complaint within 40 Working Days, you may escalate it to the <%= details[:complaint_body] %>.</p>
+        <p><strong>17.4</strong> The FDRS provides a free and independent dispute resolution service for consumers. The FDRS can be contacted at:</p>
+        <div class="contact-info">
+          <p><strong>Financial Dispute Resolution Service (FDRS)</strong></p>
+          <p>Website: fdrs.org.nz</p>
+          <p>Freephone: 0508 337 337</p>
+        </div>
+        <p><strong>17.5</strong> You may also complain to the FMA about our conduct as a licensed financial service provider.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>18. Fair Trading Act 1986 Compliance</h2>
+        <p><strong>18.1</strong> We comply with the Fair Trading Act 1986 ("FTA") in all our dealings with you. In particular:</p>
+        <ul>
+          <li>(a) We will not engage in conduct that is misleading or deceptive, or is likely to mislead or deceive;</li>
+          <li>(b) We will not make false or misleading representations about the nature, characteristics, or suitability of the EPM;</li>
+          <li>(c) All advertising and promotional material will be accurate, balanced, and not misleading;</li>
+          <li>(d) We will comply with the FTA provisions relating to unfair contract terms.</li>
+        </ul>
+        <p><strong>18.2</strong> If you believe we have breached the FTA, you may complain to the Commerce Commission or take action under the FTA.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>19. Electronic Communications</h2>
+        <p><strong>19.1</strong> By registering on the Platform, you consent to receiving communications from us by electronic means, including email, SMS, and Platform notifications.</p>
+        <p><strong>19.2</strong> Electronic communications satisfy any legal requirement for communication to be in writing, in accordance with the Electronic Transactions Act 2002.</p>
+        <p><strong>19.3</strong> You may opt out of marketing communications at any time. However, you may not opt out of transactional communications required for the servicing of your EPM or those required by law.</p>
+        <p><strong>19.4</strong> You are responsible for ensuring your email address and contact details are up to date. We are not liable for any failure of communication due to incorrect contact details.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>20. Intellectual Property</h2>
+        <p><strong>20.1</strong> All content, designs, technology, trade marks, logos, financial models, algorithms, and software on the Platform are the intellectual property of FutureProof Financial Limited (NZ) or its licensors.</p>
+        <p><strong>20.2</strong> You are granted a limited, non-exclusive, non-transferable licence to use the Platform for its intended purpose only.</p>
+        <p><strong>20.3</strong> You must not, without our prior written consent:</p>
+        <ul>
+          <li>(a) Copy, reproduce, distribute, or create derivative works from any Platform content;</li>
+          <li>(b) Reverse-engineer, decompile, or disassemble any Platform software;</li>
+          <li>(c) Use automated tools, bots, or scrapers to access or extract data from the Platform;</li>
+          <li>(d) Use our trade marks or branding in any way that suggests endorsement or affiliation.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>21. Limitation of Liability</h2>
+        <p><strong>21.1</strong> To the maximum extent permitted by law, FutureProof's aggregate liability to you under or in connection with these Terms, the Platform, or any EPM product is limited to the total fees paid by you to FutureProof in the 12 months preceding the claim.</p>
+        <p><strong>21.2</strong> FutureProof is not liable for:</p>
+        <ul>
+          <li>(a) Any indirect, consequential, special, or punitive loss or damage;</li>
+          <li>(b) Loss of income, profit, or anticipated savings;</li>
+          <li>(c) Loss arising from investment performance, market movements, or exchange rate fluctuations;</li>
+          <li>(d) Loss arising from circumstances beyond our reasonable control, including force majeure events;</li>
+          <li>(e) Loss arising from your failure to comply with these Terms or your loan contract.</li>
+        </ul>
+        <p><strong>21.3</strong> Nothing in these Terms excludes or limits:</p>
+        <ul>
+          <li>(a) Any guarantee, right, or remedy you have under the Consumer Guarantees Act 1993 ("CGA") that cannot be excluded or limited by law;</li>
+          <li>(b) Liability for fraud or wilful misconduct;</li>
+          <li>(c) Any other liability that cannot be excluded or limited by law.</li>
+        </ul>
+        <p><strong>21.4</strong> For the avoidance of doubt, the guarantees under the CGA apply to services provided by FutureProof to the extent required by law, including that services will be carried out with reasonable care and skill and will be fit for a particular purpose made known to us.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>22. Governing Law and Jurisdiction</h2>
+        <p><strong>22.1</strong> These Terms are governed by and construed in accordance with <%= details[:governing_law] %>.</p>
+        <p><strong>22.2</strong> The parties submit to the non-exclusive jurisdiction of <%= details[:courts] %>.</p>
+        <p><strong>22.3</strong> Nothing in this section limits your right to bring proceedings in the Disputes Tribunal (for claims within its jurisdiction) or to use the dispute resolution scheme identified in Section 17.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>23. Amendments</h2>
+        <p><strong>23.1</strong> We may amend these Terms from time to time. Material amendments will be notified to you at least 30 days in advance via email or Platform notification.</p>
+        <p><strong>23.2</strong> If you do not agree with the amended Terms, you may close your account before the amendments take effect. Continued use of the Platform after the effective date of any amendment constitutes acceptance of the updated Terms.</p>
+        <p><strong>23.3</strong> Any amendment to the terms of your loan contract (as opposed to these Platform Terms) will be made in accordance with the CCCFA and the terms of that contract.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>24. Contact</h2>
+        <div class="contact-info">
+          <p><strong>FutureProof Financial Limited (NZ)</strong></p>
+          <p>Legal enquiries: legal@futureprooffinancial.co</p>
+          <p>Privacy enquiries: privacy@futureprooffinancial.co</p>
+          <p>Website: www.futureprooffinancial.co</p>
+        </div>
+        <p><strong>24.1</strong> For urgent matters, please contact legal@futureprooffinancial.co.</p>
+        <p><strong>24.2</strong> For complaints, see Section 17.</p>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <%= link_to "Back to Legal Documents", legal_path, class: "back-link" %>
+    </div>
+  </div>
+</div>

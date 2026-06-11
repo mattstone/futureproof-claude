@@ -49,7 +49,7 @@
         <option value="awaiting_investment" <%= 'selected' if config['contract_from_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
         <option value="ok" <%= 'selected' if config['contract_from_status'] == 'ok' %>>OK</option>
         <option value="in_holiday" <%= 'selected' if config['contract_from_status'] == 'in_holiday' %>>In Holiday</option>
-        <option value="in_arrears" <%= 'selected' if config['contract_from_status'] == 'in_arrears' %>>In Arrears</option>
+        <option value="investment_at_risk" <%= 'selected' if config['contract_from_status'] == 'investment_at_risk' %>>Investment At Risk</option>
         <option value="complete" <%= 'selected' if config['contract_from_status'] == 'complete' %>>Complete</option>
       </select>
     </div>
@@ -61,7 +61,7 @@
         <option value="awaiting_investment" <%= 'selected' if config['contract_to_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
         <option value="ok" <%= 'selected' if config['contract_to_status'] == 'ok' %>>OK</option>
         <option value="in_holiday" <%= 'selected' if config['contract_to_status'] == 'in_holiday' %>>In Holiday</option>
-        <option value="in_arrears" <%= 'selected' if config['contract_to_status'] == 'in_arrears' %>>In Arrears</option>
+        <option value="investment_at_risk" <%= 'selected' if config['contract_to_status'] == 'investment_at_risk' %>>Investment At Risk</option>
         <option value="complete" <%= 'selected' if config['contract_to_status'] == 'complete' %>>Complete</option>
       </select>
     </div>
@@ -74,7 +74,7 @@
         <option value="awaiting_investment" <%= 'selected' if config['contract_stuck_at_status'] == 'awaiting_investment' %>>Awaiting Investment</option>
         <option value="ok" <%= 'selected' if config['contract_stuck_at_status'] == 'ok' %>>OK</option>
         <option value="in_holiday" <%= 'selected' if config['contract_stuck_at_status'] == 'in_holiday' %>>In Holiday</option>
-        <option value="in_arrears" <%= 'selected' if config['contract_stuck_at_status'] == 'in_arrears' %>>In Arrears</option>
+        <option value="investment_at_risk" <%= 'selected' if config['contract_stuck_at_status'] == 'investment_at_risk' %>>Investment At Risk</option>
       </select>
     </div>
     <div class="property-group">

@@ -1,0 +1,74 @@
+<div class="borrower-dashboard">
+  <h1>My Guaranteed Income Plans</h1>
+
+  <!-- Stats Cards -->
+  <div class="borrower-stats">
+    <div class="stat-card">
+      <div class="stat-label">Total Plans</div>
+      <div class="stat-value"><%= @stats[:total] %></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active</div>
+      <div class="stat-value"><%= @stats[:active] %></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value"><%= @stats[:completed] %></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Rejected</div>
+      <div class="stat-value"><%= @stats[:rejected] %></div>
+    </div>
+  </div>
+
+  <!-- Applications List -->
+  <% if @applications.any? %>
+    <div class="applications-list">
+      <% @applications.each do |app| %>
+        <div class="application-card">
+          <div class="app-header">
+            <div>
+              <h3 class="app-title">EPM Plan</h3>
+              <p class="app-property"><%= app.address || "Property" %></p>
+            </div>
+            <div class="app-status app-status-<%= app.status %>">
+              <%= app.status.humanize %>
+            </div>
+          </div>
+
+          <div class="app-details">
+            <div class="detail-item">
+              <span class="detail-label">Total Payout</span>
+              <span class="detail-value">$<%= number_with_precision(app.equity_investment_amount, precision: 0) %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Term</span>
+              <span class="detail-value"><%= app.participation_term_years %> years</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Property Value</span>
+              <span class="detail-value">$<%= number_with_precision(app.home_value, precision: 0) %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Your Equity %</span>
+              <span class="detail-value"><%= number_with_precision(app.equity_percentage, precision: 1) %>%</span>
+            </div>
+          </div>
+
+          <div class="app-actions">
+            <%= link_to "View Details", borrower_application_path(app), class: "btn btn-primary" %>
+            <% if app.contract %>
+              <%= link_to "Download Contract", "#", class: "btn btn-secondary", title: "Contract available" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>You don't have any EPM plans yet.</p>
+      <%= link_to "Start Application", root_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+

@@ -6,14 +6,12 @@ pin "@hotwired/stimulus", to: "stimulus.min.js"
 pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
 pin_all_from "app/javascript/controllers", under: "controllers"
 pin_all_from "app/javascript/admin", under: "admin"
-pin "honky_pong_enhanced", to: "honky_pong_enhanced.js"
 pin "lace_invaders", to: "lace_invaders.js"
-pin "hackman", to: "hackman.js"
 pin "audio_manager", to: "audio_manager.js"
 pin "admin_email_workflows", to: "admin_email_workflows.js"
 pin "workflow_templates", to: "workflow_templates.js"
 pin "email_workflows_entry", to: "email_workflows_entry.js"
-pin "chart.js", to: "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js", preload: true
+pin "chart.js", to: "chart.js", preload: true
 pin "tinymce", to: "https://cdn.tiny.cloud/1/#{Rails.application.credentials.TINYMCE_API_KEY}/tinymce/6/tinymce.min.js", preload: true
 pin "d3" # @7.9.0
 pin "d3-array" # @3.2.4
@@ -51,3 +49,8 @@ pin "internmap" # @2.0.3
 pin "robust-predicates" # @3.0.2
 pin "trix"
 pin "@rails/actiontext", to: "actiontext.esm.js"
+pin "lexxy", to: "lexxy.js"
+pin "@rails/actioncable", to: "actioncable.esm.js"
+pin_all_from "app/javascript/channels", under: "channels"
+pin "d3-sankey" # @0.12.3
+pin "topojson-client" # @3.1.0

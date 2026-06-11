@@ -1,0 +1,51 @@
+<% content_for :page_title, "Conversation ##{@conversation.id}" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Conversation ##{@conversation.id}</h2>
+  <%= link_to "← Back", admin_chat_conversations_path, class: "fp-btn fp-btn-outline" %>
+</div>
+
+<div class="fp-card">
+  <table class="admin-table">
+    <tbody>
+      <tr><th>User</th><td><%= @conversation.user&.email || "(guest)" %></td></tr>
+      <tr><th>Agent</th><td><%= @conversation.chat_agent&.name || "—" %></td></tr>
+      <tr><th>Region</th><td><%= @conversation.region %></td></tr>
+      <tr><th>Status</th><td><span class="status-badge"><%= @conversation.status %></span></td></tr>
+      <tr><th>Started</th><td><%= @conversation.created_at.strftime('%Y-%m-%d %H:%M:%S %Z') %></td></tr>
+      <tr><th>Last update</th><td><%= @conversation.updated_at.strftime('%Y-%m-%d %H:%M:%S %Z') %></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="dashboard-section-header">
+  <h3 class="section-subtitle">Transcript</h3>
+</div>
+
+<div class="chat-transcript">
+  <% @messages.each do |msg| %>
+    <div class="chat-message chat-message-<%= msg.role %>">
+      <div class="chat-message-meta">
+        <strong><%= msg.role == 'agent' ? (@conversation.chat_agent&.name || 'Agent') : (@conversation.user&.email || 'User') %></strong>
+        <span><%= msg.created_at.strftime('%H:%M:%S') %></span>
+      </div>
+      <div class="chat-message-content"><%= simple_format(msg.content) %></div>
+      <% if msg.metadata.present? && msg.role == 'agent' %>
+        <div class="chat-message-meta-detail">
+          <% if msg.metadata['source'].present? %>
+            <span>Source: <strong><%= msg.metadata['source'] %></strong></span>
+          <% end %>
+          <% if msg.metadata['usage'].is_a?(Hash) %>
+            <span>Tokens: in <%= msg.metadata['usage']['input_tokens'] %> · out <%= msg.metadata['usage']['output_tokens'] %> · cache_read <%= msg.metadata['usage']['cache_read_input_tokens'] %></span>
+          <% end %>
+          <% if msg.metadata['tool_calls'].is_a?(Array) && msg.metadata['tool_calls'].any? %>
+            <span>Tool calls: <%= msg.metadata['tool_calls'].map { |c| c['name'] }.join(', ') %></span>
+          <% end %>
+          <% if msg.metadata['escalate'] %>
+            <span class="status-badge status-badge-warning">Escalation flagged</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

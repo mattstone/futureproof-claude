@@ -1,9 +1,16 @@
 # 🤖 Agentic AI Recommendations for Futureproof
 
+> ## ⚠️ SUPERSEDED — 2026-06-04
+> **This document is retired. Do not cite it.** It names only three agents (we now run five: Akane, Misato, Rie, Yumi, Motoko) and is mostly speculative code rather than strategy.
+>
+> **Current AI strategy:** Section 3 of `docs/pdfs/FutureProof_Platform_and_AI_Strategy_Jun2026.pdf` — the AI staircase and the advice wall.
+>
+> Kept below for history only.
+
 ## Executive Summary
 
 Your application already has excellent foundations for agentic AI with:
-- **Agent Lifecycle System** with 3 specialized AI agents (Motoko, Rei, Yumi)
+- **Agent Lifecycle System** with 3 specialized AI agents (Akane, Rie, Yumi)
 - **Workflow automation** with email sequences and triggers
 - **Multi-stage application process** with rich data collection
 - **Message threading** between applicants and agents
@@ -349,8 +356,8 @@ class AgentCoordinationService
 
     # Assign to appropriate agents
     assignments = {
-      financial_calculation: AiAgent.find_by(name: 'Motoko'),
-      document_verification: AiAgent.find_by(name: 'Rei'),
+      financial_calculation: AiAgent.find_by(name: 'Akane'),
+      document_verification: AiAgent.find_by(name: 'Rie'),
       contract_implications: AiAgent.find_by(name: 'Yumi')
     }
 
@@ -725,7 +732,7 @@ end
 
 Your application is **perfectly positioned** for agentic AI because:
 
-✅ You already have agent personas (Motoko, Rei, Yumi)
+✅ You already have agent personas (Akane, Rie, Yumi)
 ✅ You have rich application data for context
 ✅ You have workflow infrastructure in place
 ✅ You have clear business processes to automate

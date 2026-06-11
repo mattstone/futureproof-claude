@@ -73,7 +73,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     result = engine.calculate
 
     assert result[:insurance][:covered]
-    assert_equal 32_000, result[:insurance][:lmi_amount] # 2M * 0.80 * 0.02
+    assert_equal 20_000, result[:insurance][:lmi_amount] # 2M * 0.80 * 1.25% (v14d lmi_upfront_pct)
   end
 
   test "summary includes key facts" do
@@ -98,8 +98,10 @@ class CalculationEngineTest < ActiveSupport::TestCase
 
     assert_equal :tom, tom[:quote][:model]
     assert_equal :pavel, pavel[:quote][:model]
-    # Tom's model is more aggressive (higher income)
-    assert tom[:quote][:monthly_income] > pavel[:quote][:monthly_income]
+    # At the validated 10yr anchor the two models converge on $2,500/month;
+    # they are distinct models and must report distinct versions
+    assert_equal "legacy-tom", tom[:quote][:product_version]
+    assert_equal EpmModelConfig.model_version, pavel[:quote][:product_version]
   end
 
   # CPI Escalation & Inflation Scenario Tests

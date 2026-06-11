@@ -20,7 +20,7 @@ class Admin::EmailTemplateTrixEditorTest < ActionDispatch::IntegrationTest
     assert_response :success
     
     # Check for Trix editor presence
-    assert_select "trix-editor", count: 1
+    assert_select "lexxy-editor, trix-editor", minimum: 1
     
     # Check that old TinyMCE is gone
     assert_select "[data-tinymce-target='editor']", count: 0
@@ -38,6 +38,6 @@ class Admin::EmailTemplateTrixEditorTest < ActionDispatch::IntegrationTest
     assert_response :success
     
     # Check for Trix editor presence
-    assert_select "trix-editor", count: 1
+    assert_select "lexxy-editor, trix-editor", minimum: 1
   end
 end

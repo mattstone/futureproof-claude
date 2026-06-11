@@ -617,7 +617,311 @@
 }
 
 .arcade-button.advanced-button:hover {
-  box-shadow: 
+  box-shadow:
     0 6px 20px rgba(0, 64, 255, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   SUPERSONIC — animated Genesis-style splash card
+   ============================================================ */
+.supersonic-card {
+  background: linear-gradient(145deg, #0a3399, #001b66);
+  border-color: #2bb6ff;
+  position: relative;
+}
+
+.supersonic-card::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 22px;
+  background: linear-gradient(45deg, #2bb6ff, #ffd24a, #e72525, #2bb6ff);
+  background-size: 300% 300%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: ss-border-rainbow 3s linear infinite;
+}
+
+.supersonic-card:hover {
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(43, 182, 255, 0.7),
+    0 0 80px rgba(255, 210, 74, 0.3);
+}
+
+.supersonic-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes ss-border-rainbow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.supersonic-screen {
+  border-color: #ffd24a;
+  background: #001b66;
+  position: relative;
+  overflow: hidden;
+}
+
+.ss-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Sky gradient — Sonic blue dawn */
+.ss-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    #3aaaff 0%,
+    #6dc7ff 45%,
+    #9be4ff 70%,
+    #fcd9a8 95%);
+}
+
+/* Sun — pulses gently */
+.ss-sun {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8c8 0%, #ffd24a 65%, transparent 75%);
+  box-shadow:
+    0 0 18px #ffd24a,
+    0 0 40px rgba(255, 210, 74, 0.6);
+  animation: ss-sun-pulse 2.6s ease-in-out infinite;
+}
+@keyframes ss-sun-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 18px #ffd24a, 0 0 40px rgba(255, 210, 74, 0.6); }
+  50%      { transform: scale(1.08); box-shadow: 0 0 24px #fff8c8, 0 0 60px rgba(255, 210, 74, 0.85); }
+}
+
+/* Clouds — three layers, parallax-drift */
+.ss-clouds {
+  position: absolute;
+  top: 14px; left: 0; right: 0;
+  height: 50px;
+  pointer-events: none;
+}
+.ss-cloud {
+  position: absolute;
+  width: 50px; height: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  box-shadow:
+    -10px -2px 0 -1px rgba(255,255,255,0.85),
+     14px -4px 0 -2px rgba(255,255,255,0.85),
+     -4px  4px 0 -1px rgba(255,255,255,0.7);
+  animation: ss-cloud-drift 16s linear infinite;
+}
+.ss-cloud-1 { top: 8px;  animation-duration: 18s; animation-delay:  -2s; }
+.ss-cloud-2 { top: 24px; animation-duration: 22s; animation-delay:  -8s; transform: scale(0.7); }
+.ss-cloud-3 { top: 40px; animation-duration: 26s; animation-delay: -14s; transform: scale(1.1); }
+@keyframes ss-cloud-drift {
+  from { left: -80px; }
+  to   { left: 110%; }
+}
+
+/* Distant mountain silhouette — repeating triangles */
+.ss-mountains {
+  position: absolute;
+  bottom: 70px; left: 0; right: 0;
+  height: 38px;
+  background:
+    linear-gradient( 60deg, transparent 49%, #426e42 50%) 0 0/40px 38px,
+    linear-gradient(-60deg, transparent 49%, #426e42 50%) 20px 0/40px 38px,
+    #5a8e5a;
+  opacity: 0.92;
+}
+
+/* Foreground hills — soft green band */
+.ss-hills {
+  position: absolute;
+  bottom: 36px; left: 0; right: 0;
+  height: 50px;
+  background: linear-gradient(180deg, #3aa83a 0%, #2c8a2c 100%);
+  border-top: 2px solid #5fd95f;
+  box-shadow: inset 0 6px 0 rgba(255,255,255,0.07);
+}
+
+/* Iconic Green Hill checker floor — scrolls horizontally */
+.ss-checker {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 36px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #f0c878 0 12px,
+      #d49b3e 12px 24px
+    );
+  background-size: 34px 34px;
+  border-top: 3px solid #6c3f1b;
+  animation: ss-checker-scroll 1.4s linear infinite;
+}
+@keyframes ss-checker-scroll {
+  from { background-position: 0 0;     }
+  to   { background-position: -68px 0; }
+}
+
+/* Horizontal speed-line streaks — stagger across the screen */
+.ss-streaks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ss-streaks span {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
+  border-radius: 2px;
+  animation: ss-streak 1.1s linear infinite;
+}
+.ss-streaks span:nth-child(1) { top: 28%; width: 80px;  animation-duration: 0.9s; animation-delay: -0.1s; }
+.ss-streaks span:nth-child(2) { top: 38%; width: 120px; animation-duration: 1.2s; animation-delay: -0.4s; }
+.ss-streaks span:nth-child(3) { top: 50%; width: 60px;  animation-duration: 0.7s; animation-delay: -0.2s; }
+.ss-streaks span:nth-child(4) { top: 60%; width: 140px; animation-duration: 1.4s; animation-delay: -0.6s; }
+.ss-streaks span:nth-child(5) { top: 70%; width: 90px;  animation-duration: 1.0s; animation-delay: -0.9s; }
+.ss-streaks span:nth-child(6) { top: 78%; width: 70px;  animation-duration: 0.8s; animation-delay: -0.3s; }
+@keyframes ss-streak {
+  from { left: -160px; opacity: 0;   }
+  10%  {                opacity: 0.9; }
+  90%  {                opacity: 0.9; }
+  to   { left: 110%;   opacity: 0;   }
+}
+
+/* Sonic title art — bobbing centerpiece */
+.ss-title {
+  position: absolute;
+  top: 8px; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.ss-title-img {
+  height: 90px;
+  width: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45)) drop-shadow(0 0 12px rgba(43,182,255,0.4));
+  animation: ss-bob 1.6s ease-in-out infinite;
+}
+@keyframes ss-bob {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%      { transform: translateY(-4px) rotate(-1deg); }
+}
+
+/* Spinning gold rings */
+.ss-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ss-ring {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 3px solid #ffd24a;
+  box-shadow: 0 0 8px #ffd24a, inset 0 0 4px rgba(255, 248, 176, 0.7);
+  animation: ss-ring-spin 1.2s linear infinite;
+}
+.ss-ring-1 { top: 32%; left: 18%; animation-delay: -0.0s; }
+.ss-ring-2 { top: 58%; left: 80%; animation-delay: -0.4s; }
+.ss-ring-3 { top: 72%; left: 14%; animation-delay: -0.8s; width: 12px; height: 12px; }
+@keyframes ss-ring-spin {
+  0%   { transform: scaleX(1)   scaleY(1); box-shadow: 0 0 12px #ffd24a, inset 0 0 4px rgba(255,248,176,0.8); }
+  25%  { transform: scaleX(0.3) scaleY(1); box-shadow: 0 0  4px #ffd24a; }
+  50%  { transform: scaleX(1)   scaleY(1); box-shadow: 0 0 12px #ffd24a, inset 0 0 4px rgba(255,248,176,0.8); }
+  75%  { transform: scaleX(0.3) scaleY(1); box-shadow: 0 0  4px #ffd24a; }
+  100% { transform: scaleX(1)   scaleY(1); box-shadow: 0 0 12px #ffd24a, inset 0 0 4px rgba(255,248,176,0.8); }
+}
+
+/* SUPERSONIC wordmark — yellow-fill, blue-stroke, classic feel */
+.ss-wordmark {
+  position: absolute;
+  bottom: 44px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: #ffd24a;
+  -webkit-text-stroke: 2px #001b66;
+  text-shadow:
+    0 2px 0 #001b66,
+    0 4px 0 #00104a,
+    0 6px 12px rgba(0, 0, 0, 0.6),
+    0 0 16px rgba(255, 210, 74, 0.6);
+  transform: skewX(-8deg);
+  animation: ss-wordmark-pulse 2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes ss-wordmark-pulse {
+  0%, 100% { transform: skewX(-8deg) scale(1);    }
+  50%      { transform: skewX(-8deg) scale(1.04); }
+}
+
+.ss-tagline {
+  position: absolute;
+  bottom: 26px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 0 1px 0 #001b66, 0 0 8px rgba(255,255,255,0.4);
+  z-index: 2;
+}
+
+.ss-hi {
+  position: absolute;
+  bottom: 8px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: #ffd24a;
+  text-shadow: 0 0 6px #ffd24a, 0 1px 0 #001b66;
+  letter-spacing: 1px;
+  animation: ss-hi-blink 1.4s steps(2) infinite;
+  z-index: 2;
+}
+@keyframes ss-hi-blink {
+  0%, 65% { opacity: 1; }
+  66%, 100% { opacity: 0.45; }
+}
+
+/* SuperSonic-themed PLAY button — electric blue with gold trim */
+.arcade-button.supersonic-button {
+  background: linear-gradient(145deg, #2bb6ff, #0a3399);
+  border: 2px solid #ffd24a;
+  box-shadow:
+    0 5px 15px rgba(43, 182, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 12px rgba(255, 210, 74, 0.3);
+}
+
+.arcade-button.supersonic-button:hover {
+  background: linear-gradient(145deg, #4ec5ff, #1a4ab8);
+  box-shadow:
+    0 8px 25px rgba(43, 182, 255, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 22px rgba(255, 210, 74, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Tighter splash on smaller screens */
+@media (max-width: 768px) {
+  .ss-title-img    { height: 64px; }
+  .ss-wordmark     { font-size: 1.2rem; bottom: 38px; }
+  .ss-tagline      { font-size: 0.62rem; bottom: 22px; }
+  .ss-hi           { font-size: 0.62rem; }
+  .ss-mountains    { bottom: 56px; }
+  .ss-hills        { bottom: 28px; height: 38px; }
+  .ss-checker      { height: 28px; }
 }

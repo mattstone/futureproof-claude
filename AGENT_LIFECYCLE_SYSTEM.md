@@ -89,9 +89,9 @@ Each stage can be assigned a color that appears throughout the UI:
 - **Handoff Rules**: Which agent takes over next
 - **Actions**: Edit/Delete buttons
 
-## Motoko's Configuration
+## Akane's Configuration
 
-Motoko has been configured with 3 lifecycle stages:
+Akane has been configured with 3 lifecycle stages:
 
 ### 1. Initial Interest (Blue)
 - **Trigger**: `user_registered`
@@ -109,13 +109,13 @@ Motoko has been configured with 3 lifecycle stages:
 - **Trigger**: `application_submitted`
 - **Actions**:
   - Send submission confirmation (immediately)
-- **Handoff**: To Rei when status changes
+- **Handoff**: To Rie when status changes
 
 ## Usage
 
 ### Accessing the Interface
 1. Navigate to `/admin/agent_lifecycle`
-2. Click on Motoko's card
+2. Click on Akane's card
 3. View her visual timeline
 4. Click "Add Stage" or "Edit Stage" to configure
 
@@ -157,7 +157,7 @@ Each action can have:
 ```
 User registers
   ↓
-Motoko takes ownership
+Akane takes ownership
   ↓
 Stage: "Initial Interest"
   ↓
@@ -179,7 +179,7 @@ Stage: "Under Review"
   ↓
 Action 1: Send submission confirmation (immediate)
   ↓
-Hand off to Rei (Operations agent)
+Hand off to Rie (Operations agent)
 ```
 
 ## Key Advantages Over Old System
@@ -206,7 +206,7 @@ Hand off to Rei (Operations agent)
 
 ## Next Steps
 
-### For Rei (Operations Agent)
+### For Rie (Operations Agent)
 - Configure lifecycle stages for application review
 - Add document verification workflows
 - Set up approval/rejection flows
@@ -248,8 +248,8 @@ end
 
 ### Accessing Agent Configuration
 ```ruby
-motoko = AiAgent.find_by(name: 'Motoko')
-stages = motoko.lifecycle_stages
+akane = AiAgent.find_by(name: 'Akane')
+stages = akane.lifecycle_stages
 first_stage = stages.first
 actions = first_stage['automated_actions']
 ```
@@ -274,7 +274,7 @@ Actions reference email templates by ID:
 6. `app/views/admin/agent_lifecycle/show.html.erb`
 7. `app/views/admin/agent_lifecycle/stage_form.html.erb`
 8. `app/assets/stylesheets/agent_lifecycle.css`
-9. `db/seeds/motoko_lifecycle.rb`
+9. `db/seeds/akane_lifecycle.rb`
 
 ## Routes Added
 
@@ -293,6 +293,6 @@ end
 
 ---
 
-**Status**: ✅ Ready for use with Motoko. Rei and Yumi can be configured using the same interface.
+**Status**: ✅ Ready for use with Akane. Rie and Yumi can be configured using the same interface.
 
-**Next**: Configure Rei's lifecycle stages for application processing and operations.
+**Next**: Configure Rie's lifecycle stages for application processing and operations.

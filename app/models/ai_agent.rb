@@ -5,9 +5,9 @@ class AiAgent < ApplicationRecord
   
   validates :name, presence: true, uniqueness: true
   validates :agent_type, presence: true, inclusion: { in: %w[applications backoffice investment] }
-  validates :avatar_filename, presence: true, inclusion: { 
-    in: %w[Motoko.png Rie.png Yumi.png], 
-    message: "must be one of the available agent avatars: Motoko.png, Rie.png, Yumi.png" 
+  validates :avatar_filename, presence: true, inclusion: {
+    in: %w[Akane.png Rie.png Yumi.png],
+    message: "must be one of the available agent avatars: Akane.png, Rie.png, Yumi.png"
   }
   
   scope :active, -> { where(is_active: true) }
@@ -51,7 +51,7 @@ class AiAgent < ApplicationRecord
   def role_description
     case agent_type
     when 'applications'
-      'Application Processing Specialist'
+      'Customer Acquisition Specialist'
     when 'backoffice'
       'Back Office Operations Assistant'
     when 'investment'

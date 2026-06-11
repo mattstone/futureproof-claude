@@ -37,20 +37,41 @@
   <!-- Game Selection Grid -->
   <div class="games-grid">
     
-    <!-- Honky Pong Game Card -->
-    <div class="game-card honky-pong-card">
-      <div class="game-screen">
+    <!-- SuperSonic Game Card -->
+    <div class="game-card supersonic-card">
+      <div class="game-screen supersonic-screen">
         <div class="crt-effect">
-          <div class="game-preview">
-            🎮<br>
-            <div class="game-logo">HONKY PONG</div>
-            <div class="game-description">Save the Princess!</div>
-            <div class="high-score">HIGH SCORE: 999,999</div>
+          <div class="ss-scene">
+            <div class="ss-sky"></div>
+            <div class="ss-sun"></div>
+            <div class="ss-clouds">
+              <span class="ss-cloud ss-cloud-1"></span>
+              <span class="ss-cloud ss-cloud-2"></span>
+              <span class="ss-cloud ss-cloud-3"></span>
+            </div>
+            <div class="ss-mountains"></div>
+            <div class="ss-hills"></div>
+            <div class="ss-checker"></div>
+            <div class="ss-streaks">
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span>
+            </div>
+            <div class="ss-title">
+              <%= image_tag "/sonic-assets/sonic.gif", alt: "SuperSonic", class: "ss-title-img" %>
+            </div>
+            <div class="ss-rings">
+              <span class="ss-ring ss-ring-1"></span>
+              <span class="ss-ring ss-ring-2"></span>
+              <span class="ss-ring ss-ring-3"></span>
+            </div>
+            <div class="ss-wordmark">SUPERSONIC</div>
+            <div class="ss-tagline">GENESIS-FEEL SPEED!</div>
+            <div class="ss-hi">HIGH SCORE: 999,999</div>
           </div>
         </div>
       </div>
       <div class="game-controls">
-        <%= link_to honky_pong_path, class: "arcade-button start-button" do %>
+        <%= link_to "/sonic-phaser.html", class: "arcade-button start-button supersonic-button", target: "_blank" do %>
           <span class="button-text">PLAY NOW</span>
           <div class="button-lights">
             <div class="light red"></div>
@@ -60,7 +81,7 @@
         <% end %>
       </div>
       <div class="game-info">
-        <div class="coin-slot">READY TO PLAY</div>
+        <div class="coin-slot">MOMENTUM PLATFORMER</div>
         <div class="credits">CREDITS: ∞</div>
       </div>
     </div>
@@ -78,7 +99,7 @@
         </div>
       </div>
       <div class="game-controls">
-        <%= link_to "/lace-invaders-working.html", class: "arcade-button start-button", target: "_blank" do %>
+        <%= link_to "/lace-invaders", class: "arcade-button start-button", target: "_blank" do %>
           <span class="button-text">PLAY NOW</span>
           <div class="button-lights">
             <div class="light red"></div>
@@ -121,33 +142,30 @@
       </div>
     </div>
 
-    <!-- Donkey Kong Standalone Game Card -->
+    <!-- Honky Pong (Donkey Kong) Game Card -->
     <div class="game-card donkey-kong-card">
       <div class="game-screen">
         <div class="crt-effect">
           <div class="game-preview">
             🦍<br>
-            <div class="game-logo">DONKEY KONG</div>
-            <div class="game-description">Standalone Phaser Game!</div>
-            <div class="high-score">HIGH SCORE: 555,555</div>
+            <div class="game-logo">HONKY PONG</div>
+            <div class="game-description">Save the Princess!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
           </div>
         </div>
       </div>
       <div class="game-controls">
-        <%= link_to "/enhanced-donkey-kong/index.html", class: "arcade-button start-button", target: "_blank" do %>
-          <span class="button-text">ENHANCED VERSION</span>
+        <%= link_to "/honky-pong-v2.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
           <div class="button-lights">
             <div class="light red"></div>
             <div class="light yellow"></div>
             <div class="light green"></div>
           </div>
         <% end %>
-        <%= link_to "/donkey-kong.html", class: "arcade-button advanced-button", target: "_blank" do %>
-          <span class="button-text">SIMPLE VERSION</span>
-        <% end %>
       </div>
       <div class="game-info">
-        <div class="coin-slot">NO LOGIN REQUIRED</div>
+        <div class="coin-slot">4 SCREENS OF ACTION</div>
         <div class="credits">CREDITS: ∞</div>
       </div>
     </div>
@@ -221,7 +239,7 @@
         </div>
       </div>
       <div class="game-controls">
-        <%= link_to "/galaxian-working.html", class: "arcade-button start-button", target: "_blank" do %>
+        <%= link_to "/galaxian-working.html?v=2", class: "arcade-button start-button", target: "_blank" do %>
           <span class="button-text">PLAY NOW</span>
           <div class="button-lights">
             <div class="light red"></div>
@@ -232,6 +250,230 @@
       </div>
       <div class="game-info">
         <div class="coin-slot">READY TO PLAY</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Tuna Lander Game Card -->
+    <div class="game-card tuna-lander-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🐟<br>
+            <div class="game-logo">TUNA LANDER</div>
+            <div class="game-description">Land the Tuna!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/tuna-lander.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">READY TO PLAY</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Frogger Game Card -->
+    <div class="game-card frogger-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🐸<br>
+            <div class="game-logo">FROGGER</div>
+            <div class="game-description">Cross the Road!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/frogger.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">5 THEMED LEVELS</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Street Biter Game Card -->
+    <div class="game-card street-biter-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🥊<br>
+            <div class="game-logo">STREET BITER</div>
+            <div class="game-description">Fight to the Finish!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/street-biter.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">2 PLAYER MODE</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Super Honkey Bros Game Card -->
+    <div class="game-card honkey-bros-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🍄<br>
+            <div class="game-logo">SUPER HONKEY BROS</div>
+            <div class="game-description">Save the Princess!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/super-honkey-bros.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">4 WORLDS OF ACTION</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- GLOOM FPS Game Card -->
+    <div class="game-card gloom-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            💀<br>
+            <div class="game-logo">GLOOM</div>
+            <div class="game-description">Halls of the Damned!</div>
+            <div class="high-score">HIGH SCORE: 666,666</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/gloom.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">DOOM-STYLE FPS</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Neon Drift Game Card -->
+    <div class="game-card neon-drift-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🏎️<br>
+            <div class="game-logo">NEON DRIFT</div>
+            <div class="game-description">Coast to Coast!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/outrun.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">PSEUDO-3D RACER</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Starwing Game Card -->
+    <div class="game-card starwing-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🚀<br>
+            <div class="game-logo">STARWING</div>
+            <div class="game-description">Sector Omega!</div>
+            <div class="high-score">HIGH SCORE: 999,999</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/starwing.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">WIREFRAME COMBAT</div>
+        <div class="credits">CREDITS: ∞</div>
+      </div>
+    </div>
+
+    <!-- Super Meat Boy Game Card -->
+    <div class="game-card meatboy-card">
+      <div class="game-screen">
+        <div class="crt-effect">
+          <div class="game-preview">
+            🩸<br>
+            <div class="game-logo">SUPER MEAT BOY</div>
+            <div class="game-description">Die. Splat. Repeat.</div>
+            <div class="high-score">HIGH SCORE: 000,013</div>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <%= link_to "/supermeatboy.html", class: "arcade-button start-button", target: "_blank" do %>
+          <span class="button-text">PLAY NOW</span>
+          <div class="button-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="game-info">
+        <div class="coin-slot">PRECISION PLATFORMER</div>
         <div class="credits">CREDITS: ∞</div>
       </div>
     </div>

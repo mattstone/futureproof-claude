@@ -1,0 +1,57 @@
+<% content_for :page_title, "Broker Scorecard" %>
+<%= stylesheet_link_tag "admin/dashboard", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Broker Scorecard</h2>
+  <p class="admin-section-subtitle">Volume, approval rate, average decision time, commission earned, and dormancy across all brokers.</p>
+</div>
+
+<% if @scorecards.any? %>
+  <div class="dashboard-section-header">
+    <h3 class="section-subtitle">Volume vs quality</h3>
+    <p class="admin-section-subtitle">Each broker is one bubble. X = applications referred (365 days). Y = approval rate. Bubble size = commission earned. Dashed lines mark the median.</p>
+  </div>
+  <div class="fp-card">
+    <div class="dashboard-trend-chart"
+         data-controller="broker-bubble"
+         data-broker-bubble-scorecards-value="<%= @scorecards.map { |s| s.merge(broker: { name: s[:broker].name, id: s[:broker].id }) }.to_json %>"></div>
+  </div>
+<% end %>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Broker</th>
+      <th class="text-right">30d</th>
+      <th class="text-right">90d</th>
+      <th class="text-right">365d</th>
+      <th class="text-right">Approval rate</th>
+      <th class="text-right">Avg decision (days)</th>
+      <th class="text-right">Commission earned</th>
+      <th>Last referral</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @scorecards.each do |s| %>
+      <tr>
+        <td><%= link_to s[:broker].name, admin_broker_path(s[:broker]) %></td>
+        <td class="text-right"><%= s[:referrals_30d] %></td>
+        <td class="text-right"><%= s[:referrals_90d] %></td>
+        <td class="text-right"><%= s[:referrals_365d] %></td>
+        <td class="text-right"><%= s[:approval_rate] %>%</td>
+        <td class="text-right"><%= s[:avg_age_at_decision] %></td>
+        <td class="text-right"><%= number_to_currency(s[:commission_earned], precision: 0) %></td>
+        <td><%= s[:last_referral_at] ? time_ago_in_words(s[:last_referral_at]) + " ago" : "Never" %></td>
+        <td>
+          <span class="status-badge <%= s[:dormant] ? 'status-badge-neutral' : 'status-badge-success' %>">
+            <%= s[:dormant] ? 'Dormant' : 'Active' %>
+          </span>
+        </td>
+      </tr>
+    <% end %>
+    <% if @scorecards.empty? %>
+      <tr><td colspan="9"><em>No brokers found.</em></td></tr>
+    <% end %>
+  </tbody>
+</table>

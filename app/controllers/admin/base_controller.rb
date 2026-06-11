@@ -4,6 +4,15 @@ class Admin::BaseController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin
   before_action :log_admin_activity
+  before_action :initialize_admin_jurisdiction
+
+  # Public action for setting jurisdiction (accessible via route)
+  def set_jurisdiction
+    if valid_jurisdiction?(params[:admin_jurisdiction])
+      session[:admin_jurisdiction] = params[:admin_jurisdiction]
+    end
+    redirect_back fallback_location: admin_root_path
+  end
 
   protected
 
@@ -11,7 +20,7 @@ class Admin::BaseController < ApplicationController
   def ensure_futureproof_admin
     unless futureproof_admin?
       Rails.logger.warn "[SECURITY] Unauthorized Futureproof admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Lender: #{current_user&.lender&.name || 'unknown'}, Path: #{request.fullpath}"
-      redirect_to admin_dashboard_index_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
+      redirect_to admin_root_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
     end
   end
 
@@ -70,6 +79,57 @@ class Admin::BaseController < ApplicationController
       Contract.joins(application: :user).where(applications: { users: { lender: admin_lender } })
     else
       Contract.none
+    end
+  end
+
+  def initialize_admin_jurisdiction
+    # ✅ CRITICAL: For lender-type admins, set jurisdiction to their lender's country
+    # Futureproof admins get "Summary" by default
+    
+    if lender_admin? && admin_lender
+      session[:admin_jurisdiction] = admin_lender.country
+    else
+      session[:admin_jurisdiction] ||= "Summary"
+    end
+  end
+
+  def valid_jurisdiction?(jurisdiction)
+    ["Summary", "AU", "US", "NZ", "UK"].include?(jurisdiction)
+  end
+
+  # ✅ CRITICAL: Get effective jurisdiction for filtering
+  # Returns either the selected jurisdiction or all for "Summary"
+  def effective_admin_jurisdiction
+    selected = session[:admin_jurisdiction] || "Summary"
+    
+    # Lender admins can only see their own jurisdiction
+    if lender_admin?
+      admin_lender&.country || selected
+    else
+      selected
+    end
+  end
+
+  # ✅ CRITICAL: Scope queries by admin's jurisdiction access
+  def scope_by_admin_jurisdiction(scope)
+    jurisdiction = effective_admin_jurisdiction
+    return scope if jurisdiction == "Summary"
+    
+    scope.where(jurisdiction_field => jurisdiction)
+  end
+
+  private
+
+  def jurisdiction_field
+    case controller_name
+    when 'applications'
+      :region
+    when 'lenders'
+      :country
+    when 'brokers'
+      :jurisdiction
+    else
+      :jurisdiction
     end
   end
 end

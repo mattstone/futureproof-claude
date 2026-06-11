@@ -1,0 +1,201 @@
+<div class="document-viewer-container">
+  <div class="document-toolbar">
+    <div class="toolbar-left">
+      <%= link_to "← Back to Documents", borrower_legal_documents_path, class: "btn btn-outline" %>
+    </div>
+    <div class="toolbar-title">
+      <h1><%= @legal_document.document_name %></h1>
+    </div>
+    <div class="toolbar-right">
+      <% if @acceptance&.accepted? %>
+        <span class="status-badge accepted">✓ Accepted</span>
+      <% else %>
+        <span class="status-badge pending">Pending</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="document-content-wrapper">
+    <div class="document-content">
+      <%= simple_format(@legal_document.template_content) %>
+    </div>
+  </div>
+
+  <div class="document-actions-sticky">
+    <% if @acceptance&.accepted? %>
+      <p class="acceptance-info">
+        ✓ You accepted this document on <%= @acceptance.accepted_at.strftime("%B %d, %Y at %l:%M %p") %>
+      </p>
+      <%= button_to "Withdraw Acceptance", borrower_legal_document_reject_path(@legal_document), 
+          method: :post, 
+          data: { confirm: "Are you sure you want to withdraw your acceptance?" }, 
+          class: "btn btn-outline" %>
+    <% else %>
+      <p class="acceptance-info">
+        ⚠ You have not accepted this document yet. Please review and accept to proceed.
+      </p>
+      <%= button_to "I Accept This Document", borrower_legal_document_accept_path(@legal_document), 
+          method: :post, 
+          class: "btn btn-primary btn-large" %>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .document-viewer-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f5f5f5;
+  }
+
+  .document-toolbar {
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .toolbar-title h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #1e293b;
+  }
+
+  .toolbar-left, .toolbar-right {
+    flex-shrink: 0;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: #0066cc;
+    border: 1px solid #0066cc;
+  }
+
+  .btn-outline:hover {
+    background: #f0f0f0;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .status-badge.accepted {
+    background: #c8e6c9;
+    color: #2e7d32;
+  }
+
+  .status-badge.pending {
+    background: #ffe0b2;
+    color: #e65100;
+  }
+
+  .document-content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+  }
+
+  .document-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 900px;
+    margin: 0 auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    line-height: 1.6;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  .document-content h1 {
+    font-size: 1.5rem;
+    margin: 1.5rem 0 1rem 0;
+    color: #1e293b;
+  }
+
+  .document-content h2 {
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.75rem 0;
+    color: #1e293b;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+
+  .document-content h3 {
+    font-size: 1.05rem;
+    margin: 1rem 0 0.5rem 0;
+    color: #333;
+  }
+
+  .document-content p {
+    margin: 0.75rem 0;
+  }
+
+  .document-content ul, .document-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  .document-content li {
+    margin: 0.5rem 0;
+  }
+
+  .document-actions-sticky {
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    bottom: 0;
+  }
+
+  .acceptance-info {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: #0066cc;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary:hover {
+    background: #0052a3;
+  }
+
+  .btn-large {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+  }
+</style>

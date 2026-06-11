@@ -1,4 +1,10 @@
 class ReferralPartner < ApplicationRecord
+  # DEPRECATED: Use Broker model instead (as of 2026-03-10)
+  # - Brokers provide full portal access with Devise authentication
+  # - Support commission rates with payment triggers
+  # - Enable broker performance metrics and dashboard
+  # This model is maintained for historical data only.
+
   include InputSanitization
   has_paper_trail
 

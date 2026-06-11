@@ -89,7 +89,8 @@
         <%= select_tag :handoff_to,
             options_for_select([
               ['No Handoff', ''],
-              ['Rei (Operations)', 'rei'],
+              ['Akane (Acquisition)', 'akane'],
+              ['Rie (Operations)', 'rie'],
               ['Yumi (Lifetime Management)', 'yumi']
             ], @stage.dig('handoff_rules', 'handoff_to')),
             class: 'admin-form-select' %>

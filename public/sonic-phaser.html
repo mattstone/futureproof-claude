@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SUPERSONIC — Phaser 3 Port</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Russo+One&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background:
+      radial-gradient(ellipse at top, #1a2860 0%, #050610 80%),
+      repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.012) 6px 7px);
+    color: #fff;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    overflow: hidden;
+    user-select: none;
+  }
+  #stage {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  #frame {
+    position: relative;
+    padding: 10px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #2a2230 0%, #100a14 100%);
+    box-shadow:
+      0 0 80px #2bb6ff55,
+      0 20px 60px rgba(0,0,0,0.7),
+      inset 0 0 0 2px #ffd24a44,
+      inset 0 0 0 4px #1a1a1a;
+    aspect-ratio: 800 / 540;
+    max-width: min(100vw - 40px, calc((100vh - 100px) * 800 / 540));
+    width: 100%;
+  }
+  #frame canvas {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    display: block;
+  }
+  #frame:fullscreen { padding: 0; border-radius: 0; max-width: 100vw; }
+  #frame:fullscreen canvas { border-radius: 0; }
+  #hint {
+    margin-top: 14px;
+    color: #8eb6ff;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    opacity: 0.75;
+    text-shadow: 0 1px 0 #000;
+    pointer-events: none;
+  }
+  #hint .key {
+    display: inline-block;
+    padding: 4px 7px; margin: 0 2px;
+    border: 1px solid #ffd24a66; border-radius: 4px;
+    background: rgba(255,210,74,0.06);
+    color: #ffd24a;
+  }
+  #hint .sep { color: #446; margin: 0 6px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="frame"></div>
+  <div id="hint">
+    <span class="key">← →</span> MOVE
+    <span class="sep">·</span>
+    <span class="key">↓</span> ROLL
+    <span class="sep">·</span>
+    <span class="key">SPACE</span> JUMP
+    <span class="sep">·</span>
+    <span class="key">P</span> PAUSE
+    <span class="sep">·</span>
+    <span class="key">M</span> MUTE
+    <span class="sep">·</span>
+    <span class="key">R</span> RESTART
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════════════
+//  SUPERSONIC — Phaser 3 port v1
+//  Single page. Phaser 3 from CDN. Custom Genesis-feel physics.
+//  Procedural rendering (no sprite assets required).
+//
+//  v1 scope: Title → Intro → Green Hill (one zone). Real loop
+//  physics + zones 2/3 land in v2 with Matter.js bodies.
+// ════════════════════════════════════════════════════════════════
+
+const W = 800, H = 540;
+const FONT_HUD   = "'Press Start 2P', 'Courier New', monospace";
+const FONT_TITLE = "'Russo One', 'Impact', 'Arial Black', sans-serif";
+
+// ─── Audio (Web Audio synth, same as canvas version) ───────────
+let actx = null;
+let masterGain = null;
+let musicGain  = null;
+let muted = false;
+try { muted = localStorage.getItem('sonic.muted') === '1'; } catch (e) {}
+
+const music = { step: 0, lastTick: 0 };
+const SCALE = [0, 2, 4, 7, 9, 12, 14, 16];
+const BASS  = [48, 48, 55, 50, 48, 53, 55, 50];
+const LEAD  = [72, 76, 79, 81, 79, 76, 84, 79];
+function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
+
+function ensureAudio() {
+  if (!actx) {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = actx.createGain();
+    masterGain.gain.value = muted ? 0 : 1;
+    masterGain.connect(actx.destination);
+    musicGain = actx.createGain();
+    musicGain.gain.value = 0.85;
+    musicGain.connect(masterGain);
+  }
+  if (actx.state === 'suspended') actx.resume();
+}
+
+function tone(freq, dur, type='square', vol=0.07, ramp=null) {
+  if (!actx) return;
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, actx.currentTime);
+  if (ramp) o.frequency.exponentialRampToValueAtTime(ramp, actx.currentTime + dur);
+  g.gain.setValueAtTime(vol, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+  o.connect(g); g.connect(masterGain);
+  o.start(); o.stop(actx.currentTime + dur);
+}
+
+const sfx = {
+  jump:    () => tone(680, 0.14, 'square', 0.18, 1100),
+  ring:    () => { tone(1175, 0.06, 'square', 0.14); setTimeout(() => tone(1568, 0.10, 'square', 0.14), 50); },
+  spring:  () => tone(440, 0.16, 'sawtooth', 0.20, 1320),
+  spindash:() => tone(220, 0.18, 'sawtooth', 0.16, 660),
+  hurt:    () => tone(180, 0.45, 'square', 0.20, 80),
+  death:   () => { tone(440, 0.20, 'square', 0.18, 220); setTimeout(()=>tone(220,0.30,'square',0.18,110),200); setTimeout(()=>tone(110,0.50,'square',0.18,55),500); },
+  break:   () => tone(330, 0.20, 'sawtooth', 0.18, 90),
+  goal:    () => { for (let i=0;i<6;i++) setTimeout(()=>tone(523*Math.pow(1.122,i),0.12,'square',0.14),i*80); },
+  skid:    () => tone(140, 0.05, 'sawtooth', 0.10, 90),
+  step:    () => tone(180 + Math.random() * 40, 0.04, 'square', 0.06, 90),
+  land:    () => tone(140, 0.08, 'square', 0.10, 70),
+};
+
+function tickMusic(now, speedRatio, paused) {
+  if (!actx || !musicGain) return;
+  musicGain.gain.value = paused ? 0.05 : 0.85;
+  if (paused) return;
+  const bpm = 130 + speedRatio * 70;
+  const stepMs = (60000 / bpm) / 4;
+  if (now - music.lastTick < stepMs) return;
+  music.lastTick = now;
+  const i = music.step % 16;
+  const playNote = (m, dur, vol=0.06, type='square') => {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = type;
+    o.frequency.value = midiToFreq(m);
+    g.gain.setValueAtTime(vol, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    o.connect(g); g.connect(musicGain);
+    o.start(); o.stop(actx.currentTime + dur);
+  };
+  if (i % 4 === 0) playNote(BASS[(music.step/4|0) % BASS.length] - 12, 0.22, 0.16, 'triangle');
+  if (i % 2 === 1) playNote(LEAD[(music.step/2|0) % LEAD.length], 0.12, 0.10, 'square');
+  if (i === 6 || i === 14) playNote(LEAD[(music.step/2|0) % LEAD.length] + 7, 0.16, 0.07, 'triangle');
+  if (speedRatio > 0.4) playNote(96 + (i%2)*7, 0.02, 0.04, 'square');
+  music.step++;
+}
+
+function toggleMute() {
+  muted = !muted;
+  try { localStorage.setItem('sonic.muted', muted ? '1' : '0'); } catch (e) {}
+  if (masterGain) masterGain.gain.value = muted ? 0 : 1;
+}
+
+// ─── Level / ground generators ─────────────────────────────────
+const GROUND_BASE = 410;
+
+function groundGreenHill(x, len) {
+  if (x < 200) return GROUND_BASE;
+  if (x > len - 280) return GROUND_BASE - 40;
+  const a = Math.sin(x * 0.0042) * 38;
+  const b = Math.sin(x * 0.0017 + 1.4) * 56;
+  const c = Math.sin(x * 0.0091 + 0.6) * 14;
+  let bump = 0;
+  if (x > 1500 && x < 2100) bump = -40  * Math.sin((x - 1500)/600 * Math.PI);
+  if (x > 3200 && x < 3900) bump = -110 * Math.sin((x - 3200)/700 * Math.PI);
+  if (x > 4600 && x < 5000) bump =  80  * Math.sin((x - 4600)/400 * Math.PI);
+  if (x > 6800 && x < 7600) bump = -90  * Math.sin((x - 6800)/800 * Math.PI);
+  return GROUND_BASE + a + b + c + bump;
+}
+function groundDesert(x, len) {
+  if (x < 200) return GROUND_BASE + 10;
+  if (x > len - 280) return GROUND_BASE - 30;
+  const a = Math.sin(x * 0.0028) * 70;
+  const b = Math.sin(x * 0.0061 + 0.7) * 24;
+  let bump = 0;
+  if (x > 1300 && x < 2000) bump = -130 * Math.sin((x - 1300)/700 * Math.PI);
+  if (x > 3700 && x < 4400) bump = -150 * Math.sin((x - 3700)/700 * Math.PI);
+  if (x > 5300 && x < 5900) bump =  100 * Math.sin((x - 5300)/600 * Math.PI);
+  if (x > 7600 && x < 8400) bump = -120 * Math.sin((x - 7600)/800 * Math.PI);
+  return GROUND_BASE + 12 + a + b + bump;
+}
+function groundNeon(x, len) {
+  if (x < 200) return GROUND_BASE - 20;
+  if (x > len - 280) return GROUND_BASE - 60;
+  const a = Math.sin(x * 0.0050) * 44;
+  const b = Math.sin(x * 0.0023 + 1.9) * 60;
+  const c = Math.sin(x * 0.0118 + 0.3) * 18;
+  let bump = 0;
+  if (x > 1100 && x < 1700) bump = -160 * Math.sin((x - 1100)/600 * Math.PI);
+  if (x > 2900 && x < 3600) bump =  120 * Math.sin((x - 2900)/700 * Math.PI);
+  if (x > 5000 && x < 5700) bump = -180 * Math.sin((x - 5000)/700 * Math.PI);
+  if (x > 7400 && x < 8200) bump = -140 * Math.sin((x - 7400)/800 * Math.PI);
+  if (x > 8800 && x < 9400) bump =  -90 * Math.sin((x - 8800)/600 * Math.PI);
+  return GROUND_BASE - 20 + a + b + c + bump;
+}
+
+// Each palette entry uses 0xRRGGBB for Phaser, plus a hex-string copy for setBackgroundColor.
+const LEVELS = [
+  {
+    name: 'GREEN HILL', act: 1, length: 8400,
+    bgColor: '#52d9ff',
+    palette: {
+      sky1: 0x52d9ff, sky2: 0xc6efff, haze1: 0xfde4b8, haze2: 0xf5b27a,
+      mtnFar: 0x5a8e5a, mtnNear: 0x7bb87b, hill: 0x3d7a3d,
+      dirt: 0x9c5e30, dirtDeep: 0x6c3f1b, grass: 0x3aa83a, grassHi: 0x5fd95f,
+      bushDk: 0x3aa83a, bushLt: 0x5fd95f, sun: 0xfff8c8,
+    },
+    ground: groundGreenHill,
+    rings: [
+      ['line', 360, 800, 10],   ['line', 900, 1200, 7],
+      ['arc',  1800, 60, 9],    ['line', 2300, 2600, 6],
+      ['arc',  3550, 80, 11],   ['line', 4100, 4400, 6],
+      ['line', 4900, 5300, 8],  ['arc',  5700, 50, 7],
+      ['line', 6000, 6400, 8],  ['arc',  7200, 90, 9],
+      ['line', 7700, 8000, 7],
+    ],
+    springs: [[1450, -16],[4500, -20],[6700, -22]],
+    enemies: [1200, 2400, 3300, [4250, 70], [5500, 120], 6200, 7400],
+    spikes:  [[2050, 4],[4750, 5],[6500, 3]],
+  },
+  {
+    name: 'DESERT VALLEY', act: 1, length: 9200,
+    bgColor: '#ffb070',
+    palette: {
+      sky1: 0xffb070, sky2: 0xffe6b8, haze1: 0xffd9a8, haze2: 0xff9358,
+      mtnFar: 0xa86640, mtnNear: 0xd58a52, hill: 0xb37039,
+      dirt: 0xc98344, dirtDeep: 0x8a4f1d, grass: 0xe8c574, grassHi: 0xfff0b8,
+      bushDk: 0x9c7330, bushLt: 0xc99c52, sun: 0xfff5d8,
+    },
+    ground: groundDesert,
+    rings: [
+      ['line', 360, 850, 10],   ['arc',  1500, 80, 9],
+      ['line', 2200, 2600, 7],  ['arc',  3000, 110, 11],
+      ['line', 3800, 4200, 7],  ['arc',  4600, 70, 9],
+      ['line', 5400, 5800, 8],  ['arc',  6500, 120, 11],
+      ['line', 7100, 7500, 7],  ['arc',  8000, 80, 9],
+      ['line', 8400, 8800, 6],
+    ],
+    springs: [[1700, -18],[4300, -22],[7200, -24]],
+    enemies: [1100, 2150, 2700, [3500, 90], 4400, [5100, 80], 5900, 6900, 7600, 8500],
+    spikes:  [[1850, 4],[4550, 5],[5650, 4],[7800, 5]],
+  },
+  {
+    name: 'NEON NIGHT', act: 1, length: 9800,
+    bgColor: '#0d0a3d',
+    palette: {
+      sky1: 0x0d0a3d, sky2: 0x3a1d6b, haze1: 0x6b2db5, haze2: 0xff4dff,
+      mtnFar: 0x231a55, mtnNear: 0x402478, hill: 0x1f1840,
+      dirt: 0x1f1f47, dirtDeep: 0x0c0a22, grass: 0xff3aff, grassHi: 0xff8aff,
+      bushDk: 0x6b1d8a, bushLt: 0xc04dff, sun: 0xfff0c8,
+    },
+    ground: groundNeon,
+    rings: [
+      ['line', 360, 900, 11],   ['arc',  1400, 90, 9],
+      ['line', 1900, 2300, 7],  ['arc',  2400, 130, 11],
+      ['line', 3100, 3500, 7],  ['arc',  4100, 70, 9],
+      ['line', 4700, 5100, 8],  ['arc',  5500, 140, 11],
+      ['line', 6100, 6500, 7],  ['arc',  7100, 80, 9],
+      ['line', 7600, 8000, 7],  ['arc',  8200, 120, 11],
+      ['line', 8800, 9300, 7],
+    ],
+    springs: [[1200, -20],[3700, -22],[6300, -24],[9100, -26]],
+    enemies: [800, [1700, 80], 2100, 3000, [3800, 90], 4300, [5000, 100], 6000, 6700, [7400, 90], 8000, 8800, 9400],
+    spikes:  [[1550, 4],[3300, 5],[5200, 5],[6800, 4],[8600, 5]],
+  },
+];
+
+let currentLevel = 0;
+function activeLevel() { return LEVELS[currentLevel]; }
+// Backwards-compat alias used by the rendering code.
+const LEVEL = new Proxy({}, { get(_, prop) { return LEVELS[currentLevel][prop]; } });
+
+function groundY(x) { const lvl = LEVELS[currentLevel]; return lvl.ground(x, lvl.length); }
+function groundSlope(x) {
+  const h = 4;
+  const dy = groundY(x + h) - groundY(x - h);
+  return Math.atan2(dy, 2 * h);
+}
+
+// ─── Physics constants (Genesis-feel) ──────────────────────────
+const ACC = 0.18, DEC = 0.78, FRC = 0.18, TOP = 7.5;
+const ROLLFRC = 0.07, ROLLDEC = 0.20, TOPROLL = 16;
+const AIR = 0.24, JMP = -10.5, GRV = 0.45;
+const SLP = 0.18, SLPROLLUP = 0.10, SLPROLLDOWN = 0.42;
+
+// ─── Helpers shared across scenes ──────────────────────────────
+function roundedRectPath(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.lineTo(x + w - r, y);    g.arc(x + w - r, y + r,     r, -Math.PI/2, 0);
+  g.lineTo(x + w, y + h - r); g.arc(x + w - r, y + h - r, r, 0, Math.PI/2);
+  g.lineTo(x + r, y + h);     g.arc(x + r,     y + h - r, r, Math.PI/2, Math.PI);
+  g.lineTo(x, y + r);         g.arc(x + r,     y + r,     r, Math.PI, 1.5*Math.PI);
+  g.closePath();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SCENES
+// ════════════════════════════════════════════════════════════════
+
+// ─── Boot ──────────────────────────────────────────────────────
+// Sonic spritesheet: sonic-3-top-trans.png is 360 × 240. Frame size and indices are tunable.
+// You can override at runtime via URL params: ?fw=40&fh=40&idle=0&walk=9,10,11,12,13,14
+// — handy for dialling in the right cell layout without editing the file.
+const SONIC_SHEET = '/sonic-assets/sonic-3-top-trans.png';
+const _qs = new URLSearchParams(location.search);
+const _qsNum = (k, def) => { const v = parseInt(_qs.get(k), 10); return Number.isFinite(v) ? v : def; };
+const _qsList = (k, def) => {
+  const raw = _qs.get(k); if (!raw) return def;
+  const out = raw.split(',').map(s => parseInt(s, 10)).filter(Number.isFinite);
+  return out.length ? out : def;
+};
+// Defaults: 40×40 grid → 9 cols × 6 rows = 54 frames
+const SONIC_FW = _qsNum('fw', 40);
+const SONIC_FH = _qsNum('fh', 40);
+const SONIC_FRAMES = {
+  idle:  _qsList('idle', [0]),
+  walk:  _qsList('walk', [9, 10, 11, 12, 13, 14]),     // row 2
+  run:   _qsList('run',  [18, 19, 20, 21]),             // row 3
+  ball:  _qsList('ball', [27, 28, 29, 30]),             // row 4
+  jump:  _qsList('jump', [27]),
+  skid:  _qsList('skid', [36]),                         // row 5
+  dead:  _qsList('dead', [38]),
+};
+// Set ?debugSheet=1 in URL to overlay frame indices on the spritesheet.
+const SHEET_DEBUG = _qs.get('debugSheet') === '1';
+
+class BootScene extends Phaser.Scene {
+  constructor() { super('Boot'); }
+  preload() {
+    this.load.spritesheet('sonic-sheet', SONIC_SHEET, {
+      frameWidth: SONIC_FW, frameHeight: SONIC_FH,
+    });
+    this.load.on('loaderror', (file) => {
+      // If sheet fails to load we fall back to procedural rendering.
+      console.warn('Failed to load asset:', file.key, file.src);
+    });
+  }
+  create() {
+    // Build animations once; GameScene reuses them.
+    const mk = (key, frames, rate, repeat = -1) => {
+      if (this.anims.exists(key)) return;
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers('sonic-sheet', { frames }),
+        frameRate: rate, repeat,
+      });
+    };
+    if (this.textures.exists('sonic-sheet')) {
+      mk('sonic-idle', SONIC_FRAMES.idle, 1);
+      mk('sonic-walk', SONIC_FRAMES.walk, 10);
+      mk('sonic-run',  SONIC_FRAMES.run,  18);
+      mk('sonic-ball', SONIC_FRAMES.ball, 22);
+      mk('sonic-jump', SONIC_FRAMES.jump, 1);
+      mk('sonic-skid', SONIC_FRAMES.skid, 1);
+      mk('sonic-dead', SONIC_FRAMES.dead, 1);
+    }
+
+    // Debug overlay: ?debugSheet=1 — shows the raw sprite sheet with cell numbers,
+    // so you can identify the right frame size and the index of each animation pose.
+    if (SHEET_DEBUG && this.textures.exists('sonic-sheet')) {
+      const tex = this.textures.get('sonic-sheet').getSourceImage();
+      this.add.rectangle(0, 0, W, H, 0x000000, 0.92).setOrigin(0);
+      const scale = Math.min((W - 40) / tex.width, (H - 80) / tex.height);
+      const dispW = tex.width * scale, dispH = tex.height * scale;
+      const ox = (W - dispW) / 2, oy = 30;
+      this.add.image(ox, oy, 'sonic-sheet').setOrigin(0).setScale(scale);
+      const cols = Math.floor(tex.width / SONIC_FW);
+      const rows = Math.floor(tex.height / SONIC_FH);
+      const cellW = SONIC_FW * scale, cellH = SONIC_FH * scale;
+      const grid = this.add.graphics();
+      grid.lineStyle(1, 0x00ff88, 0.6);
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        grid.strokeRect(ox + c * cellW, oy + r * cellH, cellW, cellH);
+        const idx = r * cols + c;
+        this.add.text(ox + c * cellW + 2, oy + r * cellH + 2, String(idx), {
+          fontFamily: FONT_HUD, fontSize: '9px', color: '#00ff88',
+        });
+      }
+      this.add.text(W/2, 12, `SHEET ${tex.width}×${tex.height}  ·  CELL ${SONIC_FW}×${SONIC_FH}  ·  ${cols}×${rows}=${cols*rows} frames`, {
+        fontFamily: FONT_HUD, fontSize: '11px', color: '#ffd24a',
+      }).setOrigin(0.5, 0);
+      this.add.text(W/2, H - 14, 'remove ?debugSheet=1 to play  ·  ?fw=NN&fh=NN&idle=0&walk=N,N,N to override', {
+        fontFamily: FONT_HUD, fontSize: '9px', color: '#aac8ff',
+      }).setOrigin(0.5, 1);
+      return;   // skip starting Title scene
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => this.scene.start('Title'));
+    } else {
+      this.time.delayedCall(150, () => this.scene.start('Title'));
+    }
+    this.add.text(W/2, H/2, 'LOADING…', {
+      fontFamily: FONT_HUD, fontSize: '14px', color: '#aac8ff',
+    }).setOrigin(0.5);
+  }
+}
+
+// ─── Title ─────────────────────────────────────────────────────
+class TitleScene extends Phaser.Scene {
+  constructor() { super('Title'); }
+  create() {
+    this.frame = 0;
+
+    // Layered graphics so we can z-order: sky → mountains → checker → speed lines → mascot → logo overlay
+    this.gSky      = this.add.graphics();
+    this.gMtn      = this.add.graphics();
+    this.gCheck    = this.add.graphics();
+    this.gSpeed    = this.add.graphics();
+    this.gMascot   = this.add.graphics();
+    this.gOverlay  = this.add.graphics();
+
+    // Mascot ball state — bounces across the ground
+    this.mascot = { x: -60, y: 350, vy: 0, ground: 360, hop: 0 };
+
+    // Animated rings orbiting the wordmark
+    this.orbitRings = [];
+    for (let i = 0; i < 7; i++) {
+      this.orbitRings.push({
+        a: (i / 7) * Math.PI * 2,
+        rx: 240 + i * 12,
+        ry: 36 + (i % 3) * 8,
+        sp: 0.012 + (i % 3) * 0.004,
+        flipPhase: (i * 0.7),
+      });
+    }
+
+    // Wordmark — three stacked text objects for chrome/bevel: shadow, fill, and a striped overlay.
+    // The fill is gold; the lower-half stripe gives a bicolor "Genesis arcade" look.
+    this.logoShadow = this.add.text(W/2 + 5, 215 + 5, 'SUPERSONIC', {
+      fontFamily: FONT_TITLE, fontSize: '88px',
+      color: '#000914', stroke: '#000914', strokeThickness: 6,
+    }).setOrigin(0.5);
+
+    this.logoOutline = this.add.text(W/2, 215, 'SUPERSONIC', {
+      fontFamily: FONT_TITLE, fontSize: '88px',
+      color: '#001a52', stroke: '#001a52', strokeThickness: 8,
+    }).setOrigin(0.5);
+
+    this.logo = this.add.text(W/2, 215, 'SUPERSONIC', {
+      fontFamily: FONT_TITLE, fontSize: '88px',
+      color: '#ffd24a', stroke: '#001a52', strokeThickness: 4,
+    }).setOrigin(0.5);
+    // Bottom-half red stripe inside the letters — drawn with another text masked by a graphics rect
+    this.logoStripe = this.add.text(W/2, 215, 'SUPERSONIC', {
+      fontFamily: FONT_TITLE, fontSize: '88px',
+      color: '#ff5a3a', stroke: '#001a52', strokeThickness: 4,
+    }).setOrigin(0.5);
+    const stripeMask = this.make.graphics({ x: 0, y: 0, add: false });
+    stripeMask.fillStyle(0xffffff);
+    stripeMask.fillRect(W/2 - 320, 215 + 6, 640, 80);
+    this.logoStripe.setMask(stripeMask.createGeometryMask());
+
+    this.subtitle = this.add.text(W/2, 280,
+      '◄  G O T T A   G O   F A S T  ►', {
+      fontFamily: FONT_TITLE, fontSize: '18px', color: '#ffffff',
+      stroke: '#001a52', strokeThickness: 3,
+    }).setOrigin(0.5);
+
+    // PRESS START in a button frame
+    this.promptPanel = this.add.graphics();
+    this.prompt = this.add.text(W/2, H - 130, 'PRESS  START', {
+      fontFamily: FONT_TITLE, fontSize: '24px', color: '#ffd24a',
+      stroke: '#001a52', strokeThickness: 3,
+    }).setOrigin(0.5);
+
+    this.add.text(W/2, H - 90,
+      '← → MOVE   ·   ↓ ROLL   ·   SPACE JUMP   ·   P PAUSE   ·   M MUTE', {
+      fontFamily: FONT_HUD, fontSize: '9px', color: '#cfe1ff',
+    }).setOrigin(0.5);
+
+    this.add.text(W/2, H - 64, 'CLICK OR PRESS A KEY TO ENABLE SOUND', {
+      fontFamily: FONT_HUD, fontSize: '8px', color: '#7a9bcc',
+    }).setOrigin(0.5);
+
+    this.add.text(8, H - 14, '© 1991-LIKE ARCADE TRIBUTE  ·  PHASER 3 BUILD', {
+      fontFamily: FONT_HUD, fontSize: '7px', color: '#5a78aa',
+    }).setOrigin(0, 1);
+
+    const start = () => {
+      ensureAudio();
+      sfx.goal();
+      this.scene.start('Game');
+    };
+    this.input.keyboard.on('keydown', (e) => {
+      ensureAudio();
+      if (e.code === 'Space' || e.code === 'Enter') start();
+    });
+    this.input.on('pointerdown', () => { ensureAudio(); start(); });
+  }
+
+  drawSky() {
+    const g = this.gSky;
+    g.clear();
+    // Cobalt → cyan → peach horizon
+    g.fillGradientStyle(0x0a2a8c, 0x0a2a8c, 0x3a8fff, 0x3a8fff, 1);
+    g.fillRect(0, 0, W, 360);
+    g.fillGradientStyle(0xffd49a, 0xffd49a, 0xff8a52, 0xff8a52, 1);
+    g.fillRect(0, 360, W, 30);
+
+    // Sun
+    const sunY = 180;
+    g.fillStyle(0xfff4c0, 0.35); g.fillCircle(W * 0.78, sunY, 80);
+    g.fillStyle(0xfff4c0, 1);    g.fillCircle(W * 0.78, sunY, 50);
+
+    // Drifting clouds
+    g.fillStyle(0xffffff, 0.85);
+    for (let i = 0; i < 6; i++) {
+      const cx = ((i * 220 - this.frame * 0.3) % (W + 200) + W + 200) % (W + 200) - 100;
+      const cy = 80 + (i * 41) % 160;
+      const r = 26 + (i * 5) % 14;
+      g.fillCircle(cx, cy, r * 0.55);
+      g.fillCircle(cx + r * 0.5, cy - r * 0.15, r * 0.7);
+      g.fillCircle(cx + r, cy, r * 0.55);
+    }
+
+    // Distant rolling hills (gold-green)
+    const mx = -this.frame * 0.4;
+    g.fillStyle(0x2a6e3a, 1);
+    for (let i = 0; i < 12; i++) {
+      const x = ((i * 220 + mx) % 2640 + 2640) % 2640 - 220;
+      g.fillTriangle(x, 360, x + 110, 360 - 90, x + 220, 360);
+    }
+    g.fillStyle(0x52a85a, 1);
+    for (let i = 0; i < 12; i++) {
+      const x = ((i * 220 + mx * 1.4) % 2640 + 2640) % 2640 - 220;
+      g.fillTriangle(x + 60, 360, x + 150, 360 - 60, x + 240, 360);
+    }
+  }
+
+  drawCheckerGround() {
+    const g = this.gCheck;
+    g.clear();
+    // Ground band 390..H
+    g.fillStyle(0x6c3f1b, 1); g.fillRect(0, 390, W, H - 390);
+    // Grass strip on top
+    g.fillStyle(0x3aa83a, 1); g.fillRect(0, 388, W, 12);
+    g.fillStyle(0x5fd95f, 1); g.fillRect(0, 388, W, 3);
+
+    // Scrolling checker pattern that perspective-shrinks toward the horizon
+    const offset = (this.frame * 4) % 64;
+    for (let row = 0; row < 6; row++) {
+      const y = 400 + row * 24;
+      const tileW = 48 + row * 14;
+      const tileH = 18 + row * 3;
+      for (let x = -tileW; x < W + tileW; x += tileW) {
+        const idx = Math.floor((x + offset * (row + 1)) / tileW);
+        g.fillStyle(idx % 2 === 0 ? 0x9c5e30 : 0x6c3f1b, 1);
+        g.fillRect(x + (offset * (row + 1)) % tileW, y, tileW, tileH);
+      }
+    }
+  }
+
+  drawSpeedLines() {
+    const g = this.gSpeed;
+    g.clear();
+    // Radial speed lines emanating from behind the wordmark
+    const cx = W / 2, cy = 215;
+    g.lineStyle(2, 0xffffff, 0.18);
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2 + this.frame * 0.005;
+      const r1 = 180 + (this.frame * 2 + i * 13) % 120;
+      const r2 = r1 + 60;
+      g.beginPath();
+      g.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1 * 0.5);
+      g.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2 * 0.5);
+      g.strokePath();
+    }
+    // Soft glow halo
+    g.fillStyle(0xffd24a, 0.06);
+    g.fillCircle(cx, cy, 220);
+    g.fillStyle(0xffd24a, 0.04);
+    g.fillCircle(cx, cy, 280);
+  }
+
+  drawOrbitRings() {
+    const g = this.gOverlay;
+    g.clear();
+    const cx = W / 2, cy = 215;
+    for (const r of this.orbitRings) {
+      r.a += r.sp;
+      const x = cx + Math.cos(r.a) * r.rx;
+      const y = cy + Math.sin(r.a) * r.ry;
+      // Foreshortening — rings on the far side draw smaller and dimmer
+      const depth = 0.5 + 0.5 * Math.sin(r.a + r.flipPhase);
+      const w = 14 * Math.abs(Math.cos(this.frame * 0.18 + r.flipPhase * 4));
+      const h = 14;
+      g.fillStyle(0xffd24a, 0.7 + 0.3 * depth);
+      g.fillEllipse(x, y, w * (0.6 + depth * 0.6), h * (0.6 + depth * 0.6));
+      g.fillStyle(0xfff7c4, 0.6 + 0.4 * depth);
+      g.fillEllipse(x - w * 0.15, y - 2, w * 0.25, 3);
+      g.lineStyle(1.5, 0xc28a14, 0.5 + 0.5 * depth);
+      g.strokeEllipse(x, y, w * (0.6 + depth * 0.6), h * (0.6 + depth * 0.6));
+    }
+  }
+
+  drawMascot() {
+    const m = this.mascot;
+    // Bounce
+    m.vy += 0.6;
+    m.y += m.vy;
+    if (m.y >= m.ground) { m.y = m.ground; m.vy = -10 - Math.random() * 2; m.hop++; }
+    m.x += 2.4;
+    if (m.x > W + 60) m.x = -60;
+
+    const g = this.gMascot;
+    g.clear();
+    g.save();
+    g.translateCanvas(m.x, m.y);
+    g.scaleCanvas(1, 1);
+
+    // Spinning quill ball — generic mascot silhouette
+    const phase = this.frame * 0.5 + m.hop * 1.2;
+    // Shadow
+    g.fillStyle(0x000000, 0.25);
+    g.fillEllipse(0, 22, 26, 5);
+    // Outer rim
+    g.fillStyle(0x143a99, 1);
+    g.fillCircle(0, 0, 18);
+    // Body
+    g.fillStyle(0x2a7bff, 1);
+    g.fillCircle(0, 0, 16);
+    // Spinning bands
+    g.fillStyle(0x143a99, 1);
+    for (let i = 0; i < 4; i++) {
+      const a = phase * 0.4 + i * (Math.PI / 2);
+      g.fillEllipse(Math.cos(a) * 8, Math.sin(a) * 8, 11, 4);
+    }
+    // Highlight
+    g.fillStyle(0x6fb4ff, 1);
+    g.fillCircle(-5, -5, 4);
+    // Trailing dust puff
+    g.fillStyle(0xffffff, 0.5);
+    for (let i = 0; i < 3; i++) g.fillCircle(-14 - i * 6, 18 - (i & 1) * 2, 4 - i);
+    g.restore();
+  }
+
+  drawPromptPanel() {
+    const g = this.promptPanel;
+    g.clear();
+    const cx = W / 2, cy = H - 130;
+    const w = 220, h = 38;
+    // Soft pulse alpha
+    const pulse = 0.5 + 0.5 * Math.sin(this.frame / 18);
+    g.fillStyle(0x001a52, 0.85);
+    g.fillRoundedRect(cx - w/2, cy - h/2, w, h, 8);
+    g.lineStyle(2, 0xffd24a, 0.7 + 0.3 * pulse);
+    g.strokeRoundedRect(cx - w/2, cy - h/2, w, h, 8);
+    g.lineStyle(1, 0xff8a3a, 0.5);
+    g.strokeRoundedRect(cx - w/2 + 3, cy - h/2 + 3, w - 6, h - 6, 6);
+  }
+
+  update() {
+    this.frame++;
+    this.drawSky();
+    this.drawCheckerGround();
+    this.drawMascot();
+    this.drawSpeedLines();
+    this.drawOrbitRings();
+    this.drawPromptPanel();
+
+    // Logo float + subtle horizontal sway
+    const floatY = Math.sin(this.frame / 60) * 4;
+    const swayX = Math.sin(this.frame / 90) * 2;
+    this.logo.y         = 215 + floatY;
+    this.logo.x         = W/2 + swayX;
+    this.logoOutline.y  = 215 + floatY;
+    this.logoOutline.x  = W/2 + swayX;
+    this.logoShadow.y   = 220 + floatY;
+    this.logoShadow.x   = W/2 + 5 + swayX;
+    this.logoStripe.y   = 215 + floatY;
+    this.logoStripe.x   = W/2 + swayX;
+    this.subtitle.y     = 280 + floatY * 0.5;
+
+    // Prompt pulse
+    this.prompt.alpha = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(this.frame / 18));
+    this.prompt.scale = 1 + 0.04 * Math.sin(this.frame / 14);
+  }
+}
+
+// ─── Game (the meaty one) ──────────────────────────────────────
+class GameScene extends Phaser.Scene {
+  constructor() { super('Game'); }
+
+  init(data) {
+    this.frame = 0;
+    // Carry score/lives across level transitions; reset on full restart.
+    if (data && data.fromTransition) {
+      this.score = data.score;
+      this.lives = data.lives;
+    } else {
+      currentLevel = 0;
+      this.score = 0;
+      this.lives = 3;
+    }
+    this.startTime = 0;
+    this.elapsedMs = 0;
+    this.shake = 0;
+    this.respawnFade = 0;
+    this.levelIntroTimer = 180;
+    this.levelClearTimer = 0;
+    this.gameState = 'intro';   // intro | play | paused | clear | gameover | win
+    this.particles = [];
+    this.looseRings = [];
+    this.rings = [];
+    this.springs = [];
+    this.enemies = [];
+    this.spikes = [];
+    this.sonic = null;
+  }
+
+  create() {
+    ensureAudio();
+    this.cameras.main.setBackgroundColor(LEVEL.bgColor);
+    this.cameras.main.setBounds(0, -260, LEVEL.length, H + 260);
+
+    // Layered graphics — separate so we can z-order without re-creating each frame
+    this.gBg     = this.add.graphics().setScrollFactor(0, 0);
+    this.gParallax = this.add.graphics().setScrollFactor(0.6, 1);   // mid hills — vertical follows world
+    this.gGround = this.add.graphics();
+    this.gObjects = this.add.graphics();
+    this.gSonic  = this.add.graphics();
+    // Sprite-based Sonic is gated off by default — the bundled sprite sheet
+    // sonic-3-top-trans.png has irregular cell sizes, so a uniform Phaser spritesheet
+    // can't tile it cleanly. To re-enable, pass ?sprite=1 in the URL once the
+    // SONIC_FRAMES indices have been verified via ?debugSheet=1.
+    this.useSpriteSonic = _qs.get('sprite') === '1' && this.textures.exists('sonic-sheet');
+    if (this.useSpriteSonic) {
+      this.sonicSprite = this.add.sprite(100, 0, 'sonic-sheet', 0);
+      this.sonicSprite.setOrigin(0.5, 0.95);
+      this.sonicSprite.play('sonic-idle');
+    }
+    this.gFx     = this.add.graphics().setScrollFactor(0);
+
+    this.placeWorldObjects();
+    this.spawnSonic();
+
+    this.scene.launch('HUD');
+
+    // Input
+    this.keys = this.input.keyboard.addKeys({
+      left:  Phaser.Input.Keyboard.KeyCodes.LEFT,
+      right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      up:    Phaser.Input.Keyboard.KeyCodes.UP,
+      down:  Phaser.Input.Keyboard.KeyCodes.DOWN,
+      jump:  Phaser.Input.Keyboard.KeyCodes.SPACE,
+    });
+    this.input.keyboard.on('keydown', (e) => {
+      if (e.code === 'KeyR') { currentLevel = 0; this.scene.restart(); return; }
+      if (e.code === 'KeyM') { toggleMute(); return; }
+      if (e.code === 'KeyP' || e.code === 'Escape') {
+        if (this.gameState === 'play') this.gameState = 'paused';
+        else if (this.gameState === 'paused') this.gameState = 'play';
+      }
+      if (this.gameState === 'intro' && (e.code === 'Space' || e.code === 'Enter')) {
+        this.levelIntroTimer = Math.min(this.levelIntroTimer, 30);
+      }
+    });
+
+    this.startTime = performance.now();
+  }
+
+  placeWorldObjects() {
+    for (const spec of LEVEL.rings) {
+      if (spec[0] === 'line') {
+        const [, sx, ex, count] = spec;
+        for (let i = 0; i < count; i++) {
+          const t = i / (count - 1);
+          const x = sx + (ex - sx) * t;
+          this.rings.push({ x, y: groundY(x) - 30, collected: false, t: Math.random() * 6.28 });
+        }
+      } else if (spec[0] === 'arc') {
+        const [, cx, h, count] = spec;
+        for (let i = 0; i < count; i++) {
+          const t = i / (count - 1);
+          const x = cx + (t - 0.5) * 200;
+          const y = groundY(x) - h - 60 * Math.sin(t * Math.PI);
+          this.rings.push({ x, y, collected: false, t: Math.random() * 6.28 });
+        }
+      }
+    }
+    for (const [x, vy] of LEVEL.springs) this.springs.push({ x, y: groundY(x), vy, used: 0 });
+    for (const spec of LEVEL.enemies) {
+      const x     = Array.isArray(spec) ? spec[0] : spec;
+      const range = Array.isArray(spec) ? spec[1] : 90;
+      this.enemies.push({ x, y: groundY(x), dir: -1, range, anchor: x, alive: true, t: 0 });
+    }
+    for (const [x, n] of LEVEL.spikes) {
+      for (let i = 0; i < n; i++) {
+        const sx = x + i * 16;
+        this.spikes.push({ x: sx, y: groundY(sx) });
+      }
+    }
+  }
+
+  spawnSonic() {
+    this.sonic = {
+      x: 100, y: groundY(100), vx: 0, vy: 0, gsp: 0,
+      onGround: true, rolling: false, jumping: false,
+      facing: 1, angle: 0, invuln: 0, rings: 0,
+      spinCharge: 0, spinCharging: false, _jumpLatch: false, _spinLatch: false,
+      squash: 1, stretch: 1, walkPhase: 0,
+      state: 'idle', alive: true,
+    };
+    this.cameras.main.startFollow({ x: 100, y: groundY(100) }, false, 0.1, 0.08, -W/2, -H*0.15);
+    // Phaser camera follow isn't tight on ground-locked-y motion → we'll set scroll manually each frame instead.
+    this.cameras.main.stopFollow();
+  }
+
+  update(_, dtMs) {
+    this.frame++;
+
+    // ── Game tick ──
+    if (this.gameState === 'intro') {
+      if (this.levelIntroTimer > 0) {
+        this.levelIntroTimer--;
+        if (this.levelIntroTimer === 0) { this.gameState = 'play'; this.startTime = performance.now(); }
+      }
+    } else if (this.gameState === 'play') {
+      this.updateSonic();
+      if (this.sonic.alive) {
+        this.checkRings();
+        this.checkSprings();
+        this.checkEnemies();
+        this.checkSpikes();
+        this.checkGoal();
+      }
+      this.updateLooseRings();
+      this.updateParticles();
+      this.elapsedMs = performance.now() - this.startTime;
+      if (this.shake > 0) this.shake *= 0.84;
+      if (this.respawnFade > 0) this.respawnFade--;
+    } else if (this.gameState === 'clear') {
+      this.levelClearTimer--;
+      if (this.levelClearTimer <= 0) {
+        currentLevel++;
+        this.scene.restart({ fromTransition: true, score: this.score, lives: this.lives });
+        return;
+      }
+      this.updateLooseRings();
+      this.updateParticles();
+      if (this.shake > 0) this.shake *= 0.84;
+    }
+    this.updateCamera();
+
+    // Music adapts to player speed
+    const speedRatio = Math.min(1, Math.abs(this.sonic.gsp) / TOPROLL);
+    tickMusic(performance.now(), speedRatio, this.gameState === 'paused');
+
+    // ── Render ──
+    this.drawBackground();
+    this.drawGround();
+    this.drawObjects();
+    this.drawSonic();
+    this.drawFx();
+
+    // Update HUD (other scene)
+    const hud = this.scene.get('HUD');
+    if (hud && hud.refresh) hud.refresh(this);
+  }
+
+  // ── Physics ──────────────────────────────────────────────────
+  updateSonic() {
+    const s = this.sonic;
+    if (!s.alive) {
+      s.vy += GRV;
+      s.y += s.vy;
+      if (s.y > 700) {
+        this.lives--;
+        if (this.lives <= 0) { this.gameState = 'gameover'; return; }
+        s.alive = true;
+        s.x = Math.max(100, s.x - 200);
+        s.y = groundY(s.x);
+        s.vy = 0; s.vx = 0; s.gsp = 0;
+        s.onGround = true; s.invuln = 120; s.state = 'idle';
+        this.respawnFade = 60;
+      }
+      return;
+    }
+
+    const left  = this.keys.left.isDown;
+    const right = this.keys.right.isDown;
+    const down  = this.keys.down.isDown;
+    const jump  = this.keys.jump.isDown || this.keys.up.isDown;
+
+    if (s.onGround) {
+      const slope = groundSlope(s.x);
+      const slopeSin = Math.sin(slope);
+
+      if (s.rolling) {
+        const downhill = (slopeSin > 0 && s.gsp > 0) || (slopeSin < 0 && s.gsp < 0);
+        s.gsp -= slopeSin * (downhill ? SLPROLLDOWN : SLPROLLUP);
+      } else if (Math.abs(s.gsp) > 0.05 || Math.abs(slopeSin) > 0.04) {
+        s.gsp -= slopeSin * SLP;
+      }
+
+      // Spindash
+      if (down && Math.abs(s.gsp) < 0.2) {
+        if (jump && !s._spinLatch) {
+          s.spinCharge = Math.min(8, s.spinCharge + 2);
+          s._spinLatch = true;
+          sfx.spindash(); s.spinCharging = true;
+        } else if (!jump) { s._spinLatch = false; }
+        s.spinCharge *= 0.96;
+      } else if (s.spinCharging) {
+        s.gsp = s.facing * (8 + s.spinCharge);
+        s.rolling = true; s.spinCharge = 0; s.spinCharging = false;
+        for (let i = 0; i < 14; i++) this.particles.push({
+          x: s.x, y: s.y - 4, vx: -s.facing * (1 + Math.random() * 4),
+          vy: -1 - Math.random() * 2, life: 22, max: 22, kind: 'dust',
+        });
+      }
+
+      let skidding = false;
+      if (!s.rolling) {
+        if (left) {
+          if (s.gsp > 0) {
+            s.gsp -= DEC;
+            if (s.gsp > 4) { skidding = true; if (this.frame % 6 === 0) sfx.skid(); this.puff(s.x, s.y, 'skid', 1); }
+            else s.facing = -1;
+          } else { s.facing = -1; s.gsp = Math.max(s.gsp - ACC, -TOP); }
+        } else if (right) {
+          if (s.gsp < 0) {
+            s.gsp += DEC;
+            if (s.gsp < -4) { skidding = true; if (this.frame % 6 === 0) sfx.skid(); this.puff(s.x, s.y, 'skid', 1); }
+            else s.facing = 1;
+          } else { s.facing = 1; s.gsp = Math.min(s.gsp + ACC, TOP); }
+        } else {
+          if (Math.abs(s.gsp) < FRC) s.gsp = 0;
+          else s.gsp -= Math.sign(s.gsp) * FRC;
+        }
+        if (down && Math.abs(s.gsp) > 1.0) { s.rolling = true; this.puff(s.x, s.y, 'dust', 3); }
+      } else {
+        if (Math.abs(s.gsp) < ROLLFRC) { s.gsp = 0; s.rolling = false; }
+        else s.gsp -= Math.sign(s.gsp) * ROLLFRC;
+        if (left  && s.gsp > 0) s.gsp -= ROLLDEC;
+        if (right && s.gsp < 0) s.gsp += ROLLDEC;
+        if (s.gsp >  TOPROLL) s.gsp =  TOPROLL;
+        if (s.gsp < -TOPROLL) s.gsp = -TOPROLL;
+      }
+
+      if (jump && !s._jumpLatch && !s.spinCharging) {
+        const cs = Math.cos(slope), ss = Math.sin(slope);
+        s.vx = s.gsp * cs - JMP * ss;
+        s.vy = s.gsp * ss + JMP * cs;
+        s.onGround = false; s.jumping = true; s.rolling = true;
+        s._jumpLatch = true; sfx.jump();
+        s.stretch = 1.25; s.squash = 0.85;
+      } else if (!jump) { s._jumpLatch = false; }
+
+      if (s.onGround) {
+        s.vx = s.gsp * Math.cos(slope);
+        s.vy = s.gsp * Math.sin(slope);
+      }
+      s.x += s.vx; s.y += s.vy;
+      if (s.onGround) { s.y = groundY(s.x); s.angle = slope; }
+
+      if (s.onGround && Math.abs(s.gsp) < 2.5 && Math.abs(slopeSin) > 0.6) s.gsp -= slopeSin * 0.5;
+
+      if (s.rolling) s.state = 'roll';
+      else if (skidding) s.state = 'skid';
+      else if (Math.abs(s.gsp) < 0.1) s.state = 'idle';
+      else if (Math.abs(s.gsp) > 5) s.state = 'run';
+      else s.state = 'walk';
+
+      if (s.state === 'run' && this.frame % 5 === 0) { this.puff(s.x - s.facing * 8, s.y - 2, 'dust', 1); sfx.step(); }
+      if (s.state === 'walk' && this.frame % 12 === 0) sfx.step();
+    } else {
+      // Air
+      if (left)  s.vx -= AIR;
+      if (right) s.vx += AIR;
+      s.vx = Math.max(-TOP, Math.min(TOP, s.vx));
+      if (s.jumping && !jump && s.vy < -4) s.vy = -4;
+      s.vy += GRV;
+      if (s.vy > 16) s.vy = 16;
+      s.x += s.vx; s.y += s.vy;
+      const gy = groundY(s.x);
+      if (s.y >= gy && s.vy >= 0) {
+        s.y = gy; s.onGround = true; s.jumping = false;
+        const slope = groundSlope(s.x);
+        s.gsp = s.vx * Math.cos(slope) + s.vy * Math.sin(slope);
+        s.squash = 1.25; s.stretch = 0.8;
+        if (Math.abs(s.vy) > 5) { this.puff(s.x, s.y, 'dust', 5); sfx.land(); }
+        if (!down) s.rolling = false;
+        s.state = s.rolling ? 'roll' : 'idle';
+      } else { s.state = s.jumping ? 'jump' : 'fall'; }
+    }
+
+    if (s.x < 20)                    { s.x = 20;                    if (s.gsp < 0) s.gsp = 0; if (s.vx < 0) s.vx = 0; }
+    if (s.x > LEVEL.length - 20)     { s.x = LEVEL.length - 20;     if (s.gsp > 0) s.gsp = 0; }
+    s.squash  += (1 - s.squash)  * 0.18;
+    s.stretch += (1 - s.stretch) * 0.18;
+    s.walkPhase += Math.abs(s.gsp) * 0.25 + (s.rolling ? 1.6 : 0);
+    if (s.invuln > 0) s.invuln--;
+  }
+
+  // ── Interactions ─────────────────────────────────────────────
+  checkRings() {
+    const s = this.sonic;
+    const fast = Math.abs(s.gsp) > 4;
+    const sy = s.y - 18;
+    for (const r of this.rings) {
+      if (r.collected) continue;
+      const dx = s.x - r.x, dy = sy - r.y;
+      if (Math.abs(dx) < 22 && Math.abs(dy) < 22) {
+        r.collected = true; s.rings++; this.score += 10; sfx.ring();
+        for (let i = 0; i < 6; i++) this.particles.push({
+          x: r.x, y: r.y, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
+          life: 18, max: 18, kind: 'spark',
+        });
+      } else if (fast && Math.abs(dx) < 60 && Math.abs(dy) < 50) {
+        const d = Math.max(8, Math.hypot(dx, dy));
+        r.x += (dx / d) * 4; r.y += (dy / d) * 4;
+      }
+    }
+  }
+  checkSprings() {
+    const s = this.sonic;
+    for (const sp of this.springs) {
+      if (Math.abs(s.x - sp.x) < 24 && Math.abs(s.y - sp.y) < 18 && s.vy >= -1) {
+        s.vy = sp.vy; s.onGround = false; s.jumping = false; s.rolling = false;
+        sp.used = 8; sfx.spring();
+      }
+      if (sp.used > 0) sp.used--;
+    }
+  }
+  checkEnemies() {
+    const s = this.sonic;
+    for (const e of this.enemies) {
+      if (!e.alive) continue;
+      e.t++; e.x += e.dir * 1.0;
+      if (e.x < e.anchor - e.range) e.dir = 1;
+      if (e.x > e.anchor + e.range) e.dir = -1;
+      e.y = groundY(e.x);
+      if (Math.abs(s.x - e.x) < 18 && Math.abs((s.y - 16) - (e.y - 12)) < 22) {
+        if ((s.rolling || s.jumping) && s.vy > 0) {
+          e.alive = false; s.vy = -7; this.score += 100; sfx.break();
+          for (let i = 0; i < 10; i++) this.particles.push({
+            x: e.x, y: e.y - 12, vx: (Math.random()-0.5)*5, vy: -2 - Math.random()*3,
+            life: 26, max: 26, kind: 'spark',
+          });
+        } else this.hurt();
+      }
+    }
+  }
+  checkSpikes() {
+    const s = this.sonic;
+    for (const sp of this.spikes) {
+      if (Math.abs(s.x - sp.x) < 18 && s.y - sp.y > -22 && s.y - sp.y < 8) { this.hurt(); return; }
+    }
+  }
+  checkGoal() {
+    if (this.sonic.x > LEVEL.length - 60) {
+      this.score += 1000 + this.sonic.rings * 100;
+      sfx.goal(); this.shake = 6;
+      if (currentLevel >= LEVELS.length - 1) {
+        this.gameState = 'win';
+      } else {
+        this.gameState = 'clear';
+        this.levelClearTimer = 180;   // 3s, then advance
+      }
+    }
+  }
+
+  hurt() {
+    const s = this.sonic;
+    if (s.invuln > 0 || !s.alive) return;
+    if (s.rings > 0) {
+      const n = Math.min(s.rings, 30);
+      for (let i = 0; i < n; i++) {
+        const ang = (i / n) * Math.PI * 2;
+        this.looseRings.push({
+          x: s.x, y: s.y - 18,
+          vx: Math.cos(ang) * (2 + Math.random() * 2),
+          vy: Math.sin(ang) * (2 + Math.random() * 2) - 3,
+          life: 180,
+        });
+      }
+      s.rings = 0; s.invuln = 90;
+      s.vy = -5; s.vx = -s.facing * 3; s.gsp = -s.facing * 3;
+      s.onGround = false; sfx.hurt(); this.shake = 14;
+    } else {
+      s.alive = false; s.vy = -10; s.onGround = false;
+      sfx.death(); this.shake = 18; s.state = 'dead';
+    }
+  }
+
+  updateLooseRings() {
+    const s = this.sonic;
+    for (let i = this.looseRings.length - 1; i >= 0; i--) {
+      const r = this.looseRings[i];
+      r.life--; r.vy += 0.35; r.x += r.vx; r.y += r.vy;
+      const gy = groundY(r.x);
+      if (r.y > gy - 6 && r.vy > 0) { r.y = gy - 6; r.vy = -r.vy * 0.55; r.vx *= 0.8; if (Math.abs(r.vy) < 1) r.vy = 0; }
+      if (s.invuln <= 60 && Math.abs(s.x - r.x) < 26 && Math.abs((s.y - 18) - r.y) < 26) {
+        s.rings++; this.score += 10; sfx.ring(); this.looseRings.splice(i, 1); continue;
+      }
+      if (r.life <= 0) this.looseRings.splice(i, 1);
+    }
+  }
+
+  puff(x, y, kind, n) {
+    for (let i = 0; i < n; i++) {
+      this.particles.push({
+        x: x + (Math.random()-0.5)*8, y: y - 2 - Math.random()*4,
+        vx: (Math.random()-0.5) * (kind === 'skid' ? 3 : 1.4),
+        vy: -0.5 - Math.random() * 1.2,
+        life: 22, max: 22, kind: kind === 'skid' ? 'skid' : 'dust',
+      });
+    }
+  }
+  updateParticles() {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.life--; p.x += p.vx; p.y += p.vy; p.vy += 0.06;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  updateCamera() {
+    const cam = this.cameras.main;
+    const s = this.sonic;
+    const leadX = s.vx * 14;
+    const leadY = Math.max(-120, Math.min(120, s.vy * 4));
+    const targetX = s.x + leadX - W/2;
+    const targetY = s.y + leadY - H * 0.55;
+    cam.scrollX += (targetX - cam.scrollX) * 0.10;
+    cam.scrollY += (targetY - cam.scrollY) * 0.08;
+    cam.scrollX = Math.max(0, Math.min(LEVEL.length - W, cam.scrollX));
+    cam.scrollY = Math.max(-260, Math.min(80, cam.scrollY));
+    if (this.shake > 0) {
+      cam.scrollX += (Math.random() - 0.5) * this.shake;
+      cam.scrollY += (Math.random() - 0.5) * this.shake;
+    }
+  }
+
+  // ── Rendering ────────────────────────────────────────────────
+  drawBackground() {
+    const g = this.gBg;
+    g.clear();
+    const cam = this.cameras.main;
+    const pal = LEVEL.palette;
+    const horizonY = GROUND_BASE - cam.scrollY;
+
+    // Sky above horizon
+    g.fillGradientStyle(pal.sky1, pal.sky1, pal.sky2, pal.sky2, 1);
+    g.fillRect(0, 0, W, Math.max(0, horizonY));
+    // Warm haze band right at the horizon
+    if (horizonY > 0 && horizonY < H) {
+      g.fillGradientStyle(pal.haze1, pal.haze1, pal.haze2, pal.haze2, 0.8);
+      g.fillRect(0, Math.max(0, horizonY - 24), W, 24);
+    }
+
+    // Sun / moon
+    const sunY = 90 - cam.scrollY * 0.05;
+    g.fillStyle(pal.sun, 0.4); g.fillCircle(W * 0.78, sunY, 64);
+    g.fillStyle(pal.sun, 1);   g.fillCircle(W * 0.78, sunY, 40);
+
+    // Stars in night zone
+    if (currentLevel === 2) {
+      g.fillStyle(0xffffff, 1);
+      for (let i = 0; i < 60; i++) {
+        const sx = ((i * 137 - cam.scrollX * 0.08) % W + W) % W;
+        const sy = (i * 53) % Math.max(1, Math.floor(horizonY - 20));
+        const tw = 0.4 + 0.6 * Math.abs(Math.sin((this.frame + i * 7) * 0.04));
+        g.fillStyle(0xffffff, tw);
+        g.fillRect(sx, sy, 1.5, 1.5);
+      }
+    } else {
+      // Clouds
+      const cx = -cam.scrollX * 0.15;
+      const cy = -cam.scrollY * 0.2;
+      g.fillStyle(0xffffff, 0.85);
+      for (let i = 0; i < 12; i++) {
+        const x = ((i * 320 + cx) % 1600 + 1600) % 1600 - 200;
+        const y = 50 + (i * 23) % 120 + cy;
+        const r = 70 + (i*7)%30;
+        g.fillCircle(x, y, r * 0.4);
+        g.fillCircle(x + r*0.35, y - r*0.1, r * 0.45);
+        g.fillCircle(x + r*0.7, y, r * 0.4);
+        g.fillCircle(x + r*0.4, y + r*0.15, r * 0.4);
+      }
+    }
+
+    // Distant mountains — palette-driven
+    const mx = -cam.scrollX * 0.35;
+    g.fillStyle(pal.mtnFar, 1);
+    for (let i = 0; i < 24; i++) {
+      const x = ((i * 220 + mx) % 5280 + 5280) % 5280 - 240;
+      const w = 240, h = 110 + (i % 3) * 30;
+      g.fillTriangle(x, horizonY, x + w/2, horizonY - h, x + w, horizonY);
+    }
+    g.fillStyle(pal.mtnNear, 1);
+    for (let i = 0; i < 24; i++) {
+      const x = ((i * 220 + mx) % 5280 + 5280) % 5280 - 240;
+      const w = 240, h = 110 + (i % 3) * 30;
+      g.fillTriangle(x + w/2, horizonY - h, x + w/2 - 20, horizonY - h + 50, x + w/2 - 30, horizonY - h + 30);
+    }
+
+    // Mid hills (parallax 0.6 horizontal, 1 vertical)
+    const ph = this.gParallax;
+    ph.clear();
+    ph.fillStyle(pal.hill, 1);
+    const startI = Math.max(0, Math.floor(cam.scrollX * 0.6 / 160) - 2);
+    const endI   = startI + Math.ceil(W / 160 / 0.6) + 4;
+    for (let i = startI; i < endI; i++) {
+      const x = i * 160;
+      ph.beginPath();
+      ph.moveTo(x - 20, GROUND_BASE);
+      ph.lineTo(x + 80, GROUND_BASE - 50);
+      ph.lineTo(x + 180, GROUND_BASE);
+      ph.lineTo(x + 180, GROUND_BASE + 130);
+      ph.lineTo(x - 20, GROUND_BASE + 130);
+      ph.closePath();
+      ph.fillPath();
+    }
+  }
+
+  drawGround() {
+    const g = this.gGround;
+    g.clear();
+    const cam = this.cameras.main;
+    const startX = Math.max(0, Math.floor(cam.scrollX) - 20);
+    const endX   = Math.min(LEVEL.length, Math.ceil(cam.scrollX + W) + 20);
+    const pal = LEVEL.palette;
+
+    // Dirt fill
+    g.fillStyle(pal.dirt, 1);
+    g.beginPath();
+    g.moveTo(startX, H + 240);
+    for (let x = startX; x <= endX; x += 4) g.lineTo(x, groundY(x));
+    g.lineTo(endX, H + 240);
+    g.closePath();
+    g.fillPath();
+
+    // Grass / surface top stroke
+    g.lineStyle(5, pal.grass, 1);
+    g.beginPath();
+    for (let x = startX; x <= endX; x += 3) {
+      if (x === startX) g.moveTo(x, groundY(x));
+      else g.lineTo(x, groundY(x));
+    }
+    g.strokePath();
+
+    // Highlights
+    g.fillStyle(pal.grassHi, 1);
+    for (let x = startX; x <= endX; x += 18) {
+      const y = groundY(x) - 2;
+      g.fillRect(x, y - 3, 2, 4);
+      g.fillRect(x + 6, y - 2, 2, 3);
+    }
+
+    // Stripes
+    g.lineStyle(1, pal.dirtDeep, 1);
+    g.beginPath();
+    for (let x = startX; x <= endX; x += 6) {
+      if (x === startX) g.moveTo(x, groundY(x) + 18);
+      else g.lineTo(x, groundY(x) + 18);
+    }
+    g.strokePath();
+
+    // Foliage / decoration — bushes for green hill, cacti for desert, neon shrubs for neon
+    if (currentLevel === 0) {
+      for (let bx = (Math.floor(cam.scrollX / 220) * 220) - 220; bx < cam.scrollX + W + 220; bx += 220) {
+        if (bx < 100 || bx > LEVEL.length - 200) continue;
+        const by = groundY(bx) - 6;
+        g.fillStyle(pal.bushDk, 1);
+        g.fillCircle(bx, by, 12); g.fillCircle(bx + 12, by, 14); g.fillCircle(bx + 24, by, 12);
+        g.fillStyle(pal.bushLt, 1);
+        g.fillCircle(bx + 6, by - 4, 5); g.fillCircle(bx + 18, by - 4, 5);
+      }
+    } else if (currentLevel === 1) {
+      // Cacti
+      for (let bx = (Math.floor(cam.scrollX / 280) * 280) - 280; bx < cam.scrollX + W + 280; bx += 280) {
+        if (bx < 100 || bx > LEVEL.length - 200) continue;
+        const by = groundY(bx);
+        g.fillStyle(pal.bushDk, 1);
+        g.fillRoundedRect(bx - 4, by - 38, 8, 38, 3);
+        g.fillRoundedRect(bx - 12, by - 22, 6, 14, 2);
+        g.fillRoundedRect(bx + 6,  by - 28, 6, 18, 2);
+        g.fillStyle(pal.bushLt, 1);
+        g.fillRect(bx - 1, by - 36, 1, 30);
+      }
+    } else {
+      // Neon shrubs / glowing plants
+      for (let bx = (Math.floor(cam.scrollX / 240) * 240) - 240; bx < cam.scrollX + W + 240; bx += 240) {
+        if (bx < 100 || bx > LEVEL.length - 200) continue;
+        const by = groundY(bx) - 4;
+        g.fillStyle(pal.bushDk, 0.8);
+        g.fillCircle(bx, by, 14); g.fillCircle(bx + 14, by - 2, 12);
+        g.fillStyle(pal.bushLt, 1);
+        g.fillCircle(bx + 4, by - 6, 5); g.fillCircle(bx + 16, by - 8, 4);
+        // Pulse highlight
+        const pulse = 0.4 + 0.4 * Math.abs(Math.sin((this.frame + bx) * 0.04));
+        g.fillStyle(0xffffff, pulse);
+        g.fillCircle(bx + 6, by - 6, 1.5);
+      }
+    }
+  }
+
+  drawObjects() {
+    const g = this.gObjects;
+    g.clear();
+    const cam = this.cameras.main;
+
+    // Rings
+    for (const r of this.rings) {
+      if (r.collected) continue;
+      if (r.x + 40 < cam.scrollX || r.x - 40 > cam.scrollX + W) continue;
+      this.drawRing(g, r.x, r.y, this.frame * 0.18 + r.t);
+    }
+    for (const r of this.looseRings) {
+      if (r.x + 40 < cam.scrollX || r.x - 40 > cam.scrollX + W) continue;
+      const blink = r.life < 60 && (r.life % 6 < 3);
+      if (!blink) this.drawRing(g, r.x, r.y, this.frame * 0.4);
+    }
+
+    // Springs
+    for (const sp of this.springs) this.drawSpring(g, sp.x, sp.y, sp.used);
+    // Spikes
+    for (const sp of this.spikes) this.drawSpike(g, sp.x, sp.y);
+    // Enemies
+    for (const e of this.enemies) if (e.alive) this.drawEnemy(g, e);
+
+    // Goal sign
+    const gx = LEVEL.length - 60;
+    const gy = groundY(gx);
+    g.fillStyle(0xffffff, 1); g.fillRect(gx - 3, gy - 80, 6, 80);
+    g.fillStyle(0xffd24a, 1); g.fillCircle(gx, gy - 86, 8);
+    const spin = Math.cos(this.frame * 0.06);
+    const w = 60 * Math.abs(spin);
+    g.fillStyle(spin > 0 ? 0x1d4eff : 0xe72525, 1);
+    g.fillRect(gx - w/2, gy - 78, w, 36);
+    g.lineStyle(2, 0x000000, 1);
+    g.strokeRect(gx - w/2, gy - 78, w, 36);
+  }
+
+  drawRing(g, x, y, t) {
+    const w = 12 * Math.abs(Math.cos(t));
+    if (w < 0.5) return;
+    g.fillStyle(0xffd24a, 1);
+    g.fillEllipse(x, y, w, 14);
+    g.fillStyle(0xfff7c4, 1);
+    g.fillEllipse(x - w * 0.15, y - 2, w * 0.3, 4);
+    g.lineStyle(2, 0xc28a14, 1);
+    g.strokeEllipse(x, y, w, 14);
+  }
+
+  drawSpring(g, x, y, used) {
+    const compress = used > 0 ? 0.55 : 0;
+    const baseY = y - 4;
+    g.fillStyle(0xff5252, 1);
+    g.fillRect(x - 18, baseY - 8 + compress * 8, 36, 8);
+    g.fillStyle(0xc11616, 1);
+    g.fillRect(x - 18, baseY, 36, 4);
+    // Coils
+    g.lineStyle(2, 0xffffff, 1);
+    for (let i = 0; i < 3; i++) {
+      const cy = baseY + 6 + i * 4;
+      g.beginPath(); g.moveTo(x - 14, cy); g.lineTo(x + 14, cy); g.strokePath();
+    }
+  }
+
+  drawSpike(g, x, y) {
+    g.fillStyle(0x999, 1);
+    g.fillTriangle(x - 8, y, x + 8, y, x, y - 16);
+    g.fillStyle(0xccc, 1);
+    g.fillTriangle(x - 4, y, x + 4, y, x, y - 14);
+  }
+
+  drawEnemy(g, e) {
+    // Motobug-ish badnik
+    const x = e.x, y = e.y;
+    const wob = Math.sin(e.t * 0.2) * 1.5;
+    g.fillStyle(0x6633aa, 1);
+    g.fillEllipse(x, y - 8 + wob, 30, 18);
+    // Wheels
+    g.fillStyle(0x222, 1);
+    g.fillCircle(x - 9, y - 2, 5);
+    g.fillCircle(x + 9, y - 2, 5);
+    // Eye
+    g.fillStyle(0xffd24a, 1);
+    g.fillCircle(x + e.dir * 6, y - 11 + wob, 3);
+    g.fillStyle(0x000, 1);
+    g.fillCircle(x + e.dir * 7, y - 11 + wob, 1.5);
+  }
+
+  drawSonic() {
+    const s = this.sonic;
+    if (this.useSpriteSonic) {
+      this.gSonic.clear();
+      this.updateSonicSprite();
+      return;
+    }
+    const g = this.gSonic;
+    g.clear();
+    const flicker = s.invuln > 0 && (this.frame % 8 < 4);
+    if (flicker) return;
+
+    g.save();
+    if (s.state === 'dead') {
+      g.translateCanvas(s.x, s.y - 16);
+      g.scaleCanvas(s.facing, 1);
+      this.drawSonicDead(g);
+      g.restore();
+      return;
+    }
+    const isBall = s.state === 'roll' || s.state === 'jump' || s.state === 'fall' || s.spinCharging;
+    g.translateCanvas(s.x, s.y - (isBall ? 12 : 16));
+    if (s.onGround && !isBall) g.rotateCanvas(s.angle);
+    g.scaleCanvas(s.facing * s.stretch, s.squash);
+
+    if (s.spinCharging || isBall) this.drawSonicBall(g, s.walkPhase + (s.spinCharging ? this.frame : 0));
+    else if (s.state === 'skid')  this.drawSonicSkid(g);
+    else if (s.state === 'run')   this.drawSonicRun(g, s.walkPhase);
+    else if (s.state === 'walk')  this.drawSonicWalk(g, s.walkPhase);
+    else                          this.drawSonicIdle(g);
+
+    g.restore();
+  }
+
+  updateSonicSprite() {
+    const s = this.sonic;
+    const sp = this.sonicSprite;
+    // Hide on flicker
+    const flicker = s.invuln > 0 && (this.frame % 8 < 4);
+    sp.setVisible(!flicker);
+    sp.x = s.x;
+    sp.y = s.y;
+    sp.flipX = s.facing < 0;
+    sp.setScale(s.stretch, s.squash);
+    // Map state → animation
+    const isBall = s.state === 'roll' || s.state === 'jump' || s.state === 'fall' || s.spinCharging;
+    let anim = 'sonic-idle';
+    if (s.state === 'dead') anim = 'sonic-dead';
+    else if (isBall)        anim = 'sonic-ball';
+    else if (s.state === 'skid') anim = 'sonic-skid';
+    else if (s.state === 'run')  anim = 'sonic-run';
+    else if (s.state === 'walk') anim = 'sonic-walk';
+    if (sp.anims.currentAnim?.key !== anim) sp.play(anim, true);
+    // Rotate to slope when grounded and not balled-up
+    if (s.onGround && !isBall) sp.setRotation(s.angle);
+    else sp.setRotation(0);
+  }
+
+  // ── Mascot palette (cobalt body, peach belly, red shoe, gold buckle) ──
+  // BLUE        = 0x2a7bff   highlight = 0x6fb4ff   shadow = 0x143a99
+  // SKIN        = 0xffd1a3   skinShade = 0xe8a978
+  // SHOE        = 0xe53935   shoeShade = 0x9a1f1f
+  // GOLD        = 0xf5c842   GOLD_HI   = 0xfff2a8
+  // EYE WHITE   = 0xffffff   PUPIL     = 0x102036   IRIS = 0x1f5fbb
+
+  drawSonicBody(g) {
+    // Soft drop shadow under body
+    g.fillStyle(0x000000, 0.18);
+    g.fillEllipse(1, 18, 22, 4);
+    // Main torso (taller, slimmer than before)
+    g.fillStyle(0x143a99, 1);
+    g.fillEllipse(0, 6, 24, 26);          // shadow base
+    g.fillStyle(0x2a7bff, 1);
+    g.fillEllipse(0, 4, 22, 24);          // body
+    g.fillStyle(0x6fb4ff, 1);
+    g.fillEllipse(-4, -1, 8, 10);         // top-left highlight
+    // Belly
+    g.fillStyle(0xe8a978, 1);
+    g.fillEllipse(3, 7, 11, 14);
+    g.fillStyle(0xffd1a3, 1);
+    g.fillEllipse(3, 6, 9, 12);
+    // Arm (back arm tucked under body silhouette)
+    g.fillStyle(0x2a7bff, 1);
+    g.fillEllipse(-7, 4, 7, 10);
+    // Glove (front hand)
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(7, 6, 4);
+    g.fillStyle(0xe53935, 1);
+    g.fillRect(3, 9, 8, 2);               // glove cuff red band
+  }
+
+  drawSonicHead(g, x, y, tilt = 0) {
+    g.save();
+    g.translateCanvas(x, y);
+    g.rotateCanvas(tilt);
+
+    // Three back quills, layered, with shadow rim
+    g.fillStyle(0x143a99, 1);
+    g.beginPath();
+    g.moveTo(-2, -7); g.lineTo(-19, -10); g.lineTo(-2, 1); g.closePath(); g.fillPath();
+    g.beginPath();
+    g.moveTo(-2, 0); g.lineTo(-21, 2);  g.lineTo(-2, 8); g.closePath(); g.fillPath();
+    g.beginPath();
+    g.moveTo(-2, 6); g.lineTo(-17, 11); g.lineTo(-1, 11); g.closePath(); g.fillPath();
+    g.fillStyle(0x2a7bff, 1);
+    g.beginPath();
+    g.moveTo(-2, -6); g.lineTo(-17, -8); g.lineTo(-2, 2); g.closePath(); g.fillPath();
+    g.beginPath();
+    g.moveTo(-2, 1); g.lineTo(-19, 3);  g.lineTo(-2, 7); g.closePath(); g.fillPath();
+    g.beginPath();
+    g.moveTo(-2, 6); g.lineTo(-15, 10); g.lineTo(-1, 10); g.closePath(); g.fillPath();
+
+    // Head silhouette (slightly pear-shaped)
+    g.fillStyle(0x143a99, 1);
+    g.fillCircle(0, 1, 11);
+    g.fillStyle(0x2a7bff, 1);
+    g.fillCircle(0, 0, 10);
+    // Top highlight
+    g.fillStyle(0x6fb4ff, 1);
+    g.fillEllipse(-3, -5, 6, 4);
+
+    // Face mask (peach)
+    g.fillStyle(0xe8a978, 1);
+    g.fillEllipse(4, 3, 11, 12);
+    g.fillStyle(0xffd1a3, 1);
+    g.fillEllipse(4, 2, 10, 11);
+
+    // Connected eye whites (classic mascot two-blob)
+    g.fillStyle(0xffffff, 1);
+    g.fillEllipse(1, -2, 6, 8);
+    g.fillEllipse(6, -2, 6, 8);
+    // Outline between eyes
+    g.fillStyle(0x143a99, 0.6);
+    g.fillRect(3, -5, 1, 6);
+
+    // Pupils — green iris, dark inner
+    g.fillStyle(0x1f7d3a, 1);
+    g.fillEllipse(2.5, -1, 2.4, 4);
+    g.fillEllipse(7.5, -1, 2.4, 4);
+    g.fillStyle(0x102036, 1);
+    g.fillEllipse(2.6, 0, 1.6, 2.6);
+    g.fillEllipse(7.6, 0, 1.6, 2.6);
+    // Eye shine
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(3, -2, 0.7);
+    g.fillCircle(8, -2, 0.7);
+
+    // Ear (with pink inner)
+    g.fillStyle(0x143a99, 1);
+    g.beginPath();
+    g.moveTo(-3, -8); g.lineTo(-1, -12); g.lineTo(2, -7); g.closePath(); g.fillPath();
+    g.fillStyle(0xff8fb4, 1);
+    g.beginPath();
+    g.moveTo(-1, -8); g.lineTo(0, -10); g.lineTo(1, -8); g.closePath(); g.fillPath();
+
+    // Nose — rounded triangle
+    g.fillStyle(0x102036, 1);
+    g.fillEllipse(9, 1, 3.4, 2.6);
+    // Mouth
+    g.fillStyle(0x102036, 1);
+    g.fillRect(7, 4, 3, 0.8);
+
+    g.restore();
+  }
+
+  drawShoe(g, x, y, tilt = 0) {
+    g.save(); g.translateCanvas(x, y); g.rotateCanvas(tilt);
+    // Sole (dark red)
+    g.fillStyle(0x9a1f1f, 1);
+    g.fillRoundedRect(-7, -3, 14, 7, 2);
+    // Upper (bright red)
+    g.fillStyle(0xe53935, 1);
+    g.fillRoundedRect(-7, -3, 14, 5, 2);
+    // White stripe
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(-7, -1, 14, 2);
+    // Gold buckle
+    g.fillStyle(0xf5c842, 1);
+    g.fillRect(-2, -2, 4, 1.4);
+    g.fillStyle(0xfff2a8, 1);
+    g.fillRect(-2, -2, 4, 0.5);
+    g.restore();
+  }
+
+  drawSonicIdle(g) {
+    const breathe = Math.sin(this.frame / 30) * 0.5;
+    this.drawSonicBody(g);
+    this.drawSonicHead(g, -2, -10 + breathe);
+    this.drawShoe(g, -5, 15);
+    this.drawShoe(g,  6, 15);
+  }
+  drawSonicWalk(g, phase) {
+    const cycle = (Math.floor(phase / 1.2)) % 6;
+    const yOff = [0, -1, 0, 1, 0, -1][cycle];
+    this.drawSonicBody(g);
+    this.drawSonicHead(g, -2, -10 + yOff, 0);
+    const legA = [3, 6, 3, -3, -6, -3][cycle];
+    const legB = [-3, -6, -3, 3, 6, 3][cycle];
+    this.drawShoe(g, -3 + legA, 15, 0);
+    this.drawShoe(g,  3 + legB, 15, 0);
+  }
+  drawSonicRun(g, phase) {
+    this.drawSonicBody(g);
+    this.drawSonicHead(g, -2, -12, 0.12);
+    // Figure-8 spin blur
+    g.fillStyle(0x9a1f1f, 0.35);
+    g.fillEllipse(0, 16, 22, 7);
+    g.fillStyle(0xe53935, 0.85);
+    for (let i = 0; i < 6; i++) {
+      const a = phase * 0.5 + i * (Math.PI / 3);
+      const lx = Math.cos(a) * 8;
+      const ly = 15 + Math.sin(a * 2) * 1.5;
+      g.fillEllipse(lx, ly, 11, 3.5);
+    }
+    g.fillStyle(0xffffff, 1);
+    g.fillEllipse(0, 16, 18, 1.8);
+    g.fillStyle(0xf5c842, 1);
+    g.fillRect(-2, 15, 4, 1.2);
+  }
+  drawSonicSkid(g) {
+    const alt = (this.frame >> 1) & 1;
+    this.drawSonicBody(g);
+    this.drawSonicHead(g, -2, -12, -0.4);
+    if (alt) { this.drawShoe(g, -8, 15, 0.5); this.drawShoe(g, 8, 14, -0.3); }
+    else     { this.drawShoe(g, -6, 15, 0.3); this.drawShoe(g, 9, 15, -0.2); }
+    // Smoke puffs
+    g.fillStyle(0xffffff, 0.85);
+    for (let i = 0; i < 4; i++) g.fillCircle(-13 - i * 5, 15 - (i & 1), 4 - i * 0.5);
+    g.fillStyle(0xe6e6e6, 0.55);
+    for (let i = 0; i < 3; i++) g.fillCircle(-14 - i * 6, 12 - (i & 1), 3 - i * 0.4);
+  }
+  drawSonicBall(g, phase) {
+    // Outer ring shadow
+    g.fillStyle(0x143a99, 1);
+    g.fillCircle(0, 4, 14);
+    // Ball
+    g.fillStyle(0x2a7bff, 1);
+    g.fillCircle(0, 4, 12);
+    // Spinning quill bands
+    g.fillStyle(0x143a99, 1);
+    for (let i = 0; i < 3; i++) {
+      const a = phase * 0.45 + i * (Math.PI * 2 / 3);
+      g.fillEllipse(Math.cos(a) * 6, 4 + Math.sin(a) * 6, 9, 3);
+    }
+    // Highlight
+    g.fillStyle(0x6fb4ff, 1);
+    g.fillCircle(-4, 0, 3.5);
+    // Shoe arc visible at bottom
+    g.fillStyle(0xe53935, 1);
+    g.fillEllipse(0, 11, 14, 5);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(-7, 10, 14, 1.4);
+  }
+  drawSonicDead(g) {
+    const wob = Math.sin(this.frame * 0.25) * 0.08;
+    g.save(); g.rotateCanvas(wob);
+    g.fillStyle(0x1d4eff, 1);
+    g.fillEllipse(0, 4, 22, 22);
+    g.fillStyle(0xffc99a, 1);
+    g.fillEllipse(2, 6, 10, 14);
+    g.fillCircle(0, -8, 9);
+    // Spikes up
+    g.fillStyle(0x1d4eff, 1);
+    g.beginPath(); g.moveTo(-4, -10); g.lineTo(-1, -20); g.lineTo(2, -10); g.closePath(); g.fillPath();
+    g.beginPath(); g.moveTo(0, -10); g.lineTo(4, -22); g.lineTo(6, -10); g.closePath(); g.fillPath();
+    g.beginPath(); g.moveTo(5, -10); g.lineTo(9, -19); g.lineTo(10, -10); g.closePath(); g.fillPath();
+    // X eyes
+    g.lineStyle(1.5, 0x111, 1);
+    g.beginPath(); g.moveTo(-3, -10); g.lineTo(-1, -8); g.moveTo(-3, -8); g.lineTo(-1, -10); g.strokePath();
+    g.beginPath(); g.moveTo(3, -10); g.lineTo(5, -8); g.moveTo(3, -8); g.lineTo(5, -10); g.strokePath();
+    g.restore();
+  }
+
+  drawFx() {
+    const g = this.gFx;
+    g.clear();
+    // Particles drawn in world space — translate to camera
+    const cam = this.cameras.main;
+    g.translateCanvas(-cam.scrollX, -cam.scrollY);
+    for (const p of this.particles) {
+      const a = p.life / p.max;
+      if (p.kind === 'spark') {
+        g.fillStyle(0xffeca0, a);
+        g.fillRect(p.x - 1, p.y - 1, 3, 3);
+      } else {
+        g.fillStyle(0xfff0dc, a * 0.7);
+        g.fillCircle(p.x, p.y, 3 * a + 1);
+      }
+    }
+    g.translateCanvas(cam.scrollX, cam.scrollY);
+
+    // Respawn fade
+    if (this.respawnFade > 0) {
+      g.fillStyle(0x000, this.respawnFade / 60);
+      g.fillRect(0, 0, W, H);
+    }
+  }
+}
+
+// ─── HUD (overlay scene) ───────────────────────────────────────
+class HUDScene extends Phaser.Scene {
+  constructor() { super('HUD'); }
+
+  create() {
+    this.gPanels = this.add.graphics();
+    this.tScore = this.add.text(28, 36, '000000', {
+      fontFamily: FONT_HUD, fontSize: '14px', color: '#ffffff',
+    });
+    this.tScoreLbl = this.add.text(28, 22, 'SCORE', {
+      fontFamily: FONT_HUD, fontSize: '10px', color: '#ffd24a',
+    });
+    this.tRings = this.add.text(52, 60, '000', {
+      fontFamily: FONT_HUD, fontSize: '12px', color: '#ffd24a',
+    });
+    this.tLives = this.add.text(28, 90, 'LIVES  3', {
+      fontFamily: FONT_HUD, fontSize: '10px', color: '#aac8ff',
+    });
+    this.tTime = this.add.text(120, 90, 'TIME  00:00', {
+      fontFamily: FONT_HUD, fontSize: '10px', color: '#aac8ff',
+    });
+
+    this.tZone = this.add.text(W/2, 26, '', {
+      fontFamily: FONT_HUD, fontSize: '9px', color: '#ffd24a',
+    }).setOrigin(0.5);
+
+    this.gRing = this.add.graphics();    // ring icon next to count
+    this.gButtons = this.add.graphics(); // pause/mute/fs buttons
+    this.gZoneBar = this.add.graphics();
+
+    // Card overlay layer (intro / paused / gameover / win)
+    this.gCard = this.add.graphics();
+    this.tCardTitle = this.add.text(W/2, 0, '', {
+      fontFamily: FONT_TITLE, fontSize: '40px', color: '#ffd24a',
+      stroke: '#001b66', strokeThickness: 3,
+    }).setOrigin(0.5).setVisible(false);
+    this.tCardSubtitle = this.add.text(W/2, 0, '', {
+      fontFamily: FONT_HUD, fontSize: '14px', color: '#aac8ff',
+    }).setOrigin(0.5).setVisible(false);
+    this.tCardBody = this.add.text(W/2, 0, '', {
+      fontFamily: FONT_HUD, fontSize: '12px', color: '#ffffff', align: 'center',
+    }).setOrigin(0.5).setVisible(false);
+    this.tCardHint = this.add.text(W/2, 0, '', {
+      fontFamily: FONT_HUD, fontSize: '10px', color: '#ffd24a',
+    }).setOrigin(0.5).setVisible(false);
+    this.tReadyGo = this.add.text(W/2, H/2 + 80, '', {
+      fontFamily: FONT_TITLE, fontSize: '56px', color: '#ffd24a',
+      stroke: '#001b66', strokeThickness: 3,
+    }).setOrigin(0.5).setVisible(false);
+
+    // Click hit-test for HUD buttons
+    this.input.on('pointerdown', (pointer) => {
+      const cam = this.cameras.main;
+      const px = pointer.x, py = pointer.y;
+      for (const b of this.buttonRects || []) {
+        if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) {
+          if (b.id === 'pause') {
+            const game = this.scene.get('Game');
+            if (game.gameState === 'play') game.gameState = 'paused';
+            else if (game.gameState === 'paused') game.gameState = 'play';
+          } else if (b.id === 'mute') toggleMute();
+          else if (b.id === 'fullscreen') {
+            const el = document.getElementById('frame');
+            if (!document.fullscreenElement) el.requestFullscreen?.();
+            else document.exitFullscreen?.();
+          }
+          return;
+        }
+      }
+    });
+  }
+
+  refresh(game) {
+    const s = game.sonic;
+    const frame = game.frame;
+    this.tScore.setText(game.score.toString().padStart(6, '0'));
+    this.tRings.setText(s.rings.toString().padStart(3, '0'));
+    this.tRings.setColor(s.rings === 0 ? '#ff5252' : '#ffd24a');
+    this.tLives.setText('LIVES  ' + game.lives);
+    const totalSec = Math.max(0, Math.floor(game.elapsedMs / 1000));
+    const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const ss = String(totalSec % 60).padStart(2, '0');
+    this.tTime.setText('TIME  ' + mm + ':' + ss);
+    this.tZone.setText(`ZONE ${currentLevel + 1}/${LEVELS.length}  ·  ${LEVEL.name}`);
+
+    // Panels
+    this.gPanels.clear();
+    drawPanel(this.gPanels, 14, 14, 220, 95);
+    drawPanel(this.gPanels, W/2 - 160, 14, 320, 30);
+
+    // Zone progress bar (inside zone panel)
+    const zb = this.gZoneBar; zb.clear();
+    const bx = W/2 - 148, by = 32, bw = 296, bh = 8;
+    zb.fillStyle(0x000000, 0.5); zb.fillRect(bx, by, bw, bh);
+    const t = Math.min(1, s.x / LEVEL.length);
+    const fillW = bw * t;
+    for (let i = 0; i < bw; i += 8) {
+      zb.fillStyle(((i / 8) | 0) % 2 ? 0xffd24a : 0xe6a614, 1);
+      if (i < fillW) zb.fillRect(bx + i, by, Math.min(8, fillW - i), bh);
+    }
+    zb.fillStyle(0x1d4eff, 1);
+    zb.fillTriangle(bx + fillW, by - 2, bx + fillW + 5, by + bh / 2, bx + fillW, by + bh + 2);
+    zb.fillTriangle(bx + fillW - 5, by + bh / 2, bx + fillW, by - 2, bx + fillW, by + bh + 2);
+
+    // Animated ring icon next to count
+    const ri = this.gRing; ri.clear();
+    const w = 12 * Math.abs(Math.cos(frame * 0.2));
+    if (w > 0.5) {
+      ri.fillStyle(0xffd24a, 1);
+      ri.fillEllipse(36, 65, w, 14);
+      ri.lineStyle(2, 0xc28a14, 1);
+      ri.strokeEllipse(36, 65, w, 14);
+    }
+
+    // Buttons (top-right): pause / mute / fullscreen
+    const gb = this.gButtons; gb.clear();
+    this.buttonRects = [];
+    const sz = 32, gap = 6, baseX = W - (sz*3 + gap*2) - 14, btnY = 14;
+    const btn = (id, x, drawFn) => {
+      drawPanel(gb, x, btnY, sz, sz);
+      gb.save(); gb.translateCanvas(x + sz/2, btnY + sz/2); drawFn(gb); gb.restore();
+      this.buttonRects.push({ id, x, y: btnY, w: sz, h: sz });
+    };
+    btn('pause', baseX, (g) => {
+      g.fillStyle(0xffd24a, 1);
+      if (game.gameState === 'paused') g.fillTriangle(-4, -7, 7, 0, -4, 7);
+      else { g.fillRect(-6, -7, 4, 14); g.fillRect(2, -7, 4, 14); }
+    });
+    btn('mute', baseX + sz + gap, (g) => {
+      g.fillStyle(0xffd24a, 1);
+      g.beginPath();
+      g.moveTo(-7, -3); g.lineTo(-3, -3); g.lineTo(2, -8);
+      g.lineTo(2, 8); g.lineTo(-3, 3); g.lineTo(-7, 3);
+      g.closePath(); g.fillPath();
+      if (muted) {
+        g.lineStyle(2, 0xff5252, 1);
+        g.beginPath(); g.moveTo(-9, -9); g.lineTo(9, 9); g.strokePath();
+      } else {
+        g.lineStyle(2, 0xffd24a, 1);
+        g.beginPath(); g.arc(0, 0, 6, -0.6, 0.6); g.strokePath();
+      }
+    });
+    btn('fullscreen', baseX + (sz + gap) * 2, (g) => {
+      g.lineStyle(2, 0xffd24a, 1);
+      g.beginPath();
+      g.moveTo(-8, -4); g.lineTo(-8, -8); g.lineTo(-4, -8);
+      g.moveTo( 4, -8); g.lineTo( 8, -8); g.lineTo( 8, -4);
+      g.moveTo( 8,  4); g.lineTo( 8,  8); g.lineTo( 4,  8);
+      g.moveTo(-4,  8); g.lineTo(-8,  8); g.lineTo(-8,  4);
+      g.strokePath();
+    });
+
+    // Cards
+    this.drawCards(game);
+  }
+
+  drawCards(game) {
+    const c = this.gCard;
+    c.clear();
+    this.tCardTitle.setVisible(false);
+    this.tCardSubtitle.setVisible(false);
+    this.tCardBody.setVisible(false);
+    this.tCardHint.setVisible(false);
+    this.tReadyGo.setVisible(false);
+
+    if (game.gameState === 'intro' && game.levelIntroTimer > 0) {
+      const t = game.levelIntroTimer;
+      const slideIn = Math.min(1, (180 - t) / 30);
+      const slideOut = Math.max(0, Math.min(1, t / 20));
+      const fade = Math.min(slideIn, slideOut);
+      this.drawCard(c, 0.55 * fade);
+      this.tCardTitle.setText('ZONE ' + (currentLevel + 1)).setColor('#ffd24a').setPosition(W/2, H/2 - 60).setVisible(true).setAlpha(fade);
+      this.tCardSubtitle.setText(LEVEL.name + '  ·  ACT ' + LEVEL.act).setPosition(W/2, H/2 - 20).setVisible(true).setAlpha(fade);
+      if (t < 90) {
+        const showGo = t < 50;
+        const phase = showGo ? (50 - t) : (90 - t);
+        const punch = 1 + Math.exp(-phase / 8) * 0.6;
+        this.tReadyGo.setText(showGo ? 'GO!' : 'READY')
+          .setColor(showGo ? '#52ff7a' : '#ffd24a')
+          .setScale(punch)
+          .setVisible(true);
+      }
+    } else if (game.gameState === 'clear') {
+      const t = game.levelClearTimer;
+      const fadeIn = Math.min(1, (180 - t) / 30);
+      const fadeOut = Math.max(0, Math.min(1, t / 30));
+      const fade = Math.min(fadeIn, fadeOut);
+      this.drawCard(c, 0.6 * fade);
+      this.tCardTitle.setText('ZONE CLEAR!').setColor('#52ff7a').setPosition(W/2, H/2 - 60).setVisible(true).setAlpha(fade);
+      this.tCardSubtitle.setText(LEVEL.name).setPosition(W/2, H/2 - 20).setVisible(true).setAlpha(fade);
+      this.tCardBody.setText(
+        'RINGS    ' + game.sonic.rings.toString().padStart(3, '0') + '    +' + (game.sonic.rings * 100) +
+        '\nBONUS    1000'
+      ).setPosition(W/2, H/2 + 24).setVisible(true).setAlpha(fade);
+    } else if (game.gameState === 'paused') {
+      this.drawCard(c, 0.55);
+      this.tCardTitle.setText('PAUSED').setPosition(W/2, H/2 - 30).setVisible(true).setAlpha(1);
+      this.tCardHint.setText('PRESS  P  TO  RESUME').setPosition(W/2, H/2 + 60).setVisible(true).setAlpha(1);
+    } else if (game.gameState === 'gameover') {
+      this.drawCard(c, 0.7);
+      this.tCardTitle.setText('GAME OVER').setColor('#ff5252').setPosition(W/2, H/2 - 60).setVisible(true).setAlpha(1);
+      this.tCardBody.setText('SCORE   ' + game.score.toString().padStart(6, '0')).setPosition(W/2, H/2).setVisible(true).setAlpha(1);
+      this.tCardHint.setText('PRESS  R  TO  TRY  AGAIN').setPosition(W/2, H/2 + 60).setVisible(true).setAlpha(1);
+    } else if (game.gameState === 'win') {
+      this.drawCard(c, 0.65);
+      this.tCardTitle.setText('GOAL!').setColor('#ffd24a').setPosition(W/2, H/2 - 60).setVisible(true).setAlpha(1);
+      const totalSec = Math.max(0, Math.floor(game.elapsedMs / 1000));
+      const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+      const ss = String(totalSec % 60).padStart(2, '0');
+      this.tCardBody.setText(
+        'SCORE   ' + game.score.toString().padStart(6, '0') +
+        '\nRINGS   ' + game.sonic.rings.toString().padStart(3, '0') +
+        '\nTIME    ' + mm + ':' + ss
+      ).setPosition(W/2, H/2 - 4).setVisible(true).setAlpha(1);
+      this.tCardHint.setText('PRESS  R  TO  PLAY  AGAIN').setPosition(W/2, H/2 + 70).setVisible(true).setAlpha(1);
+    }
+  }
+
+  drawCard(c, alpha) {
+    c.fillStyle(0x040818, alpha);
+    c.fillRect(0, 0, W, H);
+    const cw = 420, ch = 220;
+    const cx = (W - cw) / 2, cy = (H - ch) / 2;
+    c.fillGradientStyle(0x1a1230, 0x1a1230, 0x0a0818, 0x0a0818, 1);
+    c.fillRoundedRect(cx, cy, cw, ch, 14);
+    c.lineStyle(3, 0xffd24a, 1);
+    c.strokeRoundedRect(cx, cy, cw, ch, 14);
+    c.lineStyle(1, 0xe8740c, 1);
+    c.strokeRoundedRect(cx + 4, cy + 4, cw - 8, ch - 8, 11);
+  }
+}
+
+function drawPanel(g, x, y, w, h) {
+  g.fillStyle(0x080c1c, 0.72);
+  g.fillRoundedRect(x, y, w, h, 8);
+  g.lineStyle(2, 0xffd24a, 1);
+  g.strokeRoundedRect(x, y, w, h, 8);
+}
+
+// ─── Phaser config + boot ──────────────────────────────────────
+const config = {
+  type: Phaser.AUTO,
+  width: W, height: H,
+  parent: 'frame',
+  backgroundColor: '#000',
+  pixelArt: false,
+  scene: [BootScene, TitleScene, GameScene, HUDScene],
+  banner: false,
+  fps: { target: 60, forceSetTimeOut: false },
+};
+
+new Phaser.Game(config);
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<section id="trends" class="dashboard-section">
+  <div class="dashboard-section-header">
+    <h2 class="section-title">Trends (last 12 months)</h2>
+  </div>
+
+  <div class="dashboard-trends-grid">
+    <div class="fp-card">
+      <div class="fp-card-header"><div class="fp-card-title">Applications per month</div></div>
+      <div class="dashboard-trend-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="bar"
+           data-time-series-chart-value-format-value="integer"
+           data-time-series-chart-color-value="#2563eb"
+           data-time-series-chart-series-value="<%= trends[:applications_monthly].map { |label, value| { label: label, value: value } }.to_json %>"></div>
+    </div>
+
+    <div class="fp-card">
+      <div class="fp-card-header"><div class="fp-card-title">Funds Under Management</div></div>
+      <div class="dashboard-trend-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="area"
+           data-time-series-chart-value-format-value="currency"
+           data-time-series-chart-color-value="#0ea5e9"
+           data-time-series-chart-series-value="<%= trends[:fum_monthly].map { |label, value| { label: label, value: value } }.to_json %>"></div>
+    </div>
+
+    <div class="fp-card">
+      <div class="fp-card-header"><div class="fp-card-title">Monthly P&amp;L (bars) + Cumulative (line)</div></div>
+      <div class="dashboard-trend-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="combo"
+           data-time-series-chart-value-format-value="currency"
+           data-time-series-chart-color-value="#16a34a"
+           data-time-series-chart-secondary-color-value="#0f172a"
+           data-time-series-chart-series-value="<%= trends[:pl_monthly].map { |label, vals| { label: label, monthly: vals[:monthly], cumulative: vals[:cumulative] } }.to_json %>"></div>
+    </div>
+  </div>
+</section>

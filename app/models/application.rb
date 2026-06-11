@@ -1,22 +1,56 @@
+require_relative '../presenters/application_presenter'
+
 class Application < ApplicationRecord
   include InputSanitization
+  include LenderScopes
+  include JsonAttributes
+  include JurisdictionValidation
+
+  # Specify which field stores jurisdiction
+  self.jurisdiction_field = :region
+
+  # Column was renamed from loan_term to investment_term in migration
+  # Alias so existing code continues to work
+  alias_attribute :loan_term, :investment_term
+
+  # Columns renamed in migration - aliases for backwards compatibility
+  alias_attribute :property_address, :address
+  alias_attribute :approved_loan_amount, :equity_investment_amount
+  alias_attribute :approved_interest_rate, :equity_percentage
+  alias_attribute :approved_term_years, :participation_term_years
   
   # Field-level encryption for L4 sensitive data
   encrypts :government_id, deterministic: true
   encrypts :credit_score
   encrypts :bank_account_number
+  
+  # JSON attributes with safe parsing
+  # Concern creates: property_images_parsed, property_images_array
+  json_attribute :property_images, default: []
+  # Concern creates: corelogic_data_parsed, corelogic_data_array, corelogic_property_data, corelogic_data_hash
+  json_attribute :corelogic_data, default: {}, aliases: [:corelogic_property_data, :corelogic_data_hash]
+  # Concern creates: borrower_names_parsed, borrower_names_array
+  json_attribute :borrower_names, default: []
 
   belongs_to :user
   belongs_to :lender, optional: true
   belongs_to :mortgage, optional: true
-  belongs_to :referral_partner, optional: true
+  belongs_to :broker, optional: true
+  # referral_partner deprecated — use broker instead
   has_one :contract, dependent: :destroy
+  has_one :broker_commission, dependent: :destroy
+  # delete_all (not destroy): quotes are readonly snapshots and cannot be
+  # destroyed one-by-one through callbacks
+  has_many :quotes, dependent: :delete_all
+  has_one :kyc_submission, dependent: :destroy
+  has_one :aml_check, dependent: :destroy
   has_many :distributions, dependent: :destroy
+  has_many :borrower_messages, dependent: :destroy
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
+  has_many :support_tickets, dependent: :nullify
   has_many :application_checklists, class_name: 'ApplicationChecklist', dependent: :destroy
   has_many :agent_actions, as: :actionable, dependent: :destroy
-  has_many :application_documents, dependent: :destroy
   has_many :application_documents, dependent: :destroy
 
   # Enums
@@ -41,21 +75,43 @@ class Application < ApplicationRecord
     submitted: 4,
     processing: 5,
     rejected: 6,
-    accepted: 7
+    accepted: 7,
+    activated: 8
   }, prefix: true
 
   # Validations
   validates :address, presence: true, length: { maximum: 255 }, unless: :status_created?
+  # Global envelope across all regions (UK min £300k; all regions max 10M).
+  # Region-specific bounds (config/regions.yml) are enforced at submission
+  # via EpmJurisdictionService.
   validates :home_value, presence: true, numericality: {
-    greater_than_or_equal_to: 100_000, # Reasonable minimum property value
-    less_than_or_equal_to: 50_000_000,
+    greater_than_or_equal_to: 300_000,
+    less_than_or_equal_to: 10_000_000,
     only_integer: true
   }
   validates :user, presence: true
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
-  validates :region, inclusion: { in: %w[au us nz uk] }, allow_nil: true
+  
+  # ISO 3166-1 alpha-2 country codes
+  VALID_REGION_CODES = ["AU", "US", "NZ", "UK"].freeze
+
+  COUNTRY_TO_ISO = {
+    'Australia' => 'AU',
+    'United States' => 'US',
+    'New Zealand' => 'NZ',
+    'United Kingdom' => 'UK'
+  }.freeze
+  
+  # ✅ CRITICAL: Region MUST be set and must be valid (not optional for EPM)
+  validates :region, presence: true, inclusion: { in: VALID_REGION_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
+  
+  # ✅ CRITICAL: Validate region matches user's home jurisdiction (only on submission via form)
+  validate :region_matches_user_jurisdiction, if: -> { user_present? && region.present? && submitting_application? }
+
+  # ✅ CRITICAL: Validate against EPM jurisdiction rules (only on submission via form)
+  validate :validate_epm_jurisdiction_rules, if: -> { region.present? && submitting_application? }
   validates :existing_mortgage_amount, numericality: {
     greater_than_or_equal_to: 0,
     less_than_or_equal_to: 50_000_000
@@ -90,7 +146,13 @@ class Application < ApplicationRecord
   validate :borrower_names_format_if_joint
   validate :checklist_completed_for_acceptance
 
+  # Webhook triggers
+  after_create :trigger_application_created_webhook
+  after_update :trigger_application_status_webhooks, if: :status_changed?
+
   # Callbacks
+  before_validation :normalize_region
+  before_validation :set_region_from_user, on: :create
   before_validation :assign_demo_address, on: :create
   before_validation :set_default_existing_mortgage_amount
 
@@ -103,6 +165,7 @@ class Application < ApplicationRecord
   after_update :auto_create_checklist_on_submitted
   after_update :ensure_checklist_for_processing_and_beyond
   after_commit :trigger_email_workflows
+  after_commit :invalidate_broker_dashboard_cache
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -111,15 +174,25 @@ class Application < ApplicationRecord
   scope :in_progress, -> { where(status: [:created, :property_details, :income_and_loan_options]) }
   scope :completed, -> { where(status: [:submitted, :processing, :accepted, :rejected]) }
   scope :pending_review, -> { where(status: [:submitted, :processing]) }
+  scope :by_broker, ->(broker) { where(broker_id: broker.id) }
 
   # Methods
+  # =================================
+  # Formatter Methods - Delegate to Presenter
+  # =================================
+  # These methods maintain backward compatibility while delegating to the presenter.
+  # For new code, use: ApplicationPresenter.new(application).method_name
+  
+  def presenter
+    @presenter ||= ApplicationPresenter.new(self)
+  end
+
   def formatted_home_value
-    ActionController::Base.helpers.number_to_currency(home_value, precision: 0)
+    presenter.home_value_formatted
   end
 
   def formatted_existing_mortgage_amount
-    return "$0" unless has_existing_mortgage? && existing_mortgage_amount > 0
-    ActionController::Base.helpers.number_to_currency(existing_mortgage_amount, precision: 0)
+    presenter.existing_mortgage_amount_formatted
   end
 
   def display_address
@@ -158,20 +231,7 @@ class Application < ApplicationRecord
   end
 
   def status_badge_class
-    case status
-    when 'created'
-      'badge-secondary'
-    when 'property_details', 'income_and_loan_options'
-      'badge-warning'
-    when 'submitted', 'processing'
-      'badge-info'
-    when 'accepted'
-      'badge-success'
-    when 'rejected'
-      'badge-danger'
-    else
-      'badge-secondary'
-    end
+    presenter.status_badge_class
   end
 
   def can_be_edited?
@@ -223,7 +283,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_future_property_value(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(future_property_value(growth_rate_override), precision: 0)
+    presenter.future_property_value_formatted(growth_rate_override)
   end
 
   def property_appreciation(growth_rate_override = nil)
@@ -231,61 +291,34 @@ class Application < ApplicationRecord
   end
 
   def formatted_property_appreciation(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(property_appreciation(growth_rate_override), precision: 0)
+    presenter.property_appreciation_formatted(growth_rate_override)
   end
 
   def formatted_growth_rate
-    "#{growth_rate || 2.0}%"
+    presenter.growth_rate_formatted
   end
 
   # CoreLogic property methods
-  def property_images_array
-    return [] unless property_images.present?
-    begin
-      JSON.parse(property_images)
-    rescue JSON::ParserError
-      []
-    end
-  end
-
-  def corelogic_property_data
-    return {} unless corelogic_data.present?
-    begin
-      JSON.parse(corelogic_data)
-    rescue JSON::ParserError
-      {}
-    end
-  end
-
-  # Alias for backwards compatibility with view templates
-  def corelogic_data_hash
-    corelogic_property_data
-  end
+  # JSON parsing methods now handled by JsonAttributes concern
+  # - property_images_array → property_images_parsed
+  # - corelogic_property_data → corelogic_data_parsed
+  # - corelogic_data_hash → alias to corelogic_data_parsed
+  # See: app/models/concerns/json_attributes.rb
 
   def has_property_valuation?
     property_valuation_middle.present? && property_valuation_middle > 0
   end
 
   def formatted_property_valuation_range
-    if property_valuation_low.present? && property_valuation_high.present?
-      low = ActionController::Base.helpers.number_to_currency(property_valuation_low, precision: 0)
-      high = ActionController::Base.helpers.number_to_currency(property_valuation_high, precision: 0)
-      "#{low} - #{high}"
-    else
-      "Not available"
-    end
+    presenter.property_valuation_range_formatted
   end
 
   def formatted_property_valuation_middle
-    if property_valuation_middle.present?
-      ActionController::Base.helpers.number_to_currency(property_valuation_middle, precision: 0)
-    else
-      "Not available"
-    end
+    presenter.property_valuation_middle_formatted
   end
 
   def contract_display_name
-    "#{user.display_name} - #{address[0..50]}"
+    presenter.contract_display_name
   end
 
   # Equity preservation calculations
@@ -305,7 +338,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_home_equity_preserved(growth_rate_override = nil)
-    ActionController::Base.helpers.number_to_currency(home_equity_preserved(growth_rate_override), precision: 0)
+    presenter.home_equity_preserved_formatted(growth_rate_override)
   end
 
   # Loan value calculation ((Home Value - Existing Mortgage) * LVR)
@@ -323,7 +356,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_loan_value
-    ActionController::Base.helpers.number_to_currency(loan_value, precision: 0)
+    presenter.loan_value_formatted
   end
 
   # Payment Summary calculations
@@ -331,7 +364,7 @@ class Application < ApplicationRecord
     return 0 unless loan_term.present?
 
     principal = loan_value
-    rate = 7.45 / 100.0  # 7.45% as decimal
+    rate = EpmModelConfig.indicative_borrower_rate  # cash rate + full spread stack
     term = loan_term
 
     # Simple interest calculation: Principal * Rate * Time
@@ -339,7 +372,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_interest_paid_on_behalf
-    ActionController::Base.helpers.number_to_currency(interest_paid_on_behalf, precision: 0)
+    presenter.interest_paid_on_behalf_formatted
   end
 
   def loan_principal_paid_on_behalf
@@ -353,7 +386,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_loan_principal_paid_on_behalf
-    ActionController::Base.helpers.number_to_currency(loan_principal_paid_on_behalf, precision: 0)
+    presenter.loan_principal_paid_on_behalf_formatted
   end
 
   def repayment_due_at_end_of_loan
@@ -367,7 +400,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_repayment_due_at_end_of_loan
-    ActionController::Base.helpers.number_to_currency(repayment_due_at_end_of_loan, precision: 0)
+    presenter.repayment_due_at_end_of_loan_formatted
   end
 
   # Income Summary calculations
@@ -376,7 +409,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_total_income_amount
-    ActionController::Base.helpers.number_to_currency(total_income_amount, precision: 0)
+    presenter.total_income_amount_formatted
   end
 
   def monthly_income_amount
@@ -390,7 +423,7 @@ class Application < ApplicationRecord
   end
 
   def formatted_monthly_income_amount
-    ActionController::Base.helpers.number_to_currency(monthly_income_amount, precision: 0)
+    presenter.monthly_income_amount_formatted
   end
 
   def annuity_duration_years
@@ -519,6 +552,9 @@ class Application < ApplicationRecord
       self.status = :accepted
       save!
       
+      # Calculate broker commission if applicable
+      calculate_broker_commission! if broker.present?
+      
       # Trigger contract generation
       generate_contract_on_approval!
       
@@ -529,6 +565,11 @@ class Application < ApplicationRecord
         approved_term_years: term_years
       }).execute!
     end
+  end
+
+  def calculate_broker_commission!
+    calculator = BrokerCommissionCalculator.new(application: self)
+    calculator.calculate_commission_for_approval
   end
 
   def reject!(reason:)
@@ -564,6 +605,27 @@ class Application < ApplicationRecord
   end
 
   private
+
+  def normalize_region
+    self.region = region.upcase if region.present?
+  end
+
+  def set_region_from_user
+    return if region.present? && region != "US" # Don't override explicit region (except DB default "US")
+    return unless user&.country_of_residence
+
+    code = user_home_jurisdiction_code
+    self.region = code if code.present?
+  end
+
+  # Only validate jurisdiction when user submits application through the form flow
+  # The actual submission path is: income_and_loan_options → submitted
+  def submitting_application?
+    return false if new_record?
+    return false unless status_changed?
+    return false unless status_submitted?
+    status_was == "income_and_loan_options"
+  end
 
   def set_default_existing_mortgage_amount
     self.existing_mortgage_amount ||= 0
@@ -874,6 +936,11 @@ class Application < ApplicationRecord
 
   private
 
+  def invalidate_broker_dashboard_cache
+    return unless broker_id.present?
+    BrokerDashboardCacheService.invalidate_broker_cache(broker)
+  end
+
   def trigger_workflows_for(trigger_type, context = {})
     EmailWorkflow.active.for_trigger(trigger_type).find_each do |workflow|
       begin
@@ -887,5 +954,126 @@ class Application < ApplicationRecord
         Rails.logger.error "Failed to trigger workflow '#{workflow.name}' for Application #{id}: #{e.message}"
       end
     end
+  end
+
+  def trigger_application_created_webhook
+    return unless lender_id.present?
+    
+    payload = {
+      event: 'application_created',
+      timestamp: Time.current.iso8601,
+      application: {
+        id: id,
+        borrower_name: user&.full_name,
+        borrower_email: user&.email,
+        property_address: address,
+        loan_amount: equity_investment_amount,
+        property_value: home_value,
+        status: status
+      }
+    }
+
+    trigger_lender_webhooks('application_created', payload)
+  end
+
+  def trigger_application_status_webhooks
+    return unless lender_id.present?
+    
+    old_status, new_status = saved_change_to_status
+    
+    # Trigger approved webhook
+    if new_status == 'accepted'
+      payload = {
+        event: 'application_approved',
+        timestamp: Time.current.iso8601,
+        application: {
+          id: id,
+          borrower_name: user.full_name,
+          borrower_email: user.email,
+          property_address: address,
+          loan_amount: equity_investment_amount,
+          status: new_status,
+          approved_at: Time.current.iso8601
+        }
+      }
+
+      trigger_lender_webhooks('application_approved', payload)
+    end
+
+    # Trigger rejected webhook
+    if new_status == 'rejected'
+      payload = {
+        event: 'application_rejected',
+        timestamp: Time.current.iso8601,
+        application: {
+          id: id,
+          borrower_name: user.full_name,
+          borrower_email: user.email,
+          status: new_status,
+          rejected_reason: rejected_reason,
+          rejected_at: Time.current.iso8601
+        }
+      }
+      
+      trigger_lender_webhooks('application_rejected', payload)
+    end
+  end
+
+  # Safely trigger webhooks via lender's Webhook model (not WebhookEndpoint)
+  def trigger_lender_webhooks(event_type, payload)
+    return unless lender
+    return unless lender.respond_to?(:webhook_endpoints)
+
+    lender.webhook_endpoints.active.for_event(event_type).find_each do |endpoint|
+      endpoint.trigger_event(event_type, payload)
+    end
+  rescue NoMethodError
+    # Lender may not have webhook_endpoints association
+    Rails.logger.debug "Webhook skipped: lender #{lender.id} has no webhook_endpoints"
+  end
+
+  private
+
+  # ✅ CRITICAL: Validate application region matches user's home jurisdiction
+  def region_matches_user_jurisdiction
+    return if !user || !region
+
+    user_jurisdiction = user_home_jurisdiction_code
+    return unless user_jurisdiction  # Skip if user has no jurisdiction set yet
+
+    unless region == user_jurisdiction
+      errors.add(:region, 
+        "must match user's home jurisdiction (#{user_jurisdiction}). " \
+        "User is in #{user.country_of_residence}, application is for #{region}")
+    end
+  end
+
+  # ✅ CRITICAL: Get user's home jurisdiction as ISO code
+  def user_home_jurisdiction_code
+    return nil unless user&.country_of_residence
+
+    COUNTRY_TO_ISO[user.country_of_residence]
+  end
+
+  # ✅ CRITICAL: Validate application against EPM jurisdiction rules
+  def validate_epm_jurisdiction_rules
+    return unless region
+    
+    begin
+      service = EpmJurisdictionService.new(region)
+      errors_list = service.validate_application(self)
+      
+      errors_list.each { |error| errors.add(:base, error) }
+    rescue EpmJurisdictionService::InvalidJurisdictionError => e
+      errors.add(:region, e.message)
+    end
+  end
+
+  def user_present?
+    user.present?
+  end
+
+  def region_present?
+    region.present?
   end
 end

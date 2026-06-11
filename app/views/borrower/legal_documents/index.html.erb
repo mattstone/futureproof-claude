@@ -1,0 +1,234 @@
+<div class="borrower-documents-container">
+  <div class="documents-header">
+    <h1>📄 Legal Documents</h1>
+    <p class="subtitle">Review and accept required documents for your application</p>
+  </div>
+
+  <div class="documents-content">
+    <% if @required_documents.any? %>
+      <div class="documents-summary">
+        <div class="summary-card">
+          <div class="summary-label">Total Documents</div>
+          <div class="summary-value"><%= @required_documents.count %></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Accepted</div>
+          <div class="summary-value" style="color: #4caf50;"><%= @required_documents.count - @pending_documents.count %></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Pending</div>
+          <div class="summary-value" style="color: #ff9800;"><%= @pending_documents.count %></div>
+        </div>
+      </div>
+
+      <div class="documents-list">
+        <% @required_documents.each do |document| %>
+          <div class="document-card">
+            <div class="document-card-header">
+              <div class="document-info">
+                <h3><%= document.document_name %></h3>
+                <p class="document-desc"><%= document.description || "Review this document for your records" %></p>
+              </div>
+              <% acceptance = @acceptances[document.id] %>
+              <% if acceptance&.accepted? %>
+                <div class="document-status accepted">
+                  ✓ Accepted <%= acceptance.accepted_at.strftime("%b %d, %Y") %>
+                </div>
+              <% else %>
+                <div class="document-status pending">
+                  ⚠ Pending
+                </div>
+              <% end %>
+            </div>
+
+            <div class="document-card-actions">
+              <%= link_to "View Document", borrower_legal_document_path(document), class: "btn btn-secondary" %>
+              
+              <% if acceptance&.accepted? %>
+                <%= button_to "Withdraw", borrower_legal_document_reject_path(document), 
+                    method: :post, 
+                    data: { confirm: "Are you sure?" }, 
+                    class: "btn btn-outline" %>
+              <% else %>
+                <%= button_to "Accept", borrower_legal_document_accept_path(document), 
+                    method: :post, 
+                    class: "btn btn-primary" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p>✓ All required documents have been accepted!</p>
+        <%= link_to "Back to Dashboard", borrower_root_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .borrower-documents-container {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .documents-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .documents-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    color: #1e293b;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  .documents-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .summary-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0066cc;
+  }
+
+  .documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .document-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .document-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .document-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+  }
+
+  .document-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .document-status {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .document-status.accepted {
+    background: #c8e6c9;
+    color: #2e7d32;
+  }
+
+  .document-status.pending {
+    background: #ffe0b2;
+    color: #e65100;
+  }
+
+  .document-card-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: #0066cc;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #0052a3;
+  }
+
+  .btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #d0d0d0;
+  }
+
+  .btn-secondary:hover {
+    background: #e8e8e8;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: #666;
+    border: 1px solid #d0d0d0;
+  }
+
+  .btn-outline:hover {
+    background: #f9f9f9;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #f0f9ff;
+    border: 2px solid #0066cc;
+    border-radius: 8px;
+  }
+
+  .empty-state p {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+</style>

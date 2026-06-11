@@ -1,35 +1,336 @@
-<div class="legal-document">
-  <h1>Privacy Policy — NZ</h1>
-  <p><strong>Effective:</strong> 1 March 2026</p>
-  <p>FutureProof Financial is committed to protecting your privacy.</p>
-  
-  <h2>Personal Information</h2>
-  <p>We collect: name, address, DOB, income, property details, credit information, health information (if relevant).</p>
-  
-  <h2>Use of Information</h2>
-  <ul>
-    <li>Process applications and service loans</li>
-    <li>Assess creditworthiness and lending risk</li>
-    <li>Comply with legal and tax obligations</li>
-    <li>Fraud prevention and risk management</li>
-  </ul>
-  
-  <h2>Disclosure</h2>
-  <p>We may disclose to: credit agencies, lenders, insurers, valuers, government agencies, legal/financial advisors, service providers.</p>
-  
-  <h2>Your Rights</h2>
-  <ul>
-    <li>Access your personal information</li>
-    <li>Request correction of inaccurate information</li>
-    <li>Lodge a complaint with us or the applicable regulator</li>
-  </ul>
-  
-  <h2>Contact</h2>
-  <p>Privacy Officer: [email] | [phone]</p>
-</div>
+<% details = legal_details("nz") %>
+<% config = RegionHelper.region_config("nz") %>
 
-<style>
-  .legal-document { max-width: 800px; margin: 0 auto; padding: 2rem; font-family: Georgia, serif; line-height: 1.8; }
-  h1, h2 { color: #333; }
-  ul { margin: 1rem 0; padding-left: 2rem; }
-</style>
+<div class="legal-page">
+  <div class="legal-container">
+    <h1>Privacy Policy — New Zealand</h1>
+    <p class="last-updated">Version <%= legal_version %> | Effective: 17 March 2026 | Last Updated: <%= legal_date %></p>
+
+    <div class="legal-content">
+
+      <div class="legal-section">
+        <h2>1. Introduction</h2>
+        <p><strong>1.1</strong> FutureProof Financial Limited (NZ) ("FutureProof", "we", "us", "our") is committed to protecting your personal information in accordance with the <%= details[:privacy_act] %> ("Privacy Act").</p>
+        <p><strong>1.2</strong> This Privacy Policy explains how we collect, use, store, disclose, and protect your personal information when you use the FutureProof Financial platform ("Platform") and Equity Preservation Mortgage ("EPM") products.</p>
+        <p><strong>1.3</strong> The Privacy Act establishes 13 Information Privacy Principles ("IPPs") that govern how agencies collect, hold, use, and disclose personal information. This Privacy Policy reflects our compliance with each applicable IPP.</p>
+        <p><strong>1.4</strong> Our <%= details[:data_protection_officer] %> is responsible for ensuring compliance with the Privacy Act and can be contacted at privacy@futureprooffinancial.co.</p>
+        <p><strong>1.5</strong> By using the Platform or providing personal information to us, you acknowledge that you have read and understood this Privacy Policy.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. What We Collect (IPP 1, 2, 3, 4)</h2>
+        <p><strong>2.1</strong> Under IPP 1, we only collect personal information that is necessary for a lawful purpose connected with our functions and activities. The types of information we collect include:</p>
+
+        <h3>2.2 Identity Information</h3>
+        <ul>
+          <li>(a) Full legal name, date of birth, and gender;</li>
+          <li>(b) New Zealand passport, driver licence, or other government-issued identification;</li>
+          <li>(c) IRD number (Inland Revenue Department tax number);</li>
+          <li>(d) Citizenship and residency status;</li>
+          <li>(e) Photographs for identity verification.</li>
+        </ul>
+
+        <h3>2.3 Contact Information</h3>
+        <ul>
+          <li>(a) Residential address and postal address;</li>
+          <li>(b) Email address and phone number;</li>
+          <li>(c) Emergency contact details.</li>
+        </ul>
+
+        <h3>2.4 Financial Information</h3>
+        <ul>
+          <li>(a) Income, employment details, and source of funds;</li>
+          <li>(b) Assets, liabilities, and net worth;</li>
+          <li>(c) Bank account details and transaction history;</li>
+          <li>(d) Credit history and credit score;</li>
+          <li>(e) Superannuation and KiwiSaver details;</li>
+          <li>(f) Tax residency status and IRD obligations;</li>
+          <li>(g) Existing mortgage and debt information.</li>
+        </ul>
+
+        <h3>2.5 Property Information</h3>
+        <ul>
+          <li>(a) Property address, legal description, and title details;</li>
+          <li>(b) Property type, size, and condition;</li>
+          <li>(c) Current market valuation and valuation history;</li>
+          <li>(d) Rates and council information;</li>
+          <li>(e) Insurance details;</li>
+          <li>(f) Relationship property status under the Property (Relationships) Act 1976.</li>
+        </ul>
+
+        <h3>2.6 Technical Information</h3>
+        <ul>
+          <li>(a) IP address and approximate geolocation;</li>
+          <li>(b) Browser type, operating system, and device information;</li>
+          <li>(c) Pages visited, features used, and session duration;</li>
+          <li>(d) Referral source and search terms;</li>
+          <li>(e) Cookie identifiers and tracking data (see Section 12).</li>
+        </ul>
+
+        <p><strong>2.7</strong> In accordance with IPP 2, where practicable we collect personal information directly from you. In accordance with IPP 3, when we collect information directly from you, we will take reasonable steps to ensure you are aware of the fact and purpose of collection, the intended recipients, and your rights of access and correction.</p>
+        <p><strong>2.8</strong> In accordance with IPP 4, we will not collect personal information by unlawful means, or by means that are unfair or intrude to an unreasonable extent on your personal affairs.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. How We Collect Information (IPP 2, 3)</h2>
+        <p><strong>3.1</strong> We collect personal information from the following sources:</p>
+
+        <h3>3.2 Directly From You</h3>
+        <ul>
+          <li>(a) Online application forms and account registration;</li>
+          <li>(b) Documents you provide (identification, bank statements, valuations);</li>
+          <li>(c) Telephone calls, emails, and correspondence;</li>
+          <li>(d) In-person meetings and consultations;</li>
+          <li>(e) Your use of the Platform (technical data collected automatically).</li>
+        </ul>
+
+        <h3>3.3 From Third Parties</h3>
+        <ul>
+          <li>(a) <strong>Credit reporting agencies:</strong> Centrix, Equifax, or illion for credit history and credit scores;</li>
+          <li>(b) <strong>Government agencies:</strong> Land Information New Zealand (LINZ) for title searches, Inland Revenue for tax information (where authorised), Department of Internal Affairs for identity verification;</li>
+          <li>(c) <strong>Professional advisers:</strong> Your solicitor, financial adviser, or accountant (with your consent);</li>
+          <li>(d) <strong>Valuers:</strong> Registered valuers for property valuation reports;</li>
+          <li>(e) <strong>Employers:</strong> Employment and income verification (with your consent);</li>
+          <li>(f) <strong>Other lenders:</strong> For information about existing credit facilities (with your consent);</li>
+          <li>(g) <strong>Identity verification providers:</strong> For electronic identity verification and AML/CFT compliance.</li>
+        </ul>
+
+        <p><strong>3.4</strong> Where we collect information about you from a third party, we will take reasonable steps to ensure that you are or have been made aware of the matters set out in IPP 3, unless an exception under the Privacy Act applies.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Why We Collect Information (IPP 1, 6)</h2>
+        <p><strong>4.1</strong> In accordance with IPP 1 and IPP 6, we collect and use your personal information only for the following lawful purposes:</p>
+
+        <h3>4.2 Application and Credit Assessment</h3>
+        <ul>
+          <li>(a) Processing your EPM application and assessing eligibility;</li>
+          <li>(b) Conducting credit assessments and affordability checks as required by the Lender Responsibility Principles under the CCCFA;</li>
+          <li>(c) Obtaining property valuations;</li>
+          <li>(d) Making lending decisions and preparing loan documentation.</li>
+        </ul>
+
+        <h3>4.3 CCCFA Compliance</h3>
+        <ul>
+          <li>(a) Meeting our obligations under the Lender Responsibility Principles;</li>
+          <li>(b) Providing initial and continuing disclosure as required by the CCCFA;</li>
+          <li>(c) Assessing hardship applications;</li>
+          <li>(d) Maintaining records required by the CCCFA.</li>
+        </ul>
+
+        <h3>4.4 AML/CFT Compliance</h3>
+        <ul>
+          <li>(a) Conducting customer due diligence (CDD) as required by the <%= details[:aml_act] %>;</li>
+          <li>(b) Verifying your identity and address;</li>
+          <li>(c) Screening against sanctions lists and politically exposed persons (PEP) databases;</li>
+          <li>(d) Monitoring transactions for suspicious activity;</li>
+          <li>(e) Reporting to the New Zealand Police Financial Intelligence Unit as required by law.</li>
+        </ul>
+
+        <h3>4.5 Loan Servicing and Account Management</h3>
+        <ul>
+          <li>(a) Managing your EPM account and processing monthly income payments;</li>
+          <li>(b) Managing the investment portfolio linked to your EPM;</li>
+          <li>(c) Providing account statements and reports;</li>
+          <li>(d) Processing variations, repayments, and discharges;</li>
+          <li>(e) Communicating with you about your account.</li>
+        </ul>
+
+        <h3>4.6 Other Lawful Purposes</h3>
+        <ul>
+          <li>(a) Complying with tax reporting obligations to Inland Revenue;</li>
+          <li>(b) Fraud prevention and detection;</li>
+          <li>(c) Internal reporting, analytics, and product improvement;</li>
+          <li>(d) Responding to complaints and resolving disputes;</li>
+          <li>(e) Meeting regulatory reporting requirements to the FMA;</li>
+          <li>(f) Exercising or defending legal rights.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Use and Disclosure (IPP 10, 11)</h2>
+        <p><strong>5.1</strong> In accordance with IPP 10, we will only use personal information for the purpose for which it was collected, unless an exception under the Privacy Act applies (for example, where you have authorised the use, or the use is directly related to the original purpose).</p>
+        <p><strong>5.2</strong> In accordance with IPP 11, we may disclose your personal information to the following categories of recipients:</p>
+        <ul>
+          <li>(a) <strong>Lending partners:</strong> Licensed lenders who fund EPM products, for the purpose of credit assessment and loan origination;</li>
+          <li>(b) <strong>Investment managers:</strong> Licensed investment managers responsible for managing the EPM investment portfolio;</li>
+          <li>(c) <strong>Property valuers:</strong> Registered valuers engaged to assess property value;</li>
+          <li>(d) <strong>Insurers:</strong> For NNEG insurance, building insurance verification, and Lenders Mortgage Insurance;</li>
+          <li>(e) <strong>Credit reporting agencies:</strong> As permitted by the Credit Reporting Privacy Code 2020;</li>
+          <li>(f) <strong>Inland Revenue:</strong> As required by tax law, including RWT, NRWT, and AEOI/CRS reporting;</li>
+          <li>(g) <strong>Financial Markets Authority (FMA):</strong> As required by the FMCA and related regulations;</li>
+          <li>(h) <strong>AML/CFT supervisor:</strong> As required by the AML/CFT Act;</li>
+          <li>(i) <strong>Professional advisers:</strong> Legal, accounting, and audit firms engaged by FutureProof;</li>
+          <li>(j) <strong>Technology providers:</strong> Cloud hosting, data processing, and IT service providers (under contractual obligations of confidentiality);</li>
+          <li>(k) <strong>Dispute resolution:</strong> The Financial Dispute Resolution Service (FDRS) if a complaint is escalated;</li>
+          <li>(l) <strong>Courts and tribunals:</strong> If required by court order or legal process.</li>
+        </ul>
+        <p><strong>5.3</strong> We will not disclose your personal information to any party for a purpose other than those described above, unless we have your consent or are required or authorised to do so by law.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. No Sale of Personal Information</h2>
+        <p><strong>6.1</strong> FutureProof does not sell, rent, or trade your personal information to any third party for marketing or any other purpose.</p>
+        <p><strong>6.2</strong> We do not share your personal information with third-party advertisers or data brokers.</p>
+        <p><strong>6.3</strong> Any disclosure of personal information to third parties is strictly limited to the purposes described in Section 5 and is subject to contractual obligations of confidentiality.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Data Security (IPP 5)</h2>
+        <p><strong>7.1</strong> In accordance with IPP 5, we take reasonable steps to protect your personal information against loss, unauthorised access, use, modification, disclosure, or other misuse.</p>
+        <p><strong>7.2</strong> Our security measures include:</p>
+        <ul>
+          <li>(a) <strong>Encryption:</strong> AES-256 encryption for all personal data at rest and TLS 1.3 encryption for all data in transit;</li>
+          <li>(b) <strong>Multi-factor authentication (MFA):</strong> Required for all account access and financial transactions;</li>
+          <li>(c) <strong>Role-based access controls (RBAC):</strong> Staff access to personal information is limited to those who require it for their role;</li>
+          <li>(d) <strong>Audit logging:</strong> All access to personal information is logged and monitored;</li>
+          <li>(e) <strong>Regular security testing:</strong> Penetration testing, vulnerability assessments, and security audits are conducted regularly;</li>
+          <li>(f) <strong>Staff training:</strong> All staff receive mandatory privacy and security awareness training;</li>
+          <li>(g) <strong>Incident response:</strong> We maintain a documented incident response plan for security breaches;</li>
+          <li>(h) <strong>Physical security:</strong> Secure data centres with restricted access, environmental controls, and redundancy;</li>
+          <li>(i) <strong>SOC 2 Type II compliance:</strong> Certification in progress.</li>
+        </ul>
+        <p><strong>7.3</strong> While we take all reasonable precautions, no system of electronic storage or transmission is completely secure. We cannot guarantee absolute security of your personal information.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Data Retention (IPP 9)</h2>
+        <p><strong>8.1</strong> In accordance with IPP 9, we will not keep your personal information for longer than is necessary for the purposes for which it may lawfully be used.</p>
+        <p><strong>8.2</strong> Our standard retention periods are:</p>
+        <ul>
+          <li>(a) <strong>Active EPM accounts:</strong> For the duration of the loan plus 7 years after full discharge;</li>
+          <li>(b) <strong>Closed accounts:</strong> 7 years from the date of account closure or loan discharge;</li>
+          <li>(c) <strong>Unsuccessful applications:</strong> 2 years from the date of the decision;</li>
+          <li>(d) <strong>AML/CFT records:</strong> Minimum 5 years from the end of the business relationship, as required by the AML/CFT Act;</li>
+          <li>(e) <strong>Tax records:</strong> 7 years as required by the Tax Administration Act 1994;</li>
+          <li>(f) <strong>Complaints and disputes:</strong> 7 years from resolution;</li>
+          <li>(g) <strong>Marketing consent records:</strong> Until consent is withdrawn, plus 2 years;</li>
+          <li>(h) <strong>Technical and analytics data:</strong> 2 years from collection.</li>
+        </ul>
+        <p><strong>8.3</strong> At the end of the applicable retention period, personal information is securely destroyed using methods appropriate to the format (for example, secure deletion for electronic records, shredding for physical documents).</p>
+        <p><strong>8.4</strong> Some information may be retained for longer if required by law, by court order, or to exercise or defend legal rights.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. Cross-Border Disclosure (IPP 12)</h2>
+        <p><strong>9.1</strong> In accordance with IPP 12, before disclosing personal information to a foreign person or entity, we must be satisfied that the recipient is subject to privacy protections comparable to the Privacy Act, or take reasonable steps to ensure that the information will be protected.</p>
+        <p><strong>9.2</strong> Your personal information may be transferred to or processed in the following countries:</p>
+        <ul>
+          <li>(a) <strong>Australia:</strong> For group company operations and certain technology services;</li>
+          <li>(b) <strong>United States:</strong> For cloud hosting services (AWS, Google Cloud) and investment management services;</li>
+          <li>(c) <strong>United Kingdom:</strong> For group company operations and certain professional services.</li>
+        </ul>
+        <p><strong>9.3</strong> Before transferring your personal information overseas, we ensure that:</p>
+        <ul>
+          <li>(a) The recipient is subject to privacy laws that provide comparable protections to the Privacy Act; or</li>
+          <li>(b) We have entered into a contractual arrangement with the recipient that provides comparable protections; or</li>
+          <li>(c) You have authorised the disclosure after being informed that the recipient may not be subject to comparable privacy protections.</li>
+        </ul>
+        <p><strong>9.4</strong> Under IPP 12, if we transfer your personal information overseas and the recipient breaches its privacy obligations, we remain responsible for that breach as if it had occurred in New Zealand.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>10. Your Rights (IPP 6, 7)</h2>
+        <p><strong>10.1</strong> Under the Privacy Act, you have the following rights:</p>
+
+        <h3>10.2 Right of Access (IPP 6)</h3>
+        <p>You have the right to request access to your personal information held by us. We will respond to your request within 20 Working Days. We may charge a reasonable fee for providing access. We may refuse access only on the grounds permitted by the Privacy Act (for example, where disclosure would endanger safety, or reveal a trade secret).</p>
+
+        <h3>10.3 Right of Correction (IPP 7)</h3>
+        <p>You have the right to request correction of personal information that you believe is inaccurate, incomplete, or misleading. If we have disclosed incorrect information to a third party, we will take reasonable steps to notify that party of the correction.</p>
+
+        <h3>10.4 Right to Withdraw Consent</h3>
+        <p>Where we process your information based on your consent (for example, marketing communications), you may withdraw that consent at any time. Withdrawal of consent does not affect the lawfulness of processing carried out before the withdrawal.</p>
+
+        <h3>10.5 Right to Complain</h3>
+        <p><strong>10.5.1</strong> If you believe we have breached the Privacy Act, you have the right to:</p>
+        <ul>
+          <li>(a) Complain to us directly by contacting our Privacy Officer at privacy@futureprooffinancial.co;</li>
+          <li>(b) Lodge a complaint with the <strong>Office of the Privacy Commissioner</strong>;</li>
+        </ul>
+        <div class="contact-info">
+          <p><strong>Office of the Privacy Commissioner</strong></p>
+          <p>Website: privacy.org.nz</p>
+          <p>Phone: 0800 803 909</p>
+          <p>Email: enquiries@privacy.org.nz</p>
+        </div>
+        <p><strong>10.5.2</strong> The Privacy Commissioner can investigate complaints and, where appropriate, refer them to the Human Rights Review Tribunal.</p>
+
+        <h3>10.6 How to Exercise Your Rights</h3>
+        <p>To exercise any of your rights, contact our Privacy Officer at privacy@futureprooffinancial.co. We may need to verify your identity before processing your request.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>11. Notifiable Privacy Breaches (Part 6 of the Privacy Act 2020)</h2>
+        <p><strong>11.1</strong> Under Part 6 of the Privacy Act 2020, if we experience a privacy breach that is likely to cause serious harm to any affected individual, we are required to:</p>
+        <ul>
+          <li>(a) Notify the Office of the Privacy Commissioner as soon as practicable after becoming aware of the breach;</li>
+          <li>(b) Notify all affected individuals as soon as practicable, unless an exception applies;</li>
+          <li>(c) Include in the notification: a description of the breach, the type of information involved, what we are doing in response, and what steps affected individuals can take to protect themselves.</li>
+        </ul>
+        <p><strong>11.2</strong> We maintain a comprehensive incident response plan that includes procedures for identifying, containing, assessing, and responding to privacy breaches.</p>
+        <p><strong>11.3</strong> We record all privacy breaches (whether notifiable or not) in an internal breach register, which is reviewed regularly to identify and address systemic issues.</p>
+        <p><strong>11.4</strong> Failure to notify a notifiable privacy breach is an offence under the Privacy Act 2020, carrying a maximum fine of NZ$10,000.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>12. Cookies and Tracking</h2>
+        <p><strong>12.1</strong> The Platform uses cookies and similar tracking technologies. The categories of cookies we use are:</p>
+        <ul>
+          <li>(a) <strong>Essential cookies:</strong> Required for Platform functionality, security, and authentication. These cannot be disabled;</li>
+          <li>(b) <strong>Analytics cookies:</strong> Used to understand how visitors interact with the Platform, including page views, session duration, and navigation paths. Data is aggregated and anonymised where possible;</li>
+          <li>(c) <strong>Preference cookies:</strong> Used to remember your settings and preferences (for example, language, region, display options).</li>
+        </ul>
+        <p><strong>12.2</strong> We do not use advertising or third-party marketing cookies.</p>
+        <p><strong>12.3</strong> You can manage cookie preferences through your browser settings. Disabling essential cookies may impair Platform functionality.</p>
+        <p><strong>12.4</strong> We may use analytics services such as Google Analytics. Where we do, we configure these services to anonymise IP addresses and limit data retention.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>13. Children's Privacy</h2>
+        <p><strong>13.1</strong> The Platform is intended for use by persons aged 55 years and older. We do not knowingly collect personal information from persons under 18 years of age.</p>
+        <p><strong>13.2</strong> If we become aware that we have inadvertently collected personal information from a person under 18, we will take reasonable steps to delete that information as soon as practicable.</p>
+        <p><strong>13.3</strong> If you believe that a person under 18 has provided personal information to us, please contact our Privacy Officer immediately at privacy@futureprooffinancial.co.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>14. Changes to This Policy</h2>
+        <p><strong>14.1</strong> We may update this Privacy Policy from time to time to reflect changes in our practices, technology, or legal requirements.</p>
+        <p><strong>14.2</strong> Material changes will be notified to you at least 30 days in advance via email or Platform notification.</p>
+        <p><strong>14.3</strong> The "Last Updated" date at the top of this policy indicates when the most recent changes were made.</p>
+        <p><strong>14.4</strong> We encourage you to review this Privacy Policy periodically. Continued use of the Platform after notification of changes constitutes acceptance of the updated policy.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>15. Contact</h2>
+
+        <h3>15.1 Privacy Officer</h3>
+        <div class="contact-info">
+          <p><strong>FutureProof Financial Limited (NZ) — Privacy Officer</strong></p>
+          <p>Email: privacy@futureprooffinancial.co</p>
+          <p>Website: www.futureprooffinancial.co</p>
+        </div>
+
+        <h3>15.2 Office of the Privacy Commissioner</h3>
+        <p>If you are not satisfied with our response to a privacy concern, you may contact the Privacy Commissioner:</p>
+        <div class="contact-info">
+          <p><strong>Office of the Privacy Commissioner — Te Mana Matapono Matatapu</strong></p>
+          <p>Website: privacy.org.nz</p>
+          <p>Phone: 0800 803 909</p>
+          <p>Email: enquiries@privacy.org.nz</p>
+        </div>
+
+        <h3>15.3 General Legal Enquiries</h3>
+        <div class="contact-info">
+          <p><strong>FutureProof Financial Limited (NZ)</strong></p>
+          <p>Legal enquiries: legal@futureprooffinancial.co</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="legal-footer">
+      <%= link_to "Back to Legal Documents", legal_path, class: "back-link" %>
+    </div>
+  </div>
+</div>
