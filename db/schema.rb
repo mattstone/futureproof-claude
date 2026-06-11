@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1043,6 +1043,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_090000) do
     t.index ["user_id"], name: "index_privacy_policy_versions_on_user_id"
   end
 
+  create_table "prompt_change_requests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.integer "github_number"
+    t.string "github_type"
+    t.string "github_url"
+    t.integer "impact_answer", null: false
+    t.text "impact_details"
+    t.string "impact_question", null: false
+    t.integer "kind", default: 0, null: false
+    t.string "state_cache"
+    t.datetime "state_checked_at"
+    t.string "target_slot"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["target_slot"], name: "index_prompt_change_requests_on_target_slot"
+    t.index ["user_id", "created_at"], name: "index_prompt_change_requests_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_prompt_change_requests_on_user_id"
+  end
+
   create_table "quotes", force: :cascade do |t|
     t.bigint "annual_income"
     t.decimal "annuity_rate", precision: 8, scale: 6
@@ -1563,6 +1584,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_090000) do
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "privacy_policy_versions", "privacy_policies"
   add_foreign_key "privacy_policy_versions", "users"
+  add_foreign_key "prompt_change_requests", "users"
   add_foreign_key "quotes", "applications"
   add_foreign_key "referral_partners", "lenders"
   add_foreign_key "scheduled_workflow_jobs", "workflow_executions", column: "execution_id"

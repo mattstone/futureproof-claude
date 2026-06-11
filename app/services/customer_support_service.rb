@@ -224,7 +224,9 @@ class CustomerSupportService
         source: result[:source].to_s,
         escalate: result[:escalate],
         usage: result[:usage],
-        tool_calls: result[:tool_calls]
+        tool_calls: result[:tool_calls],
+        # Which prompt content served this call (slot => content sha, or "fallback")
+        prompt_slots: result[:prompt_slots]
       }.compact
     )
   rescue StandardError => e
@@ -237,8 +239,10 @@ class CustomerSupportService
 
   def ask_claude(user_message:, conversation_history:, escalate:)
     history = build_claude_history(conversation_history, user_message)
+    prompt = CustomerSupportPrompt.build_with_refs(region: @region)
+    Rails.logger.info("[PROMPT] support_chat region=#{@region} slots=#{prompt[:slots]}")
     chat_args = {
-      system: CustomerSupportPrompt.build(region: @region),
+      system: prompt[:text],
       messages: history
     }
     if @user
@@ -254,7 +258,8 @@ class CustomerSupportService
       source: :claude,
       escalate: escalate,
       usage: result.usage,
-      tool_calls: result.tool_calls
+      tool_calls: result.tool_calls,
+      prompt_slots: prompt[:slots]
     }
   rescue StandardError => e
     Rails.logger.error("Claude chat failed, falling back to KB: #{e.class}: #{e.message}")

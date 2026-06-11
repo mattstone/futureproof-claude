@@ -24,11 +24,31 @@ class CustomerSupportPrompt
     5. Output style: plain prose. Use short paragraphs. No marketing fluff. No headers unless the user explicitly asks for a structured answer.
   GUARDRAILS
 
+  # The persona/guardrails and region texts are file-borne (docs/prompts/runtime/,
+  # changeable via PR through the admin prompt flow); the constants above are the
+  # fallback when a file is missing (fresh checkout, partial deploy).
+  # The knowledge-base section stays code-built: KNOWLEDGE_BASE also powers the
+  # non-LLM fallback path, so the two must not diverge.
   def self.build(region: 'au')
-    [
-      PERSONA,
-      "",
-      GUARDRAILS,
+    build_with_refs(region: region)[:text]
+  end
+
+  # Returns { text:, slots: { 'runtime/support_chat' => sha-or-:fallback, ... } }
+  # so callers can record exactly which prompt content served each model call.
+  def self.build_with_refs(region: 'au')
+    slots = {}
+
+    body = PromptFiles.read(:runtime, 'support_chat')&.strip
+    slots['runtime/support_chat'] = body ? PromptFiles.sha(:runtime, 'support_chat') : :fallback
+    body ||= "#{PERSONA}\n\n#{GUARDRAILS}"
+
+    region_key = region_slot_key(region)
+    region_text = PromptFiles.read(:runtime, region_key)&.strip
+    slots["runtime/#{region_key}"] = region_text ? PromptFiles.sha(:runtime, region_key) : :fallback
+    region_text ||= region_context(region)
+
+    text = [
+      body,
       "",
       "## Knowledge base",
       "",
@@ -36,8 +56,15 @@ class CustomerSupportPrompt
       "",
       "## Region context",
       "",
-      region_context(region)
+      region_text
     ].join("\n").freeze
+
+    { text: text, slots: slots }
+  end
+
+  def self.region_slot_key(region)
+    code = region.to_s.downcase
+    %w[au us nz uk].include?(code) ? "support_chat_region_#{code}" : "support_chat_region_default"
   end
 
   def self.knowledge_section

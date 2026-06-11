@@ -1,0 +1,63 @@
+<% content_for :page_title, @slot.name %>
+<%= stylesheet_link_tag "admin/prompts", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title"><%= @slot.name %></h2>
+  <p class="admin-section-subtitle"><%= @slot.description %></p>
+</div>
+
+<div class="admin-actions-bar">
+  <%= link_to "← All prompts", admin_prompts_path, class: "admin-btn admin-btn-secondary" %>
+  <%= link_to "✏️ Propose an edit", new_admin_prompt_change_request_path(kind: "direct_edit", slot: @slot.key), class: "admin-btn admin-btn-primary" %>
+  <%= link_to "✍️ Request a change in plain language", new_admin_prompt_change_request_path(kind: "change_request", slot: @slot.key), class: "admin-btn admin-btn-secondary" %>
+</div>
+
+<div class="admin-card">
+  <div class="card-header">
+    <h3>Deployed content</h3>
+    <% if @sha %>
+      <span class="admin-badge admin-badge-success" title="Content fingerprint"><%= @sha %></span>
+    <% end %>
+    <span class="card-subtitle"><code><%= @slot.path %></code></span>
+  </div>
+  <div class="card-content">
+    <% if @content %>
+      <pre class="prompt-content"><%= @content %></pre>
+    <% else %>
+      <p class="text-muted">This prompt file is missing from the deployment.</p>
+    <% end %>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="card-header">
+    <h3>Change requests for this prompt</h3>
+  </div>
+  <div class="card-content">
+    <% if @requests.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr><th>When</th><th>Who</th><th>Title</th><th>Impact</th><th>GitHub</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <% @requests.each do |req| %>
+            <tr>
+              <td><%= req.created_at.strftime("%d %b %Y") %></td>
+              <td><%= req.user.display_name %></td>
+              <td><%= link_to req.title, admin_prompt_change_request_path(req) %></td>
+              <td><span class="admin-badge admin-badge-secondary"><%= req.impact_answer_label %></span></td>
+              <td>
+                <% if req.github_url %>
+                  <%= link_to req.github_ref, req.github_url, target: "_blank", rel: "noopener" %>
+                <% end %>
+              </td>
+              <td><span class="admin-badge <%= req.state_cache == 'merged' ? 'admin-badge-success' : 'admin-badge-info' %>"><%= req.state_cache || "—" %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-muted">No change requests yet.</p>
+    <% end %>
+  </div>
+</div>

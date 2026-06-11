@@ -32,6 +32,9 @@ gem 'httparty'
 # Official Anthropic Ruby SDK for Claude API
 gem 'anthropic', '~> 1.36'
 
+# GitHub API client for the admin prompt-change PR bridge
+gem 'octokit', '~> 9.2'
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

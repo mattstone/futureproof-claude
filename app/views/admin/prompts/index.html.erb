@@ -1,0 +1,65 @@
+<% content_for :page_title, "Prompts" %>
+<%= stylesheet_link_tag "admin/prompts", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Prompts</h2>
+  <p class="admin-section-subtitle">
+    What you see here is exactly what is deployed — these files are the single source of truth.
+    To change one, propose an edit (opens a pull request) or describe the change in plain language
+    (Claude drafts the implementation). The CTO reviews and merges; merging deploys.
+  </p>
+</div>
+
+<div class="admin-actions-bar">
+  <%= link_to "✍️ Request a change in plain language", new_admin_prompt_change_request_path(kind: "change_request"), class: "admin-btn admin-btn-primary" %>
+  <%= link_to "📋 All change requests", admin_prompt_change_requests_path, class: "admin-btn admin-btn-secondary" %>
+</div>
+
+<% layer_titles = { core: "Core (shared rules — the advice wall lives here)", agent: "Agent roles", constituent: "Constituents (audience layers)", runtime: "Runtime (live in the product)" } %>
+<% @layers.each do |layer, slots| %>
+  <div class="admin-card">
+    <div class="card-header">
+      <h3><%= layer_titles[layer] %></h3>
+    </div>
+    <div class="card-content">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Prompt</th>
+            <th>Key</th>
+            <th>Content</th>
+            <th>Open proposals</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% slots.each do |slot| %>
+            <% sha = PromptFiles.sha(slot.layer, slot.key) %>
+            <tr>
+              <td><strong><%= slot.name %></strong></td>
+              <td><code><%= slot.key %></code></td>
+              <td>
+                <% if sha %>
+                  <span class="admin-badge admin-badge-success" title="Deployed content fingerprint"><%= sha %></span>
+                <% else %>
+                  <span class="admin-badge admin-badge-warning">file missing</span>
+                <% end %>
+              </td>
+              <td>
+                <% count = @open_request_counts[slot.key].to_i %>
+                <% if count.positive? %>
+                  <span class="admin-badge admin-badge-info"><%= count %> open</span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="text-right">
+                <%= link_to "View", admin_prompt_path(slot.key), class: "admin-btn admin-btn-secondary admin-btn-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

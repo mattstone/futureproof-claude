@@ -35,6 +35,15 @@ Rails.application.routes.draw do
     # Vintage cohort report
     resources :cohorts, only: [:index]
 
+    # Prompt management — read-only browser over docs/prompts/ (git is the
+    # source of truth); proposals become GitHub PRs/issues via GithubBridge
+    resources :prompts, only: [:index, :show], param: :key
+    resources :prompt_change_requests, only: [:index, :new, :create, :show] do
+      member do
+        post :refresh
+      end
+    end
+
     # Support Tickets
     resources :support_tickets, only: [:index, :show, :update] do
       member do

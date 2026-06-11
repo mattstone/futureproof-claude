@@ -1,0 +1,6 @@
+# All changes require CTO review before merge (merge = production deploy).
+* @mattstone
+
+# Prompt files are the canonical build spec and include the live support-chat
+# prompt — explicitly owned even if the global rule above changes.
+/docs/prompts/ @mattstone

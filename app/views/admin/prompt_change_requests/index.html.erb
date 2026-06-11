@@ -1,0 +1,46 @@
+<% content_for :page_title, "Prompt Change Requests" %>
+<%= stylesheet_link_tag "admin/prompts", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title">Prompt Change Requests</h2>
+  <p class="admin-section-subtitle">
+    Every proposal made from the admin, with the impact question answered by the proposer.
+    The change itself lives on GitHub; nothing reaches production until the CTO merges it.
+  </p>
+</div>
+
+<div class="admin-actions-bar">
+  <%= link_to "← Prompts", admin_prompts_path, class: "admin-btn admin-btn-secondary" %>
+  <%= link_to "✍️ New change request", new_admin_prompt_change_request_path(kind: "change_request"), class: "admin-btn admin-btn-primary" %>
+</div>
+
+<div class="admin-card">
+  <div class="card-content">
+    <table class="admin-table">
+      <thead>
+        <tr><th>When</th><th>Who</th><th>Kind</th><th>Title</th><th>Prompt</th><th>Impact</th><th>GitHub</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <% @requests.each do |req| %>
+          <tr>
+            <td><%= req.created_at.strftime("%d %b %Y %H:%M") %></td>
+            <td><%= req.user.display_name %></td>
+            <td><span class="admin-badge admin-badge-secondary"><%= req.kind.humanize %></span></td>
+            <td><%= link_to req.title, admin_prompt_change_request_path(req) %></td>
+            <td><% if req.target_slot %><code><%= req.target_slot %></code><% else %><span class="text-muted">—</span><% end %></td>
+            <td><span class="admin-badge admin-badge-secondary"><%= req.impact_answer_label %></span></td>
+            <td>
+              <% if req.github_url %>
+                <%= link_to req.github_ref, req.github_url, target: "_blank", rel: "noopener" %>
+              <% end %>
+            </td>
+            <td><span class="admin-badge <%= req.state_cache == 'merged' ? 'admin-badge-success' : 'admin-badge-info' %>"><%= req.state_cache || "—" %></span></td>
+          </tr>
+        <% end %>
+        <% if @requests.empty? %>
+          <tr><td colspan="8"><em>No change requests yet.</em></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

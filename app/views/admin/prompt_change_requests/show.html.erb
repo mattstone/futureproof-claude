@@ -1,0 +1,57 @@
+<% content_for :page_title, @request.title %>
+<%= stylesheet_link_tag "admin/prompts", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title"><%= @request.title %></h2>
+  <p class="admin-section-subtitle">
+    <%= @request.kind.humanize %> by <%= @request.user.display_name %>
+    on <%= @request.created_at.strftime("%d %B %Y at %H:%M") %>
+  </p>
+</div>
+
+<div class="admin-actions-bar">
+  <%= link_to "← All change requests", admin_prompt_change_requests_path, class: "admin-btn admin-btn-secondary" %>
+  <% if @request.github_url %>
+    <%= link_to "View #{@request.github_ref} on GitHub →", @request.github_url, target: "_blank", rel: "noopener", class: "admin-btn admin-btn-primary" %>
+    <%= button_to "Refresh status", refresh_admin_prompt_change_request_path(@request), method: :post, class: "admin-btn admin-btn-secondary" %>
+  <% end %>
+</div>
+
+<div class="admin-card">
+  <div class="card-header">
+    <h3>Status</h3>
+    <span class="admin-badge <%= @request.state_cache == 'merged' ? 'admin-badge-success' : 'admin-badge-info' %>">
+      <%= @request.state_cache || "unknown" %>
+    </span>
+    <% if @request.state_checked_at %>
+      <span class="card-subtitle">checked <%= @request.state_checked_at.strftime("%d %b %Y %H:%M") %></span>
+    <% end %>
+  </div>
+  <div class="card-content">
+    <% if @request.target_slot %>
+      <p>Prompt: <%= link_to @request.slot&.name || @request.target_slot, admin_prompt_path(@request.target_slot) %></p>
+    <% end %>
+    <p class="text-muted">
+      This record is immutable. The proposal itself lives on GitHub; it reaches the product only
+      when the CTO merges it and the merge is deployed.
+    </p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="card-header"><h3>Impact assessment (recorded verbatim)</h3></div>
+  <div class="card-content">
+    <blockquote class="impact-question"><%= @request.impact_question %></blockquote>
+    <p><strong>Answer:</strong> <span class="admin-badge admin-badge-secondary"><%= @request.impact_answer_label %></span></p>
+    <% if @request.impact_details.present? %>
+      <p><strong>Details:</strong> <%= @request.impact_details %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="card-header"><h3><%= @request.kind_direct_edit? ? "Proposed content" : "Request" %></h3></div>
+  <div class="card-content">
+    <pre class="prompt-content"><%= @request.description %></pre>
+  </div>
+</div>

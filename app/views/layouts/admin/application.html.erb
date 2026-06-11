@@ -72,19 +72,27 @@
             </div>
           </details>
 
-          <% if current_user&.lender&.lender_type_futureproof? %>
-            <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates]) %>>
-              <summary class="admin-nav-group-header">AI Agents</summary>
-              <div class="admin-nav-group-items">
+          <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[agent_dashboard agent_lifecycle email_templates prompts prompt_change_requests]) %>>
+            <summary class="admin-nav-group-header">AI Agents</summary>
+            <div class="admin-nav-group-items">
+              <% if current_user&.lender&.lender_type_futureproof? %>
                 <%= link_to admin_agent_dashboard_index_path, class: "admin-nav-link #{'active' if controller_name.in?(%w[agent_dashboard agent_lifecycle])}", data: { admin_nav_target: "link" } do %>
                   <span>🤖 Agent Overview</span>
                 <% end %>
                 <%= link_to admin_email_templates_path, class: "admin-nav-link #{'active' if controller_name == 'email_templates'}", data: { admin_nav_target: "link" } do %>
                   <span>📧 Email Templates</span>
                 <% end %>
-              </div>
-            </details>
+              <% end %>
+              <%= link_to admin_prompts_path, class: "admin-nav-link #{'active' if controller_name == 'prompts'}", data: { admin_nav_target: "link" } do %>
+                <span>🧠 Prompts</span>
+              <% end %>
+              <%= link_to admin_prompt_change_requests_path, class: "admin-nav-link #{'active' if controller_name == 'prompt_change_requests'}", data: { admin_nav_target: "link" } do %>
+                <span>📝 Change Requests</span>
+              <% end %>
+            </div>
+          </details>
 
+          <% if current_user&.lender&.lender_type_futureproof? %>
             <details class="admin-nav-group" <%= 'open' if controller_name.in?(%w[mortgages lenders brokers wholesale_funders calculators]) %>>
               <summary class="admin-nav-group-header">Products</summary>
               <div class="admin-nav-group-items">

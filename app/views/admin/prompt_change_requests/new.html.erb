@@ -1,0 +1,88 @@
+<% direct_edit = @request.kind_direct_edit? %>
+<% content_for :page_title, direct_edit ? "Propose a Prompt Edit" : "Request a Change" %>
+<%= stylesheet_link_tag "admin/prompts", "data-turbo-track": "reload" %>
+
+<div class="admin-section-header">
+  <h2 class="section-title"><%= direct_edit ? "Propose a prompt edit" : "Request a change in plain language" %></h2>
+  <p class="admin-section-subtitle">
+    <% if direct_edit %>
+      Your edit will be opened as a pull request in your name. The CTO reviews, tests, and merges —
+      only then does it reach the product.
+    <% else %>
+      Describe what should change and why. Claude will draft the implementation as a pull request;
+      the CTO reviews, tests, and merges — only then does it reach the product.
+    <% end %>
+  </p>
+</div>
+
+<div class="admin-card">
+  <div class="card-content">
+    <%= form_with model: @request, url: admin_prompt_change_requests_path, local: true, html: { class: "admin-form" } do |f| %>
+      <% if @request.errors.any? %>
+        <div class="admin-form-errors">
+          <ul>
+            <% @request.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= f.hidden_field :kind %>
+
+      <% if direct_edit %>
+        <%= f.hidden_field :target_slot %>
+        <div class="admin-form-group">
+          <span class="admin-form-label">Prompt</span>
+          <p><strong><%= @request.slot&.name %></strong> <code><%= @request.slot&.path %></code></p>
+        </div>
+      <% end %>
+
+      <div class="admin-form-group">
+        <%= f.label :title, direct_edit ? "Summary of your edit" : "What should change (one line)", class: "admin-form-label" %>
+        <%= f.text_field :title, class: "admin-form-input", required: true, maxlength: 200 %>
+      </div>
+
+      <div class="admin-form-group">
+        <%= f.label :description, direct_edit ? "Prompt content (edit below)" : "Describe the change and why", class: "admin-form-label" %>
+        <%= f.text_area :description, class: "admin-form-textarea prompt-editor", rows: direct_edit ? 28 : 8, required: true %>
+        <% if direct_edit %>
+          <div class="form-hint">You are editing the full prompt text. The pull request will show reviewers exactly what changed.</div>
+        <% end %>
+      </div>
+
+      <fieldset class="admin-form-group impact-fieldset">
+        <legend class="admin-form-label"><%= PromptChangeRequest::IMPACT_QUESTION %></legend>
+        <p class="form-hint">Your answer is recorded with the request and shown to the reviewer.</p>
+        <div class="impact-options">
+          <label class="impact-option">
+            <%= f.radio_button :impact_answer, "wording_only" %>
+            <span>Wording/guidance only</span>
+          </label>
+          <label class="impact-option">
+            <%= f.radio_button :impact_answer, "affects_functionality" %>
+            <span>Affects functionality (what the system does)</span>
+          </label>
+          <label class="impact-option">
+            <%= f.radio_button :impact_answer, "affects_data" %>
+            <span>Affects data (what is stored or reported)</span>
+          </label>
+          <label class="impact-option">
+            <%= f.radio_button :impact_answer, "affects_both" %>
+            <span>Affects both functionality and data</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="admin-form-group">
+        <%= f.label :impact_details, "Impact details (required unless wording only)", class: "admin-form-label" %>
+        <%= f.text_area :impact_details, class: "admin-form-textarea", rows: 3 %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit direct_edit ? "Open pull request" : "Submit change request", class: "admin-btn admin-btn-primary" %>
+        <%= link_to "Cancel", @request.target_slot ? admin_prompt_path(@request.target_slot) : admin_prompts_path, class: "admin-btn admin-btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
