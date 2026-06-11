@@ -80,16 +80,16 @@ test:
 #
 production:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+  url: <%= ENV["DATABASE_URL"] %>
 
 queue:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+  url: <%= ENV["DATABASE_URL"] %>
 
 cable:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+  url: <%= ENV["DATABASE_URL"] %>
 
 cache:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] || "postgresql://neondb_owner:npg_B2IKpyAiWX4b@ep-hidden-resonance-a709vn7d-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require" %>
+  url: <%= ENV["DATABASE_URL"] %>
