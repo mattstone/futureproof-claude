@@ -25,8 +25,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     saml_settings = {
       assertion_consumer_service_url: "#{Rails.application.config.force_ssl ? 'https' : 'http'}://#{Rails.env.production? ? 'demo.futureprooffinancial.co' : 'localhost:3000'}/users/auth/saml/callback",
       issuer: "futureproof-financial-saml",
-      idp_sso_target_url: ENV['MICROSOFT_SAML_SSO_URL'],
-      idp_cert: ENV['MICROSOFT_SAML_CERT'],
+      idp_sso_target_url: ENV['MICROSOFT_SAML_SSO_URL'] || Rails.application.credentials.dig(:microsoft_saml, :sso_url),
+      idp_cert: ENV['MICROSOFT_SAML_CERT'] || Rails.application.credentials.dig(:microsoft_saml, :cert),
       name_identifier_format: "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
       uid_attribute: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
       attribute_statements: {
