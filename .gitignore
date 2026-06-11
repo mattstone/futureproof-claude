@@ -44,6 +44,8 @@
 claude-swarm.log
 
 /config/credentials/production.key
+# Never commit decrypted credentials
+/config/credentials/production.yml
 
 /config/credentials/test.key
 # Rust build artifacts
