@@ -295,6 +295,10 @@ The platform dev loop (build brief 10), specialised for non-deterministic compon
 
 Repo conventions: prompts and eval sets are versioned in the repo; CI runs the eval suite and the red-team checks; one action type per change.
 
+## 10.1 Agents as code authors — the staircase applied to the codebase
+
+The staircase (Section 6) governs agents acting on the *business*; the same model governs agents acting on the *code*. Two coding agents exist: the local Claude Code agent (guardrail-blocked from pushing to trunk) and the Claude GitHub Action, which turns business users' plain-language change requests — proposed from the admin, with the impact question answered and recorded verbatim — into **draft** pull requests. Both are at step 1: everything they author is a proposal; the CTO reviews and merges, and merge is the only path to release. Promotion to step 2 (auto-merge of wording-tier changes, to staging only) is earned per risk tier on a measured agreement rate — how often the human merged the agent's PR unedited — with the prompt eval suite (Section 8) as the mechanical gate. Demotion is instant on a bad merge. The full model — actors, the single door, risk tiers, the staircase, incident path — is stated once in **`docs/OPERATING_MODEL.md`** and referenced here.
+
 # 11. Model & provider
 
 We build on **Claude** via the official Anthropic Ruby SDK. Pick the tier by the work, not reflexively — default to Opus for judgement-heavy work; use Sonnet for the high-volume bulk; use Haiku only for simple, fast classification.

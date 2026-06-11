@@ -459,17 +459,23 @@ We build the modular monolith component by component, a small team alongside AI 
 
 Repo conventions: feature branch per slice; PR into **master** (the trunk); CI green before merge; one logical change per PR.
 
+## 10.1 Change control — one door, graded locks, earned keys
+
+The loop above is *how a change is made*; this is *how any change gets in*. Four actors author changes — the CTO, business users (via the admin's prompt/change-request bridge, never touching git), the local AI coding agent, and the Claude GitHub Action (plain-language change requests → draft PRs). All four converge on one door: a pull request into master carrying a recorded impact assessment, the required CI check, and the CTO's review — merge is the only path to release, and no agent merges. Changes face locks graded by **risk tier** (prompt wording → general code → financial core/auth/migrations → deploy & credentials), and agents earn per-tier autonomy on a measured agreement rate, on the same capability staircase that governs the runtime agents (AI spec §6). The canonical statement — actors, door, tiers, staircase, incident path — lives in **`docs/OPERATING_MODEL.md`**; it is referenced here and not restated.
+
 # 11. Testing strategy
 
 - **Layers.** Unit (domain logic), integration (a request through a context), system (the real journey in a browser). The seven-step protocol in `CLAUDE.md` is the standard: write the test, run it, hit the real URL, verify the render, exercise interactions, run the full suite, then claim done.
 - **Tenant isolation tests are mandatory.** Prove that a query without a resolved tenant returns nothing, and that tenant A can never read tenant B's data. This is the highest-priority test class.
 - **Test data.** A fixtures strategy that stands up a market, two tenants, and representative applicants/properties/quotes; the data collected in step 2 of the loop feeds these.
 - **Model conformance.** ProductBrain has golden-master tests: fixed inputs + product version → exact expected quote (reproducibility).
-- **CI gates on every change:** full suite, security scan (Brakeman), style (RuboCop), CSP check. Nothing ships on a red suite.
+- **CI gates on every change:** full suite, security scan (Brakeman), style (RuboCop), CSP check. Nothing ships on a red suite — the test job is a required branch-protection check on master.
+- **Prompt changes get their own gate:** golden-transcript evals plus advice-wall red-team checks run in CI whenever `docs/prompts/**` changes, so a prompt PR arrives with evidence, not just a diff (AI spec §8).
 
 # 12. Deployment & environments
 
 - **Hosting:** Fly.io, with a **region per jurisdiction** so each market's data and compute sit in-region (residency).
+- **Environments:** merge to master deploys to **staging**; production is a deliberate, manual promotion by the CTO after using the staging site. "Test, then deploy" is structural, not a discipline. Migrations run as the release command, so schema and code ship together and a failing migration aborts the release.
 - **Pre-flight (fixed):** confirm the account, confirm the app, confirm status — then deploy (remote-only).
 - **Migrations:** tenant migrations run against every tenant schema (and promoted databases); reversible and idempotent; a migration that cannot run cleanly against all tenants does not ship. Use the safe-migration pattern (forward-compatible, backfill in batches, no destructive drops without an explicit, separate, approved step).
 - **Release behind configuration, per lender and per market.** A lender or market can be switched on, or a feature rolled out, without touching another.
