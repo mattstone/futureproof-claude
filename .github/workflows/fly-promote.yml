@@ -1,0 +1,22 @@
+# Promote the current master to PRODUCTION (www.futureprooffinancial.co).
+# Manual only — run from the Actions tab after verifying on staging.
+
+name: Promote to Production
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type PROMOTE to confirm production deploy'
+        required: true
+jobs:
+  deploy:
+    name: Deploy to production
+    if: ${{ github.event.inputs.confirm == 'PROMOTE' }}
+    runs-on: ubuntu-latest
+    concurrency: deploy-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only -a futureproof
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

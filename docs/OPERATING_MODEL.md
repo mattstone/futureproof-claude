@@ -38,9 +38,10 @@ record, the same way an employee earns it.
    including the CTO's own tooling — pushes to `master` directly; branch
    protection and the local guardrail both enforce this. Admin bypass exists
    as the explicit emergency escape hatch.
-4. **Merge deploys** (Fly, with migrations as the release step). 🔜 With
-   staging in place, merge deploys to *staging* and production becomes a
-   manual one-click promotion by the CTO.
+4. **Merge deploys to staging** (futureproof-staging.fly.dev; migrations run
+   as the release step). Production is a deliberate, manual promotion by the
+   CTO via the "Promote to Production" workflow, after using the staging
+   site. ✅
 
 ## The locks — risk tiers
 
@@ -76,12 +77,12 @@ step 1. The kill switch is removing the action's key.
 
 ## Environments & release
 
-- ✅ Today: merge → production deploy (Fly, single app, migrations run as the
-  release command so schema and code ship together).
-- 🔜 Next: a **staging app**. `master` auto-deploys to staging; production is
-  a deliberate promotion (one click or `fly deploy` after the CTO has used the
-  staging site). This implements "test, then deploy" structurally instead of
-  by discipline, and is the precondition for any step-2 autonomy.
+- ✅ Merge to `master` auto-deploys to **staging** (`futureproof-staging`,
+  own database; migrations run as the release command so schema and code ship
+  together).
+- ✅ Production (`futureproof`) deploys only via the manual **Promote to
+  Production** workflow (Actions tab, type PROMOTE) — "test, then deploy" is
+  structural, and the precondition for any step-2 autonomy is in place.
 
 ## Incident path
 
