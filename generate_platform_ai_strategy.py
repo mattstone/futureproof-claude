@@ -296,6 +296,22 @@ def build(s):
     B('<b>Reversible, idempotent database changes.</b> Migrations can always be rolled back; we never '
       'destructively touch data.')
 
+    P('Change control &mdash; humans and AI through one door', 'H2')
+    B('<b>Every change is a proposal; a person approves it.</b> Whether a change comes from an engineer, an AI '
+      'coding agent, or a business user describing what they want in plain language, it enters the same pipeline: '
+      'a reviewable proposal, with its potential impact on data or functionality declared up front and recorded '
+      'permanently. Nothing reaches the product without human sign-off.')
+    B('<b>Business people have a direct, safe line to the product.</b> From the admin they can propose changes to '
+      'the AI agents\' instructions or describe a change in plain language &mdash; an AI drafts the implementation, '
+      'automated tests check it, and a person reviews and approves. Responsibility with safety, no technical '
+      'skills required.')
+    B('<b>AI autonomy is earned, not assumed.</b> AI-authored changes start as drafts a person always reviews. '
+      'Only when the track record shows consistent, unedited approvals does the lowest-risk category move faster '
+      '&mdash; and never to production directly. Risky areas (the financial model, security, deployment) always '
+      'require human review.')
+    B('<b>Changes are tested before customers see them.</b> Approved work lands on a staging copy of the platform '
+      'first; promotion to production is a deliberate human step.')
+
     P('Management', 'H2')
     B('<b>Run by the agents, governed by people.</b> Operations run on the five agents, with a person on every '
       'consequential decision; Motoko (engineering/ops) builds and runs the other four.')
