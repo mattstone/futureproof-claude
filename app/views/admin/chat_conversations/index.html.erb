@@ -5,7 +5,33 @@
   <p class="admin-section-subtitle">Read-only history of customer support conversations handled by Akane (Claude).</p>
 </div>
 
+<div class="admin-actions-bar">
+  <% if params[:filter] == 'escalated' %>
+    <%= link_to "← All conversations", admin_chat_conversations_path, class: "admin-btn admin-btn-secondary" %>
+  <% else %>
+    <%= link_to "⚠ Escalated only (#{@quality[:escalations]})", admin_chat_conversations_path(filter: 'escalated'), class: "admin-btn admin-btn-secondary" %>
+  <% end %>
+</div>
+
 <div class="admin-stats-grid">
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Answered by Claude</div>
+      <div class="admin-stat-value"><%= @quality[:total].positive? ? number_to_percentage(@quality[:claude] * 100.0 / @quality[:total], precision: 1) : "—" %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Knowledge-base fallbacks</div>
+      <div class="admin-stat-value"><%= @quality[:fallback] %></div>
+    </div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="admin-stat-text">
+      <div class="admin-stat-label">Escalations</div>
+      <div class="admin-stat-value"><%= @quality[:escalations] %></div>
+    </div>
+  </div>
   <div class="admin-stat-card">
     <div class="admin-stat-text">
       <div class="admin-stat-label">Conversations</div>

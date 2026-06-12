@@ -41,6 +41,9 @@
           <% if msg.metadata['tool_calls'].is_a?(Array) && msg.metadata['tool_calls'].any? %>
             <span>Tool calls: <%= msg.metadata['tool_calls'].map { |c| c['name'] }.join(', ') %></span>
           <% end %>
+          <% if msg.metadata['prompt_slots'].is_a?(Hash) %>
+            <span>Prompt: <% msg.metadata['prompt_slots'].each do |slot, sha| %><code class="prompt-slot-chip" title="<%= slot %>"><%= slot.split('/').last %>@<%= sha.to_s[0,7] %></code><% end %></span>
+          <% end %>
           <% if msg.metadata['escalate'] %>
             <span class="status-badge status-badge-warning">Escalation flagged</span>
           <% end %>
