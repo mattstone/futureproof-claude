@@ -1,0 +1,5 @@
+<% content_for :title, "Edit wholesale funder — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit wholesale funder", subtitle: @wholesale_funder.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form" %>
+<% end %>

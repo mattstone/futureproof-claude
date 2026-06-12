@@ -1,0 +1,52 @@
+<% content_for :title, "Wholesale funders — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Wholesale funders",
+      subtitle: "Capital providers and their pool capacity.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "All pools", console_funder_pools_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New funder", new_console_wholesale_funder_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@global_stats[:total_allocated], precision: 0), label: "Total capital") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@global_stats[:total_committed], precision: 0), label: "Committed") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@global_stats[:total_available], precision: 0), label: "Available") %>
+  <%= render Console::StatCardComponent.new(value: "#{@global_stats[:utilization_pct]}%", label: "Utilisation",
+        variant: @global_stats[:utilization_pct] > 90 ? :warning : nil) %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_wholesale_funders_path,
+      search_value: params[:search], search_placeholder: "Name or country…",
+      clear_url: console_wholesale_funders_path) do |bar| %>
+  <% bar.with_select(:country, options: @countries, selected: params[:country]) %>
+  <% bar.with_select(:currency, options: %w[AUD USD GBP NZD], selected: params[:currency]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "wholesale_funders",
+      csv_path: console_wholesale_funders_path(format: :csv, search: params[:search], country: params[:country], currency: params[:currency]),
+      empty_message: "No wholesale funders match those filters.") do |table| %>
+  <% table.with_column "Name", sort: "name" do |funder| %>
+    <%= link_to funder.name, console_wholesale_funder_path(funder) %>
+  <% end %>
+  <% table.with_column "Country", sort: "country" do |funder| %>
+    <%= funder.country %>
+  <% end %>
+  <% table.with_column "Currency" do |funder| %>
+    <%= funder.currency %>
+  <% end %>
+  <% table.with_column "Pools", numeric: true do |funder| %>
+    <%= funder.funder_pools.size %>
+  <% end %>
+  <% table.with_column "Total capital", sort: "capital", numeric: true do |funder| %>
+    <%= funder.formatted_total_capital %>
+  <% end %>
+  <% table.with_column "Committed", numeric: true do |funder| %>
+    <%= number_to_currency(funder.committed_amount, precision: 0) %>
+  <% end %>
+  <% table.with_column "Available", numeric: true do |funder| %>
+    <%= number_to_currency(funder.available_amount, precision: 0) %>
+  <% end %>
+<% end %>

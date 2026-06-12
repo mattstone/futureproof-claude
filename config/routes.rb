@@ -41,6 +41,33 @@ Rails.application.routes.draw do
     resources :cohorts, only: [ :index ]
     get 'analytics', to: 'analytics#show'
 
+    resources :lenders, only: [ :index, :show, :new, :create, :edit, :update ] do
+      collection do
+        get :scorecard
+      end
+      resources :wholesale_funders, controller: 'lender_wholesale_funders', only: [ :create, :destroy ] do
+        member do
+          patch :toggle_active
+        end
+      end
+      resources :funder_pools, controller: 'lender_funder_pools', only: [ :create, :destroy ] do
+        member do
+          patch :toggle_active
+        end
+      end
+      resource :clause, controller: 'lender_clauses', only: [ :edit, :update ]
+      resources :broker_commission_rates, only: [ :new, :create, :edit, :update ] do
+        member do
+          patch :toggle_active
+        end
+      end
+    end
+
+    resources :wholesale_funders, only: [ :index, :show, :new, :create, :edit, :update ] do
+      resources :funder_pools, only: [ :show, :new, :create, :edit, :update ]
+    end
+    resources :funder_pools, only: [ :index ]
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply

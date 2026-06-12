@@ -1,0 +1,23 @@
+<%= form_with model: [ :console, @wholesale_funder ], class: "console-form" do |form| %>
+  <% if @wholesale_funder.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @wholesale_funder.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :country, required: true) do %>
+    <%= form.text_field :country, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :currency, required: true) do %>
+    <%= form.select :currency, %w[AUD USD GBP NZD], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :total_allocated_amount, label: "Total capital") do %>
+    <%= form.number_field :total_allocated_amount, step: 1000, min: 0, class: "console-input" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @wholesale_funder.persisted? ? "Save changes" : "Create funder", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @wholesale_funder.persisted? ? console_wholesale_funder_path(@wholesale_funder) : console_wholesale_funders_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

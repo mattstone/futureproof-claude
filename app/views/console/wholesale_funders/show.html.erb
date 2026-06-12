@@ -1,0 +1,41 @@
+<% content_for :title, "#{@wholesale_funder.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @wholesale_funder.name,
+      subtitle: "#{@wholesale_funder.country} · #{@wholesale_funder.currency}") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_wholesale_funder_path(@wholesale_funder), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New pool", new_console_wholesale_funder_funder_pool_path(@wholesale_funder), class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @wholesale_funder.formatted_total_capital, label: "Total capital") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@wholesale_funder.committed_amount, precision: 0), label: "Committed") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@wholesale_funder.available_amount, precision: 0), label: "Available") %>
+  <%= render Console::StatCardComponent.new(value: "#{@wholesale_funder.utilization_percentage}%", label: "Utilisation") %>
+</div>
+
+<%= render Console::CardComponent.new(title: "Pools") do %>
+  <% if @pools.any? %>
+    <ul class="console-doc-list">
+      <% @pools.each do |pool| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to pool.name, console_wholesale_funder_funder_pool_path(@wholesale_funder, pool) %></strong>
+            <span class="console-cell-sub">
+              <%= pool.formatted_allocated %> allocated of <%= pool.formatted_amount %> ·
+              rate <%= pool.formatted_total_rate %>
+            </span>
+          </div>
+          <div class="console-doc-actions">
+            <%= link_to "Edit", edit_console_wholesale_funder_funder_pool_path(@wholesale_funder, pool), class: "console-btn console-btn-sm console-btn-secondary" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No pools yet — create one to start allocating capital.</p>
+  <% end %>
+<% end %>

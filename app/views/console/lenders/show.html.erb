@@ -1,0 +1,138 @@
+<% content_for :title, "#{@lender.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @lender.name, subtitle: "#{@lender.lender_type.humanize} · #{@lender.country}") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_lender_path(@lender), class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Type" => @lender.lender_type.humanize,
+        "Country" => @lender.country,
+        "Address" => [ @lender.address, @lender.postcode ].compact.join(", "),
+        "Contact email" => @lender.contact_email,
+        "Phone" => [ @lender.contact_telephone_country_code, @lender.contact_telephone ].compact.join(" ")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Wholesale funders") do %>
+  <% if @wholesale_funder_relationships.any? %>
+    <ul class="console-doc-list">
+      <% @wholesale_funder_relationships.each do |relationship| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to relationship.wholesale_funder.name, console_wholesale_funder_path(relationship.wholesale_funder) %></strong>
+            <span class="console-cell-sub"><%= relationship.wholesale_funder.country %> · <%= relationship.wholesale_funder.currency %></span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+            <%= button_to relationship.active? ? "Deactivate" : "Activate",
+                  toggle_active_console_lender_wholesale_funder_path(@lender, relationship),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to "Remove", console_lender_wholesale_funder_path(@lender, relationship),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "Remove #{relationship.wholesale_funder.name}? Associated pool relationships are removed too." } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No wholesale funder relationships yet.</p>
+  <% end %>
+
+  <% if @available_wholesale_funders.any? %>
+    <%= form_with url: console_lender_wholesale_funders_path(@lender), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="wholesale_funder_id">Add wholesale funder</label>
+        <%= select_tag :wholesale_funder_id,
+              options_from_collection_for_select(@available_wholesale_funders, :id, :name),
+              prompt: "Select funder…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Add", class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Funder pools") do %>
+  <% if @pool_relationships.any? %>
+    <ul class="console-doc-list">
+      <% @pool_relationships.each do |relationship| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= relationship.funder_pool.name %></strong>
+            <span class="console-cell-sub">
+              <%= relationship.funder_pool.wholesale_funder.name %> ·
+              <%= relationship.funder_pool.formatted_available %> available of <%= relationship.funder_pool.formatted_amount %>
+            </span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+            <%= button_to relationship.active? ? "Deactivate" : "Activate",
+                  toggle_active_console_lender_funder_pool_path(@lender, relationship),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to "Remove", console_lender_funder_pool_path(@lender, relationship),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "Remove #{relationship.funder_pool.name} from this lender?" } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No pool relationships yet. Add a wholesale funder first, then its pools become available.</p>
+  <% end %>
+
+  <% if @available_pools.any? %>
+    <%= form_with url: console_lender_funder_pools_path(@lender), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="funder_pool_id">Add pool</label>
+        <%= select_tag :funder_pool_id,
+              options_from_collection_for_select(@available_pools, :id, ->(p) { "#{p.wholesale_funder.name} — #{p.name}" }),
+              prompt: "Select pool…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Add", class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Contract clause") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to @lender.has_clause? ? "Edit clause" : "Add clause", edit_console_lender_clause_path(@lender), class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <% if @lender.has_clause? %>
+    <div class="console-clause-preview"><%= truncate(strip_tags(@lender.clause_content), length: 400) %></div>
+  <% else %>
+    <p class="console-muted">No custom clause — contracts use the standard wording.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Broker commission rates") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "New rate", new_console_lender_broker_commission_rate_path(@lender), class: "console-btn console-btn-sm console-btn-primary" %>
+  <% end %>
+  <% if @commission_rates.any? %>
+    <ul class="console-doc-list">
+      <% @commission_rates.each do |rate| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= rate.broker&.name || "Unknown broker" %></strong>
+            <span class="console-cell-sub"><%= rate.commission_percentage %>% · <%= rate.payment_trigger.humanize %></span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: rate.active? ? "active" : "inactive") %>
+            <%= link_to "Edit", edit_console_lender_broker_commission_rate_path(@lender, rate), class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to rate.active? ? "Deactivate" : "Activate",
+                  toggle_active_console_lender_broker_commission_rate_path(@lender, rate),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No commission rates configured.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 30) %>
+<% end %>

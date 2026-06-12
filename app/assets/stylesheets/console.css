@@ -1291,3 +1291,11 @@
   grid-template-columns: 1fr;
   gap: var(--fp-space-lg);
 }
+
+/* ---- Partners (Phase 2b) ----------------------------------------------------- */
+
+.console-clause-preview {
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-secondary);
+  white-space: pre-line;
+}

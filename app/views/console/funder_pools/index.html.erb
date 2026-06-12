@@ -1,0 +1,34 @@
+<% content_for :title, "Funder pools — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Funder pools",
+      subtitle: "Every pool across all wholesale funders.") %>
+
+<%= render Console::FilterBarComponent.new(url: console_funder_pools_path,
+      search_value: params[:search], search_placeholder: "Pool or funder name…",
+      clear_url: console_funder_pools_path) do |bar| %>
+  <% bar.with_select(:wholesale_funder_id,
+        options: @wholesale_funders_for_filter.map { |f| [ f.name, f.id ] },
+        selected: params[:wholesale_funder_id], label: "Funder") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "funder_pools",
+      empty_message: "No pools match those filters.") do |table| %>
+  <% table.with_column "Pool" do |pool| %>
+    <%= link_to pool.name, console_wholesale_funder_funder_pool_path(pool.wholesale_funder, pool) %>
+  <% end %>
+  <% table.with_column "Wholesale funder" do |pool| %>
+    <%= link_to pool.wholesale_funder.name, console_wholesale_funder_path(pool.wholesale_funder) %>
+  <% end %>
+  <% table.with_column "Capacity", numeric: true do |pool| %>
+    <%= pool.formatted_amount %>
+  <% end %>
+  <% table.with_column "Allocated", numeric: true do |pool| %>
+    <%= pool.formatted_allocated %>
+  <% end %>
+  <% table.with_column "Available", numeric: true do |pool| %>
+    <%= pool.formatted_available %>
+  <% end %>
+  <% table.with_column "Rate", numeric: true do |pool| %>
+    <%= pool.formatted_total_rate %>
+  <% end %>
+<% end %>

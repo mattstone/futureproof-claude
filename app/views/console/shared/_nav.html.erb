@@ -36,6 +36,18 @@
     </div>
   <% end %>
 
+  <% if policy.manage_partners? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">Partners</span>
+      <%= link_to "Lenders", console_lenders_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_lenders_path)}" %>
+      <%= link_to "Wholesale funders", console_wholesale_funders_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_wholesale_funders_path)}" %>
+      <%= link_to "Funder pools", console_funder_pools_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_funder_pools_path)}" %>
+    </div>
+  <% end %>
+
   <% if policy.manage_users? %>
     <div class="console-nav-group">
       <span class="console-nav-group-title">Customers</span>

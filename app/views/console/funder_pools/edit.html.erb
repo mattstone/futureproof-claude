@@ -1,0 +1,5 @@
+<% content_for :title, "Edit funder pool — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit funder pool", subtitle: "#{@funder_pool.name} · #{@wholesale_funder.name}") %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), method: :patch %>
+<% end %>

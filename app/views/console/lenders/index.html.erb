@@ -1,0 +1,48 @@
+<% content_for :title, "Lenders — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Lenders",
+      subtitle: "Distribution partners and the Futureproof house lender.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Scorecard", scorecard_console_lenders_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New lender", new_console_lender_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @summary_stats[:total_lenders], label: "Lenders") %>
+  <%= render Console::StatCardComponent.new(value: @summary_stats[:total_funders], label: "Wholesale funders engaged") %>
+  <%= render Console::StatCardComponent.new(value: @summary_stats[:total_applications], label: "Applications") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@summary_stats[:total_capital_deployed], precision: 0), label: "Capital deployed") %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_lenders_path,
+      search_value: params[:search], search_placeholder: "Name or contact email…",
+      clear_url: console_lenders_path) do |bar| %>
+  <% bar.with_select(:lender_type, options: [ [ "Futureproof", "futureproof" ], [ "Lender", "lender" ] ], selected: params[:lender_type], label: "Type") %>
+  <% bar.with_select(:country, options: %w[AU US NZ UK], selected: params[:country]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "lenders",
+      csv_path: console_lenders_path(format: :csv, search: params[:search], country: params[:country], lender_type: params[:lender_type]),
+      empty_message: "No lenders match those filters.") do |table| %>
+  <% table.with_column "Name", sort: "name" do |lender| %>
+    <%= link_to lender.name, console_lender_path(lender) %>
+  <% end %>
+  <% table.with_column "Type" do |lender| %>
+    <%= render Console::BadgeComponent.new(status: lender.lender_type_futureproof? ? "info" : "neutral", label: lender.lender_type.humanize) %>
+  <% end %>
+  <% table.with_column "Country", sort: "country" do |lender| %>
+    <%= lender.country %>
+  <% end %>
+  <% table.with_column "Contact" do |lender| %>
+    <%= lender.contact_email %>
+  <% end %>
+  <% table.with_column "Funders", numeric: true do |lender| %>
+    <%= lender.lender_wholesale_funders.size %>
+  <% end %>
+  <% table.with_column "Pools", numeric: true do |lender| %>
+    <%= lender.lender_funder_pools.size %>
+  <% end %>
+<% end %>
