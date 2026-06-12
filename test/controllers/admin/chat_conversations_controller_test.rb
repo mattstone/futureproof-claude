@@ -29,11 +29,15 @@ class Admin::ChatConversationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index shows token totals" do
+    # Computed, not hardcoded — fixtures may add agent messages with usage.
+    expected_cache = ChatMessage.where(role: 'agent').sum do |m|
+      m.metadata&.dig('usage', 'cache_read_input_tokens').to_i
+    end
+
     get admin_chat_conversations_path
 
     assert_response :success
-    assert_match '200', response.body  # input_tokens
-    assert_match '1,000', response.body # cache_read
+    assert_match ActiveSupport::NumberHelper.number_to_delimited(expected_cache), response.body
   end
 
   test "GET /admin/chat_conversations/:id renders transcript" do

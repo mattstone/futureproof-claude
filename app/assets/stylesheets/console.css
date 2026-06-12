@@ -1169,3 +1169,30 @@
 }
 
 .console-valuation-form .console-field { margin-bottom: 0; min-width: 220px; }
+
+/* ---- Customers (Phase 1c) ------------------------------------------------- */
+
+.console-security-actions {
+  display: flex;
+  gap: var(--fp-space-sm);
+  margin-top: var(--fp-space-md);
+  flex-wrap: wrap;
+}
+
+.console-chat-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  flex-wrap: wrap;
+  margin-top: var(--fp-space-xs);
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-tertiary);
+}
+
+.console-prompt-chip {
+  font-family: var(--fp-font-mono);
+  font-size: var(--fp-text-xs);
+  background: var(--fp-bg-tertiary);
+  border-radius: var(--fp-radius-sm);
+  padding: 1px var(--fp-space-xs);
+}

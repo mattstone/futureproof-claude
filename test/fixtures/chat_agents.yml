@@ -1,0 +1,4 @@
+support_agent:
+  name: "Support Agent"
+  agent_type: support
+  status: active

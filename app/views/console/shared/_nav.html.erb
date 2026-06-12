@@ -28,7 +28,9 @@
     <div class="console-nav-group">
       <span class="console-nav-group-title">Customers</span>
       <%= link_to "Users", console_users_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_users_path)}" %>
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_users_path)}" %>
+      <%= link_to "AI conversations", console_chat_conversations_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_chat_conversations_path)}" %>
     </div>
   <% end %>
 

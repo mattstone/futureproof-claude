@@ -1,0 +1,12 @@
+customer_question:
+  chat_conversation: support_conversation
+  role: user
+  content: "How is the monthly income calculated?"
+  created_at: <%= 2.days.ago %>
+
+agent_answer:
+  chat_conversation: support_conversation
+  role: agent
+  content: "Your income is based on the Guaranteed Income Plan terms."
+  metadata: <%= { source: "claude", usage: { input_tokens: 1200, output_tokens: 180, cache_read_input_tokens: 900 }, prompt_slots: { "runtime/support_chat" => "abc1234def" } }.to_json %>
+  created_at: <%= 2.days.ago + 1.minute %>

@@ -22,7 +22,15 @@ Rails.application.routes.draw do
     root to: 'today#show'
     post 'set_jurisdiction', to: 'base#set_jurisdiction'
 
-    resources :users, only: [ :index ]
+    resources :users, only: [ :index, :show, :edit, :update ] do
+      member do
+        post :lock
+        post :unlock
+        post :send_reset_password
+      end
+    end
+
+    resources :chat_conversations, only: [ :index, :show ]
 
     resources :agent_actions, only: [] do
       member do

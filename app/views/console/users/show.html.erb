@@ -1,0 +1,65 @@
+<% content_for :title, "#{@user.display_name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @user.display_name, subtitle: @user.email) do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @user.admin? ? "active" : "neutral", label: @user.admin? ? "Admin" : "Customer") %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_user_path(@user), class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% @applications.each do |application| %>
+    <% related.with_item("Application ##{application.id}", href: console_application_path(application), meta: application.status.humanize) %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Identity") do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Name" => @user.full_name,
+        "Email" => @user.email,
+        "Country" => @user.country_of_residence,
+        "Lender" => @user.lender&.name,
+        "Mobile" => (@user.respond_to?(:mobile_number) ? @user.mobile_number : nil),
+        "Joined" => @user.created_at.strftime("%-d %b %Y"),
+        "Terms accepted" => (@user.terms_accepted? ? "Yes" : "No")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Security") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Confirmed" => (@user.confirmed_at ? @user.confirmed_at.strftime("%-d %b %Y") : "Not confirmed"),
+        "Sign-ins" => @user.sign_in_count,
+        "Last sign-in" => (@user.last_sign_in_at ? "#{time_ago_in_words(@user.last_sign_in_at)} ago" : "Never"),
+        "Last IP" => @user.last_sign_in_ip,
+        "Failed attempts" => @user.failed_attempts
+      }) do |dl| %>
+    <% dl.with_item("Account status") do %>
+      <% if @user.access_locked? %>
+        <%= render Console::BadgeComponent.new(status: "locked") %>
+      <% else %>
+        <%= render Console::BadgeComponent.new(status: "active") %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <div class="console-security-actions">
+    <% if @user.access_locked? %>
+      <%= button_to "Unlock account", unlock_console_user_path(@user), method: :post,
+            class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Unlock this account?" } %>
+    <% else %>
+      <%= button_to "Lock account", lock_console_user_path(@user), method: :post,
+            class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Lock this account? The user won't be able to sign in." } %>
+    <% end %>
+    <%= button_to "Send password reset", send_reset_password_console_user_path(@user), method: :post,
+          class: "console-btn console-btn-secondary",
+          data: { turbo_confirm: "Email a password reset link to #{@user.email}?" } %>
+  </div>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions) %>
+<% end %>
