@@ -3,15 +3,22 @@
 <%= render Console::PageHeaderComponent.new(title: "Today", subtitle: "Your work queue — what needs attention right now.") %>
 
 <div class="console-stat-grid">
-  <%= render Console::StatCardComponent.new(value: attention_counts[:applications], label: "Applications awaiting decision") %>
-  <%= render Console::StatCardComponent.new(value: attention_counts[:tickets], label: "Open support tickets") %>
-  <%= render Console::StatCardComponent.new(value: attention_counts[:change_requests], label: "Open change requests") %>
+  <%# hrefs point at pre-filtered indexes and light up as each phase ships. %>
+  <%= render Console::StatCardComponent.new(value: @stats[:decisions], label: "Applications awaiting decision",
+        variant: @stats[:decisions].positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:documents], label: "Documents awaiting verification") %>
+  <%= render Console::StatCardComponent.new(value: @stats[:messages], label: "Unread customer messages",
+        variant: @stats[:messages].positive? ? :warning : nil) %>
+  <% if @stats.key?(:tickets) %>
+    <%= render Console::StatCardComponent.new(value: @stats[:tickets], label: "Open support tickets") %>
+  <% end %>
+  <% if @stats.key?(:change_requests) %>
+    <%= render Console::StatCardComponent.new(value: @stats[:change_requests], label: "Open change requests") %>
+  <% end %>
 </div>
 
-<%= render Console::CardComponent.new do %>
-  <p class="console-muted">
-    The Console is being rebuilt in phases. The full Today work queue — attention
-    signals with one-click drill-down — arrives in Phase&nbsp;1. Until then, use the
-    legacy admin link in the sidebar for day-to-day operations.
-  </p>
+<% if @signals %>
+  <%= render Console::CardComponent.new(title: "Needs attention") do %>
+    <%= render Console::AttentionListComponent.new(signals: @signals) %>
+  <% end %>
 <% end %>
