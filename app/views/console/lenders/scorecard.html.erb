@@ -1,0 +1,45 @@
+<% content_for :title, "Lender scorecard — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Lender scorecard",
+      subtitle: "Capacity, utilisation and concentration across distribution partners.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @scorecards.size, label: "Lenders") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@scorecards.sum { |s| s[:allocated] }, precision: 0), label: "Total allocated") %>
+  <%= render Console::StatCardComponent.new(value: @herfindahl, label: "Herfindahl index (concentration)",
+        variant: @herfindahl > 2500 ? :warning : nil) %>
+</div>
+
+<% if @capital_flow[:nodes].any? %>
+  <%= render Console::CardComponent.new(title: "Capital flow — funders → pools → lenders → contract status") do %>
+    <div class="console-chart console-chart-tall"
+         data-controller="capital-flow"
+         data-capital-flow-nodes-value="<%= @capital_flow[:nodes].to_json %>"
+         data-capital-flow-links-value="<%= @capital_flow[:links].to_json %>"></div>
+  <% end %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @scorecards, id: "scorecards",
+      empty_message: "No lenders yet.") do |table| %>
+  <% table.with_column "Lender" do |row| %>
+    <%= link_to row[:lender].name, console_lender_path(row[:lender]) %>
+  <% end %>
+  <% table.with_column "Capacity", numeric: true do |row| %>
+    <%= number_to_currency(row[:capacity], precision: 0) %>
+  <% end %>
+  <% table.with_column "Allocated", numeric: true do |row| %>
+    <%= number_to_currency(row[:allocated], precision: 0) %>
+  <% end %>
+  <% table.with_column "Available", numeric: true do |row| %>
+    <%= number_to_currency(row[:available], precision: 0) %>
+  <% end %>
+  <% table.with_column "Utilisation", numeric: true do |row| %>
+    <%= row[:utilisation] %>%
+  <% end %>
+  <% table.with_column "Active contracts", numeric: true do |row| %>
+    <%= row[:active_contracts] %> / <%= row[:total_contracts] %>
+  <% end %>
+  <% table.with_column "Weighted cost of capital", numeric: true do |row| %>
+    <%= row[:weighted_cost_of_capital] %>%
+  <% end %>
+<% end %>

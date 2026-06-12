@@ -1,0 +1,5 @@
+<% content_for :title, "New commission rate — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "New commission rate", subtitle: @lender.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_lender_broker_commission_rates_path(@lender), method: :post, submit_label: "Create rate" %>
+<% end %>

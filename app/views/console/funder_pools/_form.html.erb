@@ -1,0 +1,23 @@
+<%= form_with model: @funder_pool, url: url, method: method, scope: :funder_pool, class: "console-form" do |form| %>
+  <% if @funder_pool.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @funder_pool.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :amount, label: "Capacity") do %>
+    <%= form.number_field :amount, step: 1000, min: 0, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :benchmark_rate, label: "Benchmark rate %") do %>
+    <%= form.number_field :benchmark_rate, step: 0.01, class: "console-input" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :margin_rate, label: "Margin %") do %>
+    <%= form.number_field :margin_rate, step: 0.01, class: "console-input" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @funder_pool.persisted? ? "Save changes" : "Create pool", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", console_wholesale_funder_path(@wholesale_funder), class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

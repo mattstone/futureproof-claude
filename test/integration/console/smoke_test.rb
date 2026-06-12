@@ -10,7 +10,17 @@ require "test_helper"
 # params don't follow the convention.
 class Console::SmokeTest < ActionDispatch::IntegrationTest
   PARAM_RESOLVERS = {
-    # "console/examples" => -> { { id: examples(:one).id } }
+    "console/funder_pools" => -> {
+      pool = FunderPool.first || flunk("No FunderPool fixture exists")
+      { wholesale_funder_id: pool.wholesale_funder_id, id: pool.id }
+    },
+    "console/lender_clauses" => -> {
+      { lender_id: Lender.first.id }
+    },
+    "console/broker_commission_rates" => -> {
+      rate = BrokerCommissionRate.first || flunk("No BrokerCommissionRate fixture exists")
+      { lender_id: rate.lender_id, id: rate.id }
+    }
   }.freeze
 
   def self.console_get_routes

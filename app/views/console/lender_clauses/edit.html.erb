@@ -1,0 +1,17 @@
+<% content_for :title, "Contract clause — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Contract clause", subtitle: @lender.name) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with url: console_lender_clause_path(@lender), method: :patch, scope: :clause, class: "console-form" do |form| %>
+    <div class="console-field">
+      <%= form.label :content, "Clause wording", class: "console-field-label" %>
+      <%= form.text_area :content, value: @clause_content, rows: 12, class: "console-textarea" %>
+      <p class="console-field-hint">Injected into this lender's mortgage contracts. Leave blank to fall back to the standard wording.</p>
+    </div>
+    <div class="console-message-actions">
+      <%= form.submit "Save clause", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_lender_path(@lender), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

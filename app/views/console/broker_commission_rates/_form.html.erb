@@ -1,0 +1,20 @@
+<%= form_with model: @commission_rate, url: url, method: method, scope: :broker_commission_rate, class: "console-form" do |form| %>
+  <% if @commission_rate.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @commission_rate.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :broker_id, label: "Broker") do %>
+    <%= form.collection_select :broker_id, @brokers, :id, :name, { prompt: "Select broker…" }, { class: "console-select", required: true } %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :commission_percentage, label: "Commission %") do %>
+    <%= form.number_field :commission_percentage, step: 0.01, min: 0, max: 100, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :payment_trigger) do %>
+    <%= form.select :payment_trigger, BrokerCommissionRate::PAYMENT_TRIGGERS.map { |t| [ t.humanize, t ] }, {}, class: "console-select" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit submit_label, class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", console_lender_path(@lender), class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

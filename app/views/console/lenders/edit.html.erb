@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@lender.name} — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit lender", subtitle: @lender.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form" %>
+<% end %>
