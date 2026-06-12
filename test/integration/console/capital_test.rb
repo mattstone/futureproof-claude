@@ -13,7 +13,7 @@ class Console::CapitalTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".console-card-title", text: "Facility"
     assert_select ".console-dl-term", text: "Unpooled headroom"
-    assert_select ".console-card-title", text: "Funding documents (legacy)"
+    assert_select ".console-card-title", text: "Contract documents"
   end
 
   test "legacy funding document renders sanitized" do
@@ -22,7 +22,7 @@ class Console::CapitalTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Legacy AU funding terms", response.body
-    assert_match "Historical document", response.body
+    assert_match "Document text on file", response.body
   end
 
   test "pool top-up changes capacity and writes the audit trail" do

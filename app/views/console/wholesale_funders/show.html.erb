@@ -76,20 +76,27 @@
   <% end %>
 <% end %>
 
-<% legacy_documents = @wholesale_funder.wholesale_funder_contracts.order(version: :desc) %>
-<% if legacy_documents.any? %>
-  <%= render Console::CardComponent.new(title: "Funding documents (legacy)") do %>
-    <p class="console-muted">Historical documents — new funding agreements use the Agreements signature lifecycle above.</p>
+<%= render Console::CardComponent.new(title: "Contract documents") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "New document", new_console_wholesale_funder_funding_document_path(@wholesale_funder), class: "console-btn console-btn-sm console-btn-primary" %>
+  <% end %>
+  <% documents = @wholesale_funder.wholesale_funder_contracts.order(:jurisdiction, version: :desc) %>
+  <% if documents.any? %>
     <ul class="console-doc-list">
-      <% legacy_documents.each do |document| %>
+      <% documents.each do |document| %>
         <li class="console-doc-item">
           <div class="console-doc-name">
-            <strong><%= link_to "#{document.jurisdiction} funding document v#{document.version}", console_wholesale_funder_funding_document_path(@wholesale_funder, document) %></strong>
-            <span class="console-cell-sub"><%= document.party_type&.humanize %> · <%= document.created_at.strftime("%-d %b %Y") %></span>
+            <strong><%= link_to "#{document.party_type.presence || 'Document'} (#{document.jurisdiction}) v#{document.version}", console_wholesale_funder_funding_document_path(@wholesale_funder, document) %></strong>
+            <span class="console-cell-sub">updated <%= document.updated_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <div class="console-doc-actions">
+            <%= link_to "Edit", edit_console_wholesale_funder_funding_document_path(@wholesale_funder, document), class: "console-btn console-btn-sm console-btn-secondary" %>
           </div>
         </li>
       <% end %>
     </ul>
+  <% else %>
+    <p class="console-muted">No contract documents on file — add the master agreement per jurisdiction.</p>
   <% end %>
 <% end %>
 

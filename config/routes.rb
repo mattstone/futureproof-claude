@@ -80,7 +80,7 @@ Rails.application.routes.draw do
           post :top_up
         end
       end
-      resources :funding_documents, controller: 'wholesale_funder_contracts', only: [ :show ]
+      resources :funding_documents, controller: 'wholesale_funder_contracts', only: [ :show, :new, :create, :edit, :update, :destroy ]
     end
     resources :funder_pools, only: [ :index ]
 
