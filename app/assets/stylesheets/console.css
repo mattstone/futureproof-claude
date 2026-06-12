@@ -18,6 +18,22 @@
 /* ---- Shell layout ------------------------------------------------------ */
 
 .console-body {
+  /* The Console commits fully to the slate/cyan family of the legacy admin:
+     re-mapping the fp tokens inside this scope flips every component —
+     buttons, links, focus, pagination, tabs — to one coherent palette
+     without touching the customer-facing design system. */
+  --fp-primary: #0891b2;
+  --fp-primary-hover: #0e7490;
+  --fp-primary-light: #ecfeff;
+  --fp-info: #06b6d4;
+  --fp-text-primary: #0f172a;
+  --fp-text-secondary: #475569;
+  --fp-text-tertiary: #64748b;
+  --fp-bg-secondary: #f1f5f9;
+  --fp-bg-tertiary: #e2e8f0;
+  --fp-border: #cbd5e1;
+  --fp-border-light: #e2e8f0;
+
   margin: 0;
   font-family: var(--fp-font-family);
   font-size: var(--fp-text-sm);
@@ -39,6 +55,10 @@
   flex-direction: column;
   background: var(--console-sidebar-bg);
   color: var(--fp-text-inverse);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .console-brand {
@@ -163,6 +183,9 @@
   padding: var(--fp-space-sm) var(--fp-space-lg);
   background: var(--fp-bg-primary);
   border-bottom: 1px solid var(--fp-border-light);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .console-topbar-spacer {
@@ -1409,4 +1432,48 @@
   margin: 0;
   max-height: 600px;
   overflow-y: auto;
+}
+
+
+/* ---- Design coherence pass ------------------------------------------------- */
+
+/* Financial software earns trust with aligned digits. */
+.console-stat-value,
+.console-table-numeric,
+.console-calc-table td,
+.console-pagination-page {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible, consistent keyboard focus everywhere. */
+.console-btn:focus-visible,
+.console-nav-link:focus-visible,
+.console-input:focus-visible,
+.console-select:focus-visible,
+.console-textarea:focus-visible,
+.console-filter-search:focus-visible,
+.console-tab:focus-visible {
+  outline: 2px solid var(--console-active-accent);
+  outline-offset: 2px;
+}
+
+/* Cards: crisper edge, quieter shadow. */
+.console-card,
+.console-stat,
+.console-table-wrap,
+.console-gauge {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+/* Table headers sit on the cool slate, slightly tighter. */
+.console-table th {
+  letter-spacing: 0.6px;
+  color: var(--fp-text-tertiary);
+}
+
+/* Stat labels read as captions. */
+.console-stat-label {
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 11px;
 }
