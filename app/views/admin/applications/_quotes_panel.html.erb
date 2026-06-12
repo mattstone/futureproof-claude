@@ -1,0 +1,36 @@
+<div class="admin-card quotes-panel">
+  <div class="card-header">
+    <h3>Quotes</h3>
+    <span class="card-subtitle">Immutable snapshots of what the customer was shown, pinned to the model version that priced them.</span>
+  </div>
+  <div class="card-content">
+    <% if quotes.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Issued</th>
+            <th>Model version</th>
+            <th>Monthly income</th>
+            <th>Annual</th>
+            <th>Term</th>
+            <th>Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% quotes.each do |quote| %>
+            <tr>
+              <td><%= quote.issued_at.strftime("%d %b %Y %H:%M") %></td>
+              <td><code><%= quote.product_version %></code></td>
+              <td><strong><%= number_to_currency(quote.monthly_income, precision: 0) %></strong></td>
+              <td><%= number_to_currency(quote.annual_income, precision: 0) %></td>
+              <td><%= quote.term_years %>yr</td>
+              <td><%= quote.income_payout_term %>yr</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="empty-state">No quote snapshots yet — one is recorded each time the customer completes the income &amp; mortgage step.</p>
+    <% end %>
+  </div>
+</div>

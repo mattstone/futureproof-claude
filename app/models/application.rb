@@ -585,10 +585,45 @@ class Application < ApplicationRecord
     end
   end
 
+  # Why approval survives a failed contract: an operator can fix funding or
+  # contract-template problems after the fact, but un-approving a customer is
+  # far worse. Failure reason is kept for the UI and the audit trail.
+  attr_reader :contract_generation_failure
+
   def generate_contract_on_approval!
-    # Contract generation deferred pending schema alignment
-    # TODO: Map to actual Contract schema after MVP launch
-    Rails.logger.info("Contract generation for Application ##{id} scheduled on approval")
+    return if contract.present?
+
+    contract_lender = lender || mortgage&.active_lenders&.first
+    raise "no lender available" if contract_lender.nil?
+
+    funder_pool = contract_lender.active_funder_pool
+    raise "lender #{contract_lender.name} has no active funder pool" if funder_pool.nil?
+
+    available = funder_pool.amount - funder_pool.allocated
+    raise "insufficient funding in pool (need #{approved_loan_amount}, available #{available})" if available < approved_loan_amount.to_f
+
+    mortgage_contract = MortgageContract.respond_to?(:current) ? MortgageContract.current : nil
+
+    Contract.create!(
+      application: self,
+      lender: contract_lender,
+      mortgage_contract: mortgage_contract,
+      funder_pool: funder_pool,
+      allocated_amount: approved_loan_amount,
+      start_date: Date.current,
+      end_date: Date.current + (approved_term_years || loan_term || 30).years,
+      status: :awaiting_funding
+    )
+    funder_pool.allocate_capital!(approved_loan_amount)
+    Rails.logger.info("Contract created for Application ##{id} on approval")
+  rescue StandardError => e
+    @contract_generation_failure = e.message
+    Rails.logger.error("Contract generation failed for Application ##{id}: #{e.message}")
+    application_versions.create!(
+      user: current_user,
+      action: 'updated',
+      change_details: "Approved, but automatic contract creation failed: #{e.message}"
+    ) if current_user
   end
 
   def calculate_monthly_payment
