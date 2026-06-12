@@ -49,6 +49,7 @@ Rails.application.routes.draw do
       end
       member do
         post :invite_admin
+        post :add_product
         patch :suspend
         patch :reactivate
       end

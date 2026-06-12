@@ -9,9 +9,9 @@ class Console::MortgageLendersController < Console::BaseController
     relationship.current_user = current_user if relationship.respond_to?(:current_user=)
 
     if relationship.save
-      redirect_to console_mortgage_path(@mortgage), notice: "#{lender.name} now offers #{@mortgage.name}."
+      redirect_back fallback_location: console_mortgage_path(@mortgage), notice: "#{lender.name} now offers #{@mortgage.name}."
     else
-      redirect_to console_mortgage_path(@mortgage), alert: relationship.errors.full_messages.to_sentence
+      redirect_back fallback_location: console_mortgage_path(@mortgage), alert: relationship.errors.full_messages.to_sentence
     end
   end
 
@@ -19,7 +19,7 @@ class Console::MortgageLendersController < Console::BaseController
     relationship = @mortgage.mortgage_lenders.find(params[:id])
     relationship.current_user = current_user if relationship.respond_to?(:current_user=)
     relationship.update!(active: !relationship.active)
-    redirect_to console_mortgage_path(@mortgage),
+    redirect_back fallback_location: console_mortgage_path(@mortgage),
                 notice: "#{relationship.lender.name} #{relationship.active? ? 'activated' : 'deactivated'} for this product."
   end
 
@@ -27,7 +27,7 @@ class Console::MortgageLendersController < Console::BaseController
     relationship = @mortgage.mortgage_lenders.find(params[:id])
     relationship.current_user = current_user if relationship.respond_to?(:current_user=)
     relationship.destroy
-    redirect_to console_mortgage_path(@mortgage), notice: "#{relationship.lender.name} no longer offers this product."
+    redirect_back fallback_location: console_mortgage_path(@mortgage), notice: "#{relationship.lender.name} no longer offers this product."
   end
 
   private

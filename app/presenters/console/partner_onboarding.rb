@@ -53,6 +53,12 @@ class Console::PartnerOnboarding
 
   def lender_steps
     [
+      Step.new(
+        key: :licence,
+        label: "Licence recorded",
+        done: partner.licence_ref.present?,
+        hint: "Record the lender's licence or authorisation reference with the jurisdiction's regulator."
+      ),
       agreement_executed_step,
       Step.new(
         key: :admin_user,
