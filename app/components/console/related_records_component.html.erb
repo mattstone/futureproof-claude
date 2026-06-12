@@ -1,0 +1,14 @@
+<nav class="console-related" aria-label="<%= title %>">
+  <span class="console-related-title"><%= title %>:</span>
+  <% items.each do |item| %>
+    <% if item.href %>
+      <%= link_to item.href, class: "console-related-item" do %>
+        <%= item.label %><% if item.meta %> <span class="console-related-meta"><%= item.meta %></span><% end %>
+      <% end %>
+    <% else %>
+      <span class="console-related-item console-related-item-static">
+        <%= item.label %><% if item.meta %> <span class="console-related-meta"><%= item.meta %></span><% end %>
+      </span>
+    <% end %>
+  <% end %>
+</nav>

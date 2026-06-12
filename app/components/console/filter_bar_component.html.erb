@@ -1,0 +1,27 @@
+<% extra = content %>
+<%= form_with url: url, method: :get, class: "console-filter-bar", data: { controller: "auto-submit", turbo_action: "advance" } do %>
+  <% if search %>
+    <%= text_field_tag search_name, search_value,
+          placeholder: search_placeholder,
+          class: "console-filter-search",
+          autocomplete: "off",
+          data: { action: "input->auto-submit#searchChanged" } %>
+  <% end %>
+
+  <% selects.each do |filter| %>
+    <label class="console-filter-group">
+      <span class="console-filter-label"><%= filter.label %></span>
+      <%= select_tag filter.name,
+            options_for_select(filter.options, filter.selected),
+            include_blank: filter.include_blank,
+            class: "console-filter-select",
+            data: { action: "change->auto-submit#filterChanged" } %>
+    </label>
+  <% end %>
+
+  <%= extra %>
+
+  <% if show_clear? %>
+    <%= link_to "Clear", clear_url, class: "console-filter-clear" %>
+  <% end %>
+<% end %>

@@ -1,0 +1,53 @@
+<% content %>
+<%= helpers.turbo_frame_tag id, data: { turbo_action: "advance" } do %>
+  <div class="console-table-wrap">
+    <table class="console-table">
+      <thead>
+        <tr>
+          <% columns.each do |column| %>
+            <th class="<%= 'console-table-numeric' if column.numeric %>">
+              <% if column.sort %>
+                <%= link_to sort_url(column), class: "console-table-sort #{'is-sorted' if current_sort == column.sort}" do %>
+                  <%= column.label %> <span class="console-table-sort-indicator"><%= sort_indicator(column) %></span>
+                <% end %>
+              <% else %>
+                <%= column.label %>
+              <% end %>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if records.respond_to?(:empty?) && records.empty? %>
+          <tr>
+            <td class="console-table-empty" colspan="<%= columns.size %>"><%= empty_message %></td>
+          </tr>
+        <% else %>
+          <% records.each do |record| %>
+            <tr>
+              <% columns.each do |column| %>
+                <td class="<%= 'console-table-numeric' if column.numeric %>"><%= capture_block(column.block, record) %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if paginated? || csv_path %>
+      <div class="console-table-footer">
+        <div class="console-table-pagination">
+          <% if paginated? %>
+            <%= helpers.paginate records, theme: "console" %>
+            <span class="console-table-count">
+              <%= helpers.page_entries_info records %>
+            </span>
+          <% end %>
+        </div>
+        <% if csv_path %>
+          <%= link_to "Export CSV", csv_path, class: "console-table-csv", data: { turbo: false } %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

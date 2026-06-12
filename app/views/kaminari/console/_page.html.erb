@@ -1,0 +1,5 @@
+<% if page.current? -%>
+  <span class="console-pagination-page is-current"><%= page %></span>
+<% else -%>
+  <%= link_to page, url, remote: remote, rel: page.rel, class: "console-pagination-page" %>
+<% end -%>

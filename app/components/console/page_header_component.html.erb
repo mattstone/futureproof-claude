@@ -1,0 +1,13 @@
+<header class="console-page-header">
+  <div>
+    <h1 class="console-page-title"><%= @title %></h1>
+    <% if @subtitle.present? %>
+      <p class="console-page-subtitle"><%= @subtitle %></p>
+    <% end %>
+  </div>
+  <% if actions.any? %>
+    <div class="console-page-actions">
+      <% actions.each do |action| %><%= action %><% end %>
+    </div>
+  <% end %>
+</header>
