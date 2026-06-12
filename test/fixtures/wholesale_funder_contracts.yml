@@ -1,0 +1,6 @@
+legacy_funding_doc:
+  wholesale_funder: one
+  jurisdiction: AU
+  party_type: wholesale_funder
+  version: 1
+  html_content: "<h1>Funding Agreement</h1><p>Legacy AU funding terms.</p>"

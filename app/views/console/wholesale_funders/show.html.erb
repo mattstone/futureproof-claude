@@ -26,6 +26,28 @@
   <%= render Console::StatCardComponent.new(value: "#{@wholesale_funder.utilization_percentage}%", label: "Utilisation") %>
 </div>
 
+<%= render Console::CardComponent.new(title: "Facility") do %>
+  <% pool_capacity = @pools.sum { |pool| pool.amount.to_f } %>
+  <% facility = @wholesale_funder.total_allocated_amount.to_f %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Facility size" => number_to_currency(facility, precision: 0),
+        "In pools" => number_to_currency(pool_capacity, precision: 0),
+        "Unpooled headroom" => number_to_currency(facility - pool_capacity, precision: 0),
+        "Committed to contracts" => number_to_currency(@wholesale_funder.committed_amount, precision: 0),
+        "Runway (months)" => (@wholesale_funder.runway_months >= 999 ? "—" : @wholesale_funder.runway_months)
+      }) %>
+  <div class="console-checklist-progress">
+    <progress class="console-progress" value="<%= @wholesale_funder.utilization_percentage %>" max="100"></progress>
+    <span class="console-cell-sub"><%= @wholesale_funder.utilization_percentage %>% utilised</span>
+  </div>
+  <% if pool_capacity > facility %>
+    <div class="console-flash console-flash-warning">
+      Pools total <%= number_to_currency(pool_capacity - facility, precision: 0) %> MORE than the recorded facility —
+      either top up the facility size or reduce pool capacity.
+    </div>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Pools") do %>
   <% if @pools.any? %>
     <ul class="console-doc-list">
@@ -46,5 +68,22 @@
     </ul>
   <% else %>
     <p class="console-muted">No pools yet — create one to start allocating capital.</p>
+  <% end %>
+<% end %>
+
+<% legacy_documents = @wholesale_funder.wholesale_funder_contracts.order(version: :desc) %>
+<% if legacy_documents.any? %>
+  <%= render Console::CardComponent.new(title: "Funding documents (legacy)") do %>
+    <p class="console-muted">Historical documents — new funding agreements use the Agreements signature lifecycle above.</p>
+    <ul class="console-doc-list">
+      <% legacy_documents.each do |document| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "#{document.jurisdiction} funding document v#{document.version}", console_wholesale_funder_funding_document_path(@wholesale_funder, document) %></strong>
+            <span class="console-cell-sub"><%= document.party_type&.humanize %> · <%= document.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
   <% end %>
 <% end %>

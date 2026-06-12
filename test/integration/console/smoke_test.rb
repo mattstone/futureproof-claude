@@ -27,6 +27,10 @@ class Console::SmokeTest < ActionDispatch::IntegrationTest
     },
     "console/prompts" => -> {
       { key: PromptFiles.slots_for(:runtime).first.key }
+    },
+    "console/wholesale_funder_contracts" => -> {
+      doc = WholesaleFunderContract.first || flunk("No WholesaleFunderContract fixture exists")
+      { wholesale_funder_id: doc.wholesale_funder_id, id: doc.id }
     }
   }.freeze
 

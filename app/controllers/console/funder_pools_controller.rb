@@ -41,6 +41,36 @@ class Console::FunderPoolsController < Console::BaseController
   def edit
   end
 
+  # Audited capacity change — the routine "the funder added more money to
+  # this pool" operation, recorded with a reason.
+  def top_up
+    @funder_pool = @wholesale_funder.funder_pools.find(params[:id])
+    delta = params[:amount_delta].to_f
+
+    if delta.zero?
+      redirect_to console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool),
+                  alert: "Enter a non-zero amount." and return
+    end
+
+    old_amount = @funder_pool.amount
+    new_amount = old_amount + delta
+
+    if new_amount < @funder_pool.allocated.to_f
+      redirect_to console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool),
+                  alert: "Capacity can't drop below the #{@funder_pool.formatted_allocated} already allocated." and return
+    end
+
+    @funder_pool.current_user = current_user
+    @funder_pool.update!(amount: new_amount)
+    AuditLog.log_action(
+      user: current_user, action: "pool_capacity_changed", resource: @funder_pool,
+      reason: params[:reason].presence || "No reason given",
+      notes: "#{helpers.number_to_currency(old_amount, precision: 0)} -> #{helpers.number_to_currency(new_amount, precision: 0)}"
+    )
+    redirect_to console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool),
+                notice: "Pool capacity #{delta.positive? ? 'increased' : 'reduced'} to #{@funder_pool.reload.formatted_amount}."
+  end
+
   def update
     @funder_pool.current_user = current_user
 

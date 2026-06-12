@@ -1,0 +1,17 @@
+<% content_for :title, "Funding document — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Funding document (legacy)",
+      subtitle: "#{@wholesale_funder.name} · #{@document.jurisdiction} · v#{@document.version}") %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% related.with_item(@wholesale_funder.name, href: console_wholesale_funder_path(@wholesale_funder), meta: "wholesale funder") %>
+<% end %>
+
+<div class="console-flash console-flash-warning">
+  Historical document from the legacy system — new funding agreements are created
+  under Partners → Agreements with the full signature lifecycle.
+</div>
+
+<%= render Console::CardComponent.new do %>
+  <div class="console-clause-preview"><%= sanitize @document.html_content, tags: %w[h1 h2 h3 h4 p br strong em ul ol li table tr td th a section], attributes: %w[href] %></div>
+<% end %>
