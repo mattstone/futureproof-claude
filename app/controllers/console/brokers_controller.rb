@@ -19,7 +19,7 @@ class Console::BrokersController < Console::ResourceController
   def show
     @onboarding = Console::PartnerOnboarding.for(@broker)
     @assignments = @broker.broker_lenders.includes(:lender).order("lenders.name")
-    @available_lenders = Lender.where.not(id: @broker.lender_ids).order(:name)
+    @available_lenders = Lender.status_active.where.not(id: @broker.lender_ids).order(:name)
     @applications = @broker.applications.order(created_at: :desc).limit(10)
     @commission_totals = {
       unpaid: BrokerCommission.for_broker(@broker).unpaid.sum(:commission_amount),

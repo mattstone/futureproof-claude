@@ -87,3 +87,26 @@
     </ul>
   <% end %>
 <% end %>
+
+<%= render Console::CardComponent.new(title: "Lifecycle") do %>
+  <% if @wholesale_funder.status_suspended? %>
+    <div class="console-flash console-flash-error">Suspended — hidden from lender funding pickers.</div>
+    <%= form_with url: reactivate_console_wholesale_funder_path(@wholesale_funder), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Reactivate", class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Reactivate #{@wholesale_funder.name}?" } %>
+    <% end %>
+  <% else %>
+    <%= form_with url: suspend_console_wholesale_funder_path(@wholesale_funder), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Suspend partner", class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Suspend #{@wholesale_funder.name}? Existing pools keep operating; they are hidden from new funding pickers." } %>
+    <% end %>
+  <% end %>
+<% end %>

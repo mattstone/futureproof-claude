@@ -34,7 +34,7 @@ class Console::LendersController < Console::ResourceController
     @onboarding = Console::PartnerOnboarding.for(@lender)
     @wholesale_funder_relationships = @lender.lender_wholesale_funders.includes(:wholesale_funder).order("wholesale_funders.name")
     @pool_relationships = @lender.lender_funder_pools.includes(funder_pool: :wholesale_funder)
-    @available_wholesale_funders = WholesaleFunder.where.not(id: @lender.wholesale_funders.select(:id)).order(:name)
+    @available_wholesale_funders = WholesaleFunder.status_active.where.not(id: @lender.wholesale_funders.select(:id)).order(:name)
     @available_pools = available_pools_for(@lender)
     @commission_rates = @lender.broker_commission_rates.includes(:broker).order(created_at: :desc)
     @versions = collect_all_lender_versions
@@ -101,10 +101,40 @@ class Console::LendersController < Console::ResourceController
     end
   end
 
+  def suspend
+    @lender = Lender.find(params[:id])
+    if @lender.lender_type_futureproof?
+      redirect_to console_lender_path(@lender), alert: "The Futureproof house lender cannot be suspended." and return
+    end
+    change_status(@lender, :suspended, console_lender_path(@lender))
+  end
+
+  def reactivate
+    @lender = Lender.find(params[:id])
+    change_status(@lender, :active, console_lender_path(@lender))
+  end
+
   protected
 
   def base_scope
     scope_by_jurisdiction(Lender.all, :country)
+  end
+
+  # Shared with the wholesale funders controller via duplication kept tiny:
+  # one audited status flip with a mandatory reason.
+  def change_status(partner, new_status, redirect_path)
+    if params[:reason].blank?
+      redirect_to redirect_path, alert: "A reason is required — it goes in the audit log." and return
+    end
+
+    partner.update!(status: new_status)
+    AuditLog.log_action(
+      user: current_user,
+      action: new_status == :suspended ? "partner_suspended" : "partner_reactivated",
+      resource: partner,
+      reason: params[:reason]
+    )
+    redirect_to redirect_path, notice: "#{partner.name} #{new_status == :suspended ? 'suspended' : 'reactivated'}."
   end
 
   private

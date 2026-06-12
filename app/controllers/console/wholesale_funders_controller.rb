@@ -1,6 +1,6 @@
 class Console::WholesaleFundersController < Console::ResourceController
   before_action -> { require_capability(:manage_partners) }
-  before_action :set_wholesale_funder, only: [ :show, :edit, :update ]
+  before_action :set_wholesale_funder, only: [ :show, :edit, :update, :suspend, :reactivate ]
 
   resource WholesaleFunder
   searches "wholesale_funders.name", "wholesale_funders.country"
@@ -68,10 +68,33 @@ class Console::WholesaleFundersController < Console::ResourceController
     end
   end
 
+  def suspend
+    change_status(@wholesale_funder, :suspended)
+  end
+
+  def reactivate
+    change_status(@wholesale_funder, :active)
+  end
+
   protected
 
   def base_scope
     WholesaleFunder.all
+  end
+
+  def change_status(partner, new_status)
+    if params[:reason].blank?
+      redirect_to console_wholesale_funder_path(partner), alert: "A reason is required — it goes in the audit log." and return
+    end
+
+    partner.update!(status: new_status)
+    AuditLog.log_action(
+      user: current_user,
+      action: new_status == :suspended ? "partner_suspended" : "partner_reactivated",
+      resource: partner,
+      reason: params[:reason]
+    )
+    redirect_to console_wholesale_funder_path(partner), notice: "#{partner.name} #{new_status == :suspended ? 'suspended' : 'reactivated'}."
   end
 
   private

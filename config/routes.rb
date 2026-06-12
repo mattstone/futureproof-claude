@@ -47,6 +47,8 @@ Rails.application.routes.draw do
       end
       member do
         post :invite_admin
+        patch :suspend
+        patch :reactivate
       end
       resources :wholesale_funders, controller: 'lender_wholesale_funders', only: [ :create, :destroy ] do
         member do
@@ -67,6 +69,10 @@ Rails.application.routes.draw do
     end
 
     resources :wholesale_funders, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        patch :suspend
+        patch :reactivate
+      end
       resources :funder_pools, only: [ :show, :new, :create, :edit, :update ] do
         member do
           post :top_up

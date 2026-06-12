@@ -1,4 +1,6 @@
 class WholesaleFunder < ApplicationRecord
+  # Partner lifecycle — see Lender#status.
+  enum :status, { active: 0, suspended: 1 }, prefix: true
   scope :real, -> { where(demo: false) }
   include ChangeTracking
   

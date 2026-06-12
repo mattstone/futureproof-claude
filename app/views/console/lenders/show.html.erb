@@ -180,6 +180,31 @@
   <% end %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Lifecycle") do %>
+  <% if @lender.status_suspended? %>
+    <div class="console-flash console-flash-error">Suspended — excluded from approvals and new assignments.</div>
+    <%= form_with url: reactivate_console_lender_path(@lender), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Reactivate", class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Reactivate #{@lender.name}?" } %>
+    <% end %>
+  <% elsif !@lender.lender_type_futureproof? %>
+    <%= form_with url: suspend_console_lender_path(@lender), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Suspend partner", class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Suspend #{@lender.name}? They are removed from approvals and new assignments; records and history remain." } %>
+    <% end %>
+  <% else %>
+    <p class="console-muted">The Futureproof house lender cannot be suspended.</p>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new do %>
   <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 30) %>
 <% end %>
