@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       member do
         post :create_message
         patch :send_message
+        patch :transition
       end
     end
     resources :cohorts, only: [ :index ]

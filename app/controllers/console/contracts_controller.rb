@@ -3,7 +3,7 @@
 # pool allocation failed.
 class Console::ContractsController < Console::ResourceController
   before_action -> { require_capability(:view_pipeline) }
-  before_action :set_contract, only: [ :show, :edit, :update, :create_message, :send_message ]
+  before_action :set_contract, only: [ :show, :edit, :update, :create_message, :send_message, :transition ]
 
   resource Contract
   sortable created: "contracts.created_at",
@@ -24,10 +24,46 @@ class Console::ContractsController < Console::ResourceController
   csv_column("Lender") { |c| c.lender&.name }
   csv_column("Return %") { |c| c.investment_return_rate }
 
+  # The legitimate servicing moves and where they may start from. Anything
+  # else goes through edit (bare parity) — these are the audited operations.
+  SERVICING_TRANSITIONS = {
+    "start_holiday" => { from: %w[ok], to: :in_holiday, label: "Start payment holiday" },
+    "end_holiday" => { from: %w[in_holiday], to: :ok, label: "End payment holiday" },
+    "flag_at_risk" => { from: %w[ok in_holiday], to: :investment_at_risk, label: "Flag investment at risk" },
+    "restore" => { from: %w[investment_at_risk], to: :ok, label: "Restore to performing" },
+    "complete" => { from: %w[ok in_holiday investment_at_risk], to: :complete, label: "Complete (run-off)" }
+  }.freeze
+
   def show
     @versions = @contract.contract_versions.includes(:admin_user).recent.limit(20)
     @contract.log_view_by(current_user)
+    @distributions = @contract.application.distributions.recent.limit(12)
+    @income_paid = @contract.application.distributions.completed_distributions.sum(:amount)
+    @failed_distributions = @contract.application.distributions.where(status: :failed).count
+    @available_transitions = SERVICING_TRANSITIONS.select { |_k, t| t[:from].include?(@contract.status) }
     set_messages
+  end
+
+  def transition
+    spec = SERVICING_TRANSITIONS[params[:kind]]
+
+    unless spec && spec[:from].include?(@contract.status)
+      redirect_to console_contract_path(@contract), alert: "That transition isn't available from #{@contract.status_display}." and return
+    end
+
+    if params[:reason].blank?
+      redirect_to console_contract_path(@contract), alert: "A reason is required — it goes in the audit log." and return
+    end
+
+    from_status = @contract.status
+    @contract.current_admin_user = current_user
+    @contract.update!(status: spec[:to])
+    AuditLog.log_action(
+      user: current_user, action: "contract_#{params[:kind]}", resource: @contract,
+      reason: params[:reason],
+      notes: "#{from_status} -> #{spec[:to]}"
+    )
+    redirect_to console_contract_path(@contract), notice: "#{spec[:label]} — recorded."
   end
 
   def new
