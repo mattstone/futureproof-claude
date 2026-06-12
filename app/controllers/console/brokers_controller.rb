@@ -17,6 +17,7 @@ class Console::BrokersController < Console::ResourceController
   csv_column("Active") { |b| b.active? ? "yes" : "no" }
 
   def show
+    @onboarding = Console::PartnerOnboarding.for(@broker)
     @lenders = @broker.lenders
     @available_lenders = Lender.where.not(id: @broker.lender_ids).order(:name)
     @applications = @broker.applications.order(created_at: :desc).limit(10)

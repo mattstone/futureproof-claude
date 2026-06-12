@@ -29,6 +29,10 @@
   <% table.with_column "Jurisdiction" do |broker| %>
     <%= broker.jurisdiction %>
   <% end %>
+  <% table.with_column "Onboarding" do |broker| %>
+    <% onboarding = Console::PartnerOnboarding.for(broker) %>
+    <%= render Console::BadgeComponent.new(status: onboarding.complete? ? "active" : "in_progress", label: onboarding.progress_label) %>
+  <% end %>
   <% table.with_column "Status" do |broker| %>
     <%= render Console::BadgeComponent.new(status: broker.active? ? "active" : "inactive") %>
   <% end %>

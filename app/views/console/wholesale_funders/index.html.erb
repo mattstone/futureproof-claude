@@ -31,6 +31,10 @@
   <% table.with_column "Name", sort: "name" do |funder| %>
     <%= link_to funder.name, console_wholesale_funder_path(funder) %>
   <% end %>
+  <% table.with_column "Onboarding" do |funder| %>
+    <% onboarding = Console::PartnerOnboarding.for(funder) %>
+    <%= render Console::BadgeComponent.new(status: onboarding.complete? ? "active" : "in_progress", label: onboarding.progress_label) %>
+  <% end %>
   <% table.with_column "Country", sort: "country" do |funder| %>
     <%= funder.country %>
   <% end %>

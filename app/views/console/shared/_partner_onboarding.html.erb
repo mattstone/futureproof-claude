@@ -1,0 +1,27 @@
+<%# locals: onboarding (Console::PartnerOnboarding), links ({step_key => path}) %>
+<%= render Console::CardComponent.new(title: "Onboarding") do |card| %>
+  <% card.with_header_action do %>
+    <% if onboarding.complete? %>
+      <%= render Console::BadgeComponent.new(status: "active", label: "Active partner") %>
+    <% else %>
+      <%= render Console::BadgeComponent.new(status: "in_progress", label: onboarding.progress_label) %>
+    <% end %>
+  <% end %>
+
+  <ol class="console-onboarding">
+    <% onboarding.steps.each do |step| %>
+      <li class="console-onboarding-step <%= 'is-done' if step.done %>">
+        <span class="console-onboarding-mark" aria-hidden="true"><%= step.done ? "✓" : "" %></span>
+        <div class="console-onboarding-body">
+          <span class="console-onboarding-label"><%= step.label %></span>
+          <% unless step.done %>
+            <span class="console-cell-sub"><%= step.hint %></span>
+          <% end %>
+        </div>
+        <% if !step.done && links[step.key] %>
+          <%= link_to "Complete", links[step.key], class: "console-btn console-btn-sm console-btn-primary" %>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+<% end %>

@@ -30,6 +30,10 @@
   <% table.with_column "Name", sort: "name" do |lender| %>
     <%= link_to lender.name, console_lender_path(lender) %>
   <% end %>
+  <% table.with_column "Onboarding" do |lender| %>
+    <% onboarding = Console::PartnerOnboarding.for(lender) %>
+    <%= render Console::BadgeComponent.new(status: onboarding.complete? ? "active" : "in_progress", label: onboarding.progress_label) %>
+  <% end %>
   <% table.with_column "Type" do |lender| %>
     <%= render Console::BadgeComponent.new(status: lender.lender_type_futureproof? ? "info" : "neutral", label: lender.lender_type.humanize) %>
   <% end %>

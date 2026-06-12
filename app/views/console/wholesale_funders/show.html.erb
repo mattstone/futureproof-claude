@@ -10,6 +10,15 @@
   <% end %>
 <% end %>
 
+<%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      agreement: new_console_agreement_path(party_type: "WholesaleFunder", agreeable_id: @wholesale_funder.id),
+      capital: edit_console_wholesale_funder_path(@wholesale_funder),
+      pools: new_console_wholesale_funder_funder_pool_path(@wholesale_funder),
+      lender_access: console_lenders_path
+    } %>
+
+<%= render "console/shared/partner_agreements", partner: @wholesale_funder, party_type: "WholesaleFunder" %>
+
 <div class="console-stat-grid">
   <%= render Console::StatCardComponent.new(value: @wholesale_funder.formatted_total_capital, label: "Total capital") %>
   <%= render Console::StatCardComponent.new(value: number_to_currency(@wholesale_funder.committed_amount, precision: 0), label: "Committed") %>

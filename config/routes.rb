@@ -45,6 +45,9 @@ Rails.application.routes.draw do
       collection do
         get :scorecard
       end
+      member do
+        post :invite_admin
+      end
       resources :wholesale_funders, controller: 'lender_wholesale_funders', only: [ :create, :destroy ] do
         member do
           patch :toggle_active

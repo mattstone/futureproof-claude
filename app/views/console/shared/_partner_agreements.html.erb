@@ -1,0 +1,24 @@
+<%# locals: partner, party_type ("Lender"/"WholesaleFunder"/"Broker") %>
+<%= render Console::CardComponent.new(title: "Agreements") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "New agreement", new_console_agreement_path(party_type: party_type, agreeable_id: partner.id),
+          class: "console-btn console-btn-sm console-btn-primary" %>
+  <% end %>
+
+  <% agreements = partner.agreements.order(created_at: :desc).limit(10) %>
+  <% if agreements.any? %>
+    <ul class="console-doc-list">
+      <% agreements.each do |agreement| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to agreement.title, console_agreement_path(agreement) %></strong>
+            <span class="console-cell-sub"><%= agreement.jurisdiction %> · v<%= agreement.version %> · <%= agreement.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: agreement.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No agreements yet — onboarding starts with an executed agreement.</p>
+  <% end %>
+<% end %>
