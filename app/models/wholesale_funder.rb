@@ -1,6 +1,8 @@
 class WholesaleFunder < ApplicationRecord
   # Partner lifecycle — see Lender#status.
   enum :status, { active: 0, suspended: 1 }, prefix: true
+  # Constituent spec: wholesale facilities vs warehouse lines.
+  enum :funding_type, { wholesale: 0, warehouse: 1 }, prefix: true
   scope :real, -> { where(demo: false) }
   include ChangeTracking
   

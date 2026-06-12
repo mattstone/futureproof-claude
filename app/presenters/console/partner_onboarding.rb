@@ -78,7 +78,19 @@ class Console::PartnerOnboarding
 
   def wholesale_funder_steps
     [
+      Step.new(
+        key: :contact,
+        label: "Contact captured",
+        done: partner.contact_email.present?,
+        hint: "Record who to call at the funder — name, email, phone."
+      ),
       agreement_executed_step,
+      Step.new(
+        key: :documents,
+        label: "Contract document on file",
+        done: partner.wholesale_funder_contracts.exists?,
+        hint: "Add the master agreement text for at least one jurisdiction."
+      ),
       Step.new(
         key: :capital,
         label: "Capital committed",

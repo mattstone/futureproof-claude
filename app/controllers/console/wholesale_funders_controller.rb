@@ -109,6 +109,6 @@ class Console::WholesaleFundersController < Console::ResourceController
   end
 
   def wholesale_funder_params
-    params.require(:wholesale_funder).permit(:name, :country, :currency, :total_allocated_amount)
+    params.require(:wholesale_funder).permit(:name, :country, :currency, :total_allocated_amount, :funding_type, :terms, :contact_name, :contact_email, :contact_phone)
   end
 end

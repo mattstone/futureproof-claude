@@ -15,6 +15,22 @@
   <%= render Console::FormFieldComponent.new(form: form, attribute: :total_allocated_amount, label: "Total capital") do %>
     <%= form.number_field :total_allocated_amount, step: 1000, min: 0, class: "console-input" %>
   <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :funding_type, label: "Facility type") do %>
+    <%= form.select :funding_type, [ [ "Wholesale", "wholesale" ], [ "Warehouse", "warehouse" ] ], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_name, label: "Contact name") do %>
+    <%= form.text_field :contact_name, class: "console-input" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_email, label: "Contact email") do %>
+    <%= form.email_field :contact_email, class: "console-input" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_phone, label: "Contact phone") do %>
+    <%= form.text_field :contact_phone, class: "console-input" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :terms, label: "Facility terms",
+        hint: "Key commercial terms — renewal date, covenants, pricing notes.") do %>
+    <%= form.text_area :terms, rows: 5, class: "console-textarea" %>
+  <% end %>
 
   <div class="console-message-actions">
     <%= form.submit @wholesale_funder.persisted? ? "Save changes" : "Create funder", class: "console-btn console-btn-primary" %>
