@@ -1,0 +1,18 @@
+<section class="console-history">
+  <h3 class="console-history-title"><%= title %></h3>
+  <% if versions.empty? %>
+    <p class="console-muted">No changes recorded yet.</p>
+  <% else %>
+    <ol class="console-history-list">
+      <% versions.each do |version| %>
+        <li class="console-history-item">
+          <span class="console-history-actor"><%= actor_label(version) %></span>
+          <span class="console-history-action"><%= action_label(version) %></span>
+          <time class="console-history-time" datetime="<%= version.created_at.iso8601 %>" title="<%= version.created_at.strftime('%-d %b %Y %H:%M') %>">
+            <%= time_ago_in_words(version.created_at) %> ago
+          </time>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+</section>

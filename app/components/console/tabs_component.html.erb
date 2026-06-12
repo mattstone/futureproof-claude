@@ -1,0 +1,27 @@
+<% content %>
+<div class="console-tabs" data-controller="console--tabs">
+  <div class="console-tabs-bar" role="tablist">
+    <% tabs.each_with_index do |tab, index| %>
+      <button type="button"
+              role="tab"
+              id="tab-<%= tab.id %>"
+              aria-controls="panel-<%= tab.id %>"
+              aria-selected="<%= index == active_index %>"
+              class="console-tab <%= 'is-active' if index == active_index %>"
+              data-console--tabs-target="tab"
+              data-action="console--tabs#select">
+        <%= tab.label %>
+      </button>
+    <% end %>
+  </div>
+  <% tabs.each_with_index do |tab, index| %>
+    <div class="console-tab-panel <%= 'is-active' if index == active_index %>"
+         role="tabpanel"
+         id="panel-<%= tab.id %>"
+         aria-labelledby="tab-<%= tab.id %>"
+         <%= 'hidden'.html_safe unless index == active_index %>
+         data-console--tabs-target="panel">
+      <%= capture_block(tab.block) %>
+    </div>
+  <% end %>
+</div>

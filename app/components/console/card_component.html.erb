@@ -1,0 +1,13 @@
+<section class="console-card">
+  <% if @title.present? || header_action %>
+    <div class="console-card-header">
+      <% if @title.present? %>
+        <h2 class="console-card-title"><%= @title %></h2>
+      <% end %>
+      <%= header_action %>
+    </div>
+  <% end %>
+  <div class="console-card-body">
+    <%= content %>
+  </div>
+</section>

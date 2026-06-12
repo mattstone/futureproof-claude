@@ -1,31 +1,17 @@
 <% content_for :title, "Today — FutureProof Console" %>
 
-<header class="console-page-header">
-  <div>
-    <h1 class="console-page-title">Today</h1>
-    <p class="console-page-subtitle">Your work queue — what needs attention right now.</p>
-  </div>
-</header>
+<%= render Console::PageHeaderComponent.new(title: "Today", subtitle: "Your work queue — what needs attention right now.") %>
 
 <div class="console-stat-grid">
-  <div class="console-stat">
-    <span class="console-stat-value"><%= attention_counts[:applications] %></span>
-    <span class="console-stat-label">Applications awaiting decision</span>
-  </div>
-  <div class="console-stat">
-    <span class="console-stat-value"><%= attention_counts[:tickets] %></span>
-    <span class="console-stat-label">Open support tickets</span>
-  </div>
-  <div class="console-stat">
-    <span class="console-stat-value"><%= attention_counts[:change_requests] %></span>
-    <span class="console-stat-label">Open change requests</span>
-  </div>
+  <%= render Console::StatCardComponent.new(value: attention_counts[:applications], label: "Applications awaiting decision") %>
+  <%= render Console::StatCardComponent.new(value: attention_counts[:tickets], label: "Open support tickets") %>
+  <%= render Console::StatCardComponent.new(value: attention_counts[:change_requests], label: "Open change requests") %>
 </div>
 
-<section class="console-card">
+<%= render Console::CardComponent.new do %>
   <p class="console-muted">
     The Console is being rebuilt in phases. The full Today work queue — attention
     signals with one-click drill-down — arrives in Phase&nbsp;1. Until then, use the
     legacy admin link in the sidebar for day-to-day operations.
   </p>
-</section>
+<% end %>

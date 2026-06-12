@@ -1,0 +1,15 @@
+<% content %>
+<dl class="console-dl console-dl-cols-<%= columns %>">
+  <% rows.each do |term, value| %>
+    <div class="console-dl-item">
+      <dt class="console-dl-term"><%= term %></dt>
+      <dd class="console-dl-value"><%= value.presence || tag.span("—", class: "console-muted") %></dd>
+    </div>
+  <% end %>
+  <% items.each do |item| %>
+    <div class="console-dl-item">
+      <dt class="console-dl-term"><%= item.term %></dt>
+      <dd class="console-dl-value"><%= capture_block(item.block) %></dd>
+    </div>
+  <% end %>
+</dl>

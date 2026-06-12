@@ -1,0 +1,27 @@
+<div class="console-attention">
+  <% if signals.empty? %>
+    <p class="console-attention-empty"><%= empty_message %></p>
+  <% else %>
+    <ul class="console-attention-list">
+      <% signals.each do |signal| %>
+        <li class="console-attention-item console-attention-<%= signal.severity %>">
+          <span class="console-attention-dot" aria-hidden="true"></span>
+          <div class="console-attention-body">
+            <div class="console-attention-headline">
+              <%= signal.headline %>
+              <% if signal.metric.present? %>
+                <span class="console-attention-metric"><%= signal.metric %></span>
+              <% end %>
+            </div>
+            <% if signal.detail.present? %>
+              <p class="console-attention-detail"><%= signal.detail %></p>
+            <% end %>
+          </div>
+          <% if signal.drill_down_path.present? %>
+            <%= link_to "View", signal.drill_down_path, class: "console-attention-link" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

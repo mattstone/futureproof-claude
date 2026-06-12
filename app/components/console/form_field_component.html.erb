@@ -1,0 +1,12 @@
+<div class="console-field <%= 'console-field-invalid' if errors.any? %>">
+  <%= form.label attribute, class: "console-field-label" do %>
+    <%= label || attribute.to_s.humanize %><% if required %><span class="console-field-required">*</span><% end %>
+  <% end %>
+  <%= content %>
+  <% if hint.present? %>
+    <p class="console-field-hint"><%= hint %></p>
+  <% end %>
+  <% errors.each do |message| %>
+    <p class="console-field-error"><%= message %></p>
+  <% end %>
+</div>
