@@ -10766,3 +10766,15 @@ turbo-frame#admin_main {
   color: #3730a3;
   font-size: 0.72rem;
 }
+
+/* === Field-level validation errors (Rails wraps invalid fields) === */
+.field_with_errors input,
+.field_with_errors select,
+.field_with_errors textarea {
+  border-color: #dc2626 !important;
+  background: #fef2f2;
+}
+.field_with_errors label { color: #dc2626; }
+
+/* Visible keyboard focus for admin buttons */
+.admin-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }

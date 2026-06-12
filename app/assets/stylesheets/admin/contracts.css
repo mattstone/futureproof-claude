@@ -1,0 +1,248 @@
+
+
+/* extracted from app/views/admin/contracts/index.html.erb */
+/* Filter styles */
+.admin-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-filter {
+  display: flex;
+  align-items: center;
+}
+
+.filter-form {
+  margin: 0;
+}
+
+.status-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.status-filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Actions cell - prevent button wrapping */
+.admin-actions {
+  white-space: nowrap;
+  width: 10%;
+  min-width: 80px;
+}
+
+.admin-actions .admin-btn {
+  margin-right: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.admin-actions .admin-btn:last-child {
+  margin-right: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .admin-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .admin-filter {
+    justify-content: center;
+  }
+  
+  .status-filter-select {
+    width: 100%;
+  }
+  
+  .admin-actions {
+    width: auto;
+  }
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-awaiting-funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting-investment {
+  background-color: #fde68a;
+  color: #92400e;
+}
+
+.status-ok {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-in-holiday {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-investment-at-risk {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+
+/* extracted from app/views/admin/contracts/show.html.erb */
+/* Two-Column Layout CSS */
+.admin-two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.admin-left-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.admin-right-column {
+  min-width: 0; /* Prevents grid overflow */
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+
+.admin-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-field {
+  margin-bottom: 16px;
+}
+
+.admin-field:last-child {
+  margin-bottom: 0;
+}
+
+.admin-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.admin-field-value {
+  font-size: 16px;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.admin-field-value strong {
+  font-weight: 600;
+}
+
+.admin-field-value small {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-awaiting-funding {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-awaiting-investment {
+  background-color: #fde68a;
+  color: #92400e;
+}
+
+.status-ok {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-in-holiday {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-investment-at-risk {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.status-complete {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-accepted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .admin-two-column-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .admin-right-column {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-field-group {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -47,11 +47,8 @@ app/views/admin/broker_commission_rates/_form.html.erb|<style> block|<style>
 app/views/admin/broker_commission_rates/edit.html.erb|<style> block|<style>
 app/views/admin/broker_commission_rates/index.html.erb|<style> block|<style>
 app/views/admin/broker_commission_rates/new.html.erb|<style> block|<style>
-app/views/admin/brokers/_form.html.erb|<style> block|<style>
 app/views/admin/brokers/edit.html.erb|<style> block|<style>
-app/views/admin/brokers/index.html.erb|<style> block|<style>
 app/views/admin/brokers/new.html.erb|<style> block|<style>
-app/views/admin/brokers/show.html.erb|<style> block|<style>
 app/views/admin/business_process_workflows/edit.html.erb|inline <script>|<script>
 app/views/admin/business_process_workflows/edit.html.erb|inline style attribute|<svg id="connections-svg" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
 app/views/admin/business_process_workflows/edit.html.erb|inline style attribute|style="height: 600px; background: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;"
@@ -71,30 +68,22 @@ app/views/admin/contract_clauses/destroy.turbo_stream.erb|inline style attribute
 app/views/admin/contracts/_form.html.erb|<style> block|<style>
 app/views/admin/contracts/_results.html.erb|inline style attribute|<div style="padding: 40px; text-align: center; color: #6b7280;">
 app/views/admin/contracts/edit.html.erb|<style> block|<style>
-app/views/admin/contracts/index.html.erb|<style> block|<style>
 app/views/admin/contracts/new.html.erb|<style> block|<style>
 app/views/admin/contracts/new.html.erb|inline style attribute|<div class="admin-empty-state" style="margin-top: 40px;">
-app/views/admin/contracts/show.html.erb|<style> block|<style>
 app/views/admin/core_logic_test/index.html.erb|inline style attribute|<small style="color: #6b7280; font-weight: normal;">Test the CoreLogic API integration</small>
-app/views/admin/email_templates/_form.html.erb|<style> block|<style>
 app/views/admin/email_templates/_form.html.erb|inline style attribute|<div class="editor-note" style="margin: 16px 0 12px 0; padding: 12px; background: #e3f2fd; border: 1px solid #bae6fd; bo
 app/views/admin/email_templates/_form.html.erb|inline style attribute|<div id="field-helper-panel" style="margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; bor
 app/views/admin/email_templates/_form.html.erb|inline style attribute|<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
 app/views/admin/email_templates/_form.html.erb|inline style attribute|<h4 style="margin: 0; color: #374151;">Available Field Placeholders</h4>
 app/views/admin/email_templates/_form.html.erb|inline style attribute|<small class="text-muted" style="color: #0369a1;">
 app/views/admin/email_templates/index.html.erb|<style> block|<style>
-app/views/admin/email_templates/show.html.erb|<style> block|<style>
 app/views/admin/email_workflows/_step_icon.html.erb|<style> block|<style>
 app/views/admin/email_workflows/_step_preview.html.erb|<style> block|<style>
 app/views/admin/email_workflows/_templates_content.html.erb|<style> block|<style>
-app/views/admin/email_workflows/preview.html.erb|<style> block|<style>
-app/views/admin/email_workflows/show.html.erb|<style> block|<style>
 app/views/admin/error_test/show.html.erb|<style> block|<style>
 app/views/admin/funder_pools/edit.html.erb|<style> block|<style>
-app/views/admin/funder_pools/index.html.erb|<style> block|<style>
 app/views/admin/funder_pools/index.html.erb|inline style attribute|<div class="mini-allocation-progress" style="width: <%= pool.allocation_percentage %>%"></div>
 app/views/admin/funder_pools/new.html.erb|<style> block|<style>
-app/views/admin/funder_pools/show.html.erb|<style> block|<style>
 app/views/admin/funder_pools/show.html.erb|inline style attribute|<div class="allocation-progress" style="width: <%= @funder_pool.allocation_percentage %>%"></div>
 app/views/admin/legal_documents/acceptance_tracking.html.erb|<style> block|<style>
 app/views/admin/legal_documents/acceptance_tracking.html.erb|inline style attribute|<button type="submit" class="btn-primary" style="padding: 10px 20px;">Apply Filter</button>
@@ -149,7 +138,6 @@ app/views/admin/mortgages/edit.html.erb|inline style attribute|<div class="actio
 app/views/admin/mortgages/index.html.erb|<style> block|<style>
 app/views/admin/mortgages/index.html.erb|inline style attribute|<div style="padding: 40px; text-align: center; color: #6b7280;">
 app/views/admin/mortgages/new.html.erb|inline style attribute|<div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
-app/views/admin/mortgages/show.html.erb|<style> block|<style>
 app/views/admin/mortgages/show.html.erb|inline style attribute|<div id="existing-lenders" data-mortgage-lender-selector-target="existingLenders" style="display: none;">
 app/views/admin/mortgages/show.html.erb|inline style attribute|<div id="lender-selection" data-mortgage-lender-selector-target="selectionInterface" style="display: none;">
 app/views/admin/mortgages/show.html.erb|inline style attribute|<div style="margin-top: 32px;">
@@ -168,7 +156,6 @@ app/views/admin/terms_of_uses/show.html.erb|inline style attribute|<h2 style="co
 app/views/admin/users/edit.html.erb|inline style attribute|<div class="actions" style="display: flex; gap: 12px; margin-top: 32px;">
 app/views/admin/users/edit.html.erb|inline style attribute|<small style="color: #6b7280; font-size: 14px; margin-left: 8px;">You cannot change your own admin status</small>
 app/views/admin/users/edit.html.erb|inline style attribute|<small style="color: #6b7280; font-size: 14px;">Leave blank to keep current password</small>
-app/views/admin/users/index.html.erb|<style> block|<style>
 app/views/admin/users/index.html.erb|inline style attribute|<div style="padding: 40px; text-align: center; color: #6b7280;">
 app/views/admin/users/index.html.erb|inline style attribute|<td style="text-align: center;">
 app/views/admin/users/index.html.erb|inline style attribute|<th style="text-align: center;">Terms Version</th>
@@ -190,7 +177,6 @@ app/views/admin/wholesale_funders/index.html.erb|inline style attribute|<div sty
 app/views/admin/wholesale_funders/index.html.erb|inline style attribute|<h2 style="margin: 0 0 0.5rem 0;">Wholesale Funders Management</h2>
 app/views/admin/wholesale_funders/index.html.erb|inline style attribute|<p class="form-help-text" style="margin: 0;">Global funding allocation and contract management across all jurisdictions<
 app/views/admin/wholesale_funders/new.html.erb|inline style attribute|<div style="max-width: 600px;">
-app/views/admin/wholesale_funders/show.html.erb|<style> block|<style>
 app/views/admin/wholesale_funders/show.html.erb|inline style attribute|<div class="allocation-progress" style="width: <%= @wholesale_funder.capital_allocation_percentage %>%"></div>
 app/views/admin/wholesale_funders/show.html.erb|inline style attribute|<div class="mini-allocation-progress" style="width: <%= pool.allocation_percentage %>%"></div>
 app/views/admin/workflow_forms/_trigger_card.html.erb|<style> block|<style>
