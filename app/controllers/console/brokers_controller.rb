@@ -1,6 +1,6 @@
 class Console::BrokersController < Console::ResourceController
   before_action -> { require_capability(:manage_partners) }
-  before_action :set_broker, only: [ :show, :edit, :update, :toggle_active, :assign_lender, :remove_lender, :toggle_lender, :resend_setup ]
+  before_action :set_broker, only: [ :show, :edit, :update, :activate, :suspend, :reactivate, :assign_lender, :remove_lender, :toggle_lender, :resend_setup ]
 
   resource Broker
   searches "brokers.name", "brokers.email"
@@ -8,13 +8,15 @@ class Console::BrokersController < Console::ResourceController
            created: "brokers.created_at"
   default_sort :name, :asc
   filters jurisdiction: ->(scope, value) { scope.where(jurisdiction: value) },
-          active: ->(scope, value) { scope.where(active: value == "true") }
+          status: ->(scope, value) { scope.where(status: value) }
 
   csv_column("Name") { |b| b.name }
+  csv_column("Firm") { |b| b.firm_name }
   csv_column("Email") { |b| b.email }
   csv_column("Jurisdiction") { |b| b.jurisdiction }
   csv_column("Phone") { |b| b.phone }
-  csv_column("Active") { |b| b.active? ? "yes" : "no" }
+  csv_column("Accreditation") { |b| b.accreditation_ref }
+  csv_column("Status") { |b| b.status }
 
   def show
     @onboarding = Console::PartnerOnboarding.for(@broker)
@@ -26,27 +28,11 @@ class Console::BrokersController < Console::ResourceController
       paid: BrokerCommission.for_broker(@broker).paid.sum(:commission_amount)
     }
     @recent_commissions = BrokerCommission.for_broker(@broker).includes(:application).order(earned_date: :desc).limit(10)
+    @stats = stats_for(@broker)
   end
 
   def scorecard
-    @scorecards = Broker.includes(:applications, :broker_commissions).order(:name).map do |broker|
-      apps = broker.applications
-      submitted = apps.where(status: %w[submitted processing accepted rejected])
-      accepted = apps.where(status: "accepted")
-      last_referral = apps.maximum(:created_at)
-
-      {
-        broker: broker,
-        referrals_30d: apps.where("created_at >= ?", 30.days.ago).count,
-        referrals_90d: apps.where("created_at >= ?", 90.days.ago).count,
-        referrals_365d: apps.where("created_at >= ?", 365.days.ago).count,
-        approval_rate: submitted.count.positive? ? (accepted.count.to_f / submitted.count * 100).round(1) : 0,
-        avg_age_at_decision: average_age_at_decision(apps),
-        commission_earned: broker.broker_commissions.where(status: %w[earned paid]).sum(:commission_amount),
-        last_referral_at: last_referral,
-        dormant: last_referral.nil? || last_referral < 90.days.ago
-      }
-    end
+    @scorecards = Broker.includes(:applications, :broker_commissions).order(:name).map { |broker| stats_for(broker) }
   end
 
   def new
@@ -55,6 +41,7 @@ class Console::BrokersController < Console::ResourceController
 
   def create
     @broker = Broker.new(broker_params)
+    @broker.status = :pending
     # Devise needs a password at create; the broker sets their own via the
     # setup email, so seed an unguessable throwaway.
     @broker.password = SecureRandom.base58(24)
@@ -79,9 +66,20 @@ class Console::BrokersController < Console::ResourceController
     end
   end
 
-  def toggle_active
-    @broker.update(active: !@broker.active)
-    redirect_to console_broker_path(@broker), notice: "Broker #{@broker.active ? 'activated' : 'deactivated'}."
+  # Pending -> active: the go-live step once accreditation + agreement are done.
+  def activate
+    @broker.update!(status: :active)
+    AuditLog.log_action(user: current_user, action: "partner_activated", resource: @broker,
+                        reason: "Broker activated")
+    redirect_to console_broker_path(@broker), notice: "#{@broker.name} is live."
+  end
+
+  def suspend
+    change_status(:suspended)
+  end
+
+  def reactivate
+    change_status(:active)
   end
 
   def assign_lender
@@ -115,6 +113,22 @@ class Console::BrokersController < Console::ResourceController
     Broker.all
   end
 
+  # Same audited status flip with a mandatory reason as lenders/funders.
+  def change_status(new_status)
+    if params[:reason].blank?
+      redirect_to console_broker_path(@broker), alert: "A reason is required — it goes in the audit log." and return
+    end
+
+    @broker.update!(status: new_status)
+    AuditLog.log_action(
+      user: current_user,
+      action: new_status == :suspended ? "partner_suspended" : "partner_reactivated",
+      resource: @broker,
+      reason: params[:reason]
+    )
+    redirect_to console_broker_path(@broker), notice: "#{@broker.name} #{new_status == :suspended ? 'suspended' : 'reactivated'}."
+  end
+
   private
 
   def set_broker
@@ -122,7 +136,28 @@ class Console::BrokersController < Console::ResourceController
   end
 
   def broker_params
-    params.require(:broker).permit(:name, :email, :jurisdiction, :phone, :active)
+    params.require(:broker).permit(:name, :firm_name, :email, :jurisdiction, :phone, :accreditation_ref)
+  end
+
+  # One source of truth for broker performance — the fleet scorecard and the
+  # per-broker page must never disagree.
+  def stats_for(broker)
+    apps = broker.applications
+    submitted = apps.where(status: %w[submitted processing accepted rejected])
+    accepted = apps.where(status: "accepted")
+    last_referral = apps.maximum(:created_at)
+
+    {
+      broker: broker,
+      referrals_30d: apps.where("created_at >= ?", 30.days.ago).count,
+      referrals_90d: apps.where("created_at >= ?", 90.days.ago).count,
+      referrals_365d: apps.where("created_at >= ?", 365.days.ago).count,
+      approval_rate: submitted.count.positive? ? (accepted.count.to_f / submitted.count * 100).round(1) : 0,
+      avg_age_at_decision: average_age_at_decision(apps),
+      commission_earned: broker.broker_commissions.where(status: %w[earned paid]).sum(:commission_amount),
+      last_referral_at: last_referral,
+      dormant: last_referral.nil? || last_referral < 90.days.ago
+    }
   end
 
   def average_age_at_decision(apps)

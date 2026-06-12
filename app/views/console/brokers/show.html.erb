@@ -1,15 +1,12 @@
 <% content_for :title, "#{@broker.name} — FutureProof Console" %>
 
-<%= render Console::PageHeaderComponent.new(title: @broker.name, subtitle: @broker.email) do |header| %>
+<%= render Console::PageHeaderComponent.new(title: @broker.name,
+      subtitle: [ @broker.firm_name.presence, @broker.email ].compact.join(" · ")) do |header| %>
   <% header.with_action do %>
-    <%= render Console::BadgeComponent.new(status: @broker.active? ? "active" : "inactive") %>
+    <%= render Console::BadgeComponent.new(status: @broker.status) %>
   <% end %>
   <% header.with_action do %>
     <%= link_to "Edit", edit_console_broker_path(@broker), class: "console-btn console-btn-secondary" %>
-  <% end %>
-  <% header.with_action do %>
-    <%= button_to @broker.active? ? "Deactivate" : "Activate", toggle_active_console_broker_path(@broker),
-          method: :patch, class: "console-btn console-btn-secondary" %>
   <% end %>
   <% header.with_action do %>
     <%= button_to "Resend setup email", resend_setup_console_broker_path(@broker), method: :post,
@@ -19,20 +16,43 @@
 <% end %>
 
 <%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      accreditation: edit_console_broker_path(@broker),
       agreement: new_console_agreement_path(party_type: "Broker", agreeable_id: @broker.id),
       lender_access: "#lender-assignments",
-      commission: console_lenders_path
+      commission: console_lenders_path,
+      live: "#lifecycle"
     } %>
 
 <%= render "console/shared/partner_agreements", partner: @broker, party_type: "Broker" %>
 
 <%= render Console::CardComponent.new(title: "Details") do %>
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Firm" => @broker.firm_name.presence || "Sole operator",
+        "Accreditation ref" => @broker.accreditation_ref.presence || "Not recorded",
+        "Status" => @broker.status.humanize,
         "Email" => @broker.email,
         "Phone" => @broker.phone,
         "Jurisdiction" => @broker.jurisdiction,
         "Joined" => @broker.created_at.strftime("%-d %b %Y")
       }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Performance") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "Fleet scorecard", scorecard_console_brokers_path, class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Referrals (30d)" => @stats[:referrals_30d],
+        "Referrals (90d)" => @stats[:referrals_90d],
+        "Referrals (365d)" => @stats[:referrals_365d],
+        "Approval rate" => "#{@stats[:approval_rate]}%",
+        "Avg days to decision" => @stats[:avg_age_at_decision],
+        "Commission earned" => number_to_currency(@stats[:commission_earned], precision: 2),
+        "Last referral" => @stats[:last_referral_at] ? "#{time_ago_in_words(@stats[:last_referral_at])} ago" : "Never"
+      }) %>
+  <% if @stats[:dormant] %>
+    <p class="console-muted">Dormant — no referrals in the last 90 days.</p>
+  <% end %>
 <% end %>
 
 <div id="lender-assignments"></div>
@@ -120,5 +140,34 @@
     </ul>
   <% else %>
     <p class="console-muted">No referrals yet.</p>
+  <% end %>
+<% end %>
+
+<div id="lifecycle"></div>
+<%= render Console::CardComponent.new(title: "Lifecycle") do %>
+  <% if @broker.status_pending? %>
+    <p class="console-muted">Pending — not yet live. Activate once accreditation and the agreement are in place.</p>
+    <%= button_to "Go live", activate_console_broker_path(@broker), method: :patch,
+          class: "console-btn console-btn-success",
+          data: { turbo_confirm: "Activate #{@broker.name}? They can sign in and refer immediately." } %>
+  <% elsif @broker.status_suspended? %>
+    <div class="console-flash console-flash-error">Suspended — existing applications continue; no new referrals.</div>
+    <%= form_with url: reactivate_console_broker_path(@broker), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Reactivate", class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Reactivate #{@broker.name}?" } %>
+    <% end %>
+  <% else %>
+    <%= form_with url: suspend_console_broker_path(@broker), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Suspend broker", class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Suspend #{@broker.name}? Existing applications continue; no new referrals. Records and history remain." } %>
+    <% end %>
   <% end %>
 <% end %>

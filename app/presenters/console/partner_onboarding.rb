@@ -120,13 +120,13 @@ class Console::PartnerOnboarding
 
   def broker_steps
     [
-      agreement_executed_step,
       Step.new(
-        key: :login,
-        label: "Login active",
-        done: partner.active?,
-        hint: "The broker account must be active to sign in."
+        key: :accreditation,
+        label: "Accreditation recorded",
+        done: partner.accreditation_ref.present?,
+        hint: "Record the broker's accreditation reference — checked manually, no automated registry lookup."
       ),
+      agreement_executed_step,
       Step.new(
         key: :lender_access,
         label: "Lender assigned",
@@ -138,6 +138,12 @@ class Console::PartnerOnboarding
         label: "Commission rate set",
         done: BrokerCommissionRate.where(broker: partner, active: true).exists?,
         hint: "Configure an active commission rate on the lender."
+      ),
+      Step.new(
+        key: :live,
+        label: "Live — account active",
+        done: partner.status_active?,
+        hint: "Activate the broker once accreditation and the agreement are in place."
       )
     ]
   end

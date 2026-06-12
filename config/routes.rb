@@ -90,7 +90,9 @@ Rails.application.routes.draw do
         get :scorecard
       end
       member do
-        patch :toggle_active
+        patch :activate
+        patch :suspend
+        patch :reactivate
         post :assign_lender
         delete :remove_lender
         patch :toggle_lender

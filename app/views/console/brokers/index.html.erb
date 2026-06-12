@@ -14,11 +14,11 @@
       search_value: params[:search], search_placeholder: "Name or email…",
       clear_url: console_brokers_path) do |bar| %>
   <% bar.with_select(:jurisdiction, options: %w[AU US NZ UK], selected: params[:jurisdiction]) %>
-  <% bar.with_select(:active, options: [ [ "Active", "true" ], [ "Inactive", "false" ] ], selected: params[:active], label: "Status") %>
+  <% bar.with_select(:status, options: [ [ "Pending", "pending" ], [ "Active", "active" ], [ "Suspended", "suspended" ] ], selected: params[:status], label: "Status") %>
 <% end %>
 
 <%= render Console::DataTableComponent.new(records: @records, id: "brokers",
-      csv_path: console_brokers_path(format: :csv, search: params[:search], jurisdiction: params[:jurisdiction], active: params[:active]),
+      csv_path: console_brokers_path(format: :csv, search: params[:search], jurisdiction: params[:jurisdiction], status: params[:status]),
       empty_message: "No brokers match those filters.") do |table| %>
   <% table.with_column "Name", sort: "name" do |broker| %>
     <%= link_to broker.name, console_broker_path(broker) %>
@@ -34,7 +34,7 @@
     <%= render Console::BadgeComponent.new(status: onboarding.complete? ? "active" : "in_progress", label: onboarding.progress_label) %>
   <% end %>
   <% table.with_column "Status" do |broker| %>
-    <%= render Console::BadgeComponent.new(status: broker.active? ? "active" : "inactive") %>
+    <%= render Console::BadgeComponent.new(status: broker.status) %>
   <% end %>
   <% table.with_column "Joined", sort: "created" do |broker| %>
     <%= broker.created_at.strftime("%-d %b %Y") %>
