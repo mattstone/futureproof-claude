@@ -18,12 +18,12 @@ related << ["📄 Contract ##{@application.contract.id}", admin_contract_path(@a
 <%= render 'admin/shared/related_records', links: related %>
 
 <div class="admin-tabs">
-  <nav class="admin-tab-nav">
-    <a href="#details" class="admin-tab active" data-tab="details">Details</a>
-    <a href="#documents" class="admin-tab" data-tab="documents">Documents <span class="tab-badge"><%= @outstanding_docs_count if @outstanding_docs_count.to_i > 0 %></span></a>
-    <a href="#messages" class="admin-tab" data-tab="messages">Messages <span class="tab-badge"><%= @unread_messages_count if @unread_messages_count.to_i > 0 %></span></a>
-    <a href="#agent-activity" class="admin-tab" data-tab="agent-activity">Agent Activity <span class="tab-badge"><%= @agent_actions.size if @agent_actions.present? && @agent_actions.size > 0 %></span></a>
-    <a href="#history" class="admin-tab" data-tab="history">History</a>
+  <nav class="admin-tab-nav" role="tablist">
+    <a href="#details" class="admin-tab active" role="tab" aria-selected="true" data-tab="details">Details</a>
+    <a href="#documents" class="admin-tab" role="tab" aria-selected="false" data-tab="documents">Documents <span class="tab-badge"><%= @outstanding_docs_count if @outstanding_docs_count.to_i > 0 %></span></a>
+    <a href="#messages" class="admin-tab" role="tab" aria-selected="false" data-tab="messages">Messages <span class="tab-badge"><%= @unread_messages_count if @unread_messages_count.to_i > 0 %></span></a>
+    <a href="#agent-activity" class="admin-tab" role="tab" aria-selected="false" data-tab="agent-activity">Agent Activity <span class="tab-badge"><%= @agent_actions.size if @agent_actions.present? && @agent_actions.size > 0 %></span></a>
+    <a href="#history" class="admin-tab" role="tab" aria-selected="false" data-tab="history">History</a>
   </nav>
 
   <!-- Tab 1: Details -->

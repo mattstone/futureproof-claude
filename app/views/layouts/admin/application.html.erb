@@ -28,7 +28,7 @@
           <% end %>
         </div>
 
-        <nav class="admin-nav" data-turbo-frame="admin_main">
+        <nav class="admin-nav" role="navigation" aria-label="Admin sections" data-turbo-frame="admin_main">
           <%= link_to admin_root_path, class: "admin-nav-link #{'active' if controller_name == 'dashboard'}", data: { admin_nav_target: "link" } do %>
             <span>📊 Dashboard</span>
           <% end %>
