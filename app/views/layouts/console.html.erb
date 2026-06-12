@@ -9,6 +9,7 @@
 
     <%= stylesheet_link_tag "design_system", "console", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= yield :head %>
   </head>
 
   <body class="console-body">

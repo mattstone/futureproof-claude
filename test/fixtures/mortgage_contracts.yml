@@ -1,0 +1,19 @@
+io_draft_contract:
+  mortgage: interest_only
+  title: "Mortgage Contract"
+  content: "## 1. Introduction\n\nDraft contract wording for testing.\n"
+  version: 901
+  last_updated: <%= 1.week.ago %>
+  is_draft: true
+  is_active: false
+  created_by: admin_user
+
+io_active_contract:
+  mortgage: interest_only
+  title: "Mortgage Contract"
+  content: "## 1. Introduction\n\nActive published contract wording.\n"
+  version: 902
+  last_updated: <%= 1.month.ago %>
+  is_draft: false
+  is_active: true
+  created_by: admin_user

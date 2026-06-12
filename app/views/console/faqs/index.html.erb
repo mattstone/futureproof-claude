@@ -1,0 +1,30 @@
+<% content_for :title, "FAQs — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "FAQs",
+      subtitle: "Customer-facing questions per jurisdiction — use the region switcher to scope.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "New FAQ", new_console_faq_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @total_faqs, label: "Total") %>
+  <%= render Console::StatCardComponent.new(value: @published_faqs, label: "Published", variant: :success) %>
+  <%= render Console::StatCardComponent.new(value: @draft_faqs, label: "Drafts") %>
+</div>
+
+<%= render Console::DataTableComponent.new(records: @faqs, id: "faqs",
+      empty_message: "No FAQs for this jurisdiction yet.") do |table| %>
+  <% table.with_column "Question" do |faq| %>
+    <%= link_to faq.question, edit_console_faq_path(faq) %>
+  <% end %>
+  <% table.with_column "Jurisdiction" do |faq| %>
+    <%= faq.jurisdiction %>
+  <% end %>
+  <% table.with_column "Status" do |faq| %>
+    <%= render Console::BadgeComponent.new(status: faq.published? ? "published" : "draft") %>
+  <% end %>
+  <% table.with_column "Position", numeric: true do |faq| %>
+    <%= faq.position %>
+  <% end %>
+<% end %>

@@ -10,7 +10,12 @@ module Console
     ].freeze
 
     TABLE_RULE = [ /<table\b/i, "raw <table> — use Console::DataTableComponent" ].freeze
-    TABLE_EXEMPT = %w[data_table_component.html.erb].freeze
+    # data_table: the component's own template. calculators: the Monte Carlo
+    # Stimulus controller injects rows client-side, which DataTable can't host.
+    TABLE_EXEMPT = %w[
+      app/components/console/data_table_component.html.erb
+      app/views/console/calculators/index.html.erb
+    ].freeze
 
     # The single sanctioned link back to /admin during the parallel run.
     ADMIN_PATH_EXEMPT = %w[_nav.html.erb].freeze
@@ -37,7 +42,7 @@ module Console
         found << "#{file}: #{message}" if content.match?(pattern)
       end
 
-      unless TABLE_EXEMPT.include?(basename)
+      unless TABLE_EXEMPT.include?(file)
         found << "#{file}: #{TABLE_RULE.last}" if content.match?(TABLE_RULE.first)
       end
 

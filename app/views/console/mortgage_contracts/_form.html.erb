@@ -1,0 +1,18 @@
+<%= form_with model: @mortgage_contract, url: url, method: method, scope: :mortgage_contract, class: "console-form" do |form| %>
+  <% if @mortgage_contract.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @mortgage_contract.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :title, required: true) do %>
+    <%= form.text_field :title, class: "console-input", required: true %>
+  <% end %>
+  <div class="console-field">
+    <%= form.label :content, "Content (simple markup: ## headings, - bullets, **bold**)", class: "console-field-label" %>
+    <%= form.text_area :content, rows: 24, class: "console-textarea", required: true %>
+  </div>
+
+  <div class="console-message-actions">
+    <%= form.submit submit_label, class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", console_mortgage_path(@mortgage), class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

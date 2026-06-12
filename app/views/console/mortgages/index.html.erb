@@ -1,0 +1,35 @@
+<% content_for :title, "Mortgages — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Mortgages",
+      subtitle: "EPM product definitions and their contract documents.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "New mortgage", new_console_mortgage_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::FilterBarComponent.new(url: console_mortgages_path,
+      search_value: params[:search], search_placeholder: "Name…",
+      clear_url: console_mortgages_path) do |bar| %>
+  <% bar.with_select(:status, options: Mortgage.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
+  <% bar.with_select(:mortgage_type, options: Mortgage.mortgage_types.keys.map { |k| [ k.humanize, k ] }, selected: params[:mortgage_type], label: "Type") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "mortgages",
+      csv_path: console_mortgages_path(format: :csv, search: params[:search], status: params[:status]),
+      empty_message: "No mortgages match those filters.") do |table| %>
+  <% table.with_column "Name", sort: "name" do |mortgage| %>
+    <%= link_to mortgage.name, console_mortgage_path(mortgage) %>
+  <% end %>
+  <% table.with_column "Type" do |mortgage| %>
+    <%= mortgage.mortgage_type_display %>
+  <% end %>
+  <% table.with_column "LVR", numeric: true do |mortgage| %>
+    <%= mortgage.lvr %>%
+  <% end %>
+  <% table.with_column "Status" do |mortgage| %>
+    <%= render Console::BadgeComponent.new(status: mortgage.status) %>
+  <% end %>
+  <% table.with_column "Lenders", numeric: true do |mortgage| %>
+    <%= mortgage.active_lenders.size %>
+  <% end %>
+<% end %>

@@ -1,0 +1,23 @@
+<%= form_with model: [ :console, @faq ], class: "console-form" do |form| %>
+  <% if @faq.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @faq.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :jurisdiction) do %>
+    <%= form.select :jurisdiction, %w[AU US NZ UK], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :question, required: true) do %>
+    <%= form.text_field :question, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :answer, required: true) do %>
+    <%= form.text_area :answer, rows: 8, class: "console-textarea", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :published) do %>
+    <%= form.check_box :published, class: "console-checklist-checkbox" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @faq.persisted? ? "Save changes" : "Create FAQ", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", console_faqs_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

@@ -1,0 +1,76 @@
+<% content_for :title, "Contract v#{@mortgage_contract.version} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "#{@mortgage_contract.title} (v#{@mortgage_contract.version})",
+      subtitle: @mortgage.name) do |header| %>
+  <% header.with_action do %>
+    <% if @mortgage_contract.is_active? %>
+      <%= render Console::BadgeComponent.new(status: "active") %>
+    <% elsif @mortgage_contract.draft? %>
+      <%= render Console::BadgeComponent.new(status: "draft") %>
+    <% else %>
+      <%= render Console::BadgeComponent.new(status: "published") %>
+    <% end %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% if @mortgage_contract.draft? %>
+    <% header.with_action do %>
+      <%= button_to "Publish", publish_console_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract),
+            method: :patch, class: "console-btn console-btn-primary",
+            data: { turbo_confirm: "Publish this version? Published versions are immutable." } %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% related.with_item(@mortgage.name, href: console_mortgage_path(@mortgage), meta: "mortgage") %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Lender clauses") do %>
+  <% if @active_usages.any? %>
+    <ul class="console-doc-list">
+      <% @active_usages.each do |usage| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= usage.lender_clause.title %></strong>
+            <span class="console-cell-sub"><%= usage.lender_clause.lender.name %> · position: <%= usage.clause_position.name %></span>
+          </div>
+          <div class="console-doc-actions">
+            <%= button_to "Remove", remove_console_mortgage_mortgage_contract_contract_clauses_path(@mortgage, @mortgage_contract, clause_position_id: usage.clause_position_id),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "Remove this clause from the contract?" } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No lender clauses attached.</p>
+  <% end %>
+
+  <% if @available_clauses.any? && @clause_positions.any? %>
+    <%= form_with url: console_mortgage_mortgage_contract_contract_clauses_path(@mortgage, @mortgage_contract), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="lender_clause_id">Clause</label>
+        <%= select_tag :lender_clause_id,
+              options_from_collection_for_select(@available_clauses, :id, ->(c) { "#{c.lender.name} — #{c.title}" }),
+              prompt: "Select clause…", class: "console-select" %>
+      </div>
+      <div class="console-field">
+        <label class="console-field-label" for="clause_position_id">Position</label>
+        <%= select_tag :clause_position_id,
+              options_from_collection_for_select(@clause_positions, :id, :name),
+              prompt: "Select position…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Add clause", class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Document") do %>
+  <div class="console-clause-preview"><%= @mortgage_contract.content %></div>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @audit_history) %>
+<% end %>

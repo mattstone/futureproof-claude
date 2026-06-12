@@ -1,0 +1,23 @@
+<%= form_with model: [ :console, @mortgage ], class: "console-form" do |form| %>
+  <% if @mortgage.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @mortgage.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :mortgage_type, label: "Type") do %>
+    <%= form.select :mortgage_type, Mortgage.mortgage_types.keys.map { |k| [ k.humanize, k ] }, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :lvr, label: "LVR %") do %>
+    <%= form.number_field :lvr, step: 1, min: 1, max: 100, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :status) do %>
+    <%= form.select :status, Mortgage.statuses.keys.map { |k| [ k.humanize, k ] }, {}, class: "console-select" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @mortgage.persisted? ? "Save changes" : "Create mortgage", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @mortgage.persisted? ? console_mortgage_path(@mortgage) : console_mortgages_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

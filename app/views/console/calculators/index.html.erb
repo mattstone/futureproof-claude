@@ -1,0 +1,256 @@
+<% content_for :title, "Calculator — FutureProof Console" %>
+<% content_for :head do %>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+<% end %>
+
+<%= render Console::PageHeaderComponent.new(title: "Monte Carlo calculator",
+      subtitle: "Single-mortgage EPM model with Monte Carlo pricing — Python engine, same parameters as the legacy tool.") %>
+
+<div data-controller="monte-carlo-calculator">
+  <%= form_with url: console_calculate_calculators_path,
+        data: { action: "submit->monte-carlo-calculator#calculate", "monte-carlo-calculator-target": "form" } do |f| %>
+
+    <div class="console-calc-grid">
+      <%= render Console::CardComponent.new(title: "Borrower") do %>
+        <div class="console-field">
+          <label class="console-field-label">House value $</label>
+          <%= f.number_field "calculator[house_value]", class: "console-input", value: 1_500_000, min: 1_000_000, max: 3_000_000, step: 1000 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Loan term (years)</label>
+          <%= f.select "calculator[loan_duration]", options_for_select([ [ "15 years", 15 ], [ "20 years", 20 ], [ "25 years", 25 ], [ "30 years", 30 ] ], 30), {}, { class: "console-select", data: { action: "change->monte-carlo-calculator#validateTerms" } } %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Annuity duration (years)</label>
+          <%= f.select "calculator[annuity_duration]", options_for_select([ [ "10 years", 10 ], [ "15 years", 15 ], [ "20 years", 20 ], [ "25 years", 25 ], [ "30 years", 30 ] ], 10), {}, { class: "console-select", data: { action: "change->monte-carlo-calculator#validateTerms" } } %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Loan type</label>
+          <%= f.select "calculator[loan_type]", options_for_select([ "Interest only", "Principal+Interest", "Hybrid" ], "Interest only"), {}, { class: "console-select" } %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">
+            <%= f.check_box "calculator[principal_repayment]", class: "console-checklist-checkbox" %>
+            Principal repayment
+          </label>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Loan-to-value %</label>
+          <%= f.number_field "calculator[loan_to_value]", class: "console-input", value: 80, min: 10, max: 100, step: 5 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Annual income $</label>
+          <%= f.number_field "calculator[annual_income]", class: "console-input", value: 30_000, min: 1000, max: 50_000, step: 500 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">At-risk capital fraction %</label>
+          <%= f.number_field "calculator[at_risk_captital_fraction]", class: "console-input", value: 0, min: 0, max: 100, step: 0.01 %>
+        </div>
+      <% end %>
+
+      <%= render Console::CardComponent.new(title: "Economic assumptions") do %>
+        <div class="console-field">
+          <label class="console-field-label">Equity return %</label>
+          <%= f.number_field "calculator[equity_return]", class: "console-input", value: 9.75, min: 5, max: 15, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Volatility %</label>
+          <%= f.number_field "calculator[volatility]", class: "console-input", value: 15, min: 0, max: 30, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Paths</label>
+          <%= f.number_field "calculator[total_paths]", class: "console-input", value: 1000, min: 1, max: 20_000, step: 1 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Random seed</label>
+          <%= f.number_field "calculator[random_seed]", class: "console-input", value: 0, min: 0, max: 9999, step: 1 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Cash rate %</label>
+          <%= f.number_field "calculator[cash_rate]", class: "console-input", value: 4.0, min: 0, max: 10, step: 0.01 %>
+        </div>
+        <div class="console-field" data-monte-carlo-calculator-target="insurerProfitMargin">
+          <label class="console-field-label">Insurer profit margin %</label>
+          <%= f.number_field "calculator[insurer_profit_margin]", class: "console-input", value: 50, min: 0, max: 200, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">
+            <%= f.check_box "calculator[hedged]", class: "console-checklist-checkbox", data: { action: "change->monte-carlo-calculator#toggleHedged" } %>
+            Hedged
+          </label>
+        </div>
+        <div class="console-field" data-monte-carlo-calculator-target="hedgingCost" hidden>
+          <label class="console-field-label">Hedging costs p.a. %</label>
+          <%= f.number_field "calculator[hedging_cost_pa]", class: "console-input", value: 0.5, min: 0, max: 5, step: 0.05 %>
+        </div>
+        <div class="console-field" data-monte-carlo-calculator-target="hedgingMaxLoss" hidden>
+          <label class="console-field-label">Max loss p.a. %</label>
+          <%= f.number_field "calculator[hedging_max_loss]", class: "console-input", value: 10, min: 0, max: 50, step: 1 %>
+        </div>
+        <div class="console-field" data-monte-carlo-calculator-target="hedgingCap" hidden>
+          <label class="console-field-label">Cap p.a. %</label>
+          <%= f.number_field "calculator[hedging_cap]", class: "console-input", value: 20, min: 0, max: 50, step: 1 %>
+        </div>
+      <% end %>
+
+      <%= render Console::CardComponent.new(title: "Loan") do %>
+        <div class="console-field">
+          <label class="console-field-label">Wholesale lending margin %</label>
+          <%= f.number_field "calculator[wholesale_lending_margin]", class: "console-input", value: 2, min: 0, max: 4, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Additional loan margins %</label>
+          <%= f.number_field "calculator[additional_loan_margins]", class: "console-input", value: 1.25, min: 0, max: 4, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Holiday enter fraction %</label>
+          <%= f.number_field "calculator[holiday_enter_fraction]", class: "console-input", value: 1.35, min: 0, max: 4, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Holiday exit fraction %</label>
+          <%= f.number_field "calculator[holiday_exit_fraction]", class: "console-input", value: 1.95, min: 0, max: 4, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Subperform threshold (quarters)</label>
+          <%= f.number_field "calculator[subperform_loan_threshold_quarters]", class: "console-input", value: 6, min: 0, max: 40, step: 1 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Deficit repay amount factor</label>
+          <%= f.number_field "calculator[max_superpay_factor]", class: "console-input", value: 1.261, min: 0, max: 4, step: 0.001 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Deficit repay start factor</label>
+          <%= f.number_field "calculator[superpay_start_factor]", class: "console-input", value: 1.50, min: 1.0, max: 4, step: 0.01 %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">
+            <%= f.check_box "calculator[enable_pool]", class: "console-checklist-checkbox" %>
+            Enable shared pool
+          </label>
+        </div>
+      <% end %>
+    </div>
+
+    <%= render Console::CardComponent.new do %>
+      <div class="console-message-actions">
+        <%= f.submit "Calculate", class: "console-btn console-btn-primary", data: { "monte-carlo-calculator-target": "submitBtn" } %>
+        <span class="console-muted" hidden data-monte-carlo-calculator-target="spinner">Running simulation…</span>
+      </div>
+      <div hidden data-monte-carlo-calculator-target="loadingOverlay">
+        <p class="console-muted">Monte Carlo simulation in progress…</p>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div hidden data-monte-carlo-calculator-target="results">
+    <%= render Console::CardComponent.new(title: "Key metrics") do %>
+      <div class="console-stat-grid" data-monte-carlo-calculator-target="metricsGrid">
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="expectedValue">--</span>
+          <span class="console-stat-label">Expected return</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="worstCase">--</span>
+          <span class="console-stat-label">Worst case (5%)</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="medianValue">--</span>
+          <span class="console-stat-label">Median</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="bestCase">--</span>
+          <span class="console-stat-label">Best case (95%)</span>
+        </div>
+      </div>
+    <% end %>
+
+    <%= render Console::CardComponent.new(title: "Portfolio performance") do %>
+      <div class="console-calc-charts">
+        <div>
+          <h4 class="console-chart-title">Portfolio value paths</h4>
+          <div data-monte-carlo-calculator-target="portfolioChart" class="chart-canvas"></div>
+        </div>
+        <div>
+          <h4 class="console-chart-title">Return distribution</h4>
+          <div data-monte-carlo-calculator-target="distributionChart" class="chart-canvas chart-canvas-small"></div>
+        </div>
+        <div>
+          <h4 class="console-chart-title">S&amp;P 500 price simulations</h4>
+          <div data-monte-carlo-calculator-target="sp500Chart" class="chart-canvas"></div>
+        </div>
+        <div>
+          <h4 class="console-chart-title">Reinvestment, loan &amp; interest deficit</h4>
+          <div data-monte-carlo-calculator-target="loanDeficitChart" class="chart-canvas"></div>
+        </div>
+        <div>
+          <h4 class="console-chart-title">Hedged, insured &amp; pooled units</h4>
+          <div data-monte-carlo-calculator-target="unitsChart" class="chart-canvas"></div>
+        </div>
+        <div>
+          <h4 class="console-chart-title">Cumulative financial flows</h4>
+          <div data-monte-carlo-calculator-target="cumulativeChart" class="chart-canvas"></div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= render Console::CardComponent.new(title: "Risk analysis") do %>
+      <div class="console-stat-grid" data-monte-carlo-calculator-target="riskAnalysis">
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="varValue">--</span>
+          <span class="console-stat-label">Value at risk (5%)</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="lossProb">--</span>
+          <span class="console-stat-label">Probability of loss</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="volatilityMetric">--</span>
+          <span class="console-stat-label">Volatility</span>
+        </div>
+        <div class="console-stat">
+          <span class="console-stat-value" data-monte-carlo-calculator-target="sharpeRatio">--</span>
+          <span class="console-stat-label">Sharpe ratio</span>
+        </div>
+      </div>
+    <% end %>
+
+    <%= render Console::CardComponent.new(title: "Main outputs") do %>
+      <div class="console-table-wrap">
+        <table class="console-calc-table" data-monte-carlo-calculator-target="mainOutputTable">
+          <thead>
+            <tr>
+              <th>Quantity</th><th>Formula</th><th>Expected value</th><th>Worse path value</th>
+              <th>Bad path value</th><th>Median path value</th><th>Good path value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7" class="console-table-empty">No data yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <%= render Console::CardComponent.new(title: "Path analysis") do %>
+      <div class="console-field">
+        <label class="console-field-label" for="path_table_type">Path output</label>
+        <%= select_tag :path_table_type,
+              options_for_select([ "Mean", "Median", "2% percentile", "25% percentile", "75% percentile" ], "Mean"),
+              class: "console-select",
+              data: { action: "change->monte-carlo-calculator#updatePathTable" } %>
+      </div>
+      <div class="console-table-wrap">
+        <table class="console-calc-table" data-monte-carlo-calculator-target="pathTable">
+          <thead>
+            <tr>
+              <th>Period</th><th>SP500</th><th>Interest</th><th>Loan size</th><th>Units</th><th>Reinvestment</th>
+              <th>InterestDeficit</th><th>CapitalDeficit</th><th>Surplus</th><th>FunderEarned</th><th>AnnuityIncome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="11" class="console-table-empty">No data yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>

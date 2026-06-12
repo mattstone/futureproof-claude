@@ -1,0 +1,5 @@
+<% content_for :title, "New contract version — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "New contract version", subtitle: @mortgage.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_mortgage_mortgage_contracts_path(@mortgage), method: :post, submit_label: "Create draft" %>
+<% end %>

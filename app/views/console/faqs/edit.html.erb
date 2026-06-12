@@ -1,0 +1,5 @@
+<% content_for :title, "Edit FAQ — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit FAQ", subtitle: @faq.question) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form" %>
+<% end %>
