@@ -7,10 +7,11 @@
 <% end %>
 
 <%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      licence: edit_console_lender_path(@lender),
       agreement: new_console_agreement_path(party_type: "Lender", agreeable_id: @lender.id),
       admin_user: "#invite-admin",
       funding: "#wholesale-funders",
-      product: console_mortgages_path
+      product: "#products"
     } %>
 
 <%= render "console/shared/partner_agreements", partner: @lender, party_type: "Lender" %>
@@ -19,10 +20,82 @@
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
         "Type" => @lender.lender_type.humanize,
         "Country" => @lender.country,
+        "Licence ref (#{RegionHelper::REGIONS_CONFIG.dig(@lender.country.downcase, 'regulatory_body') || 'regulator'})" =>
+          @lender.licence_ref.presence || "Not recorded",
         "Address" => [ @lender.address, @lender.postcode ].compact.join(", "),
+        "Contact" => @lender.contact_name,
         "Contact email" => @lender.contact_email,
         "Phone" => [ @lender.contact_telephone_country_code, @lender.contact_telephone ].compact.join(" ")
       }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Book") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Pool capacity" => number_to_currency(@capacity[:capacity], precision: 0),
+        "Allocated" => number_to_currency(@capacity[:allocated], precision: 0),
+        "Utilisation" => "#{@capacity[:utilisation]}%",
+        "Weighted cost of capital" => "#{@capacity[:weighted_cost_of_capital]}%",
+        "Active contracts" => @capacity[:active_contracts],
+        "Total contracts" => @capacity[:total_contracts],
+        "Applications in pipeline" => @pipeline_counts.except("rejected").values.sum,
+        "Accepted to date" => (@pipeline_counts["accepted"] || 0) + (@pipeline_counts["activated"] || 0)
+      }) %>
+
+  <% if @recent_applications.any? %>
+    <h3 class="console-card-subtitle">Recent applications</h3>
+    <ul class="console-doc-list">
+      <% @recent_applications.each do |application| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Application ##{application.id}", console_application_path(application) %></strong>
+            <span class="console-cell-sub"><%= application.user.display_name %> · <%= application.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: application.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No applications yet — the book starts once the lender originates.</p>
+  <% end %>
+<% end %>
+
+<div id="products"></div>
+<%= render Console::CardComponent.new(title: "Products offered") do %>
+  <% if @product_relationships.any? %>
+    <ul class="console-doc-list">
+      <% @product_relationships.each do |relationship| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to relationship.mortgage.name, console_mortgage_path(relationship.mortgage) %></strong>
+            <span class="console-cell-sub"><%= relationship.mortgage.mortgage_type.humanize %> · LVR <%= relationship.mortgage.lvr %>%</span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+            <%= button_to relationship.active? ? "Deactivate" : "Activate",
+                  toggle_active_console_mortgage_mortgage_lender_path(relationship.mortgage, relationship),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to "Remove", console_mortgage_mortgage_lender_path(relationship.mortgage, relationship),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "#{@lender.name} no longer offers #{relationship.mortgage.name}?" } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No products offered yet — attach a mortgage product so the lender can originate.</p>
+  <% end %>
+
+  <% if @available_mortgages.any? %>
+    <%= form_with url: add_product_console_lender_path(@lender), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="mortgage_id">Add product</label>
+        <%= select_tag :mortgage_id,
+              options_from_collection_for_select(@available_mortgages, :id, ->(m) { "#{m.name} (LVR #{m.lvr}%)" }),
+              prompt: "Select product…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Add", class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% end %>
 <% end %>
 
 <div id="wholesale-funders"></div>
@@ -140,6 +213,30 @@
     </ul>
   <% else %>
     <p class="console-muted">No commission rates configured.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Broker channel") do %>
+  <% if @broker_relationships.any? %>
+    <ul class="console-doc-list">
+      <% @broker_relationships.each do |relationship| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to relationship.broker.name, console_broker_path(relationship.broker) %></strong>
+            <span class="console-cell-sub">
+              <%= pluralize(@broker_referral_counts[relationship.broker_id] || 0, "referral") %>
+              <% if relationship.access_level.present? %> · access: <%= relationship.access_level.humanize %><% end %>
+            </span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+            <%= link_to "Manage", console_broker_path(relationship.broker), class: "console-btn console-btn-sm console-btn-secondary" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No brokers assigned — assignments are made from each broker's page.</p>
   <% end %>
 <% end %>
 

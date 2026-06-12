@@ -22,14 +22,14 @@ class Console::PartnerOnboardingTest < ActionDispatch::IntegrationTest
   test "complete partner reads Active" do
     onboarding = Console::PartnerOnboarding.for(lenders(:futureproof))
     assert_equal "Active", onboarding.progress_label if onboarding.complete?
-    assert_match(/Active|Onboarding \d\/4/, onboarding.progress_label)
+    assert_match(/Active|Onboarding \d\/5/, onboarding.progress_label)
   end
 
   # --- Show pages ----------------------------------------------------------------
 
   test "all three partner pages render the onboarding checklist and agreements" do
     get console_lender_path(@lender)
-    assert_select ".console-onboarding-step", count: 4
+    assert_select ".console-onboarding-step", count: 5
     assert_select ".console-card-title", text: "Agreements"
     assert_select ".console-card-title", text: "Lender admin users"
 
@@ -84,7 +84,7 @@ class Console::PartnerOnboardingTest < ActionDispatch::IntegrationTest
   test "partner indexes show the onboarding stage" do
     get console_lenders_path
     assert_select "th", text: "Onboarding"
-    assert_select ".console-badge", text: /Onboarding \d\/4|Active partner|Active/
+    assert_select ".console-badge", text: /Onboarding \d\/\d|Active partner|Active/
 
     get console_brokers_path
     assert_select "th", text: "Onboarding"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -905,12 +905,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_090000) do
   create_table "lenders", force: :cascade do |t|
     t.text "address"
     t.string "contact_email", null: false
+    t.string "contact_name"
     t.string "contact_telephone"
     t.string "contact_telephone_country_code", default: "+61"
     t.string "country", default: "Australia", null: false
     t.datetime "created_at", null: false
     t.text "custom_clause_content"
     t.integer "lender_type", null: false
+    t.string "licence_ref"
     t.string "name", null: false
     t.string "postcode"
     t.integer "status", default: 0, null: false

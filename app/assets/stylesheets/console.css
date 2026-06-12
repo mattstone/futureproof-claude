@@ -426,6 +426,15 @@
   color: var(--fp-text-primary);
 }
 
+/* Section heading inside a card body (e.g. "Recent applications" in Book) */
+.console-card-subtitle {
+  margin: var(--fp-space-lg) 0 var(--fp-space-sm);
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-base);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+}
+
 /* ---- Stat card link & variants ------------------------------------------ */
 
 .console-stat-link {

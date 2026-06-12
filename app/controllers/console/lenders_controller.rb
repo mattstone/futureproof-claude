@@ -37,7 +37,29 @@ class Console::LendersController < Console::ResourceController
     @available_wholesale_funders = WholesaleFunder.status_active.where.not(id: @lender.wholesale_funders.select(:id)).order(:name)
     @available_pools = available_pools_for(@lender)
     @commission_rates = @lender.broker_commission_rates.includes(:broker).order(created_at: :desc)
+    @product_relationships = @lender.mortgage_lenders.includes(:mortgage).order("mortgages.name")
+    @available_mortgages = Mortgage.where.not(id: @lender.mortgage_ids).order(:name)
+    @broker_relationships = @lender.broker_lenders.includes(:broker).order("brokers.name")
+    @broker_referral_counts = @lender.applications.where.not(broker_id: nil).group(:broker_id).count
+    @capacity = scorecard_for(@lender)
+    @pipeline_counts = @lender.applications.group(:status).count
+    @recent_applications = @lender.applications.includes(:user).order(created_at: :desc).limit(8)
     @versions = collect_all_lender_versions
+  end
+
+  # Lender-side product assignment; toggle/remove reuse the mortgage-side
+  # controller, which redirects back to whichever page the action came from.
+  def add_product
+    @lender = Lender.find(params[:id])
+    mortgage = Mortgage.find(params[:mortgage_id])
+    relationship = MortgageLender.new(mortgage: mortgage, lender: @lender, active: true)
+    relationship.current_user = current_user if relationship.respond_to?(:current_user=)
+
+    if relationship.save
+      redirect_to console_lender_path(@lender), notice: "#{@lender.name} now offers #{mortgage.name}."
+    else
+      redirect_to console_lender_path(@lender), alert: relationship.errors.full_messages.to_sentence
+    end
   end
 
   def scorecard
@@ -257,6 +279,7 @@ class Console::LendersController < Console::ResourceController
 
   def lender_params
     params.require(:lender).permit(:lender_type, :name, :address, :postcode, :country,
-                                   :contact_email, :contact_telephone, :contact_telephone_country_code)
+                                   :contact_name, :contact_email, :contact_telephone, :contact_telephone_country_code,
+                                   :licence_ref)
   end
 end
