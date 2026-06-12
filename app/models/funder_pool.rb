@@ -1,4 +1,5 @@
 class FunderPool < ApplicationRecord
+  scope :real, -> { where(demo: false) }
   include ChangeTracking
   
   # Change tracking configuration

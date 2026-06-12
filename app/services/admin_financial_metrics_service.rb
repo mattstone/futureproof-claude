@@ -45,7 +45,7 @@ class AdminFinancialMetricsService
   end
 
   def capital_deployment
-    pools = FunderPool.all
+    pools = FunderPool.real.all
     capacity = pools.sum(:amount)
     allocated = pools.sum(:allocated)
 
@@ -111,7 +111,7 @@ class AdminFinancialMetricsService
   def default_contracts_scope
     app_ids = @applications.pluck(:id)
     return Contract.none if app_ids.empty?
-    Contract.where(application_id: app_ids)
+    Contract.real.where(application_id: app_ids).where(demo: false)
   end
 
   def weighted_cost_of_capital
@@ -126,7 +126,7 @@ class AdminFinancialMetricsService
   end
 
   def top_pool_chart_data
-    FunderPool.includes(:wholesale_funder).order(allocated: :desc).limit(5).map do |pool|
+    FunderPool.real.includes(:wholesale_funder).order(allocated: :desc).limit(5).map do |pool|
       {
         name: pool.name.truncate(20),
         allocated: pool.allocated,

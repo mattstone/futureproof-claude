@@ -11,6 +11,7 @@ funders = funders_data.map do |attrs|
   WholesaleFunder.find_or_create_by!(name: attrs[:name]) do |f|
     f.country = attrs[:country]
     f.currency = attrs[:currency]
+    f.demo = true
   end
 end
 puts "  Created #{funders.size} wholesale funders"
@@ -31,6 +32,7 @@ pools = pools_data.map do |attrs|
     p.allocated = 0
     p.benchmark_rate = attrs[:benchmark_rate]
     p.margin_rate = attrs[:margin_rate]
+    p.demo = true
   end
 end
 puts "  Created #{pools.size} funder pools"
@@ -125,6 +127,7 @@ else
     end
     
     contract = Contract.create!(
+      demo: true,
       application_id: app_id,
       funder_pool: pool,
       lender: all_lenders.sample,

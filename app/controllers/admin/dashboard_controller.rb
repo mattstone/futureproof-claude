@@ -31,7 +31,7 @@ module Admin
     def jurisdiction_filtered_contracts(apps)
       app_ids = apps.pluck(:id)
       return Contract.none if app_ids.empty?
-      Contract.where(application_id: app_ids)
+      Contract.real.where(application_id: app_ids)
     end
 
     def build_financial_overview(portfolio, financial)
