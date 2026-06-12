@@ -21,6 +21,8 @@ Rails.application.routes.draw do
   namespace :console do
     root to: 'today#show'
     post 'set_jurisdiction', to: 'base#set_jurisdiction'
+
+    resources :users, only: [ :index ]
   end
 
   # Admin routes

@@ -1,0 +1,72 @@
+require "test_helper"
+
+# One test per GET route under /console, generated from the route set.
+# A console page that can't render is a CI failure, not a demo surprise —
+# this is the institutionalized version of the drill-down lesson.
+#
+# :id segments resolve to a fixture record inferred from the controller
+# name; a route whose model has no fixture FAILS — coverage is forced,
+# not skipped. Add explicit entries to PARAM_RESOLVERS for routes whose
+# params don't follow the convention.
+class Console::SmokeTest < ActionDispatch::IntegrationTest
+  PARAM_RESOLVERS = {
+    # "console/examples" => -> { { id: examples(:one).id } }
+  }.freeze
+
+  def self.console_get_routes
+    Rails.application.routes.routes.select do |route|
+      route.verb == "GET" && route.path.spec.to_s.start_with?("/console")
+    end
+  end
+
+  console_get_routes.each do |route|
+    controller = route.defaults[:controller]
+    action = route.defaults[:action]
+    path_spec = route.path.spec.to_s.sub("(.:format)", "")
+
+    test "GET #{path_spec} (#{controller}##{action}) renders for futureproof admin" do
+      sign_in users(:admin_user)
+      get resolve_path(route)
+      assert_equal 200, response.status,
+        "#{path_spec} returned #{response.status} for a futureproof admin"
+    end
+
+    test "GET #{path_spec} (#{controller}##{action}) never 5xxs for lender admin" do
+      sign_in users(:lender_admin_user)
+      get resolve_path(route)
+      assert_includes [ 200, 302 ], response.status,
+        "#{path_spec} returned #{response.status} for a lender admin (capability redirects are fine; errors are not)"
+    end
+  end
+
+  private
+
+  def resolve_path(route)
+    required = route.required_parts - [ :format ]
+    params = {}
+
+    if required.any?
+      resolver = PARAM_RESOLVERS[route.defaults[:controller]]
+      if resolver
+        params = instance_exec(&resolver)
+      else
+        params = conventional_params(route, required)
+      end
+    end
+
+    route.format(params)
+  end
+
+  def conventional_params(route, required)
+    flunk "Route #{route.path.spec} needs params #{required.inspect} — add a PARAM_RESOLVERS entry" unless required == [ :id ]
+
+    model_name = route.defaults[:controller].split("/").last.classify
+    model = model_name.safe_constantize
+    flunk "Cannot infer model for #{route.defaults[:controller]} — add a PARAM_RESOLVERS entry" unless model
+
+    record = model.first
+    flunk "No #{model_name} fixture exists — add one so /console#{route.path.spec.to_s.sub('(.:format)', '')} is smoke-testable" unless record
+
+    { id: record.id }
+  end
+end

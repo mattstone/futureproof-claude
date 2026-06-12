@@ -1,0 +1,29 @@
+<% content_for :title, "Users — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Users", subtitle: "Customers and administrators across the platform.") %>
+
+<%= render Console::FilterBarComponent.new(url: console_users_path,
+      search_value: params[:search], search_placeholder: "Email or name…",
+      clear_url: console_users_path) do |bar| %>
+  <% bar.with_select(:role, options: [ [ "Admins", "admin" ], [ "Customers", "customer" ] ], selected: params[:role]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "users",
+      csv_path: console_users_path(format: :csv, search: params[:search], role: params[:role]),
+      empty_message: "No users match those filters.") do |table| %>
+  <% table.with_column "Email", sort: "email" do |user| %>
+    <%= user.email %>
+  <% end %>
+  <% table.with_column "Name", sort: "name" do |user| %>
+    <%= user.full_name %>
+  <% end %>
+  <% table.with_column "Role" do |user| %>
+    <%= render Console::BadgeComponent.new(status: user.admin? ? "active" : "neutral", label: user.admin? ? "Admin" : "Customer") %>
+  <% end %>
+  <% table.with_column "Lender" do |user| %>
+    <%= user.lender&.name %>
+  <% end %>
+  <% table.with_column "Joined", sort: "created" do |user| %>
+    <%= user.created_at.strftime("%-d %b %Y") %>
+  <% end %>
+<% end %>
