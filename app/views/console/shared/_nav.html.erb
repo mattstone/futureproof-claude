@@ -108,6 +108,8 @@
   <% if policy.view_system? %>
     <div class="console-nav-group">
       <span class="console-nav-group-title">System</span>
+      <%= link_to "AI agents", console_ai_agents_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_ai_agents_path)}" %>
       <%= link_to "Audit log", console_audit_logs_path,
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_audit_logs_path)}" %>
       <%= link_to "Security", console_system_security_path,
