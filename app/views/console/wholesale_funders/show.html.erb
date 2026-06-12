@@ -34,6 +34,7 @@
         "In pools" => number_to_currency(pool_capacity, precision: 0),
         "Unpooled headroom" => number_to_currency(facility - pool_capacity, precision: 0),
         "Committed to contracts" => number_to_currency(@wholesale_funder.committed_amount, precision: 0),
+        "Avg monthly deployment" => (@monthly_deployment.positive? ? number_to_currency(@monthly_deployment, precision: 0) : "—"),
         "Runway (months)" => (@wholesale_funder.runway_months >= 999 ? "—" : @wholesale_funder.runway_months)
       }) %>
   <div class="console-checklist-progress">
@@ -57,8 +58,12 @@
             <strong><%= link_to pool.name, console_wholesale_funder_funder_pool_path(@wholesale_funder, pool) %></strong>
             <span class="console-cell-sub">
               <%= pool.formatted_allocated %> allocated of <%= pool.formatted_amount %> ·
-              rate <%= pool.formatted_total_rate %>
+              <%= pool.formatted_available %> available · rate <%= pool.formatted_total_rate %>
             </span>
+            <div class="console-checklist-progress">
+              <progress class="console-progress" value="<%= pool.allocation_percentage %>" max="100"></progress>
+              <span class="console-cell-sub"><%= pool.allocation_percentage %>%</span>
+            </div>
           </div>
           <div class="console-doc-actions">
             <%= link_to "Edit", edit_console_wholesale_funder_funder_pool_path(@wholesale_funder, pool), class: "console-btn console-btn-sm console-btn-secondary" %>
@@ -86,6 +91,36 @@
       <% end %>
     </ul>
   <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Lenders drawing on this funder") do %>
+  <% if @lender_relationships.any? %>
+    <ul class="console-doc-list">
+      <% @lender_relationships.each do |relationship| %>
+        <% lender = relationship.lender %>
+        <% lender_pools = lender.lender_funder_pools.select { |lfp| lfp.funder_pool&.wholesale_funder_id == @wholesale_funder.id } %>
+        <% capacity = lender_pools.sum { |lfp| lfp.funder_pool&.amount.to_f } %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to lender.name, console_lender_path(lender) %></strong>
+            <span class="console-cell-sub">
+              <%= lender_pools.size %> pool<%= "s" unless lender_pools.size == 1 %> ·
+              capacity <%= number_to_currency(capacity, precision: 0) %>
+              <% active_pools = lender_pools.count(&:active) %>
+              · <%= active_pools %> active
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No lenders draw on this funder yet — link one from the lender's page.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 30) %>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Lifecycle") do %>
