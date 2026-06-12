@@ -10770,3 +10770,12 @@ turbo-frame#admin_main {
 .related-record-link:hover { background: #e2e8f0; }
 
 .empty-state-cell { text-align: center; color: #94a3b8; padding: 2rem !important; font-style: italic; }
+.prompt-slot-chip {
+  display: inline-block;
+  margin-right: 0.35em;
+  padding: 0.05em 0.4em;
+  border-radius: 4px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.72rem;
+}
