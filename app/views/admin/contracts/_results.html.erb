@@ -6,11 +6,11 @@
           <th>Contract ID</th>
           <th>Customer</th>
           <th>Property Address</th>
-          <th>Status</th>
-          <th>Start Date</th>
+          <th><%= sortable_header 'Status', :status %></th>
+          <th><%= sortable_header 'Start Date', :start_date %></th>
           <th>End Date</th>
           <th>Home Value</th>
-          <th>Created</th>
+          <th><%= sortable_header 'Created', :created_at %></th>
           <th>Messages</th>
           <th>Actions</th>
         </tr>
@@ -64,7 +64,7 @@
                 <%= link_to "View", admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-secondary", data: { turbo_frame: "_top" } %>
                 <%= link_to "Edit", edit_admin_contract_path(contract), class: "admin-btn admin-btn-sm admin-btn-primary", data: { turbo_frame: "_top" } %>
                 <%= link_to "Delete", admin_contract_path(contract), method: :delete,
-                    data: { confirm: "Are you sure? This will permanently delete the contract.", turbo_frame: "_top" },
+                    data: { turbo_confirm: "Are you sure? This will permanently delete the contract.", turbo_frame: "_top" },
                     class: "admin-btn admin-btn-sm admin-btn-danger" %>
               </div>
             </td>

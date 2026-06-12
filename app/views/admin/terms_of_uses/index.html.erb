@@ -59,8 +59,7 @@
                     activate_admin_terms_of_use_path(terms), 
                     method: :patch,
                     class: "admin-btn admin-btn-sm admin-btn-success",
-                    data: { 
-                      confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
+                    data: { turbo_confirm: "Are you sure you want to activate this version? This will deactivate the current active version." 
                     } %>
               <% end %>
             </div>

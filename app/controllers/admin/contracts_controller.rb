@@ -1,11 +1,15 @@
 class Admin::ContractsController < Admin::BaseController
+  include AdminSortable
   before_action :set_contract, only: [:show, :edit, :update, :destroy, :send_message, :create_message]
   before_action :set_messages, only: [:show, :edit]
   before_action :set_ai_agents, only: [:show, :edit, :create_message]
   before_action :set_current_admin_user, only: [:create, :update]
 
   def index
-    @contracts = scoped_contracts.includes(application: :user, contract_messages: []).order(created_at: :desc)
+    @contracts = sort_scope(
+      scoped_contracts.includes(application: :user, contract_messages: []),
+      allowed: %w[created_at allocated_amount status start_date], default: "created_at"
+    )
 
     # Search filter
     if params[:search].present?
@@ -29,6 +33,11 @@ class Admin::ContractsController < Admin::BaseController
 
     # Status filter
     @contracts = @contracts.where(status: params[:status]) if params[:status].present?
+
+    if request.format.csv?
+      send_data contracts_csv(@contracts), filename: "contracts-#{Date.current}.csv", type: "text/csv"
+      return
+    end
 
     @contracts = @contracts.page(params[:page]).per(10)
 
@@ -227,6 +236,17 @@ class Admin::ContractsController < Admin::BaseController
   end
 
   private
+
+  def contracts_csv(scope)
+    require "csv"
+    CSV.generate(headers: true) do |csv|
+      csv << ["ID", "Customer", "Application", "Status", "Allocated", "Start", "End", "Lender", "Return %"]
+      scope.find_each do |c|
+        csv << [c.id, c.application.user.display_name, c.application_id, c.status,
+                c.allocated_amount, c.start_date, c.end_date, c.lender&.name, c.investment_return_rate]
+      end
+    end
+  end
 
   def set_contract
     @contract = scoped_contracts.find(params[:id])

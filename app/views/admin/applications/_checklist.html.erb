@@ -13,7 +13,7 @@
       <%= button_to advance_to_processing_admin_application_path(@application), 
           method: :patch, 
           class: "admin-btn admin-btn-primary checklist-start-btn",
-          data: { confirm: "This will create a processing checklist and change the status to 'Processing'. Continue?" } do %>
+          data: { turbo_confirm: "This will create a processing checklist and change the status to 'Processing'. Continue?" } do %>
         <span class="btn-icon">🚀</span>
         Start Processing
       <% end %>

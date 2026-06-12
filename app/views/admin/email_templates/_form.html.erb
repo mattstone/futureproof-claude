@@ -107,7 +107,7 @@
     <div class="admin-form-actions-left">
       <% if @email_template.persisted? %>
         <%= link_to "Preview", preview_admin_email_template_path(@email_template), class: "admin-btn admin-btn-info", target: "_blank", id: "preview-btn" %>
-        <%= link_to "Send test", send_test_admin_email_template_path(@email_template), class: "admin-btn admin-btn-success", method: :post, id: "send-test-btn", data: { confirm: "Send a test email to your account?" } %>
+        <%= link_to "Send test", send_test_admin_email_template_path(@email_template), class: "admin-btn admin-btn-success", method: :post, id: "send-test-btn", data: { turbo_confirm: "Send a test email to your account?" } %>
       <% end %>
     </div>
     <div class="admin-form-actions-right">

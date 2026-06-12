@@ -183,16 +183,14 @@
                       method: :patch, 
                       remote: true, 
                       params: { _method: :patch, authenticity_token: form_authenticity_token },
-                      data: { 
-                        confirm: "Are you sure you want to #{relationship.active? ? 'deactivate' : 'activate'} this lender?"
+                      data: { turbo_confirm: "Are you sure you want to #{relationship.active? ? 'deactivate' : 'activate'} this lender?"
                       },
                       class: "admin-btn admin-btn-sm admin-btn-secondary" %>
                   <%= button_to "Remove", admin_mortgage_lender_path(@mortgage, relationship), 
                       method: :delete, 
                       remote: true,
                       params: { authenticity_token: form_authenticity_token },
-                      data: { 
-                        confirm: "Are you sure you want to remove this lender? This action cannot be undone."
+                      data: { turbo_confirm: "Are you sure you want to remove this lender? This action cannot be undone."
                       },
                       class: "admin-btn admin-btn-sm admin-btn-danger" %>
                 </div>

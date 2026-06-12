@@ -82,8 +82,7 @@
                 <%= button_to admin_business_process_workflow_path(@workflow, trigger_name: trigger_name), 
                               method: :delete, 
                               remote: true,
-                              data: { 
-                                confirm: "Remove trigger '#{trigger_name}'? This cannot be undone.",
+                              data: { turbo_confirm: "Remove trigger '#{trigger_name}'? This cannot be undone.",
                                 turbo_method: :delete 
                               },
                               class: "text-red-600 hover:text-red-500 text-xs" do %>

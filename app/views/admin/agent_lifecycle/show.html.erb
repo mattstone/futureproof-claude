@@ -126,7 +126,7 @@
                   class: 'admin-btn-small' %>
               <%= link_to 'Delete Stage', delete_stage_admin_agent_lifecycle_path(@agent, stage_index: index),
                   method: :delete,
-                  data: { confirm: "Are you sure you want to delete '#{stage['stage_label']}'?" },
+                  data: { turbo_confirm: "Are you sure you want to delete '#{stage['stage_label']}'?" },
                   class: 'admin-btn-small admin-btn-danger' %>
             </div>
           </div>

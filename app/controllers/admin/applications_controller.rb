@@ -1,4 +1,5 @@
 class Admin::ApplicationsController < Admin::BaseController
+  include AdminSortable
   before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item, :approve, :reject]
   before_action :set_application_versions, only: [:show]
   before_action :set_messages, only: [:show, :edit, :update_checklist_item]
@@ -13,6 +14,10 @@ class Admin::ApplicationsController < Admin::BaseController
     respond_to do |format|
       format.html # Full page render
       format.turbo_stream # Turbo Frame partial render
+      format.csv do
+        send_data applications_csv(filtered_applications),
+                  filename: "applications-#{Date.current}.csv", type: "text/csv"
+      end
     end
   end
 
@@ -314,7 +319,18 @@ class Admin::ApplicationsController < Admin::BaseController
       scope = scope.where.not(status: :accepted) # default: active pipeline
     end
 
-    scope
+    sort_scope(scope, allowed: %w[created_at home_value status updated_at])
+  end
+
+  def applications_csv(scope)
+    require "csv"
+    CSV.generate(headers: true) do |csv|
+      csv << ["ID", "Customer", "Email", "Address", "Home value", "Status", "Mortgage", "Created"]
+      scope.find_each do |a|
+        csv << [a.id, a.user.display_name, a.user.email, a.address, a.home_value,
+                a.status, a.mortgage&.name, a.created_at.iso8601]
+      end
+    end
   end
 
 

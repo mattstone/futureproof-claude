@@ -10,6 +10,13 @@
   </div>
 </div>
 
+<%
+related = []
+related << ["👤 #{@application.user.display_name}", admin_user_path(@application.user)]
+related << ["📄 Contract ##{@application.contract.id}", admin_contract_path(@application.contract)] if @application.contract
+%>
+<%= render 'admin/shared/related_records', links: related %>
+
 <div class="admin-tabs">
   <nav class="admin-tab-nav">
     <a href="#details" class="admin-tab active" data-tab="details">Details</a>

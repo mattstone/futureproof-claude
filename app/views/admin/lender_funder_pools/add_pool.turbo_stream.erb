@@ -12,12 +12,12 @@
                 <%= button_to pool_relationship.status_display, toggle_active_admin_lender_funder_pool_path(@lender, pool_relationship),
                               method: :patch, remote: true, class: "status-badge clickable-status-badge #{pool_relationship.status_badge_class}",
                               role: "button", tabindex: "0",
-                              data: { confirm: "Are you sure you want to change the status of this funder pool relationship?" },
+                              data: { turbo_confirm: "Are you sure you want to change the status of this funder pool relationship?" },
                               'aria-label': "Toggle funder pool status (currently #{pool_relationship.status_display})",
                               form: { style: "display: inline;" } %>
                 <%= button_to "Remove", admin_lender_funder_pool_path(@lender, pool_relationship),
                               method: :delete, class: "admin-btn admin-btn-danger admin-btn-sm",
-                              remote: true, data: { confirm: "Are you sure?" },
+                              remote: true, data: { turbo_confirm: "Are you sure?" },
                               form: { style: "display: inline;" } %>
               </div>
             </div>
