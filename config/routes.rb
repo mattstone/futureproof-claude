@@ -67,7 +67,12 @@ Rails.application.routes.draw do
     end
 
     resources :wholesale_funders, only: [ :index, :show, :new, :create, :edit, :update ] do
-      resources :funder_pools, only: [ :show, :new, :create, :edit, :update ]
+      resources :funder_pools, only: [ :show, :new, :create, :edit, :update ] do
+        member do
+          post :top_up
+        end
+      end
+      resources :funding_documents, controller: 'wholesale_funder_contracts', only: [ :show ]
     end
     resources :funder_pools, only: [ :index ]
 

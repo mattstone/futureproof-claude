@@ -18,6 +18,27 @@
   <%= render Console::StatCardComponent.new(value: @funder_pool.formatted_total_rate, label: "Rate (benchmark + margin)") %>
 </div>
 
+<%= render Console::CardComponent.new(title: "Capacity") do %>
+  <% utilisation = @funder_pool.amount.to_f.positive? ? (@funder_pool.allocated.to_f / @funder_pool.amount * 100).round(1) : 0 %>
+  <div class="console-checklist-progress">
+    <progress class="console-progress" value="<%= utilisation %>" max="100"></progress>
+    <span class="console-cell-sub"><%= utilisation %>% allocated</span>
+  </div>
+
+  <%= form_with url: top_up_console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), method: :post, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="amount_delta">Adjust capacity by $ (negative to reduce)</label>
+      <%= number_field_tag :amount_delta, nil, step: 1000, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="reason">Reason</label>
+      <%= text_field_tag :reason, nil, class: "console-input", placeholder: "Recorded in the audit log", required: true %>
+    </div>
+    <%= submit_tag "Apply", class: "console-btn console-btn-primary",
+          data: { turbo_confirm: "Adjust this pool's capacity? The change is audit-logged." } %>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Contracts funded from this pool") do %>
   <% contracts = @funder_pool.contracts %>
   <% if contracts.any? %>
