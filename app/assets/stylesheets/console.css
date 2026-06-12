@@ -1477,3 +1477,62 @@
   text-transform: uppercase;
   font-size: 11px;
 }
+
+/* ---- Partner onboarding (Partners P1) ---------------------------------------- */
+
+.console-onboarding {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: onboarding;
+}
+
+.console-onboarding-step {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  padding: var(--fp-space-sm) 0;
+  border-bottom: 1px solid var(--fp-border-light);
+}
+
+.console-onboarding-step:last-child { border-bottom: none; }
+
+.console-onboarding-mark {
+  counter-increment: onboarding;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--fp-radius-full);
+  border: 2px solid var(--fp-border);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-bold);
+  color: var(--fp-text-tertiary);
+}
+
+.console-onboarding-step:not(.is-done) .console-onboarding-mark::before {
+  content: counter(onboarding);
+}
+
+.console-onboarding-step.is-done .console-onboarding-mark {
+  background: var(--fp-success);
+  border-color: var(--fp-success);
+  color: var(--fp-text-inverse);
+}
+
+.console-onboarding-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.console-onboarding-label {
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-semibold);
+}
+
+.console-onboarding-step.is-done .console-onboarding-label {
+  color: var(--fp-text-tertiary);
+}

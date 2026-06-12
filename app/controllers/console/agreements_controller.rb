@@ -26,6 +26,7 @@ class Console::AgreementsController < Console::BaseController
   def new
     @agreement = Agreement.new
     @party_type = params[:party_type] || "Lender"
+    @preselected_party_id = params[:agreeable_id]
     @parties = load_parties(@party_type)
     @templates = load_templates(@party_type)
   end

@@ -37,6 +37,7 @@ class Console::WholesaleFundersController < Console::ResourceController
   def show
     @wholesale_funder.log_view_by(current_user)
     @pools = @wholesale_funder.funder_pools.order(:name)
+    @onboarding = Console::PartnerOnboarding.for(@wholesale_funder)
   end
 
   def new

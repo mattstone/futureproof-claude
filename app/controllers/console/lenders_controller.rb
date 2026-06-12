@@ -31,6 +31,7 @@ class Console::LendersController < Console::ResourceController
 
   def show
     @lender.log_view_by(current_user)
+    @onboarding = Console::PartnerOnboarding.for(@lender)
     @wholesale_funder_relationships = @lender.lender_wholesale_funders.includes(:wholesale_funder).order("wholesale_funders.name")
     @pool_relationships = @lender.lender_funder_pools.includes(funder_pool: :wholesale_funder)
     @available_wholesale_funders = WholesaleFunder.where.not(id: @lender.wholesale_funders.select(:id)).order(:name)
@@ -74,6 +75,32 @@ class Console::LendersController < Console::ResourceController
     end
   end
 
+  # Creates the lender-side admin account and emails a password-reset link —
+  # the "their first user" step of onboarding.
+  def invite_admin
+    @lender = Lender.find(params[:id])
+    user = User.new(
+      first_name: params[:first_name],
+      last_name: params[:last_name],
+      email: params[:email],
+      country_of_residence: country_for(@lender.country),
+      lender: @lender,
+      admin: true,
+      terms_accepted: true,
+      confirmed_at: Time.current,
+      password: SecureRandom.base58(24)
+    )
+
+    if user.save
+      user.send_reset_password_instructions
+      AuditLog.log_action(user: current_user, action: "partner_admin_invited", resource: user,
+                          reason: "Invited as admin for #{@lender.name}")
+      redirect_to console_lender_path(@lender), notice: "#{user.email} invited — they set their own password via email."
+    else
+      redirect_to console_lender_path(@lender), alert: "Invite failed: #{user.errors.full_messages.to_sentence}"
+    end
+  end
+
   protected
 
   def base_scope
@@ -81,6 +108,10 @@ class Console::LendersController < Console::ResourceController
   end
 
   private
+
+  def country_for(code)
+    { "AU" => "Australia", "NZ" => "New Zealand", "UK" => "United Kingdom" }.fetch(code, "United States")
+  end
 
   def set_lender
     @lender = Lender.find(params[:id])

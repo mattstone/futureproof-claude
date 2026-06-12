@@ -16,7 +16,7 @@
 
     <div class="console-field">
       <%= form.label :agreeable_id, "#{@party_type.titleize} party", class: "console-field-label" %>
-      <%= form.collection_select :agreeable_id, @parties, :id, :name, { prompt: "Select party…" }, { class: "console-select", required: true } %>
+      <%= form.collection_select :agreeable_id, @parties, :id, :name, { prompt: "Select party…", selected: @preselected_party_id&.to_i }, { class: "console-select", required: true } %>
     </div>
 
     <div class="console-field">

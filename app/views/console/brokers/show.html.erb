@@ -13,6 +13,14 @@
   <% end %>
 <% end %>
 
+<%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      agreement: new_console_agreement_path(party_type: "Broker", agreeable_id: @broker.id),
+      lender_access: "#lender-assignments",
+      commission: console_lenders_path
+    } %>
+
+<%= render "console/shared/partner_agreements", partner: @broker, party_type: "Broker" %>
+
 <%= render Console::CardComponent.new(title: "Details") do %>
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
         "Email" => @broker.email,
@@ -22,6 +30,7 @@
       }) %>
 <% end %>
 
+<div id="lender-assignments"></div>
 <%= render Console::CardComponent.new(title: "Lender assignments") do %>
   <% if @lenders.any? %>
     <ul class="console-doc-list">

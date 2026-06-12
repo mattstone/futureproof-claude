@@ -6,6 +6,15 @@
   <% end %>
 <% end %>
 
+<%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      agreement: new_console_agreement_path(party_type: "Lender", agreeable_id: @lender.id),
+      admin_user: "#invite-admin",
+      funding: "#wholesale-funders",
+      product: console_mortgages_path
+    } %>
+
+<%= render "console/shared/partner_agreements", partner: @lender, party_type: "Lender" %>
+
 <%= render Console::CardComponent.new(title: "Details") do %>
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
         "Type" => @lender.lender_type.humanize,
@@ -16,6 +25,7 @@
       }) %>
 <% end %>
 
+<div id="wholesale-funders"></div>
 <%= render Console::CardComponent.new(title: "Wholesale funders") do %>
   <% if @wholesale_funder_relationships.any? %>
     <ul class="console-doc-list">
@@ -130,6 +140,43 @@
     </ul>
   <% else %>
     <p class="console-muted">No commission rates configured.</p>
+  <% end %>
+<% end %>
+
+<div id="invite-admin"></div>
+<%= render Console::CardComponent.new(title: "Lender admin users") do %>
+  <% admins = @lender.users.where(admin: true).order(:email) %>
+  <% if admins.any? %>
+    <ul class="console-doc-list">
+      <% admins.each do |admin| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to admin.email, console_user_path(admin) %></strong>
+            <span class="console-cell-sub"><%= admin.display_name %> · <%= admin.last_sign_in_at ? "last seen #{time_ago_in_words(admin.last_sign_in_at)} ago" : "never signed in" %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: admin.access_locked? ? "locked" : "active") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No admin users yet — invite the lender's first operator below.</p>
+  <% end %>
+
+  <%= form_with url: invite_admin_console_lender_path(@lender), method: :post, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="first_name">First name</label>
+      <%= text_field_tag :first_name, nil, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="last_name">Last name</label>
+      <%= text_field_tag :last_name, nil, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="email">Email</label>
+      <%= email_field_tag :email, nil, class: "console-input", required: true %>
+    </div>
+    <%= submit_tag "Invite admin", class: "console-btn console-btn-primary",
+          data: { turbo_confirm: "Invite this person as an admin for #{@lender.name}? They'll receive a password setup email." } %>
   <% end %>
 <% end %>
 
