@@ -4,7 +4,7 @@
 # for step add/remove/reorder in the form.
 class Console::EmailWorkflowsController < Console::BaseController
   before_action -> { require_capability(:manage_product) }
-  before_action :set_workflow, only: [ :show, :edit, :update, :toggle_active, :duplicate ]
+  before_action :set_workflow, only: [ :show, :edit, :update, :toggle_active, :duplicate, :destroy ]
   before_action :load_email_templates, only: [ :new, :create, :edit, :update ]
 
   def index
@@ -89,6 +89,11 @@ class Console::EmailWorkflowsController < Console::BaseController
     else
       redirect_to console_email_workflow_path(@workflow), alert: "Failed to duplicate workflow."
     end
+  end
+
+  def destroy
+    @workflow.destroy
+    redirect_to console_email_workflows_path, notice: "Workflow deleted."
   end
 
   private

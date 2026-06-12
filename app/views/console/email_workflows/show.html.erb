@@ -17,6 +17,10 @@
     <%= button_to "Duplicate", duplicate_console_email_workflow_path(@workflow), method: :post,
           class: "console-btn console-btn-secondary" %>
   <% end %>
+  <% header.with_action do %>
+    <%= button_to "Delete", console_email_workflow_path(@workflow), method: :delete, class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Delete '#{@workflow.name}' and its execution history?" } %>
+  <% end %>
 <% end %>
 
 <% if @workflow.description.present? %>

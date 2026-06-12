@@ -81,6 +81,19 @@ class Console::MortgageContractsController < Console::BaseController
     redirect_to console_mortgage_path(@mortgage), notice: "Contract activated."
   end
 
+  # Drafts only — published versions are immutable history.
+  def destroy
+    @mortgage_contract = @mortgage.mortgage_contracts.find(params[:id])
+
+    unless @mortgage_contract.draft?
+      redirect_to console_mortgage_path(@mortgage), alert: "Published versions can't be deleted." and return
+    end
+
+    @mortgage_contract.current_user = current_user
+    @mortgage_contract.destroy!
+    redirect_to console_mortgage_path(@mortgage), notice: "Draft deleted."
+  end
+
   private
 
   def set_mortgage

@@ -31,6 +31,30 @@ class Console::DiagnosticsController < Console::BaseController
     render :show
   end
 
+  def property_details
+    property_id = params[:property_id]
+
+    if property_id.blank?
+      redirect_to console_diagnostics_path, alert: "Enter a property ID first." and return
+    end
+
+    begin
+      @property_id = property_id
+      @property_details = CoreLogicService.new.get_complete_property_details(property_id)
+
+      if @property_details.is_a?(Hash) && @property_details["error"]
+        flash.now[:alert] = @property_details["error"]
+        @property_details = nil
+      end
+    rescue => e
+      Rails.logger.error "CoreLogic Property Details Error: #{e.message}"
+      flash.now[:alert] = "Error fetching property details: #{e.message}"
+      @property_details = nil
+    end
+
+    render :show
+  end
+
   # Raises a real error so the exception-notification pipeline can be
   # verified end-to-end. Production-only, audit-logged, like the legacy page.
   def test_error

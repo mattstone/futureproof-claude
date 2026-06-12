@@ -28,6 +28,29 @@ class Console::UsersController < Console::ResourceController
   csv_column("Last sign-in") { |user| user.last_sign_in_at&.iso8601 }
   csv_column("Joined") { |user| user.created_at.to_date.iso8601 }
 
+  def new
+    @user = User.new
+  end
+
+  # Manual user creation (rare — customers self-register). The account is
+  # pre-confirmed and receives a set-password email.
+  def create
+    @user = User.new(user_params)
+    @user.current_admin_user = current_user
+    @user.lender = policy.futureproof? ? (Lender.find_by(id: params[:user][:lender_id]) || Lender.lender_type_futureproof.first) : policy.lender
+    @user.terms_accepted = true
+    @user.confirmed_at = Time.current
+    @user.password = SecureRandom.base58(24)
+
+    if @user.save
+      @user.send_reset_password_instructions
+      AuditLog.log_action(user: current_user, action: "user_created_by_admin", resource: @user)
+      redirect_to console_user_path(@user), notice: "User created — set-password email sent to #{@user.email}."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
   def show
     @user.log_view_by(current_user)
     @versions = @user.user_versions.includes(:admin_user).recent.limit(20)

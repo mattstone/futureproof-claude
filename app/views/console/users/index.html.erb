@@ -1,6 +1,10 @@
 <% content_for :title, "Users — FutureProof Console" %>
 
-<%= render Console::PageHeaderComponent.new(title: "Users", subtitle: "Customers and administrators across the platform.") %>
+<%= render Console::PageHeaderComponent.new(title: "Users", subtitle: "Customers and administrators across the platform.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "New user", new_console_user_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
 
 <%= render Console::FilterBarComponent.new(url: console_users_path,
       search_value: params[:search], search_placeholder: "Email or name…",

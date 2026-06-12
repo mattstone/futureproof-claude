@@ -127,6 +127,18 @@
   </div>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Danger zone") do %>
+  <p class="console-muted">Deleting a contract deallocates its pool capital. For mistakes only — completed contracts should use the Complete transition instead.</p>
+  <%= form_with url: console_contract_path(@contract), method: :delete, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="reason">Reason</label>
+      <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+    </div>
+    <%= submit_tag "Delete contract", class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Delete contract ##{@contract.id} and deallocate #{@contract.formatted_allocated_amount}? This cannot be undone." } %>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new do %>
   <%= render Console::ChangeHistoryComponent.new(versions: @versions) %>
 <% end %>

@@ -39,6 +39,14 @@
   <% end %>
 <% end %>
 
+<% if @funder_pool.allocated.to_f.zero? %>
+  <%= render Console::CardComponent.new(title: "Danger zone") do %>
+    <%= button_to "Delete pool", console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool),
+          method: :delete, class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Delete #{@funder_pool.name}? Only possible because nothing is allocated." } %>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Contracts funded from this pool") do %>
   <% contracts = @funder_pool.contracts %>
   <% if contracts.any? %>

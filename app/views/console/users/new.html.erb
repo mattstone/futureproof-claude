@@ -1,0 +1,34 @@
+<% content_for :title, "New user — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "New user",
+      subtitle: "Manual creation — the account is pre-confirmed and receives a set-password email.") %>
+<%= render Console::CardComponent.new do %>
+  <%= form_with model: [ :console, @user ], class: "console-form" do |form| %>
+    <% if @user.errors.any? %>
+      <div class="console-flash console-flash-error"><%= @user.errors.full_messages.to_sentence %></div>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :first_name, required: true) do %>
+      <%= form.text_field :first_name, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :last_name, required: true) do %>
+      <%= form.text_field :last_name, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :email, required: true) do %>
+      <%= form.email_field :email, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :country_of_residence, label: "Country of residence") do %>
+      <%= form.select :country_of_residence, [ "Australia", "United States", "New Zealand", "United Kingdom" ], {}, class: "console-select" %>
+    <% end %>
+    <% if policy.futureproof? %>
+      <%= render Console::FormFieldComponent.new(form: form, attribute: :lender_id, label: "Lender") do %>
+        <%= form.collection_select :lender_id, Lender.order(:name), :id, :name, { prompt: "Futureproof (default)" }, { class: "console-select", name: "user[lender_id]" } %>
+      <% end %>
+      <%= render Console::FormFieldComponent.new(form: form, attribute: :admin, label: "Administrator") do %>
+        <%= form.check_box :admin, class: "console-checklist-checkbox" %>
+      <% end %>
+    <% end %>
+    <div class="console-message-actions">
+      <%= form.submit "Create user", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_users_path, class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

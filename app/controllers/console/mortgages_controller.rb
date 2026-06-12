@@ -51,6 +51,20 @@ class Console::MortgagesController < Console::ResourceController
     end
   end
 
+  def destroy
+    @mortgage = Mortgage.find(params[:id])
+
+    dependent_applications = Application.where(mortgage_id: @mortgage.id)
+    if dependent_applications.exists?
+      redirect_to console_mortgage_path(@mortgage), alert: "#{dependent_applications.count} applications reference this product — it can't be deleted." and return
+    end
+
+    @mortgage.current_user = current_user
+    @mortgage.destroy
+    AuditLog.log_action(user: current_user, action: "mortgage_deleted", resource: @mortgage, reason: params[:reason].presence || "No reason given")
+    redirect_to console_mortgages_path, notice: "Mortgage deleted."
+  end
+
   protected
 
   def base_scope

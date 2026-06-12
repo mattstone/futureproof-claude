@@ -32,6 +32,21 @@
   <% end %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Bootstrap a jurisdiction") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "View templates", templates_console_legal_documents_path, class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <p class="console-muted">Creates the full draft document set for a jurisdiction from the templates. Existing documents are untouched.</p>
+  <%= form_with url: setup_jurisdiction_console_legal_documents_path, method: :post, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="jurisdiction">Jurisdiction</label>
+      <%= select_tag :jurisdiction, options_for_select(LegalDocument::JURISDICTIONS), class: "console-select" %>
+    </div>
+    <%= submit_tag "Bootstrap from templates", class: "console-btn console-btn-primary",
+          data: { turbo_confirm: "Create draft documents for this jurisdiction from the templates?" } %>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Acceptance tracking") do %>
   <p class="console-muted">Inspect who has accepted the live version of a document.</p>
   <%= form_with url: acceptance_tracking_console_legal_documents_path, method: :get, class: "console-ticket-form" do %>

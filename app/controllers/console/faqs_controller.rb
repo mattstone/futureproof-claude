@@ -1,6 +1,6 @@
 class Console::FaqsController < Console::BaseController
   before_action -> { require_capability(:manage_product) }
-  before_action :set_faq, only: [ :edit, :update ]
+  before_action :set_faq, only: [ :edit, :update, :destroy, :move_up, :move_down ]
 
   def index
     @faqs = Faq.all
@@ -38,7 +38,38 @@ class Console::FaqsController < Console::BaseController
     end
   end
 
+  def destroy
+    @faq.destroy
+    redirect_to console_faqs_path, notice: "FAQ deleted."
+  end
+
+  # CSP-safe ordering without drag-and-drop: swap positions with the
+  # neighbour in the same jurisdiction.
+  def move_up
+    swap_with_neighbour(:up)
+  end
+
+  def move_down
+    swap_with_neighbour(:down)
+  end
+
   private
+
+  def swap_with_neighbour(direction)
+    siblings = Faq.where(jurisdiction: @faq.jurisdiction).ordered.to_a
+    index = siblings.index(@faq)
+    target = direction == :up ? index - 1 : index + 1
+
+    if index.nil? || target.negative? || target >= siblings.size
+      redirect_to console_faqs_path, alert: "Can't move further." and return
+    end
+
+    neighbour = siblings[target]
+    my_position = @faq.position
+    @faq.update!(position: neighbour.position)
+    neighbour.update!(position: my_position)
+    redirect_to console_faqs_path, notice: "Order updated."
+  end
 
   def set_faq
     @faq = Faq.find(params[:id])

@@ -3,7 +3,7 @@
 # pool allocation failed.
 class Console::ContractsController < Console::ResourceController
   before_action -> { require_capability(:view_pipeline) }
-  before_action :set_contract, only: [ :show, :edit, :update, :create_message, :send_message, :transition ]
+  before_action :set_contract, only: [ :show, :edit, :update, :create_message, :send_message, :transition, :destroy ]
 
   resource Contract
   sortable created: "contracts.created_at",
@@ -147,6 +147,20 @@ class Console::ContractsController < Console::ResourceController
     else
       redirect_to console_contract_path(@contract), alert: "Failed to send message."
     end
+  end
+
+  # Destroying a contract deallocates its pool capital (model callback) —
+  # reserved for mistakes, hence reason + audit.
+  def destroy
+    if params[:reason].blank?
+      redirect_to console_contract_path(@contract), alert: "A reason is required — it goes in the audit log." and return
+    end
+
+    @contract.current_admin_user = current_user
+    @contract.destroy
+    AuditLog.log_action(user: current_user, action: "contract_deleted", resource: @contract,
+                        reason: params[:reason], notes: "Application ##{@contract.application_id}, #{@contract.formatted_allocated_amount} deallocated")
+    redirect_to console_contracts_path, notice: "Contract deleted and pool capital deallocated."
   end
 
   protected

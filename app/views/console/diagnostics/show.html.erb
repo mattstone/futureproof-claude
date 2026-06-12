@@ -30,6 +30,20 @@
   <% end %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "CoreLogic property details") do %>
+  <%= form_with url: console_diagnostics_property_details_path, method: :post, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="property_id">Property ID</label>
+      <%= text_field_tag :property_id, @property_id, class: "console-input", placeholder: "From a search result above" %>
+    </div>
+    <%= submit_tag "Fetch details", class: "console-btn console-btn-secondary" %>
+  <% end %>
+
+  <% if defined?(@property_details) && @property_details.present? %>
+    <pre class="console-prompt-content"><%= JSON.pretty_generate(@property_details) %></pre>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Error notification pipeline") do %>
   <p class="console-muted">
     Raises a real exception so the production error-notification emails can be verified end-to-end.
