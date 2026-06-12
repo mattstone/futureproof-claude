@@ -1,0 +1,5 @@
+<% content_for :title, "New contract document — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "New contract document", subtitle: @wholesale_funder.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_wholesale_funder_funding_documents_path(@wholesale_funder), method: :post %>
+<% end %>

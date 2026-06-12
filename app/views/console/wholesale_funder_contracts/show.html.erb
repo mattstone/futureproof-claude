@@ -1,16 +1,25 @@
 <% content_for :title, "Funding document — FutureProof Console" %>
 
-<%= render Console::PageHeaderComponent.new(title: "Funding document (legacy)",
-      subtitle: "#{@wholesale_funder.name} · #{@document.jurisdiction} · v#{@document.version}") %>
+<%= render Console::PageHeaderComponent.new(title: @document.party_type.presence || "Contract document",
+      subtitle: "#{@wholesale_funder.name} · #{@document.jurisdiction} · v#{@document.version}") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_wholesale_funder_funding_document_path(@wholesale_funder, @document), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= button_to "Delete", console_wholesale_funder_funding_document_path(@wholesale_funder, @document),
+          method: :delete, class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Delete this #{@document.jurisdiction} #{@document.party_type} (v#{@document.version})?" } %>
+  <% end %>
+<% end %>
 
 <%= render Console::RelatedRecordsComponent.new do |related| %>
   <% related.with_item(@wholesale_funder.name, href: console_wholesale_funder_path(@wholesale_funder), meta: "wholesale funder") %>
 <% end %>
 
-<div class="console-flash console-flash-warning">
-  Historical document from the legacy system — new funding agreements are created
-  under Partners → Agreements with the full signature lifecycle.
-</div>
+<p class="console-muted">
+  Document text on file — executed, signature-tracked instruments live under
+  Partners → Agreements.
+</p>
 
 <%= render Console::CardComponent.new do %>
   <div class="console-clause-preview"><%= sanitize @document.html_content, tags: %w[h1 h2 h3 h4 p br strong em ul ol li table tr td th a section], attributes: %w[href] %></div>

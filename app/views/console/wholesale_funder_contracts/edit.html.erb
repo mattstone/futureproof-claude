@@ -1,0 +1,6 @@
+<% content_for :title, "Edit contract document — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit contract document",
+      subtitle: "#{@wholesale_funder.name} · #{@document.party_type} · #{@document.jurisdiction}") %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_wholesale_funder_funding_document_path(@wholesale_funder, @document), method: :patch %>
+<% end %>

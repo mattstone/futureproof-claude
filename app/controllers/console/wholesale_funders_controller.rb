@@ -38,6 +38,11 @@ class Console::WholesaleFundersController < Console::ResourceController
     @wholesale_funder.log_view_by(current_user)
     @pools = @wholesale_funder.funder_pools.order(:name)
     @onboarding = Console::PartnerOnboarding.for(@wholesale_funder)
+    @versions = @wholesale_funder.wholesale_funder_versions.includes(:user).recent.limit(30)
+    @lender_relationships = LenderWholesaleFunder.where(wholesale_funder: @wholesale_funder)
+                                                 .includes(lender: { lender_funder_pools: :funder_pool })
+                                                 .order("lenders.name")
+    @monthly_deployment = @wholesale_funder.average_monthly_deployment
   end
 
   def new

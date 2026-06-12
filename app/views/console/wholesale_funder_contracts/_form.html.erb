@@ -1,0 +1,26 @@
+<%= form_with model: @document, url: url, method: method, scope: :wholesale_funder_contract, class: "console-form" do |form| %>
+  <% if @document.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @document.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :party_type, label: "Document type",
+        hint: "One document per type per jurisdiction; raise the version when replacing.") do %>
+    <%= form.select :party_type, Console::WholesaleFunderContractsController::PARTY_TYPES, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :jurisdiction) do %>
+    <%= form.select :jurisdiction, %w[AU US NZ UK], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :version) do %>
+    <%= form.number_field :version, min: 1, class: "console-input" %>
+  <% end %>
+  <div class="console-field">
+    <%= form.label :html_content, "Document (HTML)", class: "console-field-label" %>
+    <%= form.text_area :html_content, rows: 22, class: "console-textarea", required: true %>
+    <p class="console-field-hint">Tags: h1–h4, p, ul/ol/li, table, strong, em. The show page renders a sanitized preview.</p>
+  </div>
+
+  <div class="console-message-actions">
+    <%= form.submit @document.persisted? ? "Save changes" : "Add document", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", console_wholesale_funder_path(@wholesale_funder), class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>
