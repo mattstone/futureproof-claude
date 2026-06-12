@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     root to: 'today#show'
     post 'set_jurisdiction', to: 'base#set_jurisdiction'
 
-    resources :users, only: [ :index, :show, :edit, :update ] do
+    resources :users, only: [ :index, :show, :new, :create, :edit, :update ] do
       member do
         post :lock
         post :unlock
@@ -31,8 +31,9 @@ Rails.application.routes.draw do
     end
 
     resources :chat_conversations, only: [ :index, :show ]
+    get 'service_desk', to: 'service_desk#show'
 
-    resources :contracts, only: [ :index, :show, :new, :create, :edit, :update ] do
+    resources :contracts, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
       member do
         post :create_message
         patch :send_message
@@ -74,7 +75,7 @@ Rails.application.routes.draw do
         patch :suspend
         patch :reactivate
       end
-      resources :funder_pools, only: [ :show, :new, :create, :edit, :update ] do
+      resources :funder_pools, only: [ :show, :new, :create, :edit, :update, :destroy ] do
         member do
           post :top_up
         end
@@ -114,8 +115,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :mortgages, only: [ :index, :show, :new, :create, :edit, :update ] do
-      resources :mortgage_contracts, only: [ :show, :new, :create, :edit, :update ] do
+    resources :mortgages, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
+      resources :mortgage_lenders, only: [ :create, :destroy ] do
+        member do
+          patch :toggle_active
+        end
+      end
+      resources :mortgage_contracts, only: [ :show, :new, :create, :edit, :update, :destroy ] do
         member do
           patch :publish
           patch :activate
@@ -128,7 +134,12 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :faqs, only: [ :index, :new, :create, :edit, :update ]
+    resources :faqs, only: [ :index, :new, :create, :edit, :update, :destroy ] do
+      member do
+        patch :move_up
+        patch :move_down
+      end
+    end
 
     get 'calculators', to: 'calculators#index'
     post 'calculators/calculate', to: 'calculators#calculate', as: :calculate_calculators
@@ -142,7 +153,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :email_workflows, only: [ :index, :show, :new, :create, :edit, :update ] do
+    resources :email_workflows, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
       member do
         patch :toggle_active
         post :duplicate
@@ -163,6 +174,7 @@ Rails.application.routes.draw do
     resources :audit_logs, only: [ :index, :show ]
     get 'diagnostics', to: 'diagnostics#show'
     post 'diagnostics/core_logic_search', to: 'diagnostics#core_logic_search', as: :diagnostics_core_logic_search
+    post 'diagnostics/property_details', to: 'diagnostics#property_details', as: :diagnostics_property_details
     post 'diagnostics/test_error', to: 'diagnostics#test_error', as: :diagnostics_test_error
     get 'system/security', to: 'system#security', as: :system_security
 
@@ -177,6 +189,8 @@ Rails.application.routes.draw do
       collection do
         get :compliance_dashboard
         get :acceptance_tracking
+        get :templates
+        post :setup_jurisdiction
       end
     end
 

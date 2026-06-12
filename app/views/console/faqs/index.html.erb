@@ -27,4 +27,10 @@
   <% table.with_column "Position", numeric: true do |faq| %>
     <%= faq.position %>
   <% end %>
+  <% table.with_column "Order" do |faq| %>
+    <%= button_to "↑", move_up_console_faq_path(faq), method: :patch, class: "console-btn console-btn-sm console-btn-secondary", form_class: "console-inline-form" %>
+    <%= button_to "↓", move_down_console_faq_path(faq), method: :patch, class: "console-btn console-btn-sm console-btn-secondary", form_class: "console-inline-form" %>
+    <%= button_to "Delete", console_faq_path(faq), method: :delete, class: "console-btn console-btn-sm console-btn-danger", form_class: "console-inline-form",
+          data: { turbo_confirm: "Delete this FAQ?" } %>
+  <% end %>
 <% end %>

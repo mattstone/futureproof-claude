@@ -20,6 +20,11 @@
             method: :patch, class: "console-btn console-btn-primary",
             data: { turbo_confirm: "Publish this version? Published versions are immutable." } %>
     <% end %>
+    <% header.with_action do %>
+      <%= button_to "Delete draft", console_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract),
+            method: :delete, class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Delete this draft version?" } %>
+    <% end %>
   <% end %>
 <% end %>
 

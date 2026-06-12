@@ -1,0 +1,19 @@
+<% content_for :title, "Legal templates — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Legal document templates",
+      subtitle: "The boilerplate a new jurisdiction is bootstrapped from.") %>
+<%= render Console::FilterBarComponent.new(url: templates_console_legal_documents_path, search: false,
+      clear_url: templates_console_legal_documents_path) do |bar| %>
+  <% bar.with_select(:jurisdiction, options: LegalDocument::JURISDICTIONS, selected: params[:jurisdiction]) %>
+<% end %>
+<%= render Console::DataTableComponent.new(records: @templates, id: "legal_templates",
+      empty_message: "No templates configured.") do |table| %>
+  <% table.with_column "Name" do |template| %>
+    <%= template.template_name %>
+  <% end %>
+  <% table.with_column "Type" do |template| %>
+    <%= template.document_type&.humanize %>
+  <% end %>
+  <% table.with_column "Jurisdiction" do |template| %>
+    <%= template.jurisdiction %>
+  <% end %>
+<% end %>

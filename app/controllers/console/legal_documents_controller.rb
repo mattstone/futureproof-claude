@@ -96,6 +96,26 @@ class Console::LegalDocumentsController < Console::BaseController
     end
   end
 
+  def templates
+    @templates = LegalDocumentTemplate.all
+    @templates = @templates.for_jurisdiction(params[:jurisdiction]) if params[:jurisdiction].present?
+    @templates = @templates.ordered
+  end
+
+  # Bootstrap a jurisdiction's full document set from templates.
+  def setup_jurisdiction
+    jurisdiction = params[:jurisdiction]
+
+    unless LegalDocument::JURISDICTIONS.include?(jurisdiction)
+      redirect_to compliance_dashboard_console_legal_documents_path, alert: "Invalid jurisdiction." and return
+    end
+
+    results = LegalDocumentService.setup_jurisdiction(jurisdiction, current_user)
+    message = "Created #{results[:created].count} documents."
+    message += " Errors: #{results[:errors].count}." if results[:errors].any?
+    redirect_to console_legal_documents_path, notice: message
+  end
+
   def acceptance_tracking
     @document_type = params[:document_type] || "terms_of_use"
     @jurisdiction = params[:jurisdiction] || "AU"

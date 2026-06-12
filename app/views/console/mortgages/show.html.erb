@@ -11,17 +11,49 @@
   <% header.with_action do %>
     <%= link_to "New contract version", new_console_mortgage_mortgage_contract_path(@mortgage), class: "console-btn console-btn-primary" %>
   <% end %>
+  <% unless Application.where(mortgage_id: @mortgage.id).exists? %>
+    <% header.with_action do %>
+      <%= button_to "Delete", console_mortgage_path(@mortgage), method: :delete, class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Delete #{@mortgage.name}? Only possible because no applications reference it." } %>
+    <% end %>
+  <% end %>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Offered by") do %>
-  <% if @mortgage.active_lenders.any? %>
-    <%= render Console::RelatedRecordsComponent.new(title: "Lenders") do |related| %>
-      <% @mortgage.active_lenders.each do |lender| %>
-        <% related.with_item(lender.name, href: console_lender_path(lender)) %>
+  <% relationships = @mortgage.mortgage_lenders.includes(:lender) %>
+  <% if relationships.any? %>
+    <ul class="console-doc-list">
+      <% relationships.each do |relationship| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to relationship.lender.name, console_lender_path(relationship.lender) %></strong>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: relationship.active? ? "active" : "inactive") %>
+            <%= button_to relationship.active? ? "Deactivate" : "Activate",
+                  toggle_active_console_mortgage_mortgage_lender_path(@mortgage, relationship),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to "Remove", console_mortgage_mortgage_lender_path(@mortgage, relationship),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "#{relationship.lender.name} will no longer offer #{@mortgage.name}?" } %>
+          </div>
+        </li>
       <% end %>
-    <% end %>
+    </ul>
   <% else %>
     <p class="console-muted">No lenders currently offer this mortgage.</p>
+  <% end %>
+
+  <% available = Lender.status_active.where.not(id: @mortgage.mortgage_lenders.select(:lender_id)).order(:name) %>
+  <% if available.any? %>
+    <%= form_with url: console_mortgage_mortgage_lenders_path(@mortgage), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="lender_id">Add lender</label>
+        <%= select_tag :lender_id, options_from_collection_for_select(available, :id, :name),
+              prompt: "Select lender…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Add", class: "console-btn console-btn-primary" %>
+    <% end %>
   <% end %>
 <% end %>
 

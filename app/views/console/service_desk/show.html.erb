@@ -1,0 +1,93 @@
+<% content_for :title, "Service desk — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Service desk",
+      subtitle: "Who's waiting on us, where the pipeline is aging, and what's escalated.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @health[:open_conversations], label: "Open conversations",
+        href: console_chat_conversations_path) %>
+  <%= render Console::StatCardComponent.new(value: @health[:awaiting_reply_count], label: "Awaiting reply > 24h",
+        variant: @health[:awaiting_reply_count].positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: "#{@health[:awaiting_reply_pct]}%", label: "% awaiting (30d)") %>
+  <%= render Console::StatCardComponent.new(value: @health[:escalations_this_week], label: "Escalations this week",
+        href: console_chat_conversations_path(filter: "escalated"),
+        variant: @health[:escalations_this_week].positive? ? :error : nil) %>
+</div>
+
+<%= render Console::CardComponent.new(title: "Pipeline aging") do %>
+  <div class="console-chart"
+       data-controller="pipeline-aging"
+       data-pipeline-aging-rows-value="<%= @pipeline_aging[:rows].to_json %>"
+       data-pipeline-aging-buckets-value="<%= @pipeline_aging[:buckets].to_json %>"></div>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Unanswered customer messages (> 24h)") do %>
+  <% if @unanswered_threads.any? %>
+    <ul class="console-doc-list">
+      <% @unanswered_threads.each do |thread| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Application ##{thread[:application].id} — #{thread[:application].user.display_name}", console_application_path(thread[:application]) %></strong>
+            <span class="console-cell-sub"><%= thread[:message_preview] %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: thread[:age_hours] > 72 ? "error" : "needs_attention", label: "#{thread[:age_hours]}h waiting") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">Nobody is waiting on a reply. 🎉</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Stalled applications (processing > 7 days)") do %>
+  <% if @stalled_applications.any? %>
+    <ul class="console-doc-list">
+      <% @stalled_applications.each do |application| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "##{application.id} — #{application.user.display_name}", console_application_path(application) %></strong>
+            <span class="console-cell-sub">stalled <%= time_ago_in_words(application.updated_at) %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">Nothing stalled in processing.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Escalated conversations") do %>
+  <% if @escalated_conversations.any? %>
+    <ul class="console-doc-list">
+      <% @escalated_conversations.each do |conversation| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Conversation ##{conversation.id}", console_chat_conversation_path(conversation) %></strong>
+            <span class="console-cell-sub"><%= conversation.user&.email || "(guest)" %> · <%= time_ago_in_words(conversation.updated_at) %> ago</span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: "escalated") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No escalations.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Unresolved tickets by priority") do %>
+  <% if @urgent_tickets.any? %>
+    <ul class="console-doc-list">
+      <% @urgent_tickets.each do |ticket| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "#{ticket.ticket_number} — #{ticket.subject}", console_support_ticket_path(ticket) %></strong>
+            <span class="console-cell-sub"><%= ticket.sender_email %> · <%= time_ago_in_words(ticket.updated_at) %> ago</span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: ticket.priority == "urgent" ? "error" : "needs_attention", label: ticket.priority.humanize) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No unresolved tickets.</p>
+  <% end %>
+<% end %>

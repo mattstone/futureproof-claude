@@ -81,6 +81,19 @@ class Console::FunderPoolsController < Console::BaseController
     end
   end
 
+  def destroy
+    @funder_pool = @wholesale_funder.funder_pools.find(params[:id])
+
+    if @funder_pool.allocated.to_f.positive?
+      redirect_to console_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool),
+                  alert: "#{@funder_pool.formatted_allocated} is allocated to contracts — the pool can't be deleted." and return
+    end
+
+    @funder_pool.current_user = current_user
+    @funder_pool.destroy
+    redirect_to console_wholesale_funder_path(@wholesale_funder), notice: "Pool deleted."
+  end
+
   private
 
   def set_wholesale_funder
