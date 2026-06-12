@@ -1,0 +1,30 @@
+<div class="admin-card compliance-panel">
+  <div class="card-header">
+    <h3>Identity &amp; Compliance</h3>
+  </div>
+  <div class="card-content">
+    <div class="detail-row">
+      <strong>KYC:</strong>
+      <% if application.kyc_submission %>
+        <span class="admin-badge admin-badge-<%= application.kyc_submission.verified? ? 'success' : (application.kyc_submission.rejected? ? 'danger' : 'info') %>">
+          <%= application.kyc_submission.status.humanize %>
+        </span>
+        <% if application.kyc_submission.respond_to?(:submitted_at) && application.kyc_submission.submitted_at %>
+          <small class="text-muted">submitted <%= application.kyc_submission.submitted_at.strftime("%d %b %Y") %></small>
+        <% end %>
+      <% else %>
+        <span class="admin-badge admin-badge-secondary">Not started</span>
+      <% end %>
+    </div>
+    <div class="detail-row">
+      <strong>AML:</strong>
+      <% if application.aml_check %>
+        <span class="admin-badge admin-badge-<%= application.aml_check.passed? ? 'success' : (application.aml_check.failed? ? 'danger' : 'info') %>">
+          <%= application.aml_check.status.humanize %>
+        </span>
+      <% else %>
+        <span class="admin-badge admin-badge-secondary">Not started</span>
+      <% end %>
+    </div>
+  </div>
+</div>

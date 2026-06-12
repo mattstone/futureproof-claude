@@ -41,7 +41,7 @@ module Admin
       message = @ticket.messages.build(reply_params)
       message.sender_type = "agent"
       message.sender_name = current_user.display_name
-      message.sender_email = "matt.stone@futureprooffinancial.co"
+      message.sender_email = current_user.email
       message.agent_user = current_user
 
       if message.save

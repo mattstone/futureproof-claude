@@ -1,42 +1,14 @@
 class Admin::ApplicationsController < Admin::BaseController
-  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item]
+  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item, :approve, :reject]
   before_action :set_application_versions, only: [:show]
   before_action :set_messages, only: [:show, :edit, :update_checklist_item]
   before_action :log_view, only: [:show]
 
   def index
-    # Exclude accepted applications from admin index (they are managed separately) and apply lender scoping
-    @applications = scoped_applications.includes(:user, :application_messages).where.not(status: :accepted).recent
+    @applications = filtered_applications.page(params[:page]).per(10)
 
-    # Search filter (ensure accepted applications are excluded even in search results)
-    if params[:search].present?
-      search_term = params[:search].to_s.strip
-      
-      # Check if search term is numeric (potential application ID)
-      if search_term.match?(/^\d+$/)
-        # Search by application ID or other fields
-        @applications = @applications.joins(:user).where(
-          "applications.id = ? OR applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-          search_term.to_i, "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
-        )
-      else
-        # Search by text fields only
-        @applications = @applications.joins(:user).where(
-          "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-          "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
-        )
-      end
-    end
-
-    # Status filter (only allow filtering by non-accepted statuses)
-    if params[:status].present? && params[:status] != 'accepted'
-      @applications = @applications.where(status: params[:status])
-    end
-
-    @applications = @applications.page(params[:page]).per(10)
-
-    # For the status filter dropdown (exclude accepted from options)
-    @status_options = Application.statuses.except('accepted').map { |key, value| [key.humanize, key] }
+    # Status filter options (accepted included — reachable via explicit filter)
+    @status_options = Application.statuses.map { |key, _| [key.humanize, key] }
 
     respond_to do |format|
       format.html # Full page render
@@ -46,36 +18,12 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def search
     # Same logic as index but for POST requests via Turbo Stream
-    @applications = scoped_applications.includes(:user, :application_messages).where.not(status: :accepted).recent
-
-    if params[:search].present?
-      search_term = params[:search].to_s.strip
-      
-      # Check if search term is numeric (potential application ID)
-      if search_term.match?(/^\d+$/)
-        # Search by application ID or other fields
-        @applications = @applications.joins(:user).where(
-          "applications.id = ? OR applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-          search_term.to_i, "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
-        )
-      else
-        # Search by text fields only
-        @applications = @applications.joins(:user).where(
-          "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
-          "%#{search_term}%", "%#{search_term}%", "%#{search_term}%", "%#{search_term}%"
-        )
-      end
-    end
-
-    if params[:status].present? && params[:status] != 'accepted'
-      @applications = @applications.where(status: params[:status])
-    end
-
-    @applications = @applications.page(params[:page]).per(10)
-    @status_options = Application.statuses.except('accepted').map { |key, value| [key.humanize, key] }
+    @applications = filtered_applications.page(params[:page]).per(10)
+    @status_options = Application.statuses.map { |key, _| [key.humanize, key] }
 
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("applications_results", partial: "results") }
+      format.html { render :index }
     end
   end
 
@@ -83,6 +31,49 @@ class Admin::ApplicationsController < Admin::BaseController
     @agent_actions = @application.agent_actions.includes(:ai_agent).order(created_at: :desc)
     @outstanding_docs_count = @application.application_documents.where(status: ['pending', 'rejected']).count
     @unread_messages_count = @application.unread_customer_messages_count
+    @quotes = @application.quotes.latest_first
+    @lenders = Lender.order(:name)
+  end
+
+  # Drives the full Application#approve! workflow (loan terms, broker
+  # commission, contract generation) — not a bare status flip.
+  def approve
+    loan_amount = params[:loan_amount].to_f
+    interest_rate = params[:interest_rate].to_f
+    term_years = params[:term_years].to_i
+    lender = Lender.find_by(id: params[:lender_id])
+
+    if loan_amount <= 0 || interest_rate <= 0 || term_years <= 0 || lender.nil?
+      redirect_to admin_application_path(@application),
+                  alert: "Approval needs a loan amount, interest rate, term and lender." and return
+    end
+
+    @application.current_user = current_user
+    @application.approve!(loan_amount: loan_amount, interest_rate: interest_rate,
+                          term_years: term_years, lender: lender)
+
+    if @application.reload.contract.present?
+      redirect_to admin_application_path(@application),
+                  notice: "Application approved — contract ##{@application.contract.id} created."
+    else
+      redirect_to admin_application_path(@application),
+                  notice: "Application approved. Contract was NOT auto-created (#{@application.contract_generation_failure || 'see logs'}) — create it manually.",
+                  status: :see_other
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to admin_application_path(@application), alert: "Approval failed: #{e.message}"
+  end
+
+  def reject
+    if params[:rejected_reason].blank?
+      redirect_to admin_application_path(@application), alert: "A rejection reason is required." and return
+    end
+
+    @application.current_user = current_user
+    @application.reject!(reason: params[:rejected_reason])
+    redirect_to admin_application_path(@application), notice: "Application rejected."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to admin_application_path(@application), alert: "Rejection failed: #{e.message}"
   end
 
   def new
@@ -293,6 +284,39 @@ class Admin::ApplicationsController < Admin::BaseController
 
 
   private
+
+  # Shared filtering for index/search. Default view is the active pipeline
+  # (accepted applications are managed via their contracts), but an explicit
+  # status filter or a search reaches EVERY application — an admin must
+  # always be able to find an application by ID/email/address.
+  def filtered_applications
+    scope = scoped_applications.includes(:user, :mortgage, :application_messages).recent
+
+    if params[:search].present?
+      term = params[:search].to_s.strip
+      scope = scope.joins(:user)
+      scope = if term.match?(/\A\d+\z/)
+        scope.where(
+          "applications.id = ? OR applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          term.to_i, "%#{term}%", "%#{term}%", "%#{term}%", "%#{term}%"
+        )
+      else
+        scope.where(
+          "applications.address ILIKE ? OR users.first_name ILIKE ? OR users.last_name ILIKE ? OR users.email ILIKE ?",
+          "%#{term}%", "%#{term}%", "%#{term}%", "%#{term}%"
+        )
+      end
+    end
+
+    if params[:status].present?
+      scope = scope.where(status: params[:status])
+    elsif params[:search].blank?
+      scope = scope.where.not(status: :accepted) # default: active pipeline
+    end
+
+    scope
+  end
+
 
   def set_application
     @application = scoped_applications.find(params[:id])

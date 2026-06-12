@@ -10725,3 +10725,17 @@ turbo-frame#admin_main {
     grid-template-columns: 1fr;
   }
 }
+
+/* === Application decision panel (approve/reject cockpit) === */
+.decision-panel { margin-bottom: 1.5rem; border-left: 4px solid #2563eb; }
+.decision-panel-approved { border-left-color: #16a34a; }
+.decision-panel-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+.decision-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem; }
+.decision-reject-form { border-left: 1px solid #e2e8f0; padding-left: 1.5rem; }
+@media (max-width: 900px) {
+  .decision-panel-grid { grid-template-columns: 1fr; }
+  .decision-reject-form { border-left: none; padding-left: 0; }
+}
+.override-form { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+.override-reason-input { flex: 1; max-width: 360px; font-size: 0.85rem; }
+.quotes-panel, .compliance-panel { margin-top: 1.5rem; }
