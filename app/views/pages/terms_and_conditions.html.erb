@@ -13,13 +13,6 @@
           <%= raw @legal_document.content %>
         <% end %>
       </div>
-    <% elsif @terms_and_conditions %>
-      <h1><%= @terms_and_conditions.title %></h1>
-      <p class="last-updated">Last updated: <%= @terms_and_conditions.formatted_last_updated %></p>
-
-      <div class="legal-content">
-        <%= raw @terms_and_conditions.rendered_content %>
-      </div>
     <% else %>
       <h1>Terms and Conditions</h1>
       <p class="last-updated">Last updated: January 31, 2025</p>

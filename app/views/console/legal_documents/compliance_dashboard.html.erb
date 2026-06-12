@@ -1,0 +1,48 @@
+<% content_for :title, "Legal compliance — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Compliance dashboard",
+      subtitle: "Active legal document coverage per jurisdiction.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Export CSV", compliance_dashboard_console_legal_documents_path(format: :csv), class: "console-btn console-btn-secondary", data: { turbo: false } %>
+  <% end %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @compliance_status.to_a, id: "compliance",
+      empty_message: "No jurisdictions configured.") do |table| %>
+  <% table.with_column "Jurisdiction" do |(jurisdiction, _report)| %>
+    <strong><%= jurisdiction %></strong>
+  <% end %>
+  <% table.with_column "Active documents", numeric: true do |(_jurisdiction, report)| %>
+    <%= report[:total_active] %>
+  <% end %>
+  <% table.with_column "Privacy policy" do |(_jurisdiction, report)| %>
+    <%= render Console::BadgeComponent.new(status: report[:coverage][:privacy_policy] ? "ok" : "needs_attention", label: report[:coverage][:privacy_policy] ? "Covered" : "Missing") %>
+  <% end %>
+  <% table.with_column "Terms & conditions" do |(_jurisdiction, report)| %>
+    <%= render Console::BadgeComponent.new(status: report[:coverage][:terms_conditions] ? "ok" : "needs_attention", label: report[:coverage][:terms_conditions] ? "Covered" : "Missing") %>
+  <% end %>
+  <% table.with_column "Customer contract" do |(_jurisdiction, report)| %>
+    <%= render Console::BadgeComponent.new(status: report[:coverage][:customer_contract] ? "ok" : "needs_attention", label: report[:coverage][:customer_contract] ? "Covered" : "Missing") %>
+  <% end %>
+  <% table.with_column "Lender contract" do |(_jurisdiction, report)| %>
+    <%= render Console::BadgeComponent.new(status: report[:coverage][:lender_contract] ? "ok" : "needs_attention", label: report[:coverage][:lender_contract] ? "Covered" : "Missing") %>
+  <% end %>
+  <% table.with_column "Score", numeric: true do |(_jurisdiction, report)| %>
+    <%= report[:compliance_score] %>%
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Acceptance tracking") do %>
+  <p class="console-muted">Inspect who has accepted the live version of a document.</p>
+  <%= form_with url: acceptance_tracking_console_legal_documents_path, method: :get, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="document_type">Document</label>
+      <%= select_tag :document_type, options_for_select([ [ "Terms of use", "terms_of_use" ], [ "Privacy policy", "privacy_policy" ], [ "Terms & conditions", "terms_conditions" ] ]), class: "console-select" %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="jurisdiction">Jurisdiction</label>
+      <%= select_tag :jurisdiction, options_for_select(LegalDocument::JURISDICTIONS), class: "console-select" %>
+    </div>
+    <%= submit_tag "View acceptances", class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>

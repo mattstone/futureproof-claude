@@ -1,5 +1,5 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-  layout 'dashboard', only: [:edit, :update]
+  layout "dashboard", only: [ :edit, :update ]
 
   # Override the update method to handle Turbo Stream responses
   def update
@@ -8,7 +8,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     resource_updated = update_resource(resource, account_update_params)
     yield resource if block_given?
-    
+
     if resource_updated
       set_flash_message_for_update(resource, prev_unconfirmed_email)
       bypass_sign_in resource, scope: resource_name if sign_in_after_change_password?
@@ -25,7 +25,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     else
       clean_up_passwords resource
       set_minimum_password_length
-      
+
       respond_to do |format|
         format.html { render :edit, status: :unprocessable_entity }
         format.turbo_stream do
@@ -44,7 +44,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     Rails.logger.debug "Site key: #{ENV['RECAPTCHA_SITE_KEY']}"
     Rails.logger.debug "Secret key present: #{ENV['RECAPTCHA_SECRET_KEY'].present?}"
     Rails.logger.debug "Environment: #{Rails.env}"
-    
+
     # In development, always bypass reCAPTCHA to avoid test key issues
     if Rails.env.development?
       Rails.logger.debug "Bypassing reCAPTCHA for development environment"
@@ -53,9 +53,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
       Rails.logger.debug "Verifying reCAPTCHA in production"
       recaptcha_result = verify_recaptcha
     end
-    
+
     Rails.logger.debug "reCAPTCHA result: #{recaptcha_result}"
-    
+
     unless recaptcha_result
       Rails.logger.debug "reCAPTCHA failed, building resource with errors"
       build_resource(sign_up_params)
@@ -67,25 +67,28 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
 
     Rails.logger.debug "reCAPTCHA passed, creating user"
-    
+
     # Build the user resource
     build_resource(sign_up_params)
-    
+
     # Set the lender - default to Futureproof lender if not specified
     resource.lender = determine_user_lender
-    
-    # Set the terms version the user agreed to
-    current_terms = TermsOfUse.current
-    resource.terms_version = current_terms&.version
-    
+
+    # The jurisdictional LegalDocument is the single source of truth for
+    # terms; acceptance is recorded as a LegalDocumentAcceptance after save.
+    # (users.terms_version is frozen legacy history and no longer written.)
+    accepted_terms_document = LegalDocument.current_for("terms_of_use", signup_jurisdiction)
+
     # Store home value in session if provided
     session[:pending_home_value] = params[:home_value] if params[:home_value].present?
-    
+
     if resource.save
+      record_terms_acceptance(resource, accepted_terms_document)
+
       # Generate and send verification code instead of using Devise confirmation
       resource.generate_verification_code
       UserMailer.verification_code(resource).deliver_now
-      
+
       # Redirect to verification page, preserving home_value if present
       verification_params = { email: resource.email }
       verification_params[:home_value] = params[:home_value] if params[:home_value].present?
@@ -115,6 +118,29 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   private
 
+  def signup_jurisdiction
+    case params[:region]&.downcase
+    when "au" then "AU"
+    when "nz" then "NZ"
+    when "uk" then "UK"
+    else "US"
+    end
+  end
+
+  # Acceptance failures must never break signup — they're logged for follow-up.
+  def record_terms_acceptance(user, legal_document)
+    return if legal_document.blank?
+
+    user.legal_document_acceptances.create!(
+      legal_document: legal_document,
+      accepted_at: Time.current,
+      acceptance_type: "explicit",
+      notes: "Accepted at signup"
+    )
+  rescue => e
+    Rails.logger.error "[LEGAL] Failed to record signup terms acceptance for user #{user.id}: #{e.message}"
+  end
+
   # Add a users_url method to prevent the undefined method error
   def users_url(options = {})
     user_registration_url(options)
@@ -132,7 +158,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       lender = Lender.find_by(id: params[:lender_id])
       return lender if lender
     end
-    
+
     # Default to Futureproof lender
     Lender.lender_type_futureproof.first || Lender.first
   end
