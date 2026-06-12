@@ -1,0 +1,13 @@
+<div class="console-message <%= 'console-message-reply' if local_assigns[:reply] %> <%= message.from_customer? ? 'console-message-customer' : 'console-message-admin' %>">
+  <div class="console-message-meta">
+    <strong><%= message.sender_name %></strong>
+    <%= render Console::BadgeComponent.new(status: message.status) %>
+    <time class="console-history-time"><%= message.created_at.strftime("%-d %b %Y %H:%M") %></time>
+    <% if message.draft? %>
+      <%= button_to "Send", send_message_console_application_path(@application, message_id: message.id),
+            method: :patch, class: "console-btn console-btn-sm console-btn-primary", form_class: "console-inline-form" %>
+    <% end %>
+  </div>
+  <div class="console-message-subject"><%= message.processed_subject %></div>
+  <div class="console-message-body"><%= sanitize message.content_html, tags: %w[p br strong em ul li], attributes: [] %></div>
+</div>

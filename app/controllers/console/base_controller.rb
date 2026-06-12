@@ -58,6 +58,15 @@ class Console::BaseController < ApplicationController
     scope.where(column => jurisdiction)
   end
 
+  # Lender admins see their own book; Futureproof admins see everything.
+  def scoped_applications
+    if policy.futureproof?
+      Application.all
+    else
+      Application.joins(:user).where(users: { lender: policy.lender })
+    end
+  end
+
   # Same cache key as the old admin so the parallel-run period pays these
   # queries once, not twice.
   def attention_counts

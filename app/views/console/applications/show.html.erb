@@ -1,0 +1,46 @@
+<% content_for :title, "Application ##{@application.id} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Application ##{@application.id}",
+      subtitle: @application.address) do |header| %>
+  <% header.with_action do %>
+    <span id="application-status-badge"><%= render Console::BadgeComponent.new(status: @application.status) %></span>
+  <% end %>
+<% end %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% related.with_item(@application.user.display_name, meta: @application.user.email) %>
+  <% if @application.contract %>
+    <% related.with_item("Contract ##{@application.contract.id}", meta: @application.contract.status.humanize) %>
+  <% end %>
+<% end %>
+
+<%= render Console::TabsComponent.new do |tabs| %>
+  <% tabs.with_tab("Details", id: "details") do %>
+    <%= render "decision_panel", application: @application, lenders: @lenders %>
+    <%= render "details_panel", application: @application %>
+    <%= render "quotes_panel", quotes: @quotes %>
+    <%= render "compliance_panel", application: @application %>
+    <%= render "valuation_panel", application: @application %>
+  <% end %>
+
+  <% tabs.with_tab("Documents#{" (#{@outstanding_docs_count})" if @outstanding_docs_count.positive?}", id: "documents") do %>
+    <%= render "documents_panel", application: @application %>
+  <% end %>
+
+  <% tabs.with_tab("Messages#{" (#{@unread_messages_count})" if @unread_messages_count.positive?}", id: "messages") do %>
+    <div id="console-messages">
+      <%= render "messages_panel" %>
+    </div>
+  <% end %>
+
+  <% tabs.with_tab("Agent activity#{" (#{@agent_actions.size})" if @agent_actions.any?}", id: "agents") do %>
+    <%= render "agent_activity_panel", agent_actions: @agent_actions %>
+  <% end %>
+
+  <% tabs.with_tab("Checklist & history", id: "history") do %>
+    <div id="application-checklist">
+      <%= render "checklist", application: @application, editable: true %>
+    </div>
+    <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 50) %>
+  <% end %>
+<% end %>

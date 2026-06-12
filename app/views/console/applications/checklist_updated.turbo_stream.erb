@@ -1,0 +1,13 @@
+<%= turbo_stream.replace "application-status-badge" do %>
+  <span id="application-status-badge"><%= render Console::BadgeComponent.new(status: @application.status) %></span>
+<% end %>
+
+<%= turbo_stream.replace "application-checklist" do %>
+  <div id="application-checklist">
+    <%= render "checklist", application: @application, editable: true %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "console-flash" do %>
+  <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+<% end %>

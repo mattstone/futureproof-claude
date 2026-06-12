@@ -35,7 +35,9 @@
         </header>
 
         <main class="console-content">
-          <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+          <div id="console-flash">
+            <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+          </div>
           <%= yield %>
         </main>
       </div>

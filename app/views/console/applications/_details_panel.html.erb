@@ -1,0 +1,57 @@
+<%= render Console::CardComponent.new(title: "Application details") do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Customer" => "#{application.user.display_name} (#{application.user.email})",
+        "Address" => application.address,
+        "Home value" => application.formatted_home_value,
+        "Ownership" => application.ownership_status_display,
+        "Property state" => application.property_state_display,
+        "Existing mortgage" => application.has_existing_mortgage? ? application.formatted_existing_mortgage_amount : "None",
+        "Mortgage type" => application.mortgage&.mortgage_type_display || "Not selected",
+        "Monthly income" => application.mortgage.present? ? application.formatted_monthly_income_amount : "Not calculated",
+        "Borrower age" => "#{application.borrower_age} years",
+        "Created" => application.created_at.strftime("%-d %b %Y %H:%M"),
+        "Last updated" => application.updated_at.strftime("%-d %b %Y %H:%M")
+      }) do |dl| %>
+    <% if application.has_property_valuation? %>
+      <% dl.with_item("Property valuation") do %>
+        <%= application.formatted_property_valuation_middle %>
+        <div class="console-cell-sub">Range: <%= application.formatted_property_valuation_range %></div>
+      <% end %>
+    <% end %>
+    <% if application.ownership_status_joint? && application.has_borrower_names? %>
+      <% dl.with_item("Borrowers") { application.formatted_borrower_names } %>
+    <% elsif application.ownership_status_super? && application.super_fund_name.present? %>
+      <% dl.with_item("Super fund") { application.super_fund_name } %>
+    <% elsif application.ownership_status_lender? && application.company_name.present? %>
+      <% dl.with_item("Company") { application.company_name } %>
+    <% end %>
+  <% end %>
+
+  <% if application.corelogic_data_hash.present? %>
+    <div class="console-property-facts">
+      <% if application.property_type.present? %>
+        <%= render Console::BadgeComponent.new(status: "info", label: application.property_type.humanize) %>
+      <% end %>
+      <% { "bedrooms" => "bed", "bathrooms" => "bath", "parking_spaces" => "parking" }.each do |key, label| %>
+        <% if application.corelogic_data_hash[key].present? %>
+          <span class="console-property-fact"><strong><%= application.corelogic_data_hash[key] %></strong> <%= label %></span>
+        <% end %>
+      <% end %>
+      <% if application.corelogic_data_hash["land_area"].present? %>
+        <span class="console-property-fact"><strong><%= application.corelogic_data_hash["land_area"] %></strong> m² land</span>
+      <% end %>
+      <% if application.corelogic_data_hash["year_built"].present? %>
+        <span class="console-property-fact">built <strong><%= application.corelogic_data_hash["year_built"] %></strong></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if application.property_images_array.any? %>
+    <div class="console-property-images" data-controller="image-lightbox">
+      <% application.property_images_array.each_with_index do |image_url, index| %>
+        <img src="<%= image_url %>" alt="Property image <%= index + 1 %>" class="console-property-image"
+             loading="lazy" data-action="click->image-lightbox#show">
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

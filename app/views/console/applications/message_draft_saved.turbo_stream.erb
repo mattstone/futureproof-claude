@@ -1,0 +1,9 @@
+<%= turbo_stream.replace "console-messages" do %>
+  <div id="console-messages">
+    <%= render "messages_panel" %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "console-flash" do %>
+  <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+<% end %>

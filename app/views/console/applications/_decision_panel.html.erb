@@ -1,0 +1,70 @@
+<% if application.status_submitted? || application.status_processing? %>
+  <%= render Console::CardComponent.new(title: "Decision") do %>
+    <p class="console-muted">Approving sets the loan terms, calculates any broker commission, and creates the contract.</p>
+
+    <% if application.status_submitted? %>
+      <div class="console-decision-advance">
+        <%= button_to "Start processing", advance_to_processing_console_application_path(application),
+              method: :patch, class: "console-btn console-btn-primary",
+              data: { turbo_confirm: "This creates the processing checklist and moves the application to Processing. Continue?" } %>
+        <span class="console-muted">Creates the processing checklist; approval normally follows checklist completion.</span>
+      </div>
+    <% end %>
+
+    <div class="console-decision-grid">
+      <%= form_with url: approve_console_application_path(application), method: :post, class: "console-decision-form" do %>
+        <div class="console-field">
+          <label class="console-field-label" for="loan_amount">Loan amount</label>
+          <input type="number" step="1000" min="1" name="loan_amount" id="loan_amount" class="console-input"
+                 value="<%= application.loan_value.positive? ? application.loan_value.round(-3).to_i : nil %>" required>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label" for="interest_rate">Interest rate %</label>
+          <input type="number" step="0.01" min="0.01" name="interest_rate" id="interest_rate" class="console-input"
+                 value="<%= EpmModelConfig.indicative_borrower_rate_pct %>" required>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label" for="term_years">Term (years)</label>
+          <input type="number" step="1" min="1" max="40" name="term_years" id="term_years" class="console-input"
+                 value="<%= application.loan_term || 30 %>" required>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label" for="lender_id">Lender</label>
+          <select name="lender_id" id="lender_id" class="console-select" required>
+            <option value="">Select lender…</option>
+            <% lenders.each do |lender| %>
+              <option value="<%= lender.id %>"><%= lender.name %></option>
+            <% end %>
+          </select>
+        </div>
+        <button type="submit" class="console-btn console-btn-success"
+                data-turbo-confirm="Approve this application and create the contract?">Approve application</button>
+      <% end %>
+
+      <%= form_with url: reject_console_application_path(application), method: :post, class: "console-decision-form" do %>
+        <div class="console-field">
+          <label class="console-field-label" for="rejected_reason">Rejection reason</label>
+          <textarea name="rejected_reason" id="rejected_reason" rows="3" class="console-textarea"
+                    placeholder="Required — recorded in the audit history" required></textarea>
+        </div>
+        <button type="submit" class="console-btn console-btn-danger"
+                data-turbo-confirm="Reject this application?">Reject application</button>
+      <% end %>
+    </div>
+  <% end %>
+<% elsif application.status_accepted? %>
+  <%= render Console::CardComponent.new(title: "Approved") do %>
+    <p>
+      Loan <strong><%= number_to_currency(application.approved_loan_amount, precision: 0) %></strong>
+      at <strong><%= application.approved_interest_rate %>%</strong>
+      over <strong><%= application.approved_term_years %> years</strong><% if application.lender %> via <strong><%= application.lender.name %></strong><% end %>.
+    </p>
+    <% unless application.contract %>
+      <%= render Console::BadgeComponent.new(status: "needs_attention", label: "No contract yet — create one from the Contracts section") %>
+    <% end %>
+  <% end %>
+<% elsif application.status_rejected? && application.rejected_reason.present? %>
+  <%= render Console::CardComponent.new(title: "Rejected") do %>
+    <%= simple_format(application.rejected_reason, class: "console-muted") %>
+  <% end %>
+<% end %>

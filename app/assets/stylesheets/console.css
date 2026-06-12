@@ -896,3 +896,276 @@
 .console-pagination-gap {
   color: var(--fp-text-tertiary);
 }
+
+/* =========================================================================
+   Pipeline cockpit (Phase 1b)
+   ========================================================================= */
+
+/* ---- Buttons -------------------------------------------------------------- */
+
+.console-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fp-space-xs);
+  padding: var(--fp-space-sm) var(--fp-space-md);
+  border: 1px solid transparent;
+  border-radius: var(--fp-radius-sm);
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-semibold);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--fp-transition-fast), border-color var(--fp-transition-fast);
+}
+
+.console-btn-sm {
+  padding: var(--fp-space-xs) var(--fp-space-sm);
+  font-size: var(--fp-text-xs);
+}
+
+.console-btn-primary {
+  background: var(--fp-primary);
+  color: var(--fp-text-inverse);
+}
+
+.console-btn-primary:hover { background: var(--fp-primary-hover); }
+
+.console-btn-secondary {
+  background: var(--fp-bg-primary);
+  border-color: var(--fp-border);
+  color: var(--fp-text-primary);
+}
+
+.console-btn-secondary:hover { border-color: var(--fp-primary); color: var(--fp-primary); }
+
+.console-btn-success {
+  background: var(--fp-success);
+  color: var(--fp-text-inverse);
+}
+
+.console-btn-danger {
+  background: var(--fp-error);
+  color: var(--fp-text-inverse);
+}
+
+.console-inline-form { display: inline; }
+
+.console-cell-sub {
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-tertiary);
+}
+
+/* ---- Decision panel --------------------------------------------------------- */
+
+.console-decision-advance {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  margin-bottom: var(--fp-space-md);
+}
+
+.console-decision-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--fp-space-lg);
+}
+
+@media (max-width: 900px) {
+  .console-decision-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Checklist ----------------------------------------------------------------- */
+
+.console-checklist-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  margin-bottom: var(--fp-space-md);
+}
+
+.console-progress {
+  flex: 1;
+  height: 8px;
+  accent-color: var(--fp-success);
+}
+
+.console-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.console-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fp-space-sm);
+  padding: var(--fp-space-sm) 0;
+  border-bottom: 1px solid var(--fp-border-light);
+}
+
+.console-checklist-item:last-child { border-bottom: none; }
+
+.console-checklist-item.is-completed .console-checklist-label {
+  color: var(--fp-text-tertiary);
+  text-decoration: line-through;
+}
+
+.console-checklist-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--fp-success);
+}
+
+.console-checklist-label {
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-medium);
+  cursor: pointer;
+}
+
+/* ---- Messages --------------------------------------------------------------------- */
+
+.console-message-form .console-textarea { resize: vertical; }
+
+.console-message-actions {
+  display: flex;
+  gap: var(--fp-space-sm);
+}
+
+.console-thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fp-space-md);
+}
+
+.console-message {
+  padding: var(--fp-space-md);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  background: var(--fp-bg-secondary);
+}
+
+.console-message-admin { background: var(--fp-primary-light); }
+
+.console-message-reply { margin-left: var(--fp-space-xl); }
+
+.console-message-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+  margin-bottom: var(--fp-space-xs);
+}
+
+.console-message-subject {
+  font-weight: var(--fp-font-semibold);
+  margin-bottom: var(--fp-space-xs);
+}
+
+.console-message-body p { margin: 0 0 var(--fp-space-xs); }
+
+/* ---- Documents --------------------------------------------------------------------- */
+
+.console-doc-list {
+  list-style: none;
+  margin: 0 0 var(--fp-space-md);
+  padding: 0;
+}
+
+.console-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fp-space-md);
+  padding: var(--fp-space-sm) 0;
+  border-bottom: 1px solid var(--fp-border-light);
+}
+
+.console-doc-item:last-child { border-bottom: none; }
+
+.console-doc-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-xs);
+  flex-wrap: wrap;
+}
+
+/* ---- Agent activity ------------------------------------------------------------------ */
+
+.console-agent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.console-agent-item {
+  padding: var(--fp-space-md) 0;
+  border-bottom: 1px solid var(--fp-border-light);
+}
+
+.console-agent-item:last-child { border-bottom: none; }
+
+.console-agent-header {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+  flex-wrap: wrap;
+}
+
+.console-agent-reasoning {
+  margin: var(--fp-space-xs) 0;
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-secondary);
+}
+
+.console-agent-meta {
+  display: flex;
+  gap: var(--fp-space-md);
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-tertiary);
+}
+
+.console-override-form {
+  display: flex;
+  gap: var(--fp-space-sm);
+  margin-top: var(--fp-space-sm);
+  max-width: 480px;
+}
+
+/* ---- Property facts & images ----------------------------------------------------------- */
+
+.console-property-facts {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  flex-wrap: wrap;
+  margin-top: var(--fp-space-md);
+}
+
+.console-property-fact {
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-secondary);
+}
+
+.console-property-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--fp-space-sm);
+  margin-top: var(--fp-space-md);
+}
+
+.console-property-image {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--fp-radius-sm);
+  cursor: zoom-in;
+}
+
+.console-valuation-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--fp-space-md);
+  flex-wrap: wrap;
+}
+
+.console-valuation-form .console-field { margin-bottom: 0; min-width: 220px; }

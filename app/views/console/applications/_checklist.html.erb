@@ -1,0 +1,52 @@
+<% editable = local_assigns.fetch(:editable, true) && application.status_processing? %>
+
+<%= render Console::CardComponent.new(title: "Processing checklist") do %>
+  <% if application.status_submitted? %>
+    <p class="console-muted">
+      Submitted <%= time_ago_in_words(application.updated_at) %> ago. Start processing from the
+      Decision section on the Details tab — that creates this checklist.
+    </p>
+  <% elsif application.application_checklists.any? %>
+    <div class="console-checklist-progress">
+      <progress class="console-progress" value="<%= application.checklist_completion_percentage %>" max="100"></progress>
+      <span class="console-cell-sub">
+        <%= application.application_checklists.completed.count %> of <%= application.application_checklists.count %> completed
+        (<%= application.checklist_completion_percentage %>%)
+      </span>
+    </div>
+
+    <ul class="console-checklist" data-controller="checklist">
+      <% application.application_checklists.ordered.each do |item| %>
+        <li class="console-checklist-item <%= 'is-completed' if item.completed? %>">
+          <% if editable %>
+            <%= form_with url: update_checklist_item_console_application_path(application, checklist_item_id: item.id),
+                  method: :patch, class: "console-checklist-form" do %>
+              <%= check_box_tag :completed, true, item.completed?,
+                    id: "checklist_item_#{item.id}",
+                    class: "console-checklist-checkbox",
+                    data: { action: "change->checklist#change" } %>
+            <% end %>
+          <% else %>
+            <input type="checkbox" <%= "checked" if item.completed? %> disabled class="console-checklist-checkbox">
+          <% end %>
+          <div>
+            <label for="checklist_item_<%= item.id %>" class="console-checklist-label"><%= item.name %></label>
+            <% if item.completed? %>
+              <div class="console-cell-sub">
+                <%= item.completed_by_name %> · <%= item.completed_at.strftime("%-d %b %Y %H:%M") %>
+              </div>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+    <% if application.checklist_completed? && application.status_processing? %>
+      <div class="console-flash console-flash-success">
+        All checklist items completed — the application can now be approved from the Details tab.
+      </div>
+    <% end %>
+  <% else %>
+    <p class="console-muted">No processing checklist was created for this application.</p>
+  <% end %>
+<% end %>

@@ -1,0 +1,45 @@
+<%= render Console::CardComponent.new(title: "Send a message") do %>
+  <%= form_with model: @new_message, url: create_message_console_application_path(@application),
+        class: "console-message-form", data: { turbo: true } do |form| %>
+    <% if @new_message.errors.any? %>
+      <div class="console-flash console-flash-error">
+        <%= @new_message.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div class="console-field">
+      <%= form.label :ai_agent_id, "Send as", class: "console-field-label" %>
+      <%= form.collection_select :ai_agent_id, @ai_agents, :id, :display_name,
+            { selected: @suggested_agent&.id, prompt: "Select agent…" },
+            { class: "console-select", required: true } %>
+    </div>
+    <div class="console-field">
+      <%= form.label :subject, class: "console-field-label" %>
+      <%= form.text_field :subject, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <%= form.label :content, "Message", class: "console-field-label" %>
+      <%= form.text_area :content, rows: 5, class: "console-textarea", required: true,
+            placeholder: "Template variables like {{user.first_name}} and {{application.address}} are filled automatically." %>
+    </div>
+    <div class="console-message-actions">
+      <%= form.submit "Save draft", class: "console-btn console-btn-secondary" %>
+      <%= form.submit "Send now", name: "send_now", value: "true", class: "console-btn console-btn-primary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Conversation") do %>
+  <% if @messages.any? %>
+    <div class="console-thread-list">
+      <% @messages.each do |message| %>
+        <%= render "message", message: message %>
+        <% message.replies.order(:created_at).each do |reply| %>
+          <%= render "message", message: reply, reply: true %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="console-muted">No messages yet.</p>
+  <% end %>
+<% end %>

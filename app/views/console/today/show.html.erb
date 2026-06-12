@@ -5,7 +5,7 @@
 <div class="console-stat-grid">
   <%# hrefs point at pre-filtered indexes and light up as each phase ships. %>
   <%= render Console::StatCardComponent.new(value: @stats[:decisions], label: "Applications awaiting decision",
-        variant: @stats[:decisions].positive? ? :warning : nil) %>
+        href: console_applications_path, variant: @stats[:decisions].positive? ? :warning : nil) %>
   <%= render Console::StatCardComponent.new(value: @stats[:documents], label: "Documents awaiting verification") %>
   <%= render Console::StatCardComponent.new(value: @stats[:messages], label: "Unread customer messages",
         variant: @stats[:messages].positive? ? :warning : nil) %>
