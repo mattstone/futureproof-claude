@@ -205,6 +205,17 @@ app/views/admin/workflow_forms/new_trigger.html.erb|inline style attribute|<div 
 app/views/admin/workflow_forms/new_trigger.html.erb|inline style attribute|<div class="step-fields update-user-fields" data-step-type="update_user" style="display: none;">
 app/views/admin/workflow_forms/new_trigger.html.erb|inline style attribute|<div class="step-fields webhook-fields" data-step-type="webhook" style="display: none;">
 app/views/admin/workflow_forms/show.html.erb|<style> block|<style>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<h2 style="font-family: Georgia, serif; color: #1e293b;">Good morning — here's what needs attention</h2>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<h3 style="color: #1e293b;">Recommendations</h3>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<li style="margin-bottom: 8px;">
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<p style="color: #64748b; font-size: 13px;">Full detail on the <a href="https://www.futureprooffinancial.co/admin/dashbo
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<table style="border-collapse: collapse; margin: 16px 0;">
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 0; font-weight: bold;"><%= @counts[:applications_awaiting] %></td>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 0; font-weight: bold;"><%= @counts[:open_change_requests] %></td>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 0; font-weight: bold;"><%= @counts[:open_tickets] %></td>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 16px 6px 0; color: #475569;">Applications awaiting decision</td>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 16px 6px 0; color: #475569;">Open change requests</td>
+app/views/admin_mailer/daily_attention_digest.html.erb|inline style attribute|<td style="padding: 6px 16px 6px 0; color: #475569;">Open support tickets</td>
 app/views/application_mailer/message_notification.html.erb|inline style attribute|<div style="background-color: #e3f2fd; border-radius: 8px; padding: 20px; max-width: 300px; margin: 0 auto;">
 app/views/application_mailer/message_notification.html.erb|inline style attribute|<div style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.0
 app/views/application_mailer/message_notification.html.erb|inline style attribute|<div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px 32px; border-bottom: 1px solid 

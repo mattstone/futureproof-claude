@@ -115,7 +115,13 @@ Rails.application.routes.draw do
     
     # Direct access to all funder pools
     resources :funder_pools, only: [:index]
-    resources :users
+    resources :users do
+      member do
+        post :lock
+        post :unlock
+        post :send_reset_password
+      end
+    end
     resources :mortgages do
       resources :lenders, controller: 'mortgage_lenders', except: [:index, :show, :new, :edit] do
         collection do

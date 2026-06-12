@@ -17,3 +17,9 @@ production:
     class: EmailIngestionJob
     queue: default
     schedule: every 5 minutes
+
+production:
+  admin_daily_digest:
+    class: AdminDailyDigestJob
+    queue: default
+    schedule: at 8am every day

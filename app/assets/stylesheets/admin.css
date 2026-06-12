@@ -10725,3 +10725,21 @@ turbo-frame#admin_main {
     grid-template-columns: 1fr;
   }
 }
+
+/* === Sidebar attention badges === */
+.nav-badge {
+  display: inline-block;
+  min-width: 1.4em;
+  margin-left: 0.5em;
+  padding: 0.05em 0.45em;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.security-panel { margin: 1.5rem 0; }
+.security-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }

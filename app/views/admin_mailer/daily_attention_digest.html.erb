@@ -1,0 +1,32 @@
+<h2 style="font-family: Georgia, serif; color: #1e293b;">Good morning — here's what needs attention</h2>
+
+<table style="border-collapse: collapse; margin: 16px 0;">
+  <tr>
+    <td style="padding: 6px 16px 6px 0; color: #475569;">Open support tickets</td>
+    <td style="padding: 6px 0; font-weight: bold;"><%= @counts[:open_tickets] %></td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 16px 6px 0; color: #475569;">Applications awaiting decision</td>
+    <td style="padding: 6px 0; font-weight: bold;"><%= @counts[:applications_awaiting] %></td>
+  </tr>
+  <tr>
+    <td style="padding: 6px 16px 6px 0; color: #475569;">Open change requests</td>
+    <td style="padding: 6px 0; font-weight: bold;"><%= @counts[:open_change_requests] %></td>
+  </tr>
+</table>
+
+<% if @recommendations.present? %>
+  <h3 style="color: #1e293b;">Recommendations</h3>
+  <ul>
+    <% @recommendations.each do |rec| %>
+      <li style="margin-bottom: 8px;">
+        <strong>[<%= rec.severity.to_s.upcase %>] <%= rec.headline %></strong>
+        <% if rec.detail.present? %> — <%= rec.detail %><% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No outstanding recommendations — all clear.</p>
+<% end %>
+
+<p style="color: #64748b; font-size: 13px;">Full detail on the <a href="https://www.futureprooffinancial.co/admin/dashboard">admin dashboard</a>.</p>
