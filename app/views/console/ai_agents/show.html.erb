@@ -1,0 +1,76 @@
+<% content_for :title, "#{@agent.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @agent.name,
+      subtitle: "#{@agent.role_title} · #{@agent.agent_type&.humanize}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @agent.is_active? ? "active" : "inactive") %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Add lifecycle stage", edit_stage_console_ai_agent_path(@agent), class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "About") do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Description" => @agent.description,
+        "Specialties" => Array(@agent.specialties).join(", "),
+        "Greeting style" => @agent.greeting_style
+      }) %>
+<% end %>
+
+<% if @performance %>
+  <div class="console-stat-grid">
+    <%= render Console::StatCardComponent.new(value: @performance.tasks_completed_today, label: "Tasks today") %>
+    <%= render Console::StatCardComponent.new(value: @performance.tasks_completed_week, label: "This week") %>
+    <%= render Console::StatCardComponent.new(value: "#{@performance.avg_resolution_minutes} min", label: "Avg resolution") %>
+    <%= render Console::StatCardComponent.new(value: "#{@performance.satisfaction_score}/5", label: "Satisfaction") %>
+  </div>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Lifecycle stages") do %>
+  <% if @lifecycle_stages.any? %>
+    <ol class="console-onboarding">
+      <% @lifecycle_stages.each_with_index do |stage, index| %>
+        <li class="console-onboarding-step">
+          <span class="console-onboarding-mark" aria-hidden="true"></span>
+          <div class="console-onboarding-body">
+            <span class="console-onboarding-label"><%= stage["stage_label"].presence || stage["stage_name"] %></span>
+            <span class="console-cell-sub">
+              <%= stage["stage_description"] %>
+              <% if stage["entry_trigger"].present? %> · enters on: <%= stage["entry_trigger"] %><% end %>
+              <% if (actions = Array(stage["automated_actions"])).any? %>
+                · <%= actions.size %> automated action<%= "s" unless actions.size == 1 %>
+              <% end %>
+              <% if stage.dig("handoff_rules", "handoff_to").present? %>
+                · hands off to <%= stage.dig("handoff_rules", "handoff_to") %>
+              <% end %>
+            </span>
+          </div>
+          <%= link_to "Edit", edit_stage_console_ai_agent_path(@agent, stage_index: index), class: "console-btn console-btn-sm console-btn-secondary" %>
+          <%= button_to "Delete", delete_stage_console_ai_agent_path(@agent, stage_index: index), method: :delete,
+                class: "console-btn console-btn-sm console-btn-danger", form_class: "console-inline-form",
+                data: { turbo_confirm: "Delete stage '#{stage["stage_label"]}'?" } %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="console-muted">No lifecycle stages configured — add the first one.</p>
+  <% end %>
+<% end %>
+
+<% if @recent_actions.any? %>
+  <%= render Console::CardComponent.new(title: "Recent actions") do %>
+    <ul class="console-history-list">
+      <% @recent_actions.each do |action| %>
+        <li class="console-history-item">
+          <span class="console-history-actor"><%= action.action_type %></span>
+          <span class="console-history-action">
+            <% if action.application_id %>application #<%= action.application_id %> · <% end %>
+            <%= action.decision.presence || action.status %>
+          </span>
+          <time class="console-history-time"><%= time_ago_in_words(action.created_at) %> ago</time>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

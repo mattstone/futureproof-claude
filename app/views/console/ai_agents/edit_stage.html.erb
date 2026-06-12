@@ -1,0 +1,66 @@
+<% content_for :title, "Lifecycle stage — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(
+      title: @stage_index ? "Edit stage" : "New lifecycle stage",
+      subtitle: @agent.name) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with url: update_stage_console_ai_agent_path(@agent), method: :patch, class: "console-form" do %>
+    <%= hidden_field_tag :stage_index, @stage_index %>
+
+    <div class="console-field">
+      <label class="console-field-label" for="stage_label">Stage label</label>
+      <%= text_field_tag :stage_label, @stage["stage_label"], class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="stage_name">Stage key (machine name)</label>
+      <%= text_field_tag :stage_name, @stage["stage_name"], class: "console-input", required: true, placeholder: "e.g. welcome_call" %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="stage_description">Description</label>
+      <%= text_area_tag :stage_description, @stage["stage_description"], rows: 3, class: "console-textarea" %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="entry_trigger">Entry trigger</label>
+      <%= text_field_tag :entry_trigger, @stage["entry_trigger"], class: "console-input", placeholder: "e.g. application_submitted" %>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="handoff_to">Hands off to (optional)</label>
+      <%= text_field_tag :handoff_to, @stage.dig("handoff_rules", "handoff_to"), class: "console-input", placeholder: "Another agent's stage key" %>
+    </div>
+
+    <div class="console-field">
+      <span class="console-field-label">Automated action (optional)</span>
+      <% action = Array(@stage["automated_actions"]).first || {} %>
+      <div class="console-ticket-form">
+        <div class="console-field">
+          <label class="console-field-label">Type</label>
+          <%= select_tag "automated_actions[][action_type]",
+                options_for_select([ [ "None", "" ], [ "Send email", "send_email" ], [ "Create task", "create_task" ], [ "Update status", "update_status" ], [ "Send message", "send_message" ] ], action["action_type"]),
+                class: "console-select" %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Email template</label>
+          <%= select_tag "automated_actions[][email_template_id]",
+                options_from_collection_for_select(@email_templates, :id, :name, action["email_template_id"]),
+                include_blank: "—", class: "console-select" %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Delay</label>
+          <%= number_field_tag "automated_actions[][delay][duration]", action.dig("delay", "duration"), min: 0, class: "console-input" %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">Unit</label>
+          <%= select_tag "automated_actions[][delay][unit]",
+                options_for_select(%w[minutes hours days], action.dig("delay", "unit")),
+                class: "console-select" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="console-message-actions">
+      <%= submit_tag "Save stage", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_ai_agent_path(@agent), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

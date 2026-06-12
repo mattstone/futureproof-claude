@@ -1,0 +1,75 @@
+<% content_for :title, "AI agents — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "AI agents",
+      subtitle: "The agent roster, live performance and recent completed work.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: "#{@stats[:active_agents]}/#{@stats[:total_agents]}", label: "Active agents") %>
+  <%= render Console::StatCardComponent.new(value: @stats[:tasks_today], label: "Tasks completed today") %>
+  <%= render Console::StatCardComponent.new(value: "#{@stats[:avg_resolution]} min", label: "Avg resolution") %>
+  <%= render Console::StatCardComponent.new(value: @stats[:avg_satisfaction] ? "#{@stats[:avg_satisfaction]}/5" : "—", label: "Avg satisfaction") %>
+</div>
+
+<%= render Console::DataTableComponent.new(records: @agents, id: "ai_agents",
+      empty_message: "No agents configured.") do |table| %>
+  <% table.with_column "Agent" do |agent| %>
+    <%= link_to agent.name, console_ai_agent_path(agent) %>
+    <div class="console-cell-sub"><%= agent.role_title %></div>
+  <% end %>
+  <% table.with_column "Type" do |agent| %>
+    <%= agent.agent_type&.humanize %>
+  <% end %>
+  <% table.with_column "Status" do |agent| %>
+    <%= render Console::BadgeComponent.new(status: agent.is_active? ? "active" : "inactive") %>
+  <% end %>
+  <% table.with_column "Lifecycle stages", numeric: true do |agent| %>
+    <%= (agent.lifecycle_stages || []).size %>
+  <% end %>
+  <% table.with_column "Specialties" do |agent| %>
+    <%= truncate(Array(agent.specialties).join(", "), length: 60) %>
+  <% end %>
+<% end %>
+
+<% if @performances.any? %>
+  <%= render Console::CardComponent.new(title: "Performance by agent type") do %>
+    <%= render Console::DataTableComponent.new(records: @performances, id: "agent_performance") do |table| %>
+      <% table.with_column "Type" do |perf| %>
+        <%= perf.agent_type.humanize %>
+      <% end %>
+      <% table.with_column "Status" do |perf| %>
+        <%= render Console::BadgeComponent.new(status: perf.status) %>
+      <% end %>
+      <% table.with_column "Today", numeric: true do |perf| %>
+        <%= perf.tasks_completed_today %>
+      <% end %>
+      <% table.with_column "Week", numeric: true do |perf| %>
+        <%= perf.tasks_completed_week %>
+      <% end %>
+      <% table.with_column "Avg resolution", numeric: true do |perf| %>
+        <%= perf.avg_resolution_minutes %> min
+      <% end %>
+      <% table.with_column "Satisfaction", numeric: true do |perf| %>
+        <%= perf.satisfaction_score %>/5
+      <% end %>
+      <% table.with_column "Last active" do |perf| %>
+        <%= perf.last_active_at ? "#{time_ago_in_words(perf.last_active_at)} ago" : "—" %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @recent_tasks.any? %>
+  <%= render Console::CardComponent.new(title: "Recent completed tasks") do %>
+    <ul class="console-doc-list">
+      <% @recent_tasks.each do |task| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= task.task_type&.humanize %></strong>
+            <span class="console-cell-sub"><%= truncate(task.description, length: 90) %> · <%= task.completed_at&.strftime("%-d %b %H:%M") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: task.outcome.presence || task.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

@@ -190,6 +190,14 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :ai_agents, only: [ :index, :show ] do
+      member do
+        get :edit_stage
+        patch :update_stage
+        delete :delete_stage
+      end
+    end
+
     resources :agent_actions, only: [] do
       member do
         post :override
