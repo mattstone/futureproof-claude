@@ -24,6 +24,9 @@ class Console::SmokeTest < ActionDispatch::IntegrationTest
     "console/mortgage_contracts" => -> {
       contract = MortgageContract.where.not(mortgage_id: nil).first || flunk("No MortgageContract fixture exists")
       { mortgage_id: contract.mortgage_id, id: contract.id }
+    },
+    "console/prompts" => -> {
+      { key: PromptFiles.slots_for(:runtime).first.key }
     }
   }.freeze
 

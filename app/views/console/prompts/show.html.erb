@@ -1,0 +1,36 @@
+<% content_for :title, "#{@slot.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @slot.name,
+      subtitle: "#{@slot.layer.to_s.humanize} · #{@slot.path}") do |header| %>
+  <% header.with_action do %>
+    <code class="console-prompt-chip" title="Deployed content SHA"><%= @sha.to_s[0, 12] %></code>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Propose edit", new_console_prompt_change_request_path(kind: "direct_edit", slot: @slot.key),
+          class: "console-btn console-btn-primary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Request change", new_console_prompt_change_request_path(kind: "change_request", slot: @slot.key),
+          class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Deployed content") do %>
+  <pre class="console-prompt-content"><%= @content %></pre>
+<% end %>
+
+<% if @requests.any? %>
+  <%= render Console::CardComponent.new(title: "Change requests for this prompt") do %>
+    <ul class="console-doc-list">
+      <% @requests.each do |request| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to request.title, console_prompt_change_request_path(request) %></strong>
+            <span class="console-cell-sub"><%= request.user&.email %> · <%= request.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: request.state_cache.presence || "pending") %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

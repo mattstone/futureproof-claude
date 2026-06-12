@@ -127,6 +127,19 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :prompts, only: [ :index, :show ], param: :key
+    resources :prompt_change_requests, only: [ :index, :new, :create, :show ] do
+      member do
+        post :refresh
+      end
+    end
+
+    resources :audit_logs, only: [ :index, :show ]
+    get 'diagnostics', to: 'diagnostics#show'
+    post 'diagnostics/core_logic_search', to: 'diagnostics#core_logic_search', as: :diagnostics_core_logic_search
+    post 'diagnostics/test_error', to: 'diagnostics#test_error', as: :diagnostics_test_error
+    get 'system/security', to: 'system#security', as: :system_security
+
     resources :legal_documents, only: [ :index, :show, :new, :create, :edit, :update ] do
       member do
         patch :publish

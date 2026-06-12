@@ -1,0 +1,53 @@
+<% content_for :title, "New change request — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(
+      title: @request.kind_direct_edit? ? "Propose a prompt edit" : "Request a change",
+      subtitle: @request.kind_direct_edit? ?
+        "Your edited text becomes a pull request in your name." :
+        "Your plain-language request becomes a GitHub issue; Claude drafts the implementation as a PR.") %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with model: @request, url: console_prompt_change_requests_path, scope: :prompt_change_request, class: "console-form" do |form| %>
+    <% if @request.errors.any? %>
+      <div class="console-flash console-flash-error"><%= @request.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <%= form.hidden_field :kind %>
+
+    <% if @request.kind_direct_edit? %>
+      <%= render Console::FormFieldComponent.new(form: form, attribute: :target_slot, label: "Prompt") do %>
+        <%= form.select :target_slot,
+              PromptFiles::LAYERS.flat_map { |layer| PromptFiles.slots_for(layer).map { |s| [ "#{layer.to_s.humanize} — #{s.name}", s.key ] } },
+              { prompt: "Select prompt…" }, { class: "console-select", required: true } %>
+      <% end %>
+    <% end %>
+
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :title, required: true,
+          hint: "One line summarising the change — becomes the PR/issue title.") do %>
+      <%= form.text_field :title, class: "console-input", required: true %>
+    <% end %>
+
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :description,
+          label: @request.kind_direct_edit? ? "Full prompt text (your edit replaces the file)" : "What should change, and why?",
+          required: true) do %>
+      <%= form.text_area :description, rows: @request.kind_direct_edit? ? 24 : 8, class: "console-textarea", required: true %>
+    <% end %>
+
+    <div class="console-field">
+      <span class="console-field-label"><%= PromptChangeRequest::IMPACT_QUESTION %></span>
+      <p class="console-field-hint">Your answer is recorded verbatim with the request and shown to the CTO.</p>
+      <%= form.select :impact_answer,
+            PromptChangeRequest.impact_answers.keys.map { |k| [ k.humanize, k ] },
+            { prompt: "Select…" }, { class: "console-select", required: true } %>
+    </div>
+
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :impact_details, label: "Impact details (optional)") do %>
+      <%= form.text_area :impact_details, rows: 3, class: "console-textarea" %>
+    <% end %>
+
+    <div class="console-message-actions">
+      <%= form.submit "Submit for CTO review", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_prompt_change_requests_path, class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,32 @@
+<% content_for :title, "Audit log — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Audit log",
+      subtitle: "Every consequential admin and agent action, with who, what and why.") %>
+
+<%= render Console::FilterBarComponent.new(url: console_audit_logs_path, search: false,
+      clear_url: console_audit_logs_path) do |bar| %>
+  <% bar.with_select(:action_filter, options: @actions, selected: params[:action_filter], label: "Action") %>
+  <% bar.with_select(:resource_type, options: @resource_types, selected: params[:resource_type], label: "Resource") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "audit_logs",
+      empty_message: "No audit entries match those filters.") do |table| %>
+  <% table.with_column "When" do |log| %>
+    <%= link_to log.created_at.strftime("%-d %b %Y %H:%M:%S"), console_audit_log_path(log) %>
+  <% end %>
+  <% table.with_column "Who" do |log| %>
+    <%= log.user&.email || "system" %>
+  <% end %>
+  <% table.with_column "Action" do |log| %>
+    <%= render Console::BadgeComponent.new(status: "info", label: log.action.humanize) %>
+  <% end %>
+  <% table.with_column "Resource" do |log| %>
+    <%= log.resource_type %><% if log.resource_id %> #<%= log.resource_id %><% end %>
+  <% end %>
+  <% table.with_column "Reason" do |log| %>
+    <%= truncate(log.reason, length: 60) %>
+  <% end %>
+  <% table.with_column "IP" do |log| %>
+    <%= log.ip_address %>
+  <% end %>
+<% end %>

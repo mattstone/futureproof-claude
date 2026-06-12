@@ -1,0 +1,30 @@
+<% content_for :title, "Prompts — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Prompts",
+      subtitle: "What is deployed IS what you see — these files are the single source of truth. Changes go via change requests; the CTO merges; the merge deploys.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Change requests", console_prompt_change_requests_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<% @layers.each do |layer, slots| %>
+  <%= render Console::CardComponent.new(title: layer.to_s.humanize) do %>
+    <ul class="console-doc-list">
+      <% slots.each do |slot| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to slot.name, console_prompt_path(slot.key) %></strong>
+            <span class="console-cell-sub"><%= slot.description %></span>
+          </div>
+          <div class="console-doc-actions">
+            <% if (open_count = @open_request_counts[slot.key]).present? %>
+              <%= render Console::BadgeComponent.new(status: "pending", label: "#{open_count} open #{'request'.pluralize(open_count)}") %>
+            <% end %>
+            <%= link_to "Propose edit", new_console_prompt_change_request_path(kind: "direct_edit", slot: slot.key),
+                  class: "console-btn console-btn-sm console-btn-secondary" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

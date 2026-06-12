@@ -1,0 +1,10 @@
+wording_request:
+  user: admin_user
+  kind: 1 # change_request
+  target_slot: support_chat
+  title: "Soften the refusal wording"
+  description: "Make the chat refusal friendlier for AU customers."
+  impact_question: "Does this change affect data or functionality, or only prompt wording/guidance?"
+  impact_answer: 0 # wording_only
+  state_cache: open
+  created_at: <%= 3.days.ago %>

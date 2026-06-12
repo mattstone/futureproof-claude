@@ -87,8 +87,33 @@
     </div>
   <% end %>
 
-  <%# Nav groups appear here as each phase ships:
-      Pipeline · Portfolio · Partners · Product · Development · System %>
+  <% if policy.publish_prompts? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">Development</span>
+      <%= link_to "Prompts", console_prompts_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompts_path)}" %>
+      <%= link_to console_prompt_change_requests_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompt_change_requests_path)}" do %>
+        Change requests
+        <% if attention_counts[:change_requests].positive? %>
+          <span class="console-nav-badge"><%= attention_counts[:change_requests] %></span>
+        <% end %>
+      <% end %>
+      <%= link_to "Diagnostics", console_diagnostics_path,
+            class: "console-nav-link #{'is-active' if current_page?(console_diagnostics_path)}" %>
+      <a href="https://github.com/mattstone/futureproof-claude/pulls" target="_blank" rel="noopener" class="console-nav-link">GitHub PRs ↗</a>
+    </div>
+  <% end %>
+
+  <% if policy.view_system? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">System</span>
+      <%= link_to "Audit log", console_audit_logs_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_audit_logs_path)}" %>
+      <%= link_to "Security", console_system_security_path,
+            class: "console-nav-link #{'is-active' if current_page?(console_system_security_path)}" %>
+    </div>
+  <% end %>
 </nav>
 
 <div class="console-nav-footer">
