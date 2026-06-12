@@ -22,6 +22,10 @@ class Console::PartnerOnboarding
       end
   end
 
+  def suspended?
+    partner.respond_to?(:status_suspended?) && partner.status_suspended?
+  end
+
   def complete?
     steps.any? && steps.all?(&:done)
   end
@@ -31,6 +35,8 @@ class Console::PartnerOnboarding
   end
 
   def progress_label
+    return "Suspended" if suspended?
+
     complete? ? "Active" : "Onboarding #{done_count}/#{steps.size}"
   end
 

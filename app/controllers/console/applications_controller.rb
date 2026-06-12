@@ -30,7 +30,7 @@ class Console::ApplicationsController < Console::ResourceController
     @outstanding_docs_count = @application.application_documents.where(status: %w[pending rejected]).count
     @unread_messages_count = @application.unread_customer_messages_count
     @quotes = @application.quotes.latest_first
-    @lenders = Lender.order(:name)
+    @lenders = Lender.status_active.order(:name)
     set_messages
   end
 

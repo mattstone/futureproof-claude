@@ -6,6 +6,9 @@ class Lender < ApplicationRecord
   track_changes :name, :lender_type, :contact_email, :country
   
   enum :lender_type, { futureproof: 0, lender: 1 }, prefix: true
+  # Partner lifecycle — suspended partners are excluded from operational
+  # pickers (approvals, assignments) but their records and history remain.
+  enum :status, { active: 0, suspended: 1 }, prefix: true
   
   # Associations
   has_many :agreements, as: :agreeable, dependent: :restrict_with_exception

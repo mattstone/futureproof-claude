@@ -33,7 +33,7 @@
   <% end %>
   <% table.with_column "Onboarding" do |funder| %>
     <% onboarding = Console::PartnerOnboarding.for(funder) %>
-    <%= render Console::BadgeComponent.new(status: onboarding.complete? ? "active" : "in_progress", label: onboarding.progress_label) %>
+    <%= render Console::BadgeComponent.new(status: onboarding.suspended? ? "error" : (onboarding.complete? ? "active" : "in_progress"), label: onboarding.progress_label) %>
   <% end %>
   <% table.with_column "Country", sort: "country" do |funder| %>
     <%= funder.country %>

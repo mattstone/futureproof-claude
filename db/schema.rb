@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_12_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_12_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -913,6 +913,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_12_120000) do
     t.integer "lender_type", null: false
     t.string "name", null: false
     t.string "postcode"
+    t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["lender_type"], name: "index_lenders_on_lender_type"
     t.index ["name"], name: "index_lenders_on_name"
@@ -1418,6 +1419,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_12_120000) do
     t.string "currency", default: "AUD", null: false
     t.boolean "demo", default: false, null: false
     t.string "name", null: false
+    t.integer "status", default: 0, null: false
     t.decimal "total_allocated_amount", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
     t.index ["country"], name: "index_wholesale_funders_on_country"

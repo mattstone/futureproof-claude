@@ -1,7 +1,9 @@
 <%# locals: onboarding (Console::PartnerOnboarding), links ({step_key => path}) %>
 <%= render Console::CardComponent.new(title: "Onboarding") do |card| %>
   <% card.with_header_action do %>
-    <% if onboarding.complete? %>
+    <% if onboarding.suspended? %>
+      <%= render Console::BadgeComponent.new(status: "error", label: "Suspended") %>
+    <% elsif onboarding.complete? %>
       <%= render Console::BadgeComponent.new(status: "active", label: "Active partner") %>
     <% else %>
       <%= render Console::BadgeComponent.new(status: "in_progress", label: onboarding.progress_label) %>
