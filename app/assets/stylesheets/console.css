@@ -1536,3 +1536,13 @@
 .console-onboarding-step.is-done .console-onboarding-label {
   color: var(--fp-text-tertiary);
 }
+
+/* ---- Compliance actions (Launch L3) ------------------------------------------ */
+
+.console-compliance-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--fp-space-sm);
+}

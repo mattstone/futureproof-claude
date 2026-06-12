@@ -3,6 +3,9 @@
     <% dl.with_item("KYC") do %>
       <% if application.kyc_submission %>
         <%= render Console::BadgeComponent.new(status: application.kyc_submission.status) %>
+        <% if application.kyc_submission.verified_by.present? %>
+          <span class="console-cell-sub">by <%= application.kyc_submission.verified_by %></span>
+        <% end %>
         <% if application.kyc_submission.respond_to?(:submitted_at) && application.kyc_submission.submitted_at %>
           <span class="console-cell-sub">submitted <%= application.kyc_submission.submitted_at.strftime("%-d %b %Y") %></span>
         <% end %>
@@ -13,9 +16,41 @@
     <% dl.with_item("AML") do %>
       <% if application.aml_check %>
         <%= render Console::BadgeComponent.new(status: application.aml_check.status) %>
+        <% if application.aml_check.risk_level.present? %>
+          <span class="console-cell-sub">risk: <%= application.aml_check.risk_level %></span>
+        <% end %>
+        <% if application.aml_check.failure_reason.present? %>
+          <span class="console-field-error"><%= application.aml_check.failure_reason %></span>
+        <% end %>
       <% else %>
         <%= render Console::BadgeComponent.new(status: "neutral", label: "Not started") %>
       <% end %>
     <% end %>
+  <% end %>
+
+  <% if application.kyc_submission&.submitted? %>
+    <div class="console-compliance-actions">
+      <%= button_to "Verify KYC", verify_kyc_console_application_path(application), method: :patch,
+            class: "console-btn console-btn-sm console-btn-success", form_class: "console-inline-form",
+            data: { turbo_confirm: "Verify this customer's identity documents? Recorded in your name." } %>
+      <%= form_with url: reject_kyc_console_application_path(application), method: :patch, class: "console-override-form" do %>
+        <input type="text" name="reason" class="console-input" placeholder="Rejection reason (required)" required>
+        <button type="submit" class="console-btn console-btn-sm console-btn-danger"
+                data-turbo-confirm="Reject the KYC submission? The customer must resubmit.">Reject KYC</button>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if application.aml_check && %w[pending checking].include?(application.aml_check.status) %>
+    <div class="console-compliance-actions">
+      <%= button_to "Pass AML", pass_aml_console_application_path(application), method: :patch,
+            class: "console-btn console-btn-sm console-btn-success", form_class: "console-inline-form",
+            data: { turbo_confirm: "Mark the AML screening as passed? Recorded in the audit log." } %>
+      <%= form_with url: fail_aml_console_application_path(application), method: :patch, class: "console-override-form" do %>
+        <input type="text" name="reason" class="console-input" placeholder="Failure reason (required)" required>
+        <button type="submit" class="console-btn console-btn-sm console-btn-danger"
+                data-turbo-confirm="Fail the AML check? The application should not proceed.">Fail AML</button>
+      <% end %>
+    </div>
   <% end %>
 <% end %>

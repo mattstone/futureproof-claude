@@ -2,6 +2,17 @@
   <%= render Console::CardComponent.new(title: "Decision") do %>
     <p class="console-muted">Approving sets the loan terms, calculates any broker commission, and creates the contract.</p>
 
+    <% kyc_clear = application.kyc_submission&.verified? %>
+    <% aml_clear = application.aml_check&.passed? %>
+    <% unless kyc_clear && aml_clear %>
+      <div class="console-flash console-flash-warning">
+        Compliance incomplete:
+        KYC <%= application.kyc_submission&.status&.humanize || "not started" %> ·
+        AML <%= application.aml_check&.status&.humanize || "not started" %>.
+        Clear both in the Identity &amp; compliance panel before approving.
+      </div>
+    <% end %>
+
     <% if application.status_submitted? %>
       <div class="console-decision-advance">
         <%= button_to "Start processing", advance_to_processing_console_application_path(application),
