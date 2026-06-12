@@ -64,3 +64,16 @@ jane:
   admin: false
   terms_accepted: true
   lender: futureproof
+# Lender-type admin — exercises Console::Policy lender scoping
+lender_admin_user:
+  email: lenderadmin@testbroker.com.au
+  first_name: Lender
+  last_name: Admin
+  country_of_residence: Australia
+  encrypted_password: $2a$12$2Al1frCmzu2Abi7G5lFNreNh8R0aHv7K2HDrV7OEjFEjl.TjiOry.
+  confirmed_at: <%= 1.week.ago %>
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.day.ago %>
+  admin: true
+  terms_accepted: true
+  lender: broker

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "FutureProof Console" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "design_system", "console", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="console-body">
+    <div class="console-shell" data-controller="console--nav">
+      <aside class="console-sidebar" data-console--nav-target="sidebar">
+        <%= render "console/shared/nav" %>
+      </aside>
+
+      <div class="console-main">
+        <header class="console-topbar">
+          <button type="button"
+                  class="console-nav-toggle"
+                  data-action="console--nav#toggle"
+                  aria-label="Toggle navigation">&#9776;</button>
+
+          <div class="console-topbar-spacer"></div>
+
+          <%= render "console/shared/jurisdiction_switcher" %>
+
+          <div class="console-user">
+            <span class="console-user-email"><%= current_user.email %></span>
+            <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "console-signout", form_class: "console-signout-form" %>
+          </div>
+        </header>
+
+        <main class="console-content">
+          <%= render "console/shared/flash" %>
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

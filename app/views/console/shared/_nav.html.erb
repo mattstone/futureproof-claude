@@ -1,0 +1,21 @@
+<div class="console-brand">
+  <%= link_to console_root_path, class: "console-brand-link" do %>
+    <span class="console-brand-name">FutureProof</span>
+    <span class="console-brand-product">Console</span>
+  <% end %>
+</div>
+
+<nav class="console-nav" aria-label="Console navigation">
+  <div class="console-nav-group">
+    <%= link_to "Today", console_root_path,
+          class: "console-nav-link #{'is-active' if current_page?(console_root_path)}" %>
+  </div>
+
+  <%# Nav groups appear here as each phase ships:
+      Pipeline · Portfolio · Partners · Customers · Product · Development · System %>
+</nav>
+
+<div class="console-nav-footer">
+  <%# Parallel-run escape hatch; removed at Phase 4 cutover. %>
+  <a href="/admin" class="console-nav-legacy">Legacy admin &rarr;</a>
+</div>
