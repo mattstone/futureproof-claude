@@ -1,5 +1,12 @@
 <% content_for :page_title, "Contract ##{@contract.id}" %>
 <%= stylesheet_link_tag "admin/contracts", "data-turbo-track": "reload" %>
+<%
+related = []
+related << ["📋 Application ##{@contract.application.id}", admin_application_path(@contract.application)]
+related << ["👤 #{@contract.application.user.display_name}", admin_user_path(@contract.application.user)]
+related << ["💰 Pool: #{@contract.funder_pool.name}", admin_funder_pool_path(@contract.funder_pool)] if @contract.funder_pool && futureproof_admin?
+%>
+<%= render 'admin/shared/related_records', links: related %>
 
 <div class="admin-actions-bar">
   <div>
@@ -9,7 +16,7 @@
   <div class="admin-actions">
     <%= link_to "Edit Contract", edit_admin_contract_path(@contract), class: "admin-btn admin-btn-primary" %>
     <%= link_to "Delete Contract", admin_contract_path(@contract), method: :delete,
-        data: { confirm: "Are you sure? This will permanently delete the contract." },
+        data: { turbo_confirm: "Are you sure? This will permanently delete the contract." },
         class: "admin-btn admin-btn-danger" %>
   </div>
 </div>

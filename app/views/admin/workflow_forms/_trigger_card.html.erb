@@ -23,8 +23,7 @@
       <%= link_to "Remove",
                   destroy_trigger_admin_workflow_form_path(workflow, trigger_name: trigger_name),
                   method: :delete,
-                  data: {
-                    confirm: "Remove trigger '#{trigger_name}'? This cannot be undone.",
+                  data: { turbo_confirm: "Remove trigger '#{trigger_name}'? This cannot be undone.",
                     turbo_method: :delete
                   },
                   class: "admin-btn admin-btn-sm admin-btn-danger" %>

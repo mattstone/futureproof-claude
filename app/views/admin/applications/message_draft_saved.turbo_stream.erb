@@ -179,7 +179,7 @@
       <div class="message-actions">
         <%= link_to "Send Message", send_message_admin_application_path(@application, message_id: @message.id), 
                     method: :patch, class: "admin-btn admin-btn-success admin-btn-small",
-                    data: { confirm: "Send this message to the customer?", turbo_method: :patch } %>
+                    data: { turbo_confirm: "Send this message to the customer?", turbo_method: :patch } %>
       </div>
     <% end %>
   </div>

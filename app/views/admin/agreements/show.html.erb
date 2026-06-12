@@ -26,7 +26,7 @@
     <% if @agreement.editable? %>
       <%= link_to "Edit Agreement", edit_admin_agreement_path(@agreement), class: "ld-btn ld-btn-secondary" %>
       <%= button_to "Send for Signing", send_for_signing_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-primary" %>
-      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { confirm: "Cancel this agreement?" } %>
+      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { turbo_confirm: "Cancel this agreement?" } %>
     <% elsif @agreement.signable? %>
       <% unless @agreement.signed_by?("counterparty") %>
         <%= link_to "Sign as Counterparty", sign_admin_agreement_path(@agreement, role: "counterparty"), class: "ld-btn ld-btn-primary" %>
@@ -34,7 +34,7 @@
       <% unless @agreement.signed_by?("futureproof") %>
         <%= link_to "Sign as FutureProof", sign_admin_agreement_path(@agreement, role: "futureproof"), class: "ld-btn ld-btn-secondary" %>
       <% end %>
-      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { confirm: "Cancel this agreement?" } %>
+      <%= button_to "Cancel", cancel_admin_agreement_path(@agreement), method: :patch, class: "ld-btn ld-btn-danger", data: { turbo_confirm: "Cancel this agreement?" } %>
     <% end %>
   </div>
 

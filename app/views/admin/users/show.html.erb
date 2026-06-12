@@ -1,4 +1,10 @@
 <% content_for :page_title, "User Details" %>
+<%
+related = @user.applications.order(created_at: :desc).limit(5).map do |app|
+  ["📋 Application ##{app.id} (#{app.status.humanize})", admin_application_path(app)]
+end
+%>
+<%= render 'admin/shared/related_records', links: related %>
 
 <div class="admin-actions-bar">
   <div>

@@ -93,7 +93,7 @@
                 <%= link_to "Contracts", admin_wholesale_funder_contracts_path(funder), class: "admin-btn admin-btn-sm" %>
                 <%= link_to "Edit", edit_admin_wholesale_funder_path(funder), class: "admin-btn admin-btn-sm" %>
                 <%= link_to "Delete", admin_wholesale_funder_path(funder), 
-                    method: :delete, data: { confirm: "Are you sure?" },
+                    method: :delete, data: { turbo_confirm: "Are you sure?" },
                     class: "admin-btn admin-btn-sm admin-btn-danger" %>
               </td>
             </tr>

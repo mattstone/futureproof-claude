@@ -11,26 +11,27 @@
   </div>
 
   <div class="admin-filters">
-    <%= form_with(url: admin_users_path, method: :get, local: true, class: "filter-form") do |form| %>
+    <%= form_with(url: admin_users_path, method: :get, local: true, class: "filter-form", data: { controller: "auto-submit" }) do |form| %>
       <%= form.select :role,
             options_for_select([["All Roles", ""]] + @role_options, params[:role]),
             {},
             {
               class: "role-filter-select",
-              onchange: "this.form.submit();"
+              data: { action: "change->auto-submit#submitForm" }
             } %>
       <%= form.select :status,
             options_for_select([["All Status", ""]] + @status_options, params[:status]),
             {},
             {
               class: "status-filter-select",
-              onchange: "this.form.submit();"
+              data: { action: "change->auto-submit#submitForm" }
             } %>
       <%= form.hidden_field :search, value: params[:search] %>
     <% end %>
   </div>
 
   <div class="admin-actions">
+    <%= csv_export_link %>
     <%= link_to "Add New User", new_admin_user_path, class: "admin-btn admin-btn-primary" %>
   </div>
 </div>
