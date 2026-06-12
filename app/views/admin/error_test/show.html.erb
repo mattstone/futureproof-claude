@@ -28,8 +28,7 @@
       <%= form_with url: test_error_admin_error_test_path, method: :post, class: "error-test-form" do |f| %>
         <%= f.submit "Test Application Error", 
             class: "admin-btn admin-btn-danger", 
-            data: { 
-              confirm: "This will trigger a test error and send an email notification to Matt Stone. Continue?" 
+            data: { turbo_confirm: "This will trigger a test error and send an email notification to Matt Stone. Continue?" 
             } %>
       <% end %>
     </div>
@@ -43,8 +42,7 @@
       <%= form_with url: test_database_error_admin_error_test_path, method: :post, class: "error-test-form" do |f| %>
         <%= f.submit "Test Database Error", 
             class: "admin-btn admin-btn-danger", 
-            data: { 
-              confirm: "This will trigger a database error and send an email notification to Matt Stone. Continue?" 
+            data: { turbo_confirm: "This will trigger a database error and send an email notification to Matt Stone. Continue?" 
             } %>
       <% end %>
     </div>
@@ -58,8 +56,7 @@
       <%= form_with url: test_view_error_admin_error_test_path, method: :post, class: "error-test-form" do |f| %>
         <%= f.submit "Test View Error", 
             class: "admin-btn admin-btn-danger", 
-            data: { 
-              confirm: "This will trigger a view error and send an email notification to Matt Stone. Continue?" 
+            data: { turbo_confirm: "This will trigger a view error and send an email notification to Matt Stone. Continue?" 
             } %>
       <% end %>
     </div>

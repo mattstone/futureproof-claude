@@ -5,7 +5,7 @@
     <%= link_to "← Back to Email Templates", admin_email_templates_path, class: "admin-btn admin-btn-secondary" %>
     <%= link_to "Edit", edit_admin_email_template_path(@email_template), class: "admin-btn admin-btn-primary" %>
     <%= link_to "Preview", preview_admin_email_template_path(@email_template), class: "admin-btn admin-btn-info", target: "_blank" %>
-    <%= link_to "Send Test Email", test_email_admin_email_template_path(@email_template), method: :post, class: "admin-btn admin-btn-success", data: { confirm: "Send a test email to #{current_user.email}?" } %>
+    <%= link_to "Send Test Email", test_email_admin_email_template_path(@email_template), method: :post, class: "admin-btn admin-btn-success", data: { turbo_confirm: "Send a test email to #{current_user.email}?" } %>
   </div>
 </div>
 

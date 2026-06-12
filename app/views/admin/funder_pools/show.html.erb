@@ -5,7 +5,7 @@
   <div class="admin-actions">
     <%= link_to "Edit Pool", edit_admin_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), class: "admin-btn admin-btn-primary" %>
     <%= link_to "Delete", admin_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), method: :delete, 
-        data: { confirm: "Are you sure you want to delete this pool?" }, 
+        data: { turbo_confirm: "Are you sure you want to delete this pool?" }, 
         class: "admin-btn admin-btn-danger" %>
     <%= link_to "Back to #{@wholesale_funder.name}", admin_wholesale_funder_path(@wholesale_funder), class: "admin-btn admin-btn-secondary" %>
   </div>

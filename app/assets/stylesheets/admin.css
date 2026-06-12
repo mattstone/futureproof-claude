@@ -10756,3 +10756,17 @@ turbo-frame#admin_main {
 .override-form { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
 .override-reason-input { flex: 1; max-width: 360px; font-size: 0.85rem; }
 .quotes-panel, .compliance-panel { margin-top: 1.5rem; }
+
+/* === Sortable headers, related records strip === */
+.sortable-header { color: inherit; text-decoration: none; }
+.sortable-header:hover { text-decoration: underline; }
+.sortable-header-active { color: #2563eb; }
+.related-records { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin: 0.5rem 0 1rem; font-size: 0.85rem; }
+.related-records-label { color: #64748b; font-weight: 600; }
+.related-record-link {
+  padding: 0.15em 0.6em; border-radius: 999px; background: #f1f5f9;
+  color: #1e293b; text-decoration: none; border: 1px solid #e2e8f0;
+}
+.related-record-link:hover { background: #e2e8f0; }
+
+.empty-state-cell { text-align: center; color: #94a3b8; padding: 2rem !important; font-style: italic; }

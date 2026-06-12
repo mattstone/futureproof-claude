@@ -30,11 +30,11 @@
     <% when "draft" %>
       <%= link_to "Edit", edit_admin_legal_document_path(@legal_document), class: "ld-btn ld-btn-secondary" %>
       <%= link_to "Publish", publish_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
-      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
+      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { turbo_confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
     <% when "in_review" %>
       <%= link_to "Edit", edit_admin_legal_document_path(@legal_document), class: "ld-btn ld-btn-secondary" %>
       <%= link_to "Approve", approve_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
-      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
+      <%= link_to "Delete", admin_legal_document_path(@legal_document), method: :delete, data: { turbo_confirm: "Delete this document?" }, class: "ld-btn ld-btn-danger" %>
     <% when "approved" %>
       <%= link_to "Activate", activate_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-primary" %>
       <%= link_to "Archive", archive_admin_legal_document_path(@legal_document), method: :patch, class: "ld-btn ld-btn-secondary" %>

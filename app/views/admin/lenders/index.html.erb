@@ -89,7 +89,7 @@
                 <%= link_to "Edit", edit_admin_lender_path(lender), class: "admin-link-btn" %>
                 <% unless lender.lender_type_futureproof? %>
                   <%= link_to "Delete", admin_lender_path(lender), method: :delete,
-                      data: { confirm: "Delete #{lender.name}?" },
+                      data: { turbo_confirm: "Delete #{lender.name}?" },
                       class: "admin-link-btn admin-link-btn-danger" %>
                 <% end %>
               </td>

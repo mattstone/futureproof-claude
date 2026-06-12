@@ -1,9 +1,10 @@
 class Admin::UsersController < Admin::BaseController
+  include AdminSortable
   before_action :set_user, only: [:show, :edit, :update]
   before_action :set_current_admin_user, only: [:create, :update]
 
   def index
-    @users = scoped_users.includes(:lender).order(:email)
+    @users = sort_scope(scoped_users.includes(:lender).order(:email), allowed: %w[email created_at sign_in_count last_sign_in_at])
     
     # Search filter
     @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
@@ -30,6 +31,11 @@ class Admin::UsersController < Admin::BaseController
       @users = @users.where(confirmed_at: nil)
     end
     
+    if request.format.csv?
+      send_data users_csv(@users), filename: "users-#{Date.current}.csv", type: "text/csv"
+      return
+    end
+
     @users = @users.page(params[:page]).per(10)
     
     # For the filter dropdowns
@@ -122,6 +128,17 @@ class Admin::UsersController < Admin::BaseController
   end
 
   private
+
+  def users_csv(scope)
+    require "csv"
+    CSV.generate(headers: true) do |csv|
+      csv << ["ID", "Name", "Email", "Role", "Lender", "Confirmed", "Sign-ins", "Last sign-in", "Created"]
+      scope.find_each do |u|
+        csv << [u.id, u.display_name, u.email, u.admin? ? "admin" : "user", u.lender&.name,
+                u.confirmed_at&.iso8601, u.sign_in_count, u.last_sign_in_at&.iso8601, u.created_at.iso8601]
+      end
+    end
+  end
 
 
   def set_user

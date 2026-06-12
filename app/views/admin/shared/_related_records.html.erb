@@ -1,0 +1,7 @@
+<div class="related-records">
+  <span class="related-records-label">Related:</span>
+  <% links.each do |label, path| %>
+    <%= link_to label, path, class: "related-record-link" %>
+  <% end %>
+  <% if links.empty? %><span class="text-muted">none</span><% end %>
+</div>

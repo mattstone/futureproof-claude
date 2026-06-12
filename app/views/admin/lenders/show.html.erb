@@ -19,7 +19,7 @@
         <%= link_to "Edit", edit_admin_lender_path(@lender), class: "admin-btn admin-btn-primary" %>
         <% unless @lender.lender_type_futureproof? %>
           <%= link_to "Delete", admin_lender_path(@lender), method: :delete,
-              data: { confirm: "Delete #{@lender.name}?" },
+              data: { turbo_confirm: "Delete #{@lender.name}?" },
               class: "admin-btn admin-btn-danger" %>
         <% end %>
         <%= link_to "Back", admin_lenders_path, class: "admin-btn admin-btn-secondary" %>
@@ -88,7 +88,7 @@
               </td>
               <td class="admin-actions-cell">
                 <%= link_to "Remove", admin_lender_wholesale_funder_path(@lender, rel), 
-                    method: :delete, data: { confirm: "Remove?" },
+                    method: :delete, data: { turbo_confirm: "Remove?" },
                     class: "admin-link-btn admin-link-btn-danger" %>
               </td>
             </tr>
@@ -138,7 +138,7 @@
               </td>
               <td class="admin-actions-cell">
                 <%= link_to "Remove", admin_lender_funder_pool_path(@lender, rel), 
-                    method: :delete, data: { confirm: "Remove?" },
+                    method: :delete, data: { turbo_confirm: "Remove?" },
                     class: "admin-link-btn admin-link-btn-danger" %>
               </td>
             </tr>

@@ -44,7 +44,7 @@
               <%= link_to "Edit", edit_admin_wholesale_funder_contract_path(@wholesale_funder, contract), 
                   class: "admin-btn admin-btn-sm", style: "background: #8b5cf6; color: white; padding: 6px 12px; text-decoration: none;" %>
               <%= link_to "Delete", admin_wholesale_funder_contract_path(@wholesale_funder, contract), 
-                  method: :delete, data: { confirm: "Are you sure?" },
+                  method: :delete, data: { turbo_confirm: "Are you sure?" },
                   class: "admin-btn admin-btn-sm", style: "background: #dc2626; color: white; padding: 6px 12px; text-decoration: none;" %>
             </td>
           </tr>
