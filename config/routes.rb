@@ -84,6 +84,17 @@ Rails.application.routes.draw do
         patch :toggle_active
         post :assign_lender
         delete :remove_lender
+        patch :toggle_lender
+        post :resend_setup
+      end
+    end
+
+    resources :broker_commissions, only: [ :index ] do
+      member do
+        patch :mark_paid
+      end
+      collection do
+        post :pay_run
       end
     end
 

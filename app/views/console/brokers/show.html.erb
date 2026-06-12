@@ -11,6 +11,11 @@
     <%= button_to @broker.active? ? "Deactivate" : "Activate", toggle_active_console_broker_path(@broker),
           method: :patch, class: "console-btn console-btn-secondary" %>
   <% end %>
+  <% header.with_action do %>
+    <%= button_to "Resend setup email", resend_setup_console_broker_path(@broker), method: :post,
+          class: "console-btn console-btn-secondary",
+          data: { turbo_confirm: "Resend the password setup email to #{@broker.email}?" } %>
+  <% end %>
 <% end %>
 
 <%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
@@ -32,17 +37,24 @@
 
 <div id="lender-assignments"></div>
 <%= render Console::CardComponent.new(title: "Lender assignments") do %>
-  <% if @lenders.any? %>
+  <% if @assignments.any? %>
     <ul class="console-doc-list">
-      <% @lenders.each do |lender| %>
+      <% @assignments.each do |assignment| %>
         <li class="console-doc-item">
           <div class="console-doc-name">
-            <strong><%= link_to lender.name, console_lender_path(lender) %></strong>
+            <strong><%= link_to assignment.lender.name, console_lender_path(assignment.lender) %></strong>
+            <% if assignment.access_level.present? %>
+              <span class="console-cell-sub">access: <%= assignment.access_level.humanize %></span>
+            <% end %>
           </div>
           <div class="console-doc-actions">
-            <%= button_to "Remove", remove_lender_console_broker_path(@broker, lender_id: lender.id),
+            <%= render Console::BadgeComponent.new(status: assignment.active? ? "active" : "inactive") %>
+            <%= button_to assignment.active? ? "Deactivate" : "Activate",
+                  toggle_lender_console_broker_path(@broker, lender_id: assignment.lender_id),
+                  method: :patch, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <%= button_to "Remove", remove_lender_console_broker_path(@broker, lender_id: assignment.lender_id),
                   method: :delete, class: "console-btn console-btn-sm console-btn-danger",
-                  data: { turbo_confirm: "Remove #{@broker.name} from #{lender.name}?" } %>
+                  data: { turbo_confirm: "Remove #{@broker.name} from #{assignment.lender.name}?" } %>
           </div>
         </li>
       <% end %>
@@ -60,6 +72,34 @@
       </div>
       <%= submit_tag "Assign", class: "console-btn console-btn-primary" %>
     <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Commissions") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "Full ledger", console_broker_commissions_path(broker_id: @broker.id), class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <%= render Console::DescriptionListComponent.new(columns: 2, rows: {
+        "Unpaid" => number_to_currency(@commission_totals[:unpaid], precision: 2),
+        "Paid to date" => number_to_currency(@commission_totals[:paid], precision: 2)
+      }) %>
+  <% if @commission_totals[:unpaid].positive? %>
+    <%= button_to "Run payment — pay all unpaid", pay_run_console_broker_commissions_path(broker_id: @broker.id),
+          method: :post, class: "console-btn console-btn-success",
+          data: { turbo_confirm: "Mark ALL unpaid commissions for #{@broker.name} (#{number_to_currency(@commission_totals[:unpaid], precision: 2)}) as paid? This is audit-logged." } %>
+  <% end %>
+  <% if @recent_commissions.any? %>
+    <ul class="console-doc-list">
+      <% @recent_commissions.each do |commission| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= number_to_currency(commission.commission_amount, precision: 2) %></strong>
+            <span class="console-cell-sub">app #<%= commission.application_id %> · earned <%= commission.earned_date&.strftime("%-d %b %Y") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: commission.status) %>
+        </li>
+      <% end %>
+    </ul>
   <% end %>
 <% end %>
 

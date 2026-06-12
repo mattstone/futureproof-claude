@@ -1,6 +1,6 @@
 class Console::BrokersController < Console::ResourceController
   before_action -> { require_capability(:manage_partners) }
-  before_action :set_broker, only: [ :show, :edit, :update, :toggle_active, :assign_lender, :remove_lender ]
+  before_action :set_broker, only: [ :show, :edit, :update, :toggle_active, :assign_lender, :remove_lender, :toggle_lender, :resend_setup ]
 
   resource Broker
   searches "brokers.name", "brokers.email"
@@ -18,9 +18,14 @@ class Console::BrokersController < Console::ResourceController
 
   def show
     @onboarding = Console::PartnerOnboarding.for(@broker)
-    @lenders = @broker.lenders
+    @assignments = @broker.broker_lenders.includes(:lender).order("lenders.name")
     @available_lenders = Lender.where.not(id: @broker.lender_ids).order(:name)
     @applications = @broker.applications.order(created_at: :desc).limit(10)
+    @commission_totals = {
+      unpaid: BrokerCommission.for_broker(@broker).unpaid.sum(:commission_amount),
+      paid: BrokerCommission.for_broker(@broker).paid.sum(:commission_amount)
+    }
+    @recent_commissions = BrokerCommission.for_broker(@broker).includes(:application).order(earned_date: :desc).limit(10)
   end
 
   def scorecard
@@ -89,6 +94,19 @@ class Console::BrokersController < Console::ResourceController
     lender = Lender.find(params[:lender_id])
     BrokerLender.find_by(broker: @broker, lender: lender)&.destroy
     redirect_to console_broker_path(@broker), notice: "Removed from #{lender.name}."
+  end
+
+  def toggle_lender
+    assignment = @broker.broker_lenders.find_by!(lender_id: params[:lender_id])
+    assignment.update!(active: !assignment.active)
+    redirect_to console_broker_path(@broker),
+                notice: "#{assignment.lender.name} access #{assignment.active? ? 'activated' : 'deactivated'}."
+  end
+
+  def resend_setup
+    @broker.update(reset_password_token: SecureRandom.urlsafe_base64, reset_password_sent_at: Time.current)
+    BrokerMailer.setup_password(@broker, @broker.reset_password_token).deliver_later
+    redirect_to console_broker_path(@broker), notice: "Setup email resent to #{@broker.email}."
   end
 
   protected

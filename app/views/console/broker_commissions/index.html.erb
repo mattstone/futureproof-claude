@@ -1,0 +1,47 @@
+<% content_for :title, "Broker commissions — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Broker commissions",
+      subtitle: "The commissions ledger — pending accrues on referral, earned on settlement, paid when money moves.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@totals[:unpaid], precision: 0), label: "Unpaid",
+        variant: @totals[:unpaid].positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@totals[:pending], precision: 0), label: "Pending") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@totals[:earned], precision: 0), label: "Earned") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@totals[:paid], precision: 0), label: "Paid", variant: :success) %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_broker_commissions_path, search: false,
+      clear_url: console_broker_commissions_path) do |bar| %>
+  <% bar.with_select(:status, options: BrokerCommission::STATUSES.map { |s| [ s.humanize, s ] }, selected: params[:status]) %>
+  <% bar.with_select(:broker_id, options: @brokers_for_filter.map { |b| [ b.name, b.id ] }, selected: params[:broker_id], label: "Broker") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "commissions",
+      empty_message: "No commissions match those filters.") do |table| %>
+  <% table.with_column "Broker" do |commission| %>
+    <%= link_to commission.broker.name, console_broker_path(commission.broker) %>
+  <% end %>
+  <% table.with_column "Application" do |commission| %>
+    <%= link_to "##{commission.application_id}", console_application_path(commission.application_id) %>
+  <% end %>
+  <% table.with_column "Amount", numeric: true do |commission| %>
+    <strong><%= number_to_currency(commission.commission_amount, precision: 2) %></strong>
+    <div class="console-cell-sub"><%= commission.commission_rate %>%</div>
+  <% end %>
+  <% table.with_column "Status" do |commission| %>
+    <%= render Console::BadgeComponent.new(status: commission.status) %>
+  <% end %>
+  <% table.with_column "Earned" do |commission| %>
+    <%= commission.earned_date&.strftime("%-d %b %Y") %>
+  <% end %>
+  <% table.with_column "Paid" do |commission| %>
+    <% if commission.paid_date %>
+      <%= commission.paid_date.strftime("%-d %b %Y") %>
+    <% elsif commission.status != "paid" %>
+      <%= button_to "Mark paid", mark_paid_console_broker_commission_path(commission), method: :patch,
+            class: "console-btn console-btn-sm console-btn-success", form_class: "console-inline-form",
+            data: { turbo_confirm: "Mark #{number_to_currency(commission.commission_amount, precision: 2)} to #{commission.broker.name} as paid? This is audit-logged." } %>
+    <% end %>
+  <% end %>
+<% end %>
