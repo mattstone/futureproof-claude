@@ -52,6 +52,18 @@
     </div>
   <% end %>
 
+  <% if policy.manage_product? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">Product</span>
+      <%= link_to "Mortgages", console_mortgages_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_mortgages_path)}" %>
+      <%= link_to "FAQs", console_faqs_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_faqs_path)}" %>
+      <%= link_to "Calculator", console_calculators_path,
+            class: "console-nav-link #{'is-active' if current_page?(console_calculators_path)}" %>
+    </div>
+  <% end %>
+
   <% if policy.manage_users? %>
     <div class="console-nav-group">
       <span class="console-nav-group-title">Customers</span>

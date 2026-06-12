@@ -88,6 +88,25 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :mortgages, only: [ :index, :show, :new, :create, :edit, :update ] do
+      resources :mortgage_contracts, only: [ :show, :new, :create, :edit, :update ] do
+        member do
+          patch :publish
+          patch :activate
+        end
+        resources :contract_clauses, only: [ :create ] do
+          collection do
+            delete :remove, action: :destroy
+          end
+        end
+      end
+    end
+
+    resources :faqs, only: [ :index, :new, :create, :edit, :update ]
+
+    get 'calculators', to: 'calculators#index'
+    post 'calculators/calculate', to: 'calculators#calculate', as: :calculate_calculators
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply

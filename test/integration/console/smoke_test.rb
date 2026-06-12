@@ -20,6 +20,10 @@ class Console::SmokeTest < ActionDispatch::IntegrationTest
     "console/broker_commission_rates" => -> {
       rate = BrokerCommissionRate.first || flunk("No BrokerCommissionRate fixture exists")
       { lender_id: rate.lender_id, id: rate.id }
+    },
+    "console/mortgage_contracts" => -> {
+      contract = MortgageContract.where.not(mortgage_id: nil).first || flunk("No MortgageContract fixture exists")
+      { mortgage_id: contract.mortgage_id, id: contract.id }
     }
   }.freeze
 

@@ -1,0 +1,67 @@
+<% content_for :title, "#{@mortgage.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @mortgage.name,
+      subtitle: "#{@mortgage.mortgage_type_display} · LVR #{@mortgage.lvr}%") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @mortgage.status) %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_mortgage_path(@mortgage), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New contract version", new_console_mortgage_mortgage_contract_path(@mortgage), class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Offered by") do %>
+  <% if @mortgage.active_lenders.any? %>
+    <%= render Console::RelatedRecordsComponent.new(title: "Lenders") do |related| %>
+      <% @mortgage.active_lenders.each do |lender| %>
+        <% related.with_item(lender.name, href: console_lender_path(lender)) %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="console-muted">No lenders currently offer this mortgage.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Contract documents") do %>
+  <% if @published_contracts.any? || @draft_contracts.any? %>
+    <ul class="console-doc-list">
+      <% (@draft_contracts + @published_contracts).each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "v#{contract.version} — #{contract.title}", console_mortgage_mortgage_contract_path(@mortgage, contract) %></strong>
+            <span class="console-cell-sub">
+              <%= contract.created_at.strftime("%-d %b %Y") %><% if contract.created_by %> · <%= contract.created_by.email %><% end %>
+            </span>
+          </div>
+          <div class="console-doc-actions">
+            <% if contract.is_active? %>
+              <%= render Console::BadgeComponent.new(status: "active") %>
+            <% elsif contract.draft? %>
+              <%= render Console::BadgeComponent.new(status: "draft") %>
+            <% else %>
+              <%= render Console::BadgeComponent.new(status: "published") %>
+            <% end %>
+            <% if contract.draft? %>
+              <%= button_to "Publish", publish_console_mortgage_mortgage_contract_path(@mortgage, contract),
+                    method: :patch, class: "console-btn console-btn-sm console-btn-primary",
+                    data: { turbo_confirm: "Publish v#{contract.version}? Published versions are immutable." } %>
+            <% elsif !contract.is_active? %>
+              <%= button_to "Activate", activate_console_mortgage_mortgage_contract_path(@mortgage, contract),
+                    method: :patch, class: "console-btn console-btn-sm console-btn-success",
+                    data: { turbo_confirm: "Make v#{contract.version} the active contract customers receive?" } %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No contract documents yet — create the first version.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 30) %>
+<% end %>

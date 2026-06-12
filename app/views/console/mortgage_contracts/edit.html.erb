@@ -1,0 +1,8 @@
+<% content_for :title, "Edit contract — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit contract v#{@mortgage_contract.version}", subtitle: @mortgage.name) %>
+<% if @mortgage_contract.published? %>
+  <div class="console-flash console-flash-warning">This version is published — saving content changes creates a new draft version.</div>
+<% end %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_mortgage_mortgage_contract_path(@mortgage, @mortgage_contract), method: :patch, submit_label: "Save" %>
+<% end %>
