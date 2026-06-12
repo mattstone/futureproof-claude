@@ -396,7 +396,7 @@ GEM
     pg (1.6.3-x86_64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
-    phony (3.0.2)
+    phony (3.0.6)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
