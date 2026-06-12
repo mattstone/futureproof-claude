@@ -1,0 +1,84 @@
+<% content_for :title, "Contract ##{@contract.id} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Contract ##{@contract.id}",
+      subtitle: @contract.application.address) do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @contract.status) %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_contract_path(@contract), class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% related.with_item(@contract.application.user.display_name, href: console_user_path(@contract.application.user), meta: "customer") %>
+  <% related.with_item("Application ##{@contract.application_id}", href: console_application_path(@contract.application_id), meta: @contract.application.status.humanize) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Contract details") do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Status" => @contract.status_display,
+        "Allocated" => @contract.formatted_allocated_amount,
+        "Start" => @contract.start_date&.strftime("%-d %b %Y"),
+        "End" => @contract.end_date&.strftime("%-d %b %Y"),
+        "Investment balance" => number_to_currency(@contract.investment_balance, precision: 0),
+        "Offset balance" => number_to_currency(@contract.offset_balance, precision: 0),
+        "Return rate" => (@contract.investment_return_rate ? "#{@contract.investment_return_rate}%" : nil),
+        "Lender" => @contract.lender&.name,
+        "Funder pool" => @contract.funder_pool&.name
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Send a message") do %>
+  <%= form_with model: @new_message, url: create_message_console_contract_path(@contract),
+        scope: :contract_message, class: "console-message-form" do |form| %>
+    <div class="console-field">
+      <%= form.label :ai_agent_id, "Send as", class: "console-field-label" %>
+      <%= form.collection_select :ai_agent_id, @ai_agents, :id, :name,
+            { selected: @suggested_agent&.id, prompt: "Select agent…" },
+            { class: "console-select", required: true } %>
+    </div>
+    <div class="console-field">
+      <%= form.label :subject, class: "console-field-label" %>
+      <%= form.text_field :subject, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <%= form.label :content, "Message", class: "console-field-label" %>
+      <%= form.text_area :content, rows: 5, class: "console-textarea", required: true %>
+    </div>
+    <div class="console-message-actions">
+      <%= form.submit "Save draft", class: "console-btn console-btn-secondary" %>
+      <%= form.submit "Send now", name: "send_now", value: "true", class: "console-btn console-btn-primary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Conversation") do %>
+  <div id="console-contract-messages">
+    <% if @messages.any? %>
+      <div class="console-thread-list">
+        <% @messages.each do |message| %>
+          <div class="console-message <%= message.from_customer? ? 'console-message-customer' : 'console-message-admin' %>">
+            <div class="console-message-meta">
+              <strong><%= message.sender_name %></strong>
+              <%= render Console::BadgeComponent.new(status: message.status) %>
+              <time class="console-history-time"><%= message.created_at.strftime("%-d %b %Y %H:%M") %></time>
+              <% if message.draft? %>
+                <%= button_to "Send", send_message_console_contract_path(@contract, message_id: message.id),
+                      method: :patch, class: "console-btn console-btn-sm console-btn-primary", form_class: "console-inline-form" %>
+              <% end %>
+            </div>
+            <div class="console-message-subject"><%= message.processed_subject %></div>
+            <div class="console-message-body"><%= sanitize message.content_html, tags: %w[p br strong em ul li], attributes: [] %></div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="console-muted">No messages yet.</p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions) %>
+<% end %>

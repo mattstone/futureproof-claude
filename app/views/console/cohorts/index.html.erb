@@ -1,0 +1,41 @@
+<% content_for :title, "Cohorts — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Vintage cohorts",
+      subtitle: "Contract performance by origination quarter. Heatmap normalises each metric across cohorts — green better, red worse, blue informational.") %>
+
+<% if @heatmap[:rows].any? %>
+  <%= render Console::CardComponent.new do %>
+    <div class="console-chart"
+         data-controller="cohort-heatmap"
+         data-cohort-heatmap-rows-value="<%= @heatmap[:rows].to_json %>"
+         data-cohort-heatmap-metrics-value="<%= @heatmap[:metrics].to_json %>"></div>
+  <% end %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @cohorts, id: "cohorts",
+      empty_message: "No contracts with a start date yet.") do |table| %>
+  <% table.with_column "Cohort" do |cohort| %>
+    <strong><%= cohort[:label] %></strong>
+  <% end %>
+  <% table.with_column "Count", numeric: true do |cohort| %>
+    <%= cohort[:count] %>
+  <% end %>
+  <% table.with_column "Allocated", numeric: true do |cohort| %>
+    <%= number_to_currency(cohort[:total_allocated], precision: 0) %>
+  <% end %>
+  <% table.with_column "Investment balance", numeric: true do |cohort| %>
+    <%= number_to_currency(cohort[:investment_balance], precision: 0) %>
+  <% end %>
+  <% table.with_column "Offset balance", numeric: true do |cohort| %>
+    <%= number_to_currency(cohort[:offset_balance], precision: 0) %>
+  <% end %>
+  <% table.with_column "On holiday", numeric: true do |cohort| %>
+    <%= cohort[:in_holiday] %> (<%= cohort[:holiday_rate] %>%)
+  <% end %>
+  <% table.with_column "Completed", numeric: true do |cohort| %>
+    <%= cohort[:completed] %>
+  <% end %>
+  <% table.with_column "P&L", numeric: true do |cohort| %>
+    <%= number_to_currency(cohort[:pl], precision: 0) %>
+  <% end %>
+<% end %>

@@ -24,6 +24,18 @@
     </div>
   <% end %>
 
+  <% if policy.view_pipeline? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">Portfolio</span>
+      <%= link_to "Contracts", console_contracts_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_contracts_path)}" %>
+      <%= link_to "Cohorts", console_cohorts_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_cohorts_path)}" %>
+      <%= link_to "Analytics", console_analytics_path,
+            class: "console-nav-link #{'is-active' if current_page?(console_analytics_path)}" %>
+    </div>
+  <% end %>
+
   <% if policy.manage_users? %>
     <div class="console-nav-group">
       <span class="console-nav-group-title">Customers</span>

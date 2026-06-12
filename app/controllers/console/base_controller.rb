@@ -67,6 +67,14 @@ class Console::BaseController < ApplicationController
     end
   end
 
+  def scoped_contracts
+    if policy.futureproof?
+      Contract.all
+    else
+      Contract.joins(application: :user).where(applications: { users: { lender_id: policy.lender&.id } })
+    end
+  end
+
   # Same cache key as the old admin so the parallel-run period pays these
   # queries once, not twice.
   def attention_counts

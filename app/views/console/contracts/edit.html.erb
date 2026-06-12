@@ -1,0 +1,8 @@
+<% content_for :title, "Edit contract ##{@contract.id} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Edit contract ##{@contract.id}",
+      subtitle: @contract.application.address) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_contract_path(@contract), method: :patch, submit_label: "Save changes" %>
+<% end %>

@@ -1,0 +1,25 @@
+<%= turbo_stream.replace "console-contract-messages" do %>
+  <div id="console-contract-messages">
+    <% if @messages.any? %>
+      <div class="console-thread-list">
+        <% @messages.each do |message| %>
+          <div class="console-message <%= message.from_customer? ? 'console-message-customer' : 'console-message-admin' %>">
+            <div class="console-message-meta">
+              <strong><%= message.sender_name %></strong>
+              <%= render Console::BadgeComponent.new(status: message.status) %>
+              <time class="console-history-time"><%= message.created_at.strftime("%-d %b %Y %H:%M") %></time>
+            </div>
+            <div class="console-message-subject"><%= message.processed_subject %></div>
+            <div class="console-message-body"><%= sanitize message.content_html, tags: %w[p br strong em ul li], attributes: [] %></div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="console-muted">No messages yet.</p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "console-flash" do %>
+  <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+<% end %>

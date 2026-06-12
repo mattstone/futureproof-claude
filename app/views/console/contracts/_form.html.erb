@@ -1,0 +1,31 @@
+<%= form_with model: @contract, url: url, method: method, class: "console-form" do |form| %>
+  <% if @contract.errors.any? %>
+    <div class="console-flash console-flash-error">
+      <%= @contract.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <% if @contract.new_record? %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :application_id, label: "Application",
+          hint: "Accepted applications without a contract.") do %>
+      <%= form.collection_select :application_id, @applications, :id,
+            ->(a) { "##{a.id} — #{a.user.display_name} (#{a.address&.truncate(40)})" },
+            { prompt: "Select application…" }, { class: "console-select", required: true } %>
+    <% end %>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :status) do %>
+    <%= form.select :status, Contract.statuses.keys.map { |k| [ k.humanize, k ] }, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :start_date, required: true) do %>
+    <%= form.date_field :start_date, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :end_date, required: true) do %>
+    <%= form.date_field :end_date, class: "console-input", required: true %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit submit_label, class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @contract.persisted? ? console_contract_path(@contract) : console_contracts_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>
