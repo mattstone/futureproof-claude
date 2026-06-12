@@ -1,0 +1,42 @@
+<% content_for :title, "Agreements — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Agreements",
+      subtitle: "Partner agreements generated from legal templates, tracked through signature.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "New agreement", new_console_agreement_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @total, label: "Agreements") %>
+  <%= render Console::StatCardComponent.new(value: @pending, label: "Awaiting signature",
+        variant: @pending.positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: @executed, label: "Fully executed", variant: :success) %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_agreements_path,
+      search_value: params[:search], search_placeholder: "Title…",
+      clear_url: console_agreements_path) do |bar| %>
+  <% bar.with_select(:party_type, options: %w[Lender WholesaleFunder Broker], selected: params[:party_type], label: "Party") %>
+  <% bar.with_select(:status, options: Agreement.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "agreements",
+      empty_message: "No agreements match those filters.") do |table| %>
+  <% table.with_column "Title" do |agreement| %>
+    <%= link_to agreement.title, console_agreement_path(agreement) %>
+  <% end %>
+  <% table.with_column "Party" do |agreement| %>
+    <%= agreement.agreeable.try(:name) || "—" %>
+    <div class="console-cell-sub"><%= agreement.agreeable_type %></div>
+  <% end %>
+  <% table.with_column "Jurisdiction" do |agreement| %>
+    <%= agreement.jurisdiction %>
+  <% end %>
+  <% table.with_column "Status" do |agreement| %>
+    <%= render Console::BadgeComponent.new(status: agreement.status) %>
+  <% end %>
+  <% table.with_column "Created" do |agreement| %>
+    <%= agreement.created_at.strftime("%-d %b %Y") %>
+  <% end %>
+<% end %>

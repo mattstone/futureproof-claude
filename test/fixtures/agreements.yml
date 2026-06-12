@@ -1,0 +1,9 @@
+draft_broker_agreement:
+  legal_document: broker_agreement_au
+  agreeable: one (Broker)
+  created_by: admin_user
+  title: "Broker Agreement — Test Broker"
+  status: 0 # draft
+  content: "<h1>Broker Agreement</h1><p>Drafted for signature.</p>"
+  jurisdiction: AU
+  version: 1

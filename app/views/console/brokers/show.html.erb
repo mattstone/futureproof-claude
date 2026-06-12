@@ -1,0 +1,75 @@
+<% content_for :title, "#{@broker.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @broker.name, subtitle: @broker.email) do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @broker.active? ? "active" : "inactive") %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_broker_path(@broker), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= button_to @broker.active? ? "Deactivate" : "Activate", toggle_active_console_broker_path(@broker),
+          method: :patch, class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Email" => @broker.email,
+        "Phone" => @broker.phone,
+        "Jurisdiction" => @broker.jurisdiction,
+        "Joined" => @broker.created_at.strftime("%-d %b %Y")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Lender assignments") do %>
+  <% if @lenders.any? %>
+    <ul class="console-doc-list">
+      <% @lenders.each do |lender| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to lender.name, console_lender_path(lender) %></strong>
+          </div>
+          <div class="console-doc-actions">
+            <%= button_to "Remove", remove_lender_console_broker_path(@broker, lender_id: lender.id),
+                  method: :delete, class: "console-btn console-btn-sm console-btn-danger",
+                  data: { turbo_confirm: "Remove #{@broker.name} from #{lender.name}?" } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">Not assigned to any lender yet.</p>
+  <% end %>
+
+  <% if @available_lenders.any? %>
+    <%= form_with url: assign_lender_console_broker_path(@broker), method: :post, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="lender_id">Assign to lender</label>
+        <%= select_tag :lender_id, options_from_collection_for_select(@available_lenders, :id, :name),
+              prompt: "Select lender…", class: "console-select" %>
+      </div>
+      <%= submit_tag "Assign", class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Recent referrals") do %>
+  <% if @applications.any? %>
+    <ul class="console-doc-list">
+      <% @applications.each do |application| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Application ##{application.id}", console_application_path(application) %></strong>
+            <span class="console-cell-sub"><%= application.user.display_name %> · <%= application.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: application.status) %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No referrals yet.</p>
+  <% end %>
+<% end %>

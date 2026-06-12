@@ -45,6 +45,10 @@
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_wholesale_funders_path)}" %>
       <%= link_to "Funder pools", console_funder_pools_path,
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_funder_pools_path)}" %>
+      <%= link_to "Brokers", console_brokers_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_brokers_path)}" %>
+      <%= link_to "Agreements", console_agreements_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_agreements_path)}" %>
     </div>
   <% end %>
 

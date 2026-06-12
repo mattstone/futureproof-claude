@@ -1,0 +1,38 @@
+<% content_for :title, "New agreement — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "New agreement",
+      subtitle: "Generated from an active legal-document template, then customisable as a draft.") %>
+
+<%= render Console::CardComponent.new do %>
+  <div class="console-message-actions">
+    <% %w[Lender WholesaleFunder Broker].each do |type| %>
+      <%= link_to type.titleize.pluralize, new_console_agreement_path(party_type: type),
+            class: "console-btn #{@party_type == type ? 'console-btn-primary' : 'console-btn-secondary'}" %>
+    <% end %>
+  </div>
+
+  <%= form_with url: console_agreements_path, method: :post, scope: :agreement, class: "console-form" do |form| %>
+    <%= form.hidden_field :agreeable_type, value: @party_type %>
+
+    <div class="console-field">
+      <%= form.label :agreeable_id, "#{@party_type.titleize} party", class: "console-field-label" %>
+      <%= form.collection_select :agreeable_id, @parties, :id, :name, { prompt: "Select party…" }, { class: "console-select", required: true } %>
+    </div>
+
+    <div class="console-field">
+      <%= form.label :legal_document_id, "Template", class: "console-field-label" %>
+      <% if @templates.any? %>
+        <%= form.collection_select :legal_document_id, @templates, :id,
+              ->(t) { "#{t.title} (#{t.jurisdiction}, v#{t.version})" },
+              { prompt: "Select template…" }, { class: "console-select", required: true } %>
+      <% else %>
+        <p class="console-field-error">No active #{@party_type.titleize} agreement template exists — create one under Product → Legal documents first.</p>
+      <% end %>
+    </div>
+
+    <div class="console-message-actions">
+      <%= form.submit "Generate draft", class: "console-btn console-btn-primary", disabled: @templates.empty? %>
+      <%= link_to "Cancel", console_agreements_path, class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
