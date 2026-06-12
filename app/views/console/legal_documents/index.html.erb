@@ -1,0 +1,45 @@
+<% content_for :title, "Legal documents — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Legal documents",
+      subtitle: "The single legal register — versioned per jurisdiction and party type.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Compliance dashboard", compliance_dashboard_console_legal_documents_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New document", new_console_legal_document_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @total_documents, label: "Documents") %>
+  <%= render Console::StatCardComponent.new(value: @active_documents, label: "Active", variant: :success) %>
+  <%= render Console::StatCardComponent.new(value: @draft_documents, label: "Drafts") %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_legal_documents_path,
+      search_value: params[:search], search_placeholder: "Title…",
+      clear_url: console_legal_documents_path) do |bar| %>
+  <% bar.with_select(:document_type, options: LegalDocument::DOCUMENT_TYPES.map { |k, v| [ v, k.to_s ] }, selected: params[:document_type], label: "Type") %>
+  <% bar.with_select(:party_type, options: LegalDocument::PARTY_TYPES.map { |p| [ p.humanize, p ] }, selected: params[:party_type], label: "Party") %>
+  <% bar.with_select(:status, options: LegalDocument.statuses.keys.map { |s| [ s.humanize, s ] }, selected: params[:status]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "legal_documents",
+      empty_message: "No documents match those filters.") do |table| %>
+  <% table.with_column "Title" do |document| %>
+    <%= link_to document.title, console_legal_document_path(document) %>
+    <div class="console-cell-sub">v<%= document.version %> · <%= document.party_type.humanize %></div>
+  <% end %>
+  <% table.with_column "Type" do |document| %>
+    <%= LegalDocument::DOCUMENT_TYPES[document.document_type.to_sym] || document.document_type.humanize %>
+  <% end %>
+  <% table.with_column "Jurisdiction" do |document| %>
+    <%= document.jurisdiction %>
+  <% end %>
+  <% table.with_column "Status" do |document| %>
+    <%= render Console::BadgeComponent.new(status: document.status) %>
+  <% end %>
+  <% table.with_column "Effective" do |document| %>
+    <%= document.effective_from&.strftime("%-d %b %Y") %>
+  <% end %>
+<% end %>

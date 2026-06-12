@@ -1,0 +1,5 @@
+<% content_for :title, "New legal document — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "New legal document", subtitle: "Created as a draft — publish → approve → activate to go live.") %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form" %>
+<% end %>

@@ -127,6 +127,20 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :legal_documents, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        patch :publish
+        patch :approve
+        patch :activate
+        patch :archive
+        patch :restore
+      end
+      collection do
+        get :compliance_dashboard
+        get :acceptance_tracking
+      end
+    end
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply

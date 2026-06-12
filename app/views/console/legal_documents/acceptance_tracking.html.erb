@@ -1,0 +1,28 @@
+<% content_for :title, "Acceptance tracking — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Acceptance tracking",
+      subtitle: "#{@document.title} (#{@jurisdiction}, v#{@document.version})") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @acceptance_count, label: "Total acceptances") %>
+</div>
+
+<%= render Console::DataTableComponent.new(records: @acceptances, id: "acceptances",
+      empty_message: "No acceptances recorded for this version yet.") do |table| %>
+  <% table.with_column "Who" do |acceptance| %>
+    <% if acceptance.user %>
+      <%= link_to acceptance.user.email, console_user_path(acceptance.user) %>
+    <% else %>
+      <%= acceptance.lender&.name || "—" %>
+    <% end %>
+  <% end %>
+  <% table.with_column "Type" do |acceptance| %>
+    <%= acceptance.acceptance_type&.humanize %>
+  <% end %>
+  <% table.with_column "Accepted at" do |acceptance| %>
+    <%= acceptance.accepted_at&.strftime("%-d %b %Y %H:%M") %>
+  <% end %>
+  <% table.with_column "Notes" do |acceptance| %>
+    <%= acceptance.notes %>
+  <% end %>
+<% end %>

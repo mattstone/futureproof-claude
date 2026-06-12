@@ -1,0 +1,70 @@
+<% content_for :title, "#{@legal_document.title} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @legal_document.title,
+      subtitle: "#{LegalDocument::DOCUMENT_TYPES[@legal_document.document_type.to_sym]} · #{@legal_document.jurisdiction} · #{@legal_document.party_type.humanize} · v#{@legal_document.version}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @legal_document.status) %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_legal_document_path(@legal_document), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% case @legal_document.status %>
+  <% when "draft" %>
+    <% header.with_action do %>
+      <%= button_to "Publish for review", publish_console_legal_document_path(@legal_document), method: :patch, class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% when "in_review" %>
+    <% header.with_action do %>
+      <%= button_to "Approve", approve_console_legal_document_path(@legal_document), method: :patch, class: "console-btn console-btn-primary" %>
+    <% end %>
+  <% when "approved" %>
+    <% header.with_action do %>
+      <%= button_to "Activate", activate_console_legal_document_path(@legal_document), method: :patch,
+            class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Activate v#{@legal_document.version}? It becomes the live #{@legal_document.jurisdiction} document." } %>
+    <% end %>
+  <% when "archived" %>
+    <% header.with_action do %>
+      <%= button_to "Restore to draft", restore_console_legal_document_path(@legal_document), method: :patch, class: "console-btn console-btn-secondary" %>
+    <% end %>
+  <% end %>
+  <% unless @legal_document.status == "archived" %>
+    <% header.with_action do %>
+      <%= button_to "Archive", archive_console_legal_document_path(@legal_document), method: :patch,
+            class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Archive this document?" } %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Effective from" => @legal_document.effective_from&.strftime("%-d %b %Y"),
+        "Effective to" => @legal_document.effective_to&.strftime("%-d %b %Y"),
+        "Live" => (@legal_document.is_active? ? "Yes" : "No"),
+        "Acceptances" => @legal_document.legal_document_acceptances.count
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Content") do %>
+  <div class="console-clause-preview"><%= sanitize @legal_document.content, tags: %w[h1 h2 h3 h4 p br strong em ul ol li section table tr td th a], attributes: %w[href] %></div>
+<% end %>
+
+<% if @acceptances.any? %>
+  <%= render Console::CardComponent.new(title: "Recent acceptances") do %>
+    <ul class="console-doc-list">
+      <% @acceptances.each do |acceptance| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= acceptance.user&.email || acceptance.lender&.name || "—" %></strong>
+            <span class="console-cell-sub"><%= acceptance.acceptance_type&.humanize %> · <%= acceptance.accepted_at&.strftime("%-d %b %Y %H:%M") %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::ChangeHistoryComponent.new(versions: @versions) %>
+<% end %>

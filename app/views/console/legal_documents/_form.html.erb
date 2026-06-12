@@ -1,0 +1,33 @@
+<%= form_with model: [ :console, @legal_document ], class: "console-form" do |form| %>
+  <% if @legal_document.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @legal_document.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :title, required: true) do %>
+    <%= form.text_field :title, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :document_type, label: "Type") do %>
+    <%= form.select :document_type, LegalDocument::DOCUMENT_TYPES.map { |k, v| [ v, k.to_s ] }, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :jurisdiction) do %>
+    <%= form.select :jurisdiction, LegalDocument::JURISDICTIONS, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :party_type, label: "Party") do %>
+    <%= form.select :party_type, LegalDocument::PARTY_TYPES.map { |p| [ p.humanize, p ] }, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :effective_from, required: true) do %>
+    <%= form.date_field :effective_from, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :effective_to) do %>
+    <%= form.date_field :effective_to, class: "console-input" %>
+  <% end %>
+  <div class="console-field">
+    <%= form.label :content, "Content (HTML)", class: "console-field-label" %>
+    <%= form.text_area :content, rows: 22, class: "console-textarea" %>
+  </div>
+
+  <div class="console-message-actions">
+    <%= form.submit @legal_document.persisted? ? "Save changes" : "Create draft", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @legal_document.persisted? ? console_legal_document_path(@legal_document) : console_legal_documents_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

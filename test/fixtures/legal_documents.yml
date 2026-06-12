@@ -21,3 +21,150 @@ lender_agreement_au:
   is_active: true
   is_draft: false
   effective_from: <%= 1.year.ago.to_date %>
+
+# --- 3 public document types × 4 jurisdictions: the consolidation contract.
+# The pages controller has NO legacy fallback — these must always exist.
+
+terms_of_use_au:
+  document_type: terms_of_use
+  jurisdiction: AU
+  party_type: universal
+  title: "Terms of Use (AU)"
+  content: "<h1>Terms of Use</h1><p>AU wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_of_use_us:
+  document_type: terms_of_use
+  jurisdiction: US
+  party_type: universal
+  title: "Terms of Use (US)"
+  content: "<h1>Terms of Use</h1><p>US wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_of_use_nz:
+  document_type: terms_of_use
+  jurisdiction: NZ
+  party_type: universal
+  title: "Terms of Use (NZ)"
+  content: "<h1>Terms of Use</h1><p>NZ wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_of_use_uk:
+  document_type: terms_of_use
+  jurisdiction: UK
+  party_type: universal
+  title: "Terms of Use (UK)"
+  content: "<h1>Terms of Use</h1><p>UK wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+privacy_policy_au:
+  document_type: privacy_policy
+  jurisdiction: AU
+  party_type: universal
+  title: "Privacy Policy (AU)"
+  content: "<h1>Privacy Policy</h1><p>AU wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+privacy_policy_us:
+  document_type: privacy_policy
+  jurisdiction: US
+  party_type: universal
+  title: "Privacy Policy (US)"
+  content: "<h1>Privacy Policy</h1><p>US wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+privacy_policy_nz:
+  document_type: privacy_policy
+  jurisdiction: NZ
+  party_type: universal
+  title: "Privacy Policy (NZ)"
+  content: "<h1>Privacy Policy</h1><p>NZ wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+privacy_policy_uk:
+  document_type: privacy_policy
+  jurisdiction: UK
+  party_type: universal
+  title: "Privacy Policy (UK)"
+  content: "<h1>Privacy Policy</h1><p>UK wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_conditions_au:
+  document_type: terms_conditions
+  jurisdiction: AU
+  party_type: universal
+  title: "Terms & Conditions (AU)"
+  content: "<h1>Terms & Conditions</h1><p>AU wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_conditions_us:
+  document_type: terms_conditions
+  jurisdiction: US
+  party_type: universal
+  title: "Terms & Conditions (US)"
+  content: "<h1>Terms & Conditions</h1><p>US wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_conditions_nz:
+  document_type: terms_conditions
+  jurisdiction: NZ
+  party_type: universal
+  title: "Terms & Conditions (NZ)"
+  content: "<h1>Terms & Conditions</h1><p>NZ wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+terms_conditions_uk:
+  document_type: terms_conditions
+  jurisdiction: UK
+  party_type: universal
+  title: "Terms & Conditions (UK)"
+  content: "<h1>Terms & Conditions</h1><p>UK wording for testing.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>

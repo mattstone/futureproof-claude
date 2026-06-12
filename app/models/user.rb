@@ -13,7 +13,8 @@ class User < ApplicationRecord
   has_many :applications, dependent: :destroy
   has_one :notification_preference, dependent: :destroy
   has_many :webhook_endpoints, dependent: :destroy
-  belongs_to :agreed_terms, class_name: 'TermsOfUse', foreign_key: 'terms_version', primary_key: 'version', optional: true
+  # users.terms_version is frozen legacy history (signups now record
+  # LegalDocumentAcceptance rows); the old agreed_terms association is gone.
   has_many :user_versions, dependent: :destroy
   
   # Mortgage contract relationships
@@ -260,10 +261,19 @@ class User < ApplicationRecord
   end
 
   def agreed_to_current_terms?
-    return false if terms_version.blank?
-    current_terms = TermsOfUse.current
-    return false if current_terms.blank?
-    terms_version == current_terms.version
+    current = LegalDocument.current_for("terms_of_use", legal_jurisdiction)
+    return false if current.blank?
+    legal_document_acceptances.exists?(legal_document: current)
+  end
+
+  # Maps the free-text country of residence onto a legal jurisdiction.
+  def legal_jurisdiction
+    case country_of_residence
+    when "Australia" then "AU"
+    when "New Zealand" then "NZ"
+    when "United Kingdom" then "UK"
+    else "US"
+    end
   end
 
   # Check if user has accepted a specific legal document
@@ -345,7 +355,7 @@ class User < ApplicationRecord
       last_name = name_parts[1..-1]&.join(' ')
     end
 
-    create!(
+    user = create!(
       email: auth.info.email,
       first_name: first_name || 'SAML',
       last_name: last_name || 'User',
@@ -355,10 +365,20 @@ class User < ApplicationRecord
       admin: is_admin_domain, # Auto-assign admin for futureproofinancial.co
       confirmed_at: Time.current, # SSO users are pre-verified
       country_of_residence: 'United States', # Default for SSO users
-      terms_accepted: true, # SSO implies terms acceptance
-      terms_version: TermsOfUse.current&.version,
+      terms_accepted: true, # SSO implies terms acceptance (recorded below)
       password: Devise.friendly_token[0, 20] # Random password for SSO users
     )
+
+    if (terms_doc = LegalDocument.current_for("terms_of_use", user.legal_jurisdiction))
+      user.legal_document_acceptances.create(
+        legal_document: terms_doc,
+        accepted_at: Time.current,
+        acceptance_type: "explicit",
+        notes: "Accepted via SSO signup"
+      )
+    end
+
+    user
   end
 
   def update_from_sso(auth)

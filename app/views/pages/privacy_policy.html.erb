@@ -13,13 +13,6 @@
           <%= raw @legal_document.content %>
         <% end %>
       </div>
-    <% elsif @privacy_policy %>
-      <h1><%= @privacy_policy.title %></h1>
-      <p class="last-updated">Last updated: <%= @privacy_policy.formatted_last_updated %></p>
-
-      <div class="legal-content">
-        <%= raw @privacy_policy.rendered_content %>
-      </div>
     <% else %>
       <h1>Privacy Policy</h1>
       <p class="last-updated">Last updated: January 31, 2025</p>

@@ -143,22 +143,25 @@ class PagesController < ApplicationController
     configs[jurisdiction] || configs["US"]
   end
 
+  # NOTE: everything from here down is a routed ACTION and must be public.
+  # These sat below `private` for months, so Rails served the templates via
+  # implicit rendering with nil ivars — the controller bodies never ran.
+  public
+
+  # LegalDocument is the single source of truth for legal content — the
+  # legacy TermsOfUse/PrivacyPolicy/TermsAndCondition fallbacks were removed
+  # when the consolidation migration replicated their content per
+  # jurisdiction (verified by LegalConsolidationTest).
   def privacy_policy
-    jurisdiction = detect_jurisdiction_for_legal
-    @legal_document = LegalDocument.current_for("privacy_policy", jurisdiction)
-    @privacy_policy = @legal_document || PrivacyPolicy.current
+    @legal_document = LegalDocument.current_for("privacy_policy", detect_jurisdiction_for_legal)
   end
 
   def terms_of_use
-    jurisdiction = detect_jurisdiction_for_legal
-    @legal_document = LegalDocument.current_for("terms_of_use", jurisdiction)
-    @terms_of_use = @legal_document || TermsOfUse.current
+    @legal_document = LegalDocument.current_for("terms_of_use", detect_jurisdiction_for_legal)
   end
 
   def terms_and_conditions
-    jurisdiction = detect_jurisdiction_for_legal
-    @legal_document = LegalDocument.current_for("terms_conditions", jurisdiction)
-    @terms_and_conditions = @legal_document || TermsAndCondition.current
+    @legal_document = LegalDocument.current_for("terms_conditions", detect_jurisdiction_for_legal)
   end
 
   def apply
