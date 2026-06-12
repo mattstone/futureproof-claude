@@ -35,6 +35,9 @@ gem 'anthropic', '~> 1.36'
 # GitHub API client for the admin prompt-change PR bridge
 gem 'octokit', '~> 9.2'
 
+# Component layer for the FutureProof Console (/console)
+gem 'view_component', '~> 4.0'
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

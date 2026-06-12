@@ -16,6 +16,13 @@ Rails.application.routes.draw do
   # Global jurisdiction setting (accessible from anywhere)
   post 'set_jurisdiction', to: 'admin/base#set_jurisdiction'
 
+  # FutureProof Console — ground-up admin rebuild. The legacy /admin
+  # namespace below runs in parallel until parity, then gets deleted.
+  namespace :console do
+    root to: 'today#show'
+    post 'set_jurisdiction', to: 'base#set_jurisdiction'
+  end
+
   # Admin routes
   namespace :admin do
     post 'set_jurisdiction', to: 'base#set_jurisdiction'

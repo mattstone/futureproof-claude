@@ -1,0 +1,7 @@
+<%# Plain partial for the shell; becomes Console::FlashMessagesComponent in Phase 0b. %>
+<% flash.each do |type, message| %>
+  <% next if message.blank? %>
+  <div class="console-flash console-flash-<%= type == 'notice' ? 'success' : (type == 'alert' ? 'error' : type) %>" role="status">
+    <%= message %>
+  </div>
+<% end %>

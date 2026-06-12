@@ -1,0 +1,13 @@
+<% if policy.futureproof? %>
+  <%= form_with url: console_set_jurisdiction_path, method: :post,
+        class: "console-jurisdiction", data: { controller: "auto-submit" } do |f| %>
+    <%= f.label :jurisdiction, "Region", class: "console-jurisdiction-label" %>
+    <%= f.select :jurisdiction,
+          options_for_select(Console::BaseController::JURISDICTIONS, current_jurisdiction),
+          {},
+          class: "console-jurisdiction-select",
+          data: { action: "change->auto-submit#filterChanged" } %>
+  <% end %>
+<% else %>
+  <span class="console-jurisdiction-pinned"><%= current_jurisdiction %></span>
+<% end %>

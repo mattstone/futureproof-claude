@@ -1,0 +1,361 @@
+/* =========================================================================
+   FutureProof Console — the ONLY console stylesheet.
+   Built exclusively on the --fp-* tokens in design_system.css.
+   Rules: no page-specific sections, no hex values, no magic numbers —
+   if a component needs styling, it gets a .console-* class here.
+   ========================================================================= */
+
+/* ---- Shell layout ------------------------------------------------------ */
+
+.console-body {
+  margin: 0;
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-primary);
+  background: var(--fp-bg-secondary);
+}
+
+.console-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar ----------------------------------------------------------- */
+
+.console-sidebar {
+  width: 232px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--fp-text-primary);
+  color: var(--fp-text-inverse);
+}
+
+.console-brand {
+  padding: var(--fp-space-lg) var(--fp-space-md);
+}
+
+.console-brand-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.console-brand-name {
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-base);
+  font-weight: var(--fp-font-bold);
+  color: var(--fp-text-inverse);
+}
+
+.console-brand-product {
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-medium);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--fp-info);
+}
+
+.console-nav {
+  flex: 1;
+  padding: 0 var(--fp-space-sm);
+  overflow-y: auto;
+}
+
+.console-nav-group {
+  margin-bottom: var(--fp-space-md);
+}
+
+.console-nav-group-title {
+  display: block;
+  padding: var(--fp-space-sm) var(--fp-space-sm) var(--fp-space-xs);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-semibold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--fp-text-tertiary);
+}
+
+.console-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fp-space-sm);
+  padding: var(--fp-space-sm) var(--fp-space-sm);
+  border-radius: var(--fp-radius-sm);
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-medium);
+  color: var(--fp-bg-tertiary);
+  text-decoration: none;
+  transition: background var(--fp-transition-fast), color var(--fp-transition-fast);
+}
+
+.console-nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--fp-text-inverse);
+}
+
+.console-nav-link.is-active {
+  background: var(--fp-primary);
+  color: var(--fp-text-inverse);
+}
+
+.console-nav-badge {
+  min-width: 20px;
+  padding: 1px var(--fp-space-xs);
+  border-radius: var(--fp-radius-full);
+  background: var(--fp-error);
+  color: var(--fp-text-inverse);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-semibold);
+  text-align: center;
+}
+
+.console-nav-footer {
+  padding: var(--fp-space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.console-nav-legacy {
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-tertiary);
+  text-decoration: none;
+}
+
+.console-nav-legacy:hover {
+  color: var(--fp-text-inverse);
+}
+
+/* ---- Main column ------------------------------------------------------- */
+
+.console-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.console-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-md);
+  padding: var(--fp-space-sm) var(--fp-space-lg);
+  background: var(--fp-bg-primary);
+  border-bottom: 1px solid var(--fp-border-light);
+}
+
+.console-topbar-spacer {
+  flex: 1;
+}
+
+.console-nav-toggle {
+  display: none;
+  border: none;
+  background: none;
+  font-size: var(--fp-text-lg);
+  color: var(--fp-text-primary);
+  cursor: pointer;
+  padding: var(--fp-space-xs);
+}
+
+.console-jurisdiction {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+}
+
+.console-jurisdiction-label {
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-medium);
+  color: var(--fp-text-secondary);
+}
+
+.console-jurisdiction-select {
+  padding: var(--fp-space-xs) var(--fp-space-sm);
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius-sm);
+  background: var(--fp-bg-primary);
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-primary);
+}
+
+.console-jurisdiction-pinned {
+  padding: var(--fp-space-xs) var(--fp-space-sm);
+  border-radius: var(--fp-radius-sm);
+  background: var(--fp-bg-tertiary);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+}
+
+.console-user {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+}
+
+.console-user-email {
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-secondary);
+}
+
+.console-signout-form {
+  display: inline;
+}
+
+.console-signout {
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius-sm);
+  background: var(--fp-bg-primary);
+  padding: var(--fp-space-xs) var(--fp-space-sm);
+  font-family: var(--fp-font-family);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-medium);
+  color: var(--fp-text-secondary);
+  cursor: pointer;
+  transition: color var(--fp-transition-fast), border-color var(--fp-transition-fast);
+}
+
+.console-signout:hover {
+  color: var(--fp-error);
+  border-color: var(--fp-error);
+}
+
+.console-content {
+  flex: 1;
+  padding: var(--fp-space-lg);
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ---- Page header ------------------------------------------------------- */
+
+.console-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fp-space-md);
+  margin-bottom: var(--fp-space-lg);
+}
+
+.console-page-title {
+  margin: 0;
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-2xl);
+  font-weight: var(--fp-font-bold);
+  letter-spacing: -0.5px;
+  color: var(--fp-text-primary);
+}
+
+.console-page-subtitle {
+  margin: var(--fp-space-xs) 0 0;
+  font-size: var(--fp-text-sm);
+  color: var(--fp-text-secondary);
+}
+
+.console-page-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fp-space-sm);
+}
+
+/* ---- Cards & stats ------------------------------------------------------ */
+
+.console-card {
+  background: var(--fp-bg-primary);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  box-shadow: var(--fp-shadow-sm);
+  padding: var(--fp-space-lg);
+  margin-bottom: var(--fp-space-lg);
+}
+
+.console-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--fp-space-md);
+  margin-bottom: var(--fp-space-lg);
+}
+
+.console-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fp-space-xs);
+  background: var(--fp-bg-primary);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  box-shadow: var(--fp-shadow-sm);
+  padding: var(--fp-space-md) var(--fp-space-lg);
+}
+
+.console-stat-value {
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-3xl);
+  font-weight: var(--fp-font-bold);
+  color: var(--fp-text-primary);
+}
+
+.console-stat-label {
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-medium);
+  color: var(--fp-text-secondary);
+}
+
+/* ---- Flash messages ----------------------------------------------------- */
+
+.console-flash {
+  padding: var(--fp-space-sm) var(--fp-space-md);
+  border-radius: var(--fp-radius-sm);
+  margin-bottom: var(--fp-space-md);
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-medium);
+}
+
+.console-flash-success {
+  background: var(--fp-success-bg);
+  color: var(--fp-success);
+}
+
+.console-flash-error {
+  background: var(--fp-error-bg);
+  color: var(--fp-error);
+}
+
+.console-flash-warning {
+  background: var(--fp-warning-bg);
+  color: var(--fp-warning);
+}
+
+/* ---- Utility ------------------------------------------------------------ */
+
+.console-muted {
+  color: var(--fp-text-secondary);
+  margin: 0;
+}
+
+/* ---- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .console-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--fp-transition);
+  }
+
+  .console-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .console-nav-toggle {
+    display: block;
+  }
+
+  .console-content {
+    padding: var(--fp-space-md);
+  }
+}
