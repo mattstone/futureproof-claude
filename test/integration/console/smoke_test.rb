@@ -34,8 +34,9 @@ class Console::SmokeTest < ActionDispatch::IntegrationTest
     test "GET #{path_spec} (#{controller}##{action}) never 5xxs for lender admin" do
       sign_in users(:lender_admin_user)
       get resolve_path(route)
-      assert_includes [ 200, 302 ], response.status,
-        "#{path_spec} returned #{response.status} for a lender admin (capability redirects are fine; errors are not)"
+      # 302 = capability redirect, 404 = record correctly scoped away. 5xx = bug.
+      assert_includes [ 200, 302, 404 ], response.status,
+        "#{path_spec} returned #{response.status} for a lender admin"
     end
   end
 

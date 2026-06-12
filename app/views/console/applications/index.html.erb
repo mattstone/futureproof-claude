@@ -1,0 +1,34 @@
+<% content_for :title, "Pipeline — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Pipeline",
+      subtitle: "Active applications by default — filter by status or search to reach everything, including accepted.") %>
+
+<%= render Console::FilterBarComponent.new(url: console_applications_path,
+      search_value: params[:search], search_placeholder: "ID, name, email or address…",
+      clear_url: console_applications_path) do |bar| %>
+  <% bar.with_select(:status, options: Application.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "applications",
+      csv_path: console_applications_path(format: :csv, search: params[:search], status: params[:status]),
+      empty_message: "No applications match — clear the filters to see the active pipeline.") do |table| %>
+  <% table.with_column "ID" do |application| %>
+    <%= link_to "##{application.id}", console_application_path(application) %>
+  <% end %>
+  <% table.with_column "Customer" do |application| %>
+    <%= link_to application.user.display_name, console_application_path(application) %>
+    <div class="console-cell-sub"><%= application.user.email %></div>
+  <% end %>
+  <% table.with_column "Address" do |application| %>
+    <%= application.address.presence || "—" %>
+  <% end %>
+  <% table.with_column "Home value", sort: "value", numeric: true do |application| %>
+    <%= application.formatted_home_value %>
+  <% end %>
+  <% table.with_column "Status", sort: "status" do |application| %>
+    <%= render Console::BadgeComponent.new(status: application.status) %>
+  <% end %>
+  <% table.with_column "Created", sort: "created" do |application| %>
+    <%= application.created_at.strftime("%-d %b %Y") %>
+  <% end %>
+<% end %>

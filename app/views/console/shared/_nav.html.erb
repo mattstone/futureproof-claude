@@ -11,6 +11,19 @@
           class: "console-nav-link #{'is-active' if current_page?(console_root_path)}" %>
   </div>
 
+  <% if policy.view_pipeline? %>
+    <div class="console-nav-group">
+      <span class="console-nav-group-title">Pipeline</span>
+      <%= link_to console_applications_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_applications_path)}" do %>
+        Applications
+        <% if attention_counts[:applications].positive? %>
+          <span class="console-nav-badge"><%= attention_counts[:applications] %></span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
   <% if policy.manage_users? %>
     <div class="console-nav-group">
       <span class="console-nav-group-title">Customers</span>

@@ -1,0 +1,42 @@
+<%= render Console::CardComponent.new(title: "Agent activity") do %>
+  <% if agent_actions.any? %>
+    <ul class="console-agent-list">
+      <% agent_actions.each do |action| %>
+        <li class="console-agent-item">
+          <div class="console-agent-header">
+            <strong><%= action.ai_agent&.name || "Unknown agent" %></strong>
+            <%= render Console::BadgeComponent.new(status: "info", label: action.action_type) %>
+            <% if action.decision.present? %>
+              <%= render Console::BadgeComponent.new(status: action.decision == "approve" ? "approved" : (action.decision == "flag" ? "needs_attention" : action.decision), label: action.decision.humanize) %>
+            <% end %>
+            <%= render Console::BadgeComponent.new(status: action.status) %>
+            <time class="console-history-time"><%= time_ago_in_words(action.created_at) %> ago</time>
+          </div>
+          <% if action.reasoning.present? %>
+            <p class="console-agent-reasoning"><%= action.reasoning %></p>
+          <% end %>
+          <div class="console-agent-meta">
+            <% if action.confidence.present? %>
+              <span>Confidence <strong><%= (action.confidence * 100).round %>%</strong></span>
+            <% end %>
+            <% if action.result.is_a?(Hash) && action.result["risk_score"].present? %>
+              <span>Risk score <strong><%= action.result["risk_score"] %></strong></span>
+            <% end %>
+          </div>
+          <% if action.decision == "flag" && action.status != "overridden" %>
+            <%= form_with url: override_console_agent_action_path(action), method: :post, class: "console-override-form" do %>
+              <input type="text" name="reason" class="console-input" placeholder="Reason for override (required)" required>
+              <button type="submit" class="console-btn console-btn-sm console-btn-primary"
+                      data-turbo-confirm="Override this agent decision?">Override</button>
+            <% end %>
+          <% end %>
+          <% if action.status == "overridden" && action.override_reason.present? %>
+            <p class="console-cell-sub">Overridden by <%= action.overridden_by %>: <%= action.override_reason %></p>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No agent activity recorded for this application yet.</p>
+  <% end %>
+<% end %>

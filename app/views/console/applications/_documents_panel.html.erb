@@ -1,0 +1,41 @@
+<%= render Console::CardComponent.new(title: "Documents") do |card| %>
+  <% card.with_header_action do %>
+    <%= button_to "Request all documents", request_all_console_application_documents_path(application),
+          method: :post, class: "console-btn console-btn-secondary" %>
+  <% end %>
+
+  <% documents = application.application_documents.order(:document_type) %>
+  <% if documents.any? %>
+    <ul class="console-doc-list">
+      <% documents.each do |doc| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= doc.display_name %></strong>
+            <% if doc.verified_by.present? %>
+              <span class="console-cell-sub">by <%= doc.verified_by %></span>
+            <% end %>
+            <% if doc.rejected? && doc.rejection_reason.present? %>
+              <span class="console-field-error"><%= doc.rejection_reason %></span>
+            <% end %>
+          </div>
+          <div class="console-doc-actions">
+            <%= render Console::BadgeComponent.new(status: doc.status) %>
+            <% if doc.uploaded? %>
+              <%= button_to "Verify", verify_console_application_document_path(application, doc), method: :patch, class: "console-btn console-btn-sm console-btn-success" %>
+              <%= button_to "Reject", reject_console_application_document_path(application, doc), method: :patch, params: { reason: "Does not meet requirements" }, class: "console-btn console-btn-sm console-btn-danger" %>
+              <%= button_to "Auto-verify", auto_verify_console_application_document_path(application, doc), method: :post, class: "console-btn console-btn-sm console-btn-secondary" %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+    <p class="console-muted">
+      <%= documents.count { |d| d.status == "verified" } %> verified ·
+      <%= documents.count { |d| d.status == "uploaded" } %> awaiting review ·
+      <%= application.application_documents.outstanding.count %> outstanding
+    </p>
+  <% else %>
+    <p class="console-muted">No documents requested yet. "Request all documents" creates the standard checklist.</p>
+  <% end %>
+<% end %>

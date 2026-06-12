@@ -1,0 +1,21 @@
+<%= render Console::CardComponent.new(title: "Identity & compliance") do %>
+  <%= render Console::DescriptionListComponent.new do |dl| %>
+    <% dl.with_item("KYC") do %>
+      <% if application.kyc_submission %>
+        <%= render Console::BadgeComponent.new(status: application.kyc_submission.status) %>
+        <% if application.kyc_submission.respond_to?(:submitted_at) && application.kyc_submission.submitted_at %>
+          <span class="console-cell-sub">submitted <%= application.kyc_submission.submitted_at.strftime("%-d %b %Y") %></span>
+        <% end %>
+      <% else %>
+        <%= render Console::BadgeComponent.new(status: "neutral", label: "Not started") %>
+      <% end %>
+    <% end %>
+    <% dl.with_item("AML") do %>
+      <% if application.aml_check %>
+        <%= render Console::BadgeComponent.new(status: application.aml_check.status) %>
+      <% else %>
+        <%= render Console::BadgeComponent.new(status: "neutral", label: "Not started") %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

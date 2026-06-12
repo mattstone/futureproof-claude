@@ -1,0 +1,27 @@
+<%= render Console::CardComponent.new(title: "Quotes") do %>
+  <p class="console-muted">Immutable snapshots of what the customer was shown, pinned to the model version that priced them.</p>
+  <% if quotes.any? %>
+    <%= render Console::DataTableComponent.new(records: quotes, id: "quotes") do |table| %>
+      <% table.with_column "Issued" do |quote| %>
+        <%= quote.issued_at.strftime("%-d %b %Y %H:%M") %>
+      <% end %>
+      <% table.with_column "Model version" do |quote| %>
+        <code><%= quote.product_version %></code>
+      <% end %>
+      <% table.with_column "Monthly income", numeric: true do |quote| %>
+        <strong><%= number_to_currency(quote.monthly_income, precision: 0) %></strong>
+      <% end %>
+      <% table.with_column "Annual", numeric: true do |quote| %>
+        <%= number_to_currency(quote.annual_income, precision: 0) %>
+      <% end %>
+      <% table.with_column "Term", numeric: true do |quote| %>
+        <%= quote.term_years %>yr
+      <% end %>
+      <% table.with_column "Payout", numeric: true do |quote| %>
+        <%= quote.income_payout_term %>yr
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="console-muted">No quote snapshots yet — one is recorded each time the customer completes the income &amp; mortgage step.</p>
+  <% end %>
+<% end %>

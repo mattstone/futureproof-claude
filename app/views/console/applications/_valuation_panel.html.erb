@@ -1,0 +1,17 @@
+<%= render Console::CardComponent.new(title: "Update property valuation") do %>
+  <%= form_with url: update_valuation_console_application_path(application), method: :patch, class: "console-valuation-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="property_valuation_middle">New valuation</label>
+      <input type="number" step="1000" min="100000" max="50000000" name="property_valuation_middle"
+             id="property_valuation_middle" class="console-input"
+             value="<%= application.property_valuation_middle %>" required>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="valuation_explanation">Reason</label>
+      <input type="text" name="valuation_explanation" id="valuation_explanation" class="console-input"
+             placeholder="Recorded in the audit history">
+    </div>
+    <button type="submit" class="console-btn console-btn-secondary"
+            data-turbo-confirm="Update the property valuation?">Update valuation</button>
+  <% end %>
+<% end %>

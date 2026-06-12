@@ -23,6 +23,34 @@ Rails.application.routes.draw do
     post 'set_jurisdiction', to: 'base#set_jurisdiction'
 
     resources :users, only: [ :index ]
+
+    resources :agent_actions, only: [] do
+      member do
+        post :override
+      end
+    end
+
+    resources :applications, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+        patch :advance_to_processing
+        patch :update_checklist_item
+        patch :update_valuation
+        post :create_message
+        patch :send_message
+      end
+      resources :documents, controller: 'application_documents', only: [] do
+        member do
+          patch :verify
+          patch :reject
+          post :auto_verify
+        end
+        collection do
+          post :request_all
+        end
+      end
+    end
   end
 
   # Admin routes
