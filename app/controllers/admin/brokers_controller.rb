@@ -102,7 +102,7 @@ module Admin
     end
 
     def broker_params
-      params.require(:broker).permit(:name, :email, :country, :jurisdiction, :contact_telephone, :contact_telephone_country_code, :password, :password_confirmation)
+      params.require(:broker).permit(:name, :email, :jurisdiction, :phone, :active, :password, :password_confirmation)
     end
 
     def average_age_at_decision(apps)
