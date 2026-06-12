@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_12_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -545,6 +545,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
     t.bigint "application_id", null: false
     t.decimal "cost_of_capital_rate", precision: 8, scale: 4, default: "0.0"
     t.datetime "created_at", null: false
+    t.boolean "demo", default: false, null: false
     t.date "end_date", null: false
     t.bigint "funder_pool_id"
     t.decimal "investment_balance", precision: 12, scale: 2, default: "0.0"
@@ -558,6 +559,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
     t.decimal "total_payments_made", precision: 12, scale: 2, default: "0.0"
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_contracts_on_application_id", unique: true
+    t.index ["demo"], name: "index_contracts_on_demo"
     t.index ["funder_pool_id"], name: "index_contracts_on_funder_pool_id"
     t.index ["lender_id"], name: "index_contracts_on_lender_id"
     t.index ["mortgage_contract_id"], name: "index_contracts_on_mortgage_contract_id"
@@ -674,6 +676,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
     t.decimal "amount", precision: 15, scale: 2, default: "0.0", null: false
     t.decimal "benchmark_rate", precision: 5, scale: 2, default: "4.0"
     t.datetime "created_at", null: false
+    t.boolean "demo", default: false, null: false
     t.decimal "margin_rate", precision: 5, scale: 2, default: "0.0"
     t.string "name", null: false
     t.datetime "updated_at", null: false
@@ -1413,6 +1416,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_090000) do
     t.string "country", default: "Australia", null: false
     t.datetime "created_at", null: false
     t.string "currency", default: "AUD", null: false
+    t.boolean "demo", default: false, null: false
     t.string "name", null: false
     t.decimal "total_allocated_amount", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false

@@ -18,6 +18,9 @@ class Contract < ApplicationRecord
     complete: 5
   }, prefix: true, default: :awaiting_funding
   
+  # Demo/seed records are excluded from all business metrics
+  scope :real, -> { where(demo: false) }
+
   validates :start_date, presence: true
   validates :end_date, presence: true
   validates :status, presence: true

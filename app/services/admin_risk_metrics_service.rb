@@ -102,7 +102,7 @@ class AdminRiskMetricsService
   def default_contracts_scope
     app_ids = @applications.pluck(:id)
     return Contract.none if app_ids.empty?
-    Contract.where(application_id: app_ids)
+    Contract.where(application_id: app_ids).where(demo: false)
   end
 
   def rating_for(score)

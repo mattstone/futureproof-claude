@@ -1,7 +1,7 @@
 module Admin
   class CohortsController < Admin::BaseController
     def index
-      contracts = Contract.where.not(start_date: nil).order(:start_date)
+      contracts = Contract.real.where.not(start_date: nil).order(:start_date)
 
       @cohorts = contracts.group_by { |c| quarter_label(c.start_date) }.map do |label, group|
         count = group.size

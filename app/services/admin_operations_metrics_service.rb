@@ -41,10 +41,10 @@ class AdminOperationsMetricsService
     conversion_rate = total_apps.positive? ? ((apps_with_contracts.to_f / total_apps) * 100).round(1) : 0
 
     this_month_apps = Application.where('created_at >= ?', Date.today.beginning_of_month).count
-    this_month_contracts = Contract.where('created_at >= ?', Date.today.beginning_of_month).count
+    this_month_contracts = Contract.real.where('created_at >= ?', Date.today.beginning_of_month).count
     last_month_apps = Application.where('created_at >= ?', 1.month.ago.beginning_of_month)
                                  .where('created_at < ?', Date.today.beginning_of_month).count
-    last_month_contracts = Contract.where('created_at >= ?', 1.month.ago.beginning_of_month)
+    last_month_contracts = Contract.real.where('created_at >= ?', 1.month.ago.beginning_of_month)
                                    .where('created_at < ?', Date.today.beginning_of_month).count
 
     mom_change = last_month_contracts.positive? ? (((this_month_contracts - last_month_contracts).to_f / last_month_contracts) * 100).round(1) : 0
@@ -67,14 +67,14 @@ class AdminOperationsMetricsService
       rejected_applications: Application.where(status: 'rejected').count,
       rejected_this_month: Application.where(status: 'rejected')
                                       .where('created_at >= ?', Date.today.beginning_of_month).count,
-      contracts_at_risk: Contract.where(status: :investment_at_risk).count,
-      at_risk_total_value: Contract.where(status: :investment_at_risk).sum(:allocated_amount),
-      contracts_in_holiday: Contract.where(status: :in_holiday).count,
-      contracts_completed: Contract.where(status: :complete).count,
-      completed_this_month: Contract.where(status: :complete)
+      contracts_at_risk: Contract.real.where(status: :investment_at_risk).count,
+      at_risk_total_value: Contract.real.where(status: :investment_at_risk).sum(:allocated_amount),
+      contracts_in_holiday: Contract.real.where(status: :in_holiday).count,
+      contracts_completed: Contract.real.where(status: :complete).count,
+      completed_this_month: Contract.real.where(status: :complete)
                                     .where('created_at >= ?', Date.today.beginning_of_month).count,
-      issues_outstanding: Contract.where(status: %i[investment_at_risk in_holiday]).count,
-      solutions_delivered: Contract.where(status: %i[ok complete]).count
+      issues_outstanding: Contract.real.where(status: %i[investment_at_risk in_holiday]).count,
+      solutions_delivered: Contract.real.where(status: %i[ok complete]).count
     }
   end
 
@@ -94,7 +94,7 @@ class AdminOperationsMetricsService
   def trends
     {
       applications_monthly: monthly_counts(Application.all),
-      contracts_monthly: monthly_counts(Contract.all),
+      contracts_monthly: monthly_counts(Contract.real.all),
       conversion_trend: monthly_conversion_trend,
       rejection_trend: monthly_rejection_trend
     }
@@ -107,7 +107,7 @@ class AdminOperationsMetricsService
       conversion_rate: overall_conversion_rate,
       at_risk_percentage: at_risk_percentage,
       app_growth_mom: mom_growth(Application.all),
-      contract_growth_mom: mom_growth(Contract.all)
+      contract_growth_mom: mom_growth(Contract.real.all)
     }
   end
 
@@ -137,8 +137,8 @@ class AdminOperationsMetricsService
   end
 
   def at_risk_percentage
-    total_allocated = Contract.sum(:allocated_amount)
-    at_risk_value = Contract.where(status: :investment_at_risk).sum(:allocated_amount)
+    total_allocated = Contract.real.sum(:allocated_amount)
+    at_risk_value = Contract.real.where(status: :investment_at_risk).sum(:allocated_amount)
     total_allocated.positive? ? ((at_risk_value.to_f / total_allocated) * 100).round(2) : 0
   end
 
@@ -180,7 +180,7 @@ class AdminOperationsMetricsService
   def monthly_conversion_trend
     each_month_short(12) do |month_start, month_end|
       apps = Application.where('created_at BETWEEN ? AND ?', month_start, month_end).count
-      contracts = Contract.where('created_at BETWEEN ? AND ?', month_start, month_end).count
+      contracts = Contract.real.where('created_at BETWEEN ? AND ?', month_start, month_end).count
       apps.positive? ? ((contracts.to_f / apps) * 100).round(1) : 0
     end
   end
@@ -235,10 +235,10 @@ class AdminOperationsMetricsService
   end
 
   def at_risk_pain
-    count = Contract.where(status: :investment_at_risk).count
+    count = Contract.real.where(status: :investment_at_risk).count
     return nil if count.zero?
 
-    value = Contract.where(status: :investment_at_risk).sum(:allocated_amount)
+    value = Contract.real.where(status: :investment_at_risk).sum(:allocated_amount)
     {
       severity: :critical,
       category: 'Investment Shortfall',
@@ -262,7 +262,7 @@ class AdminOperationsMetricsService
   end
 
   def paused_contracts_pain
-    count = Contract.where(status: :in_holiday).count
+    count = Contract.real.where(status: :in_holiday).count
     return nil if count <= 5
 
     {

@@ -1,5 +1,5 @@
 class AdminPortfolioMetricsService
-  def initialize(applications_scope: Application.all, contracts_scope: Contract.all, users_scope: User.all)
+  def initialize(applications_scope: Application.all, contracts_scope: Contract.real.all, users_scope: User.all)
     @applications = applications_scope
     @contracts = contracts_scope
     @users = users_scope
@@ -23,9 +23,9 @@ class AdminPortfolioMetricsService
   end
 
   def capital_overview
-    raised = FunderPool.sum(:amount)
-    deployed = Contract.sum(:allocated_amount)
-    weighted = FunderPool.sum('amount * (benchmark_rate + margin_rate)')
+    raised = FunderPool.real.sum(:amount)
+    deployed = Contract.real.sum(:allocated_amount)
+    weighted = FunderPool.real.sum('amount * (benchmark_rate + margin_rate)')
 
     {
       total_capital_raised: raised,
@@ -38,20 +38,20 @@ class AdminPortfolioMetricsService
 
   def contract_summary
     {
-      total_contracts: Contract.count,
-      active_contracts: Contract.where(status: %i[ok in_holiday]).count,
-      in_holiday_contracts: Contract.where(status: :in_holiday).count,
-      awaiting_funding_contracts: Contract.where(status: :awaiting_funding).count,
-      total_monthly_outflows: Contract.where(status: %i[ok in_holiday]).sum(:monthly_payment),
-      portfolio_pl: Contract.includes(:application).sum { |c| self.class.contract_net_pl(c) }
+      total_contracts: Contract.real.count,
+      active_contracts: Contract.real.where(status: %i[ok in_holiday]).count,
+      in_holiday_contracts: Contract.real.where(status: :in_holiday).count,
+      awaiting_funding_contracts: Contract.real.where(status: :awaiting_funding).count,
+      total_monthly_outflows: Contract.real.where(status: %i[ok in_holiday]).sum(:monthly_payment),
+      portfolio_pl: Contract.real.includes(:application).sum { |c| self.class.contract_net_pl(c) }
     }
   end
 
   def account_balances
-    offset = Contract.sum(:offset_balance)
-    investment = Contract.sum(:investment_balance)
-    invested = Contract.where('investment_balance > 0').sum(:investment_balance)
-    weighted_return = Contract.where('investment_balance > 0').sum('investment_balance * investment_return_rate')
+    offset = Contract.real.sum(:offset_balance)
+    investment = Contract.real.sum(:investment_balance)
+    invested = Contract.real.where('investment_balance > 0').sum(:investment_balance)
+    weighted_return = Contract.real.where('investment_balance > 0').sum('investment_balance * investment_return_rate')
 
     {
       total_offset: offset,
@@ -62,7 +62,7 @@ class AdminPortfolioMetricsService
   end
 
   def pool_chart_data(limit: 8)
-    FunderPool.includes(:wholesale_funder).order(allocated: :desc).limit(limit).map do |pool|
+    FunderPool.real.includes(:wholesale_funder).order(allocated: :desc).limit(limit).map do |pool|
       {
         name: pool.name.truncate(20),
         allocated: pool.allocated,
@@ -86,7 +86,7 @@ class AdminPortfolioMetricsService
   end
 
   def pool_allocation_data
-    FunderPool.includes(:wholesale_funder).map do |pool|
+    FunderPool.real.includes(:wholesale_funder).map do |pool|
       {
         name: pool.display_name,
         allocated: pool.allocated,
@@ -98,8 +98,8 @@ class AdminPortfolioMetricsService
   end
 
   def pool_utilization_data
-    allocated = FunderPool.sum(:allocated)
-    capacity = FunderPool.sum(:amount)
+    allocated = FunderPool.real.sum(:allocated)
+    capacity = FunderPool.real.sum(:amount)
     [
       { label: 'Allocated', value: allocated, color: '#dc2626' },
       { label: 'Available', value: capacity - allocated, color: '#059669' }
@@ -109,7 +109,7 @@ class AdminPortfolioMetricsService
   def monthly_pl(months: 24)
     data = {}
     cumulative = 0
-    contracts = Contract.where.not(status: :awaiting_funding).where('start_date <= ?', Date.today)
+    contracts = Contract.real.where.not(status: :awaiting_funding).where('start_date <= ?', Date.today)
 
     months.times do |i|
       month_date = (months - 1 - i).months.ago.beginning_of_month.to_date
