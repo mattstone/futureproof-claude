@@ -36,6 +36,7 @@ class Admin::BaseController < ApplicationController
     end
   end
   helper_method :admin_attention_counts
+  helper_method :futureproof_admin?, :lender_admin?
 
   private
 

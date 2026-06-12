@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag "admin/brokers", "data-turbo-track": "reload" %>
 <div class="broker-form">
-  <%= form_with model: [@broker], local: true, class: "admin-form" do |f| %>
+  <%= form_with model: [:admin, @broker], local: true, class: "admin-form" do |f| %>
     <% if @broker.errors.any? %>
       <div class="error-messages">
         <h2><%= pluralize(@broker.errors.count, "error") %> prohibited this broker from being saved:</h2>
@@ -33,13 +33,8 @@
 
     <div class="form-row">
       <div class="form-group">
-        <%= f.label :contact_telephone %>
-        <%= f.telephone_field :contact_telephone, class: "form-input" %>
-      </div>
-
-      <div class="form-group">
-        <%= f.label :contact_telephone_country_code %>
-        <%= f.text_field :contact_telephone_country_code, placeholder: "+61", class: "form-input" %>
+        <%= f.label :phone %>
+        <%= f.telephone_field :phone, class: "form-input" %>
       </div>
     </div>
 

@@ -4,7 +4,7 @@
 related = []
 related << ["📋 Application ##{@contract.application.id}", admin_application_path(@contract.application)]
 related << ["👤 #{@contract.application.user.display_name}", admin_user_path(@contract.application.user)]
-related << ["💰 Pool: #{@contract.funder_pool.name}", admin_funder_pool_path(@contract.funder_pool)] if @contract.funder_pool && futureproof_admin?
+related << ["💰 Pool: #{@contract.funder_pool.name}", admin_wholesale_funder_path(@contract.funder_pool.wholesale_funder)] if @contract.funder_pool&.wholesale_funder && futureproof_admin?
 %>
 <%= render 'admin/shared/related_records', links: related %>
 
