@@ -1,0 +1,33 @@
+<% content_for :title, "#{@request.title} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @request.title,
+      subtitle: "#{@request.kind.humanize} · #{@request.user&.email} · #{@request.created_at.strftime('%-d %b %Y %H:%M')}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @request.state_cache.presence || "pending") %>
+  <% end %>
+  <% if @request.github_url %>
+    <% header.with_action do %>
+      <%= link_to "View on GitHub", @request.github_url, target: "_blank", rel: "noopener", class: "console-btn console-btn-secondary" %>
+    <% end %>
+    <% header.with_action do %>
+      <%= button_to "Refresh status", refresh_console_prompt_change_request_path(@request), method: :post, class: "console-btn console-btn-secondary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Impact assessment (recorded verbatim)") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 1, rows: {
+        @request.impact_question => @request.impact_answer&.humanize,
+        "Details" => @request.impact_details
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: @request.kind_direct_edit? ? "Proposed prompt text" : "Request") do %>
+  <pre class="console-prompt-content"><%= @request.description %></pre>
+<% end %>
+
+<% if @request.target_slot.present? %>
+  <%= render Console::RelatedRecordsComponent.new do |related| %>
+    <% related.with_item(@request.target_slot, href: console_prompt_path(@request.target_slot), meta: "prompt") %>
+  <% end %>
+<% end %>

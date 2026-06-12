@@ -1,0 +1,64 @@
+<% content_for :title, "Security — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Security",
+      subtitle: "Account lockouts, failed sign-ins and audited security events.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @locked_accounts.size, label: "Locked accounts",
+        variant: @locked_accounts.any? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: @failed_attempts.size, label: "Accounts with failed attempts") %>
+  <%= render Console::StatCardComponent.new(value: @admin_count, label: "Administrators") %>
+  <%= render Console::StatCardComponent.new(value: @sso_admin_count, label: "SSO administrators") %>
+</div>
+
+<%= render Console::CardComponent.new(title: "Locked accounts") do %>
+  <% if @locked_accounts.any? %>
+    <ul class="console-doc-list">
+      <% @locked_accounts.each do |user| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to user.email, console_user_path(user) %></strong>
+            <span class="console-cell-sub">locked <%= time_ago_in_words(user.locked_at) %> ago · <%= user.failed_attempts %> failed attempts</span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: "locked") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No locked accounts.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Failed sign-in attempts") do %>
+  <% if @failed_attempts.any? %>
+    <ul class="console-doc-list">
+      <% @failed_attempts.each do |user| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to user.email, console_user_path(user) %></strong>
+            <span class="console-cell-sub">last sign-in <%= user.last_sign_in_at ? "#{time_ago_in_words(user.last_sign_in_at)} ago" : "never" %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: user.failed_attempts >= 5 ? "error" : "pending", label: "#{user.failed_attempts} failed") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No failed attempts on record.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Recent security events") do %>
+  <% if @recent_security_events.any? %>
+    <ul class="console-history-list">
+      <% @recent_security_events.each do |event| %>
+        <li class="console-history-item">
+          <span class="console-history-actor"><%= event.user&.email || "system" %></span>
+          <span class="console-history-action"><%= event.action.humanize.downcase %><% if event.reason.present? %> — <%= truncate(event.reason, length: 80) %><% end %></span>
+          <time class="console-history-time"><%= event.created_at.strftime("%-d %b %H:%M") %></time>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No security events recorded yet.</p>
+  <% end %>
+<% end %>

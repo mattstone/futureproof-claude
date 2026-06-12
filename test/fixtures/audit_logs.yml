@@ -1,0 +1,8 @@
+lock_event:
+  user: admin_user
+  action: user_locked
+  resource_type: User
+  resource_id: 1
+  reason: "Repeated failed sign-ins"
+  ip_address: "203.0.113.10"
+  created_at: <%= 2.days.ago %>

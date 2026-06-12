@@ -1,0 +1,41 @@
+<% content_for :title, "Diagnostics — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Diagnostics",
+      subtitle: "Probes for external integrations and the error-notification pipeline.") %>
+
+<%= render Console::CardComponent.new(title: "CoreLogic property search") do %>
+  <%= form_with url: console_diagnostics_core_logic_search_path, method: :post, class: "console-ticket-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="query">Address query</label>
+      <%= text_field_tag :query, @query, class: "console-input", placeholder: "e.g. 123 Collins Street Melbourne" %>
+    </div>
+    <%= submit_tag "Search", class: "console-btn console-btn-primary" %>
+  <% end %>
+
+  <% if defined?(@suggestions) && @suggestions.is_a?(Array) %>
+    <% if @suggestions.any? %>
+      <ul class="console-doc-list">
+        <% @suggestions.first(15).each do |suggestion| %>
+          <li class="console-doc-item">
+            <div class="console-doc-name">
+              <strong><%= suggestion["suggestion"] %></strong>
+              <span class="console-cell-sub"><%= suggestion["suggestion_type"] || suggestion["suggestionType"] %> · property <%= suggestion["property_id"] || suggestion["propertyId"] %></span>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="console-muted">No suggestions returned.</p>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Error notification pipeline") do %>
+  <p class="console-muted">
+    Raises a real exception so the production error-notification emails can be verified end-to-end.
+    Production-only; the trigger is logged with your email.
+  </p>
+  <%= button_to "Trigger test error", console_diagnostics_test_error_path, method: :post,
+        class: "console-btn console-btn-danger",
+        data: { turbo_confirm: "Raise a TEST exception in this environment?" } %>
+<% end %>

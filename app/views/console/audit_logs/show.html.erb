@@ -1,0 +1,23 @@
+<% content_for :title, "Audit entry ##{@log.id} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Audit entry ##{@log.id}",
+      subtitle: @log.created_at.strftime("%-d %b %Y %H:%M:%S")) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Who" => (@log.user&.email || "system"),
+        "Action" => @log.action.humanize,
+        "Resource" => [ @log.resource_type, @log.resource_id ].compact.join(" #"),
+        "Application" => @log.application_id,
+        "Region" => @log.region,
+        "IP address" => @log.ip_address,
+        "Reason" => @log.reason,
+        "Notes" => @log.notes
+      }) %>
+<% end %>
+
+<% if @parsed_changes.present? %>
+  <%= render Console::CardComponent.new(title: "Changes") do %>
+    <pre class="console-prompt-content"><%= JSON.pretty_generate(@parsed_changes) %></pre>
+  <% end %>
+<% end %>

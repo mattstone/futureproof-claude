@@ -1372,3 +1372,20 @@
   justify-content: space-between;
   margin-bottom: var(--fp-space-sm);
 }
+
+/* ---- Development & system (Phase 3d) ----------------------------------------- */
+
+.console-prompt-content {
+  font-family: var(--fp-font-mono);
+  font-size: var(--fp-text-xs);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--fp-bg-secondary);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-sm);
+  padding: var(--fp-space-md);
+  margin: 0;
+  max-height: 600px;
+  overflow-y: auto;
+}
