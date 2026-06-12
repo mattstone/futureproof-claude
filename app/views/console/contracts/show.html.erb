@@ -29,6 +29,54 @@
       }) %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Servicing") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Income paid to date" => number_to_currency(@income_paid, precision: 2),
+        "Failed payments" => @failed_distributions,
+        "Last payment" => (@distributions.first ? "#{number_to_currency(@distributions.first.amount, precision: 2)} on #{@distributions.first.distribution_date&.strftime('%-d %b %Y')}" : "None yet")
+      }) %>
+
+  <% if @available_transitions.any? %>
+    <% @available_transitions.each do |kind, spec| %>
+      <%= form_with url: transition_console_contract_path(@contract, kind: kind), method: :patch, class: "console-ticket-form" do %>
+        <div class="console-field">
+          <label class="console-field-label" for="reason"><%= spec[:label] %> — reason</label>
+          <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+        </div>
+        <%= submit_tag spec[:label], class: "console-btn #{kind == 'complete' ? 'console-btn-danger' : (kind == 'flag_at_risk' ? 'console-btn-danger' : 'console-btn-secondary')}",
+              data: { turbo_confirm: "#{spec[:label]} for contract ##{@contract.id}? This is audit-logged." } %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="console-muted">No servicing transitions available from <%= @contract.status_display %>.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Income payments") do %>
+  <% if @distributions.any? %>
+    <ul class="console-doc-list">
+      <% @distributions.each do |distribution| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= number_to_currency(distribution.amount, precision: 2) %></strong>
+            <span class="console-cell-sub">
+              <%= distribution.distribution_date&.strftime("%-d %b %Y") %>
+              <% if distribution.payment_period_month %> · period <%= distribution.payment_period_year %>-<%= format("%02d", distribution.payment_period_month) %><% end %>
+              <% if distribution.payment_method.present? %> · <%= distribution.payment_method.humanize %><% end %>
+            </span>
+            <% if distribution.status == "failed" && distribution.notes.present? %>
+              <span class="console-field-error"><%= distribution.notes %></span>
+            <% end %>
+          </div>
+          <%= render Console::BadgeComponent.new(status: distribution.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No income payments recorded for this contract yet.</p>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Send a message") do %>
   <%= form_with model: @new_message, url: create_message_console_contract_path(@contract),
         scope: :contract_message, class: "console-message-form" do |form| %>
