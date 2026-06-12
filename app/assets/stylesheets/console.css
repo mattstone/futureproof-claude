@@ -1355,3 +1355,20 @@
   font-weight: var(--fp-font-semibold);
   color: var(--fp-text-secondary);
 }
+
+/* ---- Email workflows (Phase 3b) ----------------------------------------------- */
+
+.console-workflow-step {
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  padding: var(--fp-space-md);
+  margin-bottom: var(--fp-space-md);
+  background: var(--fp-bg-secondary);
+}
+
+.console-workflow-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--fp-space-sm);
+}

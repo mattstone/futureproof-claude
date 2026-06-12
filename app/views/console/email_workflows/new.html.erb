@@ -1,0 +1,18 @@
+<% content_for :title, "New workflow — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "New workflow") %>
+
+<% if @workflow.trigger_type.blank? %>
+  <%= render Console::CardComponent.new(title: "Choose a trigger") do %>
+    <p class="console-muted">The trigger determines when this workflow runs; it can't be changed afterwards.</p>
+    <div class="console-message-actions">
+      <% EmailWorkflow.trigger_types.keys.each do |trigger| %>
+        <%= link_to trigger.humanize, new_console_email_workflow_path(trigger_type: trigger), class: "console-btn console-btn-secondary" %>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <%= render Console::CardComponent.new do %>
+    <%= render "form" %>
+  <% end %>
+<% end %>

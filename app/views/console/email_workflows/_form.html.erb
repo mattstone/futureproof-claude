@@ -1,0 +1,48 @@
+<%= form_with model: [ :console, @workflow ], class: "console-form",
+      data: { controller: "console--workflow-builder" } do |form| %>
+  <% if @workflow.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @workflow.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= form.hidden_field :trigger_type %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :description) do %>
+    <%= form.text_area :description, rows: 2, class: "console-textarea" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :active, label: "Active",
+        hint: "Only active workflows run automatically.") do %>
+    <%= form.check_box :active, class: "console-checklist-checkbox" %>
+  <% end %>
+
+  <%= render "trigger_conditions", workflow: @workflow %>
+
+  <div class="console-field">
+    <span class="console-field-label">Steps</span>
+    <div data-console--workflow-builder-target="steps">
+      <%= form.fields_for :workflow_steps do |step_form| %>
+        <%= render "step_fields", f: step_form %>
+      <% end %>
+    </div>
+    <p class="console-muted" data-console--workflow-builder-target="empty" hidden>No steps yet — add the first one below.</p>
+
+    <div class="console-message-actions">
+      <% { "send_email" => "Send email", "delay" => "Delay", "condition" => "Condition", "update_status" => "Update status" }.each do |type, label| %>
+        <button type="button" class="console-btn console-btn-secondary console-btn-sm"
+                data-step-type="<%= type %>"
+                data-action="console--workflow-builder#addStep">+ <%= label %></button>
+      <% end %>
+    </div>
+  </div>
+
+  <template data-console--workflow-builder-target="template">
+    <%= render "step_fields", f: nil %>
+  </template>
+
+  <div class="console-message-actions">
+    <%= form.submit @workflow.persisted? ? "Save workflow" : "Create workflow", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @workflow.persisted? ? console_email_workflow_path(@workflow) : console_email_workflows_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

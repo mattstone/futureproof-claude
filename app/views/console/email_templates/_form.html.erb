@@ -1,0 +1,46 @@
+<%= form_with model: [ :console, @email_template ], class: "console-form" do |form| %>
+  <% if @email_template.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @email_template.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :template_type, label: "Type") do %>
+    <%= form.select :template_type, %w[verification application_submitted security_notification].map { |t| [ t.humanize, t ] }, {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :email_category, label: "Category") do %>
+    <%= form.select :email_category, [ [ "Operational", "operational" ], [ "Marketing", "marketing" ] ], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :subject, required: true,
+        hint: "Template variables like {{user.first_name}} work here too.") do %>
+    <%= form.text_field :subject, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :description) do %>
+    <%= form.text_field :description, class: "console-input" %>
+  <% end %>
+  <div class="console-field">
+    <%= form.label :content_body, "Content (HTML; header/footer added by the mailer layout)", class: "console-field-label" %>
+    <%= form.text_area :content_body, rows: 18, class: "console-textarea" %>
+  </div>
+  <div class="console-field">
+    <%= form.label :content, "Full content (legacy fallback when body is blank)", class: "console-field-label" %>
+    <%= form.text_area :content, rows: 6, class: "console-textarea" %>
+  </div>
+
+  <% if local_assigns[:available_fields].present? %>
+    <div class="console-field">
+      <span class="console-field-label">Available variables</span>
+      <div class="console-chat-meta">
+        <% available_fields.each do |field, description| %>
+          <code class="console-prompt-chip" title="<%= description %>">{{<%= field %>}}</code>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @email_template.persisted? ? "Save changes" : "Create template", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @email_template.persisted? ? console_email_template_path(@email_template) : console_email_templates_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

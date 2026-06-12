@@ -1,0 +1,48 @@
+<% content_for :title, "Email workflows — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Email workflows",
+      subtitle: "Automations triggered by application, contract and user events.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "From template", templates_console_email_workflows_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "New workflow", new_console_email_workflow_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @stats[:total], label: "Workflows") %>
+  <%= render Console::StatCardComponent.new(value: @stats[:active], label: "Active", variant: :success) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:executions_30d], label: "Executions (30d)") %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_email_workflows_path, search: false,
+      clear_url: console_email_workflows_path) do |bar| %>
+  <% bar.with_select(:trigger_type, options: EmailWorkflow.trigger_types.keys.map { |t| [ t.humanize, t ] }, selected: params[:trigger_type], label: "Trigger") %>
+  <% bar.with_select(:active, options: [ [ "Active", "true" ], [ "Inactive", "false" ] ], selected: params[:active], label: "Status") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @workflows, id: "workflows",
+      empty_message: "No workflows yet — start from a template.") do |table| %>
+  <% table.with_column "Name" do |workflow| %>
+    <%= link_to workflow.name, console_email_workflow_path(workflow) %>
+    <% if workflow.description.present? %>
+      <div class="console-cell-sub"><%= truncate(workflow.description, length: 80) %></div>
+    <% end %>
+  <% end %>
+  <% table.with_column "Trigger" do |workflow| %>
+    <%= workflow.trigger_type.humanize %>
+  <% end %>
+  <% table.with_column "Steps", numeric: true do |workflow| %>
+    <%= workflow.workflow_steps.size %>
+  <% end %>
+  <% table.with_column "Status" do |workflow| %>
+    <%= render Console::BadgeComponent.new(status: workflow.active? ? "active" : "inactive") %>
+  <% end %>
+  <% table.with_column "Created" do |workflow| %>
+    <%= workflow.created_at.strftime("%-d %b %Y") %>
+    <% if workflow.created_by %>
+      <div class="console-cell-sub"><%= workflow.created_by.email %></div>
+    <% end %>
+  <% end %>
+<% end %>

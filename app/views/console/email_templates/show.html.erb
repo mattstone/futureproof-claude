@@ -1,0 +1,54 @@
+<% content_for :title, "#{@email_template.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @email_template.name,
+      subtitle: "#{@email_template.template_type.humanize} · #{@email_template.email_category.humanize}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @email_template.is_active? ? "active" : "inactive") %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_email_template_path(@email_template), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Preview", preview_console_email_template_path(@email_template), target: "_blank", rel: "noopener", class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= button_to "Send test to me", send_test_console_email_template_path(@email_template), method: :post,
+          class: "console-btn console-btn-secondary",
+          data: { turbo_confirm: "Send a test email to #{current_user.email}?" } %>
+  <% end %>
+  <% if @email_template.is_active? %>
+    <% header.with_action do %>
+      <%= button_to "Deactivate", deactivate_console_email_template_path(@email_template), method: :patch,
+            class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Deactivate the live #{@email_template.template_type.humanize} template?" } %>
+    <% end %>
+  <% else %>
+    <% header.with_action do %>
+      <%= button_to "Activate", activate_console_email_template_path(@email_template), method: :patch,
+            class: "console-btn console-btn-success",
+            data: { turbo_confirm: "Make this the live #{@email_template.template_type.humanize} template? The current one deactivates." } %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(rows: {
+        "Subject" => @email_template.subject,
+        "Description" => @email_template.description,
+        "Updated" => @email_template.updated_at.strftime("%-d %b %Y %H:%M")
+      }) %>
+<% end %>
+
+<% if @available_fields.any? %>
+  <%= render Console::CardComponent.new(title: "Available template variables") do %>
+    <div class="console-chat-meta">
+      <% @available_fields.each do |field, description| %>
+        <code class="console-prompt-chip" title="<%= description %>">{{<%= field %>}}</code>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Content") do %>
+  <div class="console-clause-preview"><%= @email_template.content_body.presence || @email_template.content %></div>
+<% end %>

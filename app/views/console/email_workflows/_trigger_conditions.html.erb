@@ -1,0 +1,41 @@
+<% conditions = workflow.trigger_conditions || {} %>
+
+<div class="console-field">
+  <span class="console-field-label">Trigger: <%= workflow.trigger_type&.humanize || "—" %></span>
+
+  <% case workflow.trigger_type %>
+  <% when "application_status_changed", "contract_status_changed" %>
+    <% statuses = workflow.trigger_type.start_with?("application") ? Application.statuses : Contract.statuses %>
+    <div class="console-ticket-form">
+      <div class="console-field">
+        <label class="console-field-label">From status</label>
+        <%= select_tag "email_workflow[trigger_conditions][from_status]",
+              options_for_select([ [ "Any status", "" ] ] + statuses.keys.map { |k| [ k.humanize, k ] }, conditions["from_status"]),
+              class: "console-select" %>
+      </div>
+      <div class="console-field">
+        <label class="console-field-label">To status</label>
+        <%= select_tag "email_workflow[trigger_conditions][to_status]",
+              options_for_select([ [ "Any status", "" ] ] + statuses.keys.map { |k| [ k.humanize, k ] }, conditions["to_status"]),
+              class: "console-select" %>
+      </div>
+    </div>
+  <% when "application_stuck_at_status", "contract_stuck_at_status" %>
+    <% statuses = workflow.trigger_type.start_with?("application") ? Application.statuses : Contract.statuses %>
+    <div class="console-ticket-form">
+      <div class="console-field">
+        <label class="console-field-label">Stuck at status</label>
+        <%= select_tag "email_workflow[trigger_conditions][status]",
+              options_for_select([ [ "Select status", "" ] ] + statuses.keys.map { |k| [ k.humanize, k ] }, conditions["status"]),
+              class: "console-select" %>
+      </div>
+      <div class="console-field">
+        <label class="console-field-label">For (days)</label>
+        <%= number_field_tag "email_workflow[trigger_conditions][days]", conditions["days"], min: 1, class: "console-input" %>
+      </div>
+    </div>
+  <% else %>
+    <p class="console-muted">Fires on every <%= workflow.trigger_type&.humanize&.downcase %> event — no extra conditions.</p>
+    <%= hidden_field_tag "email_workflow[trigger_conditions][event]", workflow.trigger_type %>
+  <% end %>
+</div>
