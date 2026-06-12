@@ -1,0 +1,75 @@
+#!/bin/bash
+# The post-merge reality check the test suite can't do: verifies the RUNNING
+# dev app — pending migrations, a fresh server, and an authenticated crawl of
+# every console route over real HTTP. Run after every merge to master.
+#
+#   bin/console-verify
+#
+# Exits non-zero on pending migrations, any 5xx, or any unexpected 4xx.
+set -u
+cd "$(dirname "$0")/.."
+
+PORT="${CONSOLE_PORT:-3001}"
+COOKIES="$(mktemp /tmp/console-verify-cookies.XXXXXX)"
+CRAWLER_EMAIL="crawler@futureprooffinancial.co"
+CRAWLER_PASSWORD="CrawlBot!2026"
+FAILURES=0
+
+step() { printf "\n\033[1m== %s\033[0m\n" "$1"; }
+
+step "1/4 Pending migrations"
+if ! bundle exec rails db:abort_if_pending_migrations; then
+  echo "❌ Pending migrations — run bin/rails db:migrate first."
+  exit 1
+fi
+echo "✅ schema current"
+
+step "2/4 Fresh server on :$PORT"
+# Kill whatever is listening (stale pidfiles lie — see 2026-06-12).
+lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | xargs kill 2>/dev/null
+sleep 2
+rm -f tmp/pids/server.pid
+bundle exec rails server -p "$PORT" -d
+sleep 6
+if ! curl -s -o /dev/null "http://localhost:$PORT/"; then
+  echo "❌ Server failed to boot"; exit 1
+fi
+echo "✅ server restarted (schema cache is fresh)"
+
+step "3/4 Authenticated session"
+bundle exec rails runner "
+  u = User.find_or_initialize_by(email: '$CRAWLER_EMAIL')
+  u.assign_attributes(first_name: 'Crawl', last_name: 'Bot', admin: true,
+                      lender: Lender.lender_type_futureproof.first,
+                      country_of_residence: 'Australia', terms_accepted: true,
+                      confirmed_at: Time.current, password: '$CRAWLER_PASSWORD')
+  u.save!(validate: false)
+" > /dev/null
+CSRF=$(curl -s -c "$COOKIES" "http://localhost:$PORT/users/sign_in" | grep -o 'name="authenticity_token" value="[^"]*"' | head -1 | sed 's/.*value="//;s/"//')
+LOGIN=$(curl -s -b "$COOKIES" -c "$COOKIES" -o /dev/null -w "%{http_code}" \
+  -d "authenticity_token=${CSRF}" -d "user[email]=$CRAWLER_EMAIL" -d "user[password]=$CRAWLER_PASSWORD" \
+  "http://localhost:$PORT/users/sign_in")
+if [ "$LOGIN" != "303" ] && [ "$LOGIN" != "302" ]; then
+  echo "❌ Login failed ($LOGIN)"; exit 1
+fi
+echo "✅ signed in as $CRAWLER_EMAIL"
+
+step "4/4 Crawl every console route"
+while IFS= read -r path; do
+  [ -z "$path" ] && continue
+  CODE=$(curl -s -b "$COOKIES" -o /dev/null -w "%{http_code}" "http://localhost:$PORT$path")
+  case "$CODE" in
+    200|302) printf "  %-60s %s\n" "$path" "$CODE" ;;
+    *) printf "  %-60s \033[31m%s ❌\033[0m\n" "$path" "$CODE"; FAILURES=$((FAILURES+1)) ;;
+  esac
+done < <(bundle exec rails console:crawl_paths 2>/dev/null | grep "^/")
+
+rm -f "$COOKIES"
+
+if [ "$FAILURES" -gt 0 ]; then
+  echo ""
+  echo "❌ console-verify: $FAILURES route(s) failed — check log/development.log"
+  exit 1
+fi
+echo ""
+echo "✅ console-verify: every console route renders against the live server"

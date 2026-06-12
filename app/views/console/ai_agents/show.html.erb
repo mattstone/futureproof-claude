@@ -65,7 +65,7 @@
         <li class="console-history-item">
           <span class="console-history-actor"><%= action.action_type %></span>
           <span class="console-history-action">
-            <% if action.application_id %>application #<%= action.application_id %> · <% end %>
+            <% if action.actionable_type %><%= action.actionable_type.underscore.humanize.downcase %> #<%= action.actionable_id %> · <% end %>
             <%= action.decision.presence || action.status %>
           </span>
           <time class="console-history-time"><%= time_ago_in_words(action.created_at) %> ago</time>

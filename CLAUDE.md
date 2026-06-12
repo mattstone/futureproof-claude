@@ -88,7 +88,13 @@ bundle exec rubocop                   # Style guide
 6. Run full suite
 7. Only then claim success
 
-**Current:** 382 tests, 2151 assertions, 0 failures, 0 errors
+**Current:** 1175+ tests, 0 failures, 0 errors
+
+### Console (post-merge, MANDATORY)
+`bin/console-verify` — checks pending migrations, hard-restarts the dev
+server (stale schema caches caused live 500s the suite can't see), and
+crawls every console route with an authenticated session. Run after every
+merge to master before claiming anything works.
 
 ---
 
