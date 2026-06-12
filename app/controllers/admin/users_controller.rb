@@ -100,7 +100,29 @@ class Admin::UsersController < Admin::BaseController
   end
 
 
+  def lock
+    @user = scoped_users.find(params[:id])
+    @user.lock_access!(send_instructions: false)
+    AuditLog.log_action(user: current_user, action: "user_locked", resource: @user)
+    redirect_to admin_user_path(@user), notice: "Account locked."
+  end
+
+  def unlock
+    @user = scoped_users.find(params[:id])
+    @user.unlock_access!
+    AuditLog.log_action(user: current_user, action: "user_unlocked", resource: @user)
+    redirect_to admin_user_path(@user), notice: "Account unlocked."
+  end
+
+  def send_reset_password
+    @user = scoped_users.find(params[:id])
+    @user.send_reset_password_instructions
+    AuditLog.log_action(user: current_user, action: "password_reset_sent", resource: @user)
+    redirect_to admin_user_path(@user), notice: "Password reset email sent to #{@user.email}."
+  end
+
   private
+
 
   def set_user
     @user = scoped_users.find(params[:id])

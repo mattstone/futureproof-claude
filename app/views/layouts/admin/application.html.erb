@@ -37,7 +37,7 @@
             <summary class="admin-nav-group-header">Support</summary>
             <div class="admin-nav-group-items">
               <%= link_to admin_support_tickets_path, class: "admin-nav-link #{'active' if controller_name == 'support_tickets'}", data: { admin_nav_target: "link" } do %>
-                <span>Support Tickets</span>
+                <span>Support Tickets</span><% if admin_attention_counts[:tickets].positive? %><span class="nav-badge"><%= admin_attention_counts[:tickets] %></span><% end %>
               <% end %>
             </div>
           </details>
@@ -61,7 +61,7 @@
                 <span>🛟 Customer Service</span>
               <% end %>
               <%= link_to admin_applications_path, class: "admin-nav-link #{'active' if controller_name == 'applications'}", data: { admin_nav_target: "link" } do %>
-                <span>📋 Applications</span>
+                <span>📋 Applications</span><% if admin_attention_counts[:applications].positive? %><span class="nav-badge"><%= admin_attention_counts[:applications] %></span><% end %>
               <% end %>
               <%= link_to admin_contracts_path, class: "admin-nav-link #{'active' if controller_name == 'contracts'}", data: { admin_nav_target: "link" } do %>
                 <span>📄 Contracts</span>
@@ -87,7 +87,7 @@
                 <span>🧠 Prompts</span>
               <% end %>
               <%= link_to admin_prompt_change_requests_path, class: "admin-nav-link #{'active' if controller_name == 'prompt_change_requests'}", data: { admin_nav_target: "link" } do %>
-                <span>📝 Change Requests</span>
+                <span>📝 Change Requests</span><% if admin_attention_counts[:change_requests].positive? %><span class="nav-badge"><%= admin_attention_counts[:change_requests] %></span><% end %>
               <% end %>
             </div>
           </details>

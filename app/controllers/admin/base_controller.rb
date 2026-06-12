@@ -24,7 +24,21 @@ class Admin::BaseController < ApplicationController
     end
   end
 
+  # Sidebar attention badges — cheap counts, cached briefly so every admin
+  # page doesn't pay four queries.
+  def admin_attention_counts
+    @admin_attention_counts ||= Rails.cache.fetch("admin/attention_counts", expires_in: 60.seconds) do
+      {
+        tickets: SupportTicket.where(status: %w[open in_progress]).count,
+        applications: Application.where(status: %i[submitted processing]).count,
+        change_requests: PromptChangeRequest.where.not(state_cache: %w[merged closed]).count
+      }
+    end
+  end
+  helper_method :admin_attention_counts
+
   private
+
 
   def ensure_admin
     unless current_user&.admin?

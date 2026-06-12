@@ -64,6 +64,42 @@
   </div>
 </div>
 
+<div class="admin-card security-panel">
+  <div class="card-header">
+    <h3>Security</h3>
+  </div>
+  <div class="card-content">
+    <div class="detail-row">
+      <strong>Sign-ins:</strong>
+      <span><%= @user.sign_in_count %> total<% if @user.current_sign_in_at %> — current session since <%= @user.current_sign_in_at.strftime("%d %b %Y %H:%M") %> (<%= @user.current_sign_in_ip %>)<% end %></span>
+    </div>
+    <div class="detail-row">
+      <strong>Last sign-in:</strong>
+      <span><% if @user.last_sign_in_at %><%= @user.last_sign_in_at.strftime("%d %b %Y %H:%M") %> from <%= @user.last_sign_in_ip %><% else %>Never signed in<% end %></span>
+    </div>
+    <div class="detail-row">
+      <strong>Failed attempts:</strong>
+      <span><%= @user.failed_attempts %></span>
+    </div>
+    <div class="detail-row">
+      <strong>Account status:</strong>
+      <% if @user.access_locked? %>
+        <span class="admin-badge admin-badge-danger">Locked<% if @user.locked_at %> since <%= @user.locked_at.strftime("%d %b %Y %H:%M") %><% end %></span>
+      <% else %>
+        <span class="admin-badge admin-badge-success">Active</span>
+      <% end %>
+    </div>
+    <div class="detail-row security-actions">
+      <% if @user.access_locked? %>
+        <%= button_to "Unlock account", unlock_admin_user_path(@user), method: :post, class: "admin-btn admin-btn-success admin-btn-sm", data: { turbo_confirm: "Unlock this account?" } %>
+      <% else %>
+        <%= button_to "Lock account", lock_admin_user_path(@user), method: :post, class: "admin-btn admin-btn-danger admin-btn-sm", data: { turbo_confirm: "Lock this account? The user will be unable to sign in." } %>
+      <% end %>
+      <%= button_to "Send password reset email", send_reset_password_admin_user_path(@user), method: :post, class: "admin-btn admin-btn-secondary admin-btn-sm", data: { turbo_confirm: "Email a password reset link to #{@user.email}?" } %>
+    </div>
+  </div>
+</div>
+
 <!-- Change History Section -->
 <%= render 'shared/change_history', versions: @user_versions %>
 
