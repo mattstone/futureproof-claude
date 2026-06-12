@@ -1,0 +1,27 @@
+<% content_for :title, "Edit agreement — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Edit agreement", subtitle: @agreement.title) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with model: @agreement, url: console_agreement_path(@agreement), method: :patch, scope: :agreement, class: "console-form" do |form| %>
+    <% if @agreement.errors.any? %>
+      <div class="console-flash console-flash-error"><%= @agreement.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :title, required: true) do %>
+      <%= form.text_field :title, class: "console-input", required: true %>
+    <% end %>
+    <div class="console-field">
+      <%= form.label :content, "Agreement text (HTML)", class: "console-field-label" %>
+      <%= form.text_area :content, rows: 18, class: "console-textarea" %>
+    </div>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :notes) do %>
+      <%= form.text_area :notes, rows: 3, class: "console-textarea" %>
+    <% end %>
+
+    <div class="console-message-actions">
+      <%= form.submit "Save changes", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_agreement_path(@agreement), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

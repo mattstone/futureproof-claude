@@ -1,0 +1,35 @@
+<% content_for :title, "Broker scorecard — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Broker scorecard",
+      subtitle: "Referral volume, conversion and commission across referral partners. Dormant = no referral in 90 days.") %>
+
+<%= render Console::DataTableComponent.new(records: @scorecards, id: "broker_scorecards",
+      empty_message: "No brokers yet.") do |table| %>
+  <% table.with_column "Broker" do |row| %>
+    <%= link_to row[:broker].name, console_broker_path(row[:broker]) %>
+    <% if row[:dormant] %>
+      <%= render Console::BadgeComponent.new(status: "neutral", label: "Dormant") %>
+    <% end %>
+  <% end %>
+  <% table.with_column "30d", numeric: true do |row| %>
+    <%= row[:referrals_30d] %>
+  <% end %>
+  <% table.with_column "90d", numeric: true do |row| %>
+    <%= row[:referrals_90d] %>
+  <% end %>
+  <% table.with_column "365d", numeric: true do |row| %>
+    <%= row[:referrals_365d] %>
+  <% end %>
+  <% table.with_column "Approval rate", numeric: true do |row| %>
+    <%= row[:approval_rate] %>%
+  <% end %>
+  <% table.with_column "Avg days to decision", numeric: true do |row| %>
+    <%= row[:avg_age_at_decision] %>
+  <% end %>
+  <% table.with_column "Commission earned", numeric: true do |row| %>
+    <%= number_to_currency(row[:commission_earned], precision: 0) %>
+  <% end %>
+  <% table.with_column "Last referral" do |row| %>
+    <%= row[:last_referral_at] ? "#{time_ago_in_words(row[:last_referral_at])} ago" : "Never" %>
+  <% end %>
+<% end %>

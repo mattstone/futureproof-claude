@@ -1,0 +1,24 @@
+<%= form_with model: [ :console, @broker ], class: "console-form" do |form| %>
+  <% if @broker.errors.any? %>
+    <div class="console-flash console-flash-error"><%= @broker.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+    <%= form.text_field :name, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :email, required: true,
+        hint: @broker.new_record? ? "The broker receives a password setup email on creation." : nil) do %>
+    <%= form.email_field :email, class: "console-input", required: true %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :jurisdiction) do %>
+    <%= form.select :jurisdiction, %w[AU US NZ UK], {}, class: "console-select" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :phone) do %>
+    <%= form.text_field :phone, class: "console-input" %>
+  <% end %>
+
+  <div class="console-message-actions">
+    <%= form.submit @broker.persisted? ? "Save changes" : "Create broker", class: "console-btn console-btn-primary" %>
+    <%= link_to "Cancel", @broker.persisted? ? console_broker_path(@broker) : console_brokers_path, class: "console-btn console-btn-secondary" %>
+  </div>
+<% end %>

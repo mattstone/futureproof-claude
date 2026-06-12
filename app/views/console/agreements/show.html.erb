@@ -1,0 +1,61 @@
+<% content_for :title, "#{@agreement.title} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @agreement.title,
+      subtitle: "#{@agreement.agreeable_type}: #{@agreement.agreeable.try(:name)} · #{@agreement.jurisdiction}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @agreement.status) %>
+  <% end %>
+  <% if @agreement.editable? %>
+    <% header.with_action do %>
+      <%= link_to "Edit", edit_console_agreement_path(@agreement), class: "console-btn console-btn-secondary" %>
+    <% end %>
+    <% header.with_action do %>
+      <%= button_to "Send for signing", send_for_signing_console_agreement_path(@agreement),
+            method: :patch, class: "console-btn console-btn-primary",
+            data: { turbo_confirm: "Send this agreement for signing? It can't be edited afterwards." } %>
+    <% end %>
+  <% end %>
+  <% unless @agreement.status_fully_executed? || @agreement.status_cancelled? %>
+    <% header.with_action do %>
+      <%= button_to "Cancel", cancel_console_agreement_path(@agreement),
+            method: :patch, class: "console-btn console-btn-danger",
+            data: { turbo_confirm: "Cancel this agreement?" } %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Signatures") do %>
+  <% signatures = @agreement.agreement_signatures %>
+  <% if signatures.any? %>
+    <ul class="console-doc-list">
+      <% signatures.each do |signature| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= signature.signer_name %></strong>
+            <span class="console-cell-sub"><%= signature.signer_role&.humanize %> · <%= signature.signer_email %> · <%= signature.created_at.strftime("%-d %b %Y %H:%M") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: "signed", label: "Signed") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No signatures recorded yet.</p>
+  <% end %>
+
+  <% if @agreement.status_sent? || @agreement.status_counterparty_signed? %>
+    <div class="console-message-actions">
+      <%= link_to "Record counterparty signature", sign_console_agreement_path(@agreement, role: "counterparty"), class: "console-btn console-btn-primary" %>
+      <%= link_to "Record Futureproof signature", sign_console_agreement_path(@agreement, role: "futureproof"), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Agreement text") do %>
+  <div class="console-clause-preview"><%= sanitize @agreement.content, tags: %w[h1 h2 h3 p br strong em ul ol li table tr td th], attributes: [] %></div>
+<% end %>
+
+<% if @agreement.notes.present? %>
+  <%= render Console::CardComponent.new(title: "Notes") do %>
+    <p class="console-muted"><%= @agreement.notes %></p>
+  <% end %>
+<% end %>

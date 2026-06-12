@@ -1,0 +1,23 @@
+broker_agreement_au:
+  document_type: broker_contract
+  jurisdiction: AU
+  party_type: broker
+  title: "Broker Agreement (AU)"
+  content: "<h1>Broker Agreement</h1><p>Standard broker terms for {{party.name}}.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>
+
+lender_agreement_au:
+  document_type: lender_contract
+  jurisdiction: AU
+  party_type: lender
+  title: "Lender Agreement (AU)"
+  content: "<h1>Lender Agreement</h1><p>Standard lender terms.</p>"
+  version: 1
+  status: 3 # active
+  is_active: true
+  is_draft: false
+  effective_from: <%= 1.year.ago.to_date %>

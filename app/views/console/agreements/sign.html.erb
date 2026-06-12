@@ -1,0 +1,35 @@
+<% content_for :title, "Record signature — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Record #{@signer_role.titleize} signature",
+      subtitle: @agreement.title) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with url: record_signature_console_agreement_path(@agreement), method: :post, scope: :signature, class: "console-form" do |form| %>
+    <%= form.hidden_field :signer_role, value: @signer_role %>
+
+    <div class="console-field">
+      <%= form.label :signer_name, class: "console-field-label" %>
+      <%= form.text_field :signer_name, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <%= form.label :signer_email, class: "console-field-label" %>
+      <%= form.email_field :signer_email, class: "console-input", required: true %>
+    </div>
+    <div class="console-field">
+      <%= form.label :signer_title, "Title / role", class: "console-field-label" %>
+      <%= form.text_field :signer_title, class: "console-input" %>
+    </div>
+    <div class="console-field">
+      <%= form.label :typed_signature, "Typed signature", class: "console-field-label" %>
+      <%= form.text_field :typed_signature, class: "console-input", required: true,
+            placeholder: "Type full legal name as signature" %>
+      <p class="console-field-hint">IP address and browser are recorded with the signature.</p>
+    </div>
+
+    <div class="console-message-actions">
+      <%= form.submit "Record signature", class: "console-btn console-btn-primary",
+            data: { turbo_confirm: "Record this signature? This cannot be undone." } %>
+      <%= link_to "Cancel", console_agreement_path(@agreement), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

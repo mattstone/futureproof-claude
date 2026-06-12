@@ -68,6 +68,26 @@ Rails.application.routes.draw do
     end
     resources :funder_pools, only: [ :index ]
 
+    resources :brokers, only: [ :index, :show, :new, :create, :edit, :update ] do
+      collection do
+        get :scorecard
+      end
+      member do
+        patch :toggle_active
+        post :assign_lender
+        delete :remove_lender
+      end
+    end
+
+    resources :agreements, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        patch :send_for_signing
+        get :sign
+        post :record_signature
+        patch :cancel
+      end
+    end
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply
