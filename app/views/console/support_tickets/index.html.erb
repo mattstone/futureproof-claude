@@ -1,0 +1,55 @@
+<% content_for :title, "Support tickets — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Support tickets",
+      subtitle: "Customer support inbox — email-ingested and in-app tickets.") do |header| %>
+  <% header.with_action do %>
+    <%= button_to "Poll emails now", poll_emails_console_support_tickets_path, method: :post,
+          class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @stats[:open], label: "Open",
+        href: console_support_tickets_path(status: "open"),
+        variant: @stats[:open].positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:in_progress], label: "In progress",
+        href: console_support_tickets_path(status: "in_progress")) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:waiting], label: "Waiting on customer",
+        href: console_support_tickets_path(status: "waiting_on_customer")) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:urgent], label: "Urgent unresolved",
+        href: console_support_tickets_path(priority: "urgent"),
+        variant: @stats[:urgent].positive? ? :error : nil) %>
+  <%= render Console::StatCardComponent.new(value: @stats[:resolved_today], label: "Resolved today", variant: :success) %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_support_tickets_path,
+      search_value: params[:search], search_placeholder: "Ticket #, subject, sender…",
+      clear_url: console_support_tickets_path) do |bar| %>
+  <% bar.with_select(:status, options: SupportTicket::STATUSES.map { |s| [ s.humanize, s ] }, selected: params[:status]) %>
+  <% bar.with_select(:priority, options: SupportTicket::PRIORITIES.map { |p| [ p.humanize, p ] }, selected: params[:priority]) %>
+  <% bar.with_select(:category, options: SupportTicket::CATEGORIES.map { |c| [ c.humanize, c ] }, selected: params[:category]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "tickets",
+      csv_path: console_support_tickets_path(format: :csv, search: params[:search], status: params[:status], priority: params[:priority], category: params[:category]),
+      empty_message: "No tickets match those filters.") do |table| %>
+  <% table.with_column "Ticket" do |ticket| %>
+    <%= link_to ticket.ticket_number, console_support_ticket_path(ticket) %>
+  <% end %>
+  <% table.with_column "Subject" do |ticket| %>
+    <%= link_to ticket.subject, console_support_ticket_path(ticket) %>
+    <div class="console-cell-sub"><%= ticket.sender_name %> · <%= ticket.sender_email %></div>
+  <% end %>
+  <% table.with_column "Status" do |ticket| %>
+    <%= render Console::BadgeComponent.new(status: ticket.status) %>
+  <% end %>
+  <% table.with_column "Priority", sort: "priority" do |ticket| %>
+    <%= render Console::BadgeComponent.new(status: ticket.priority == "urgent" ? "error" : (ticket.priority == "high" ? "needs_attention" : "neutral"), label: ticket.priority.humanize) %>
+  <% end %>
+  <% table.with_column "Category" do |ticket| %>
+    <%= ticket.category.humanize %>
+  <% end %>
+  <% table.with_column "Updated", sort: "updated" do |ticket| %>
+    <%= time_ago_in_words(ticket.updated_at) %> ago
+  <% end %>
+<% end %>

@@ -1196,3 +1196,18 @@
   border-radius: var(--fp-radius-sm);
   padding: 1px var(--fp-space-xs);
 }
+
+/* ---- Support tickets (Phase 1d) -------------------------------------------- */
+
+.console-ticket-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--fp-space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--fp-space-md);
+}
+
+.console-ticket-form .console-field {
+  margin-bottom: 0;
+  min-width: 160px;
+}

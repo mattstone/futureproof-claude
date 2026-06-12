@@ -31,6 +31,13 @@
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_users_path)}" %>
       <%= link_to "AI conversations", console_chat_conversations_path,
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_chat_conversations_path)}" %>
+      <%= link_to console_support_tickets_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_support_tickets_path)}" do %>
+        Support tickets
+        <% if attention_counts[:tickets].positive? %>
+          <span class="console-nav-badge"><%= attention_counts[:tickets] %></span>
+        <% end %>
+      <% end %>
     </div>
   <% end %>
 

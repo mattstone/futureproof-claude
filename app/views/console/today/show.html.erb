@@ -10,7 +10,8 @@
   <%= render Console::StatCardComponent.new(value: @stats[:messages], label: "Unread customer messages",
         variant: @stats[:messages].positive? ? :warning : nil) %>
   <% if @stats.key?(:tickets) %>
-    <%= render Console::StatCardComponent.new(value: @stats[:tickets], label: "Open support tickets") %>
+    <%= render Console::StatCardComponent.new(value: @stats[:tickets], label: "Open support tickets",
+          href: console_support_tickets_path(status: "open")) %>
   <% end %>
   <% if @stats.key?(:change_requests) %>
     <%= render Console::StatCardComponent.new(value: @stats[:change_requests], label: "Open change requests") %>

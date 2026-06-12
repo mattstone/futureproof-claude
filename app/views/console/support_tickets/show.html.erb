@@ -1,0 +1,83 @@
+<% content_for :title, "#{@ticket.ticket_number} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @ticket.ticket_number, subtitle: @ticket.subject) do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @ticket.status) %>
+  <% end %>
+  <% unless @ticket.status == "closed" %>
+    <% header.with_action do %>
+      <%= button_to "Close ticket", close_console_support_ticket_path(@ticket), method: :post,
+            class: "console-btn console-btn-secondary",
+            data: { turbo_confirm: "Close this ticket?" } %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Console::RelatedRecordsComponent.new do |related| %>
+  <% if @ticket.user %>
+    <% related.with_item(@ticket.user.display_name, href: console_user_path(@ticket.user), meta: "customer") %>
+  <% end %>
+  <% if @ticket.application_id %>
+    <% related.with_item("Application ##{@ticket.application_id}", href: console_application_path(@ticket.application_id)) %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Ticket") do %>
+  <%= form_with model: @ticket, url: console_support_ticket_path(@ticket), method: :patch, class: "console-ticket-form" do |form| %>
+    <div class="console-field">
+      <%= form.label :status, class: "console-field-label" %>
+      <%= form.select :status, SupportTicket::STATUSES.map { |s| [ s.humanize, s ] }, {}, class: "console-select" %>
+    </div>
+    <div class="console-field">
+      <%= form.label :priority, class: "console-field-label" %>
+      <%= form.select :priority, SupportTicket::PRIORITIES.map { |p| [ p.humanize, p ] }, {}, class: "console-select" %>
+    </div>
+    <div class="console-field">
+      <%= form.label :category, class: "console-field-label" %>
+      <%= form.select :category, SupportTicket::CATEGORIES.map { |c| [ c.humanize, c ] }, {}, class: "console-select" %>
+    </div>
+    <%= form.submit "Update", class: "console-btn console-btn-secondary" %>
+  <% end %>
+
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "From" => "#{@ticket.sender_name} <#{@ticket.sender_email}>",
+        "Source" => @ticket.source,
+        "Opened" => @ticket.created_at.strftime("%-d %b %Y %H:%M"),
+        "Resolved" => @ticket.resolved_at&.strftime("%-d %b %Y %H:%M"),
+        "Closed" => @ticket.closed_at&.strftime("%-d %b %Y %H:%M")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Conversation") do %>
+  <% if @messages.any? %>
+    <div class="console-thread-list">
+      <% @messages.each do |message| %>
+        <div class="console-message <%= message.sender_type == 'customer' ? 'console-message-customer' : 'console-message-admin' %>">
+          <div class="console-message-meta">
+            <strong><%= message.sender_name %></strong>
+            <span class="console-cell-sub"><%= message.sender_type %></span>
+            <time class="console-history-time"><%= message.created_at.strftime("%-d %b %Y %H:%M") %></time>
+          </div>
+          <div class="console-message-body"><%= simple_format(message.body_text) %></div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="console-muted">No visible messages on this ticket.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Reply") do %>
+  <% if @ticket.ai_draft_reply.present? %>
+    <div class="console-flash console-flash-warning">AI draft available — review before sending.</div>
+  <% end %>
+  <%= form_with url: reply_console_support_ticket_path(@ticket), method: :post, class: "console-message-form" do %>
+    <div class="console-field">
+      <label class="console-field-label" for="support_ticket_message_body_text">Reply to <%= @ticket.sender_email %></label>
+      <textarea name="support_ticket_message[body_text]" id="support_ticket_message_body_text" rows="6"
+                class="console-textarea" required><%= @ticket.ai_draft_reply %></textarea>
+    </div>
+    <%= submit_tag "Send reply", class: "console-btn console-btn-primary",
+          data: { turbo_confirm: "Send this reply to #{@ticket.sender_email}?" } %>
+  <% end %>
+<% end %>

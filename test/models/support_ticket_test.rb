@@ -9,8 +9,9 @@ class SupportTicketTest < ActiveSupport::TestCase
       sender_name: "Test User"
     )
 
-    assert ticket.ticket_number.start_with?("FP-")
-    assert_equal 5, ticket.ticket_number.split("-").last.length
+    # FP- + id left-padded to AT LEAST 5 digits (fixtures bump the id
+    # sequence, so the generated id can exceed 5 digits)
+    assert_match(/\AFP-\d{5,}\z/, ticket.ticket_number)
   end
 
   test "validates required fields" do
