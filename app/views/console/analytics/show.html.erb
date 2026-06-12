@@ -1,0 +1,135 @@
+<% content_for :title, "Analytics — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Analytics",
+      subtitle: "Portfolio, acquisition, service and risk — #{current_jurisdiction == 'Summary' ? 'all regions' : current_jurisdiction}. Demo data excluded.") %>
+
+<section class="console-gauges">
+  <% @data[:gauges].each do |gauge| %>
+    <div class="console-gauge">
+      <div data-controller="radial-gauge"
+           data-radial-gauge-value-value="<%= gauge[:value] %>"
+           data-radial-gauge-max-value="<%= gauge[:max] %>"
+           data-radial-gauge-unit-value="<%= gauge[:unit] %>"
+           data-radial-gauge-label-value="<%= gauge[:label] %>"
+           data-radial-gauge-detail-value="<%= gauge[:detail] %>"
+           data-radial-gauge-higher-is-better-value="<%= gauge[:higher_is_better] %>"
+           data-radial-gauge-warning-at-value="<%= gauge[:warning_at] %>"
+           data-radial-gauge-critical-at-value="<%= gauge[:critical_at] %>"></div>
+      <div class="console-gauge-label"><%= gauge[:label] %></div>
+      <div class="console-cell-sub"><%= gauge[:detail] %></div>
+    </div>
+  <% end %>
+</section>
+
+<%= render Console::CardComponent.new(title: "Application funnel") do %>
+  <p class="console-muted"><%= number_with_delimiter(@data[:funnel][:total_started]) %> applications started</p>
+  <div class="console-chart console-chart-tall"
+       data-controller="application-funnel"
+       data-application-funnel-nodes-value="<%= @data[:funnel][:nodes].to_json %>"
+       data-application-funnel-links-value="<%= @data[:funnel][:links].to_json %>"
+       data-application-funnel-total-started-value="<%= @data[:funnel][:total_started] %>"></div>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Application volume — last 12 months") do %>
+  <p class="console-muted"><%= number_with_delimiter(@data[:calendar][:total]) %> applications across <%= @data[:calendar][:days].size %> days</p>
+  <div class="console-chart"
+       data-controller="calendar-heatmap"
+       data-calendar-heatmap-days-value="<%= @data[:calendar][:days].to_json %>"
+       data-calendar-heatmap-max-value="<%= @data[:calendar][:max] %>"
+       data-calendar-heatmap-total-value="<%= @data[:calendar][:total] %>"></div>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Geographic distribution") do %>
+  <div class="console-chart"
+       data-controller="regional-choropleth"
+       data-regional-choropleth-regions-value="<%= @data[:geo].to_json %>"
+       data-regional-choropleth-atlas-url-value="/data/world-110m.json"></div>
+<% end %>
+
+<div class="console-analytics-grid">
+  <%= render Console::CardComponent.new(title: "Financial") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Total raised" => number_to_currency(@data[:financial_overview][:total_aum], precision: 0),
+          "Capital deployed" => number_to_currency(@data[:financial_overview][:capital_deployed], precision: 0),
+          "Available" => number_to_currency(@data[:financial_overview][:capital_available], precision: 0),
+          "WACC" => "#{@data[:financial_overview][:wacc]}%",
+          "Portfolio P&L" => number_to_currency(@data[:financial_overview][:portfolio_pl], precision: 0),
+          "Net margin (annual)" => number_to_currency(@data[:financial_overview][:net_margin_annual], precision: 0)
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Customer acquisition") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "This month" => "#{number_with_delimiter(@data[:acquisition_overview][:applications_this_month])} apps",
+          "Last month" => "#{number_with_delimiter(@data[:acquisition_overview][:applications_last_month])} apps",
+          "Month-over-month" => "#{@data[:acquisition_overview][:delta_pct] >= 0 ? '+' : ''}#{@data[:acquisition_overview][:delta_pct]}%",
+          "Conversion rate" => "#{@data[:acquisition_overview][:conversion_rate]}%"
+        }) %>
+    <% if @data[:acquisition_overview][:top_brokers].any? %>
+      <p class="console-cell-sub">
+        Top brokers (90d):
+        <%= @data[:acquisition_overview][:top_brokers].map { |name, count| "#{name} (#{count})" }.join(" · ") %>
+      </p>
+    <% end %>
+    <% if @data[:acquisition_overview][:regional_split].any? %>
+      <p class="console-cell-sub">
+        By region:
+        <%= @data[:acquisition_overview][:regional_split].map { |region, count| "#{region} #{count}" }.join(" · ") %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Customer service") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Open conversations" => number_with_delimiter(@data[:service_overview][:open_conversations]),
+          "Awaiting reply > 24h" => @data[:service_overview][:awaiting_reply_count],
+          "% awaiting (30d)" => "#{@data[:service_overview][:awaiting_reply_pct]}%",
+          "Escalations this week" => @data[:service_overview][:escalations_this_week],
+          "Stalled applications" => @data[:service_overview][:stalled_applications]
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Risk & investment health") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Health score" => "#{@data[:risk_overview][:health_score]}%",
+          "Rating" => @data[:risk_overview][:health_rating],
+          "Investment health" => "#{@data[:risk_overview][:investment_health_pct]}%",
+          "Performing" => "#{@data[:risk_overview][:performing_contracts]} / #{@data[:risk_overview][:total_contracts]}",
+          "On payment holiday" => "#{@data[:risk_overview][:holiday_pct]}%",
+          "Active alerts" => @data[:risk_overview][:alert_count]
+        }) %>
+  <% end %>
+</div>
+
+<%= render Console::CardComponent.new(title: "Trends — last 12 months") do %>
+  <div class="console-trends-grid">
+    <div>
+      <h4 class="console-chart-title">Applications per month</h4>
+      <div class="console-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="bar"
+           data-time-series-chart-value-format-value="integer"
+           data-time-series-chart-color-value="#2563eb"
+           data-time-series-chart-series-value="<%= @data[:trends][:applications_monthly].map { |label, value| { label: label, value: value } }.to_json %>"></div>
+    </div>
+    <div>
+      <h4 class="console-chart-title">Funds under management</h4>
+      <div class="console-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="area"
+           data-time-series-chart-value-format-value="currency"
+           data-time-series-chart-color-value="#0ea5e9"
+           data-time-series-chart-series-value="<%= @data[:trends][:fum_monthly].map { |label, value| { label: label, value: value } }.to_json %>"></div>
+    </div>
+    <div>
+      <h4 class="console-chart-title">Monthly P&amp;L (bars) + cumulative (line)</h4>
+      <div class="console-chart"
+           data-controller="time-series-chart"
+           data-time-series-chart-type-value="combo"
+           data-time-series-chart-value-format-value="currency"
+           data-time-series-chart-color-value="#16a34a"
+           data-time-series-chart-secondary-color-value="#0f172a"
+           data-time-series-chart-series-value="<%= @data[:trends][:pl_monthly].map { |label, vals| { label: label, monthly: vals[:monthly], cumulative: vals[:cumulative] } }.to_json %>"></div>
+    </div>
+  </div>
+<% end %>

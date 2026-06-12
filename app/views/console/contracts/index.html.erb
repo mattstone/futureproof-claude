@@ -1,0 +1,38 @@
+<% content_for :title, "Contracts — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Contracts",
+      subtitle: "The live portfolio — funding, investment and holiday status per contract.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "New contract", new_console_contract_path, class: "console-btn console-btn-primary" %>
+  <% end %>
+<% end %>
+
+<%= render Console::FilterBarComponent.new(url: console_contracts_path,
+      search_value: params[:search], search_placeholder: "Contract/application ID, name, email, address…",
+      clear_url: console_contracts_path) do |bar| %>
+  <% bar.with_select(:status, options: Contract.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "contracts",
+      csv_path: console_contracts_path(format: :csv, search: params[:search], status: params[:status]),
+      empty_message: "No contracts match those filters.") do |table| %>
+  <% table.with_column "ID" do |contract| %>
+    <%= link_to "##{contract.id}", console_contract_path(contract) %>
+  <% end %>
+  <% table.with_column "Customer" do |contract| %>
+    <%= link_to contract.application.user.display_name, console_contract_path(contract) %>
+    <div class="console-cell-sub"><%= contract.application.address&.truncate(50) %></div>
+  <% end %>
+  <% table.with_column "Status", sort: "status" do |contract| %>
+    <%= render Console::BadgeComponent.new(status: contract.status) %>
+  <% end %>
+  <% table.with_column "Allocated", sort: "allocated", numeric: true do |contract| %>
+    <%= contract.formatted_allocated_amount %>
+  <% end %>
+  <% table.with_column "Start", sort: "start" do |contract| %>
+    <%= contract.start_date&.strftime("%-d %b %Y") %>
+  <% end %>
+  <% table.with_column "Created", sort: "created" do |contract| %>
+    <%= contract.created_at.strftime("%-d %b %Y") %>
+  <% end %>
+<% end %>

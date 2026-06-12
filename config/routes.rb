@@ -32,6 +32,15 @@ Rails.application.routes.draw do
 
     resources :chat_conversations, only: [ :index, :show ]
 
+    resources :contracts, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        post :create_message
+        patch :send_message
+      end
+    end
+    resources :cohorts, only: [ :index ]
+    get 'analytics', to: 'analytics#show'
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply

@@ -1211,3 +1211,83 @@
   margin-bottom: 0;
   min-width: 160px;
 }
+
+/* ---- Portfolio & analytics (Phase 2a) --------------------------------------- */
+
+.console-gauges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--fp-space-md);
+  margin-bottom: var(--fp-space-lg);
+}
+
+@media (max-width: 900px) {
+  .console-gauges { grid-template-columns: repeat(2, 1fr); }
+}
+
+.console-gauge {
+  background: var(--fp-bg-primary);
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  box-shadow: var(--fp-shadow-sm);
+  padding: var(--fp-space-md);
+  text-align: center;
+}
+
+.console-gauge svg {
+  width: 100%;
+  height: 120px;
+}
+
+.console-gauge-label {
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-semibold);
+  margin-top: var(--fp-space-xs);
+}
+
+.console-chart {
+  width: 100%;
+  min-height: 200px;
+}
+
+.console-chart-tall {
+  min-height: 320px;
+}
+
+.console-chart-title {
+  margin: 0 0 var(--fp-space-xs);
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+}
+
+/* Classes injected by the existing chart Stimulus controllers — keep names. */
+.trend-chart-svg,
+.funnel-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dashboard-empty {
+  padding: var(--fp-space-xl);
+  text-align: center;
+  color: var(--fp-text-tertiary);
+  font-size: var(--fp-text-sm);
+}
+
+.console-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--fp-space-md);
+}
+
+@media (max-width: 900px) {
+  .console-analytics-grid { grid-template-columns: 1fr; }
+}
+
+.console-trends-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fp-space-lg);
+}

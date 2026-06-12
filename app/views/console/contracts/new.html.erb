@@ -1,0 +1,8 @@
+<% content_for :title, "New contract — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "New contract",
+      subtitle: "Manual fallback — contracts are normally created automatically on approval.") %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render "form", url: console_contracts_path, method: :post, submit_label: "Create contract" %>
+<% end %>
