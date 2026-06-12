@@ -1,0 +1,76 @@
+<% content_for :title, "#{@workflow.name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: @workflow.name,
+      subtitle: "Trigger: #{@workflow.trigger_type.humanize}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @workflow.active? ? "active" : "inactive") %>
+  <% end %>
+  <% header.with_action do %>
+    <%= link_to "Edit", edit_console_email_workflow_path(@workflow), class: "console-btn console-btn-secondary" %>
+  <% end %>
+  <% header.with_action do %>
+    <%= button_to @workflow.active? ? "Deactivate" : "Activate", toggle_active_console_email_workflow_path(@workflow),
+          method: :patch, class: "console-btn #{@workflow.active? ? 'console-btn-danger' : 'console-btn-success'}",
+          data: { turbo_confirm: @workflow.active? ? "Deactivate this workflow? It will stop running automatically." : "Activate this workflow? It will run automatically on its trigger." } %>
+  <% end %>
+  <% header.with_action do %>
+    <%= button_to "Duplicate", duplicate_console_email_workflow_path(@workflow), method: :post,
+          class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
+
+<% if @workflow.description.present? %>
+  <%= render Console::CardComponent.new do %>
+    <p class="console-muted"><%= @workflow.description %></p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Trigger conditions") do %>
+  <% if @workflow.trigger_conditions.present? && @workflow.trigger_conditions.any? %>
+    <%= render Console::DescriptionListComponent.new(columns: 3,
+          rows: @workflow.trigger_conditions.transform_keys(&:humanize)) %>
+  <% else %>
+    <p class="console-muted">No conditions — fires on every <%= @workflow.trigger_type.humanize.downcase %> event.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Steps") do %>
+  <% steps = @workflow.workflow_steps.order(:position) %>
+  <% if steps.any? %>
+    <ol class="console-history-list">
+      <% steps.each do |step| %>
+        <li class="console-history-item">
+          <span class="console-history-actor"><%= step.position + 1 %>. <%= step.name.presence || step.step_type.humanize %></span>
+          <span class="console-history-action">
+            <%= step.step_type.humanize %>
+            <% if step.step_type == "send_email" && step.configuration["email_template_id"].present? %>
+              — <%= EmailTemplate.find_by(id: step.configuration["email_template_id"])&.name || "missing template" %>
+            <% elsif step.step_type == "delay" %>
+              — <%= step.configuration["duration"] %> <%= step.configuration["unit"] %>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="console-muted">No steps configured.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Recent executions") do %>
+  <% if @executions.any? %>
+    <ul class="console-doc-list">
+      <% @executions.each do |execution| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= execution.target.try(:display_name) || "#{execution.target_type} ##{execution.target_id}" %></strong>
+            <span class="console-cell-sub"><%= execution.created_at.strftime("%-d %b %Y %H:%M") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: execution.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">This workflow hasn't run yet.</p>
+  <% end %>
+<% end %>

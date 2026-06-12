@@ -1,0 +1,5 @@
+<% content_for :title, "Edit workflow — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit workflow", subtitle: @workflow.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form" %>
+<% end %>

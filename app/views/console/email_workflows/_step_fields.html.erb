@@ -1,0 +1,95 @@
+<%# Rendered for existing steps (with a form builder `f`) and once inside the
+    <template> tag with f=nil, where names use the NEW_RECORD placeholder the
+    console--workflow-builder Stimulus controller replaces on add. %>
+<% prefix = f ? f.object_name : "email_workflow[workflow_steps_attributes][NEW_RECORD]" %>
+<% step = f&.object %>
+<% config = step&.configuration || {} %>
+
+<div class="console-workflow-step" data-workflow-step>
+  <input type="hidden" name="<%= prefix %>[_destroy]" value="0">
+  <% if step&.persisted? %>
+    <input type="hidden" name="<%= prefix %>[id]" value="<%= step.id %>">
+  <% end %>
+  <input type="hidden" name="<%= prefix %>[position]" value="<%= step&.position || 0 %>">
+
+  <div class="console-workflow-step-header">
+    <strong>Step <span data-step-number><%= step ? step.position.to_i + 1 : "" %></span></strong>
+    <button type="button" class="console-btn console-btn-sm console-btn-danger"
+            data-action="console--workflow-builder#removeStep">Remove</button>
+  </div>
+
+  <div class="console-field">
+    <label class="console-field-label">Step type</label>
+    <select name="<%= prefix %>[step_type]" class="console-select" required
+            data-workflow-step-type data-action="console--workflow-builder#typeChanged">
+      <option value="">Choose…</option>
+      <% { "send_email" => "Send email", "delay" => "Delay", "condition" => "Condition", "update_status" => "Update status" }.each do |value, label| %>
+        <option value="<%= value %>" <%= "selected" if step&.step_type == value %>><%= label %></option>
+      <% end %>
+    </select>
+  </div>
+
+  <div class="console-field">
+    <label class="console-field-label">Step name (optional)</label>
+    <input type="text" name="<%= prefix %>[name]" value="<%= step&.name %>" class="console-input">
+  </div>
+
+  <div data-config-for="send_email" <%= "hidden" unless step&.step_type == "send_email" %>>
+    <div class="console-field">
+      <label class="console-field-label">Email template</label>
+      <select name="<%= prefix %>[configuration][email_template_id]" class="console-select">
+        <option value="">Select template…</option>
+        <% (@email_templates || []).each do |template| %>
+          <option value="<%= template.id %>" <%= "selected" if config["email_template_id"].to_s == template.id.to_s %>><%= template.name %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+
+  <div data-config-for="delay" <%= "hidden" unless step&.step_type == "delay" %>>
+    <div class="console-ticket-form">
+      <div class="console-field">
+        <label class="console-field-label">Duration</label>
+        <input type="number" name="<%= prefix %>[configuration][duration]" value="<%= config['duration'] %>" min="1" class="console-input">
+      </div>
+      <div class="console-field">
+        <label class="console-field-label">Unit</label>
+        <select name="<%= prefix %>[configuration][unit]" class="console-select">
+          <% %w[minutes hours days weeks].each do |unit| %>
+            <option value="<%= unit %>" <%= "selected" if config["unit"] == unit %>><%= unit.humanize %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div data-config-for="condition" <%= "hidden" unless step&.step_type == "condition" %>>
+    <div class="console-ticket-form">
+      <div class="console-field">
+        <label class="console-field-label">Condition type</label>
+        <select name="<%= prefix %>[configuration][condition_type]" class="console-select">
+          <% { "application_status" => "Application status", "user_property" => "User property", "time_based" => "Time based" }.each do |value, label| %>
+            <option value="<%= value %>" <%= "selected" if config["condition_type"] == value %>><%= label %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="console-field">
+        <label class="console-field-label">Expected value</label>
+        <input type="text" name="<%= prefix %>[configuration][expected_status]" value="<%= config['expected_status'] %>" class="console-input" placeholder="e.g. submitted">
+      </div>
+    </div>
+  </div>
+
+  <div data-config-for="update_status" <%= "hidden" unless step&.step_type == "update_status" %>>
+    <div class="console-ticket-form">
+      <div class="console-field">
+        <label class="console-field-label">Field to update</label>
+        <input type="text" name="<%= prefix %>[configuration][field]" value="<%= config['field'] %>" class="console-input" placeholder="e.g. status">
+      </div>
+      <div class="console-field">
+        <label class="console-field-label">New value</label>
+        <input type="text" name="<%= prefix %>[configuration][value]" value="<%= config['value'] %>" class="console-input" placeholder="e.g. processing">
+      </div>
+    </div>
+  </div>
+</div>

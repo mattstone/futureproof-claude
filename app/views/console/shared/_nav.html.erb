@@ -59,6 +59,10 @@
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_mortgages_path)}" %>
       <%= link_to "FAQs", console_faqs_path,
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_faqs_path)}" %>
+      <%= link_to "Email templates", console_email_templates_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_email_templates_path)}" %>
+      <%= link_to "Email workflows", console_email_workflows_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_email_workflows_path)}" %>
       <%= link_to "Calculator", console_calculators_path,
             class: "console-nav-link #{'is-active' if current_page?(console_calculators_path)}" %>
     </div>

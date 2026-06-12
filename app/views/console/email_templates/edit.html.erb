@@ -1,0 +1,5 @@
+<% content_for :title, "Edit email template — FutureProof Console" %>
+<%= render Console::PageHeaderComponent.new(title: "Edit template", subtitle: @email_template.name) %>
+<%= render Console::CardComponent.new do %>
+  <%= render "form", available_fields: @available_fields %>
+<% end %>

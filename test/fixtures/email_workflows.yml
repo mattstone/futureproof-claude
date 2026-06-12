@@ -1,1 +1,8 @@
-# Empty fixture file - tests create their own data
+# An inactive sample workflow so console/admin index+show routes are smoke-testable.
+welcome_workflow:
+  name: "Welcome new users"
+  description: "Sends the verification email after registration"
+  trigger_type: user_registered
+  trigger_conditions: <%= { event: "user_registered" }.to_json %>
+  active: false
+  created_by: admin_user

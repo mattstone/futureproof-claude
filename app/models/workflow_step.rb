@@ -1,5 +1,5 @@
 class WorkflowStep < ApplicationRecord
-  belongs_to :workflow, class_name: 'EmailWorkflow'
+  belongs_to :workflow, class_name: 'EmailWorkflow', inverse_of: :workflow_steps
   has_many :workflow_step_executions, foreign_key: 'step_id', dependent: :destroy
   has_many :scheduled_workflow_jobs, foreign_key: 'step_id', dependent: :destroy
   

@@ -1,0 +1,9 @@
+verification_template:
+  name: "Verification Code Email"
+  subject: "Your verification code"
+  content: "<p>Hi {{user.first_name}}, your code is {{verification.verification_code}}.</p>"
+  content_body: "<p>Hi {{user.first_name}}, your code is {{verification.verification_code}}.</p>"
+  template_type: verification
+  email_category: operational
+  is_active: true
+  description: "Sent during signup email verification"

@@ -1,0 +1,25 @@
+<% content_for :title, "Workflow templates — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Workflow templates",
+      subtitle: "Pre-built automations — create one, then customise and activate it.") %>
+
+<% @template_categories.each do |category, templates| %>
+  <%= render Console::CardComponent.new(title: category.to_s.humanize) do %>
+    <ul class="console-doc-list">
+      <% templates.each do |template| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= template[:name] %></strong>
+            <% if template[:description].present? %>
+              <span class="console-cell-sub"><%= template[:description] %></span>
+            <% end %>
+          </div>
+          <div class="console-doc-actions">
+            <%= button_to "Create", create_from_template_console_email_workflows_path(template: template[:name]),
+                  method: :post, class: "console-btn console-btn-sm console-btn-primary" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

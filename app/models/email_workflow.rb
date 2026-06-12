@@ -1,6 +1,6 @@
 class EmailWorkflow < ApplicationRecord
   belongs_to :created_by, class_name: 'User'
-  has_many :workflow_steps, foreign_key: 'workflow_id', dependent: :destroy
+  has_many :workflow_steps, foreign_key: 'workflow_id', inverse_of: :workflow, dependent: :destroy
   has_many :workflow_executions, foreign_key: 'workflow_id', dependent: :destroy
   has_many :workflow_execution_trackers, dependent: :destroy
   

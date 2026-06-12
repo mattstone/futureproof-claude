@@ -107,6 +107,26 @@ Rails.application.routes.draw do
     get 'calculators', to: 'calculators#index'
     post 'calculators/calculate', to: 'calculators#calculate', as: :calculate_calculators
 
+    resources :email_templates, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        patch :activate
+        patch :deactivate
+        get :preview
+        post :send_test
+      end
+    end
+
+    resources :email_workflows, only: [ :index, :show, :new, :create, :edit, :update ] do
+      member do
+        patch :toggle_active
+        post :duplicate
+      end
+      collection do
+        get :templates
+        post :create_from_template
+      end
+    end
+
     resources :support_tickets, only: [ :index, :show, :update ] do
       member do
         post :reply
