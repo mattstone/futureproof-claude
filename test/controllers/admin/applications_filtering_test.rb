@@ -42,14 +42,11 @@ class Admin::ApplicationsFilteringTest < ActionDispatch::IntegrationTest
     assert_no_match @accepted_app.address, response.body
   end
 
-  test "search should exclude accepted applications from results" do
-    # Search for a term that would match the accepted application
+  test "search includes accepted applications (admins must always be able to find a record)" do
     get admin_applications_path, params: { search: 'Accepted' }
     assert_response :success
-    
-    # Should not show accepted application even though it matches search term
-    assert_no_match @accepted_app.address, response.body
-    assert_no_match 'Accepted Street', response.body
+
+    assert_match @accepted_app.address, response.body
   end
 
   test "search should still find non-accepted applications" do
@@ -61,30 +58,23 @@ class Admin::ApplicationsFilteringTest < ActionDispatch::IntegrationTest
     assert_match @created_app.address, response.body
   end
 
-  test "status filter should not include accepted option" do
+  test "status filter includes the accepted option" do
     get admin_applications_path
     assert_response :success
-    
-    # Check that the status filter dropdown options don't include accepted
-    assert_no_match 'option value="accepted"', response.body
-    
-    # But should include other statuses
+
+    assert_match 'option value="accepted"', response.body
     assert_match 'option value="created"', response.body
     assert_match 'option value="submitted"', response.body
     assert_match 'option value="processing"', response.body
     assert_match 'option value="rejected"', response.body
   end
 
-  test "status filter with accepted parameter should be ignored" do
-    # Try to filter by accepted status - should be ignored
+  test "explicit accepted status filter shows accepted applications" do
     get admin_applications_path, params: { status: 'accepted' }
     assert_response :success
-    
-    # Should still exclude accepted applications
-    assert_no_match @accepted_app.address, response.body
-    
-    # Should show other applications (all non-accepted)
-    assert_match @created_app.address, response.body
+
+    assert_match @accepted_app.address, response.body
+    assert_no_match @created_app.address, response.body
   end
 
   test "status filter with valid non-accepted status should work" do
@@ -117,14 +107,13 @@ class Admin::ApplicationsFilteringTest < ActionDispatch::IntegrationTest
     assert_no_match @accepted_app.address, response.body
   end
 
-  test "accepted applications should not appear in user search results" do
+  test "user search results include accepted applications" do
     # Search by the user's name who has an accepted application
     jane = users(:jane)
     get admin_applications_path, params: { search: jane.first_name }
     assert_response :success
-    
-    # Should not show the accepted application for this user
-    assert_no_match @accepted_app.address, response.body
+
+    assert_match @accepted_app.address, response.body
   end
 
   test "accepted applications can still be accessed directly via show page" do

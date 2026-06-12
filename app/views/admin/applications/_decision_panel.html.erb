@@ -1,0 +1,66 @@
+<% if application.status_submitted? || application.status_processing? %>
+  <div class="admin-card decision-panel">
+    <div class="card-header">
+      <h3>Decision</h3>
+      <span class="card-subtitle">Approving sets the loan terms, calculates any broker commission, and creates the contract.</span>
+    </div>
+    <div class="card-content decision-panel-grid">
+      <%= form_with url: approve_admin_application_path(application), method: :post, local: true, class: "admin-form decision-approve-form" do %>
+        <div class="decision-fields">
+          <div class="admin-form-group">
+            <label class="admin-form-label" for="loan_amount">Loan amount</label>
+            <input type="number" step="1000" min="1" name="loan_amount" id="loan_amount" class="admin-form-input"
+                   value="<%= application.loan_value.positive? ? application.loan_value.round(-3).to_i : nil %>" required>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label" for="interest_rate">Interest rate %</label>
+            <input type="number" step="0.01" min="0.01" name="interest_rate" id="interest_rate" class="admin-form-input"
+                   value="<%= EpmModelConfig.indicative_borrower_rate_pct %>" required>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label" for="term_years">Term (years)</label>
+            <input type="number" step="1" min="1" max="40" name="term_years" id="term_years" class="admin-form-input"
+                   value="<%= application.loan_term || 30 %>" required>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label" for="lender_id">Lender</label>
+            <select name="lender_id" id="lender_id" class="admin-form-select" required>
+              <option value="">Select lender…</option>
+              <% lenders.each do |lender| %>
+                <option value="<%= lender.id %>"><%= lender.name %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="admin-btn admin-btn-success" data-turbo-confirm="Approve this application and create the contract?" data-disable-with="Approving…">✓ Approve Application</button>
+      <% end %>
+
+      <%= form_with url: reject_admin_application_path(application), method: :post, local: true, class: "admin-form decision-reject-form" do %>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="rejected_reason">Rejection reason</label>
+          <textarea name="rejected_reason" id="rejected_reason" rows="2" class="admin-form-textarea" placeholder="Required — shown in the audit history" required></textarea>
+        </div>
+        <button type="submit" class="admin-btn admin-btn-danger" data-turbo-confirm="Reject this application?" data-disable-with="Rejecting…">✕ Reject Application</button>
+      <% end %>
+    </div>
+  </div>
+<% elsif application.status_accepted? %>
+  <div class="admin-card decision-panel decision-panel-approved">
+    <div class="card-header">
+      <h3>Approved</h3>
+    </div>
+    <div class="card-content">
+      <p>
+        Loan <strong><%= number_to_currency(application.approved_loan_amount, precision: 0) %></strong>
+        at <strong><%= application.approved_interest_rate %>%</strong>
+        over <strong><%= application.approved_term_years %> years</strong>
+        <% if application.lender %>via <strong><%= application.lender.name %></strong><% end %>.
+      </p>
+      <% if application.contract %>
+        <%= link_to "View Contract ##{application.contract.id} →", admin_contract_path(application.contract), class: "admin-btn admin-btn-primary admin-btn-sm" %>
+      <% else %>
+        <span class="admin-badge admin-badge-warning">No contract yet — create one from the Contracts section.</span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

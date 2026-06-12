@@ -35,6 +35,13 @@ Rails.application.routes.draw do
     # Vintage cohort report
     resources :cohorts, only: [:index]
 
+    # Agent action oversight (override with reason)
+    resources :agent_actions, only: [] do
+      member do
+        post :override
+      end
+    end
+
     # Prompt management — read-only browser over docs/prompts/ (git is the
     # source of truth); proposals become GitHub PRs/issues via GithubBridge
     resources :prompts, only: [:index, :show], param: :key
@@ -156,6 +163,8 @@ Rails.application.routes.draw do
         patch :send_message
         patch :advance_to_processing
         patch :update_checklist_item
+        post :approve
+        post :reject
       end
       resources :documents, controller: 'application_documents', only: [:index, :create, :destroy] do
         member do
