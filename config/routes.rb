@@ -204,6 +204,10 @@ Rails.application.routes.draw do
         patch :update_valuation
         post :create_message
         patch :send_message
+        patch :verify_kyc
+        patch :reject_kyc
+        patch :pass_aml
+        patch :fail_aml
       end
       resources :documents, controller: 'application_documents', only: [] do
         member do

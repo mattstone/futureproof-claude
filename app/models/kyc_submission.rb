@@ -46,9 +46,12 @@ class KycSubmission < ApplicationRecord
 
   # Mark as rejected
   def reject!(reason, verified_by = 'system')
+    # NOTE: the table has no failure_reason column (the original code wrote
+    # one and raised UnknownAttributeError — rejection never worked); the
+    # reason is recorded in notes and in the audit log.
     update!(
       status: :rejected,
-      failure_reason: reason,
+      notes: reason,
       verified_by: verified_by,
       verified_at: Time.current
     )

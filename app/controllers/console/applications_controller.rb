@@ -132,6 +132,48 @@ class Console::ApplicationsController < Console::ResourceController
     end
   end
 
+  # --- Compliance decisions -------------------------------------------------
+  # Thin audited wrappers over the model lifecycle methods; the decision
+  # maker's name lands on the record AND in the audit log.
+
+  def verify_kyc
+    submission = @application.kyc_submission
+    return compliance_missing("KYC") unless submission
+
+    submission.verify!(current_user.display_name)
+    audit_compliance("kyc_verified", submission, params[:notes])
+    redirect_to console_application_path(@application), notice: "KYC verified."
+  end
+
+  def reject_kyc
+    submission = @application.kyc_submission
+    return compliance_missing("KYC") unless submission
+    return compliance_reason_required unless params[:reason].present?
+
+    submission.reject!(params[:reason], current_user.display_name)
+    audit_compliance("kyc_rejected", submission, params[:reason])
+    redirect_to console_application_path(@application), notice: "KYC rejected — the customer must resubmit."
+  end
+
+  def pass_aml
+    check = @application.aml_check
+    return compliance_missing("AML") unless check
+
+    check.pass!
+    audit_compliance("aml_passed", check, params[:notes])
+    redirect_to console_application_path(@application), notice: "AML check passed."
+  end
+
+  def fail_aml
+    check = @application.aml_check
+    return compliance_missing("AML") unless check
+    return compliance_reason_required unless params[:reason].present?
+
+    check.fail!(params[:reason])
+    audit_compliance("aml_failed", check, params[:reason])
+    redirect_to console_application_path(@application), notice: "AML check failed — application should not proceed."
+  end
+
   def create_message
     @message = @application.application_messages.build(message_params)
     @message.sender = current_user
@@ -229,6 +271,19 @@ class Console::ApplicationsController < Console::ResourceController
   end
 
   private
+
+  def compliance_missing(kind)
+    redirect_to console_application_path(@application), alert: "No #{kind} record exists for this application yet."
+  end
+
+  def compliance_reason_required
+    redirect_to console_application_path(@application), alert: "A reason is required — it goes on the record and in the audit log."
+  end
+
+  def audit_compliance(action, resource, reason)
+    AuditLog.log_action(user: current_user, action: action, resource: resource,
+                        reason: reason.presence || "No notes", notes: "Application ##{@application.id}")
+  end
 
   def set_application
     @application = scoped_applications.find(params[:id])
