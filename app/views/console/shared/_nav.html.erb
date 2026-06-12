@@ -1,6 +1,6 @@
 <div class="console-brand">
   <%= link_to console_root_path, class: "console-brand-link" do %>
-    <span class="console-brand-name">FutureProof</span>
+    <%= image_tag "futureproof-logo.png", alt: "FutureProof", class: "console-brand-logo" %>
     <span class="console-brand-product">Console</span>
   <% end %>
 </div>
@@ -117,6 +117,8 @@
 </nav>
 
 <div class="console-nav-footer">
+  <%= link_to "View site", root_path, target: "_blank", rel: "noopener", class: "console-nav-legacy" %>
+  <%= link_to "🕹️ Arcade", arcade_path, target: "_blank", rel: "noopener", class: "console-nav-legacy" %>
   <%# Parallel-run escape hatch; removed at Phase 4 cutover. %>
   <a href="/admin" class="console-nav-legacy">Legacy admin &rarr;</a>
 </div>

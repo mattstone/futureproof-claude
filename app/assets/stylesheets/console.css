@@ -5,6 +5,16 @@
    if a component needs styling, it gets a .console-* class here.
    ========================================================================= */
 
+/* Chrome palette carried over from the legacy admin at the CTO's request —
+   the navy sidebar and cyan-blue active state. Defined once here; the rest
+   of the sheet stays on --fp-* tokens. */
+:root {
+  --console-sidebar-bg: #1e293b;
+  --console-sidebar-hover: #334155;
+  --console-active: #0891b2;
+  --console-active-accent: #06b6d4;
+}
+
 /* ---- Shell layout ------------------------------------------------------ */
 
 .console-body {
@@ -27,33 +37,36 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: var(--fp-text-primary);
+  background: var(--console-sidebar-bg);
   color: var(--fp-text-inverse);
 }
 
 .console-brand {
-  padding: var(--fp-space-lg) var(--fp-space-md);
+  padding: var(--fp-space-md);
+  background: var(--fp-bg-primary);
+  border-bottom: 3px solid var(--console-active);
 }
 
 .console-brand-link {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: var(--fp-space-xs);
   text-decoration: none;
 }
 
-.console-brand-name {
-  font-family: var(--fp-font-display);
-  font-size: var(--fp-text-base);
-  font-weight: var(--fp-font-bold);
-  color: var(--fp-text-inverse);
+.console-brand-logo {
+  max-width: 160px;
+  height: auto;
+  display: block;
 }
 
 .console-brand-product {
   font-size: var(--fp-text-xs);
-  font-weight: var(--fp-font-medium);
-  letter-spacing: 1.5px;
+  font-weight: var(--fp-font-semibold);
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--fp-info);
+  color: var(--console-active);
 }
 
 .console-nav {
@@ -90,13 +103,18 @@
   transition: background var(--fp-transition-fast), color var(--fp-transition-fast);
 }
 
+.console-nav-link {
+  border-left: 3px solid transparent;
+}
+
 .console-nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--console-sidebar-hover);
   color: var(--fp-text-inverse);
 }
 
 .console-nav-link.is-active {
-  background: var(--fp-primary);
+  background: var(--console-active);
+  border-left-color: var(--console-active-accent);
   color: var(--fp-text-inverse);
 }
 
@@ -112,8 +130,11 @@
 }
 
 .console-nav-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fp-space-xs);
   padding: var(--fp-space-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--console-sidebar-hover);
 }
 
 .console-nav-legacy {
