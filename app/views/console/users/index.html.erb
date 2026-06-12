@@ -12,10 +12,10 @@
       csv_path: console_users_path(format: :csv, search: params[:search], role: params[:role]),
       empty_message: "No users match those filters.") do |table| %>
   <% table.with_column "Email", sort: "email" do |user| %>
-    <%= user.email %>
+    <%= link_to user.email, console_user_path(user) %>
   <% end %>
   <% table.with_column "Name", sort: "name" do |user| %>
-    <%= user.full_name %>
+    <%= link_to user.full_name, console_user_path(user) %>
   <% end %>
   <% table.with_column "Role" do |user| %>
     <%= render Console::BadgeComponent.new(status: user.admin? ? "active" : "neutral", label: user.admin? ? "Admin" : "Customer") %>

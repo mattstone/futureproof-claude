@@ -1,0 +1,31 @@
+<% content_for :title, "Edit #{@user.display_name} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Edit user", subtitle: @user.email) %>
+
+<%= render Console::CardComponent.new do %>
+  <%= form_with model: @user, url: console_user_path(@user), method: :patch, class: "console-form" do |form| %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :first_name, required: true) do %>
+      <%= form.text_field :first_name, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :last_name, required: true) do %>
+      <%= form.text_field :last_name, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :email, required: true) do %>
+      <%= form.email_field :email, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :country_of_residence, label: "Country of residence") do %>
+      <%= form.text_field :country_of_residence, class: "console-input" %>
+    <% end %>
+    <% if policy.futureproof? %>
+      <%= render Console::FormFieldComponent.new(form: form, attribute: :admin, label: "Administrator",
+            hint: "Admins can sign in to the Console. Scope depends on their lender.") do %>
+        <%= form.check_box :admin, class: "console-checklist-checkbox" %>
+      <% end %>
+    <% end %>
+
+    <div class="console-message-actions">
+      <%= form.submit "Save changes", class: "console-btn console-btn-primary" %>
+      <%= link_to "Cancel", console_user_path(@user), class: "console-btn console-btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>

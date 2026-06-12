@@ -1,0 +1,45 @@
+<% content_for :title, "AI Conversations — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "AI conversations",
+      subtitle: "Support-chat oversight: quality, escalations and token spend.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: @quality[:total], label: "Agent messages") %>
+  <%= render Console::StatCardComponent.new(
+        value: @quality[:total].positive? ? "#{(@quality[:claude] * 100.0 / @quality[:total]).round}%" : "—",
+        label: "Answered by Claude") %>
+  <%= render Console::StatCardComponent.new(value: @quality[:fallback], label: "Knowledge-base fallbacks") %>
+  <%= render Console::StatCardComponent.new(value: @quality[:escalations], label: "Escalations flagged",
+        href: console_chat_conversations_path(filter: "escalated"),
+        variant: @quality[:escalations].positive? ? :warning : nil) %>
+  <%= render Console::StatCardComponent.new(
+        value: number_with_delimiter(@token_totals[:input] + @token_totals[:output]),
+        label: "Tokens (in #{number_with_delimiter(@token_totals[:input])} / out #{number_with_delimiter(@token_totals[:output])} / cached #{number_with_delimiter(@token_totals[:cache_read])})") %>
+</div>
+
+<%= render Console::FilterBarComponent.new(url: console_chat_conversations_path, search: false,
+      clear_url: console_chat_conversations_path) do |bar| %>
+  <% bar.with_select(:filter, options: [ [ "Escalated only", "escalated" ] ], selected: params[:filter], label: "Show") %>
+<% end %>
+
+<%= render Console::DataTableComponent.new(records: @records, id: "conversations",
+      empty_message: "No conversations yet.") do |table| %>
+  <% table.with_column "ID" do |conversation| %>
+    <%= link_to "##{conversation.id}", console_chat_conversation_path(conversation) %>
+  <% end %>
+  <% table.with_column "User" do |conversation| %>
+    <%= conversation.user&.email || "(guest)" %>
+  <% end %>
+  <% table.with_column "Agent" do |conversation| %>
+    <%= conversation.chat_agent&.name || "—" %>
+  <% end %>
+  <% table.with_column "Region" do |conversation| %>
+    <%= conversation.region %>
+  <% end %>
+  <% table.with_column "Status" do |conversation| %>
+    <%= render Console::BadgeComponent.new(status: conversation.status) %>
+  <% end %>
+  <% table.with_column "Last activity" do |conversation| %>
+    <%= time_ago_in_words(conversation.updated_at) %> ago
+  <% end %>
+<% end %>

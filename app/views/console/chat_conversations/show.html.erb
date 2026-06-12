@@ -1,0 +1,56 @@
+<% content_for :title, "Conversation ##{@conversation.id} — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Conversation ##{@conversation.id}",
+      subtitle: "#{@conversation.user&.email || '(guest)'} · #{@conversation.region}") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: @conversation.status) %>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "User" => (@conversation.user&.email || "(guest)"),
+        "Agent" => (@conversation.chat_agent&.name || "—"),
+        "Region" => @conversation.region,
+        "Started" => @conversation.created_at.strftime("%-d %b %Y %H:%M"),
+        "Last update" => @conversation.updated_at.strftime("%-d %b %Y %H:%M")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Transcript") do %>
+  <div class="console-thread-list">
+    <% @messages.each do |message| %>
+      <div class="console-message <%= message.role == 'agent' ? 'console-message-admin' : 'console-message-customer' %>">
+        <div class="console-message-meta">
+          <strong><%= message.role == "agent" ? (@conversation.chat_agent&.name || "Agent") : (@conversation.user&.email || "User") %></strong>
+          <time class="console-history-time"><%= message.created_at.strftime("%H:%M:%S") %></time>
+        </div>
+        <div class="console-message-body"><%= simple_format(message.content) %></div>
+        <% if message.metadata.present? && message.role == "agent" %>
+          <div class="console-chat-meta">
+            <% if message.metadata["source"].present? %>
+              <span>Source <strong><%= message.metadata["source"] %></strong></span>
+            <% end %>
+            <% if message.metadata["usage"].is_a?(Hash) %>
+              <span>Tokens in <%= message.metadata["usage"]["input_tokens"] %> · out <%= message.metadata["usage"]["output_tokens"] %> · cached <%= message.metadata["usage"]["cache_read_input_tokens"] %></span>
+            <% end %>
+            <% if message.metadata["tool_calls"].is_a?(Array) && message.metadata["tool_calls"].any? %>
+              <span>Tools: <%= message.metadata["tool_calls"].map { |c| c["name"] }.join(", ") %></span>
+            <% end %>
+            <% if message.metadata["prompt_slots"].is_a?(Hash) %>
+              <span>
+                Prompt:
+                <% message.metadata["prompt_slots"].each do |slot, sha| %>
+                  <code class="console-prompt-chip" title="<%= slot %>"><%= slot.split("/").last %>@<%= sha.to_s[0, 7] %></code>
+                <% end %>
+              </span>
+            <% end %>
+            <% if message.metadata["escalate"] %>
+              <%= render Console::BadgeComponent.new(status: "escalated", label: "Escalation flagged") %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
