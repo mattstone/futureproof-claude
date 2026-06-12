@@ -32,6 +32,16 @@ Rails.application.routes.draw do
 
     resources :chat_conversations, only: [ :index, :show ]
 
+    resources :support_tickets, only: [ :index, :show, :update ] do
+      member do
+        post :reply
+        post :close
+      end
+      collection do
+        post :poll_emails
+      end
+    end
+
     resources :agent_actions, only: [] do
       member do
         post :override

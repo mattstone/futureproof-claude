@@ -1,0 +1,7 @@
+customer_opener:
+  support_ticket: open_ticket
+  sender_type: customer
+  sender_email: user@example.com
+  sender_name: Regular User
+  body_text: "Hi, can you tell me the status of my application?"
+  created_at: <%= 2.days.ago %>

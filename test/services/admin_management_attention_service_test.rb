@@ -115,6 +115,7 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
     Application.where(status: 'processing').update_all(updated_at: Time.current)
     AgentAction.delete_all
     Contract.update_all(status: :ok)
+    SupportTicket.update_all(status: 'resolved', resolved_at: Time.current)
 
     signals = @service.call
 
