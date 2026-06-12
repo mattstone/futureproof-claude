@@ -34,7 +34,7 @@ class Console::PartnerOnboardingTest < ActionDispatch::IntegrationTest
     assert_select ".console-card-title", text: "Lender admin users"
 
     get console_wholesale_funder_path(wholesale_funders(:one))
-    assert_select ".console-onboarding-step", count: 4
+    assert_select ".console-onboarding-step", count: 6
 
     get console_broker_path(brokers(:one))
     assert_select ".console-onboarding-step", count: 4

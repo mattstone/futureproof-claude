@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_12_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1414,12 +1414,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_12_200000) do
   end
 
   create_table "wholesale_funders", force: :cascade do |t|
+    t.string "contact_email"
+    t.string "contact_name"
+    t.string "contact_phone"
     t.string "country", default: "Australia", null: false
     t.datetime "created_at", null: false
     t.string "currency", default: "AUD", null: false
     t.boolean "demo", default: false, null: false
+    t.integer "funding_type", default: 0, null: false
     t.string "name", null: false
     t.integer "status", default: 0, null: false
+    t.text "terms"
     t.decimal "total_allocated_amount", precision: 15, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
     t.index ["country"], name: "index_wholesale_funders_on_country"

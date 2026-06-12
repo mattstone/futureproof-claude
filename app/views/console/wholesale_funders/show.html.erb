@@ -1,7 +1,7 @@
 <% content_for :title, "#{@wholesale_funder.name} — FutureProof Console" %>
 
 <%= render Console::PageHeaderComponent.new(title: @wholesale_funder.name,
-      subtitle: "#{@wholesale_funder.country} · #{@wholesale_funder.currency}") do |header| %>
+      subtitle: "#{@wholesale_funder.funding_type.humanize} facility · #{@wholesale_funder.country} · #{@wholesale_funder.currency}") do |header| %>
   <% header.with_action do %>
     <%= link_to "Edit", edit_console_wholesale_funder_path(@wholesale_funder), class: "console-btn console-btn-secondary" %>
   <% end %>
@@ -11,13 +11,32 @@
 <% end %>
 
 <%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
+      contact: edit_console_wholesale_funder_path(@wholesale_funder),
       agreement: new_console_agreement_path(party_type: "WholesaleFunder", agreeable_id: @wholesale_funder.id),
+      documents: new_console_wholesale_funder_funding_document_path(@wholesale_funder),
       capital: edit_console_wholesale_funder_path(@wholesale_funder),
       pools: new_console_wholesale_funder_funder_pool_path(@wholesale_funder),
       lender_access: console_lenders_path
     } %>
 
 <%= render "console/shared/partner_agreements", partner: @wholesale_funder, party_type: "WholesaleFunder" %>
+
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Facility type" => @wholesale_funder.funding_type.humanize,
+        "Country" => @wholesale_funder.country,
+        "Currency" => @wholesale_funder.currency,
+        "Contact" => @wholesale_funder.contact_name,
+        "Email" => @wholesale_funder.contact_email,
+        "Phone" => @wholesale_funder.contact_phone
+      }) %>
+  <% if @wholesale_funder.terms.present? %>
+    <div class="console-field">
+      <span class="console-field-label">Facility terms</span>
+      <p class="console-muted"><%= simple_format(@wholesale_funder.terms) %></p>
+    </div>
+  <% end %>
+<% end %>
 
 <div class="console-stat-grid">
   <%= render Console::StatCardComponent.new(value: @wholesale_funder.formatted_total_capital, label: "Total capital") %>
