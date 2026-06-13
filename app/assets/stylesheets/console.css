@@ -96,23 +96,60 @@
 }
 
 .console-nav-group {
+  margin-bottom: var(--fp-space-xs);
+}
+
+.console-nav-group-solo {
   margin-bottom: var(--fp-space-md);
 }
 
+/* Collapsible group header (a <summary>) with a disclosure chevron —
+   the old admin nav feel. The active group is opened server-side and by
+   the console--nav Stimulus controller after a frame navigation. */
 .console-nav-group-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--fp-space-sm) var(--fp-space-sm) var(--fp-space-xs);
   font-size: var(--fp-text-xs);
   font-weight: var(--fp-font-semibold);
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--fp-text-tertiary);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: color var(--fp-transition-fast);
+}
+
+.console-nav-group-title::-webkit-details-marker {
+  display: none;
+}
+
+.console-nav-group-title:hover {
+  color: var(--fp-bg-tertiary);
+}
+
+.console-nav-group-title::after {
+  content: "▸";
+  font-size: 0.625rem;
+  transition: transform var(--fp-transition-fast);
+}
+
+.console-nav-group[open] > .console-nav-group-title::after {
+  transform: rotate(90deg);
+}
+
+.console-nav-icon {
+  flex-shrink: 0;
+  width: 1.25em;
+  text-align: center;
+  font-size: var(--fp-text-sm);
 }
 
 .console-nav-link {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--fp-space-sm);
   padding: var(--fp-space-sm) var(--fp-space-sm);
   border-radius: var(--fp-radius-sm);
@@ -139,6 +176,7 @@
 }
 
 .console-nav-badge {
+  margin-left: auto;
   min-width: 20px;
   padding: 1px var(--fp-space-xs);
   border-radius: var(--fp-radius-full);
@@ -202,26 +240,62 @@
   padding: var(--fp-space-xs);
 }
 
-.console-jurisdiction {
+/* Region picker — a segmented radio control (replaces the old <select>). */
+.console-region {
   display: flex;
   align-items: center;
   gap: var(--fp-space-sm);
 }
 
-.console-jurisdiction-label {
+.console-region-label {
   font-size: var(--fp-text-xs);
   font-weight: var(--fp-font-medium);
   color: var(--fp-text-secondary);
 }
 
-.console-jurisdiction-select {
-  padding: var(--fp-space-xs) var(--fp-space-sm);
+.console-region-options {
+  display: inline-flex;
+  padding: 2px;
   border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius-md);
+  background: var(--fp-bg-secondary);
+}
+
+.console-region-option {
+  position: relative;
+  padding: var(--fp-space-xs) var(--fp-space-sm);
   border-radius: var(--fp-radius-sm);
-  background: var(--fp-bg-primary);
-  font-family: var(--fp-font-family);
-  font-size: var(--fp-text-sm);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+  cursor: pointer;
+  transition: background var(--fp-transition-fast), color var(--fp-transition-fast);
+}
+
+.console-region-option:hover {
   color: var(--fp-text-primary);
+}
+
+.console-region-option.is-active {
+  background: var(--fp-primary);
+  color: var(--fp-text-inverse);
+  box-shadow: var(--fp-shadow-sm);
+}
+
+/* Visually hidden radio — the label is the control surface. Kept focusable. */
+.console-region-radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.console-region-radio:focus-visible + span {
+  outline: 2px solid var(--fp-primary);
+  outline-offset: 2px;
+  border-radius: var(--fp-radius-sm);
 }
 
 .console-jurisdiction-pinned {
