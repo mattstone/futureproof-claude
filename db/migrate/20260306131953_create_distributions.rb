@@ -22,6 +22,6 @@ class CreateDistributions < ActiveRecord::Migration[8.1]
     add_index :distributions, :mortgage_id
     add_index :distributions, :distribution_date
     add_index :distributions, :status
-    add_index :distributions, [:application_id, :distribution_date]
+    add_index :distributions, [ :application_id, :distribution_date ]
   end
 end

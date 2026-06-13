@@ -1,6 +1,6 @@
 class Admin::ApplicationDocumentsController < Admin::BaseController
   before_action :set_application
-  before_action :set_document, only: [:destroy, :verify, :reject, :auto_verify]
+  before_action :set_document, only: [ :destroy, :verify, :reject, :auto_verify ]
 
   def index
     @documents = @application.application_documents.order(:document_type)

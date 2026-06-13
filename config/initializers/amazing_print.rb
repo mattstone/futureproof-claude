@@ -1,6 +1,6 @@
 if Rails.env.development?
-  require 'amazing_print'
-  
+  require "amazing_print"
+
   # Configure amazing_print for beautiful console output
   AmazingPrint.defaults = {
     indent: 2,

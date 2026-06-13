@@ -2,11 +2,11 @@ module Admin
   class BrokersController < Admin::BaseController
     before_action :authenticate_user!
     before_action :verify_admin!
-    before_action :set_broker, only: [:show, :edit, :update, :toggle_active]
+    before_action :set_broker, only: [ :show, :edit, :update, :toggle_active ]
 
     def index
       @brokers = Broker.order(:name)
-      @brokers = @brokers.where('name ILIKE ?', "%#{params[:search]}%") if params[:search].present?
+      @brokers = @brokers.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
       @brokers = @brokers.page(params[:page]).per(20)
     end
 
@@ -14,14 +14,14 @@ module Admin
       @scorecards = Broker.includes(:applications, :broker_commissions).order(:name).map do |broker|
         apps = broker.applications
         submitted = apps.where(status: %w[submitted processing accepted rejected])
-        accepted = apps.where(status: 'accepted')
+        accepted = apps.where(status: "accepted")
         last_referral = apps.maximum(:created_at)
 
         {
           broker: broker,
-          referrals_30d: apps.where('created_at >= ?', 30.days.ago).count,
-          referrals_90d: apps.where('created_at >= ?', 90.days.ago).count,
-          referrals_365d: apps.where('created_at >= ?', 365.days.ago).count,
+          referrals_30d: apps.where("created_at >= ?", 30.days.ago).count,
+          referrals_90d: apps.where("created_at >= ?", 90.days.ago).count,
+          referrals_365d: apps.where("created_at >= ?", 365.days.ago).count,
           approval_rate: submitted.count.positive? ? (accepted.count.to_f / submitted.count * 100).round(1) : 0,
           avg_age_at_decision: average_age_at_decision(apps),
           commission_earned: broker.broker_commissions.where(status: %w[earned paid]).sum(:commission_amount),
@@ -42,13 +42,13 @@ module Admin
 
     def create
       @broker = Broker.new(broker_params)
-      
+
       if @broker.save
         # Generate password setup token and send email
         @broker.update(reset_password_token: SecureRandom.urlsafe_base64, reset_password_sent_at: Time.current)
         BrokerMailer.setup_password(@broker, @broker.reset_password_token).deliver_later
-        
-        redirect_to admin_broker_path(@broker), notice: 'Broker created successfully. Password setup email sent.'
+
+        redirect_to admin_broker_path(@broker), notice: "Broker created successfully. Password setup email sent."
       else
         render :new, status: :unprocessable_entity
       end
@@ -60,7 +60,7 @@ module Admin
 
     def update
       if @broker.update(broker_params)
-        redirect_to admin_broker_path(@broker), notice: 'Broker updated successfully.'
+        redirect_to admin_broker_path(@broker), notice: "Broker updated successfully."
       else
         render :edit, status: :unprocessable_entity
       end
@@ -74,20 +74,20 @@ module Admin
     def assign_lender
       @broker = Broker.find(params[:broker_id])
       @lender = Lender.find(params[:lender_id])
-      
+
       BrokerLender.find_or_create_by(broker: @broker, lender: @lender) do |bl|
         bl.active = true
       end
-      
+
       redirect_to edit_admin_broker_path(@broker), notice: "Broker assigned to #{@lender.name}."
     end
 
     def remove_lender
       @broker = Broker.find(params[:broker_id])
       @lender = Lender.find(params[:lender_id])
-      
+
       BrokerLender.find_by(broker: @broker, lender: @lender)&.destroy
-      
+
       redirect_to edit_admin_broker_path(@broker), notice: "Broker removed from #{@lender.name}."
     end
 
@@ -98,7 +98,7 @@ module Admin
     end
 
     def verify_admin!
-      redirect_to dashboard_path, alert: 'Access denied.' unless current_user.admin?
+      redirect_to dashboard_path, alert: "Access denied." unless current_user.admin?
     end
 
     def broker_params

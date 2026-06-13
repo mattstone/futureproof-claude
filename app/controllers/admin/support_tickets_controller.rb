@@ -1,6 +1,6 @@
 module Admin
   class SupportTicketsController < BaseController
-    before_action :set_ticket, only: [:show, :update, :reply, :close]
+    before_action :set_ticket, only: [ :show, :update, :reply, :close ]
 
     def index
       @tickets = SupportTicket.recent_first

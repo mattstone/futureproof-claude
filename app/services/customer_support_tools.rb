@@ -1,24 +1,24 @@
 class CustomerSupportTools
   TOOL_DEFINITIONS = [
     {
-      name: 'get_user_region',
+      name: "get_user_region",
       description: "Returns the authenticated user's region (au, us, nz, uk). Use this when you need to give region-specific guidance and the user has not stated their region.",
-      input_schema: { type: 'object', properties: {}, required: [] }
+      input_schema: { type: "object", properties: {}, required: [] }
     },
     {
-      name: 'get_user_applications',
+      name: "get_user_applications",
       description: "Returns the authenticated user's mortgage applications: id, status, region, age in days, last update. Use this when the user asks about *their* applications.",
-      input_schema: { type: 'object', properties: {}, required: [] }
+      input_schema: { type: "object", properties: {}, required: [] }
     },
     {
-      name: 'get_application_status',
-      description: 'Returns detailed status for a specific application owned by the authenticated user — current state, missing documents, blockers. Use after get_user_applications to drill in.',
+      name: "get_application_status",
+      description: "Returns detailed status for a specific application owned by the authenticated user — current state, missing documents, blockers. Use after get_user_applications to drill in.",
       input_schema: {
-        type: 'object',
+        type: "object",
         properties: {
-          application_id: { type: 'integer', description: 'The numeric application id from get_user_applications' }
+          application_id: { type: "integer", description: "The numeric application id from get_user_applications" }
         },
-        required: ['application_id']
+        required: [ "application_id" ]
       }
     }
   ].freeze
@@ -36,15 +36,15 @@ class CustomerSupportTools
   end
 
   def call(name:, input:)
-    return error('Authentication required for this tool') unless @user
+    return error("Authentication required for this tool") unless @user
 
     case name
-    when 'get_user_region'
+    when "get_user_region"
       get_user_region
-    when 'get_user_applications'
+    when "get_user_applications"
       get_user_applications
-    when 'get_application_status'
-      get_application_status(input[:application_id] || input['application_id'])
+    when "get_application_status"
+      get_application_status(input[:application_id] || input["application_id"])
     else
       error("Unknown tool: #{name}")
     end
@@ -58,12 +58,12 @@ class CustomerSupportTools
   def get_user_region
     region = @user.respond_to?(:country) ? @user.country : nil
     region ||= @user.applications.first&.region
-    region ? "Region: #{region.upcase}" : 'Region not set on account'
+    region ? "Region: #{region.upcase}" : "Region not set on account"
   end
 
   def get_user_applications
     applications = @user.applications.order(updated_at: :desc).limit(10)
-    return 'No applications found for this user.' if applications.empty?
+    return "No applications found for this user." if applications.empty?
 
     applications.map do |app|
       "##{app.id}: status=#{app.status}, region=#{app.region}, age_days=#{(Date.today - app.created_at.to_date).to_i}, last_update=#{app.updated_at.iso8601}"
@@ -71,7 +71,7 @@ class CustomerSupportTools
   end
 
   def get_application_status(application_id)
-    return error('application_id is required') unless application_id
+    return error("application_id is required") unless application_id
 
     app = @user.applications.find_by(id: application_id)
     return error("Application #{application_id} not found or not owned by this user") unless app

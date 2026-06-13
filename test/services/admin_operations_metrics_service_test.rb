@@ -52,10 +52,10 @@ class AdminOperationsMetricsServiceTest < ActiveSupport::TestCase
 
   test "pain_points surfaces stalled processing applications" do
     app = applications(:submitted_application)
-    app.update_columns(status: 'processing', updated_at: 10.days.ago)
+    app.update_columns(status: "processing", updated_at: 10.days.ago)
 
     points = @service.pain_points
-    bottleneck = points.find { |p| p[:category] == 'Processing Bottleneck' }
+    bottleneck = points.find { |p| p[:category] == "Processing Bottleneck" }
 
     assert bottleneck
     assert_equal :critical, bottleneck[:severity]
@@ -80,7 +80,7 @@ class AdminOperationsMetricsServiceTest < ActiveSupport::TestCase
   end
 
   test "oldest_pending_application is nil when nothing is processing" do
-    Application.where(status: 'processing').destroy_all
+    Application.where(status: "processing").destroy_all
 
     result = @service.application_metrics
     assert_nil result[:oldest_pending]

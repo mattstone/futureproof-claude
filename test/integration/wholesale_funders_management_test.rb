@@ -8,9 +8,9 @@ class WholesaleFundersManagementTest < ActionDispatch::IntegrationTest
       country: "Australia",
       lender_type: :lender
     )
-    
+
     # Find or use the existing Futureproof lender for the admin
-    @futureproof_lender = Lender.find_by(lender_type: :futureproof) || 
+    @futureproof_lender = Lender.find_by(lender_type: :futureproof) ||
       Lender.find_by(name: "Futureproof Financial Pty Ltd")
 
     @admin = User.create!(

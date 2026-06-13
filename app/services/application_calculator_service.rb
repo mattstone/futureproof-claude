@@ -26,13 +26,13 @@ class ApplicationCalculatorService
     return 0 unless application.income_amount && application.income_frequency
 
     case application.income_frequency
-    when 'weekly'
+    when "weekly"
       application.income_amount * 52 / 12
-    when 'fortnightly'
+    when "fortnightly"
       application.income_amount * 26 / 12
-    when 'monthly'
+    when "monthly"
       application.income_amount
-    when 'annually'
+    when "annually"
       application.income_amount / 12
     else
       0
@@ -43,13 +43,13 @@ class ApplicationCalculatorService
     return 0 unless application.income_amount && application.income_frequency
 
     case application.income_frequency
-    when 'weekly'
+    when "weekly"
       application.income_amount * 52
-    when 'fortnightly'
+    when "fortnightly"
       application.income_amount * 26
-    when 'monthly'
+    when "monthly"
       application.income_amount * 12
-    when 'annually'
+    when "annually"
       application.income_amount
     else
       0

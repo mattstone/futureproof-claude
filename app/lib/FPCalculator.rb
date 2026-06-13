@@ -1,5 +1,4 @@
 class FPCalculator
-
   BASE_VALUE = 1500000
 
   LOAN_TYPE = {
@@ -8,7 +7,7 @@ class FPCalculator
   }
 
   def initialize
-    require 'csv'
+    require "csv"
 
     read_reference_table
   end
@@ -20,9 +19,9 @@ class FPCalculator
     principal        = 2000000
     loan_duration    = 30
     annuity_duration = 30
-    #loan_type = FPCalculator::LOAN_TYPE[:interest_only]
+    # loan_type = FPCalculator::LOAN_TYPE[:interest_only]
 
-    #p calc.calculate(principal, loan_duration, annuity_duration, loan_type)
+    # p calc.calculate(principal, loan_duration, annuity_duration, loan_type)
     p calc.calculate(principal, loan_duration, annuity_duration)
 
     loan_type = "interest_only"
@@ -104,7 +103,7 @@ class FPCalculator
     @reference_table = []
 
     csv_text = File.read("#{Rails.root}/data/ReferenceTableV2.csv")
-    csv = CSV.parse(csv_text, :headers => true)
+    csv = CSV.parse(csv_text, headers: true)
     csv.each do |row|
       new_row = row
       new_row[:principal] = BASE_VALUE
@@ -132,7 +131,6 @@ class FPCalculator
     monthly_income = annual_income.to_f / 12
     { annual_income: annual_income, monthly_income: monthly_income }
   end
-
 end
 
 

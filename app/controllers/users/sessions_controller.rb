@@ -15,14 +15,14 @@ class Users::SessionsController < Devise::SessionsController
   # Override the authentication method to include lender_id
   def auth_options
     options = super
-    
+
     # Add lender_id to authentication conditions if provided
     if params[:lender_id].present?
       options[:lender_id] = params[:lender_id]
     elsif params[:user] && params[:user][:lender_id].present?
       options[:lender_id] = params[:user][:lender_id]
     end
-    
+
     options
   end
 
@@ -33,12 +33,12 @@ class Users::SessionsController < Devise::SessionsController
     browser_signature = generate_browser_signature(request)
     browser_info = extract_browser_info(request)
     ip_address = request.remote_ip
-    
+
     return if browser_signature.blank?
 
     # Check if this is a new browser signature and send notification if so
     was_unknown_browser = user.update_browser_tracking(browser_signature, browser_info)
-    
+
     if was_unknown_browser
       # Send security notification in background to avoid delaying the response
       SecurityNotificationJob.perform_later(user.id, browser_signature, browser_info, ip_address)

@@ -64,7 +64,7 @@ class QuoteServiceTest < ActiveSupport::TestCase
   end
 
   test "tom model all terms produce valid results" do
-    [10, 15, 20, 25, 30].each do |term|
+    [ 10, 15, 20, 25, 30 ].each do |term|
       result = QuoteService.quote(home_value: 1_500_000, term: term, model: :tom)
       assert result[:monthly_income].positive?, "Term #{term} should have positive monthly income"
       assert result[:total_income].positive?, "Term #{term} should have positive total income"
@@ -124,7 +124,7 @@ class QuoteServiceTest < ActiveSupport::TestCase
   end
 
   test "pavel model all terms produce valid results" do
-    [10, 15, 20, 25, 30].each do |term|
+    [ 10, 15, 20, 25, 30 ].each do |term|
       result = QuoteService.quote(home_value: 1_500_000, term: term, model: :pavel)
       assert result[:monthly_income].positive?, "Term #{term} should have positive monthly income"
       assert result[:total_income].positive?, "Term #{term} should have positive total income"
@@ -132,7 +132,7 @@ class QuoteServiceTest < ActiveSupport::TestCase
   end
 
   test "pavel model annuity rates decrease with longer terms" do
-    rates = [10, 15, 20, 25, 30].map do |term|
+    rates = [ 10, 15, 20, 25, 30 ].map do |term|
       result = QuoteService.quote(home_value: 1_500_000, term: term, model: :pavel)
       result[:annuity_rate]
     end

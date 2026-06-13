@@ -42,7 +42,7 @@ class MockPropertyService
       zoning: %w[Residential Commercial Mixed][rng.rand(3)],
       flood_risk: %w[none low medium high][rng.rand(4)],
       bushfire_risk: %w[none low medium high][rng.rand(4)],
-      council: ["Brisbane City Council", "Gold Coast City Council", "Sydney City Council", "Melbourne City Council"][rng.rand(4)],
+      council: [ "Brisbane City Council", "Gold Coast City Council", "Sydney City Council", "Melbourne City Council" ][rng.rand(4)],
       images: 3.times.map { |i| "https://mock-images.example.com/property/#{seed}/#{i}.jpg" }
     }.tap { |r| Rails.logger.info("[MockPropertyService] get_details(#{property_id_or_address}) type=#{r[:property_type]}") }
   end
@@ -69,8 +69,8 @@ class MockPropertyService
   end
 
   def self.generate_address(rng)
-    streets = ["Smith St", "Queen St", "George St", "Park Ave", "Main Rd", "High St", "Victoria Dr", "Albert St"]
-    suburbs = ["Brisbane", "Paddington", "Newstead", "Woolloongabba", "Fortitude Valley", "South Bank", "West End", "Kangaroo Point"]
+    streets = [ "Smith St", "Queen St", "George St", "Park Ave", "Main Rd", "High St", "Victoria Dr", "Albert St" ]
+    suburbs = [ "Brisbane", "Paddington", "Newstead", "Woolloongabba", "Fortitude Valley", "South Bank", "West End", "Kangaroo Point" ]
     "#{rng.rand(1..200)} #{streets[rng.rand(streets.size)]}, #{suburbs[rng.rand(suburbs.size)]}"
   end
 end

@@ -156,7 +156,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
 
     projections = result[:inflation_projections][:base][:projections]
     assert_equal 4, projections.length
-    assert_equal [5, 10, 15, 20], projections.map { |p| p[:years] }
+    assert_equal [ 5, 10, 15, 20 ], projections.map { |p| p[:years] }
   end
 
   test "low inflation scenario shows lower income escalation than high inflation" do
@@ -221,7 +221,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     engine = CalculationEngine.new(home_value: 1_500_000, term: 10, region: "us")
     result = engine.calculate
 
-    [:low, :base, :high].each do |scenario|
+    [ :low, :base, :high ].each do |scenario|
       assert result[:inflation_projections][scenario].key?(:inflation_rate_percent)
       assert result[:inflation_projections][scenario].key?(:projections)
       assert_equal 4, result[:inflation_projections][scenario][:projections].length
@@ -255,7 +255,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     nneg = result[:nneg_analysis]
     assert nneg.key?(:scenario_results)
     assert_equal 10, nneg[:scenario_results].length
-    
+
     # Each year should have NNEG data
     nneg[:scenario_results].each do |year_data|
       assert year_data.key?(:year)
@@ -271,11 +271,11 @@ class CalculationEngineTest < ActiveSupport::TestCase
 
     nneg = result[:nneg_analysis]
     year_1 = nneg[:scenario_results][0]
-    
+
     assert year_1.key?(:property_value_pessimistic)
     assert year_1.key?(:property_value_expected)
     assert year_1.key?(:property_value_optimistic)
-    
+
     # Property value should decline (pessimistic), stay same (expected), grow (optimistic)
     assert year_1[:property_value_pessimistic] < year_1[:property_value_expected]
     assert year_1[:property_value_expected] <= year_1[:property_value_optimistic]
@@ -309,7 +309,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     assert estate.key?(:year_5_estate)
     assert estate.key?(:year_10_estate)
     assert estate.key?(:year_at_term_estate)
-    
+
     assert estate[:year_5_estate].key?(:property_value)
     assert estate[:year_5_estate].key?(:portfolio_value)
     assert estate[:year_5_estate].key?(:mortgage_debt)
@@ -321,7 +321,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     result = engine.calculate
 
     estate = result[:estate_impact]
-    
+
     # Portfolio value should grow from year 5 → 10 → term
     assert estate[:year_5_estate][:portfolio_value] < estate[:year_10_estate][:portfolio_value]
     assert estate[:year_10_estate][:portfolio_value] < estate[:year_at_term_estate][:portfolio_value]
@@ -332,7 +332,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     result = engine.calculate
 
     estate = result[:estate_impact]
-    
+
     # Mortgage debt should decrease as payments are made
     assert estate[:year_5_estate][:mortgage_debt] > estate[:year_10_estate][:mortgage_debt]
     assert estate[:year_10_estate][:mortgage_debt] > estate[:year_at_term_estate][:mortgage_debt]
@@ -344,7 +344,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
 
     estate = result[:estate_impact]
     year_5 = estate[:year_5_estate]
-    
+
     expected_net = year_5[:property_value] + year_5[:portfolio_value] - year_5[:mortgage_debt]
     assert_equal expected_net, year_5[:net_estate]
   end
@@ -363,7 +363,7 @@ class CalculationEngineTest < ActiveSupport::TestCase
     loan_amount = 1_500_000 * 0.80  # 80% LTV
 
     monthly_payment = engine.send(:calculate_monthly_payment, loan_amount, 10)
-    
+
     # Monthly payment should be positive
     assert monthly_payment > 0
     # Total paid over 10 years should exceed loan amount (due to interest)

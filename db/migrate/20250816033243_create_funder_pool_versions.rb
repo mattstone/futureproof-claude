@@ -5,7 +5,7 @@ class CreateFunderPoolVersions < ActiveRecord::Migration[8.0]
       t.references :user, null: false, foreign_key: true
       t.string :action, null: false
       t.text :change_details
-      
+
       # Track specific fields for funder pools
       t.string :previous_name
       t.string :new_name
@@ -17,11 +17,11 @@ class CreateFunderPoolVersions < ActiveRecord::Migration[8.0]
       t.decimal :new_benchmark_rate, precision: 5, scale: 2
       t.decimal :previous_margin_rate, precision: 5, scale: 2
       t.decimal :new_margin_rate, precision: 5, scale: 2
-      
+
       t.timestamps
     end
-    
-    add_index :funder_pool_versions, [:funder_pool_id, :created_at]
+
+    add_index :funder_pool_versions, [ :funder_pool_id, :created_at ]
     add_index :funder_pool_versions, :action
   end
 end

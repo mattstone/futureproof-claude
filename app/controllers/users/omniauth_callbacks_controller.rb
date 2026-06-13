@@ -1,13 +1,13 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  protect_from_forgery except: [:saml]
+  protect_from_forgery except: [ :saml ]
   before_action :set_current_lender
 
   def saml
-    handle_omniauth_callback('saml')
+    handle_omniauth_callback("saml")
   end
 
   def failure
-    redirect_to new_user_session_path, alert: 'Authentication failed. Please try again.'
+    redirect_to new_user_session_path, alert: "Authentication failed. Please try again."
   end
 
   private
@@ -23,7 +23,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       redirect_to after_sign_in_path_for(@user)
     else
       session["devise.#{provider}_data"] = auth.except(:extra)
-      redirect_to new_user_registration_url, alert: 'Failed to authenticate. Please try again.'
+      redirect_to new_user_registration_url, alert: "Failed to authenticate. Please try again."
     end
   end
 
@@ -31,7 +31,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @current_lender = TenantDetectionService.lender_from_domain(request.host)
 
     unless @current_lender
-      redirect_to root_url, alert: 'Domain not configured for authentication.'
+      redirect_to root_url, alert: "Domain not configured for authentication."
     end
   end
 end

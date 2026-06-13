@@ -2,9 +2,9 @@ class BorrowerMessageChannel < ApplicationCable::Channel
   def subscribed
     @application = Application.find(params[:application_id])
     authorize_access!
-    
+
     stream_for @application
-    
+
     # Mark all messages from other party as read when user subscribes
     @application.borrower_messages.unread.where.not(user_id: current_user.id).each(&:mark_as_read!)
   end
@@ -16,18 +16,18 @@ class BorrowerMessageChannel < ApplicationCable::Channel
   def send_message(data)
     @application = Application.find(params[:application_id])
     authorize_access!
-    
+
     # Determine sender type (borrower or lender)
     sender_type = @application.user_id == current_user.id ? :borrower : :lender
     lender = sender_type == :lender ? current_user : nil
-    
+
     message = @application.borrower_messages.create!(
       user_id: current_user.id,
       lender_id: lender&.id,
-      message: data['message'],
+      message: data["message"],
       sender_type: sender_type
     )
-    
+
     # Broadcast to all subscribers of this application's channel
     BorrowerMessageChannel.broadcast_to(
       @application,
@@ -37,7 +37,7 @@ class BorrowerMessageChannel < ApplicationCable::Channel
         user_avatar: avatar_url(current_user),
         sender_type: sender_type,
         message: message.message,
-        created_at: message.created_at.strftime('%H:%M %p'),
+        created_at: message.created_at.strftime("%H:%M %p"),
         is_current_user: true
       }
     )
@@ -49,7 +49,7 @@ class BorrowerMessageChannel < ApplicationCable::Channel
     # Only borrower and assigned lender can access this channel
     is_borrower = @application.user_id == current_user.id
     is_lender = @application.lender_id == current_user.id
-    
+
     reject unless is_borrower || is_lender
   end
 

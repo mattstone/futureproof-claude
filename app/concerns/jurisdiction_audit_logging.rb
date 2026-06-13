@@ -7,7 +7,7 @@ module JurisdictionAuditLogging
 
   included do
     # Audit before accessing application data
-    before_action :audit_jurisdiction_access, only: [:show, :edit, :update]
+    before_action :audit_jurisdiction_access, only: [ :show, :edit, :update ]
   end
 
   # ✅ CRITICAL: Audit cross-jurisdiction access
@@ -24,7 +24,7 @@ module JurisdictionAuditLogging
         app_jurisdiction,
         @application.id
       )
-      
+
       # Could reject access here, or just alert
       # For now: log + alert (softer approach for launch)
     end
@@ -35,14 +35,14 @@ module JurisdictionAuditLogging
   # ✅ Get user's home jurisdiction as ISO code
   def user_home_jurisdiction_code(user)
     return nil unless user&.country_of_residence
-    
+
     country_to_code = {
-      'Australia' => 'AU',
-      'United States' => 'US',
-      'New Zealand' => 'NZ',
-      'United Kingdom' => 'UK'
+      "Australia" => "AU",
+      "United States" => "US",
+      "New Zealand" => "NZ",
+      "United Kingdom" => "UK"
     }
-    
+
     country_to_code[user.country_of_residence]
   end
 
@@ -63,7 +63,7 @@ module JurisdictionAuditLogging
 
     # Log to security log
     Rails.logger.warn "[SECURITY] #{log_entry.to_json}"
-    
+
     # Store in audit trail for investigation (if model exists)
     if defined?(JurisdictionAuditLog)
       JurisdictionAuditLog.create!(log_entry)
@@ -78,16 +78,16 @@ module JurisdictionAuditLogging
   # ✅ CRITICAL: Scope queries by user's jurisdiction
   def scope_applications_by_jurisdiction(applications = Application.all)
     return applications unless current_user
-    
+
     user_jurisdiction = user_home_jurisdiction_code(current_user)
     return applications if user_jurisdiction.nil?
-    
+
     applications.where(region: user_jurisdiction)
   end
 
   def scope_distributions_by_jurisdiction(distributions = Distribution.all)
     return distributions unless current_user
-    
+
     # Join through application to filter by jurisdiction
     distributions.joins(:application).where(applications: { region: user_home_jurisdiction_code(current_user) })
   end

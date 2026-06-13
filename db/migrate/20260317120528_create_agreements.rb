@@ -17,7 +17,7 @@ class CreateAgreements < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :agreements, [:agreeable_type, :agreeable_id]
+    add_index :agreements, [ :agreeable_type, :agreeable_id ]
     add_index :agreements, :status
 
     create_table :agreement_signatures do |t|
@@ -34,6 +34,6 @@ class CreateAgreements < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :agreement_signatures, [:agreement_id, :signer_role], unique: true
+    add_index :agreement_signatures, [ :agreement_id, :signer_role ], unique: true
   end
 end

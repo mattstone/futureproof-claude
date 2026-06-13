@@ -1,14 +1,14 @@
 class Admin::LendersController < Admin::BaseController
   include Admin::AdminHelper
   before_action :ensure_futureproof_admin
-  before_action :set_lender, only: [:show, :edit, :update, :destroy]
+  before_action :set_lender, only: [ :show, :edit, :update, :destroy ]
 
   def index
     # Filter by jurisdiction (map AU/US/NZ/UK to country codes)
     all_lenders = Lender.includes(:lender_wholesale_funders, :lender_funder_pools, :applications)
     @lenders = jurisdiction_filtered_scope(all_lenders, :country).order(:lender_type, :name)
     @current_jurisdiction = current_admin_jurisdiction
-    
+
     # Calculate summary metrics
     lender_ids = @lenders.pluck(:id)
     @summary_stats = {
@@ -37,7 +37,7 @@ class Admin::LendersController < Admin::BaseController
     @available_wholesale_funders = WholesaleFunder.includes(:funder_pools)
                                                   .where.not(id: @lender.wholesale_funders.select(:id))
                                                   .order(:name)
-    
+
     render json: {
       wholesale_funders: @available_wholesale_funders.map do |wf|
         {
@@ -60,9 +60,9 @@ class Admin::LendersController < Admin::BaseController
   def create
     @lender = Lender.new(lender_params)
     @lender.current_user = current_user
-    
+
     if @lender.save
-      redirect_to admin_lender_path(@lender), notice: 'Lender was successfully created.'
+      redirect_to admin_lender_path(@lender), notice: "Lender was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -74,7 +74,7 @@ class Admin::LendersController < Admin::BaseController
   def update
     @lender.current_user = current_user
     if @lender.update(lender_params)
-      redirect_to admin_lender_path(@lender), notice: 'Lender was successfully updated.'
+      redirect_to admin_lender_path(@lender), notice: "Lender was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -83,12 +83,12 @@ class Admin::LendersController < Admin::BaseController
   def destroy
     # Prevent deletion of Futureproof lender
     if @lender.lender_type_futureproof?
-      redirect_to admin_lenders_path, alert: 'Futureproof lender cannot be deleted.'
+      redirect_to admin_lenders_path, alert: "Futureproof lender cannot be deleted."
       return
     end
-    
+
     @lender.destroy
-    redirect_to admin_lenders_path, notice: 'Lender was successfully deleted.'
+    redirect_to admin_lenders_path, notice: "Lender was successfully deleted."
   end
 
   private
@@ -102,20 +102,20 @@ class Admin::LendersController < Admin::BaseController
   def collect_all_lender_versions
     # Collect all version records related to this lender
     versions = []
-    
+
     # Lender's own version history
     versions += @lender.lender_versions.includes(:user)
-    
+
     # Wholesale funder relationship versions
     versions += LenderWholesaleFunderVersion.joins(:lender_wholesale_funder)
                                            .where(lender_wholesale_funders: { lender_id: @lender.id })
                                            .includes(:user, lender_wholesale_funder: :wholesale_funder)
-    
+
     # Funder pool relationship versions
     versions += LenderFunderPoolVersion.joins(:lender_funder_pool)
                                       .where(lender_funder_pools: { lender_id: @lender.id })
                                       .includes(:user, lender_funder_pool: { funder_pool: :wholesale_funder })
-    
+
     # Sort by created_at descending
     versions.sort_by(&:created_at).reverse
   end
@@ -138,22 +138,22 @@ class Admin::LendersController < Admin::BaseController
 
     funders.each do |funder|
       next if funder.funder_pools.empty?
-      funder_idx = add_node.call("f-#{funder.id}", funder.name, 'funder')
+      funder_idx = add_node.call("f-#{funder.id}", funder.name, "funder")
 
       funder.funder_pools.each do |pool|
         next if pool.allocated.to_f.zero?
-        pool_idx = add_node.call("p-#{pool.id}", pool.name, 'pool')
+        pool_idx = add_node.call("p-#{pool.id}", pool.name, "pool")
 
         # Funder -> Pool: total allocated within the pool
-        links << { source: funder_idx, target: pool_idx, value: pool.allocated.to_f, kind: 'allocated' }
+        links << { source: funder_idx, target: pool_idx, value: pool.allocated.to_f, kind: "allocated" }
 
         # Pool -> Lender: each lender's allocation within this pool
         pool.lender_funder_pools.each do |lfp|
           next if lfp.lender.nil?
-          lender_idx = add_node.call("l-#{lfp.lender_id}", lfp.lender.name, 'lender')
+          lender_idx = add_node.call("l-#{lfp.lender_id}", lfp.lender.name, "lender")
           # Approximate: each lender has equal share of the pool's allocated capital
           share = pool.allocated.to_f / pool.lender_funder_pools.size
-          links << { source: pool_idx, target: lender_idx, value: share, kind: 'allocated' }
+          links << { source: pool_idx, target: lender_idx, value: share, kind: "allocated" }
         end
       end
     end
@@ -189,10 +189,10 @@ class Admin::LendersController < Admin::BaseController
     contracts = Contract.where(lender_id: lender.id)
     funded = contracts.where.not(cost_of_capital_rate: nil).where.not(allocated_amount: 0)
     weighted_cost = if funded.any? && funded.sum(:allocated_amount).positive?
-                      (funded.sum('cost_of_capital_rate * allocated_amount') / funded.sum(:allocated_amount)).round(2)
-                    else
+                      (funded.sum("cost_of_capital_rate * allocated_amount") / funded.sum(:allocated_amount)).round(2)
+    else
                       0
-                    end
+    end
 
     {
       lender: lender,

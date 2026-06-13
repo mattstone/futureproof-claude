@@ -121,7 +121,7 @@ class AdminFinancialMetricsService
     total = funded.sum(:allocated_amount)
     return 0 if total.zero?
 
-    weighted = funded.sum('cost_of_capital_rate * allocated_amount')
+    weighted = funded.sum("cost_of_capital_rate * allocated_amount")
     (weighted / total).round(2)
   end
 

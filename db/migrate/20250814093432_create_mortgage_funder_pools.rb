@@ -6,7 +6,7 @@ class CreateMortgageFunderPools < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :mortgage_funder_pools, [:mortgage_id, :funder_pool_id], unique: true, name: 'index_mortgage_funder_pools_on_mortgage_and_pool'
+
+    add_index :mortgage_funder_pools, [ :mortgage_id, :funder_pool_id ], unique: true, name: 'index_mortgage_funder_pools_on_mortgage_and_pool'
   end
 end

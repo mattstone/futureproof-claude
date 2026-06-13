@@ -1,6 +1,6 @@
 class LegalDocumentTemplate < ApplicationRecord
   validates :document_type, :jurisdiction, :party_type, :template_name, :template_content, presence: true
-  
+
   scope :active, -> { where(is_active: true) }
   scope :for_type, ->(doc_type) { where(document_type: doc_type) }
   scope :for_jurisdiction, ->(jurisdiction) { where(jurisdiction: jurisdiction) }

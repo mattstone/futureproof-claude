@@ -761,7 +761,7 @@ Futureproof Financial Group, Inc. ("we," "us," "our," or "Company") is committed
   - Equal Credit Opportunity Act (ECOA)
   - Fair Housing Act (FHA)
   - Truth in Lending Act (TILA)
-  
+#{'  '}
 - **California Specific:**
   - California Consumer Privacy Act (CCPA), Cal. Civ. Code § 1798.100 et seq.
   - California Privacy Rights Act (CPRA), effective January 1, 2023

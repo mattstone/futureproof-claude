@@ -1,7 +1,7 @@
 class Admin::MortgagesController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_mortgage, only: [:show, :edit, :update, :destroy]
-  before_action :set_audit_history, only: [:show]
+  before_action :set_mortgage, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_audit_history, only: [ :show ]
 
   def index
     @mortgages = Mortgage.includes(:active_lenders).all.order(:name)
@@ -23,9 +23,9 @@ class Admin::MortgagesController < Admin::BaseController
   def create
     @mortgage = Mortgage.new(mortgage_params)
     @mortgage.current_user = current_user # Track who created it
-    
+
     if @mortgage.save
-      redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage was successfully created.'
+      redirect_to admin_mortgage_path(@mortgage), notice: "Mortgage was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -39,7 +39,7 @@ class Admin::MortgagesController < Admin::BaseController
   def update
     @mortgage.current_user = current_user # Track who updated it
     if @mortgage.update(mortgage_params)
-      redirect_to admin_mortgage_path(@mortgage), notice: 'Mortgage was successfully updated.'
+      redirect_to admin_mortgage_path(@mortgage), notice: "Mortgage was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -47,7 +47,7 @@ class Admin::MortgagesController < Admin::BaseController
 
   def destroy
     @mortgage.destroy
-    redirect_to admin_mortgages_path, notice: 'Mortgage was successfully deleted.'
+    redirect_to admin_mortgages_path, notice: "Mortgage was successfully deleted."
   end
 
   private
@@ -59,14 +59,14 @@ class Admin::MortgagesController < Admin::BaseController
   def set_audit_history
     @audit_history = @mortgage.mortgage_versions.includes(:user).recent.limit(50)
   end
-  
+
   def collect_all_mortgage_versions
     # Collect all changes: mortgage changes and lender changes
     mortgage_changes = @mortgage.mortgage_versions.includes(:user)
     lender_changes = MortgageLenderVersion.joins(:mortgage_lender)
                                          .where(mortgage_lenders: { mortgage_id: @mortgage.id })
-                                         .includes(:user, mortgage_lender: [:lender])
-    
+                                         .includes(:user, mortgage_lender: [ :lender ])
+
     # Combine and sort by creation time
     @all_versions = (mortgage_changes + lender_changes)
                       .sort_by(&:created_at)

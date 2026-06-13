@@ -14,14 +14,14 @@ class LenderClauseVersion < ApplicationRecord
   # Instance methods
   def action_description
     case action
-    when 'created'
-      'Created'
-    when 'updated' 
-      'Updated'
-    when 'activated'
-      'Activated'
-    when 'published'
-      'Published'
+    when "created"
+      "Created"
+    when "updated"
+      "Updated"
+    when "activated"
+      "Activated"
+    when "published"
+      "Published"
     else
       action.humanize
     end
@@ -29,16 +29,16 @@ class LenderClauseVersion < ApplicationRecord
 
   def action_color
     case action
-    when 'created'
-      'info'
-    when 'updated'
-      'warning' 
-    when 'activated'
-      'success'
-    when 'published'
-      'primary'
+    when "created"
+      "info"
+    when "updated"
+      "warning"
+    when "activated"
+      "success"
+    when "published"
+      "primary"
     else
-      'secondary'
+      "secondary"
     end
   end
 
@@ -47,7 +47,7 @@ class LenderClauseVersion < ApplicationRecord
   end
 
   def user_name
-    user&.full_name || 'System'
+    user&.full_name || "System"
   end
 
   def has_content_changes?
@@ -56,11 +56,11 @@ class LenderClauseVersion < ApplicationRecord
 
   def content_diff
     return nil unless has_content_changes?
-    
+
     # Simple line-by-line diff
     old_lines = previous_content.lines
     new_lines = new_content.lines
-    
+
     {
       removed_lines: old_lines - new_lines,
       added_lines: new_lines - old_lines

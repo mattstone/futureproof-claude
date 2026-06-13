@@ -4,11 +4,11 @@ class Contract < ApplicationRecord
   belongs_to :mortgage_contract, optional: true
   belongs_to :lender, optional: true
   belongs_to :funder_pool, optional: true
-  
+
   # Messaging and versioning
   has_many :contract_messages, dependent: :destroy
   has_many :contract_versions, dependent: :destroy
-  
+
   enum :status, {
     awaiting_funding: 0,
     awaiting_investment: 1,
@@ -17,56 +17,56 @@ class Contract < ApplicationRecord
     investment_at_risk: 4,
     complete: 5
   }, prefix: true, default: :awaiting_funding
-  
+
   # Demo/seed records are excluded from all business metrics
   scope :real, -> { where(demo: false) }
 
   validates :start_date, presence: true
   validates :end_date, presence: true
   validates :status, presence: true
-  
+
   validate :end_date_after_start_date
-  
+
   # Track changes with audit functionality
   attr_accessor :current_admin_user
-  
+
   # Callbacks for change tracking
   after_create :log_creation
   after_update :log_update
-  
+
   # Callbacks for funder pool allocation management
   after_destroy :deallocate_from_funder_pool
-  
+
   # Display methods
   def status_display
     status.humanize
   end
-  
+
   def formatted_allocated_amount
     return "$0" unless allocated_amount.present?
     ActionController::Base.helpers.number_to_currency(allocated_amount, precision: (allocated_amount % 1 == 0 ? 0 : 2))
   end
-  
+
   def display_name
     "#{application.user.display_name} - #{application.address[0..50]}"
   end
-  
+
   # Get the mortgage associated with this contract
   def mortgage
     application.mortgage
   end
-  
+
   # Get the user who signed this contract
   def user
     application.user
   end
-  
+
   # Contract relationship summary
   def relationship_summary
     {
       user: user.display_name,
       lender: lender&.name || "Not specified",
-      mortgage: mortgage&.name || "Not specified", 
+      mortgage: mortgage&.name || "Not specified",
       mortgage_contract_version: mortgage_contract&.version || "Not specified",
       funder_pool: funder_pool&.id || "Not specified",
       allocated_amount: formatted_allocated_amount
@@ -89,26 +89,26 @@ class Contract < ApplicationRecord
   def message_threads
     contract_messages.thread_messages.includes(:replies, :sender).order(created_at: :desc)
   end
-  
+
   # Log when admin views contract
   def log_view_by(admin_user)
     return unless admin_user&.admin?
-    
+
     contract_versions.create!(
       admin_user: admin_user,
-      action: 'viewed',
+      action: "viewed",
       change_details: "Admin #{admin_user.display_name} viewed contract"
     )
   end
-  
+
   private
-  
+
   def log_creation
     return unless current_admin_user&.admin?
-    
+
     contract_versions.create!(
       admin_user: current_admin_user,
-      action: 'created',
+      action: "created",
       change_details: "Created contract for #{application.user.display_name}",
       new_status: status,
       new_start_date: start_date,
@@ -116,20 +116,20 @@ class Contract < ApplicationRecord
       new_application_id: application_id
     )
   end
-  
+
   def log_update
     return unless current_admin_user&.admin?
     return unless saved_changes.any?
-    
+
     # Special handling for status changes
     if saved_change_to_status?
-      action = 'status_changed'
+      action = "status_changed"
       change_details = "Changed status from '#{saved_change_to_status[0].humanize}' to '#{saved_change_to_status[1].humanize}'"
     else
-      action = 'updated'
+      action = "updated"
       change_details = build_change_summary
     end
-    
+
     contract_versions.create!(
       admin_user: current_admin_user,
       action: action,
@@ -144,45 +144,45 @@ class Contract < ApplicationRecord
       new_application_id: saved_change_to_application_id ? saved_change_to_application_id[1] : nil
     )
   end
-  
+
   def build_change_summary
     changes_list = []
-    
+
     if saved_change_to_status?
       changes_list << "Status changed from '#{saved_change_to_status[0].humanize}' to '#{saved_change_to_status[1].humanize}'"
     end
-    
+
     if saved_change_to_start_date?
       old_date = saved_change_to_start_date[0]&.strftime("%B %d, %Y")
       new_date = saved_change_to_start_date[1]&.strftime("%B %d, %Y")
       changes_list << "Start date changed from '#{old_date}' to '#{new_date}'"
     end
-    
+
     if saved_change_to_end_date?
       old_date = saved_change_to_end_date[0]&.strftime("%B %d, %Y")
       new_date = saved_change_to_end_date[1]&.strftime("%B %d, %Y")
       changes_list << "End date changed from '#{old_date}' to '#{new_date}'"
     end
-    
+
     if saved_change_to_application_id?
       changes_list << "Application changed from ##{saved_change_to_application_id[0]} to ##{saved_change_to_application_id[1]}"
     end
-    
+
     changes_list.join("; ")
   end
-  
+
   def end_date_after_start_date
     return unless start_date && end_date
-    
+
     if end_date < start_date
       errors.add(:end_date, "must be after start date")
     end
   end
-  
+
   # Deallocate capital when contract is destroyed
   def deallocate_from_funder_pool
     return unless funder_pool && allocated_amount
-    
+
     # Use recalculate_allocation! instead of deallocate_capital! to avoid double-deallocation issues
     # This ensures the pool allocation always matches the actual sum of contracts
     funder_pool.recalculate_allocation!

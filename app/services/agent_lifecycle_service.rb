@@ -13,7 +13,7 @@ class AgentLifecycleService
   # Main execution method
   def execute!
     @agent = determine_responsible_agent
-    return { success: false, error: 'No agent found for this event' } unless @agent
+    return { success: false, error: "No agent found for this event" } unless @agent
 
     stage = find_stage_for_event
     # If no stage config, use smart defaults based on event type
@@ -30,7 +30,7 @@ class AgentLifecycleService
     {
       success: true,
       agent: @agent.name,
-      stage: stage ? stage['stage_name'] : @event_type,
+      stage: stage ? stage["stage_name"] : @event_type,
       decision: decision_result
     }
   rescue => e
@@ -46,11 +46,11 @@ class AgentLifecycleService
     return nil unless @entity.is_a?(Application)
 
     case @event_type
-    when 'application_created'
+    when "application_created"
       handle_application_created
-    when 'application_submitted'
+    when "application_submitted"
       handle_application_submitted
-    when 'application_processing', 'status_changed'
+    when "application_processing", "status_changed"
       handle_status_change
     else
       nil
@@ -58,18 +58,18 @@ class AgentLifecycleService
   end
 
   def handle_application_created
-    decision_result = run_evaluation('evaluate')
+    decision_result = run_evaluation("evaluate")
 
     case decision_result&.decision
     when :approve
-      log_action('communicate', 'approve', decision_result, "Welcome message sent")
+      log_action("communicate", "approve", decision_result, "Welcome message sent")
       # Don't auto-advance on creation — user fills in details step by step
       decision_result
     when :flag
-      log_action('communicate', 'flag', decision_result, "Clarification requested")
+      log_action("communicate", "flag", decision_result, "Clarification requested")
       decision_result
     when :reject
-      log_action('decide', 'reject', decision_result, "Application rejected at intake")
+      log_action("decide", "reject", decision_result, "Application rejected at intake")
       decision_result
     else
       decision_result
@@ -78,26 +78,26 @@ class AgentLifecycleService
 
   def handle_application_submitted
     # Akane final check
-    akane = AiAgent.find_by(name: 'Akane')
+    akane = AiAgent.find_by(name: "Akane")
     if akane && @agent.id == akane.id
-      decision_result = run_evaluation('evaluate')
-      log_action('handoff', decision_result&.decision&.to_s, decision_result, "Handing off to Rie")
+      decision_result = run_evaluation("evaluate")
+      log_action("handoff", decision_result&.decision&.to_s, decision_result, "Handing off to Rie")
 
       # Hand off to Rie
-      rie = AiAgent.find_by(name: 'Rie')
+      rie = AiAgent.find_by(name: "Rie")
       if rie
         @agent = rie
-        rie_result = run_evaluation('evaluate')
+        rie_result = run_evaluation("evaluate")
         if rie_result&.decision == :approve
-          log_action('decide', 'advance', rie_result, "Ready for processing")
+          log_action("decide", "advance", rie_result, "Ready for processing")
         else
-          log_action('decide', rie_result&.decision&.to_s, rie_result, "Not ready for processing")
+          log_action("decide", rie_result&.decision&.to_s, rie_result, "Not ready for processing")
         end
         return rie_result
       end
     end
 
-    run_evaluation('evaluate')
+    run_evaluation("evaluate")
   end
 
   def handle_status_change
@@ -106,26 +106,26 @@ class AgentLifecycleService
     new_status = @context[:to_status].to_s
 
     case new_status
-    when 'processing', '5'
+    when "processing", "5"
       # Rie evaluates processing readiness
-      decision_result = run_evaluation('evaluate')
+      decision_result = run_evaluation("evaluate")
       if decision_result&.decision == :approve
-        log_action('decide', 'advance', decision_result, "Processing complete, recommending acceptance")
+        log_action("decide", "advance", decision_result, "Processing complete, recommending acceptance")
         # Hand off to Yumi
-        yumi = AiAgent.find_by(name: 'Yumi')
+        yumi = AiAgent.find_by(name: "Yumi")
         if yumi
-          log_action('handoff', 'advance', decision_result, "Handing off to Yumi for acceptance")
+          log_action("handoff", "advance", decision_result, "Handing off to Yumi for acceptance")
         end
       else
-        log_action('decide', decision_result&.decision&.to_s, decision_result, "Processing issues found")
+        log_action("decide", decision_result&.decision&.to_s, decision_result, "Processing issues found")
       end
       decision_result
-    when 'accepted', '7'
+    when "accepted", "7"
       # Yumi evaluates for acceptance
-      yumi = AiAgent.find_by(name: 'Yumi')
+      yumi = AiAgent.find_by(name: "Yumi")
       @agent = yumi if yumi
-      decision_result = run_evaluation('evaluate')
-      log_action('decide', decision_result&.decision&.to_s, decision_result, "Acceptance evaluation complete")
+      decision_result = run_evaluation("evaluate")
+      log_action("decide", decision_result&.decision&.to_s, decision_result, "Acceptance evaluation complete")
       decision_result
     else
       nil
@@ -142,7 +142,7 @@ class AgentLifecycleService
     result
   rescue => e
     Rails.logger.error "Decision evaluation failed: #{e.message}"
-    log_action(action_type, 'failed', nil, "Evaluation error: #{e.message}")
+    log_action(action_type, "failed", nil, "Evaluation error: #{e.message}")
     nil
   end
 
@@ -165,7 +165,7 @@ class AgentLifecycleService
         agent_notes: decision_result.agent_notes,
         contract_terms: decision_result.contract_terms
       } : { notes: notes },
-      status: 'completed'
+      status: "completed"
     )
   rescue => e
     Rails.logger.error "Failed to log agent action: #{e.message}"
@@ -191,7 +191,7 @@ class AgentLifecycleService
     when Application
       agent_for_application_stage
     when Contract
-      AiAgent.find_by(name: 'Yumi') # Yumi always handles contracts
+      AiAgent.find_by(name: "Yumi") # Yumi always handles contracts
     else
       AiAgent.active.first # Fallback to first active agent
     end
@@ -200,12 +200,12 @@ class AgentLifecycleService
   # Map application stages to agents
   def agent_for_application_stage
     case @event_type
-    when 'user_registered', 'application_created', 'application_started'
-      AiAgent.find_by(name: 'Akane') # Acquisition
-    when 'application_submitted', 'application_processing', 'application_review'
-      AiAgent.find_by(name: 'Rie') # Operations
-    when 'application_accepted', 'contract_created', 'contract_active'
-      AiAgent.find_by(name: 'Yumi') # Lifetime management
+    when "user_registered", "application_created", "application_started"
+      AiAgent.find_by(name: "Akane") # Acquisition
+    when "application_submitted", "application_processing", "application_review"
+      AiAgent.find_by(name: "Rie") # Operations
+    when "application_accepted", "contract_created", "contract_active"
+      AiAgent.find_by(name: "Yumi") # Lifetime management
     else
       # Dynamic determination based on application status
       determine_by_status
@@ -216,14 +216,14 @@ class AgentLifecycleService
     return nil unless @entity.respond_to?(:status)
 
     case @entity.status.to_s
-    when 'created', 'user_details', 'property_details', 'income_and_loan_options'
-      AiAgent.find_by(name: 'Akane')
-    when 'submitted', 'processing'
-      AiAgent.find_by(name: 'Rie')
-    when 'accepted'
-      AiAgent.find_by(name: 'Yumi')
+    when "created", "user_details", "property_details", "income_and_loan_options"
+      AiAgent.find_by(name: "Akane")
+    when "submitted", "processing"
+      AiAgent.find_by(name: "Rie")
+    when "accepted"
+      AiAgent.find_by(name: "Yumi")
     else
-      AiAgent.find_by(name: 'Akane') # Default to Akane for unknown statuses
+      AiAgent.find_by(name: "Akane") # Default to Akane for unknown statuses
     end
   end
 
@@ -232,14 +232,14 @@ class AgentLifecycleService
     return nil unless @agent&.lifecycle_stages.present?
 
     @agent.lifecycle_stages.find do |stage|
-      stage['entry_trigger'] == @event_type ||
-      stage['entry_triggers']&.include?(@event_type)
+      stage["entry_trigger"] == @event_type ||
+      stage["entry_triggers"]&.include?(@event_type)
     end
   end
 
   # Execute all automated actions for a stage
   def execute_stage_actions(stage)
-    actions = stage['automated_actions'] || []
+    actions = stage["automated_actions"] || []
 
     actions.each do |action|
       next unless should_execute_action?(action)
@@ -254,7 +254,7 @@ class AgentLifecycleService
 
   # Check if action should be executed based on conditions
   def should_execute_action?(action)
-    conditions = action['conditions']
+    conditions = action["conditions"]
     return true if conditions.blank?
 
     evaluate_conditions(conditions)
@@ -281,19 +281,19 @@ class AgentLifecycleService
 
   # Evaluate complex conditions (operators)
   def evaluate_complex_condition(entity_value, condition_hash)
-    operator = condition_hash['operator']
-    expected = condition_hash['value']
+    operator = condition_hash["operator"]
+    expected = condition_hash["value"]
 
     case operator
-    when 'equals'
+    when "equals"
       entity_value.to_s == expected.to_s
-    when 'not_equals'
+    when "not_equals"
       entity_value.to_s != expected.to_s
-    when 'greater_than'
+    when "greater_than"
       entity_value.to_f > expected.to_f
-    when 'less_than'
+    when "less_than"
       entity_value.to_f < expected.to_f
-    when 'contains'
+    when "contains"
       entity_value.to_s.include?(expected.to_s)
     else
       false
@@ -302,28 +302,28 @@ class AgentLifecycleService
 
   # Check if action has a delay
   def has_delay?(action)
-    delay = action['delay']
-    delay.present? && delay['duration'].to_i > 0
+    delay = action["delay"]
+    delay.present? && delay["duration"].to_i > 0
   end
 
   # Execute action immediately
   def execute_action_now(action)
-    case action['action_type']
-    when 'send_email'
+    case action["action_type"]
+    when "send_email"
       send_agent_email(action)
-    when 'create_task'
+    when "create_task"
       create_task(action)
-    when 'update_status'
+    when "update_status"
       update_entity_status(action)
-    when 'notify_admin'
+    when "notify_admin"
       notify_admin(action)
-    when 'evaluate_application'
+    when "evaluate_application"
       execute_evaluate_application(action)
-    when 'auto_advance'
+    when "auto_advance"
       execute_auto_advance(action)
-    when 'request_documents'
+    when "request_documents"
       execute_request_documents(action)
-    when 'escalate_to_human'
+    when "escalate_to_human"
       execute_escalate_to_human(action)
     else
       Rails.logger.warn "Unknown action type: #{action['action_type']}"
@@ -332,31 +332,31 @@ class AgentLifecycleService
 
   # New action: evaluate application via AgentDecisionService
   def execute_evaluate_application(_action)
-    result = run_evaluation('evaluate')
+    result = run_evaluation("evaluate")
     return unless result
 
     case result.next_action
     when :advance
       @entity.advance_to_next_step! if @entity.respond_to?(:advance_to_next_step!)
     when :escalate
-      execute_escalate_to_human('reason' => result.reasoning)
+      execute_escalate_to_human("reason" => result.reasoning)
     end
   end
 
   # New action: auto-advance if evaluation passes
   def execute_auto_advance(_action)
-    result = run_evaluation('evaluate')
+    result = run_evaluation("evaluate")
     return unless result&.decision == :approve
 
     if @entity.respond_to?(:advance_to_next_step!)
       @entity.advance_to_next_step!
-      log_action('decide', 'advance', result, "Auto-advanced application")
+      log_action("decide", "advance", result, "Auto-advanced application")
     end
   end
 
   # New action: request documents
   def execute_request_documents(action)
-    doc_types = action['document_types'] || ApplicationDocument::REQUIRED_FOR_SUBMISSION
+    doc_types = action["document_types"] || ApplicationDocument::REQUIRED_FOR_SUBMISSION
 
     if @entity.respond_to?(:application_documents)
       existing = @entity.application_documents.pluck(:document_type)
@@ -368,24 +368,24 @@ class AgentLifecycleService
           name: doc_type.humanize
         )
       end
-      log_action('communicate', 'request_info', nil, "Requested documents: #{missing.join(', ')}")
+      log_action("communicate", "request_info", nil, "Requested documents: #{missing.join(', ')}")
     else
-      log_action('communicate', 'request_info', nil, "Document request logged: #{doc_types.join(', ')}")
+      log_action("communicate", "request_info", nil, "Document request logged: #{doc_types.join(', ')}")
     end
   end
 
   # New action: escalate to human
   def execute_escalate_to_human(action)
-    reason = action['reason'] || 'Flagged for manual review'
-    log_action('escalate', 'flag', nil, reason)
+    reason = action["reason"] || "Flagged for manual review"
+    log_action("escalate", "flag", nil, reason)
     Rails.logger.info "🚨 #{@agent.name} escalated #{@entity.class.name}##{@entity.id}: #{reason}"
   end
 
   # Schedule delayed action
   def schedule_delayed_action(action, stage)
-    delay = action['delay']
-    duration = delay['duration'].to_i
-    unit = delay['unit'] || 'minutes'
+    delay = action["delay"]
+    duration = delay["duration"].to_i
+    unit = delay["unit"] || "minutes"
 
     delay_time = duration.send(unit)
 
@@ -396,14 +396,14 @@ class AgentLifecycleService
       entity_type: @entity.class.name,
       entity_id: @entity.id,
       action: action,
-      stage_name: stage['stage_name'],
+      stage_name: stage["stage_name"],
       context: @context
     )
   end
 
   # Send email through agent
   def send_agent_email(action)
-    template_id = action['email_template_id']
+    template_id = action["email_template_id"]
     template = EmailTemplate.find_by(id: template_id)
 
     unless template
@@ -439,7 +439,7 @@ class AgentLifecycleService
 
   # Update entity status
   def update_entity_status(action)
-    new_status = action['new_status']
+    new_status = action["new_status"]
     return unless new_status && @entity.respond_to?(:status=)
 
     @entity.update!(status: new_status)
@@ -454,8 +454,8 @@ class AgentLifecycleService
 
   # Check if stage conditions require handoff to another agent
   def check_handoff_conditions(stage)
-    handoff_to = stage['handoff_to']
-    handoff_conditions = stage['handoff_conditions']
+    handoff_to = stage["handoff_to"]
+    handoff_conditions = stage["handoff_conditions"]
 
     return unless handoff_to && handoff_conditions
 
@@ -464,7 +464,7 @@ class AgentLifecycleService
 
       if target_agent
         Rails.logger.info "🔄 Handing off from #{@agent.name} to #{target_agent.name}"
-        log_action('handoff', 'advance', nil, "Handed off to #{target_agent.name}")
+        log_action("handoff", "advance", nil, "Handed off to #{target_agent.name}")
       end
     end
   end

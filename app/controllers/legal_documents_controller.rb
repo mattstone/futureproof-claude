@@ -6,6 +6,6 @@ class LegalDocumentsController < ApplicationController
     @region = params[:region]
     @lender = @application.lender
   rescue ActiveRecord::RecordNotFound
-    redirect_to dashboard_path, alert: 'Application not found or access denied.'
+    redirect_to dashboard_path, alert: "Application not found or access denied."
   end
 end

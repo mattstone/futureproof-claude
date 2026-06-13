@@ -64,52 +64,52 @@ class CustomerSupportService
   # Order matters — more specific patterns MUST come before general ones
   PATTERNS = [
     # Scam / trust / legitimacy — check early before "what is" catches it
-    { match: /scam|legit|trust|fraud|dodgy|too good to be true|real company/i, key: [:product, :legitimacy] },
+    { match: /scam|legit|trust|fraud|dodgy|too good to be true|real company/i, key: [ :product, :legitimacy ] },
 
     # Product questions
-    { match: /what is.*(epm|equity preservation|futureproof)/i, key: [:product, :what_is_epm] },
-    { match: /how does.*(epm|it|this|mortgage) work/i, key: [:product, :how_it_works] },
-    { match: /nneg|negative equity|guarantee/i, key: [:product, :nneg] },
-    { match: /reverse mortgage/i, key: [:product, :vs_reverse_mortgage] },
-    { match: /simple interest|compound interest|interest rate|what interest/i, key: [:product, :interest] },
-    { match: /\btax\b(?!i).*\b(epm|annuity|payment|free|exempt|implications?)\b|\btax.?free\b/i, key: [:product, :tax] },
-    { match: /annuity|income.*receive|how much.*(get|receive|paid|earn)/i, key: [:product, :annuity_income] },
-    { match: /term (end|finish|expire|over|up)|end of (the )?(term|mortgage|loan)|when.*(term|mortgage).*(end|finish|expire|over)/i, key: [:product, :term_end] },
+    { match: /what is.*(epm|equity preservation|futureproof)/i, key: [ :product, :what_is_epm ] },
+    { match: /how does.*(epm|it|this|mortgage) work/i, key: [ :product, :how_it_works ] },
+    { match: /nneg|negative equity|guarantee/i, key: [ :product, :nneg ] },
+    { match: /reverse mortgage/i, key: [ :product, :vs_reverse_mortgage ] },
+    { match: /simple interest|compound interest|interest rate|what interest/i, key: [ :product, :interest ] },
+    { match: /\btax\b(?!i).*\b(epm|annuity|payment|free|exempt|implications?)\b|\btax.?free\b/i, key: [ :product, :tax ] },
+    { match: /annuity|income.*receive|how much.*(get|receive|paid|earn)/i, key: [ :product, :annuity_income ] },
+    { match: /term (end|finish|expire|over|up)|end of (the )?(term|mortgage|loan)|when.*(term|mortgage).*(end|finish|expire|over)/i, key: [ :product, :term_end ] },
 
     # House price / value drop — must come before property_types
-    { match: /price.*(drop|fall|crash|decline|down)|value.*(drop|fall|crash|decline|down)|what if.*(house|property|home).*(drop|fall|worth less)/i, key: [:product, :nneg] },
+    { match: /price.*(drop|fall|crash|decline|down)|value.*(drop|fall|crash|decline|down)|what if.*(house|property|home).*(drop|fall|worth less)/i, key: [ :product, :nneg ] },
 
     # Selling during term
-    { match: /sell.*(house|home|property)|want to (move|sell)/i, key: [:eligibility, :selling] },
+    { match: /sell.*(house|home|property)|want to (move|sell)/i, key: [ :eligibility, :selling ] },
 
     # Age / eligibility — specific patterns before general eligibility
-    { match: /\b\d+\b.*\b(can i|still|apply|eligible|old enough|too old)\b|\bage\b|too old|too young|elderly|senior|retired|pension|older/i, key: [:eligibility, :age] },
-    { match: /credit score|credit (check|rating|history)/i, key: [:eligibility, :credit_score] },
-    { match: /joint(ly)?|spouse|partner|co.?own|couple|together/i, key: [:eligibility, :joint_application] },
-    { match: /minimum.*(value|property|amount|price)|property.*(minimum|value.*need)/i, key: [:eligibility, :property_value] },
-    { match: /investment property/i, key: [:eligibility, :investment_property] },
-    { match: /eligib|qualify|requirements|can i (apply|get)\b/i, key: [:eligibility, :requirements] },
-    { match: /property type|what propert|house|apartment|unit/i, key: [:eligibility, :property_types] },
-    { match: /region|countr|where.*available|scotland|australia|us\b|uk\b|new zealand|which (countr|state)/i, key: [:eligibility, :regions] },
+    { match: /\b\d+\b.*\b(can i|still|apply|eligible|old enough|too old)\b|\bage\b|too old|too young|elderly|senior|retired|pension|older/i, key: [ :eligibility, :age ] },
+    { match: /credit score|credit (check|rating|history)/i, key: [ :eligibility, :credit_score ] },
+    { match: /joint(ly)?|spouse|partner|co.?own|couple|together/i, key: [ :eligibility, :joint_application ] },
+    { match: /minimum.*(value|property|amount|price)|property.*(minimum|value.*need)/i, key: [ :eligibility, :property_value ] },
+    { match: /investment property/i, key: [ :eligibility, :investment_property ] },
+    { match: /eligib|qualify|requirements|can i (apply|get)\b/i, key: [ :eligibility, :requirements ] },
+    { match: /property type|what propert|house|apartment|unit/i, key: [ :eligibility, :property_types ] },
+    { match: /region|countr|where.*available|scotland|australia|us\b|uk\b|new zealand|which (countr|state)/i, key: [ :eligibility, :regions ] },
 
     # Process
-    { match: /how long|timeline|how fast|when.*start/i, key: [:process, :timeline] },
-    { match: /what documents|what do i need|id|passport/i, key: [:process, :documents_needed] },
-    { match: /cooling.?off|cancel|change.*mind/i, key: [:process, :cooling_off] },
-    { match: /hardship|difficult|can't pay|struggling|struggle|ends? meet/i, key: [:process, :hardship] },
+    { match: /how long|timeline|how fast|when.*start/i, key: [ :process, :timeline ] },
+    { match: /what documents|what do i need|id|passport/i, key: [ :process, :documents_needed ] },
+    { match: /cooling.?off|cancel|change.*mind/i, key: [ :process, :cooling_off ] },
+    { match: /hardship|difficult|can't pay|struggling|struggle|ends? meet/i, key: [ :process, :hardship ] },
 
     # Lender — allow either word order
-    { match: /become.*lender|lend.*money|fund.*mortgage/i, key: [:lender, :become_lender] },
-    { match: /lender.*dashboard|lender.*portal/i, key: [:lender, :lender_dashboard] },
-    { match: /lender.*return|lender.*earn|lender.*profit|return.*lender|earn.*lender/i, key: [:lender, :returns] },
+    { match: /become.*lender|lend.*money|fund.*mortgage/i, key: [ :lender, :become_lender ] },
+    { match: /lender.*dashboard|lender.*portal/i, key: [ :lender, :lender_dashboard ] },
+    { match: /lender.*return|lender.*earn|lender.*profit|return.*lender|earn.*lender/i, key: [ :lender, :returns ] },
 
     # Support
-    { match: /contact|phone|email|call|reach/i, key: [:support, :contact] },
-    { match: /complain|dispute|unhappy|unsatisfied/i, key: [:support, :complaints] },
-    { match: /human|escalat|real person|speak.*someone/i, key: [:support, :escalation] },
+    { match: /contact|phone|email|call|reach/i, key: [ :support, :contact ] },
+    { match: /complain|dispute|unhappy|unsatisfied/i, key: [ :support, :complaints ] },
+    { match: /human|escalat|real person|speak.*someone/i, key: [ :support, :escalation ] },
 
     # Generic apply — LAST so it doesn't swallow specific questions
-    { match: /how (do i|to) apply|get started|sign up|start.*application/i, key: [:process, :timeline] },
+    { match: /how (do i|to) apply|get started|sign up|start.*application/i, key: [ :process, :timeline ] }
   ].freeze
 
   GREETING_PATTERNS = /\A\s*(hi|hello|hey|g'day|good\s*(morning|afternoon|evening)|thanks|thank you|cheers)\s*[!.]?\s*\z/i
@@ -145,9 +145,9 @@ class CustomerSupportService
     @user = user
     @claude_service = if claude_service == :default
                         ClaudeChatService.available? ? ClaudeChatService.new : nil
-                      else
+    else
                         claude_service
-                      end
+    end
   end
 
   def self.create_session(user: nil, region: "au")
@@ -206,19 +206,19 @@ class CustomerSupportService
 
   def persist!(user_message:, result:)
     return unless @user
-    conversation = ChatConversation.find_or_create_by!(user: @user, status: 'active') do |c|
+    conversation = ChatConversation.find_or_create_by!(user: @user, status: "active") do |c|
       c.chat_agent = support_agent
       c.region = @region
     end
 
     ChatMessage.create!(
       chat_conversation: conversation,
-      role: 'user',
+      role: "user",
       content: user_message
     )
     ChatMessage.create!(
       chat_conversation: conversation,
-      role: 'agent',
+      role: "agent",
       content: result[:response],
       metadata: {
         source: result[:source].to_s,
@@ -234,7 +234,7 @@ class CustomerSupportService
   end
 
   def support_agent
-    ChatAgent.find_by(name: 'Akane') || ChatAgent.find_by(agent_type: 'support') || ChatAgent.first
+    ChatAgent.find_by(name: "Akane") || ChatAgent.find_by(agent_type: "support") || ChatAgent.first
   end
 
   def ask_claude(user_message:, conversation_history:, escalate:)
@@ -267,8 +267,8 @@ class CustomerSupportService
   end
 
   def build_claude_history(history, user_message)
-    history.map { |m| { role: m[:role] || m['role'], content: m[:content] || m['content'] } } +
-      [{ role: 'user', content: user_message }]
+    history.map { |m| { role: m[:role] || m["role"], content: m[:content] || m["content"] } } +
+      [ { role: "user", content: user_message } ]
   end
 
   def fallback_to_knowledge_base(user_message:, escalate:)

@@ -28,7 +28,7 @@ class LegalDocumentSignature < ApplicationRecord
 
   def signature_age
     return "Not yet signed" unless signed_at
-    
+
     duration = Time.current - signed_at
     case duration
     when 0..60 then "Just now"

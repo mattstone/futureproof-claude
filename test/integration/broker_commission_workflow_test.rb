@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 # Integration tests for broker commission workflow
 # Tests commission calculation, status transitions, filtering, and dashboard totals
@@ -18,10 +18,10 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
   def create_test_lender
     Lender.create!(
       name: "Test Lender #{SecureRandom.hex(4)}",
-      lender_type: 'lender',
-      address: '123 Test St',
-      postcode: '2000',
-      country: 'AU',
+      lender_type: "lender",
+      address: "123 Test St",
+      postcode: "2000",
+      country: "AU",
       contact_email: "contact#{SecureRandom.hex(4)}@test.com"
     )
   end
@@ -31,7 +31,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
     lender = create_test_lender
     rate = BrokerCommissionRate.create!(
       broker: @broker, lender: lender,
-      commission_percentage: 2.5, payment_trigger: 'on_approval', active: true
+      commission_percentage: 2.5, payment_trigger: "on_approval", active: true
     )
 
     commission_amount = rate.calculate_commission(400000)
@@ -42,7 +42,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
     lender = create_test_lender
     rate = BrokerCommissionRate.create!(
       broker: @broker, lender: lender,
-      commission_percentage: 3.0, payment_trigger: 'on_approval', active: true
+      commission_percentage: 3.0, payment_trigger: "on_approval", active: true
     )
 
     assert_equal 15000.0, rate.calculate_commission(500000)
@@ -58,46 +58,46 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
-    assert_equal 'earned', commission.status
+    assert_equal "earned", commission.status
     assert_not_nil commission.earned_date
   end
 
   test "commission status transition to paid" do
     app = applications(:second_application)
-    
+
     commission = BrokerCommission.create!(
       broker: @broker,
       application: app,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
     commission.mark_as_paid!
     commission.reload
 
-    assert_equal 'paid', commission.status
+    assert_equal "paid", commission.status
     assert_not_nil commission.paid_date
   end
 
   test "pending commission status" do
     app = applications(:submitted_application)
-    
+
     commission = BrokerCommission.create!(
       broker: @broker,
       application: app,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'pending',
+      status: "pending",
       earned_date: Time.current
     )
 
-    assert_equal 'pending', commission.status
+    assert_equal "pending", commission.status
   end
 
   # Test 3: Commission querying and filtering
@@ -110,7 +110,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -119,7 +119,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 12000.0,
       commission_rate: 3.0,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -137,7 +137,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -146,7 +146,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 5000.0,
       commission_rate: 2.5,
-      status: 'pending',
+      status: "pending",
       earned_date: Time.current
     )
 
@@ -169,7 +169,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -178,7 +178,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 15000.0,
       commission_rate: 3.0,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -195,7 +195,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -204,7 +204,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 20000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current,
       paid_date: Time.current
     )
@@ -222,7 +222,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -231,7 +231,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 12000.0,
       commission_rate: 3.0,
-      status: 'earned',
+      status: "earned",
       earned_date: Time.current
     )
 
@@ -251,7 +251,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app1,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: 5.days.ago
     )
 
@@ -260,7 +260,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
       application: app2,
       commission_amount: 10000.0,
       commission_rate: 2.5,
-      status: 'earned',
+      status: "earned",
       earned_date: 2.months.ago
     )
 
@@ -280,7 +280,7 @@ class BrokerCommissionWorkflowTest < ActionDispatch::IntegrationTest
 
     active_rate = BrokerCommissionRate.create!(
       broker: broker, lender: lender,
-      commission_percentage: 2.5, payment_trigger: 'on_approval', active: true
+      commission_percentage: 2.5, payment_trigger: "on_approval", active: true
     )
 
     rates = BrokerCommissionRate.active

@@ -25,8 +25,8 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :reject, result.decision
-    assert_includes result.flags, 'property_value_too_low'
-    assert_includes result.reasoning, 'below minimum'
+    assert_includes result.flags, "property_value_too_low"
+    assert_includes result.reasoning, "below minimum"
   end
 
   test "Akane flags senior borrower over 75" do
@@ -38,8 +38,8 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :flag, result.decision
-    assert_includes result.flags, 'borrower_age_senior'
-    assert_includes result.reasoning, 'shorter loan term'
+    assert_includes result.flags, "borrower_age_senior"
+    assert_includes result.reasoning, "shorter loan term"
   end
 
   test "Akane rejects application with property value too high" do
@@ -48,7 +48,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     result = AgentDecisionService.new(@akane, app).evaluate
 
     assert_equal :reject, result.decision
-    assert_includes result.flags, 'property_value_too_high'
+    assert_includes result.flags, "property_value_too_high"
   end
 
   # === Rie (backoffice) tests ===
@@ -63,7 +63,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     result = AgentDecisionService.new(@rie, app).evaluate
 
     # Should flag missing documents but not reject
-    if result.flags.include?('missing_documents')
+    if result.flags.include?("missing_documents")
       assert_equal :flag, result.decision
     else
       assert_equal :approve, result.decision
@@ -76,7 +76,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
 
     result = AgentDecisionService.new(@rie, app).evaluate
 
-    assert_includes result.flags, 'no_property_valuation'
+    assert_includes result.flags, "no_property_valuation"
   end
 
   test "Rie flags low income" do
@@ -88,8 +88,8 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
 
     result = AgentDecisionService.new(@rie, app).evaluate
 
-    assert_includes result.flags, 'low_income'
-    assert_includes result.reasoning, 'below minimum'
+    assert_includes result.flags, "low_income"
+    assert_includes result.reasoning, "below minimum"
   end
 
   # === Yumi (investment) tests ===
@@ -130,11 +130,11 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     app = applications(:submitted_application)
     AgentAction.delete_all
 
-    AgentLifecycleService.new(app, 'application_created').execute!
+    AgentLifecycleService.new(app, "application_created").execute!
 
     assert AgentAction.count > 0
     action = AgentAction.last
-    assert_equal 'Application', action.actionable_type
+    assert_equal "Application", action.actionable_type
     assert_equal app.id, action.actionable_id
     assert action.reasoning.present?
   end
@@ -143,7 +143,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
     app = applications(:submitted_application)
     AgentAction.delete_all
 
-    result = AgentLifecycleService.new(app, 'application_submitted').execute!
+    result = AgentLifecycleService.new(app, "application_submitted").execute!
 
     assert result[:success]
     # Should have logged multiple actions (Akane eval + handoff + Rie eval)
@@ -152,7 +152,7 @@ class AgentDecisionServiceTest < ActiveSupport::TestCase
 
   test "lifecycle service returns decision in result" do
     app = applications(:submitted_application)
-    result = AgentLifecycleService.new(app, 'application_created').execute!
+    result = AgentLifecycleService.new(app, "application_created").execute!
 
     assert result[:success]
     assert_not_nil result[:decision]

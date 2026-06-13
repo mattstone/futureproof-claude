@@ -18,10 +18,10 @@ class ApplicationLenderNameFixTest < ActiveSupport::TestCase
 
     # The application should have company_name set
     assert_equal "Test Lending Corp", application.company_name
-    
+
     # The application should NOT respond to lender_name (the bug we fixed)
     assert_not application.respond_to?(:lender_name)
-    
+
     # But it should respond to company_name
     assert application.respond_to?(:company_name)
   end
@@ -58,7 +58,7 @@ class ApplicationLenderNameFixTest < ActiveSupport::TestCase
   test "application with joint ownership should not require company_name or super_fund_name" do
     application = Application.create!(
       user: @user,
-      address: "123 Test Street", 
+      address: "123 Test Street",
       home_value: 1500000,
       ownership_status: :joint,
       property_state: :primary_residence,

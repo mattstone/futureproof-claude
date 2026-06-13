@@ -17,8 +17,8 @@ class ApplicationMessagingService
     message = application.application_messages.build(
       subject: subject,
       content: content,
-      message_type: 'admin_to_customer',
-      status: 'draft',
+      message_type: "admin_to_customer",
+      status: "draft",
       sender: admin_user,
       ai_agent_id: ai_agent_id
     )
@@ -27,7 +27,7 @@ class ApplicationMessagingService
       if message.send_message!
         message
       else
-        message.errors.add(:base, 'Failed to send message')
+        message.errors.add(:base, "Failed to send message")
         nil
       end
     else
@@ -38,14 +38,14 @@ class ApplicationMessagingService
   # Get unread messages count for this application
   def unread_messages_count
     application.application_messages
-               .where(message_type: 'customer_to_admin', status: 'sent')
+               .where(message_type: "customer_to_admin", status: "sent")
                .count
   end
 
   # Mark all messages as read for this application
   def mark_all_as_read
     application.application_messages
-               .where(message_type: 'admin_to_customer', status: 'sent')
+               .where(message_type: "admin_to_customer", status: "sent")
                .find_each(&:mark_as_read!)
   end
 
@@ -69,8 +69,8 @@ class ApplicationMessagingService
     reply = application.application_messages.build(
       subject: "Re: #{parent_message.subject}",
       content: content,
-      message_type: 'admin_to_customer',
-      status: 'draft',
+      message_type: "admin_to_customer",
+      status: "draft",
       sender: admin_user,
       parent_message_id: parent_message_id
     )

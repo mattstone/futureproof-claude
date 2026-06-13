@@ -1,8 +1,8 @@
 class Admin::LenderWholesaleFundersController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_lender, only: [:new, :create]
-  before_action :set_lender_wholesale_funder, only: [:destroy, :toggle_active]
-  
+  before_action :set_lender, only: [ :new, :create ]
+  before_action :set_lender_wholesale_funder, only: [ :destroy, :toggle_active ]
+
   def new
     @lender_wholesale_funder = @lender.lender_wholesale_funders.build
     @available_wholesale_funders = WholesaleFunder.includes(:funder_pools, :lenders)
@@ -11,12 +11,12 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
     @existing_relationships = @lender.lender_wholesale_funders.includes(:wholesale_funder)
     @existing_pool_relationships = @lender.lender_funder_pools.includes(funder_pool: :wholesale_funder)
   end
-  
+
   def create
     @lender_wholesale_funder = @lender.lender_wholesale_funders.build(lender_wholesale_funder_params)
-    
+
     if @lender_wholesale_funder.save
-      redirect_to admin_lender_path(@lender), notice: 'Wholesale funder relationship was successfully created.'
+      redirect_to admin_lender_path(@lender), notice: "Wholesale funder relationship was successfully created."
     else
       @available_wholesale_funders = WholesaleFunder.includes(:lenders)
                                                     .where.not(id: @lender.wholesale_funders.select(:id))
@@ -24,7 +24,7 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       render :new, status: :unprocessable_entity
     end
   end
-  
+
   def destroy
     unless @lender_wholesale_funder
       @success = false
@@ -35,18 +35,18 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       wholesale_funder_name = @lender_wholesale_funder.wholesale_funder.name
       wholesale_funder = @lender_wholesale_funder.wholesale_funder
       @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
-      
+
       # Count associated funder pools that will be removed
       associated_pools = @lender.lender_funder_pools.joins(:funder_pool)
                                .where(funder_pools: { wholesale_funder: wholesale_funder })
       pools_count = associated_pools.count
-      
+
       # Remove all associated funder pool relationships first
       associated_pools.each do |pool_relationship|
         pool_relationship.current_user = current_user if pool_relationship.respond_to?(:current_user=)
       end
       associated_pools.destroy_all
-      
+
       if @lender_wholesale_funder.destroy
         @success = true
         if pools_count > 0
@@ -59,19 +59,19 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
         @message = "Failed to remove #{wholesale_funder_name}"
       end
     end
-    
+
     respond_to do |format|
       format.turbo_stream { render "destroy_wholesale_funder" }
-      format.html { 
+      format.html {
         if @success
-          redirect_to admin_lender_path(@lender), notice: @message 
+          redirect_to admin_lender_path(@lender), notice: @message
         else
           redirect_to admin_lender_path(@lender), alert: @message
         end
       }
     end
   end
-  
+
   def toggle_active
     unless @lender_wholesale_funder
       @success = false
@@ -80,11 +80,11 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
     else
       @lender = @lender_wholesale_funder.lender
       @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
-      
+
       # Check if deactivating and count related pools
       was_active = @lender_wholesale_funder.active?
       related_pools_count = 0
-      
+
       if was_active
         related_pools_count = @lender.lender_funder_pools
                                     .joins(:funder_pool)
@@ -92,15 +92,15 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
                                     .where(active: true)
                                     .count
       end
-      
+
       @lender_wholesale_funder.toggle_active!
       @lender_wholesale_funder.reload
-      
-      status = @lender_wholesale_funder.active? ? 'activated' : 'deactivated'
+
+      status = @lender_wholesale_funder.active? ? "activated" : "deactivated"
       @success = true
-      
+
       base_message = "#{@lender_wholesale_funder.wholesale_funder.name} was successfully #{status}"
-      
+
       # Add cascading information if we deactivated and had related pools
       if !@lender_wholesale_funder.active? && related_pools_count > 0
         @message = "#{base_message}. #{related_pools_count} related funder pool#{related_pools_count == 1 ? '' : 's'} #{related_pools_count == 1 ? 'was' : 'were'} also deactivated."
@@ -108,12 +108,12 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
         @message = base_message
       end
     end
-    
+
     respond_to do |format|
       format.turbo_stream { render "toggle_wholesale_funder" }
-      format.html { 
+      format.html {
         if @success
-          redirect_to admin_lender_path(@lender), notice: @message 
+          redirect_to admin_lender_path(@lender), notice: @message
         else
           redirect_to admin_lender_path(@lender), alert: @message
         end
@@ -125,24 +125,24 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
   def add_wholesale_funder
     @lender = Lender.find(params[:lender_id])
     wholesale_funder = WholesaleFunder.find(params[:wholesale_funder_id])
-    
+
     @lender_wholesale_funder = @lender.lender_wholesale_funders.build(
       wholesale_funder: wholesale_funder,
       active: true
     )
     @lender_wholesale_funder.current_user = current_user if @lender_wholesale_funder.respond_to?(:current_user=)
-    
+
     if @lender_wholesale_funder.save
       @wholesale_funder = wholesale_funder
       @success = true
       @message = "#{wholesale_funder.name} added successfully"
-      
+
       respond_to do |format|
         format.turbo_stream { render "add_wholesale_funder" }
         format.html { redirect_to admin_lender_path(@lender), notice: @message }
-        format.json { 
-          render json: { 
-            success: true, 
+        format.json {
+          render json: {
+            success: true,
             message: @message,
             wholesale_funder_id: wholesale_funder.id,
             pools: wholesale_funder.funder_pools.map do |pool|
@@ -159,14 +159,14 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       end
     else
       @success = false
-      @message = @lender_wholesale_funder.errors.full_messages.join(', ')
-      
+      @message = @lender_wholesale_funder.errors.full_messages.join(", ")
+
       respond_to do |format|
         format.turbo_stream { render "add_wholesale_funder" }
         format.html { redirect_to admin_lender_path(@lender), alert: @message }
-        format.json { 
-          render json: { 
-            success: false, 
+        format.json {
+          render json: {
+            success: false,
             message: @message
           }
         }
@@ -178,17 +178,17 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
   def remove_wholesale_funder
     @lender = Lender.find(params[:lender_id])
     wholesale_funder = WholesaleFunder.find(params[:wholesale_funder_id])
-    
+
     relationship = @lender.lender_wholesale_funders.find_by(wholesale_funder: wholesale_funder)
     if relationship
       # Remove all associated pool relationships first
       @lender.lender_funder_pools.joins(:funder_pool)
              .where(funder_pools: { wholesale_funder: wholesale_funder })
              .destroy_all
-      
+
       relationship.destroy
-      render json: { 
-        success: true, 
+      render json: {
+        success: true,
         message: "#{wholesale_funder.name} removed successfully"
       }
     else
@@ -200,14 +200,14 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
   def toggle_pool
     @lender = Lender.find(params[:lender_id])
     @funder_pool = FunderPool.find(params[:funder_pool_id])
-    
+
     @relationship = @lender.lender_funder_pools.find_by(funder_pool: @funder_pool)
-    
+
     if @relationship
       @relationship.current_user = current_user if @relationship.respond_to?(:current_user=)
       @relationship.toggle_active!
       @relationship.reload
-      @status = @relationship.active? ? 'activated' : 'deactivated'
+      @status = @relationship.active? ? "activated" : "deactivated"
       @message = "#{@funder_pool.name} #{@status}"
       @success = true
     else
@@ -217,22 +217,22 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
         active: true
       )
       @relationship.current_user = current_user if @relationship.respond_to?(:current_user=)
-      
+
       if @relationship.save
         @relationship.reload
         @message = "#{@funder_pool.name} activated"
         @success = true
       else
-        @message = @relationship.errors.full_messages.join(', ')
+        @message = @relationship.errors.full_messages.join(", ")
         @success = false
       end
     end
 
     respond_to do |format|
       format.turbo_stream { render "toggle_pool" }
-      format.json { 
-        render json: { 
-          success: @success, 
+      format.json {
+        render json: {
+          success: @success,
           message: @message,
           active: @relationship&.active?
         }
@@ -240,20 +240,20 @@ class Admin::LenderWholesaleFundersController < Admin::BaseController
       format.html { redirect_to new_admin_lender_wholesale_funder_path(@lender), notice: @message }
     end
   end
-  
+
   private
-  
+
   def set_lender
     @lender = Lender.find(params[:lender_id])
   end
-  
+
   def set_lender_wholesale_funder
     @lender_wholesale_funder = LenderWholesaleFunder.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     # Let the action handle the missing record error
     @lender_wholesale_funder = nil
   end
-  
+
   def lender_wholesale_funder_params
     params.require(:lender_wholesale_funder).permit(:wholesale_funder_id, :active)
   end

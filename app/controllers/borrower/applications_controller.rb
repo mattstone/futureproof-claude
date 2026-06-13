@@ -1,23 +1,23 @@
 module Borrower
   class ApplicationsController < BaseController
     include JurisdictionAuditLogging
-    
-    before_action :set_application, only: [:show]
-    before_action :authorize_borrower_access!, only: [:show]
-    before_action :audit_jurisdiction_access, only: [:show]
+
+    before_action :set_application, only: [ :show ]
+    before_action :authorize_borrower_access!, only: [ :show ]
+    before_action :audit_jurisdiction_access, only: [ :show ]
 
     # ✅ CRITICAL: List EPM applications with jurisdiction scoping
     def index
       # Get user's applications
       user_apps = current_user.applications.includes(:lender, :distributions)
-      
+
       # ✅ CRITICAL: Scope to user's home jurisdiction only
       @applications = scope_applications_by_jurisdiction(user_apps)
                       .order(created_at: :desc)
 
       @stats = {
         total: @applications.count,
-        active: @applications.where(status: [:submitted, :processing, :accepted]).count,
+        active: @applications.where(status: [ :submitted, :processing, :accepted ]).count,
         completed: @applications.where(status: :activated).count,
         rejected: @applications.where(status: :rejected).count
       }
@@ -25,7 +25,7 @@ module Borrower
 
     # Show payment history with filtering
     def payment_history
-      @period = params[:period] || 'all'
+      @period = params[:period] || "all"
       service = BorrowerIncomeService.new(@application)
       @distributions = service.distributions_by_period(@period)
       @summary = service.period_summary(@distributions)
@@ -34,7 +34,7 @@ module Borrower
     # Show loan documents
     def documents
       @contract = @application.contract
-      @documents = [@application.contract].compact
+      @documents = [ @application.contract ].compact
     end
 
     # Download contract PDF
@@ -67,7 +67,7 @@ module Borrower
     # Download payment receipt PDF
     def download_receipt
       distribution = @application.distributions.find(params[:distribution_id])
-      
+
       if distribution.user_id != current_user.id && distribution.lender_id != current_user.id
         return redirect_to borrower_root_path, alert: "Access denied"
       end
@@ -75,7 +75,7 @@ module Borrower
       @distribution = distribution
       respond_to do |format|
         format.pdf do
-          render action: 'distributions/receipt', layout: false
+          render action: "distributions/receipt", layout: false
         end
       end
     end

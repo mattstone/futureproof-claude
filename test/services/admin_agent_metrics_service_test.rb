@@ -20,9 +20,9 @@ class AdminAgentMetricsServiceTest < ActiveSupport::TestCase
   end
 
   test "summary aggregates today/week/all counts and decisions" do
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'approve', status: 'completed', confidence: 0.9, created_at: Time.current)
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'flag',    status: 'completed', confidence: 0.6, created_at: 2.days.ago)
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'escalate', decision: 'reject',  status: 'completed', confidence: 0.4, created_at: 30.days.ago)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "approve", status: "completed", confidence: 0.9, created_at: Time.current)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "flag",    status: "completed", confidence: 0.6, created_at: 2.days.ago)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "escalate", decision: "reject",  status: "completed", confidence: 0.4, created_at: 30.days.ago)
 
     summary = AdminAgentMetricsService.new.summary
 
@@ -32,9 +32,9 @@ class AdminAgentMetricsServiceTest < ActiveSupport::TestCase
     assert_in_delta 0.63, summary[:avg_confidence], 0.01
     assert_equal 1, summary[:flags_count]
     assert_equal 1, summary[:escalations_count]
-    assert_equal 1, summary[:decision_distribution]['approve']
-    assert_equal 1, summary[:decision_distribution]['flag']
-    assert_equal 1, summary[:decision_distribution]['reject']
+    assert_equal 1, summary[:decision_distribution]["approve"]
+    assert_equal 1, summary[:decision_distribution]["flag"]
+    assert_equal 1, summary[:decision_distribution]["reject"]
   end
 
   test "cards returns one card per active agent" do
@@ -46,9 +46,9 @@ class AdminAgentMetricsServiceTest < ActiveSupport::TestCase
   end
 
   test "card computes approval rate and last action correctly" do
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'approve', status: 'completed', confidence: 0.9)
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'approve', status: 'completed', confidence: 0.8)
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'flag',    status: 'completed', confidence: 0.5)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "approve", status: "completed", confidence: 0.9)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "approve", status: "completed", confidence: 0.8)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "flag",    status: "completed", confidence: 0.5)
 
     card = AdminAgentMetricsService.new.cards.find { |c| c.agent.id == @akane.id }
 
@@ -59,7 +59,7 @@ class AdminAgentMetricsServiceTest < ActiveSupport::TestCase
   end
 
   test "card marks agent inactive when last action is older than 1 hour" do
-    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: 'evaluate', decision: 'approve', status: 'completed', confidence: 0.9, created_at: 2.hours.ago)
+    AgentAction.create!(ai_agent: @akane, actionable: @app, action_type: "evaluate", decision: "approve", status: "completed", confidence: 0.9, created_at: 2.hours.ago)
 
     card = AdminAgentMetricsService.new.cards.find { |c| c.agent.id == @akane.id }
 

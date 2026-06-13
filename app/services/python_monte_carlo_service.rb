@@ -1,5 +1,5 @@
-require 'json'
-require 'tempfile'
+require "json"
+require "tempfile"
 
 class PythonMonteCarloService
   def initialize(params)
@@ -11,40 +11,40 @@ class PythonMonteCarloService
   def calculate
     # Create Python Monte Carlo script with Ruby parameters
     python_script = generate_python_monte_carlo_script
-    
+
     # Write script to python directory so imports work
-    python_dir = Rails.root.join('python')
+    python_dir = Rails.root.join("python")
     temp_filename = "ruby_monte_carlo_#{Time.current.to_i}_#{rand(1000)}.py"
     temp_path = python_dir.join(temp_filename)
-    
+
     File.write(temp_path, python_script)
-    
+
     begin
       # Execute Python script and capture output
       Rails.logger.info "Executing Python Monte Carlo calculation with #{@params[:total_paths] || 1000} paths..."
-      
+
       start_time = Time.current
       output = `cd #{python_dir} && python3 #{temp_filename} 2>&1`
       execution_time = Time.current - start_time
-      
+
       Rails.logger.info "Python Monte Carlo completed in #{execution_time.round(3)} seconds"
-      
+
       # Parse JSON output
       Rails.logger.info "Python script output (first 500 chars): #{output[0..500]}"
-      
-      json_line = output.split("\n").find { |line| line.strip.start_with?('{') }
-      
+
+      json_line = output.split("\n").find { |line| line.strip.start_with?("{") }
+
       if json_line
         Rails.logger.info "Found JSON line, parsing..."
         result = JSON.parse(json_line)
-        
+
         # Convert to Ruby-friendly format
         format_monte_carlo_result(result, execution_time)
       else
         Rails.logger.error "Full Python script output: #{output}"
         raise StandardError, "Failed to parse Python output: No JSON found"
       end
-      
+
     rescue JSON::ParserError => e
       Rails.logger.error "JSON parsing failed: #{e.message}"
       Rails.logger.error "Python output: #{output}"
@@ -137,7 +137,7 @@ class PythonMonteCarloService
       n_steps = loan_duration * 12
       S0 = 100.0
 
-      # Generate Monte Carlo paths  
+      # Generate Monte Carlo paths#{'  '}
       start_time = time.time()
       price_paths = gen_monte_carlo_paths(loan_duration, equity_return, volatility, total_paths, S0)
       path_generation_time = time.time() - start_time
@@ -150,14 +150,14 @@ class PythonMonteCarloService
       # Run Monte Carlo simulation (batch processing)
       print(f"Running Monte Carlo simulation with {total_paths} paths...")
       start_time = time.time()
-      
+
       cash_rate_series = [cash_rate] * n_steps
-      
+
       df = single_mortgage(total_loan, reinvest_fraction, loan_duration, annual_income, annuity_duration,
                           insurance_profit_margin, insurance_cost,
                           cash_rate_series, wholesale_lending_margin, additional_loan_margins,
                           holiday_enter_fraction, holiday_exit_fraction, subperform_loan_threshold_quarters,
-                          price_paths, S0, dt, year0-1, max_superpay_factor, superpay_start_factor, False, 
+                          price_paths, S0, dt, year0-1, max_superpay_factor, superpay_start_factor, False,#{' '}
                           0, None, #{@params[:loan_type] != "Interest only" ? 'True' : 'False'}, hedged, hedging_max_loss, hedging_cap, hedging_cost_pa)
 
       simulation_time = time.time() - start_time
@@ -165,10 +165,10 @@ class PythonMonteCarloService
 
       # Extract results from batch processing
       # The batch result contains data for all paths combined
-      
+
       # For batch processing, get the final period results for each path
-      max_period = loan_duration * 4 - 1  # Last period (0-indexed) 
-      
+      max_period = loan_duration * 4 - 1  # Last period (0-indexed)#{' '}
+
       # Get final reinvestment value for each path and collect all path data for charts
       final_values = []
       sample_paths = []
@@ -185,10 +185,10 @@ class PythonMonteCarloService
       all_pooled_units_paths = []  # Store pooled units for all paths
       all_insured_units_paths = []  # Store insured units (static)
       all_hedged_units_paths = []  # Store hedged units delta
-      
+
       # Aggregate data for mean calculation
       periods_data = {}
-      
+
       for path_id in range(total_paths):
           path_data = df[df['Path'] == path_id]
           if len(path_data) > 0:
@@ -201,7 +201,7 @@ class PythonMonteCarloService
                   # Fallback to last available period
                   fallback_value = path_data['Reinvestment'].iloc[-1]
                   final_values.append(fallback_value)
-              
+      #{'        '}
               # Collect data for all paths for charting
               path_reinvestment = path_data['Reinvestment'].tolist()
               path_sp500 = path_data['SP500'].tolist()
@@ -214,7 +214,7 @@ class PythonMonteCarloService
               path_cumulative_interest_paid = path_data['CumInterestPaid'].tolist()
               path_pooled_units = path_data['CumUnitsToPool'].tolist()
               path_hedged_units = path_data['HedgeUnitsDelta'].tolist()
-              
+      #{'        '}
               all_paths_chart_data.append(path_reinvestment)
               all_sp500_paths.append(path_sp500)
               all_loan_paths.append(path_loan)
@@ -226,7 +226,7 @@ class PythonMonteCarloService
               all_cumulative_interest_paid_paths.append(path_cumulative_interest_paid)
               all_pooled_units_paths.append(path_pooled_units)
               all_hedged_units_paths.append(path_hedged_units)
-              
+      #{'        '}
               # Aggregate for mean calculation
               for i, period in enumerate(path_data['Period']):
                   if period not in periods_data:
@@ -249,23 +249,23 @@ class PythonMonteCarloService
                       'CumUnitsToPool': path_data.iloc[i]['CumUnitsToPool'],
                       'HedgeUnitsDelta': path_data.iloc[i]['HedgeUnitsDelta']
                   })
-              
+      #{'        '}
               # Save first few paths for detailed data
               if path_id < 5:
                   sample_paths.append({
                       'path_id': path_id,
                       'pathdf': path_data.to_dict('list')
                   })
-      
+
       print(f"Final values extracted: {len(final_values)} values")
-      
+
       # Calculate mean path data
       mean_path_data = []
       median_path_data = []
       percentile_2_data = []
       percentile_25_data = []
       percentile_75_data = []
-      
+
       for period in sorted(periods_data.keys()):
           period_values = periods_data[period]
           if period_values:
@@ -288,9 +288,9 @@ class PythonMonteCarloService
                                   percentile_75_data.append(dict(mean_values, **{key: percentiles[3]}))
                       else:
                           mean_values[key] = 0
-              
+      #{'        '}
               mean_path_data.append(mean_values)
-      
+
       print(f"Mean path data calculated: {len(mean_path_data)} periods")
 
       # Calculate statistics
@@ -350,11 +350,11 @@ class PythonMonteCarloService
     {
       main_outputs: generate_monte_carlo_main_outputs(python_result),
       path_data: generate_monte_carlo_path_data(python_result),
-      total_paths: python_result['total_paths'],
+      total_paths: python_result["total_paths"],
       chart_data: generate_monte_carlo_chart_data(python_result),
       execution_time: execution_time,
-      data_source: 'python_monte_carlo',
-      parameters: python_result['parameters'] || {
+      data_source: "python_monte_carlo",
+      parameters: python_result["parameters"] || {
         volatility: @params[:volatility],
         equity_return: @params[:equity_return],
         cash_rate: @params[:cash_rate],
@@ -364,58 +364,58 @@ class PythonMonteCarloService
         total_paths: @params[:total_paths]
       },
       statistics: {
-        mean: python_result['mean_final_reinvestment'],
-        std: python_result['std_final_reinvestment'],
+        mean: python_result["mean_final_reinvestment"],
+        std: python_result["std_final_reinvestment"],
         percentiles: {
-          p2: python_result['percentile_2'],
-          p25: python_result['percentile_25'],
-          p50: python_result['percentile_50'],
-          p75: python_result['percentile_75'],
-          p98: python_result['percentile_98']
+          p2: python_result["percentile_2"],
+          p25: python_result["percentile_25"],
+          p50: python_result["percentile_50"],
+          p75: python_result["percentile_75"],
+          p98: python_result["percentile_98"]
         }
       },
-      all_final_values: python_result['all_final_values'],
-      sample_paths: python_result['sample_paths']
+      all_final_values: python_result["all_final_values"],
+      sample_paths: python_result["sample_paths"]
     }
   end
 
   def generate_monte_carlo_main_outputs(python_result)
     total_loan = @params[:house_value] * @params[:loan_to_value]
-    
+
     [
-      ["Reinvestment fraction", "", "#{((1 - (@params[:annuity_duration] * @params[:annual_income]) / total_loan) * 100).round(1)}%", "", "", "", ""],
-      ["Total Income", "TI", "$#{@params[:annual_income] * @params[:annuity_duration]}", "", "", "", ""],
-      ["Total Loan", "L", "$#{total_loan.round(0)}", "", "", "", ""],
-      ["Insurance Cost", "", "$#{@params[:insurance_cost_pa] * total_loan * @params[:loan_duration]}", "", "", "", ""],
-      ["Reinvestment value", "R", 
-       "$#{python_result['mean_final_reinvestment'].round(0)}", 
-       "$#{python_result['percentile_2'].round(0)}", 
-       "$#{python_result['percentile_25'].round(0)}", 
-       "$#{python_result['percentile_50'].round(0)}", 
-       "$#{python_result['percentile_75'].round(0)}"],
-      ["Standard Deviation", "", "$#{python_result['std_final_reinvestment'].round(0)}", "", "", "", ""],
-      ["Total Paths", "", "#{python_result['total_paths']}", "", "", "", ""]
+      [ "Reinvestment fraction", "", "#{((1 - (@params[:annuity_duration] * @params[:annual_income]) / total_loan) * 100).round(1)}%", "", "", "", "" ],
+      [ "Total Income", "TI", "$#{@params[:annual_income] * @params[:annuity_duration]}", "", "", "", "" ],
+      [ "Total Loan", "L", "$#{total_loan.round(0)}", "", "", "", "" ],
+      [ "Insurance Cost", "", "$#{@params[:insurance_cost_pa] * total_loan * @params[:loan_duration]}", "", "", "", "" ],
+      [ "Reinvestment value", "R",
+       "$#{python_result['mean_final_reinvestment'].round(0)}",
+       "$#{python_result['percentile_2'].round(0)}",
+       "$#{python_result['percentile_25'].round(0)}",
+       "$#{python_result['percentile_50'].round(0)}",
+       "$#{python_result['percentile_75'].round(0)}" ],
+      [ "Standard Deviation", "", "$#{python_result['std_final_reinvestment'].round(0)}", "", "", "", "" ],
+      [ "Total Paths", "", "#{python_result['total_paths']}", "", "", "", "" ]
     ]
   end
 
   def generate_monte_carlo_path_data(python_result)
     # Use mean path data from Python if available
-    mean_path_data = python_result['mean_path_data'] || []
-    median_path_data = python_result['median_path_data'] || []
-    percentile_2_data = python_result['percentile_2_data'] || []
-    percentile_25_data = python_result['percentile_25_data'] || []
-    percentile_75_data = python_result['percentile_75_data'] || []
-    
+    mean_path_data = python_result["mean_path_data"] || []
+    median_path_data = python_result["median_path_data"] || []
+    percentile_2_data = python_result["percentile_2_data"] || []
+    percentile_25_data = python_result["percentile_25_data"] || []
+    percentile_75_data = python_result["percentile_75_data"] || []
+
     if mean_path_data.empty?
-      sample_paths = python_result['sample_paths'] || []
+      sample_paths = python_result["sample_paths"] || []
       return { mean: [] } if sample_paths.empty?
 
       # Fallback to first sample path for structure
-      first_path = sample_paths[0]['pathdf']
-      periods = first_path['Period'] || []
-      years = first_path['Year'] || []
-      reinvestment = first_path['Reinvestment'] || []
-      
+      first_path = sample_paths[0]["pathdf"]
+      periods = first_path["Period"] || []
+      years = first_path["Year"] || []
+      reinvestment = first_path["Reinvestment"] || []
+
       mean_data = periods.zip(years, reinvestment).map.with_index do |(period, year, reinvest), i|
         [
           period || i,
@@ -433,26 +433,26 @@ class PythonMonteCarloService
       end
       return { mean: mean_data }
     end
-    
+
     # Convert Python mean path data to format expected by frontend
     convert_path_data = lambda do |path_data|
       path_data.map do |row|
         [
-          row['Period'] || 0,
-          row['SP500'] || 100,
-          row['Interest'] || 0,
-          row['Loan size'] || 0,
-          row['Units'] || 0,
-          row['Reinvestment'] || 0,
-          row['InterestDeficit'] || 0,
-          row['CapitalDeficit'] || 0,
-          row['Surplus'] || 0,
-          row['FunderEarned'] || 0,
-          row['AnnuityIncome'] || 0
+          row["Period"] || 0,
+          row["SP500"] || 100,
+          row["Interest"] || 0,
+          row["Loan size"] || 0,
+          row["Units"] || 0,
+          row["Reinvestment"] || 0,
+          row["InterestDeficit"] || 0,
+          row["CapitalDeficit"] || 0,
+          row["Surplus"] || 0,
+          row["FunderEarned"] || 0,
+          row["AnnuityIncome"] || 0
         ]
       end
     end
-    
+
     {
       mean: convert_path_data.call(mean_path_data),
       median: convert_path_data.call(median_path_data),
@@ -463,36 +463,36 @@ class PythonMonteCarloService
   end
 
   def generate_monte_carlo_chart_data(python_result)
-    sample_paths = python_result['sample_paths'] || []
-    all_final_values = python_result['all_final_values'] || []
-    
+    sample_paths = python_result["sample_paths"] || []
+    all_final_values = python_result["all_final_values"] || []
+
     # Use the comprehensive chart data from Python script
-    all_reinvestment_paths = python_result['all_paths_chart_data'] || []
-    all_sp500_paths = python_result['all_sp500_paths'] || []
-    all_loan_paths = python_result['all_loan_paths'] || []
-    all_interest_deficit_paths = python_result['all_interest_deficit_paths'] || []
-    all_capital_deficit_paths = python_result['all_capital_deficit_paths'] || []
-    all_surplus_paths = python_result['all_surplus_paths'] || []
-    all_units_paths = python_result['all_units_paths'] || []
-    all_cumulative_annuity_paths = python_result['all_cumulative_annuity_paths'] || []
-    all_cumulative_interest_paid_paths = python_result['all_cumulative_interest_paid_paths'] || []
-    all_pooled_units_paths = python_result['all_pooled_units_paths'] || []
-    all_hedged_units_paths = python_result['all_hedged_units_paths'] || []
-    
-    # Fallback to sample paths if chart data is not available  
+    all_reinvestment_paths = python_result["all_paths_chart_data"] || []
+    all_sp500_paths = python_result["all_sp500_paths"] || []
+    all_loan_paths = python_result["all_loan_paths"] || []
+    all_interest_deficit_paths = python_result["all_interest_deficit_paths"] || []
+    all_capital_deficit_paths = python_result["all_capital_deficit_paths"] || []
+    all_surplus_paths = python_result["all_surplus_paths"] || []
+    all_units_paths = python_result["all_units_paths"] || []
+    all_cumulative_annuity_paths = python_result["all_cumulative_annuity_paths"] || []
+    all_cumulative_interest_paid_paths = python_result["all_cumulative_interest_paid_paths"] || []
+    all_pooled_units_paths = python_result["all_pooled_units_paths"] || []
+    all_hedged_units_paths = python_result["all_hedged_units_paths"] || []
+
+    # Fallback to sample paths if chart data is not available
     if all_reinvestment_paths.empty?
       sample_paths.each do |path_info|
-        path_data = path_info['pathdf']
-        if path_data && path_data['Reinvestment']
-          all_reinvestment_paths << path_data['Reinvestment']
-          all_sp500_paths << (path_data['SP500'] || [])
-          all_loan_paths << (path_data['Loan size'] || [])
+        path_data = path_info["pathdf"]
+        if path_data && path_data["Reinvestment"]
+          all_reinvestment_paths << path_data["Reinvestment"]
+          all_sp500_paths << (path_data["SP500"] || [])
+          all_loan_paths << (path_data["Loan size"] || [])
         end
       end
     end
-    
+
     Rails.logger.info "Chart data: #{all_reinvestment_paths.size} paths available for visualization"
-    
+
     # Calculate mean paths for charts
     mean_sp500_path = calculate_mean_path(all_sp500_paths)
     mean_reinvestment_path = calculate_mean_path(all_reinvestment_paths)
@@ -505,7 +505,7 @@ class PythonMonteCarloService
     mean_cumulative_interest_paid_path = calculate_mean_path(all_cumulative_interest_paid_paths)
     mean_pooled_units_path = calculate_mean_path(all_pooled_units_paths)
     mean_hedged_units_path = calculate_mean_path(all_hedged_units_paths)
-    
+
     chart_data = {
       # Original data
       portfolio_values: [],
@@ -514,7 +514,7 @@ class PythonMonteCarloService
       years: [],
       final_value_distribution: all_final_values,
       all_paths: all_reinvestment_paths,
-      
+
       # New comprehensive chart data
       all_sp500_paths: all_sp500_paths,
       all_loan_paths: all_loan_paths,
@@ -526,7 +526,7 @@ class PythonMonteCarloService
       all_cumulative_interest_paid_paths: all_cumulative_interest_paid_paths,
       all_pooled_units_paths: all_pooled_units_paths,
       all_hedged_units_paths: all_hedged_units_paths,
-      
+
       # Mean paths for main chart displays
       mean_sp500_path: mean_sp500_path,
       mean_reinvestment_path: mean_reinvestment_path,
@@ -543,11 +543,11 @@ class PythonMonteCarloService
 
     # Set default single path data from first sample if available
     if sample_paths.any?
-      first_path = sample_paths[0]['pathdf']
-      chart_data[:portfolio_values] = first_path['Reinvestment'] || []
-      chart_data[:equity_prices] = first_path['SP500'] || []
-      chart_data[:periods] = first_path['Period'] || []
-      chart_data[:years] = first_path['Year'] || []
+      first_path = sample_paths[0]["pathdf"]
+      chart_data[:portfolio_values] = first_path["Reinvestment"] || []
+      chart_data[:equity_prices] = first_path["SP500"] || []
+      chart_data[:periods] = first_path["Period"] || []
+      chart_data[:years] = first_path["Year"] || []
     elsif all_reinvestment_paths.any?
       chart_data[:portfolio_values] = all_reinvestment_paths[0] || []
       chart_data[:equity_prices] = all_sp500_paths[0] || []
@@ -557,25 +557,25 @@ class PythonMonteCarloService
 
     chart_data
   end
-  
+
   private
-  
+
   def calculate_mean_path(all_paths)
     return [] if all_paths.empty? || all_paths.first.nil?
-    
+
     max_length = all_paths.map(&:length).max || 0
     mean_path = []
-    
+
     (0...max_length).each do |i|
       values_at_period = all_paths.filter_map { |path| path[i] if path.length > i }
       mean_path << (values_at_period.empty? ? 0 : values_at_period.sum.to_f / values_at_period.length)
     end
-    
+
     mean_path
   end
 
   def validate_params
-    required_params = [:house_value, :loan_duration, :loan_to_value]
+    required_params = [ :house_value, :loan_duration, :loan_to_value ]
     required_params.each do |param|
       raise ArgumentError, "Missing required parameter: #{param}" unless @params[param].present?
     end

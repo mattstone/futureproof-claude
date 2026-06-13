@@ -15,11 +15,11 @@ module LenderDashboardHelper
 
   # Top borrowers (SQL aggregation, no N+1)
   def top_active_borrowers(user_id, limit = 5)
-    Application.select('applications.*, SUM(distributions.amount) as total_distributed')
+    Application.select("applications.*, SUM(distributions.amount) as total_distributed")
                .where(lender_id: user_id, status: :activated)
-               .joins('LEFT OUTER JOIN distributions ON applications.id = distributions.application_id')
-               .group('applications.id')
-               .order('total_distributed DESC')
+               .joins("LEFT OUTER JOIN distributions ON applications.id = distributions.application_id")
+               .group("applications.id")
+               .order("total_distributed DESC")
                .limit(limit)
   end
 
@@ -29,9 +29,9 @@ module LenderDashboardHelper
                 .where(applications: { lender_id: user_id }, distributions: { status: :completed })
                 .select("DATE_TRUNC('month', distributions.processed_at) as month, SUM(distributions.amount) as total")
                 .group("DATE_TRUNC('month', distributions.processed_at)")
-                .order('month DESC')
+                .order("month DESC")
                 .limit(limit)
-                .map { |d| [d.month.strftime('%B %Y'), d.total] }
+                .map { |d| [ d.month.strftime("%B %Y"), d.total ] }
                 .to_h
   end
 
@@ -47,29 +47,29 @@ module LenderDashboardHelper
     return [] if total.zero?
 
     [
-      { 
-        label: 'Pending', 
-        count: stats[:pending], 
-        color: 'warning', 
-        percentage: pipeline_percentage(stats[:pending], total) 
+      {
+        label: "Pending",
+        count: stats[:pending],
+        color: "warning",
+        percentage: pipeline_percentage(stats[:pending], total)
       },
-      { 
-        label: 'Approved', 
-        count: stats[:approved] - stats[:active], 
-        color: 'info', 
-        percentage: pipeline_percentage(stats[:approved] - stats[:active], total) 
+      {
+        label: "Approved",
+        count: stats[:approved] - stats[:active],
+        color: "info",
+        percentage: pipeline_percentage(stats[:approved] - stats[:active], total)
       },
-      { 
-        label: 'Active', 
-        count: stats[:active], 
-        color: 'success', 
-        percentage: pipeline_percentage(stats[:active], total) 
+      {
+        label: "Active",
+        count: stats[:active],
+        color: "success",
+        percentage: pipeline_percentage(stats[:active], total)
       },
-      { 
-        label: 'Rejected', 
-        count: stats[:rejected], 
-        color: 'danger', 
-        percentage: pipeline_percentage(stats[:rejected], total) 
+      {
+        label: "Rejected",
+        count: stats[:rejected],
+        color: "danger",
+        percentage: pipeline_percentage(stats[:rejected], total)
       }
     ]
   end
@@ -83,13 +83,13 @@ module LenderDashboardHelper
   def metric_color_class(metric_type)
     case metric_type
     when :pending
-      'stat-count--warning'
+      "stat-count--warning"
     when :active
-      'stat-count--success'
+      "stat-count--success"
     when :portfolio
-      'stat-count--info'
+      "stat-count--info"
     else
-      'stat-count--default'
+      "stat-count--default"
     end
   end
 end

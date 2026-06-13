@@ -17,13 +17,13 @@ puts "=" * 80
 # Test scenarios
 # Format: [enter_fraction, exit_fraction, description]
 scenarios = [
-  [0.9, 1.4, "Current (Easy enter, Easy exit)"],
-  [0.95, 1.3, "Moderate (Medium enter, Medium exit)"],
-  [1.0, 1.2, "Strict (Hard enter, Easy exit)"],
-  [1.1, 1.3, "Very Strict (Very hard enter, Medium exit)"],
-  [1.2, 1.4, "Extremely Strict (Extremely hard enter, Easy exit)"],
-  [0.8, 1.5, "Very Borrower Friendly (Very easy enter, Hard exit)"],
-  [1.35, 1.95, "Old Version (Original parameters)"]
+  [ 0.9, 1.4, "Current (Easy enter, Easy exit)" ],
+  [ 0.95, 1.3, "Moderate (Medium enter, Medium exit)" ],
+  [ 1.0, 1.2, "Strict (Hard enter, Easy exit)" ],
+  [ 1.1, 1.3, "Very Strict (Very hard enter, Medium exit)" ],
+  [ 1.2, 1.4, "Extremely Strict (Extremely hard enter, Easy exit)" ],
+  [ 0.8, 1.5, "Very Borrower Friendly (Very easy enter, Hard exit)" ],
+  [ 1.35, 1.95, "Old Version (Original parameters)" ]
 ]
 
 MONTE_CARLO_PATHS = 50  # Reduced for speed
@@ -149,9 +149,9 @@ else
 end
 
 puts "\n📈 THRESHOLD PATTERNS:"
-correlation = results.map { |r| [r[:enter_frac], r[:insurance_pct]] }
-high_enter = correlation.select { |e, _| e >= 1.1 }.map { |_, i| i }.sum / [correlation.select { |e, _| e >= 1.1 }.count, 1].max
-low_enter = correlation.select { |e, _| e < 1.0 }.map { |_, i| i }.sum / [correlation.select { |e, _| e < 1.0 }.count, 1].max
+correlation = results.map { |r| [ r[:enter_frac], r[:insurance_pct] ] }
+high_enter = correlation.select { |e, _| e >= 1.1 }.map { |_, i| i }.sum / [ correlation.select { |e, _| e >= 1.1 }.count, 1 ].max
+low_enter = correlation.select { |e, _| e < 1.0 }.map { |_, i| i }.sum / [ correlation.select { |e, _| e < 1.0 }.count, 1 ].max
 
 puts "   • Higher enter threshold (harder to enter holiday) = #{high_enter.round(1)}% avg insurance"
 puts "   • Lower enter threshold (easier to enter holiday) = #{low_enter.round(1)}% avg insurance"
@@ -169,8 +169,8 @@ puts "\n" + "=" * 80
 
 # Export to CSV
 CSV.open("holiday_threshold_results.csv", "w") do |csv|
-  csv << ["Description", "Enter %", "Exit %", "Avg Quarters on Holiday", "% Time on Holiday",
-          "Insurance Required %", "Mean Deficit", "Funder CAGR %"]
+  csv << [ "Description", "Enter %", "Exit %", "Avg Quarters on Holiday", "% Time on Holiday",
+          "Insurance Required %", "Mean Deficit", "Funder CAGR %" ]
 
   sorted_results.each do |r|
     csv << [

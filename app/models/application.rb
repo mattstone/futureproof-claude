@@ -1,4 +1,4 @@
-require_relative '../presenters/application_presenter'
+require_relative "../presenters/application_presenter"
 
 class Application < ApplicationRecord
   include InputSanitization
@@ -18,17 +18,17 @@ class Application < ApplicationRecord
   alias_attribute :approved_loan_amount, :equity_investment_amount
   alias_attribute :approved_interest_rate, :equity_percentage
   alias_attribute :approved_term_years, :participation_term_years
-  
+
   # Field-level encryption for L4 sensitive data
   encrypts :government_id, deterministic: true
   encrypts :credit_score
   encrypts :bank_account_number
-  
+
   # JSON attributes with safe parsing
   # Concern creates: property_images_parsed, property_images_array
   json_attribute :property_images, default: []
   # Concern creates: corelogic_data_parsed, corelogic_data_array, corelogic_property_data, corelogic_data_hash
-  json_attribute :corelogic_data, default: {}, aliases: [:corelogic_property_data, :corelogic_data_hash]
+  json_attribute :corelogic_data, default: {}, aliases: [ :corelogic_property_data, :corelogic_data_hash ]
   # Concern creates: borrower_names_parsed, borrower_names_array
   json_attribute :borrower_names, default: []
 
@@ -49,7 +49,7 @@ class Application < ApplicationRecord
   has_many :application_versions, dependent: :destroy
   has_many :application_messages, dependent: :destroy
   has_many :support_tickets, dependent: :nullify
-  has_many :application_checklists, class_name: 'ApplicationChecklist', dependent: :destroy
+  has_many :application_checklists, class_name: "ApplicationChecklist", dependent: :destroy
   has_many :agent_actions, as: :actionable, dependent: :destroy
   has_many :application_documents, dependent: :destroy
 
@@ -93,20 +93,20 @@ class Application < ApplicationRecord
   validates :ownership_status, presence: true
   validates :property_state, presence: true
   validates :status, presence: true
-  
+
   # ISO 3166-1 alpha-2 country codes
-  VALID_REGION_CODES = ["AU", "US", "NZ", "UK"].freeze
+  VALID_REGION_CODES = [ "AU", "US", "NZ", "UK" ].freeze
 
   COUNTRY_TO_ISO = {
-    'Australia' => 'AU',
-    'United States' => 'US',
-    'New Zealand' => 'NZ',
-    'United Kingdom' => 'UK'
+    "Australia" => "AU",
+    "United States" => "US",
+    "New Zealand" => "NZ",
+    "United Kingdom" => "UK"
   }.freeze
-  
+
   # ✅ CRITICAL: Region MUST be set and must be valid (not optional for EPM)
   validates :region, presence: true, inclusion: { in: VALID_REGION_CODES, message: "must be a valid ISO 3166-1 alpha-2 country code (AU, US, NZ, UK)" }
-  
+
   # ✅ CRITICAL: Validate region matches user's home jurisdiction (only on submission via form)
   validate :region_matches_user_jurisdiction, if: -> { user_present? && region.present? && submitting_application? }
 
@@ -171,9 +171,9 @@ class Application < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :by_value_range, ->(min, max) { where(home_value: min..max) }
   scope :with_existing_mortgage, -> { where(has_existing_mortgage: true) }
-  scope :in_progress, -> { where(status: [:created, :property_details, :income_and_loan_options]) }
-  scope :completed, -> { where(status: [:submitted, :processing, :accepted, :rejected]) }
-  scope :pending_review, -> { where(status: [:submitted, :processing]) }
+  scope :in_progress, -> { where(status: [ :created, :property_details, :income_and_loan_options ]) }
+  scope :completed, -> { where(status: [ :submitted, :processing, :accepted, :rejected ]) }
+  scope :pending_review, -> { where(status: [ :submitted, :processing ]) }
   scope :by_broker, ->(broker) { where(broker_id: broker.id) }
 
   # Methods
@@ -182,7 +182,7 @@ class Application < ApplicationRecord
   # =================================
   # These methods maintain backward compatibility while delegating to the presenter.
   # For new code, use: ApplicationPresenter.new(application).method_name
-  
+
   def presenter
     @presenter ||= ApplicationPresenter.new(self)
   end
@@ -241,12 +241,12 @@ class Application < ApplicationRecord
 
   def next_step
     case status
-    when 'created'
-      'property_details'
-    when 'property_details'
-      'income_and_loan_options'
-    when 'income_and_loan_options'
-      'submitted'
+    when "created"
+      "property_details"
+    when "property_details"
+      "income_and_loan_options"
+    when "income_and_loan_options"
+      "submitted"
     else
       nil
     end
@@ -254,11 +254,11 @@ class Application < ApplicationRecord
 
   def progress_percentage
     case status
-    when 'created'
+    when "created"
       0
-    when 'property_details'
+    when "property_details"
       50
-    when 'income_and_loan_options'
+    when "income_and_loan_options"
       75
     else
       100
@@ -467,7 +467,7 @@ class Application < ApplicationRecord
 
     application_versions.create!(
       user: user,
-      action: 'viewed',
+      action: "viewed",
       change_details: "Admin #{user.display_name} viewed application"
     )
   end
@@ -475,11 +475,11 @@ class Application < ApplicationRecord
   # Document management methods
   def documents_complete_for?(stage)
     required = case stage.to_s
-               when "submission" then ApplicationDocument::REQUIRED_FOR_SUBMISSION
-               when "processing" then ApplicationDocument::REQUIRED_FOR_PROCESSING
-               when "acceptance" then ApplicationDocument::REQUIRED_FOR_ACCEPTANCE
-               else return false
-               end
+    when "submission" then ApplicationDocument::REQUIRED_FOR_SUBMISSION
+    when "processing" then ApplicationDocument::REQUIRED_FOR_PROCESSING
+    when "acceptance" then ApplicationDocument::REQUIRED_FOR_ACCEPTANCE
+    else return false
+    end
 
     required.all? do |doc_type|
       application_documents.where(document_type: doc_type, status: "verified").exists?
@@ -534,7 +534,7 @@ class Application < ApplicationRecord
       # Log the status change and checklist creation
       application_versions.create!(
         user: user,
-        action: 'status_changed',
+        action: "status_changed",
         change_details: "Application submitted and checklist created. Status changed from 'Submitted' to 'Processing'",
         previous_status: 4, # submitted
         new_status: 5 # processing
@@ -551,15 +551,15 @@ class Application < ApplicationRecord
       self.lender = lender if lender.present?
       self.status = :accepted
       save!
-      
+
       # Calculate broker commission if applicable
       calculate_broker_commission! if broker.present?
-      
+
       # Trigger contract generation
       generate_contract_on_approval!
-      
+
       # Log approval
-      AgentLifecycleService.new(self, 'application_approved', {
+      AgentLifecycleService.new(self, "application_approved", {
         approved_loan_amount: loan_amount,
         approved_interest_rate: interest_rate,
         approved_term_years: term_years
@@ -577,9 +577,9 @@ class Application < ApplicationRecord
       self.rejected_reason = reason
       self.status = :rejected
       save!
-      
+
       # Log rejection
-      AgentLifecycleService.new(self, 'application_rejected', {
+      AgentLifecycleService.new(self, "application_rejected", {
         reason: reason
       }).execute!
     end
@@ -621,21 +621,21 @@ class Application < ApplicationRecord
     Rails.logger.error("Contract generation failed for Application ##{id}: #{e.message}")
     application_versions.create!(
       user: current_user,
-      action: 'updated',
+      action: "updated",
       change_details: "Approved, but automatic contract creation failed: #{e.message}"
     ) if current_user
   end
 
   def calculate_monthly_payment
     return 0 if approved_loan_amount.nil? || approved_interest_rate.nil? || approved_term_years.nil?
-    
+
     # Simple monthly payment calculation
     # P = L * [r(1+r)^n] / [(1+r)^n - 1]
     monthly_rate = approved_interest_rate / 100 / 12
     num_payments = approved_term_years * 12
-    
+
     return approved_loan_amount if monthly_rate.zero?
-    
+
     approved_loan_amount * (monthly_rate * (1 + monthly_rate) ** num_payments) / ((1 + monthly_rate) ** num_payments - 1)
   end
 
@@ -678,7 +678,7 @@ class Application < ApplicationRecord
     # Check if it's valid JSON format for multiple names/ages
     begin
       names_data = JSON.parse(borrower_names)
-      unless names_data.is_a?(Array) && names_data.all? { |item| item.is_a?(Hash) && item.key?('name') && item.key?('age') }
+      unless names_data.is_a?(Array) && names_data.all? { |item| item.is_a?(Hash) && item.key?("name") && item.key?("age") }
         errors.add(:borrower_names, "must be in valid format for joint ownership")
       end
     rescue JSON::ParserError
@@ -742,7 +742,7 @@ class Application < ApplicationRecord
 
     application_versions.create!(
       user: current_user,
-      action: 'created',
+      action: "created",
       change_details: "Created new application for #{address} with home value #{formatted_home_value}",
       new_status: status_before_type_cast,
       new_address: address,
@@ -762,7 +762,7 @@ class Application < ApplicationRecord
       new_status = saved_change_to_status[1]
       application_versions.create!(
         user: current_user,
-        action: 'status_changed',
+        action: "status_changed",
         change_details: "Changed application status from '#{status_label(old_status)}' to '#{status_label(new_status)}'",
         previous_status: old_status,
         new_status: new_status
@@ -771,7 +771,7 @@ class Application < ApplicationRecord
       # Log other field changes
       application_versions.create!(
         user: current_user,
-        action: 'updated',
+        action: "updated",
         change_details: build_change_summary,
         previous_status: saved_change_to_status ? saved_change_to_status[0] : nil,
         new_status: saved_change_to_status ? saved_change_to_status[1] : nil,
@@ -878,24 +878,24 @@ class Application < ApplicationRecord
 
   def status_label(status_value)
     case status_value
-    when 0 then 'Created'
-    when 1 then 'User Details'
-    when 2 then 'Property Details'
-    when 3 then 'Income and Loan Options'
-    when 4 then 'Submitted'
-    when 5 then 'Processing'
-    when 6 then 'Rejected'
-    when 7 then 'Accepted'
+    when 0 then "Created"
+    when 1 then "User Details"
+    when 2 then "Property Details"
+    when 3 then "Income and Loan Options"
+    when 4 then "Submitted"
+    when 5 then "Processing"
+    when 6 then "Rejected"
+    when 7 then "Accepted"
     else status_value.to_s
     end
   end
 
   def ownership_status_label(ownership_value)
     case ownership_value
-    when 0 then 'Individual'
-    when 1 then 'Joint'
-    when 2 then 'Lender'
-    when 3 then 'Super Fund'
+    when 0 then "Individual"
+    when 1 then "Joint"
+    when 2 then "Lender"
+    when 3 then "Super Fund"
     else ownership_value.to_s
     end
   end
@@ -923,7 +923,7 @@ class Application < ApplicationRecord
       if current_user
         application_versions.create!(
           user: current_user,
-          action: 'checklist_updated',
+          action: "checklist_updated",
           change_details: "Checklist automatically created when application status changed to '#{status_display}'"
         )
       end
@@ -933,13 +933,13 @@ class Application < ApplicationRecord
   def trigger_email_workflows
     # Trigger legacy email workflows
     if saved_change_to_id? # This means it's a new record
-      trigger_workflows_for('application_created')
+      trigger_workflows_for("application_created")
     end
 
     # Trigger workflows when status changes
     if saved_change_to_status?
       old_status, new_status = saved_change_to_status
-      trigger_workflows_for('application_status_changed', from_status: old_status, to_status: new_status)
+      trigger_workflows_for("application_status_changed", from_status: old_status, to_status: new_status)
     end
 
     # Trigger agent lifecycle system
@@ -949,7 +949,7 @@ class Application < ApplicationRecord
   def trigger_agent_lifecycle
     # Trigger agent lifecycle when application is created
     if saved_change_to_id?
-      AgentLifecycleService.new(self, 'application_created').execute!
+      AgentLifecycleService.new(self, "application_created").execute!
     end
 
     # Trigger agent lifecycle when status changes
@@ -957,14 +957,14 @@ class Application < ApplicationRecord
       old_status, new_status = saved_change_to_status
 
       # Trigger status change event
-      AgentLifecycleService.new(self, 'status_changed', {
+      AgentLifecycleService.new(self, "status_changed", {
         from_status: old_status,
         to_status: new_status
       }).execute!
 
       # Trigger application submitted event when status becomes submitted
-      if new_status == 'submitted'
-        AgentLifecycleService.new(self, 'application_submitted').execute!
+      if new_status == "submitted"
+        AgentLifecycleService.new(self, "application_submitted").execute!
       end
     end
   end
@@ -993,9 +993,9 @@ class Application < ApplicationRecord
 
   def trigger_application_created_webhook
     return unless lender_id.present?
-    
+
     payload = {
-      event: 'application_created',
+      event: "application_created",
       timestamp: Time.current.iso8601,
       application: {
         id: id,
@@ -1008,18 +1008,18 @@ class Application < ApplicationRecord
       }
     }
 
-    trigger_lender_webhooks('application_created', payload)
+    trigger_lender_webhooks("application_created", payload)
   end
 
   def trigger_application_status_webhooks
     return unless lender_id.present?
-    
+
     old_status, new_status = saved_change_to_status
-    
+
     # Trigger approved webhook
-    if new_status == 'accepted'
+    if new_status == "accepted"
       payload = {
-        event: 'application_approved',
+        event: "application_approved",
         timestamp: Time.current.iso8601,
         application: {
           id: id,
@@ -1032,13 +1032,13 @@ class Application < ApplicationRecord
         }
       }
 
-      trigger_lender_webhooks('application_approved', payload)
+      trigger_lender_webhooks("application_approved", payload)
     end
 
     # Trigger rejected webhook
-    if new_status == 'rejected'
+    if new_status == "rejected"
       payload = {
-        event: 'application_rejected',
+        event: "application_rejected",
         timestamp: Time.current.iso8601,
         application: {
           id: id,
@@ -1049,8 +1049,8 @@ class Application < ApplicationRecord
           rejected_at: Time.current.iso8601
         }
       }
-      
-      trigger_lender_webhooks('application_rejected', payload)
+
+      trigger_lender_webhooks("application_rejected", payload)
     end
   end
 
@@ -1077,7 +1077,7 @@ class Application < ApplicationRecord
     return unless user_jurisdiction  # Skip if user has no jurisdiction set yet
 
     unless region == user_jurisdiction
-      errors.add(:region, 
+      errors.add(:region,
         "must match user's home jurisdiction (#{user_jurisdiction}). " \
         "User is in #{user.country_of_residence}, application is for #{region}")
     end
@@ -1093,11 +1093,11 @@ class Application < ApplicationRecord
   # ✅ CRITICAL: Validate application against EPM jurisdiction rules
   def validate_epm_jurisdiction_rules
     return unless region
-    
+
     begin
       service = EpmJurisdictionService.new(region)
       errors_list = service.validate_application(self)
-      
+
       errors_list.each { |error| errors.add(:base, error) }
     rescue EpmJurisdictionService::InvalidJurisdictionError => e
       errors.add(:region, e.message)

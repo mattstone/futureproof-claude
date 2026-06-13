@@ -39,28 +39,28 @@ pools_data = [
   { funder: funders[0], name: "Macquarie Growth Fund IV", amount: 35_000_000, benchmark: 4.75, margin: 1.50, region: "AU" },
   { funder: funders[0], name: "Macquarie Income Fund III", amount: 25_000_000, benchmark: 5.25, margin: 2.00, region: "AU" },
   { funder: funders[0], name: "Macquarie Mortgage Trust", amount: 20_000_000, benchmark: 4.50, margin: 1.75, region: "AU" },
-  
+
   # IFM (AU) - 2 pools, $55M
   { funder: funders[1], name: "IFM Australian Equity Fund", amount: 30_000_000, benchmark: 5.00, margin: 1.25, region: "AU" },
   { funder: funders[1], name: "IFM Property Trust", amount: 25_000_000, benchmark: 5.50, margin: 2.00, region: "AU" },
-  
+
   # Perpetual (AU) - 2 pools, $45M
   { funder: funders[2], name: "Perpetual Fixed Income", amount: 25_000_000, benchmark: 4.25, margin: 1.50, region: "AU" },
   { funder: funders[2], name: "Perpetual Growth", amount: 20_000_000, benchmark: 5.75, margin: 1.75, region: "AU" },
-  
+
   # Blackrock (US) - 3 pools, $120M
   { funder: funders[3], name: "Blackrock US Growth Alpha", amount: 50_000_000, benchmark: 5.50, margin: 1.75, region: "US" },
   { funder: funders[3], name: "Blackrock Global Fixed Income", amount: 40_000_000, benchmark: 4.75, margin: 2.25, region: "US" },
   { funder: funders[3], name: "Blackrock Mortgage Solutions", amount: 30_000_000, benchmark: 5.00, margin: 2.00, region: "US" },
-  
+
   # Vanguard (US) - 2 pools, $90M
   { funder: funders[4], name: "Vanguard US Equity Index", amount: 50_000_000, benchmark: 5.25, margin: 1.50, region: "US" },
   { funder: funders[4], name: "Vanguard Balanced Fund", amount: 40_000_000, benchmark: 4.75, margin: 1.75, region: "US" },
-  
+
   # NZX (NZ) - 2 pools, $35M (AUD)
   { funder: funders[5], name: "NZX Growth Fund", amount: 20_000_000, benchmark: 5.50, margin: 2.00, region: "NZ" },
   { funder: funders[5], name: "NZX Fixed Income", amount: 15_000_000, benchmark: 4.50, margin: 2.25, region: "NZ" },
-  
+
   # L&G (UK) - 2 pools, $60M
   { funder: funders[6], name: "L&G UK Equity", amount: 35_000_000, benchmark: 5.00, margin: 1.75, region: "UK" },
   { funder: funders[6], name: "L&G Global Credit", amount: 25_000_000, benchmark: 4.25, margin: 2.00, region: "UK" }
@@ -95,7 +95,7 @@ lender_data = [
   { name: "ANZ Finance", country: "AU", type: :lender },
   { name: "Bendigo Bank", country: "AU", type: :lender },
   { name: "Suncorp Mortgages", country: "AU", type: :lender },
-  
+
   # United States (12 lenders)
   { name: "Quicken Loans", country: "US", type: :lender },
   { name: "Better.com", country: "US", type: :lender },
@@ -109,7 +109,7 @@ lender_data = [
   { name: "New American Funding", country: "US", type: :lender },
   { name: "Loan Depot", country: "US", type: :lender },
   { name: "Caliber Home Loans", country: "US", type: :lender },
-  
+
   # New Zealand (8 lenders)
   { name: "ASB Mortgages", country: "NZ", type: :lender },
   { name: "BNZ Home Loans", country: "NZ", type: :lender },
@@ -119,7 +119,7 @@ lender_data = [
   { name: "Co-op Bank Home Loans", country: "NZ", type: :lender },
   { name: "SBS Bank Mortgages", country: "NZ", type: :lender },
   { name: "Southfed Mortgages", country: "NZ", type: :lender },
-  
+
   # UK (8 lenders)
   { name: "Nationwide Mortgages", country: "UK", type: :lender },
   { name: "HSBC UK Mortgages", country: "UK", type: :lender },
@@ -144,8 +144,8 @@ puts "  ✅ Created #{lenders.size} lenders across 4 jurisdictions"
 # PHASE 4: APPLICATIONS & CONTRACTS (100+ apps, 50+ contracts with history)
 # ============================================================================
 
-jurisdictions = ["AU", "US", "NZ", "UK"]
-statuses_app = ["created", "user_details", "property_details", "income_and_loan_options", "submitted", "processing", "accepted", "rejected"]
+jurisdictions = [ "AU", "US", "NZ", "UK" ]
+statuses_app = [ "created", "user_details", "property_details", "income_and_loan_options", "submitted", "processing", "accepted", "rejected" ]
 
 # Get existing applications for contract creation
 # If we have enough, use them; otherwise note for next iteration
@@ -161,34 +161,34 @@ application_ids = existing_app_ids
 
 puts "\n  Creating additional historical contracts (from existing applications)..."
 created_contracts = 0
-application_ids.sample([application_ids.size, 60].min).each_with_index do |app_id, idx|
+application_ids.sample([ application_ids.size, 60 ].min).each_with_index do |app_id, idx|
   # Skip if contract already exists
   next if Contract.exists?(application_id: app_id)
-  
+
   app = Application.find(app_id)
   months_ago = rand(2..12)
   start_date = months_ago.months.ago.to_date
-  
-  # Realistic contract details  
+
+  # Realistic contract details
   home_value = app.home_value.to_f
   home_value = rand(400_000..1_500_000) if home_value <= 0 || home_value.nil?
-  
+
   ltv = rand(0.55..0.75)
   allocated = (home_value * ltv).round(-3)
-  
+
   # Assign random pool and lender
   pool = pools.sample
   lender = lenders.sample
-  
+
   # Status distribution: 60% ok, 15% in_holiday, 10% investment_at_risk, 10% complete, 5% awaiting
   status = case rand
-           when 0...0.6  then :ok
-           when 0.6...0.75  then :in_holiday
-           when 0.75...0.85  then :investment_at_risk
-           when 0.85...0.95  then :complete
-           else :awaiting_funding
-           end
-  
+  when 0...0.6  then :ok
+  when 0.6...0.75  then :in_holiday
+  when 0.75...0.85  then :investment_at_risk
+  when 0.85...0.95  then :complete
+  else :awaiting_funding
+  end
+
   begin
     contract = Contract.create!(
       application_id: app.id,
@@ -225,6 +225,6 @@ puts "✅ Lenders: #{Lender.count} (40+ across all regions)"
 puts "✅ Applications: #{Application.count} (mixed statuses)"
 puts "✅ Contracts: #{Contract.count} (50+ active, 12-month history)"
 puts "✅ Portfolio Value: $#{Contract.sum(:allocated_amount) / 1_000_000}M deployed"
-puts "✅ Active Contracts: #{Contract.where(status: [:ok, :in_holiday, :investment_at_risk]).count}"
+puts "✅ Active Contracts: #{Contract.where(status: [ :ok, :in_holiday, :investment_at_risk ]).count}"
 puts "=" * 60
 puts "🎉 Ready for professional admin dashboard redesign\n\n"

@@ -8,7 +8,7 @@ class LegalDocumentAcceptance < ApplicationRecord
   validates :legal_document_id, presence: true
   validates :accepted_at, presence: true
   validates :acceptance_type, presence: true, inclusion: { in: %w[explicit implicit required_for_application] }
-  
+
   # Ensure at least one of user/lender/application is present
   validate :at_least_one_party_present
 

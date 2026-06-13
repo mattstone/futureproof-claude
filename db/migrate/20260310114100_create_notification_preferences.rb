@@ -5,7 +5,6 @@ class CreateNotificationPreferences < ActiveRecord::Migration[8.1]
       t.boolean :payment_email
       t.boolean :payment_sms
       t.boolean :message_email
-
     end
   end
 end

@@ -1,15 +1,15 @@
 class Admin::ApplicationsController < Admin::BaseController
   include AdminSortable
-  before_action :set_application, only: [:show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item, :approve, :reject]
-  before_action :set_application_versions, only: [:show]
-  before_action :set_messages, only: [:show, :edit, :update_checklist_item]
-  before_action :log_view, only: [:show]
+  before_action :set_application, only: [ :show, :edit, :update, :send_message, :create_message, :advance_to_processing, :update_checklist_item, :approve, :reject ]
+  before_action :set_application_versions, only: [ :show ]
+  before_action :set_messages, only: [ :show, :edit, :update_checklist_item ]
+  before_action :log_view, only: [ :show ]
 
   def index
     @applications = filtered_applications.page(params[:page]).per(10)
 
     # Status filter options (accepted included — reachable via explicit filter)
-    @status_options = Application.statuses.map { |key, _| [key.humanize, key] }
+    @status_options = Application.statuses.map { |key, _| [ key.humanize, key ] }
 
     respond_to do |format|
       format.html # Full page render
@@ -24,7 +24,7 @@ class Admin::ApplicationsController < Admin::BaseController
   def search
     # Same logic as index but for POST requests via Turbo Stream
     @applications = filtered_applications.page(params[:page]).per(10)
-    @status_options = Application.statuses.map { |key, _| [key.humanize, key] }
+    @status_options = Application.statuses.map { |key, _| [ key.humanize, key ] }
 
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("applications_results", partial: "results") }
@@ -34,7 +34,7 @@ class Admin::ApplicationsController < Admin::BaseController
 
   def show
     @agent_actions = @application.agent_actions.includes(:ai_agent).order(created_at: :desc)
-    @outstanding_docs_count = @application.application_documents.where(status: ['pending', 'rejected']).count
+    @outstanding_docs_count = @application.application_documents.where(status: [ "pending", "rejected" ]).count
     @unread_messages_count = @application.unread_customer_messages_count
     @quotes = @application.quotes.latest_first
     @lenders = Lender.order(:name)
@@ -91,7 +91,7 @@ class Admin::ApplicationsController < Admin::BaseController
     @application.current_user = current_user # Track who created it
 
     if @application.save
-      redirect_to admin_application_path(@application), notice: 'Application was successfully created.'
+      redirect_to admin_application_path(@application), notice: "Application was successfully created."
     else
       @users = scoped_users.order(:first_name, :last_name)
       render :new, status: :unprocessable_entity
@@ -110,10 +110,10 @@ class Admin::ApplicationsController < Admin::BaseController
     old_valuation = @application.property_valuation_middle
 
     # Check if this is a valuation change
-    valuation_change = params[:valuation_change] == 'true'
+    valuation_change = params[:valuation_change] == "true"
 
     # Clear rejected_reason if changing from rejected status to a non-rejected status
-    if @application.status == 'rejected' && params_to_update[:status] && params_to_update[:status] != 'rejected'
+    if @application.status == "rejected" && params_to_update[:status] && params_to_update[:status] != "rejected"
       params_to_update[:rejected_reason] = nil
     end
 
@@ -126,23 +126,23 @@ class Admin::ApplicationsController < Admin::BaseController
 
           @application.application_versions.create!(
             user: current_user,
-            action: 'valuation_updated',
+            action: "valuation_updated",
             change_details: "Property valuation changed from #{ActionController::Base.helpers.number_to_currency(old_valuation, precision: 0)} to #{ActionController::Base.helpers.number_to_currency(new_valuation, precision: 0)} by #{current_user.display_name}. Reason: #{explanation}"
           )
         end
 
         # Check if status changed to accepted for Hotwire removal
-        status_changed_to_accepted = old_status != 'accepted' && @application.status == 'accepted'
+        status_changed_to_accepted = old_status != "accepted" && @application.status == "accepted"
 
         if valuation_change
-          format.json { render json: { success: true, message: 'Valuation updated successfully' } }
-          format.html { redirect_to edit_admin_application_path(@application), notice: 'Property valuation was successfully updated.' }
+          format.json { render json: { success: true, message: "Valuation updated successfully" } }
+          format.html { redirect_to edit_admin_application_path(@application), notice: "Property valuation was successfully updated." }
         else
-          format.html { redirect_to admin_application_path(@application), notice: 'Application status was successfully updated.' }
+          format.html { redirect_to admin_application_path(@application), notice: "Application status was successfully updated." }
         end
 
         format.turbo_stream {
-          flash.now[:notice] = valuation_change ? 'Property valuation was successfully updated.' : 'Application status was successfully updated.'
+          flash.now[:notice] = valuation_change ? "Property valuation was successfully updated." : "Application status was successfully updated."
           @status_changed_to_accepted = status_changed_to_accepted
           render :status_updated
         }
@@ -163,40 +163,40 @@ class Admin::ApplicationsController < Admin::BaseController
   def create_message
     @message = @application.application_messages.build(message_params)
     @message.sender = current_user
-    @message.message_type = 'admin_to_customer'
-    @message.status = 'draft'
+    @message.message_type = "admin_to_customer"
+    @message.status = "draft"
 
     # Determine where to redirect based on where the form was submitted from
-    redirect_path = params[:from_view] == 'show' ? admin_application_path(@application) : edit_admin_application_path(@application)
+    redirect_path = params[:from_view] == "show" ? admin_application_path(@application) : edit_admin_application_path(@application)
 
     respond_to do |format|
       if @message.save
         if params[:send_now].present?
           if @message.send_message!
-            format.html { redirect_to redirect_path, notice: 'Message sent successfully!' }
-            format.turbo_stream { 
-              flash.now[:notice] = 'Message sent successfully!'
+            format.html { redirect_to redirect_path, notice: "Message sent successfully!" }
+            format.turbo_stream {
+              flash.now[:notice] = "Message sent successfully!"
               set_turbo_stream_variables
-              render :message_sent 
+              render :message_sent
             }
           else
-            format.html { redirect_to redirect_path, alert: 'Failed to send message.' }
-            format.turbo_stream { 
-              flash.now[:alert] = 'Failed to send message.'
-              render :message_error 
+            format.html { redirect_to redirect_path, alert: "Failed to send message." }
+            format.turbo_stream {
+              flash.now[:alert] = "Failed to send message."
+              render :message_error
             }
           end
         else
-          format.html { redirect_to redirect_path, notice: 'Message saved as draft!' }
-          format.turbo_stream { 
-            flash.now[:notice] = 'Message saved as draft!'
+          format.html { redirect_to redirect_path, notice: "Message saved as draft!" }
+          format.turbo_stream {
+            flash.now[:notice] = "Message saved as draft!"
             set_turbo_stream_variables
-            render :message_draft_saved 
+            render :message_draft_saved
           }
         end
       else
         # Handle validation errors by reloading the appropriate view
-        if params[:from_view] == 'show'
+        if params[:from_view] == "show"
           @application_versions = @application.application_versions.includes(:user).recent.limit(50)
           @messages = @application.message_threads
           @new_message = @message # Keep the invalid message object for error display
@@ -221,17 +221,17 @@ class Admin::ApplicationsController < Admin::BaseController
 
     respond_to do |format|
       if @message.draft? && @message.send_message!
-        format.html { redirect_to admin_application_path(@application), notice: 'Message sent successfully!' }
-        format.turbo_stream { 
-          flash.now[:notice] = 'Message sent successfully!'
+        format.html { redirect_to admin_application_path(@application), notice: "Message sent successfully!" }
+        format.turbo_stream {
+          flash.now[:notice] = "Message sent successfully!"
           set_turbo_stream_variables
-          render :message_sent 
+          render :message_sent
         }
       else
-        format.html { redirect_to admin_application_path(@application), alert: 'Failed to send message.' }
-        format.turbo_stream { 
-          flash.now[:alert] = 'Failed to send message.'
-          render :message_error 
+        format.html { redirect_to admin_application_path(@application), alert: "Failed to send message." }
+        format.turbo_stream {
+          flash.now[:alert] = "Failed to send message."
+          render :message_error
         }
       end
     end
@@ -240,26 +240,26 @@ class Admin::ApplicationsController < Admin::BaseController
   def advance_to_processing
     if @application.status_submitted?
       @application.advance_to_processing_with_checklist!(current_user)
-      redirect_to admin_application_path(@application), notice: 'Application advanced to processing and checklist created.'
+      redirect_to admin_application_path(@application), notice: "Application advanced to processing and checklist created."
     else
-      redirect_to admin_application_path(@application), alert: 'Application must be submitted to advance to processing.'
+      redirect_to admin_application_path(@application), alert: "Application must be submitted to advance to processing."
     end
   end
 
   def update_checklist_item
     @checklist_item = @application.application_checklists.find(params[:checklist_item_id])
-    
-    if params[:completed] == 'true'
+
+    if params[:completed] == "true"
       @checklist_item.mark_completed!(current_user)
-      
+
       # Log the checklist change
       @application.application_versions.create!(
         user: current_user,
-        action: 'checklist_updated',
+        action: "checklist_updated",
         change_details: "Checklist item '#{@checklist_item.name}' marked as completed by #{current_user.display_name}"
       )
-      
-      
+
+
       if @application.checklist_completed?
         flash[:notice] = "🎉 All checklist items completed! Application can now be accepted."
       else
@@ -267,20 +267,20 @@ class Admin::ApplicationsController < Admin::BaseController
       end
     else
       @checklist_item.mark_incomplete!
-      
+
       # Log the checklist change
       @application.application_versions.create!(
         user: current_user,
-        action: 'checklist_updated',
+        action: "checklist_updated",
         change_details: "Checklist item '#{@checklist_item.name}' marked as incomplete by #{current_user.display_name}"
       )
-      
+
       flash[:notice] = "Checklist item marked as incomplete."
     end
-    
+
     # Broadcast the checklist update to the customer dashboard
     broadcast_checklist_update
-    
+
     respond_to do |format|
       format.html { redirect_to params[:redirect_to] || admin_application_path(@application) }
       format.turbo_stream { render :checklist_updated }
@@ -325,10 +325,10 @@ class Admin::ApplicationsController < Admin::BaseController
   def applications_csv(scope)
     require "csv"
     CSV.generate(headers: true) do |csv|
-      csv << ["ID", "Customer", "Email", "Address", "Home value", "Status", "Mortgage", "Created"]
+      csv << [ "ID", "Customer", "Email", "Address", "Home value", "Status", "Mortgage", "Created" ]
       scope.find_each do |a|
-        csv << [a.id, a.user.display_name, a.user.email, a.address, a.home_value,
-                a.status, a.mortgage&.name, a.created_at.iso8601]
+        csv << [ a.id, a.user.display_name, a.user.email, a.address, a.home_value,
+                a.status, a.mortgage&.name, a.created_at.iso8601 ]
       end
     end
   end
@@ -353,7 +353,7 @@ class Admin::ApplicationsController < Admin::BaseController
   def log_view
     @application.log_view_by(current_user)
   end
-  
+
   def broadcast_checklist_update
     # Broadcast to the user's dashboard stream for real-time updates
     Turbo::StreamsChannel.broadcast_replace_to(
@@ -384,7 +384,7 @@ class Admin::ApplicationsController < Admin::BaseController
     end
 
     # Only include rejected_reason if status is 'rejected', otherwise remove it from params
-    if permitted_params[:status] != 'rejected'
+    if permitted_params[:status] != "rejected"
       permitted_params.delete(:rejected_reason)
     end
 

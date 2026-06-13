@@ -1,7 +1,7 @@
 module Admin
   class BrokerLendersController < BaseController
     before_action :set_broker
-    before_action :set_broker_lender, only: [:toggle_active]
+    before_action :set_broker_lender, only: [ :toggle_active ]
 
     def available_lenders
       assigned_lender_ids = @broker.lenders.pluck(:id)

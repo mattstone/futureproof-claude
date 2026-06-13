@@ -9,6 +9,6 @@ class CreateBrokerLenders < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :broker_lenders, [:broker_id, :lender_id], unique: true
+    add_index :broker_lenders, [ :broker_id, :lender_id ], unique: true
   end
 end

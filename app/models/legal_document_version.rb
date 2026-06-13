@@ -23,7 +23,7 @@ class LegalDocumentVersion < ApplicationRecord
   # Show diff between versions
   def show_diff
     return nil unless previous_content && new_content
-    
+
     {
       action: action,
       timestamp: created_at,

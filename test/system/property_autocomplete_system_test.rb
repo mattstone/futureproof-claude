@@ -3,29 +3,29 @@ require "application_system_test_case"
 class PropertyAutocompleteSystemTest < ApplicationSystemTestCase
   def setup
     @user = User.create!(
-      email: 'system_test@example.com',
-      password: 'password1234',
-      password_confirmation: 'password123',
-      first_name: 'System',
-      last_name: 'Test',
-      country_of_residence: 'Australia',
+      email: "system_test@example.com",
+      password: "password1234",
+      password_confirmation: "password123",
+      first_name: "System",
+      last_name: "Test",
+      country_of_residence: "Australia",
       terms_accepted: true
     )
   end
 
   test "property autocomplete functionality works on applications page" do
     # Log in the user
-    visit '/users/sign_in'
-    fill_in 'Email', with: @user.email
-    fill_in 'Password', with: 'password123'
-    click_button 'Sign In'
+    visit "/users/sign_in"
+    fill_in "Email", with: @user.email
+    fill_in "Password", with: "password123"
+    click_button "Sign In"
 
     # Navigate to applications page
-    visit '/applications/new'
+    visit "/applications/new"
 
     # Verify page loads without error
-    assert_current_path '/applications/new'
-    assert_text 'Property Details'
+    assert_current_path "/applications/new"
+    assert_text "Property Details"
 
     # Check that property autocomplete elements are present
     assert_selector "[data-controller*='property-autocomplete']"
@@ -35,7 +35,7 @@ class PropertyAutocompleteSystemTest < ApplicationSystemTestCase
 
     # Verify property preview is initially hidden
     preview_element = find("div[data-property-autocomplete-target='propertyPreview']", visible: false)
-    assert preview_element['style'].include?('display: none'), "Property preview should be initially hidden"
+    assert preview_element["style"].include?("display: none"), "Property preview should be initially hidden"
 
     # Test property search input
     property_input = find("input[data-property-autocomplete-target='input']")
@@ -72,20 +72,20 @@ class PropertyAutocompleteSystemTest < ApplicationSystemTestCase
 
   test "CSS styling is properly loaded for property preview" do
     # Log in and visit page
-    visit '/users/sign_in'
-    fill_in 'Email', with: @user.email
-    fill_in 'Password', with: 'password123'
-    click_button 'Sign In'
+    visit "/users/sign_in"
+    fill_in "Email", with: @user.email
+    fill_in "Password", with: "password123"
+    click_button "Sign In"
 
-    visit '/applications/new'
+    visit "/applications/new"
 
     # Check that key CSS classes exist in the page
     css_classes = [
-      '.property-preview',
-      '.property-preview-header',
-      '.property-preview-content',
-      '.property-details-grid',
-      '.autocomplete-container'
+      ".property-preview",
+      ".property-preview-header",
+      ".property-preview-content",
+      ".property-details-grid",
+      ".autocomplete-container"
     ]
 
     css_classes.each do |css_class|
@@ -97,12 +97,12 @@ class PropertyAutocompleteSystemTest < ApplicationSystemTestCase
 
   test "JavaScript controllers are properly initialized" do
     # Log in and visit page
-    visit '/users/sign_in'
-    fill_in 'Email', with: @user.email
-    fill_in 'Password', with: 'password123'
-    click_button 'Sign In'
+    visit "/users/sign_in"
+    fill_in "Email", with: @user.email
+    fill_in "Password", with: "password123"
+    click_button "Sign In"
 
-    visit '/applications/new'
+    visit "/applications/new"
 
     # Verify Stimulus controllers are loaded
     assert_selector "[data-controller*='property-autocomplete']"

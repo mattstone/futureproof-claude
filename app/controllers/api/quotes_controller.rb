@@ -20,21 +20,21 @@ class Api::QuotesController < ApplicationController
     home_value = params[:home_value]&.to_f || 1_500_000
     term = params[:term]&.to_i || 10
     model = params[:model]&.to_sym || QuoteService::DEFAULT_MODEL
-    mortgage_type = params[:mortgage_type] || 'interest_only'
+    mortgage_type = params[:mortgage_type] || "interest_only"
 
     begin
       result = case model
-               when :original
+      when :original
                  calculate_original(home_value, term, mortgage_type)
-               when :tom
+      when :tom
                  calculate_tom(home_value, term)
-               when :pavel
+      when :pavel
                  calculate_pavel(home_value, term)
-               when :python
+      when :python
                  calculate_python(home_value, term, mortgage_type)
-               else
+      else
                  raise ArgumentError, "Unknown model: #{model}. Supported: original, tom, pavel, python"
-               end
+      end
 
       render json: {
         success: true,
@@ -60,28 +60,28 @@ class Api::QuotesController < ApplicationController
   def compare
     home_value = params[:home_value]&.to_f || 1_500_000
     term = params[:term]&.to_i || 10
-    mortgage_type = params[:mortgage_type] || 'interest_only'
+    mortgage_type = params[:mortgage_type] || "interest_only"
 
     results = {}
 
     # Calculate with each model
-    [:original, :tom, :pavel].each do |model|
+    [ :original, :tom, :pavel ].each do |model|
       begin
         results[model] = case model
-                         when :original
+        when :original
                            calculate_original(home_value, term, mortgage_type)
-                         when :tom
+        when :tom
                            calculate_tom(home_value, term)
-                         when :pavel
+        when :pavel
                            calculate_pavel(home_value, term)
-                         end
+        end
       rescue => e
         results[model] = { error: e.message }
       end
     end
 
     # Only include Python if explicitly requested (it's slow)
-    if params[:include_python] == 'true'
+    if params[:include_python] == "true"
       begin
         results[:python] = calculate_python(home_value, term, mortgage_type)
       rescue => e
@@ -181,7 +181,7 @@ class Api::QuotesController < ApplicationController
     lvr = EpmModelConfig.params[:max_ltv]
 
     monthly = result[:monthly_income]
-    if mortgage_type == 'principal_and_interest'
+    if mortgage_type == "principal_and_interest"
       monthly = (monthly * EpmModelConfig::PI_INCOME_FACTOR).round(0)
     end
 
@@ -192,7 +192,7 @@ class Api::QuotesController < ApplicationController
       monthly_income: monthly,
       annual_income: annual,
       total_income: total,
-      loan_balance_at_end: mortgage_type == 'principal_and_interest' ? 0 : result[:max_loan],
+      loan_balance_at_end: mortgage_type == "principal_and_interest" ? 0 : result[:max_loan],
       lvr: lvr,
       max_loan: result[:max_loan],
       base_property_value: QuoteService::BASE_PROPERTY_VALUE,
@@ -233,7 +233,7 @@ class Api::QuotesController < ApplicationController
   # Python Monte Carlo model
   def calculate_python(home_value, term, mortgage_type)
     paths = params[:paths]&.to_i || 1000
-    loan_type = mortgage_type == 'principal_and_interest' ? 'Principal and interest' : 'Interest only'
+    loan_type = mortgage_type == "principal_and_interest" ? "Principal and interest" : "Interest only"
 
     # Calculate annual income based on Pavel's rate for now
     # (The Python model uses annual_income as input)
@@ -322,12 +322,12 @@ class Api::QuotesController < ApplicationController
     allowed_origins = [
       Rails.application.routes.default_url_options[:host],
       request.host,
-      'localhost',
-      '127.0.0.1'
+      "localhost",
+      "127.0.0.1"
     ].compact.uniq
 
     referer = request.referer
-    origin = request.headers['Origin']
+    origin = request.headers["Origin"]
 
     valid_referer = referer && allowed_origins.any? { |domain| referer.include?(domain) }
     valid_origin = origin && allowed_origins.any? { |domain| origin.include?(domain) }
@@ -338,8 +338,8 @@ class Api::QuotesController < ApplicationController
 
     unless valid_referer || valid_origin || same_origin
       Rails.logger.warn "API request blocked - Invalid origin"
-      render json: { error: 'Unauthorized request origin' }, status: :forbidden
-      return false
+      render json: { error: "Unauthorized request origin" }, status: :forbidden
+      false
     end
   end
 
@@ -351,7 +351,7 @@ class Api::QuotesController < ApplicationController
     time_window = 1.minute
 
     if request_count >= max_requests
-      render json: { error: 'Rate limit exceeded' }, status: :too_many_requests
+      render json: { error: "Rate limit exceeded" }, status: :too_many_requests
       return false
     end
 

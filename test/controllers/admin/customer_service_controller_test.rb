@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class Admin::CustomerServiceControllerTest < ActionDispatch::IntegrationTest
   setup do
@@ -10,22 +10,22 @@ class Admin::CustomerServiceControllerTest < ActionDispatch::IntegrationTest
     get admin_customer_service_path
 
     assert_response :success
-    assert_select 'h2', text: /Customer Service/i
-    assert_match 'Priority inbox', response.body
-    assert_match 'Borrower messages awaiting reply', response.body
-    assert_match 'Stalled applications', response.body
-    assert_match 'Escalated chat conversations', response.body
-    assert_match 'Open support tickets', response.body
+    assert_select "h2", text: /Customer Service/i
+    assert_match "Priority inbox", response.body
+    assert_match "Borrower messages awaiting reply", response.body
+    assert_match "Stalled applications", response.body
+    assert_match "Escalated chat conversations", response.body
+    assert_match "Open support tickets", response.body
   end
 
   test "shows health snapshot KPIs" do
     get admin_customer_service_path
 
     assert_response :success
-    assert_match 'Open conversations', response.body
-    assert_match 'Awaiting reply', response.body
-    assert_match 'Avg response time', response.body
-    assert_match 'Escalations this week', response.body
+    assert_match "Open conversations", response.body
+    assert_match "Awaiting reply", response.body
+    assert_match "Avg response time", response.body
+    assert_match "Escalations this week", response.body
   end
 
   test "non-admin users are redirected" do

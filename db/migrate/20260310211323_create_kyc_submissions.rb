@@ -11,7 +11,6 @@ class CreateKycSubmissions < ActiveRecord::Migration[8.1]
       t.text :notes
       t.datetime :created_at
       t.datetime :updated_at
-
     end
   end
 end

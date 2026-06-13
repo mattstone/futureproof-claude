@@ -33,27 +33,27 @@ python_script = <<~PYTHON
   print("Python script starting...")
   print("Current directory:", os.getcwd())
   print("Python path:", sys.path)
-  
+
   try:
       import json
       print("JSON module imported successfully")
-      
+  #{'    '}
       import pandas as pd
       print("Pandas imported successfully")
-      
+  #{'    '}
       import numpy as np
       print("Numpy imported successfully")
-      
+  #{'    '}
       from core_model_advanced import single_mortgage, accounts_table
       print("Core model imported successfully")
-      
+  #{'    '}
       from utils import mean_sd, dollar, pcntdf, pcnt, secant
       print("Utils imported successfully")
-      
+  #{'    '}
       # Simple calculation
       output = {"test": "success", "params": #{TEST_PARAMS.to_json}}
       print(json.dumps(output))
-      
+  #{'    '}
   except ImportError as e:
       print("Import error:", str(e))
   except Exception as e:
@@ -82,7 +82,7 @@ json_line = output.split("\n").find { |line| line.strip.start_with?('{') }
 if json_line
   puts "\n✅ Found JSON output:"
   puts json_line
-  
+
   begin
     result = JSON.parse(json_line)
     puts "✅ JSON parsed successfully:"

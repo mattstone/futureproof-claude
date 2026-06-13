@@ -19,7 +19,7 @@ content = content
 Prawn::Document.generate(pdf_path,
                          page_size: 'A4',
                          page_layout: :portrait,
-                         margin: [43.2, 54]) do |pdf|
+                         margin: [ 43.2, 54 ]) do |pdf|
   primary  = '0B3D91'
   accent   = '0066CC'
   dark     = '222222'
@@ -135,10 +135,10 @@ Prawn::Document.generate(pdf_path,
         pdf.move_down(6)
         pdf.table(table_data,
                   header: true,
-                  row_colors: [soft, 'FFFFFF'],
-                  cell_style: { size: 9.5, padding: [5, 6], text_color: dark, inline_format: true },
+                  row_colors: [ soft, 'FFFFFF' ],
+                  cell_style: { size: 9.5, padding: [ 5, 6 ], text_color: dark, inline_format: true },
                   width: pdf.bounds.width) do |t|
-          t.cells.borders = [:bottom]
+          t.cells.borders = [ :bottom ]
           t.cells.border_width = 0.5
           t.cells.border_color = 'DDDDDD'
           t.row(0).background_color = primary
@@ -195,7 +195,7 @@ Prawn::Document.generate(pdf_path,
 
   # Footer: page numbers + document label
   pdf.number_pages 'FutureProof EPM — Budget MVP Build Plan  •  Page <page> of <total>',
-                   at: [pdf.bounds.left, -20],
+                   at: [ pdf.bounds.left, -20 ],
                    align: :center,
                    size: 8.5,
                    color: mid

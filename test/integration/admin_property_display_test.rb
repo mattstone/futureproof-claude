@@ -6,7 +6,7 @@ class AdminPropertyDisplayTest < ActionDispatch::IntegrationTest
     sign_in @admin_user
 
     # Find or create an application with CoreLogic data for testing
-    @application = Application.where.not(corelogic_data: [nil, '']).first
+    @application = Application.where.not(corelogic_data: [ nil, "" ]).first
 
     # If no application with CoreLogic data exists, create one
     if @application.nil?
@@ -20,7 +20,7 @@ class AdminPropertyDisplayTest < ActionDispatch::IntegrationTest
           bathrooms: "2",
           parking_spaces: "2"
         }.to_json,
-        property_images: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"].to_json,
+        property_images: [ "https://example.com/image1.jpg", "https://example.com/image2.jpg" ].to_json,
         property_type: "house",
         property_id: "CL123456",
         property_valuation_low: 1800000,
@@ -53,15 +53,15 @@ class AdminPropertyDisplayTest < ActionDispatch::IntegrationTest
     # Property ID field has been removed
 
     # Verify CoreLogic data fields are displayed if present
-    if @application.corelogic_data_hash['land_area'].present?
+    if @application.corelogic_data_hash["land_area"].present?
       assert_select ".detail-row", text: /Land Area:/
     end
 
-    if @application.corelogic_data_hash['building_area'].present?
+    if @application.corelogic_data_hash["building_area"].present?
       assert_select ".detail-row", text: /Building Area:/
     end
 
-    if @application.corelogic_data_hash['year_built'].present?
+    if @application.corelogic_data_hash["year_built"].present?
       assert_select ".detail-row", text: /Year Built:/
     end
 

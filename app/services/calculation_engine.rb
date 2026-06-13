@@ -50,10 +50,10 @@ class CalculationEngine
     @model = model.to_sym
     @model_type = model_type.to_sym  # :a or :b
     @application = application
-    
+
     # ✅ CRITICAL: Validate region matches application's region if provided
     validate_region_consistency! if application
-    
+
     @region_config = RegionHelper.region_config(@region)
     validate!
   end
@@ -61,7 +61,7 @@ class CalculationEngine
   # ✅ CRITICAL: Ensure calculation region matches application region
   def validate_region_consistency!
     return unless application && application.region
-    
+
     normalized_app_region = application.region.downcase
     unless @region == normalized_app_region
       raise RegionMismatchError,
@@ -119,7 +119,7 @@ class CalculationEngine
     {
       type: @model_type,
       name: @model_type == :a ? "Portfolio Distribution Model" : "Loan Advance Model",
-      description: @model_type == :a ? 
+      description: @model_type == :a ?
         "Monthly income derived from investment portfolio returns" :
         "Monthly income provided via direct loan advances",
       income_source: @model_type == :a ? "portfolio" : "loan_advances"
@@ -129,14 +129,14 @@ class CalculationEngine
   def build_nneg_analysis(loan_amount, base_quote)
     # NNEG = Negative Equity situation where mortgage balance > property value
     # Calculate year-by-year mortgage balance decline and property value risk
-    
+
     monthly_payment = calculate_monthly_payment(loan_amount, term)
     nneg_years = []
-    
+
     (1..term).each do |year|
       # Remaining mortgage balance after payments
       remaining_balance = calculate_remaining_balance(loan_amount, monthly_payment, year * 12)
-      
+
       # Property value under different market scenarios
       # Conservative: 1% annual decline, Base: 0% (flat), Optimistic: 2% annual growth
       property_scenarios = {
@@ -144,7 +144,7 @@ class CalculationEngine
         expected: home_value,                             # No change
         optimistic: home_value * ((1 + 0.02) ** year)    # 2% annual growth
       }
-      
+
       ltv_ratio = remaining_balance / home_value
       nneg_years << {
         year: year,
@@ -156,15 +156,15 @@ class CalculationEngine
         nneg_risk_pessimistic: remaining_balance > property_scenarios[:pessimistic]
       }
     end
-    
+
     nneg_trigger_year = nneg_years.find { |y| y[:nneg_risk_pessimistic] }&.dig(:year)
     nneg_probability = calculate_nneg_probability(nneg_years)
-    
+
     {
       scenario_results: nneg_years,
       nneg_trigger_year: nneg_trigger_year,
       nneg_probability_percent: nneg_probability,
-      explanation: nneg_trigger_year ? 
+      explanation: nneg_trigger_year ?
         "NNEG risk may occur in year #{nneg_trigger_year} in pessimistic scenarios. Insurance covers the shortfall." :
         "NNEG risk is minimal under standard market conditions. Insurance provides additional protection."
     }
@@ -173,16 +173,16 @@ class CalculationEngine
   def build_estate_impact(loan_amount, base_quote)
     # Estate impact: What the beneficiary receives
     # Estate = (Property Value + Portfolio Value) - Mortgage Balance
-    
+
     monthly_payment = calculate_monthly_payment(loan_amount, term)
     portfolio_growth_rate = 0.07  # Assumed 7% annual investment returns
-    
+
     year_end_data = {
       year_5: calculate_estate_at_year(loan_amount, monthly_payment, 5, portfolio_growth_rate),
       year_10: calculate_estate_at_year(loan_amount, monthly_payment, 10, portfolio_growth_rate),
       year_at_term: calculate_estate_at_year(loan_amount, monthly_payment, term, portfolio_growth_rate)
     }
-    
+
     {
       year_5_estate: year_end_data[:year_5],
       year_10_estate: year_end_data[:year_10],
@@ -263,7 +263,7 @@ class CalculationEngine
     # Australia: Centrelink (Age Pension) assets test & deeming
     monthly_income = base_quote[:monthly_income]
     annual_income = monthly_income * 12
-    
+
     # Assets test: threshold varies, estimate $884k single, $1.327M couple (2026)
     # Deeming: assumes 2% return on assets up to threshold, 3.5% above
     assets_test_threshold = 884_000
@@ -272,11 +272,11 @@ class CalculationEngine
 
     # Age Pension maximum: ~$31,000/year single (2026 estimate)
     age_pension_max = 31_000
-    
+
     # Centrelink reduction: typically $3 per $1,000 over threshold
-    assets_over_threshold = [loan_amount - assets_test_threshold, 0].max
+    assets_over_threshold = [ loan_amount - assets_test_threshold, 0 ].max
     annual_centrelink_reduction = (assets_over_threshold / 1000) * 3
-    age_pension_net = [age_pension_max - annual_centrelink_reduction, 0].max
+    age_pension_net = [ age_pension_max - annual_centrelink_reduction, 0 ].max
 
     {
       centrelink_impact: {
@@ -299,18 +299,18 @@ class CalculationEngine
     # UK: Inheritance Tax (IHT) & Estate planning
     monthly_income = base_quote[:monthly_income]
     annual_income = monthly_income * 12
-    
+
     # IHT threshold: £325,000 (2026)
     iht_threshold = 325_000
     iht_rate = 0.40  # 40% above threshold
-    
+
     # Estimate estate at term (property + portfolio - mortgage)
     property_at_term = home_value * (1 - 0.005 * term)  # Conservative decline
     portfolio_at_term = (annual_income * term * 1.05).round(0)  # 5% net growth after IHT
     estate_at_term = property_at_term + portfolio_at_term
-    
+
     # IHT liability
-    estate_over_threshold = [estate_at_term - iht_threshold, 0].max
+    estate_over_threshold = [ estate_at_term - iht_threshold, 0 ].max
     iht_liability = (estate_over_threshold * iht_rate).round(0)
     estate_after_iht = estate_at_term - iht_liability
 
@@ -355,7 +355,7 @@ class CalculationEngine
     INFLATION_SCENARIOS.transform_values do |inflation_rate|
       {
         inflation_rate_percent: (inflation_rate * 100).to_i,
-        projections: [5, 10, 15, 20].map do |years|
+        projections: [ 5, 10, 15, 20 ].map do |years|
           escalated_monthly = apply_cpi_escalation(base_monthly, years, inflation_rate)
           {
             years: years,
@@ -370,14 +370,14 @@ class CalculationEngine
 
   def apply_cpi_escalation(base_amount, years, inflation_rate)
     # Apply inflation rate annually, capped at MAX_CPI_ESCALATION per year
-    capped_inflation = [inflation_rate, MAX_CPI_ESCALATION].min
+    capped_inflation = [ inflation_rate, MAX_CPI_ESCALATION ].min
     (base_amount * ((1 + capped_inflation) ** years)).round(0)
   end
 
   def calculate_cumulative_income(base_monthly, years, inflation_rate)
     # Calculate total income over the projection period with annual CPI adjustments
     cumulative = 0
-    capped_inflation = [inflation_rate, MAX_CPI_ESCALATION].min
+    capped_inflation = [ inflation_rate, MAX_CPI_ESCALATION ].min
 
     (1..years).each do |year|
       monthly = apply_cpi_escalation(base_monthly, year - 1, inflation_rate)
@@ -473,7 +473,7 @@ class CalculationEngine
     annual_rate = 0.035
     monthly_rate = annual_rate / 12
     months = years * 12
-    
+
     if monthly_rate == 0
       loan_amount / months
     else
@@ -488,13 +488,13 @@ class CalculationEngine
     # B = P(1+r)^n - PMT * [((1+r)^n - 1) / r]
     annual_rate = 0.035
     monthly_rate = annual_rate / 12
-    
+
     if monthly_rate == 0
       loan_amount - (monthly_payment * months)
     else
       balance = loan_amount * ((1 + monthly_rate) ** months)
       balance -= monthly_payment * (((1 + monthly_rate) ** months) - 1) / monthly_rate
-      [balance, 0].max.round(0)  # Never negative
+      [ balance, 0 ].max.round(0)  # Never negative
     end
   end
 
@@ -507,20 +507,20 @@ class CalculationEngine
   def calculate_estate_at_year(loan_amount, monthly_payment, year, portfolio_growth_rate)
     # Estate = Property + Portfolio - Mortgage Debt
     remaining_mortgage = calculate_remaining_balance(loan_amount, monthly_payment, year * 12)
-    
+
     # Portfolio value at year X (monthly income accumulated + growth)
     monthly_income = loan_amount / (term * 12)  # Average distribution
     monthly_income_accumulated = monthly_income * year * 12
     portfolio_growth = monthly_income_accumulated * ((1 + portfolio_growth_rate) ** year)
-    
+
     property_value_at_year = home_value * (1 - 0.005 * year)  # Conservative: 0.5% annual decline
     estate_value = (property_value_at_year + portfolio_growth - remaining_mortgage).round(0)
-    
+
     {
       property_value: property_value_at_year.round(0),
       portfolio_value: portfolio_growth.round(0),
       mortgage_debt: remaining_mortgage.round(0),
-      net_estate: [estate_value, 0].max.round(0)
+      net_estate: [ estate_value, 0 ].max.round(0)
     }
   end
 end

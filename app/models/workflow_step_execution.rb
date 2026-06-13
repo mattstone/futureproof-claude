@@ -1,12 +1,12 @@
 class WorkflowStepExecution < ApplicationRecord
-  belongs_to :execution, class_name: 'WorkflowExecution'
-  belongs_to :step, class_name: 'WorkflowStep'
+  belongs_to :execution, class_name: "WorkflowExecution"
+  belongs_to :step, class_name: "WorkflowStep"
 
   enum :status, {
-    pending: 'pending',
-    running: 'running',
-    completed: 'completed',
-    failed: 'failed'
+    pending: "pending",
+    running: "running",
+    completed: "completed",
+    failed: "failed"
   }
 
   validates :status, presence: true

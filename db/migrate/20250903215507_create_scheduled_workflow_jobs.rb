@@ -10,9 +10,9 @@ class CreateScheduledWorkflowJobs < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :scheduled_workflow_jobs, :scheduled_for
-    add_index :scheduled_workflow_jobs, [:status, :scheduled_for]
-    add_index :scheduled_workflow_jobs, [:execution_id, :step_id]
+    add_index :scheduled_workflow_jobs, [ :status, :scheduled_for ]
+    add_index :scheduled_workflow_jobs, [ :execution_id, :step_id ]
   end
 end

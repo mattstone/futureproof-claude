@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class Admin::ScorecardsTest < ActionDispatch::IntegrationTest
   setup do
@@ -11,17 +11,17 @@ class Admin::ScorecardsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Broker Scorecard", response.body
-    assert_select 'table.admin-table'
+    assert_select "table.admin-table"
   end
 
   test "broker scorecard shows referral counts and approval rate" do
     get scorecard_admin_brokers_path
     assert_response :success
 
-    assert_select 'thead th', text: /30d/
-    assert_select 'thead th', text: /90d/
-    assert_select 'thead th', text: /Approval rate/
-    assert_select 'thead th', text: /Commission earned/
+    assert_select "thead th", text: /30d/
+    assert_select "thead th", text: /90d/
+    assert_select "thead th", text: /Approval rate/
+    assert_select "thead th", text: /Commission earned/
   end
 
   test "GET /admin/lenders/scorecard renders" do
@@ -29,15 +29,15 @@ class Admin::ScorecardsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Lender Capacity", response.body
-    assert_select 'table.admin-table'
+    assert_select "table.admin-table"
   end
 
   test "lender scorecard shows utilisation and weighted cost of capital" do
     get scorecard_admin_lenders_path
     assert_response :success
 
-    assert_select 'thead th', text: /Utilisation/
-    assert_select 'thead th', text: /Weighted cost of capital/
+    assert_select "thead th", text: /Utilisation/
+    assert_select "thead th", text: /Weighted cost of capital/
     assert_match "Concentration index", response.body
   end
 
@@ -46,7 +46,7 @@ class Admin::ScorecardsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Vintage Cohort Report", response.body
-    assert_select 'table.admin-table'
+    assert_select "table.admin-table"
   end
 
   test "non-admin users are redirected from all three reports" do

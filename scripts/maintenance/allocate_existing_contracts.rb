@@ -57,15 +57,15 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
     application = contract.application
     home_value = application.home_value
     customer_name = application.user.display_name
-    
+
     puts "\n🏠 Processing Contract ##{contract.id}"
     puts "   Customer: #{customer_name}"
     puts "   Property: #{application.address.truncate(50)}"
     puts "   Amount: #{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}"
-    
+
     # Find available wholesale_funder pool with sufficient capacity
     available_pool = nil
-    
+
     # First try to find mortgage-specific pool if application has a mortgage
     if application.mortgage.present?
       puts "   🔍 Looking for mortgage-specific pools..."
@@ -75,31 +75,31 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
                                  .where("wholesale_funder_pools.amount - wholesale_funder_pools.allocated >= ?", home_value)
                                  .order(:created_at)
                                  .first
-      
+
       if available_pool
         puts "   ✅ Found mortgage-specific pool: #{available_pool.display_name}"
       end
     end
-    
+
     # If no mortgage-specific pool found, use any available pool
     if available_pool.nil?
       puts "   🔍 Looking for any available pool..."
       available_pool = WholesaleFunderPool.where("amount - allocated >= ?", home_value)
                                  .order(:created_at)
                                  .first
-      
+
       if available_pool
         puts "   ✅ Found available pool: #{available_pool.display_name}"
       end
     end
-    
+
     if available_pool.nil?
       error_msg = "No pool with sufficient capacity (#{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}) available"
       puts "   ❌ #{error_msg}"
       allocation_errors << { contract_id: contract.id, customer: customer_name, error: error_msg }
       next
     end
-    
+
     # Perform the allocation
     Contract.transaction do
       # Update contract with wholesale_funder pool and allocated amount
@@ -107,24 +107,24 @@ unallocated_contracts.includes(application: :user).find_each do |contract|
         wholesale_funder_pool: available_pool,
         allocated_amount: home_value
       )
-      
+
       # Update wholesale_funder pool allocated amount
       available_pool.update!(
         allocated: available_pool.allocated + home_value
       )
-      
+
       puts "   ✅ Allocated to #{available_pool.display_name}"
       puts "   💰 Amount: #{ActionController::Base.helpers.number_to_currency(home_value, precision: 0)}"
-      
+
       allocated_count += 1
       total_allocated += home_value
     end
-    
+
   rescue => e
     error_msg = "Failed to allocate: #{e.message}"
     puts "   ❌ #{error_msg}"
     allocation_errors << { contract_id: contract.id, customer: customer_name, error: error_msg }
-    
+
     # Log the full error for debugging
     Rails.logger.error "Contract allocation error for contract #{contract.id}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")

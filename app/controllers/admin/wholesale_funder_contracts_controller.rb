@@ -1,7 +1,7 @@
 class Admin::WholesaleFunderContractsController < Admin::BaseController
   before_action :ensure_futureproof_admin
   before_action :set_wholesale_funder
-  before_action :set_contract, only: [:edit, :update, :destroy]
+  before_action :set_contract, only: [ :edit, :update, :destroy ]
 
   def index
     @contracts = @wholesale_funder.wholesale_funder_contracts.all
@@ -13,10 +13,10 @@ class Admin::WholesaleFunderContractsController < Admin::BaseController
 
   def create
     @contract = @wholesale_funder.wholesale_funder_contracts.new(contract_params)
-    
+
     if @contract.save
-      redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder), 
-                  notice: 'Contract was successfully created.'
+      redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder),
+                  notice: "Contract was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -27,8 +27,8 @@ class Admin::WholesaleFunderContractsController < Admin::BaseController
 
   def update
     if @contract.update(contract_params)
-      redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder), 
-                  notice: 'Contract was successfully updated.'
+      redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder),
+                  notice: "Contract was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -36,8 +36,8 @@ class Admin::WholesaleFunderContractsController < Admin::BaseController
 
   def destroy
     @contract.destroy
-    redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder), 
-                notice: 'Contract was successfully deleted.'
+    redirect_to admin_wholesale_funder_contracts_path(@wholesale_funder),
+                notice: "Contract was successfully deleted."
   end
 
   private

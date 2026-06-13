@@ -9,7 +9,7 @@ class StimulusControllerTest < ActionDispatch::IntegrationTest
     assert_match(/data-controller="[^"]*auth-form[^"]*"/, response.body, "auth-form controller should be defined")
 
     # Verify all required targets are present in the response
-    targets_to_check = ['title', 'subtitle', 'registrationForm', 'loginForm', 'toggleToLogin', 'toggleToRegister']
+    targets_to_check = [ "title", "subtitle", "registrationForm", "loginForm", "toggleToLogin", "toggleToRegister" ]
     targets_to_check.each do |target|
       assert_match(/data-auth-form-target="#{target}"/, response.body, "#{target} target should be present")
     end
@@ -30,7 +30,7 @@ class StimulusControllerTest < ActionDispatch::IntegrationTest
     assert response.body.include?('data-controller="auth-form"'), "auth-form controller should be present"
 
     # All targets should be findable within the controller scope
-    targets = ['title', 'subtitle', 'registrationForm', 'loginForm', 'toggleToLogin', 'toggleToRegister', 'emailInput', 'loginEmailInput', 'emailStatus', 'linkSeparator', 'createAccountLink']
+    targets = [ "title", "subtitle", "registrationForm", "loginForm", "toggleToLogin", "toggleToRegister", "emailInput", "loginEmailInput", "emailStatus", "linkSeparator", "createAccountLink" ]
 
     targets.each do |target|
       assert response.body.include?("data-auth-form-target=\"#{target}\""), "#{target} target should be present and properly formatted"

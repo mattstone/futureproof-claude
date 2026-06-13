@@ -30,7 +30,7 @@ class Api::CalculationsController < ApplicationController
 
     interest_only_income = interest_only_mortgage&.calculate_monthly_income(principal, loan_term, income_payout_term) || 0
     principal_interest_income = principal_interest_mortgage&.calculate_monthly_income(principal, loan_term, income_payout_term) || 0
-    
+
     # Calculate repayment for interest only mortgage
     interest_only_repayment = interest_only_mortgage&.repayment(principal, loan_term, income_payout_term) || 0
 
@@ -47,10 +47,10 @@ class Api::CalculationsController < ApplicationController
   def check_email
     email = params[:email]
     exists = User.exists?(email: email) if email.present?
-    
-    render json: { 
+
+    render json: {
       exists: !!exists,
-      email: email 
+      email: email
     }
   end
 
@@ -61,28 +61,28 @@ class Api::CalculationsController < ApplicationController
     allowed_origins = [
       Rails.application.routes.default_url_options[:host],
       request.host,
-      'localhost',
-      '127.0.0.1'
+      "localhost",
+      "127.0.0.1"
     ].compact.uniq
 
     # Check referer header
     referer = request.referer
-    origin = request.headers['Origin']
-    
+    origin = request.headers["Origin"]
+
     # Verify the request comes from an allowed origin
     valid_referer = referer && allowed_origins.any? { |domain| referer.include?(domain) }
     valid_origin = origin && allowed_origins.any? { |domain| origin.include?(domain) }
-    
+
     # Allow same-origin requests (when referer/origin match the current host)
     same_origin = request.host && (
       (referer && referer.include?(request.host)) ||
       (origin && origin.include?(request.host))
     )
-    
+
     unless valid_referer || valid_origin || same_origin
       Rails.logger.warn "API request blocked - Invalid origin. Referer: #{referer}, Origin: #{origin}, Host: #{request.host}"
-      render json: { error: 'Unauthorized request origin' }, status: :forbidden
-      return false
+      render json: { error: "Unauthorized request origin" }, status: :forbidden
+      false
     end
   end
 
@@ -91,8 +91,8 @@ class Api::CalculationsController < ApplicationController
     unless request.get?
       unless verified_request?
         Rails.logger.warn "API request blocked - Invalid CSRF token from #{request.remote_ip}"
-        render json: { error: 'Invalid security token' }, status: :forbidden
-        return false
+        render json: { error: "Invalid security token" }, status: :forbidden
+        false
       end
     end
   end
@@ -101,17 +101,17 @@ class Api::CalculationsController < ApplicationController
     # Simple rate limiting based on IP address
     cache_key = "api_rate_limit:#{request.remote_ip}"
     request_count = Rails.cache.read(cache_key) || 0
-    
+
     # Allow 1000 requests per hour per IP (accommodates slider interactions)
     max_requests = 1000
     time_window = 1.hour
-    
+
     if request_count >= max_requests
       Rails.logger.warn "API request blocked - Rate limit exceeded for IP: #{request.remote_ip}"
-      render json: { error: 'Rate limit exceeded. Please try again later.' }, status: :too_many_requests
+      render json: { error: "Rate limit exceeded. Please try again later." }, status: :too_many_requests
       return false
     end
-    
+
     # Increment counter
     Rails.cache.write(cache_key, request_count + 1, expires_in: time_window)
   end

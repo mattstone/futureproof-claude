@@ -140,14 +140,14 @@ class DemoFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "demo SPA works with Australian market parameter" do
-    get demo_spa_applications_path(market: 'au')
+    get demo_spa_applications_path(market: "au")
     assert_response :success
     # Check AU property address is shown
     assert_select ".demo-property-card-address", text: /Scotland Island/
   end
 
   test "demo SPA works with US market parameter" do
-    get demo_spa_applications_path(market: 'us')
+    get demo_spa_applications_path(market: "us")
     assert_response :success
     # Check US property address is shown
     assert_select ".demo-property-card-address", text: /Laguna Beach/

@@ -2,24 +2,24 @@ class WebhookEndpoint < ApplicationRecord
   belongs_to :user
   has_many :webhook_events, dependent: :destroy
 
-  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp(%w(http https)) }
+  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) }
   validates :events, presence: true
   validate :events_are_valid
 
   scope :active, -> { where(active: true) }
   scope :for_event, ->(event_type) { where("events LIKE ?", "%#{event_type}%") }
 
-  VALID_EVENTS = ['application_created', 'application_approved', 'application_rejected', 'distribution_completed', 'distribution_failed'].freeze
+  VALID_EVENTS = [ "application_created", "application_approved", "application_rejected", "distribution_completed", "distribution_failed" ].freeze
 
   before_create :generate_secret
   before_create :set_events_default
 
   def events
-    super&.split(',')&.map(&:strip) || []
+    super&.split(",")&.map(&:strip) || []
   end
 
   def events=(value)
-    super(Array(value).join(', '))
+    super(Array(value).join(", "))
   end
 
   def interested_in?(event_type)
@@ -28,7 +28,7 @@ class WebhookEndpoint < ApplicationRecord
 
   def trigger_event(event_type, payload)
     return unless active? && interested_in?(event_type)
-    
+
     event = webhook_events.create!(
       event_type: event_type,
       payload: payload,

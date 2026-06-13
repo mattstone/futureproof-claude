@@ -20,14 +20,14 @@ class AgentDecisionService
 
   def evaluate
     case @agent.agent_type
-    when 'applications'
+    when "applications"
       evaluate_application
-    when 'backoffice'
+    when "backoffice"
       evaluate_for_processing
-    when 'investment'
+    when "investment"
       evaluate_for_acceptance
     else
-      Result.new(decision: :flag, confidence: 0.0, reasoning: "Unknown agent type: #{@agent.agent_type}", flags: ['unknown_agent_type'], next_action: :escalate)
+      Result.new(decision: :flag, confidence: 0.0, reasoning: "Unknown agent type: #{@agent.agent_type}", flags: [ "unknown_agent_type" ], next_action: :escalate)
     end
   end
 
@@ -41,10 +41,10 @@ class AgentDecisionService
     # Property value check
     home_value = @entity.home_value || 0
     if home_value < PROPERTY_VALUE_MIN
-      flags << 'property_value_too_low'
+      flags << "property_value_too_low"
       reasons << "Property value $#{home_value.to_i} is below minimum $#{PROPERTY_VALUE_MIN.to_i}"
     elsif home_value > PROPERTY_VALUE_MAX
-      flags << 'property_value_too_high'
+      flags << "property_value_too_high"
       reasons << "Property value $#{home_value.to_i} exceeds maximum $#{PROPERTY_VALUE_MAX.to_i}"
     end
 
@@ -52,17 +52,17 @@ class AgentDecisionService
     age = @entity.borrower_age
     if age.present?
       if age < BORROWER_AGE_MIN || age > BORROWER_AGE_MAX
-        flags << 'borrower_age_out_of_range'
+        flags << "borrower_age_out_of_range"
         reasons << "Borrower age #{age} is outside acceptable range (#{BORROWER_AGE_MIN}-#{BORROWER_AGE_MAX})"
       elsif age > BORROWER_AGE_FLAG
-        flags << 'borrower_age_senior'
+        flags << "borrower_age_senior"
         reasons << "Borrower age #{age} is above #{BORROWER_AGE_FLAG} — shorter loan term recommended"
       end
     end
 
     # Ownership type check
     unless %w[individual joint lender super].include?(@entity.ownership_status)
-      flags << 'invalid_ownership_type'
+      flags << "invalid_ownership_type"
       reasons << "Invalid ownership type: #{@entity.ownership_status}"
     end
 
@@ -70,7 +70,7 @@ class AgentDecisionService
     if @entity.mortgage.present?
       lvr = @entity.mortgage.lvr || 0
       if lvr > MAX_LVR
-        flags << 'high_lvr'
+        flags << "high_lvr"
         reasons << "LVR #{lvr}% exceeds maximum #{MAX_LVR}%"
       end
     end
@@ -94,7 +94,7 @@ class AgentDecisionService
 
     # Property valuation check
     unless @entity.has_property_valuation?
-      flags << 'no_property_valuation'
+      flags << "no_property_valuation"
       reasons << "Property valuation has not been obtained"
     end
 
@@ -104,7 +104,7 @@ class AgentDecisionService
       uploaded_types = @entity.application_documents.complete.pluck(:document_type)
       missing = required - uploaded_types
       if missing.any?
-        flags << 'missing_documents'
+        flags << "missing_documents"
         reasons << "Missing required documents: #{missing.join(', ')}"
       end
     end
@@ -113,7 +113,7 @@ class AgentDecisionService
     if @entity.application_checklists.exists?
       pct = @entity.checklist_completion_percentage
       if pct < 100
-        flags << 'checklist_incomplete'
+        flags << "checklist_incomplete"
         reasons << "Checklist is #{pct}% complete"
       end
     end
@@ -121,7 +121,7 @@ class AgentDecisionService
     # Income validation
     monthly = @entity.monthly_income_amount
     if monthly > 0 && monthly < MIN_MONTHLY_INCOME
-      flags << 'low_income'
+      flags << "low_income"
       reasons << "Monthly income $#{monthly.round(2)} is below minimum $#{MIN_MONTHLY_INCOME}"
     end
 
@@ -142,10 +142,10 @@ class AgentDecisionService
     # Documents for acceptance
     if @entity.respond_to?(:application_documents)
       required = ApplicationDocument::REQUIRED_FOR_ACCEPTANCE
-      uploaded_types = @entity.application_documents.where(status: 'verified').pluck(:document_type)
+      uploaded_types = @entity.application_documents.where(status: "verified").pluck(:document_type)
       missing = required - uploaded_types
       if missing.any?
-        flags << 'unverified_documents'
+        flags << "unverified_documents"
         reasons << "Documents not yet verified: #{missing.join(', ')}"
       end
     end
@@ -153,13 +153,13 @@ class AgentDecisionService
     # Funding availability
     funding_result = check_funding_availability
     if funding_result[:error]
-      flags << 'funding_unavailable'
+      flags << "funding_unavailable"
       reasons << funding_result[:error]
     end
 
     # Contract terms check
     unless MortgageContract.current.present?
-      flags << 'no_active_contract_terms'
+      flags << "no_active_contract_terms"
       reasons << "No active mortgage contract terms available"
     end
 
@@ -202,32 +202,32 @@ class AgentDecisionService
   def calculate_risk_score(flags)
     score = 0
     weights = {
-      'property_value_too_low' => 25, 'property_value_too_high' => 20,
-      'borrower_age_out_of_range' => 30, 'borrower_age_senior' => 10,
-      'invalid_ownership_type' => 15, 'high_lvr' => 20,
-      'missing_documents' => 15, 'unverified_documents' => 15,
-      'no_property_valuation' => 10, 'checklist_incomplete' => 10,
-      'low_income' => 20, 'funding_unavailable' => 30,
-      'no_active_contract_terms' => 25
+      "property_value_too_low" => 25, "property_value_too_high" => 20,
+      "borrower_age_out_of_range" => 30, "borrower_age_senior" => 10,
+      "invalid_ownership_type" => 15, "high_lvr" => 20,
+      "missing_documents" => 15, "unverified_documents" => 15,
+      "no_property_valuation" => 10, "checklist_incomplete" => 10,
+      "low_income" => 20, "funding_unavailable" => 30,
+      "no_active_contract_terms" => 25
     }
     # Add weight for missing fields
-    flags.each { |f| score += weights.fetch(f, f.start_with?('missing_') ? 10 : 5) }
-    [score, 100].min
+    flags.each { |f| score += weights.fetch(f, f.start_with?("missing_") ? 10 : 5) }
+    [ score, 100 ].min
   end
 
   def build_result(flags, reasons, risk_score)
     if flags.any? { |f| %w[property_value_too_low property_value_too_high borrower_age_out_of_range funding_unavailable no_active_contract_terms].include?(f) }
       decision = :reject
       next_action = :reject
-      confidence = [0.7 + (risk_score / 200.0), 1.0].min
+      confidence = [ 0.7 + (risk_score / 200.0), 1.0 ].min
     elsif flags.any?
       decision = :flag
       next_action = risk_score > RISK_THRESHOLD_FLAG ? :escalate : :request_info
-      confidence = [0.5 + (risk_score / 200.0), 0.95].min
+      confidence = [ 0.5 + (risk_score / 200.0), 0.95 ].min
     else
       decision = :approve
       next_action = :advance
-      confidence = [1.0 - (risk_score / 100.0), 1.0].min
+      confidence = [ 1.0 - (risk_score / 100.0), 1.0 ].min
     end
 
     reasoning = flags.empty? ? "All checks passed. Application meets all criteria." : reasons.join(". ") + "."
@@ -245,6 +245,6 @@ class AgentDecisionService
   end
 
   def extract_reasons(result)
-    result.reasoning.present? && result.reasoning != "All checks passed. Application meets all criteria." ? [result.reasoning] : []
+    result.reasoning.present? && result.reasoning != "All checks passed. Application meets all criteria." ? [ result.reasoning ] : []
   end
 end

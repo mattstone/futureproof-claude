@@ -39,31 +39,31 @@ begin
   if result[:pathdf]
     pathdf = result[:pathdf]
     periods = pathdf['Period'].length
-    
+
     puts "\n=== RESULTS ==="
     puts "Total periods: #{periods}"
     puts "Final period: #{pathdf['Period'].last}"
     puts "Final year: #{pathdf['Year'].last}"
-    
+
     puts "\nEquity Prices:"
     puts "  Initial: #{pathdf['EquityPrice'].first.round(2)}"
     puts "  Final: #{pathdf['EquityPrice'].last.round(2)}"
-    
+
     puts "\nPortfolio Values:"
     puts "  Initial: #{pathdf['PortfolioValue'].first.round(2)}"
     puts "  Final: #{pathdf['PortfolioValue'].last.round(2)}"
-    
+
     puts "\nLoan Balance:"
     puts "  Initial: #{pathdf['LoanBalance'].first.round(2)}"
     puts "  Final: #{pathdf['LoanBalance'].last.round(2)}"
-    
+
     puts "\nNet Equity:"
     puts "  Initial: #{pathdf['NetEquity'].first.round(2)}"
     puts "  Final: #{pathdf['NetEquity'].last.round(2)}"
-    
+
     puts "\nTotal Annuity Income: #{pathdf['CumAnnuityIncome'].last.round(2)}"
     puts "Total Interest Paid: #{pathdf['CumInterestPaid'].last.round(2)}"
-    
+
     # Show first 10 equity prices for comparison with Python
     puts "\nFirst 10 equity prices:"
     pathdf['EquityPrice'][0..9].each_with_index do |price, i|

@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
   def setup
@@ -10,12 +10,12 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     # Step 1: User visits apply page and sees demo badge
     get apply_path
     assert_response :success
-    assert_select '.site-demo-badge', text: /Demo/
-    assert_select '.site-demo-context', text: /Futureproof is currently in pre-launch/
+    assert_select ".site-demo-badge", text: /Demo/
+    assert_select ".site-demo-context", text: /Futureproof is currently in pre-launch/
 
     # Verify demo badge has correct styling
-    assert_select '.site-demo-badge svg', count: 1
-    assert_select 'h1', text: /Application Process/
+    assert_select ".site-demo-badge svg", count: 1
+    assert_select "h1", text: /Application Process/
 
     # Step 2: User signs in
     sign_in @user
@@ -25,15 +25,15 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify step indicator shows correct step
-    assert_select '.step-item.active .step-label', text: 'Property Details'
-    assert_select '.step-item.completed .step-label', text: 'Account Created'
+    assert_select ".step-item.active .step-label", text: "Property Details"
+    assert_select ".step-item.completed .step-label", text: "Account Created"
 
     # Verify demo badge and context are present
-    assert_select '.site-demo-badge', text: /Demo/
-    assert_select '.site-demo-context', text: /This demonstration uses simulated property data/
+    assert_select ".site-demo-badge", text: /Demo/
+    assert_select ".site-demo-context", text: /This demonstration uses simulated property data/
 
     # Verify form elements are present
-    assert_select 'form.application-form-inner'
+    assert_select "form.application-form-inner"
     assert_select 'input[name="application[address]"]'
     assert_select 'input[name="application[home_value]"]'
     assert_select 'select[name="application[ownership_status]"]'
@@ -67,21 +67,21 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify step indicator shows correct step
-    assert_select '.step-item.active .step-label', text: 'Income & Mortgage'
-    assert_select '.step-item.completed .step-label', text: 'Property Details'
+    assert_select ".step-item.active .step-label", text: "Income & Mortgage"
+    assert_select ".step-item.completed .step-label", text: "Property Details"
 
     # Verify demo badge and context
-    assert_select '.site-demo-badge', text: /Demo/
-    assert_select '.site-demo-context', text: /Income calculations and property valuations are illustrative estimates/
+    assert_select ".site-demo-badge", text: /Demo/
+    assert_select ".site-demo-context", text: /Income calculations and property valuations are illustrative estimates/
 
     # Verify property summary is displayed
-    assert_select '.property-summary .summary-value', text: /123 Test Street/
-    assert_select '.property-summary .summary-value', text: /\$2,500,000/
-    assert_select '.property-summary .summary-value', text: /\$500,000/
+    assert_select ".property-summary .summary-value", text: /123 Test Street/
+    assert_select ".property-summary .summary-value", text: /\$2,500,000/
+    assert_select ".property-summary .summary-value", text: /\$500,000/
 
     # Verify mortgage type cards are displayed
-    assert_select '.mortgage-card', count: Mortgage.count
-    assert_select '.mortgage-card .mortgage-card-title'
+    assert_select ".mortgage-card", count: Mortgage.count
+    assert_select ".mortgage-card .mortgage-card-title"
 
     # Verify form elements
     assert_select 'input[name="application[loan_term]"]'
@@ -119,8 +119,8 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify summary displays all information
-    assert_select 'h1', text: /Application Summary/
-    assert_select '.summary-section', minimum: 1
+    assert_select "h1", text: /Application Summary/
+    assert_select ".summary-section", minimum: 1
 
     # Verify property details in summary
     assert_includes response.body, "123 Test Street"
@@ -131,8 +131,8 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, mortgage.name
 
     # Verify submit button exists
-    assert_select 'form[action=?]', submit_application_path(application)
-    assert_select 'input[type=submit], button[type=submit]'
+    assert_select "form[action=?]", submit_application_path(application)
+    assert_select "input[type=submit], button[type=submit]"
 
     # Step 8: Submit application
     application.reload
@@ -146,7 +146,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     # Step 9: Verify congratulations page
     assert_equal congratulations_application_path(application), path
     assert_response :success
-    assert_select 'h1', text: /Congratulations/
+    assert_select "h1", text: /Congratulations/
 
     # Verify application can be viewed from dashboard
     get dashboard_path
@@ -172,11 +172,11 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify demo badge and context
-    assert_select '.site-demo-badge', text: /Demo/
-    assert_select '.site-demo-context', text: /This demonstration uses simulated property data/
+    assert_select ".site-demo-badge", text: /Demo/
+    assert_select ".site-demo-context", text: /This demonstration uses simulated property data/
 
     # Verify step indicator shows correct step
-    assert_select '.step-item.active .step-label', text: 'Property Details'
+    assert_select ".step-item.active .step-label", text: "Property Details"
 
     # Verify form is pre-filled
     assert_select 'input[name="application[home_value]"][value="3000000"]'
@@ -230,8 +230,8 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Joint fields structure should be present
-    assert_select 'div#joint-borrowers'
-    assert_select '.joint-borrower-item', minimum: 2
+    assert_select "div#joint-borrowers"
+    assert_select ".joint-borrower-item", minimum: 2
   end
 
   test "mortgage amount field visibility toggles correctly" do
@@ -284,11 +284,11 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
 
     # Verify error messages are displayed
-    assert_select '.error-message, .field_with_errors, #error_explanation'
+    assert_select ".error-message, .field_with_errors, #error_explanation"
 
     # Verify demo badge is still present on error page
-    assert_select '.site-demo-badge', text: /Demo/
-    assert_select '.site-demo-context'
+    assert_select ".site-demo-badge", text: /Demo/
+    assert_select ".site-demo-context"
   end
 
   test "demo badge styling is consistent across all application pages" do
@@ -307,10 +307,10 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
 
     # Test pages that should have demo badge
     pages_to_test = [
-      { path: apply_path, title: 'Application Process' },
-      { path: new_application_path, title: 'Property Details' },
-      { path: edit_application_path(application), title: 'Edit Property Details' },
-      { path: income_and_loan_application_path(application), title: 'Income & Mortgage Options' }
+      { path: apply_path, title: "Application Process" },
+      { path: new_application_path, title: "Property Details" },
+      { path: edit_application_path(application), title: "Edit Property Details" },
+      { path: income_and_loan_application_path(application), title: "Income & Mortgage Options" }
     ]
 
     pages_to_test.each do |page|
@@ -318,15 +318,15 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
       assert_response :success, "Failed to load #{page[:path]}"
 
       # Verify demo badge is present
-      assert_select '.site-demo-badge', count: 1
-      assert_select '.site-demo-badge svg', count: 1
-      assert_select '.site-demo-badge', text: /Demo/
+      assert_select ".site-demo-badge", count: 1
+      assert_select ".site-demo-badge svg", count: 1
+      assert_select ".site-demo-badge", text: /Demo/
 
       # Verify demo context is present
-      assert_select '.site-demo-context', minimum: 1
+      assert_select ".site-demo-context", minimum: 1
 
       # Verify page title includes demo badge
-      assert_select 'h1.application-title, h1', text: /#{page[:title]}/
+      assert_select "h1.application-title, h1", text: /#{page[:title]}/
     end
   end
 
@@ -334,9 +334,9 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     ownership_types = [
-      { type: 'individual', extra_params: { borrower_names: 'Individual Owner', borrower_age: 60 } },
-      { type: 'joint', extra_params: { borrower_age: 55 } },
-      { type: 'super', extra_params: { super_fund_name: 'Test Superannuation Fund' } }
+      { type: "individual", extra_params: { borrower_names: "Individual Owner", borrower_age: 60 } },
+      { type: "joint", extra_params: { borrower_age: 55 } },
+      { type: "super", extra_params: { super_fund_name: "Test Superannuation Fund" } }
     ]
 
     ownership_types.each do |ownership|
@@ -345,7 +345,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
         address: "Test #{ownership[:type].capitalize} Street, Melbourne VIC 3000",
         home_value: 2000000,
         ownership_status: ownership[:type],
-        property_state: 'primary_residence',
+        property_state: "primary_residence",
         has_existing_mortgage: false
       }.merge(ownership[:extra_params])
 
@@ -369,7 +369,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
       }
 
       # Should redirect to summary, or show validation error (422), or render success
-      assert [200, 302, 422].include?(response.status), "Failed to process income update for ownership type: #{ownership[:type]}, got status: #{response.status}"
+      assert [ 200, 302, 422 ].include?(response.status), "Failed to process income update for ownership type: #{ownership[:type]}, got status: #{response.status}"
 
       application.reload
       # Only check if values were set successfully (may not have been if validation failed or unprocessable)
@@ -389,14 +389,14 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify custom CSS classes (not Tailwind/Bootstrap)
-    assert_select '.application-page'
-    assert_select '.application-container'
-    assert_select '.application-card'
-    assert_select '.form-label'
-    assert_select '.form-input'
-    assert_select '.form-select'
-    assert_select '.site-btn'
-    assert_select '.site-btn-primary'
+    assert_select ".application-page"
+    assert_select ".application-container"
+    assert_select ".application-card"
+    assert_select ".form-label"
+    assert_select ".form-input"
+    assert_select ".form-select"
+    assert_select ".site-btn"
+    assert_select ".site-btn-primary"
 
     # Verify NO Tailwind classes (check response body instead of assert_select for negative assertions)
     refute_includes response.body, 'class="text-', "Found Tailwind text-* classes"
@@ -405,7 +405,7 @@ class ApplicationBrowserFlowTest < ActionDispatch::IntegrationTest
     refute_includes response.body, 'class="py-', "Found Tailwind py-* classes"
 
     # Verify NO Bootstrap classes
-    assert_select '.btn-primary', count: 0
-    assert_select '.container', count: 0
+    assert_select ".btn-primary", count: 0
+    assert_select ".container", count: 0
   end
 end

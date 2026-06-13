@@ -6,7 +6,7 @@ class CreateMortgageContractUsers < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :mortgage_contract_users, [:mortgage_contract_id, :user_id], unique: true, name: 'index_mortgage_contract_users_unique'
+
+    add_index :mortgage_contract_users, [ :mortgage_contract_id, :user_id ], unique: true, name: 'index_mortgage_contract_users_unique'
   end
 end

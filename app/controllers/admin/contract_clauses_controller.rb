@@ -2,30 +2,30 @@ class Admin::ContractClausesController < Admin::BaseController
   before_action :authenticate_user!
   before_action :ensure_admin_user!
   before_action :set_mortgage_and_contract
-  before_action :set_clause_position, only: [:create]
+  before_action :set_clause_position, only: [ :create ]
 
   def create
     @lender_clause = LenderClause.find(params[:lender_clause_id])
-    
+
     begin
       @contract.add_lender_clause(@lender_clause, @clause_position, current_user)
-      
+
       respond_to do |format|
-        format.turbo_stream { 
+        format.turbo_stream {
           flash.now[:notice] = "Clause '#{@lender_clause.title}' was successfully added to the contract."
-          render :create 
+          render :create
         }
-        format.html { 
+        format.html {
           redirect_to admin_mortgage_path(@mortgage), notice: "Clause '#{@lender_clause.title}' was successfully added to the contract."
         }
       end
     rescue => e
       respond_to do |format|
-        format.turbo_stream { 
+        format.turbo_stream {
           flash.now[:alert] = "Failed to add clause: #{e.message}"
-          render :create_error 
+          render :create_error
         }
-        format.html { 
+        format.html {
           redirect_to admin_mortgage_path(@mortgage), alert: "Failed to add clause: #{e.message}"
         }
       end
@@ -34,26 +34,26 @@ class Admin::ContractClausesController < Admin::BaseController
 
   def destroy
     @clause_position = ClausePosition.find(params[:clause_position_id])
-    
+
     begin
       @contract.remove_lender_clause(@clause_position, current_user)
-      
+
       respond_to do |format|
-        format.turbo_stream { 
+        format.turbo_stream {
           flash.now[:notice] = "Clause was successfully removed from the contract."
-          render :destroy 
+          render :destroy
         }
-        format.html { 
+        format.html {
           redirect_to admin_mortgage_path(@mortgage), notice: "Clause was successfully removed from the contract."
         }
       end
     rescue => e
       respond_to do |format|
-        format.turbo_stream { 
+        format.turbo_stream {
           flash.now[:alert] = "Failed to remove clause: #{e.message}"
-          render :destroy_error 
+          render :destroy_error
         }
-        format.html { 
+        format.html {
           redirect_to admin_mortgage_path(@mortgage), alert: "Failed to remove clause: #{e.message}"
         }
       end
@@ -63,11 +63,11 @@ class Admin::ContractClausesController < Admin::BaseController
   def available_clauses
     @lender = Lender.find(params[:lender_id])
     @clause_position = ClausePosition.find(params[:clause_position_id])
-    
+
     # Get active clauses for this lender that aren't already in use at this position
     existing_usage = @contract.active_contract_clause_usages.find_by(clause_position: @clause_position)
     @available_clauses = @lender.active_lender_clauses.published
-    
+
     respond_to do |format|
       format.turbo_stream { render :available_clauses }
     end
@@ -85,6 +85,6 @@ class Admin::ContractClausesController < Admin::BaseController
   end
 
   def ensure_admin_user!
-    redirect_to root_path, alert: 'Access denied.' unless current_user&.admin?
+    redirect_to root_path, alert: "Access denied." unless current_user&.admin?
   end
 end

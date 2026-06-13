@@ -14,10 +14,10 @@ Rails.application.config.middleware.use OmniAuth::Builder do
       name_identifier_format: "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
       uid_attribute: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
       attribute_statements: {
-        email: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        first_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
-        last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"],
-        name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname"]
+        email: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" ],
+        first_name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" ],
+        last_name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" ],
+        name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname" ]
       }
     }
   else
@@ -25,15 +25,15 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     saml_settings = {
       assertion_consumer_service_url: "#{Rails.application.config.force_ssl ? 'https' : 'http'}://#{Rails.env.production? ? 'demo.futureprooffinancial.co' : 'localhost:3000'}/users/auth/saml/callback",
       issuer: "futureproof-financial-saml",
-      idp_sso_target_url: ENV['MICROSOFT_SAML_SSO_URL'] || Rails.application.credentials.dig(:microsoft_saml, :sso_url),
-      idp_cert: ENV['MICROSOFT_SAML_CERT'] || Rails.application.credentials.dig(:microsoft_saml, :cert),
+      idp_sso_target_url: ENV["MICROSOFT_SAML_SSO_URL"] || Rails.application.credentials.dig(:microsoft_saml, :sso_url),
+      idp_cert: ENV["MICROSOFT_SAML_CERT"] || Rails.application.credentials.dig(:microsoft_saml, :cert),
       name_identifier_format: "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
       uid_attribute: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
       attribute_statements: {
-        email: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        first_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
-        last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"],
-        name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname"]
+        email: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" ],
+        first_name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" ],
+        last_name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" ],
+        name: [ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname" ]
       }
     }
   end
@@ -44,5 +44,5 @@ end
 
 # Configure OmniAuth settings
 OmniAuth.config.logger = Rails.logger
-OmniAuth.config.allowed_request_methods = [:post, :get]
+OmniAuth.config.allowed_request_methods = [ :post, :get ]
 OmniAuth.config.silence_get_warning = true

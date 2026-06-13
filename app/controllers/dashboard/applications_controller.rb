@@ -1,15 +1,15 @@
 class Dashboard::ApplicationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_application, only: [:show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations]
-  layout 'dashboard'
+  before_action :set_application, only: [ :show, :edit, :update, :income_and_loan, :update_income_and_loan, :summary, :submit, :congratulations ]
+  layout "dashboard"
 
   def new
     # Get or create application
     @application = current_user.applications.status_created.first || current_user.applications.build
-    
+
     # Set defaults
     @application.ownership_status = :individual
-    
+
     # Pre-populate home value if passed from home page calculator
     if params[:home_value].present?
       @application.home_value = params[:home_value].to_i
@@ -19,13 +19,13 @@ class Dashboard::ApplicationsController < ApplicationController
   def create
     # Get existing created application or build new one
     @application = current_user.applications.status_created.first || current_user.applications.build
-    
+
     # Update with form data
     @application.assign_attributes(application_params)
     @application.status = :property_details
-    
+
     if @application.save
-      redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details saved successfully!'
+      redirect_to income_and_loan_dashboard_application_path(@application), notice: "Property details saved successfully!"
     else
       render :new, status: :unprocessable_entity
     end
@@ -43,9 +43,9 @@ class Dashboard::ApplicationsController < ApplicationController
     # Update status to property_details when updating property details
     @application.assign_attributes(application_params)
     @application.status = :property_details
-    
+
     if @application.save
-      redirect_to income_and_loan_dashboard_application_path(@application), notice: 'Property details updated successfully!'
+      redirect_to income_and_loan_dashboard_application_path(@application), notice: "Property details updated successfully!"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -61,10 +61,10 @@ class Dashboard::ApplicationsController < ApplicationController
     @application.assign_attributes(income_loan_params)
     # Set status to income_and_loan_options when completing this step
     @application.status = :income_and_loan_options
-    
+
     if @application.valid?(:income_loan_update) && @application.save
       # Status is now income_and_loan_options after completing income and loan step
-      redirect_to summary_dashboard_application_path(@application), notice: 'Income and loan details saved successfully!'
+      redirect_to summary_dashboard_application_path(@application), notice: "Income and loan details saved successfully!"
     else
       render :income_and_loan, status: :unprocessable_entity
     end
@@ -77,11 +77,11 @@ class Dashboard::ApplicationsController < ApplicationController
   def submit
     # Submit the application and send confirmation email
     @application.update!(status: :submitted)
-    
+
     # Send confirmation email
     UserMailer.application_submitted(@application).deliver_now
-    
-    redirect_to congratulations_dashboard_application_path(@application), notice: 'Your application has been submitted successfully!'
+
+    redirect_to congratulations_dashboard_application_path(@application), notice: "Your application has been submitted successfully!"
   end
 
   def congratulations
@@ -96,10 +96,10 @@ class Dashboard::ApplicationsController < ApplicationController
 
   def application_params
     params.require(:application).permit(
-      :home_value, 
-      :ownership_status, 
-      :property_state, 
-      :has_existing_mortgage, 
+      :home_value,
+      :ownership_status,
+      :property_state,
+      :has_existing_mortgage,
       :existing_mortgage_amount,
       :status,
       :rejected_reason,

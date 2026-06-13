@@ -29,17 +29,17 @@ class CustomerSupportPrompt
   # fallback when a file is missing (fresh checkout, partial deploy).
   # The knowledge-base section stays code-built: KNOWLEDGE_BASE also powers the
   # non-LLM fallback path, so the two must not diverge.
-  def self.build(region: 'au')
+  def self.build(region: "au")
     build_with_refs(region: region)[:text]
   end
 
   # Returns { text:, slots: { 'runtime/support_chat' => sha-or-:fallback, ... } }
   # so callers can record exactly which prompt content served each model call.
-  def self.build_with_refs(region: 'au')
+  def self.build_with_refs(region: "au")
     slots = {}
 
-    body = PromptFiles.read(:runtime, 'support_chat')&.strip
-    slots['runtime/support_chat'] = body ? PromptFiles.sha(:runtime, 'support_chat') : :fallback
+    body = PromptFiles.read(:runtime, "support_chat")&.strip
+    slots["runtime/support_chat"] = body ? PromptFiles.sha(:runtime, "support_chat") : :fallback
     body ||= "#{PERSONA}\n\n#{GUARDRAILS}"
 
     region_key = region_slot_key(region)
@@ -69,7 +69,7 @@ class CustomerSupportPrompt
 
   def self.knowledge_section
     sections = CustomerSupportService::KNOWLEDGE_BASE.map do |category, entries|
-      lines = ["### #{category.to_s.humanize}"]
+      lines = [ "### #{category.to_s.humanize}" ]
       entries.each do |key, text|
         lines << ""
         lines << "**#{key.to_s.humanize}**"
@@ -82,13 +82,13 @@ class CustomerSupportPrompt
 
   def self.region_context(region)
     case region.to_s.downcase
-    when 'au'
+    when "au"
       "User is in Australia. Currency is AUD. Regulator is ASIC. Complaints can be escalated to AFCA. 14-day cooling-off applies."
-    when 'us'
+    when "us"
       "User is in the United States. Currency is USD. EPM is NOT a HECM (Home Equity Conversion Mortgage); it is a distinct product."
-    when 'nz'
+    when "nz"
       "User is in New Zealand. Currency is NZD. CCCFA applies. 5-day cooling-off applies. Relationship-property consent may be required."
-    when 'uk'
+    when "uk"
       "User is in the United Kingdom. Currency is GBP. Regulator is FCA. EPM is regulated separately from equity-release products. Inheritance Tax (IHT) may apply at 40% above £325k."
     else
       "User region not specified. Default to Australian terminology and refer them to the appropriate region if they identify one."

@@ -15,62 +15,62 @@ class EmailTemplate < ApplicationRecord
   validates :content, presence: true
   validates :template_type, presence: true, inclusion: { in: %w[verification application_submitted security_notification] }
   validates :email_category, presence: true, inclusion: { in: %w[operational marketing] }
-  
+
   # Virtual attribute for markup editor
   attr_accessor :markup_content
-  
+
   scope :active, -> { where(is_active: true) }
   scope :by_type, ->(type) { where(template_type: type) }
   scope :by_category, ->(category) { where(email_category: category) }
-  
+
   # Track changes with audit functionality
   attr_accessor :current_user
-  
+
   after_create :log_creation
   after_update :log_update
-  
+
   # Get the active template for a specific type
   def self.for_type(template_type)
     active.by_type(template_type).first
     # Removed auto-create to allow fallback to .html.erb templates
     # || create_default_for_type(template_type)
   end
-  
+
   # Available field placeholders for different template types
   def self.available_fields
     {
-      'verification' => {
-        'user' => %w[first_name last_name full_name email mobile_number country_of_residence],
-        'verification' => %w[verification_code expires_at formatted_expires_at]
+      "verification" => {
+        "user" => %w[first_name last_name full_name email mobile_number country_of_residence],
+        "verification" => %w[verification_code expires_at formatted_expires_at]
       },
-      'application_submitted' => {
-        'user' => %w[first_name last_name full_name email mobile_number],
-        'application' => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at formatted_monthly_income_amount total_income_amount formatted_total_income_amount monthly_income_amount annuity_duration_years],
-        'mortgage' => %w[name lvr formatted_lvr interest_rate mortgage_type_display]
+      "application_submitted" => {
+        "user" => %w[first_name last_name full_name email mobile_number],
+        "application" => %w[id reference_number address home_value formatted_home_value existing_mortgage_amount formatted_existing_mortgage_amount loan_value formatted_loan_value borrower_age loan_term growth_rate formatted_growth_rate future_property_value formatted_future_property_value home_equity_preserved formatted_home_equity_preserved status status_display created_at updated_at submitted_at formatted_created_at formatted_updated_at formatted_submitted_at formatted_monthly_income_amount total_income_amount formatted_total_income_amount monthly_income_amount annuity_duration_years],
+        "mortgage" => %w[name lvr formatted_lvr interest_rate mortgage_type_display]
       },
-      'security_notification' => {
-        'user' => %w[first_name last_name full_name email],
-        'security' => %w[browser_info ip_address location sign_in_time event_type device_type os_info risk_level]
+      "security_notification" => {
+        "user" => %w[first_name last_name full_name email],
+        "security" => %w[browser_info ip_address location sign_in_time event_type device_type os_info risk_level]
       }
     }
   end
-  
+
   # Convert markup to HTML for email templates
   def markup_to_html(text)
     return "" if text.blank?
-    
+
     html = text.dup
-    
+
     # Convert line breaks to HTML paragraphs
     html = html.gsub(/\r\n|\r|\n/, "\n")
     paragraphs = html.split(/\n\s*\n/).reject(&:empty?)
-    
+
     html_parts = []
-    
+
     paragraphs.each do |paragraph|
       lines = paragraph.split("\n").map(&:strip).reject(&:empty?)
       next if lines.empty?
-      
+
       lines.each do |line|
         # Handle headers
         if line.match(/^## (.+)$/)
@@ -89,16 +89,16 @@ class EmailTemplate < ApplicationRecord
         end
       end
     end
-    
+
     # Wrap consecutive <li> elements in <ul>
     html_result = html_parts.join("\n")
     html_result = html_result.gsub(/(<li[^>]*>.*?<\/li>\s*)+/m) do |match|
       "<ul style=\"margin: 16px 0; padding-left: 24px;\">\n#{match}\n</ul>"
     end
-    
+
     html_result
   end
-  
+
   # Render template with data substitution and header/footer
   def render_content(data = {}, include_header_footer: true)
     data ||= {}
@@ -130,37 +130,37 @@ class EmailTemplate < ApplicationRecord
       content: rendered_content
     }
   end
-  
+
   # Create default templates for each type
   def self.create_default_for_type(template_type)
     case template_type
-    when 'verification'
+    when "verification"
       create!(
-        name: 'Email Verification',
-        template_type: 'verification',
-        email_category: 'operational',
-        subject: 'Verify Your Futureproof Account',
-        description: 'Email sent to new users to verify their email address',
+        name: "Email Verification",
+        template_type: "verification",
+        email_category: "operational",
+        subject: "Verify Your Futureproof Account",
+        description: "Email sent to new users to verify their email address",
         content: verification_default_content,
         content_body: verification_default_body
       )
-    when 'application_submitted'
+    when "application_submitted"
       create!(
-        name: 'Application Submitted',
-        template_type: 'application_submitted',
-        email_category: 'operational',
-        subject: 'Your Equity Preservation Mortgage® Application Has Been Submitted',
-        description: 'Email sent when user submits their mortgage application',
+        name: "Application Submitted",
+        template_type: "application_submitted",
+        email_category: "operational",
+        subject: "Your Equity Preservation Mortgage® Application Has Been Submitted",
+        description: "Email sent when user submits their mortgage application",
         content: application_submitted_default_content,
         content_body: application_submitted_default_body
       )
-    when 'security_notification'
+    when "security_notification"
       create!(
-        name: 'Security Notification',
-        template_type: 'security_notification',
-        email_category: 'operational',
-        subject: 'Security Alert: Sign-in from New Browser',
-        description: 'Email sent when user signs in from a new browser',
+        name: "Security Notification",
+        template_type: "security_notification",
+        email_category: "operational",
+        subject: "Security Alert: Sign-in from New Browser",
+        description: "Email sent when user signs in from a new browser",
         content: security_notification_default_content,
         content_body: security_notification_default_body
       )
@@ -168,15 +168,15 @@ class EmailTemplate < ApplicationRecord
       raise ArgumentError, "Unknown template type: #{template_type}"
     end
   end
-  
+
   private
-  
+
   # Apply data substitutions to text content
   def apply_data_substitutions(text, data = {})
     return text if text.blank?
-    
+
     processed_text = text.dup
-    
+
     # User fields
     if data[:user]
       user = data[:user]
@@ -187,12 +187,12 @@ class EmailTemplate < ApplicationRecord
       processed_text.gsub!(/{{user\.mobile_number}}/i, safe_field_value(user, :full_mobile_number))
       processed_text.gsub!(/{{user\.country_of_residence}}/i, safe_field_value(user, :country_of_residence))
     end
-    
+
     # Application fields
     if data[:application]
       app = data[:application]
       processed_text.gsub!(/{{application\.id}}/i, safe_field_value(app, :id))
-      processed_text.gsub!(/{{application\.reference_number}}/i, safe_field_value(app, :id).rjust(6, '0'))
+      processed_text.gsub!(/{{application\.reference_number}}/i, safe_field_value(app, :id).rjust(6, "0"))
       processed_text.gsub!(/{{application\.address}}/i, safe_field_value(app, :address))
       processed_text.gsub!(/{{application\.home_value}}/i, safe_field_value(app, :home_value))
       processed_text.gsub!(/{{application\.formatted_home_value}}/i, safe_field_value(app, :formatted_home_value))
@@ -222,7 +222,7 @@ class EmailTemplate < ApplicationRecord
       processed_text.gsub!(/{{application\.formatted_updated_at}}/i, safe_field_value(app, :formatted_updated_at))
       processed_text.gsub!(/{{application\.formatted_submitted_at}}/i, safe_field_value(app, :formatted_submitted_at))
     end
-    
+
     # Mortgage fields
     if data[:mortgage]
       mortgage = data[:mortgage]
@@ -232,7 +232,7 @@ class EmailTemplate < ApplicationRecord
       processed_text.gsub!(/{{mortgage\.interest_rate}}/i, EpmModelConfig.indicative_borrower_rate_pct.to_s)
       processed_text.gsub!(/{{mortgage\.mortgage_type_display}}/i, safe_field_value(mortgage, :mortgage_type_display))
     end
-    
+
     # Verification fields
     if data[:verification_code]
       processed_text.gsub!(/{{verification\.verification_code}}/i, data[:verification_code].to_s)
@@ -241,93 +241,93 @@ class EmailTemplate < ApplicationRecord
       processed_text.gsub!(/{{verification\.expires_at}}/i, data[:expires_at].to_s)
       processed_text.gsub!(/{{verification\.formatted_expires_at}}/i, (data[:expires_at].strftime("%I:%M %p") rescue data[:expires_at].to_s))
     end
-    
+
     # Security fields - always replace these fields with appropriate fallbacks
-    browser_info = data[:browser_info].present? ? data[:browser_info].to_s : 'Unknown Browser'
+    browser_info = data[:browser_info].present? ? data[:browser_info].to_s : "Unknown Browser"
     processed_text.gsub!(/{{security\.browser_info}}/i, browser_info)
-    
-    ip_address = data[:ip_address].present? ? data[:ip_address].to_s : 'Unknown IP'
+
+    ip_address = data[:ip_address].present? ? data[:ip_address].to_s : "Unknown IP"
     processed_text.gsub!(/{{security\.ip_address}}/i, ip_address)
-    
-    location_value = data[:location].present? ? data[:location].to_s : 'Unknown Location'
+
+    location_value = data[:location].present? ? data[:location].to_s : "Unknown Location"
     processed_text.gsub!(/{{security\.location}}/i, location_value)
-    
-    sign_in_time = data[:sign_in_time].present? ? 
-                   (data[:sign_in_time].strftime("%B %d, %Y at %I:%M %p") rescue data[:sign_in_time].to_s) : 
+
+    sign_in_time = data[:sign_in_time].present? ?
+                   (data[:sign_in_time].strftime("%B %d, %Y at %I:%M %p") rescue data[:sign_in_time].to_s) :
                    Time.current.strftime("%B %d, %Y at %I:%M %p")
     processed_text.gsub!(/{{security\.sign_in_time}}/i, sign_in_time)
-    
-    event_type = data[:event_type].present? ? data[:event_type].to_s : 'Sign-in Activity'
+
+    event_type = data[:event_type].present? ? data[:event_type].to_s : "Sign-in Activity"
     processed_text.gsub!(/{{security\.event_type}}/i, event_type)
-    
-    device_type = data[:device_type].present? ? data[:device_type].to_s : 'Unknown Device'
+
+    device_type = data[:device_type].present? ? data[:device_type].to_s : "Unknown Device"
     processed_text.gsub!(/{{security\.device_type}}/i, device_type)
-    
-    os_info = data[:os_info].present? ? data[:os_info].to_s : 'Unknown OS'
+
+    os_info = data[:os_info].present? ? data[:os_info].to_s : "Unknown OS"
     processed_text.gsub!(/{{security\.os_info}}/i, os_info)
-    
-    risk_level = data[:risk_level].present? ? data[:risk_level].to_s : 'Unknown'
+
+    risk_level = data[:risk_level].present? ? data[:risk_level].to_s : "Unknown"
     processed_text.gsub!(/{{security\.risk_level}}/i, risk_level)
-    
+
     processed_text
   end
-  
+
   def safe_field_value(object, method_name)
-    return '' unless object
-    
+    return "" unless object
+
     if object.respond_to?(method_name)
       value = object.send(method_name)
       value.to_s
     else
-      ''
+      ""
     end
   rescue => e
     Rails.logger.warn "EmailTemplate: Error accessing #{method_name} on #{object.class}: #{e.message}"
-    ''
+    ""
   end
-  
+
   # Format inline markup like **bold** and *italic*
   def format_inline_markup(text)
     return "" if text.blank?
-    
+
     formatted = sanitize_text(text)
     # Convert **bold** to <strong>
     formatted = formatted.gsub(/\*\*(.+?)\*\*/, '<strong>\1</strong>')
     # Convert *italic* to <em>
     formatted = formatted.gsub(/\*(.+?)\*/, '<em>\1</em>')
-    
+
     formatted
   end
-  
+
   # Sanitize text for HTML output
   def sanitize_text(text)
     return "" if text.blank?
     # Escape HTML but preserve special characters and placeholders
     text.to_s.gsub(/[<>"]/, {
-      '<' => '&lt;',
-      '>' => '&gt;',
-      '"' => '&quot;'
+      "<" => "&lt;",
+      ">" => "&gt;",
+      '"' => "&quot;"
     }).strip
   end
-  
+
   def log_creation
     return unless current_user
-    
+
     email_template_versions.create!(
       user: current_user,
-      action: 'created',
+      action: "created",
       change_details: "Created new email template '#{name}' of type '#{template_type}'",
       new_content: content,
       new_subject: subject
     )
   end
-  
+
   def log_update
     return unless current_user
-    
+
     if saved_change_to_is_active?
       # Log activation/deactivation
-      action = is_active? ? 'activated' : 'deactivated'
+      action = is_active? ? "activated" : "deactivated"
       email_template_versions.create!(
         user: current_user,
         action: action,
@@ -337,7 +337,7 @@ class EmailTemplate < ApplicationRecord
       # Log content/subject update
       email_template_versions.create!(
         user: current_user,
-        action: 'updated',
+        action: "updated",
         change_details: build_change_summary,
         previous_content: saved_change_to_content ? saved_change_to_content[0] : nil,
         new_content: saved_change_to_content ? saved_change_to_content[1] : nil,
@@ -346,45 +346,45 @@ class EmailTemplate < ApplicationRecord
       )
     end
   end
-  
+
   def build_change_summary
     changes_list = []
-    
+
     if saved_change_to_subject?
       changes_list << "Subject changed from '#{saved_change_to_subject[0]}' to '#{saved_change_to_subject[1]}'"
     end
-    
+
     if saved_change_to_content? || saved_change_to_content_body?
       changes_list << "Content updated"
     end
-    
+
     if saved_change_to_name?
       changes_list << "Name changed from '#{saved_change_to_name[0]}' to '#{saved_change_to_name[1]}'"
     end
-    
+
     if saved_change_to_email_category?
       changes_list << "Email category changed from '#{saved_change_to_email_category[0]}' to '#{saved_change_to_email_category[1]}'"
     end
-    
+
     changes_list.join("; ")
   end
 
   # Custom validation to ensure security notification templates maintain proper padding
   def ensure_security_template_has_proper_padding
-    return unless template_type == 'security_notification'
+    return unless template_type == "security_notification"
 
     content_to_check = content_body.present? ? content_body.to_s : content
     return unless content_to_check.present?
-    
+
     # Check for the specific pattern that was causing issues
     # The sign-in details table cell should have proper padding
-    if content_to_check.include?('Sign-in Details') || content_to_check.include?('sign-in details')
+    if content_to_check.include?("Sign-in Details") || content_to_check.include?("sign-in details")
       # Look for table cells with zero padding that contain security details
       if content_to_check.match?(/td\s+style="[^"]*padding:\s*0[^"]*"[^>]*>.*?(Sign-in Details|sign-in details|Time:|Browser:|IP Address:|Location:)/mi)
         errors.add(:content_body, "Security notification template must have proper padding in sign-in details section. " \
                             "Use 'padding: 20px 24px;' or similar instead of 'padding: 0;' for better email formatting.")
       end
-      
+
       # Also warn if no padding is found at all in cells containing security details
       unless content_to_check.match?(/td\s+style="[^"]*padding:\s*(?!0)[^"]*"[^>]*>.*?(Sign-in Details|Time:|Browser:|IP Address:|Location:)/mi)
         # Only add warning if Sign-in Details section exists but has no padding
@@ -439,23 +439,23 @@ class EmailTemplate < ApplicationRecord
       </div>
     HTML
   end
-  
+
   def self.verification_default_content
     # Backward compatibility - return full content with basic header/footer
-    EmailHeaderFooterService.render_complete_email('operational', verification_default_body)
+    EmailHeaderFooterService.render_complete_email("operational", verification_default_body)
   end
-  
+
   # Additional default content methods would go here for other templates...
   def self.application_submitted_default_body
     # This would contain the body content for application submitted emails
     # For now, return existing content from migration
     ""
   end
-  
+
   def self.application_submitted_default_content
-    EmailHeaderFooterService.render_complete_email('operational', application_submitted_default_body)
+    EmailHeaderFooterService.render_complete_email("operational", application_submitted_default_body)
   end
-  
+
   def self.security_notification_default_body
     <<~HTML
       <h2 style="margin: 0 0 24px 0; color: #374151; font-size: 24px; font-weight: 600; text-align: center;">🔐 Security Alert</h2>
@@ -499,8 +499,8 @@ class EmailTemplate < ApplicationRecord
       </div>
     HTML
   end
-  
+
   def self.security_notification_default_content
-    EmailHeaderFooterService.render_complete_email('operational', security_notification_default_body)
+    EmailHeaderFooterService.render_complete_email("operational", security_notification_default_body)
   end
 end

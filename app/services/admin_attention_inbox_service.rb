@@ -23,8 +23,8 @@ class AdminAttentionInboxService
 
   def flagged_action_items
     AgentAction.includes(:ai_agent, :actionable)
-               .where(decision: %w[flag reject], status: 'completed')
-               .where.not(status: 'overridden')
+               .where(decision: %w[flag reject], status: "completed")
+               .where.not(status: "overridden")
                .order(created_at: :desc)
                .limit(MAX_ITEMS)
                .filter_map { |action| flag_item(action) }
@@ -35,7 +35,7 @@ class AdminAttentionInboxService
 
     Item.new(
       type: :agent_flag,
-      icon: '⚠️',
+      icon: "⚠️",
       title: "Agent Flagged: #{action.actionable.class.name.titleize} ##{action.actionable.id}",
       subtitle: "#{action.ai_agent&.name || 'Agent'} flagged as #{action.decision}. Confidence: #{percent(action.confidence)}",
       detail: action.reasoning.to_s.truncate(120),
@@ -48,9 +48,9 @@ class AdminAttentionInboxService
 
   def low_confidence_items(exclude_action_ids:)
     AgentAction.includes(:ai_agent, :actionable)
-               .where(status: 'completed')
+               .where(status: "completed")
                .where.not(confidence: nil)
-               .where('confidence < ?', LOW_CONFIDENCE_THRESHOLD)
+               .where("confidence < ?", LOW_CONFIDENCE_THRESHOLD)
                .where.not(id: exclude_action_ids)
                .order(created_at: :desc)
                .limit(LOW_CONFIDENCE_LIMIT)
@@ -62,7 +62,7 @@ class AdminAttentionInboxService
 
     Item.new(
       type: :low_confidence,
-      icon: '🔍',
+      icon: "🔍",
       title: "Low Confidence: #{action.action_type.humanize} on #{action.actionable.class.name.titleize} ##{action.actionable.id}",
       subtitle: "#{action.ai_agent&.name || 'Agent'} — #{percent(action.confidence)} confidence (#{action.decision || 'no decision'})",
       detail: action.reasoning.to_s.truncate(120),
@@ -85,14 +85,14 @@ class AdminAttentionInboxService
     app = docs.first.application
     return nil unless app
 
-    doc_names = docs.map { |d| d.document_type.to_s.humanize }.join(', ')
+    doc_names = docs.map { |d| d.document_type.to_s.humanize }.join(", ")
     Item.new(
       type: :document_review,
-      icon: '📄',
+      icon: "📄",
       title: "Unverified Documents: #{docs.size} document#{'s' if docs.size != 1} need manual review",
       subtitle: "Application ##{app_id}: #{doc_names.truncate(80)}",
       detail: nil,
-      resource_type: 'Application',
+      resource_type: "Application",
       resource_id: app.id,
       action_id: nil,
       created_at: docs.map(&:created_at).max

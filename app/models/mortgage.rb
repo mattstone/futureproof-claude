@@ -1,13 +1,13 @@
 class Mortgage < ApplicationRecord
   has_many :mortgage_versions, dependent: :destroy
   has_many :mortgage_contracts, dependent: :destroy
-  
+
   # Lender relationships (many-to-many)
   has_many :mortgage_lenders, dependent: :destroy
   has_many :lenders, through: :mortgage_lenders
-  has_many :active_lenders, -> { where(mortgage_lenders: { active: true }) }, 
+  has_many :active_lenders, -> { where(mortgage_lenders: { active: true }) },
            through: :mortgage_lenders, source: :lender
-  
+
   enum :mortgage_type, {
     interest_only: 0,
     principal_and_interest: 1
@@ -21,15 +21,15 @@ class Mortgage < ApplicationRecord
 
   validates :name, presence: true
   validates :mortgage_type, presence: true
-  validates :lvr, presence: true, numericality: { 
-    greater_than_or_equal_to: 1, 
-    less_than_or_equal_to: 100 
+  validates :lvr, presence: true, numericality: {
+    greater_than_or_equal_to: 1,
+    less_than_or_equal_to: 100
   }
   validate :lvr_in_valid_increments
-  
+
   # Track changes with audit functionality
   attr_accessor :current_user
-  
+
   after_create :log_creation
   after_update :log_update
 
@@ -67,86 +67,86 @@ class Mortgage < ApplicationRecord
       max_results: @max_results
     }
   end
-  
+
   # Display name for mortgage type
   def mortgage_type_display
     case mortgage_type
-    when 'interest_only'
-      'Interest Only'
-    when 'principal_and_interest'
-      'Principal and Interest'
+    when "interest_only"
+      "Interest Only"
+    when "principal_and_interest"
+      "Principal and Interest"
     else
       mortgage_type.humanize
     end
   end
-  
+
   # Format LVR for display - hide decimal point if it's a whole number
   def formatted_lvr
-    return '' unless lvr.present?
-    
+    return "" unless lvr.present?
+
     if lvr % 1 == 0
       "#{lvr.to_i}%"
     else
       "#{lvr}%"
     end
   end
-  
+
   # Get lender names for display
   def lender_names
     if active_lenders.any?
-      active_lenders.pluck(:name).join(', ')
+      active_lenders.pluck(:name).join(", ")
     else
-      'No Lenders Assigned'
+      "No Lenders Assigned"
     end
   end
-  
+
   # Keep backward compatibility for single lender name
   def lender_name
     lender_names
   end
-  
+
   private
-  
+
   def format_lvr_value(lvr_value)
-    return '' unless lvr_value.present?
-    
+    return "" unless lvr_value.present?
+
     if lvr_value % 1 == 0
       "#{lvr_value.to_i}%"
     else
       "#{lvr_value}%"
     end
   end
-  
+
   def lvr_in_valid_increments
     return unless lvr.present?
-    
+
     # Check if LVR is in increments of 0.1
     unless (lvr * 10) % 1 == 0
       errors.add(:lvr, "must be in increments of 0.1 (e.g., 80.1, 80.2, etc.)")
     end
   end
-  
-  
+
+
   def log_creation
     return unless current_user
-    
+
     mortgage_versions.create!(
       user: current_user,
-      action: 'created',
+      action: "created",
       change_details: "Created new mortgage '#{name}' with type '#{mortgage_type_display}' and LVR #{lvr}%",
       new_name: name,
       new_mortgage_type: mortgage_type_before_type_cast,
       new_lvr: lvr
     )
   end
-  
+
   def log_update
     return unless current_user
-    
+
     if saved_changes.any?
       mortgage_versions.create!(
         user: current_user,
-        action: 'updated',
+        action: "updated",
         change_details: build_change_summary,
         previous_name: saved_change_to_name ? saved_change_to_name[0] : nil,
         new_name: saved_change_to_name ? saved_change_to_name[1] : nil,
@@ -157,34 +157,34 @@ class Mortgage < ApplicationRecord
       )
     end
   end
-  
+
   def build_change_summary
     changes_list = []
-    
+
     if saved_change_to_name?
       changes_list << "Name changed from '#{saved_change_to_name[0]}' to '#{saved_change_to_name[1]}'"
     end
-    
+
     if saved_change_to_mortgage_type?
       old_type = case saved_change_to_mortgage_type[0]
-                 when 0 then 'Interest Only'
-                 when 1 then 'Principal and Interest'
-                 else saved_change_to_mortgage_type[0].to_s
-                 end
+      when 0 then "Interest Only"
+      when 1 then "Principal and Interest"
+      else saved_change_to_mortgage_type[0].to_s
+      end
       new_type = case saved_change_to_mortgage_type[1]
-                 when 0 then 'Interest Only'
-                 when 1 then 'Principal and Interest'
-                 else saved_change_to_mortgage_type[1].to_s
-                 end
+      when 0 then "Interest Only"
+      when 1 then "Principal and Interest"
+      else saved_change_to_mortgage_type[1].to_s
+      end
       changes_list << "Mortgage type changed from '#{old_type}' to '#{new_type}'"
     end
-    
+
     if saved_change_to_lvr?
       old_lvr = format_lvr_value(saved_change_to_lvr[0])
       new_lvr = format_lvr_value(saved_change_to_lvr[1])
       changes_list << "LVR changed from #{old_lvr} to #{new_lvr}"
     end
-    
+
     changes_list.join("; ")
   end
 end

@@ -11,8 +11,8 @@ class CreateWorkflowStepExecutions < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :workflow_step_executions, [:execution_id, :step_id], unique: true
+
+    add_index :workflow_step_executions, [ :execution_id, :step_id ], unique: true
     add_index :workflow_step_executions, :status
     add_index :workflow_step_executions, :started_at
   end

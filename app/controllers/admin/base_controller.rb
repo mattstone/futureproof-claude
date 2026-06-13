@@ -1,6 +1,6 @@
 class Admin::BaseController < ApplicationController
-  layout 'admin/application'
-  
+  layout "admin/application"
+
   before_action :authenticate_user!
   before_action :ensure_admin
   before_action :log_admin_activity
@@ -20,7 +20,7 @@ class Admin::BaseController < ApplicationController
   def ensure_futureproof_admin
     unless futureproof_admin?
       Rails.logger.warn "[SECURITY] Unauthorized Futureproof admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Lender: #{current_user&.lender&.name || 'unknown'}, Path: #{request.fullpath}"
-      redirect_to admin_root_path, alert: 'Access denied. This section is restricted to Futureproof administrators.'
+      redirect_to admin_root_path, alert: "Access denied. This section is restricted to Futureproof administrators."
     end
   end
 
@@ -44,13 +44,13 @@ class Admin::BaseController < ApplicationController
   def ensure_admin
     unless current_user&.admin?
       Rails.logger.warn "[SECURITY] Unauthorized admin access attempt from IP: #{request.remote_ip}, User: #{current_user&.email || 'anonymous'}, Path: #{request.fullpath}"
-      redirect_to root_path, alert: 'Access denied. Admin privileges required.'
+      redirect_to root_path, alert: "Access denied. Admin privileges required."
     end
   end
-  
+
   def log_admin_activity
     return unless current_user&.admin?
-    
+
     Rails.logger.info "[ADMIN] #{current_user.email} accessed #{request.fullpath} from IP: #{request.remote_ip}"
   end
 
@@ -100,7 +100,7 @@ class Admin::BaseController < ApplicationController
   def initialize_admin_jurisdiction
     # ✅ CRITICAL: For lender-type admins, set jurisdiction to their lender's country
     # Futureproof admins get "Summary" by default
-    
+
     if lender_admin? && admin_lender
       session[:admin_jurisdiction] = admin_lender.country
     else
@@ -109,14 +109,14 @@ class Admin::BaseController < ApplicationController
   end
 
   def valid_jurisdiction?(jurisdiction)
-    ["Summary", "AU", "US", "NZ", "UK"].include?(jurisdiction)
+    [ "Summary", "AU", "US", "NZ", "UK" ].include?(jurisdiction)
   end
 
   # ✅ CRITICAL: Get effective jurisdiction for filtering
   # Returns either the selected jurisdiction or all for "Summary"
   def effective_admin_jurisdiction
     selected = session[:admin_jurisdiction] || "Summary"
-    
+
     # Lender admins can only see their own jurisdiction
     if lender_admin?
       admin_lender&.country || selected
@@ -129,7 +129,7 @@ class Admin::BaseController < ApplicationController
   def scope_by_admin_jurisdiction(scope)
     jurisdiction = effective_admin_jurisdiction
     return scope if jurisdiction == "Summary"
-    
+
     scope.where(jurisdiction_field => jurisdiction)
   end
 
@@ -137,11 +137,11 @@ class Admin::BaseController < ApplicationController
 
   def jurisdiction_field
     case controller_name
-    when 'applications'
+    when "applications"
       :region
-    when 'lenders'
+    when "lenders"
       :country
-    when 'brokers'
+    when "brokers"
       :jurisdiction
     else
       :jurisdiction

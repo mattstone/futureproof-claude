@@ -7,12 +7,12 @@ class BorrowerMailer < ApplicationMailer
     # Check notification preferences
     return if @user.notification_preference && !@user.notification_preference.payment_email
 
-    @amount = number_with_precision(distribution.amount, precision: 2, delimiter: ',')
+    @amount = number_with_precision(distribution.amount, precision: 2, delimiter: ",")
     @property = @application.property_address
     @total_received = number_with_precision(
-      @application.distributions.where(status: 'completed').sum(:amount),
+      @application.distributions.where(status: "completed").sum(:amount),
       precision: 2,
-      delimiter: ','
+      delimiter: ","
     )
 
     mail(
@@ -40,7 +40,7 @@ class BorrowerMailer < ApplicationMailer
 
   private
 
-  def number_with_precision(number, precision: 2, delimiter: ',')
+  def number_with_precision(number, precision: 2, delimiter: ",")
     ActionController::Base.helpers.number_with_precision(number, precision: precision, delimiter: delimiter)
   end
 

@@ -68,7 +68,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
       loan_amount: 200_000
     }
     # Should succeed, return validation error, or CSRF rejection
-    assert_includes [200, 400, 403, 422], response.status
+    assert_includes [ 200, 400, 403, 422 ], response.status
   end
 
   test "mortgage estimate handles edge case - maximum property value" do
@@ -77,7 +77,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
       loan_amount: 4_000_000
     }
     # Should succeed, return validation error, or CSRF rejection
-    assert_includes [200, 400, 403, 422], response.status
+    assert_includes [ 200, 400, 403, 422 ], response.status
   end
 
   # ============================================
@@ -128,7 +128,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
 
     get new_application_path
     # Should load the application form
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 
   # ============================================
@@ -151,7 +151,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
   test "API handles missing parameters gracefully" do
     get api_monthly_income_path
     # Should return error, not crash, or CSRF rejection
-    assert_includes [200, 400, 403, 422], response.status
+    assert_includes [ 200, 400, 403, 422 ], response.status
   end
 
   test "API handles invalid parameter types gracefully" do
@@ -161,7 +161,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
       annuity_duration: "bad"
     }
     # Should return error, handle gracefully, or CSRF rejection
-    assert_includes [200, 400, 403, 422, 500], response.status
+    assert_includes [ 200, 400, 403, 422, 500 ], response.status
   end
 
   test "API handles negative values appropriately" do
@@ -171,7 +171,7 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
       annuity_duration: -15
     }
     # Should return error, handle gracefully, or CSRF rejection
-    assert_includes [200, 400, 403, 422], response.status
+    assert_includes [ 200, 400, 403, 422 ], response.status
   end
 
   # ============================================
@@ -186,6 +186,6 @@ class Checkpoint2QuoteEngineTest < ActionDispatch::IntegrationTest
       currency: "AUD"
     }
     # Should handle currency parameter or CSRF rejection
-    assert_includes [200, 400, 403, 422], response.status
+    assert_includes [ 200, 400, 403, 422 ], response.status
   end
 end

@@ -25,7 +25,7 @@ module JsonAttributes
 
       # Create main alias (e.g., property_images → property_images_parsed)
       alias_method :"#{attr_name}_array", :"#{attr_name}_parsed"
-      
+
       # Create backward compatibility aliases
       aliases.each do |alias_name|
         alias_method alias_name, :"#{attr_name}_parsed"

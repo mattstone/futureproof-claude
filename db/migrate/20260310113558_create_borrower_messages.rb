@@ -9,7 +9,7 @@ class CreateBorrowerMessages < ActiveRecord::Migration[8.1]
       t.datetime :read_at
       t.timestamps
     end
-    
-    add_index :borrower_messages, [:application_id, :created_at]
+
+    add_index :borrower_messages, [ :application_id, :created_at ]
   end
 end

@@ -10,7 +10,7 @@ class CreateTermsOfUseVersions < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :terms_of_use_versions, [:terms_of_use_id, :created_at]
+
+    add_index :terms_of_use_versions, [ :terms_of_use_id, :created_at ]
   end
 end

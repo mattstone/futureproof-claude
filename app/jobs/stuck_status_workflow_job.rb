@@ -1,11 +1,11 @@
 class StuckStatusWorkflowJob < ApplicationJob
   queue_as :default
 
-  LEGACY_CONTRACT_STATUS_ALIASES = { 'in_arrears' => 'investment_at_risk' }.freeze
-  
+  LEGACY_CONTRACT_STATUS_ALIASES = { "in_arrears" => "investment_at_risk" }.freeze
+
   def perform
     Rails.logger.info "Starting StuckStatusWorkflowJob execution"
-    
+
     begin
       process_stuck_applications
       process_stuck_contracts
@@ -23,9 +23,9 @@ class StuckStatusWorkflowJob < ApplicationJob
 
   def process_stuck_applications
     workflows = EmailWorkflow.active.where(
-      trigger_type: ['application_stuck_at_status']
+      trigger_type: [ "application_stuck_at_status" ]
     )
-    
+
     workflows.each do |workflow|
       process_application_workflow(workflow)
     end
@@ -33,9 +33,9 @@ class StuckStatusWorkflowJob < ApplicationJob
 
   def process_stuck_contracts
     workflows = EmailWorkflow.active.where(
-      trigger_type: ['contract_stuck_at_status'] 
+      trigger_type: [ "contract_stuck_at_status" ]
     )
-    
+
     workflows.each do |workflow|
       process_contract_workflow(workflow)
     end
@@ -45,10 +45,10 @@ class StuckStatusWorkflowJob < ApplicationJob
     config = parse_workflow_config(workflow)
     return unless config
 
-    status = config['stuck_status']
-    duration = config['stuck_duration']&.to_i
-    unit = config['stuck_unit'] || 'days'
-    run_once = config['run_once'] || false
+    status = config["stuck_status"]
+    duration = config["stuck_duration"]&.to_i
+    unit = config["stuck_unit"] || "days"
+    run_once = config["run_once"] || false
 
     return unless status && duration
 
@@ -64,16 +64,16 @@ class StuckStatusWorkflowJob < ApplicationJob
       begin
         # Execute the workflow for this application
         WorkflowExecutionService.new(workflow, application).execute!
-        
+
         # Record the execution
         WorkflowExecutionTracker.record_execution!(
-          workflow, 
-          application, 
-          'application_stuck_at_status',
+          workflow,
+          application,
+          "application_stuck_at_status",
           trigger_key,
           run_once: run_once
         )
-        
+
         Rails.logger.info "Executed workflow #{workflow.id} for stuck application #{application.id}"
       rescue => e
         Rails.logger.error "Failed to execute workflow #{workflow.id} for application #{application.id}: #{e.message}"
@@ -85,12 +85,12 @@ class StuckStatusWorkflowJob < ApplicationJob
     config = parse_workflow_config(workflow)
     return unless config
 
-    status = config['stuck_contract_status']
+    status = config["stuck_contract_status"]
     # Contract status 'in_arrears' was renamed; normalise configs saved before the rename
     status = LEGACY_CONTRACT_STATUS_ALIASES.fetch(status, status)
-    duration = config['stuck_duration']&.to_i
-    unit = config['stuck_unit'] || 'days'
-    run_once = config['run_once'] || false
+    duration = config["stuck_duration"]&.to_i
+    unit = config["stuck_unit"] || "days"
+    run_once = config["run_once"] || false
 
     return unless status && duration
 
@@ -106,16 +106,16 @@ class StuckStatusWorkflowJob < ApplicationJob
       begin
         # Execute the workflow for this contract
         WorkflowExecutionService.new(workflow, contract).execute!
-        
+
         # Record the execution
         WorkflowExecutionTracker.record_execution!(
           workflow,
           contract,
-          'contract_stuck_at_status',
+          "contract_stuck_at_status",
           trigger_key,
           run_once: run_once
         )
-        
+
         Rails.logger.info "Executed workflow #{workflow.id} for stuck contract #{contract.id}"
       rescue => e
         Rails.logger.error "Failed to execute workflow #{workflow.id} for contract #{contract.id}: #{e.message}"
@@ -127,7 +127,7 @@ class StuckStatusWorkflowJob < ApplicationJob
     time_threshold = duration.send(unit).ago
 
     Application.where(status: status)
-               .where('updated_at <= ?', time_threshold)
+               .where("updated_at <= ?", time_threshold)
                .includes(:user)
   end
 
@@ -135,17 +135,17 @@ class StuckStatusWorkflowJob < ApplicationJob
     time_threshold = duration.send(unit).ago
 
     Contract.where(status: status)
-            .where('updated_at <= ?', time_threshold)
+            .where("updated_at <= ?", time_threshold)
             .includes(application: :user)
   end
 
   def parse_workflow_config(workflow)
     # Get the trigger node configuration from the workflow data
     workflow_data = workflow.workflow_builder_data || {}
-    nodes = workflow_data['nodes'] || []
-    trigger_node = nodes.find { |node| node['type'] == 'trigger' }
-    
-    trigger_node&.dig('config') || {}
+    nodes = workflow_data["nodes"] || []
+    trigger_node = nodes.find { |node| node["type"] == "trigger" }
+
+    trigger_node&.dig("config") || {}
   rescue JSON::ParserError => e
     Rails.logger.error "Failed to parse workflow config for workflow #{workflow.id}: #{e.message}"
     nil

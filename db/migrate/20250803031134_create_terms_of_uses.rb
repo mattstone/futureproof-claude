@@ -8,7 +8,7 @@ class CreateTermsOfUses < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :terms_of_uses, :is_active
     add_index :terms_of_uses, :last_updated
   end

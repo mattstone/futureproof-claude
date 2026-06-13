@@ -20,17 +20,17 @@ module JurisdictionValidation
 
   # Standardized jurisdiction constants
   JURISDICTION_MAP = {
-    'AU' => 'Australia',
-    'US' => 'United States',
-    'NZ' => 'New Zealand',
-    'UK' => 'United Kingdom'
+    "AU" => "Australia",
+    "US" => "United States",
+    "NZ" => "New Zealand",
+    "UK" => "United Kingdom"
   }.freeze
 
   ISO_TO_CODE = {
-    'Australia' => 'AU',
-    'United States' => 'US',
-    'New Zealand' => 'NZ',
-    'United Kingdom' => 'UK'
+    "Australia" => "AU",
+    "United States" => "US",
+    "New Zealand" => "NZ",
+    "United Kingdom" => "UK"
   }.freeze
 
   VALID_JURISDICTIONS = JURISDICTION_MAP.keys.freeze
@@ -57,12 +57,12 @@ module JurisdictionValidation
     # Normalize jurisdiction input (converts full names to ISO codes)
     def normalize_jurisdiction(input)
       return nil if input.blank?
-      
+
       code = input.to_s.upcase
-      
+
       # Already a code (AU, US, NZ, UK)
       return code if VALID_JURISDICTIONS.include?(code)
-      
+
       # Convert full name to code
       ISO_TO_CODE[input.to_s] || code
     end
@@ -93,7 +93,7 @@ module JurisdictionValidation
     return if code.blank?
 
     normalized = self.class.normalize_jurisdiction(code)
-    
+
     unless VALID_JURISDICTIONS.include?(normalized)
       field_name = self.class.jurisdiction_field
       errors.add(field_name, "must be a valid jurisdiction (AU, US, NZ, UK)")
@@ -103,14 +103,14 @@ module JurisdictionValidation
   # Check if jurisdiction matches another object's jurisdiction
   def jurisdiction_matches?(other)
     other_code = case other
-                 when String
+    when String
                    self.class.normalize_jurisdiction(other)
-                 when JurisdictionValidation
+    when JurisdictionValidation
                    other.jurisdiction_code
-                 else
+    else
                    return false
-                 end
-    
+    end
+
     jurisdiction_code == other_code
   end
 end

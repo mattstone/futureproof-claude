@@ -12,7 +12,7 @@ class CreateAiAgents < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :ai_agents, :agent_type
     add_index :ai_agents, :is_active
   end

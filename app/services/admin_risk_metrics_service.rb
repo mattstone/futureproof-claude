@@ -106,22 +106,22 @@ class AdminRiskMetricsService
   end
 
   def rating_for(score)
-    return 'Excellent' if score >= 90
-    return 'Good' if score >= 75
-    return 'Fair' if score >= 60
-    'Needs Attention'
+    return "Excellent" if score >= 90
+    return "Good" if score >= 75
+    return "Fair" if score >= 60
+    "Needs Attention"
   end
 
   def at_risk_alerts(health, thresholds)
     pct = health[:at_risk_pct]
     if pct > thresholds[:at_risk_rate_critical] * 100
-      [{ severity: :critical, title: 'High At-Risk Rate',
+      [ { severity: :critical, title: "High At-Risk Rate",
          detail: "#{pct}% of AUM at risk (#{currency(health[:at_risk_value])})",
-         action: 'Review at-risk contracts and investment recovery plan' }]
+         action: "Review at-risk contracts and investment recovery plan" } ]
     elsif pct > thresholds[:at_risk_rate_warning] * 100
-      [{ severity: :warning, title: 'Elevated At-Risk Exposure',
+      [ { severity: :warning, title: "Elevated At-Risk Exposure",
          detail: "#{pct}% of AUM at risk",
-         action: 'Monitor closely and review individual cases' }]
+         action: "Monitor closely and review individual cases" } ]
     else
       []
     end
@@ -131,13 +131,13 @@ class AdminRiskMetricsService
     pct = health[:holiday_pct]
     count = health[:holiday_contracts]
     if pct > thresholds[:holiday_rate_critical] * 100
-      [{ severity: :critical, title: 'High Holiday Rate',
+      [ { severity: :critical, title: "High Holiday Rate",
          detail: "#{pct}% of AUM in holiday — #{count} contracts",
-         action: 'Investment underperformance exceeds model expectations — review immediately' }]
+         action: "Investment underperformance exceeds model expectations — review immediately" } ]
     elsif pct > thresholds[:holiday_rate_warning] * 100
-      [{ severity: :warning, title: 'Elevated Holiday Rate',
+      [ { severity: :warning, title: "Elevated Holiday Rate",
          detail: "#{pct}% of AUM in holiday — #{count} contracts",
-         action: 'Review investment performance triggering holidays' }]
+         action: "Review investment performance triggering holidays" } ]
     else
       []
     end
@@ -152,12 +152,12 @@ class AdminRiskMetricsService
     pct = top[1].to_f / health[:total_contracts] * 100
     return nil if pct <= thresholds[:concentration_warning] * 100
 
-    name = Lender.find_by(id: top[0])&.name || 'Unknown'
+    name = Lender.find_by(id: top[0])&.name || "Unknown"
     {
       severity: :warning,
-      title: 'Lender Concentration',
+      title: "Lender Concentration",
       detail: "#{name} holds #{pct.round(0)}% of contracts",
-      action: 'Diversify lender relationships'
+      action: "Diversify lender relationships"
     }
   end
 
@@ -171,31 +171,31 @@ class AdminRiskMetricsService
     pct = (largest.allocated_amount.to_f / aum * 100).round(1)
     {
       severity: :warning,
-      title: 'Single Exposure',
+      title: "Single Exposure",
       detail: "Largest contract is #{pct}% of total AUM (#{currency(largest.allocated_amount)})",
-      action: 'Review concentration limits'
+      action: "Review concentration limits"
     }
   end
 
   def high_ltv_alert(thresholds)
     threshold_pct = thresholds[:high_ltv_threshold] * 100
-    count = @applications.where(status: :accepted).where('equity_percentage > ?', threshold_pct).count
+    count = @applications.where(status: :accepted).where("equity_percentage > ?", threshold_pct).count
     return nil if count.zero?
 
     {
       severity: :info,
-      title: 'High LTV Contracts',
+      title: "High LTV Contracts",
       detail: "#{count} accepted applications with equity > #{threshold_pct.round(0)}%",
-      action: 'Ensure adequate buffer for market downturns'
+      action: "Ensure adequate buffer for market downturns"
     }
   end
 
   def healthy_alert
     {
       severity: :success,
-      title: 'Portfolio Healthy',
-      detail: 'No risk alerts detected',
-      action: 'Continue monitoring'
+      title: "Portfolio Healthy",
+      detail: "No risk alerts detected",
+      action: "Continue monitoring"
     }
   end
 
@@ -213,7 +213,7 @@ class AdminRiskMetricsService
   def lender_concentration
     @contracts.where.not(lender_id: nil)
               .joins(:lender)
-              .group('lenders.name')
+              .group("lenders.name")
               .sum(:allocated_amount)
               .sort_by { |_, v| -v }
               .first(5)
@@ -221,11 +221,11 @@ class AdminRiskMetricsService
 
   def value_band_distribution
     {
-      'Under $500K' => @applications.where(home_value: 0..499_999).count,
-      '$500K - $1M' => @applications.where(home_value: 500_000..999_999).count,
-      '$1M - $2M' => @applications.where(home_value: 1_000_000..1_999_999).count,
-      '$2M - $5M' => @applications.where(home_value: 2_000_000..4_999_999).count,
-      '$5M+' => @applications.where(home_value: 5_000_000..).count
+      "Under $500K" => @applications.where(home_value: 0..499_999).count,
+      "$500K - $1M" => @applications.where(home_value: 500_000..999_999).count,
+      "$1M - $2M" => @applications.where(home_value: 1_000_000..1_999_999).count,
+      "$2M - $5M" => @applications.where(home_value: 2_000_000..4_999_999).count,
+      "$5M+" => @applications.where(home_value: 5_000_000..).count
     }
   end
 

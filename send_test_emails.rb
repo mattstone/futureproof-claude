@@ -185,9 +185,9 @@ puts "✅ Started execution at: #{execution.started_at}"
 # Execute each step
 onboarding_workflow.workflow_steps.ordered.each do |step|
   puts "\n📤 Executing step #{step.position}: #{step.name}"
-  
+
   result = step.execute_for(execution)
-  
+
   if result[:success]
     puts "   ✅ #{result[:message]}"
   else

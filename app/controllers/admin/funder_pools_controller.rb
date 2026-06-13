@@ -1,11 +1,11 @@
 class Admin::FunderPoolsController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_wholesale_funder, except: [:index]
-  before_action :set_funder_pool, only: [:show, :edit, :update, :destroy]
+  before_action :set_wholesale_funder, except: [ :index ]
+  before_action :set_funder_pool, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @funder_pools = FunderPool.includes(:wholesale_funder).recent.page(params[:page]).per(20)
-    
+
     # Search filter
     if params[:search].present?
       search_term = params[:search].to_s.strip
@@ -14,12 +14,12 @@ class Admin::FunderPoolsController < Admin::BaseController
         "%#{search_term}%", "%#{search_term}%"
       ).joins(:wholesale_funder)
     end
-    
+
     # Wholesale Funder filter
     if params[:wholesale_funder_id].present?
       @funder_pools = @funder_pools.where(wholesale_funder_id: params[:wholesale_funder_id])
     end
-    
+
     @wholesale_funders_for_filter = WholesaleFunder.order(:name)
   end
 
@@ -38,7 +38,7 @@ class Admin::FunderPoolsController < Admin::BaseController
     @funder_pool.current_user = current_user
 
     if @funder_pool.save
-      redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: 'Funder pool was successfully created.'
+      redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: "Funder pool was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -50,7 +50,7 @@ class Admin::FunderPoolsController < Admin::BaseController
   def update
     @funder_pool.current_user = current_user
     if @funder_pool.update(funder_pool_params)
-      redirect_to admin_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), notice: 'Funder pool was successfully updated.'
+      redirect_to admin_wholesale_funder_funder_pool_path(@wholesale_funder, @funder_pool), notice: "Funder pool was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -58,9 +58,9 @@ class Admin::FunderPoolsController < Admin::BaseController
 
   def destroy
     @funder_pool.destroy
-    redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: 'Funder pool was successfully deleted.'
+    redirect_to admin_wholesale_funder_path(@wholesale_funder), notice: "Funder pool was successfully deleted."
   end
-  
+
 
   private
 

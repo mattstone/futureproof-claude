@@ -15,7 +15,7 @@ module AdminSearchable
 
     conditions = searchable_columns.map do |column|
       "#{column} ILIKE :search"
-    end.join(' OR ')
+    end.join(" OR ")
 
     scope.where(conditions, search: "%#{sanitize_sql_like(search_term)}%")
   end
@@ -26,7 +26,7 @@ module AdminSearchable
   # @return [ActiveRecord::Relation] Filtered scope
   def apply_status_filter(scope, status)
     return scope if status.blank?
-    return scope if status == 'all'
+    return scope if status == "all"
 
     scope.where(status: status)
   end

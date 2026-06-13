@@ -1,5 +1,5 @@
 class ClaudeChatService
-  MODEL = 'claude-sonnet-4-6'
+  MODEL = "claude-sonnet-4-6"
   MAX_TOKENS = 1024
   MAX_TOOL_ITERATIONS = 3
 
@@ -8,7 +8,7 @@ class ClaudeChatService
   class ConfigurationError < StandardError; end
 
   def self.available?
-    ENV['ANTHROPIC_API_KEY'].present?
+    ENV["ANTHROPIC_API_KEY"].present?
   end
 
   def initialize(client: nil)
@@ -16,7 +16,7 @@ class ClaudeChatService
   end
 
   def chat(system:, messages:, tools: nil, tool_dispatcher: nil)
-    raise ConfigurationError, 'ANTHROPIC_API_KEY not configured' unless @client
+    raise ConfigurationError, "ANTHROPIC_API_KEY not configured" unless @client
 
     conversation = messages.dup
     aggregate_usage = empty_usage
@@ -34,7 +34,7 @@ class ClaudeChatService
       merge_usage!(aggregate_usage, response.usage)
       stop_reason = response.stop_reason
 
-      if stop_reason.to_s != 'tool_use' || tool_dispatcher.nil?
+      if stop_reason.to_s != "tool_use" || tool_dispatcher.nil?
         return Result.new(
           text: extract_text(response),
           tool_calls: executed_tool_calls,
@@ -46,21 +46,21 @@ class ClaudeChatService
       tool_uses = extract_tool_uses(response)
       break if tool_uses.empty?
 
-      conversation << { role: 'assistant', content: assistant_content_for(response) }
+      conversation << { role: "assistant", content: assistant_content_for(response) }
       tool_results = tool_uses.map do |tool_use|
         result = tool_dispatcher.call(name: tool_use[:name], input: tool_use[:input])
         executed_tool_calls << tool_use.merge(result: result, iteration: iteration + 1)
         {
-          type: 'tool_result',
+          type: "tool_result",
           tool_use_id: tool_use[:id],
           content: result.to_s
         }
       end
-      conversation << { role: 'user', content: tool_results }
+      conversation << { role: "user", content: tool_results }
     end
 
     Result.new(
-      text: '(Stopped — reached tool-iteration cap)',
+      text: "(Stopped — reached tool-iteration cap)",
       tool_calls: executed_tool_calls,
       usage: aggregate_usage,
       stop_reason: :max_iterations
@@ -71,7 +71,7 @@ class ClaudeChatService
 
   def build_client
     return nil unless self.class.available?
-    Anthropic::Client.new(api_key: ENV['ANTHROPIC_API_KEY'])
+    Anthropic::Client.new(api_key: ENV["ANTHROPIC_API_KEY"])
   end
 
   def build_system_blocks(system)
@@ -79,24 +79,24 @@ class ClaudeChatService
 
     [
       {
-        type: 'text',
+        type: "text",
         text: system.to_s,
-        cache_control: { type: 'ephemeral' }
+        cache_control: { type: "ephemeral" }
       }
     ]
   end
 
   def extract_text(response)
     response.content
-            .select { |block| block.respond_to?(:type) && block.type.to_s == 'text' }
-            .map { |block| block.respond_to?(:text) ? block.text : '' }
+            .select { |block| block.respond_to?(:type) && block.type.to_s == "text" }
+            .map { |block| block.respond_to?(:text) ? block.text : "" }
             .join("\n\n")
             .strip
   end
 
   def extract_tool_uses(response)
     response.content
-            .select { |block| block.respond_to?(:type) && block.type.to_s == 'tool_use' }
+            .select { |block| block.respond_to?(:type) && block.type.to_s == "tool_use" }
             .map { |block| { id: block.id, name: block.name, input: block.input.to_h } }
   end
 

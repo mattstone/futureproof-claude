@@ -20,7 +20,7 @@ class BorrowerIncomeService
 
   # Get next scheduled income payment
   def next_income_details
-    pending = @application.distributions.where(status: ["pending", "processing"])
+    pending = @application.distributions.where(status: [ "pending", "processing" ])
                                          .order(:distribution_date)
                                          .first
     if pending
@@ -34,7 +34,7 @@ class BorrowerIncomeService
   end
 
   # Get distributions filtered by period
-  def distributions_by_period(period = 'all')
+  def distributions_by_period(period = "all")
     filter_distributions_by_period(period).order(distribution_date: :desc)
   end
 
@@ -43,13 +43,13 @@ class BorrowerIncomeService
     {
       total: distributions.sum(:amount),
       received: distributions.where(status: "completed").sum(:amount),
-      pending: distributions.where(status: ["pending", "processing"]).sum(:amount),
+      pending: distributions.where(status: [ "pending", "processing" ]).sum(:amount),
       count: distributions.count
     }
   end
 
   # Get income stats for a specific period
-  def period_stats(period = 'all')
+  def period_stats(period = "all")
     distributions = distributions_by_period(period)
     period_summary(distributions)
   end
@@ -61,16 +61,16 @@ class BorrowerIncomeService
   end
 
   def remaining_payments_count
-    @application.distributions.where(status: ["pending", "processing"]).count
+    @application.distributions.where(status: [ "pending", "processing" ]).count
   end
 
   def filter_distributions_by_period(period)
     case period.to_s
-    when 'month'
+    when "month"
       @application.distributions.where(distribution_date: 1.month.ago..Time.current)
-    when 'quarter'
+    when "quarter"
       @application.distributions.where(distribution_date: 3.months.ago..Time.current)
-    when 'year'
+    when "year"
       @application.distributions.where(distribution_date: 1.year.ago..Time.current)
     else
       @application.distributions

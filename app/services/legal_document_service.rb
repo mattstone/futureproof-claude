@@ -2,12 +2,12 @@ class LegalDocumentService
   # Bulk create documents from templates for a jurisdiction
   def self.setup_jurisdiction(jurisdiction, admin_user)
     templates = LegalDocumentTemplate.for_jurisdiction(jurisdiction).active
-    
+
     results = {
       created: [],
       errors: []
     }
-    
+
     templates.each do |template|
       begin
         doc = LegalDocument.create!(
@@ -27,23 +27,23 @@ class LegalDocumentService
         results[:errors] << { template: template.display_name, error: e.message }
       end
     end
-    
+
     results
   end
 
   # Require user to accept essential documents for application
   def self.require_documents_for_application(application, user)
     jurisdiction = application.jurisdiction
-    
+
     # Essential documents for customer applications
     essential_types = %w[terms_conditions privacy_policy]
-    
+
     docs = LegalDocument.where(
       jurisdiction: jurisdiction,
       document_type: essential_types,
       is_active: true
-    ).where(party_type: ["universal", "customer"]).effective
-    
+    ).where(party_type: [ "universal", "customer" ]).effective
+
     docs.each do |doc|
       unless user.accepted?(doc)
         LegalDocumentAcceptance.create!(
@@ -60,14 +60,14 @@ class LegalDocumentService
   # Require lender to accept their agreement
   def self.require_documents_for_lender(lender, admin_user)
     jurisdiction = lender.jurisdiction
-    
+
     # Lender-specific documents
     lender_docs = LegalDocument.where(
       jurisdiction: jurisdiction,
-      party_type: ["universal", "lender"],
+      party_type: [ "universal", "lender" ],
       is_active: true
     ).effective
-    
+
     lender_docs.each do |doc|
       unless lender.accepted?(doc)
         LegalDocumentAcceptance.create!(
@@ -84,14 +84,14 @@ class LegalDocumentService
   def self.all_required_documents_accepted?(application)
     jurisdiction = application.jurisdiction
     user = application.user
-    
+
     required = LegalDocument.where(
       jurisdiction: jurisdiction,
       is_active: true
-    ).where("party_type IN (?)", ["universal", "customer"])
+    ).where("party_type IN (?)", [ "universal", "customer" ])
      .where("document_type IN (?)", %w[terms_conditions privacy_policy])
      .effective
-    
+
     required.all? { |doc| user.accepted?(doc) }
   end
 
@@ -99,9 +99,9 @@ class LegalDocumentService
   def self.acceptance_summary(application)
     jurisdiction = application.jurisdiction
     user = application.user
-    
+
     docs = LegalDocument.for_jurisdiction(jurisdiction).effective
-    
+
     summary = {
       jurisdiction: jurisdiction,
       total_documents: docs.count,
@@ -109,10 +109,10 @@ class LegalDocumentService
       pending: [],
       superseded: []
     }
-    
+
     docs.each do |doc|
       acceptance = user.acceptance_of(doc)
-      
+
       if acceptance
         if doc.is_active?
           summary[:accepted] << {
@@ -139,16 +139,16 @@ class LegalDocumentService
         end
       end
     end
-    
+
     summary
   end
 
   # Get documents needing re-acceptance (old versions)
   def self.documents_needing_reacceptance(user, jurisdiction)
     active_docs = LegalDocument.for_jurisdiction(jurisdiction).active.effective
-    
+
     reacceptance_needed = []
-    
+
     active_docs.each do |doc|
       acceptance = user.acceptance_of(doc)
       if acceptance && acceptance.document_version != doc.version
@@ -160,7 +160,7 @@ class LegalDocumentService
         }
       end
     end
-    
+
     reacceptance_needed
   end
 
@@ -178,7 +178,7 @@ class LegalDocumentService
     new_doc.is_draft = true
     new_doc.status = :draft
     new_doc.current_admin_user = admin_user
-    
+
     new_doc.save!
     new_doc
   end
@@ -186,7 +186,7 @@ class LegalDocumentService
   # Apply jurisdiction-specific changes to content
   def self.apply_jurisdiction_customizations(content, source_jurisdiction, target_jurisdiction, customizations = {})
     modified = content.dup
-    
+
     # Standard replacements per jurisdiction
     jurisdiction_names = {
       "AU" => "Australia",
@@ -194,17 +194,17 @@ class LegalDocumentService
       "NZ" => "New Zealand",
       "UK" => "United Kingdom"
     }
-    
+
     source_name = jurisdiction_names[source_jurisdiction]
     target_name = jurisdiction_names[target_jurisdiction]
-    
+
     modified = modified.gsub(source_name, target_name) if source_name && target_name
-    
+
     # Apply custom substitutions
     customizations.each do |key, value|
       modified = modified.gsub("{{#{key}}}", value.to_s)
     end
-    
+
     modified
   end
 
@@ -233,9 +233,9 @@ class LegalDocumentService
   # Get jurisdiction compliance status
   def self.jurisdiction_compliance_status(jurisdiction)
     required_docs = %w[privacy_policy terms_conditions]
-    
+
     docs = LegalDocument.for_jurisdiction(jurisdiction).active.effective
-    
+
     {
       jurisdiction: jurisdiction,
       total_active: docs.count,
@@ -255,11 +255,11 @@ class LegalDocumentService
   def self.calculate_compliance_score(jurisdiction)
     required_docs = %w[privacy_policy terms_conditions]
     docs = LegalDocument.for_jurisdiction(jurisdiction).active.effective
-    
+
     docs_count = required_docs.select do |doc_type|
       docs.of_type(doc_type).exists?
     end.length
-    
+
     ((docs_count.to_f / required_docs.length) * 100).round(2)
   end
 end

@@ -16,11 +16,11 @@ class MockInvestmentEngineService
 
     result = case current_scenario
     when :no_funding
-      { available: false, pool_balance: 0, amount_requested: amount, approval_likelihood: "none", conditions: ["Pool exhausted"], expected_return_rate: 0 }
+      { available: false, pool_balance: 0, amount_requested: amount, approval_likelihood: "none", conditions: [ "Pool exhausted" ], expected_return_rate: 0 }
     when :tight_capital
-      { available: amount < 500_000, pool_balance: pool_balance / 10, amount_requested: amount, approval_likelihood: "low", conditions: ["Reduced allocation limits", "Priority queue active"], expected_return_rate: (8.0 + rng.rand * 2.0).round(1) }
+      { available: amount < 500_000, pool_balance: pool_balance / 10, amount_requested: amount, approval_likelihood: "low", conditions: [ "Reduced allocation limits", "Priority queue active" ], expected_return_rate: (8.0 + rng.rand * 2.0).round(1) }
     when :conditional
-      { available: true, pool_balance: pool_balance, amount_requested: amount, approval_likelihood: "medium", conditions: ["Requires additional property assessment", "LVR must be below 70%"], expected_return_rate: (6.0 + rng.rand * 3.0).round(1) }
+      { available: true, pool_balance: pool_balance, amount_requested: amount, approval_likelihood: "medium", conditions: [ "Requires additional property assessment", "LVR must be below 70%" ], expected_return_rate: (6.0 + rng.rand * 3.0).round(1) }
     else
       { available: true, pool_balance: pool_balance, amount_requested: amount, approval_likelihood: "high", conditions: [], expected_return_rate: (5.5 + rng.rand * 3.0).round(1) }
     end
@@ -38,7 +38,7 @@ class MockInvestmentEngineService
     when :no_funding
       { allocation_id: alloc_id, status: "rejected", amount: amount, reason: "No funding available" }
     when :conditional
-      { allocation_id: alloc_id, status: "pending_review", amount: amount, interest_rate: (6.0 + rng.rand * 2.0).round(1), terms: "30 years fixed", conditions: ["Awaiting property assessment"] }
+      { allocation_id: alloc_id, status: "pending_review", amount: amount, interest_rate: (6.0 + rng.rand * 2.0).round(1), terms: "30 years fixed", conditions: [ "Awaiting property assessment" ] }
     else
       { allocation_id: alloc_id, status: "approved", amount: amount, interest_rate: (5.5 + rng.rand * 2.5).round(1), terms: "30 years fixed", approval_date: Date.current }
     end

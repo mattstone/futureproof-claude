@@ -3,7 +3,7 @@ module Admin
     before_action :authenticate_user!
     before_action :verify_admin!
     before_action :set_lender
-    before_action :set_commission_rate, only: [:edit, :update, :toggle_active, :destroy]
+    before_action :set_commission_rate, only: [ :edit, :update, :toggle_active, :destroy ]
 
     def index
       @commission_rates = @lender.broker_commission_rates.includes(:broker).order(created_at: :desc)
@@ -17,10 +17,10 @@ module Admin
 
     def create
       @commission_rate = @lender.broker_commission_rates.build(commission_rate_params)
-      
+
       if @commission_rate.save
-        redirect_to admin_lender_broker_commission_rates_path(@lender), 
-                    notice: 'Commission rate created successfully.'
+        redirect_to admin_lender_broker_commission_rates_path(@lender),
+                    notice: "Commission rate created successfully."
       else
         @brokers = Broker.order(:name)
         render :new, status: :unprocessable_entity
@@ -33,8 +33,8 @@ module Admin
 
     def update
       if @commission_rate.update(commission_rate_params)
-        redirect_to admin_lender_broker_commission_rates_path(@lender), 
-                    notice: 'Commission rate updated successfully.'
+        redirect_to admin_lender_broker_commission_rates_path(@lender),
+                    notice: "Commission rate updated successfully."
       else
         @brokers = Broker.order(:name)
         render :edit, status: :unprocessable_entity
@@ -43,14 +43,14 @@ module Admin
 
     def toggle_active
       @commission_rate.update(active: !@commission_rate.active)
-      redirect_to admin_lender_broker_commission_rates_path(@lender), 
+      redirect_to admin_lender_broker_commission_rates_path(@lender),
                   notice: "Commission rate #{@commission_rate.active ? 'activated' : 'deactivated'}."
     end
 
     def destroy
       @commission_rate.destroy
-      redirect_to admin_lender_broker_commission_rates_path(@lender), 
-                  notice: 'Commission rate deleted.'
+      redirect_to admin_lender_broker_commission_rates_path(@lender),
+                  notice: "Commission rate deleted."
     end
 
     private
@@ -64,7 +64,7 @@ module Admin
     end
 
     def verify_admin!
-      redirect_to dashboard_path, alert: 'Access denied.' unless current_user.admin?
+      redirect_to dashboard_path, alert: "Access denied." unless current_user.admin?
     end
 
     def commission_rate_params

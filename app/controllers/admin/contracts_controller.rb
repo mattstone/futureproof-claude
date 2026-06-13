@@ -1,9 +1,9 @@
 class Admin::ContractsController < Admin::BaseController
   include AdminSortable
-  before_action :set_contract, only: [:show, :edit, :update, :destroy, :send_message, :create_message]
-  before_action :set_messages, only: [:show, :edit]
-  before_action :set_ai_agents, only: [:show, :edit, :create_message]
-  before_action :set_current_admin_user, only: [:create, :update]
+  before_action :set_contract, only: [ :show, :edit, :update, :destroy, :send_message, :create_message ]
+  before_action :set_messages, only: [ :show, :edit ]
+  before_action :set_ai_agents, only: [ :show, :edit, :create_message ]
+  before_action :set_current_admin_user, only: [ :create, :update ]
 
   def index
     @contracts = sort_scope(
@@ -14,7 +14,7 @@ class Admin::ContractsController < Admin::BaseController
     # Search filter
     if params[:search].present?
       search_term = params[:search].to_s.strip
-      
+
       # Check if search term is numeric (potential contract ID or application ID)
       if search_term.match?(/^\d+$/)
         # Search by contract ID, application ID, or other fields
@@ -42,7 +42,7 @@ class Admin::ContractsController < Admin::BaseController
     @contracts = @contracts.page(params[:page]).per(10)
 
     # For the status filter dropdown
-    @status_options = Contract.statuses.map { |key, value| [key.humanize, key] }
+    @status_options = Contract.statuses.map { |key, value| [ key.humanize, key ] }
 
     respond_to do |format|
       format.html # Full page render
@@ -56,7 +56,7 @@ class Admin::ContractsController < Admin::BaseController
 
     if params[:search].present?
       search_term = params[:search].to_s.strip
-      
+
       # Check if search term is numeric (potential contract ID or application ID)
       if search_term.match?(/^\d+$/)
         # Search by contract ID, application ID, or other fields
@@ -75,7 +75,7 @@ class Admin::ContractsController < Admin::BaseController
 
     @contracts = @contracts.where(status: params[:status]) if params[:status].present?
     @contracts = @contracts.page(params[:page]).per(10)
-    @status_options = Contract.statuses.map { |key, value| [key.humanize, key] }
+    @status_options = Contract.statuses.map { |key, value| [ key.humanize, key ] }
 
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.replace("contracts_results", partial: "results") }
@@ -85,7 +85,7 @@ class Admin::ContractsController < Admin::BaseController
   def show
     # Get change history for display
     @contract_versions = @contract.contract_versions.includes(:admin_user).recent.limit(20)
-    
+
     # Log that admin viewed this contract (after loading versions)
     @contract.log_view_by(current_user)
   end
@@ -93,7 +93,7 @@ class Admin::ContractsController < Admin::BaseController
   def new
     @contract = Contract.new
     @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                                      .includes(:user).order('users.first_name', 'users.last_name')
+                                      .includes(:user).order("users.first_name", "users.last_name")
   end
 
   def create
@@ -102,44 +102,44 @@ class Admin::ContractsController < Admin::BaseController
 
     begin
       if @contract.save
-        redirect_to admin_contract_path(@contract), notice: 'Contract was successfully created.'
+        redirect_to admin_contract_path(@contract), notice: "Contract was successfully created."
       else
         @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                                          .includes(:user).order('users.first_name', 'users.last_name')
+                                          .includes(:user).order("users.first_name", "users.last_name")
         render :new, status: :unprocessable_entity
       end
     rescue ActiveRecord::RecordNotUnique
-      @contract.errors.add(:application_id, 'already has a contract')
+      @contract.errors.add(:application_id, "already has a contract")
       @applications = scoped_applications.where(status: :accepted).where.not(id: Contract.select(:application_id))
-                                        .includes(:user).order('users.first_name', 'users.last_name')
+                                        .includes(:user).order("users.first_name", "users.last_name")
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     @applications = scoped_applications.where(status: :accepted).where(
-      'applications.id = ? OR applications.id NOT IN (?)', 
-      @contract.application_id, 
+      "applications.id = ? OR applications.id NOT IN (?)",
+      @contract.application_id,
       Contract.where.not(id: @contract.id).select(:application_id)
-    ).includes(:user).order('users.first_name', 'users.last_name')
+    ).includes(:user).order("users.first_name", "users.last_name")
   end
 
   def update
     @contract.current_admin_user = current_user
-    
+
     if @contract.update(contract_params)
-      redirect_to admin_contract_path(@contract), notice: 'Contract was successfully updated.'
+      redirect_to admin_contract_path(@contract), notice: "Contract was successfully updated."
     else
       @applications = scoped_applications.where(status: :accepted).where(
-        'applications.id = ? OR applications.id NOT IN (?)', 
-        @contract.application_id, 
+        "applications.id = ? OR applications.id NOT IN (?)",
+        @contract.application_id,
         Contract.where.not(id: @contract.id).select(:application_id)
-      ).includes(:user).order('users.first_name', 'users.last_name')
-      
+      ).includes(:user).order("users.first_name", "users.last_name")
+
       # Set variables needed for messaging interface
       set_messages
       set_ai_agents
-      
+
       render :edit, status: :unprocessable_entity
     end
   end
@@ -147,18 +147,18 @@ class Admin::ContractsController < Admin::BaseController
   def destroy
     application_id = @contract.application.id
     @contract.destroy
-    redirect_to admin_contracts_path, notice: 'Contract was successfully deleted.'
+    redirect_to admin_contracts_path, notice: "Contract was successfully deleted."
   end
 
   def create_message
     @message = @contract.contract_messages.build(message_params)
     @message.sender = current_user
-    @message.message_type = 'admin_to_customer'
-    @message.status = 'draft'
-    
+    @message.message_type = "admin_to_customer"
+    @message.status = "draft"
+
     # Determine redirect path based on where the form was submitted from
     redirect_path = case params[:from_view]
-    when 'edit'
+    when "edit"
       edit_admin_contract_path(@contract)
     else
       admin_contract_path(@contract)
@@ -168,45 +168,45 @@ class Admin::ContractsController < Admin::BaseController
       if @message.save
         if params[:send_now].present?
           if @message.send_message!
-            format.html { redirect_to redirect_path, notice: 'Message sent successfully!' }
-            format.turbo_stream { 
-              flash.now[:notice] = 'Message sent successfully!'
+            format.html { redirect_to redirect_path, notice: "Message sent successfully!" }
+            format.turbo_stream {
+              flash.now[:notice] = "Message sent successfully!"
               set_turbo_stream_variables
-              render :message_sent 
+              render :message_sent
             }
           else
-            format.html { redirect_to redirect_path, alert: 'Failed to send message.' }
-            format.turbo_stream { 
-              flash.now[:alert] = 'Failed to send message.'
-              render :message_error 
+            format.html { redirect_to redirect_path, alert: "Failed to send message." }
+            format.turbo_stream {
+              flash.now[:alert] = "Failed to send message."
+              render :message_error
             }
           end
         else
-          format.html { redirect_to redirect_path, notice: 'Message saved as draft!' }
-          format.turbo_stream { 
-            flash.now[:notice] = 'Message saved as draft!'
+          format.html { redirect_to redirect_path, notice: "Message saved as draft!" }
+          format.turbo_stream {
+            flash.now[:notice] = "Message saved as draft!"
             set_turbo_stream_variables
-            render :message_draft_saved 
+            render :message_draft_saved
           }
         end
       else
         # Re-render the appropriate view with errors
-        if params[:from_view] == 'edit'
+        if params[:from_view] == "edit"
           @applications = scoped_applications.where(status: :accepted).where(
-            'applications.id = ? OR applications.id NOT IN (?)', 
-            @contract.application_id, 
+            "applications.id = ? OR applications.id NOT IN (?)",
+            @contract.application_id,
             Contract.where.not(id: @contract.id).select(:application_id)
-          ).includes(:user).order('users.first_name', 'users.last_name')
-          
+          ).includes(:user).order("users.first_name", "users.last_name")
+
           @messages = @contract.message_threads
           @new_message = @message # Keep the invalid message object for error display
-          
+
           format.html { render :edit, status: :unprocessable_entity }
           format.turbo_stream { render :message_validation_error }
         else
           @messages = @contract.message_threads
           @new_message = @message # Keep the invalid message object for error display
-          
+
           format.html { render :show, status: :unprocessable_entity }
           format.turbo_stream { render :message_validation_error }
         end
@@ -216,20 +216,20 @@ class Admin::ContractsController < Admin::BaseController
 
   def send_message
     @message = @contract.contract_messages.find(params[:message_id])
-    
+
     respond_to do |format|
       if @message.draft? && @message.send_message!
-        format.html { redirect_to admin_contract_path(@contract), notice: 'Message sent successfully!' }
-        format.turbo_stream { 
-          flash.now[:notice] = 'Message sent successfully!'
+        format.html { redirect_to admin_contract_path(@contract), notice: "Message sent successfully!" }
+        format.turbo_stream {
+          flash.now[:notice] = "Message sent successfully!"
           set_turbo_stream_variables
-          render :message_sent 
+          render :message_sent
         }
       else
-        format.html { redirect_to admin_contract_path(@contract), alert: 'Failed to send message.' }
-        format.turbo_stream { 
-          flash.now[:alert] = 'Failed to send message.'
-          render :message_error 
+        format.html { redirect_to admin_contract_path(@contract), alert: "Failed to send message." }
+        format.turbo_stream {
+          flash.now[:alert] = "Failed to send message."
+          render :message_error
         }
       end
     end
@@ -240,10 +240,10 @@ class Admin::ContractsController < Admin::BaseController
   def contracts_csv(scope)
     require "csv"
     CSV.generate(headers: true) do |csv|
-      csv << ["ID", "Customer", "Application", "Status", "Allocated", "Start", "End", "Lender", "Return %"]
+      csv << [ "ID", "Customer", "Application", "Status", "Allocated", "Start", "End", "Lender", "Return %" ]
       scope.find_each do |c|
-        csv << [c.id, c.application.user.display_name, c.application_id, c.status,
-                c.allocated_amount, c.start_date, c.end_date, c.lender&.name, c.investment_return_rate]
+        csv << [ c.id, c.application.user.display_name, c.application_id, c.status,
+                c.allocated_amount, c.start_date, c.end_date, c.lender&.name, c.investment_return_rate ]
       end
     end
   end
@@ -259,17 +259,17 @@ class Admin::ContractsController < Admin::BaseController
 
   def set_ai_agents
     @ai_agents = AiAgent.all
-    
+
     # Set suggested agent based on contract status
     @suggested_agent = case @contract.status
-    when 'awaiting_funding'
-      @ai_agents.find_by(name: 'Funding Specialist') || @ai_agents.first
-    when 'awaiting_investment'
-      @ai_agents.find_by(name: 'Investment Advisor') || @ai_agents.first
-    when 'investment_at_risk'
-      @ai_agents.find_by(name: 'Support Specialist') || @ai_agents.first
+    when "awaiting_funding"
+      @ai_agents.find_by(name: "Funding Specialist") || @ai_agents.first
+    when "awaiting_investment"
+      @ai_agents.find_by(name: "Investment Advisor") || @ai_agents.first
+    when "investment_at_risk"
+      @ai_agents.find_by(name: "Support Specialist") || @ai_agents.first
     else
-      @ai_agents.find_by(name: 'Customer Success Manager') || @ai_agents.first
+      @ai_agents.find_by(name: "Customer Success Manager") || @ai_agents.first
     end
   end
 
@@ -277,14 +277,14 @@ class Admin::ContractsController < Admin::BaseController
     @ai_agents = AiAgent.all
     # Set suggested agent based on contract status
     @suggested_agent = case @contract.status
-    when 'awaiting_funding'
-      @ai_agents.find_by(name: 'Funding Specialist') || @ai_agents.first
-    when 'awaiting_investment'
-      @ai_agents.find_by(name: 'Investment Advisor') || @ai_agents.first
-    when 'investment_at_risk'
-      @ai_agents.find_by(name: 'Support Specialist') || @ai_agents.first
+    when "awaiting_funding"
+      @ai_agents.find_by(name: "Funding Specialist") || @ai_agents.first
+    when "awaiting_investment"
+      @ai_agents.find_by(name: "Investment Advisor") || @ai_agents.first
+    when "investment_at_risk"
+      @ai_agents.find_by(name: "Support Specialist") || @ai_agents.first
     else
-      @ai_agents.find_by(name: 'Customer Success Manager') || @ai_agents.first
+      @ai_agents.find_by(name: "Customer Success Manager") || @ai_agents.first
     end
   end
 
@@ -295,7 +295,7 @@ class Admin::ContractsController < Admin::BaseController
   def message_params
     params.require(:contract_message).permit(:subject, :content, :parent_message_id, :ai_agent_id)
   end
-  
+
   def set_current_admin_user
     @contract&.current_admin_user = current_user if @contract
   end

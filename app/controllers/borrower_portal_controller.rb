@@ -32,6 +32,6 @@ class BorrowerPortalController < ApplicationController
     @application = current_user.applications.find(params[:application_id])
     @region = params[:region]
   rescue ActiveRecord::RecordNotFound
-    redirect_to dashboard_path, alert: 'Application not found or access denied.'
+    redirect_to dashboard_path, alert: "Application not found or access denied."
   end
 end

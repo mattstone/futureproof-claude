@@ -11,7 +11,7 @@ module ApplicationCable
     def find_verified_user
       # Use Devise authentication from cookies
       # For production, ensure ActionCable mount includes session/cookie middleware
-      verified_user = User.find_by(id: request.session['warden.user.user.key']&.first)
+      verified_user = User.find_by(id: request.session["warden.user.user.key"]&.first)
       verified_user || reject_unauthorized_connection
     end
   end

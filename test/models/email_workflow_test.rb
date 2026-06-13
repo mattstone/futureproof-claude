@@ -9,7 +9,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       contact_email: "contact@testlender.com",
       country: "US"
     )
-    
+
     # Create test user directly to avoid fixture issues
     @user = User.create!(
       email: "test@example.com",
@@ -20,7 +20,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       country_of_residence: "US",
       terms_accepted: "1"
     )
-    
+
     @workflow = EmailWorkflow.new(
       name: "Test Application Workflow",
       description: "Test workflow for application creation",
@@ -29,28 +29,28 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       created_by: @user
     )
   end
-  
+
   test "should create valid email workflow" do
     assert @workflow.valid?
     assert @workflow.save
   end
-  
+
   test "should require name" do
     @workflow.name = nil
     assert_not @workflow.valid?
     assert_includes @workflow.errors[:name], "can't be blank"
   end
-  
+
   test "should require trigger_type" do
     @workflow.trigger_type = nil
     assert_not @workflow.valid?
     assert_includes @workflow.errors[:trigger_type], "can't be blank"
   end
-  
+
   test "should be active by default" do
     assert @workflow.active?
   end
-  
+
   test "should have workflow_steps association" do
     @workflow.save!
     step = @workflow.workflow_steps.create!(
@@ -58,16 +58,16 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       position: 1,
       configuration: { email_template_id: 1 }
     )
-    
+
     assert_equal 1, @workflow.workflow_steps.count
     assert_equal step, @workflow.workflow_steps.first
   end
-  
+
   test "can_trigger_for? should work for application_created" do
     @workflow.trigger_type = "application_created"
     @workflow.trigger_conditions = { "event" => "application_created" }
     @workflow.save!
-    
+
     app_user = User.create!(
       email: "john@example.com",
       password: "password1234",
@@ -88,16 +88,16 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       borrower_age: 30
     )
     assert @workflow.can_trigger_for?(application)
-    
+
     # Should not trigger for other types
     assert_not @workflow.can_trigger_for?(@user)
   end
-  
+
   test "can_trigger_for? should work for application_status_changed" do
-    @workflow.trigger_type = "application_status_changed" 
+    @workflow.trigger_type = "application_status_changed"
     @workflow.trigger_conditions = { "from_status" => "created" }
     @workflow.save!
-    
+
     app_user2 = User.create!(
       email: "jane@example.com",
       password: "password1234",
@@ -120,7 +120,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
     assert @workflow.can_trigger_for?(application, from_status: "created")
     assert_not @workflow.can_trigger_for?(application, from_status: "submitted")
   end
-  
+
   test "execute_for should create workflow execution" do
     @workflow.save!
     app_user3 = User.create!(
@@ -142,20 +142,20 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       growth_rate: 2.0,
       borrower_age: 40
     )
-    
+
     execution = @workflow.execute_for(application)
-    
+
     assert_not_nil execution
     assert_equal @workflow, execution.workflow
     assert_equal application, execution.target
     assert_equal "pending", execution.status
   end
-  
+
   test "inactive workflows should not trigger" do
     @workflow.active = false
     @workflow.trigger_conditions = { "event" => "application_created" }
     @workflow.save!
-    
+
     app_user4 = User.create!(
       email: "alice@example.com",
       password: "password1234",
@@ -176,7 +176,7 @@ class EmailWorkflowTest < ActiveSupport::TestCase
       borrower_age: 28
     )
     execution = @workflow.execute_for(application)
-    
+
     assert_nil execution
   end
 end

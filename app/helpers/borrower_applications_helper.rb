@@ -1,7 +1,7 @@
 module BorrowerApplicationsHelper
   # Calculate next income payment details
   def next_income_details(application)
-    pending = application.distributions.where(status: ["pending", "processing"])
+    pending = application.distributions.where(status: [ "pending", "processing" ])
                                        .order(:distribution_date)
                                        .first
     if pending
@@ -15,13 +15,13 @@ module BorrowerApplicationsHelper
   end
 
   # Filter distributions by time period
-  def filter_distributions_by_period(distributions, period = 'all')
+  def filter_distributions_by_period(distributions, period = "all")
     case period
-    when 'month'
+    when "month"
       distributions.where(distribution_date: 1.month.ago..Time.current)
-    when 'quarter'
+    when "quarter"
       distributions.where(distribution_date: 3.months.ago..Time.current)
-    when 'year'
+    when "year"
       distributions.where(distribution_date: 1.year.ago..Time.current)
     else
       distributions
@@ -33,7 +33,7 @@ module BorrowerApplicationsHelper
     {
       total: distributions.sum(:amount),
       received: distributions.where(status: "completed").sum(:amount),
-      pending: distributions.where(status: ["pending", "processing"]).sum(:amount),
+      pending: distributions.where(status: [ "pending", "processing" ]).sum(:amount),
       count: distributions.count
     }
   end
@@ -48,7 +48,7 @@ module BorrowerApplicationsHelper
       status: application.status.humanize,
       total_income_received: application.distributions.where(status: "completed").sum(:amount),
       next_income: next_income_details(application),
-      remaining_income_payments: application.distributions.where(status: ["pending", "processing"]).count
+      remaining_income_payments: application.distributions.where(status: [ "pending", "processing" ]).count
     }
   end
 
@@ -65,16 +65,16 @@ module BorrowerApplicationsHelper
   # Status badge color for distributions
   def distribution_status_badge_class(status)
     case status.to_s
-    when 'completed'
-      'badge-success'
-    when 'processing'
-      'badge-warning'
-    when 'pending'
-      'badge-info'
-    when 'failed'
-      'badge-danger'
+    when "completed"
+      "badge-success"
+    when "processing"
+      "badge-warning"
+    when "pending"
+      "badge-info"
+    when "failed"
+      "badge-danger"
     else
-      'badge-secondary'
+      "badge-secondary"
     end
   end
 end

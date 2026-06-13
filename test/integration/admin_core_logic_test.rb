@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class AdminCoreLogicTest < ActionDispatch::IntegrationTest
   def setup
@@ -14,36 +14,36 @@ class AdminCoreLogicTest < ActionDispatch::IntegrationTest
     sign_in @admin_user
     get admin_core_logic_test_index_path
     assert_response :success
-    assert_select 'h3', 'CoreLogic Property Search Test'
+    assert_select "h3", "CoreLogic Property Search Test"
   end
 
   test "should handle property search" do
     sign_in @admin_user
-    get search_admin_core_logic_test_index_path, params: { query: '123 Collins Street Melbourne' }
+    get search_admin_core_logic_test_index_path, params: { query: "123 Collins Street Melbourne" }
     assert_response :success
     # Should show search results in the page
-    assert_select 'h3', text: /Search Results for/
+    assert_select "h3", text: /Search Results for/
   end
 
   test "should handle property details" do
     sign_in @admin_user
-    get property_details_admin_core_logic_test_index_path, params: { property_id: '12345678' }
+    get property_details_admin_core_logic_test_index_path, params: { property_id: "12345678" }
     assert_response :success
     # Should show property details sections
-    assert_select 'h3', text: /Property Address|Property Attributes|Property Valuation/
+    assert_select "h3", text: /Property Address|Property Attributes|Property Valuation/
   end
 
   test "should handle empty search query" do
     sign_in @admin_user
-    get search_admin_core_logic_test_index_path, params: { query: '' }
+    get search_admin_core_logic_test_index_path, params: { query: "" }
     assert_redirected_to admin_core_logic_test_index_path
-    assert_equal 'Please enter a search query', flash[:alert]
+    assert_equal "Please enter a search query", flash[:alert]
   end
 
   test "should handle missing property ID" do
     sign_in @admin_user
-    get property_details_admin_core_logic_test_index_path, params: { property_id: '' }
+    get property_details_admin_core_logic_test_index_path, params: { property_id: "" }
     assert_redirected_to admin_core_logic_test_index_path
-    assert_equal 'Property ID is required', flash[:alert]
+    assert_equal "Property ID is required", flash[:alert]
   end
 end

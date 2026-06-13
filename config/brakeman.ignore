@@ -1,0 +1,138 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "01a6a2efc86f4196268502facf06697c0b16f840d234f317b76edd535fb14f2d",
+      "note": "Shell command is fully static (fixed python/ dir + timestamp/random temp filename). User parameters are written into the script file contents via File.write, never the command line."
+    },
+    {
+      "fingerprint": "109032b77492760d5d13d5031cc43735a2817f868b7e7756894170b279467eaf",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "11bdb296671c8faa0e72dadec22b1e57645e0e60a6d8a3ffaa5514c50c50e05b",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "1895adbc94307e0bb897ba1e30cb49f304cbb70cf5009498e2271a42b7dea617",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "1e4bc19a764f05b9eaa942809e2234688152f39c85e62a63716e43626a3ee12d",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "2735b8c2d3cb682ffec40f8765b3a6c437a566fd32ef8519b3199ba1c9ee7380",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "29a2dec40ee2b540f76a9da9dec69188ceaf9e2c95cde57a976c2dd4d92058da",
+      "note": "href is a model-derived github_url (built from configured repo + prompt path), not per-request user input."
+    },
+    {
+      "fingerprint": "2a4870ca76e0ee135a92b1f88985f783d87e9e1115d84b9235ec7f061ea24ef4",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "3e88b5277f5de88c817f09d7a3e1bd0d94855c144cdef49b5daa116e0062892d",
+      "note": "Shell command is fully static (fixed python/ dir + timestamp/random temp filename). User parameters are written into the script file contents via File.write, never the command line."
+    },
+    {
+      "fingerprint": "416acb380f20f045e85cbc3be6ed75ce4a7f1095cc9cb043b84f7004dc9e9259",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "41dfa48729c9a6f7ab3b54816ed73aee38709898a6313df93fbb738772ada549",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "4606394c110746fa782465e2d07da73062545a2860d58f5ab3b8854cc188839c",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "5b3d4533aa94d60bcf9f839b17a6b46d6dd73354c32fbc1073786432e40fe33f",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "719ccdb2f2ba2d9a2a628c26544cbe97cbf95810b89e889afe958f6fc7d0bf3a",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "82cac43da0e308ad18b070936b7890e44e016858a1bf367816a196a0af8a8c20",
+      "note": "Sort column comes from the whitelisted `sortable` DSL mapping (key checked against sortable_columns.key? before fetch); direction is an :asc/:desc literal. No request input reaches the Arel.sql fragment."
+    },
+    {
+      "fingerprint": "900144379ab711de943ddba3995d0c791b9c7b27a45ee8e92d22ceb1d47528fa",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "9892cbd4bf782418b88e9ff36c1fc2f7612d1d277433e98d595112cafbe17195",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "9906be82bad36c74ee2651a953e3fa154623f07cded2b56dba2ca0c030ef6011",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "9a5295f9625407fa1393bd51d19c329a13ec861da92db9a8c0f1092e9a8a5452",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "a9e9a30271d3cd61a361f442b3cb30df712a40bedb1f6b3903938d663bdab256",
+      "note": "href is a model-derived github_url (built from configured repo + prompt path), not per-request user input."
+    },
+    {
+      "fingerprint": "aa89661cec88e5e473230652f50ab34ac9fa29fc98b2c320fbd6b31c52bc5822",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "ad5a3687c0c3c6701a5b4a6daa7e7f6960692619ff54de59b8e1b917fdf1feb4",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "bfaff3728937abb49eccc784868faf3a13b1cd8b4b2432ccbc351dfe2d8e0719",
+      "note": "href is a model-derived github_url (built from configured repo + prompt path), not per-request user input."
+    },
+    {
+      "fingerprint": "c0f67d3a78bd8670016c81e78db5e2e2e3ab75643feb6fab88571334276d3a1e",
+      "note": "Permitting :admin is gated behind policy.futureproof? \u2014 only platform admins can set the flag. Reviewed and intentional."
+    },
+    {
+      "fingerprint": "ce46be6037e5004d404768ac483f9b509bcd135371d669f835c461380b401cfe",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "d00646a88e4c23a1841103428303e4428621a6968fa63e76cc8897675a4b8841",
+      "note": "Permitting :admin is gated behind policy.futureproof? \u2014 only platform admins can set the flag. Reviewed and intentional."
+    },
+    {
+      "fingerprint": "d5098aaa026c07bb66c0043d8cdce475f4307e271d8a17a817b115dd01ba7e9a",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "d6f4fc60f9f321d82d667279cb5b3d7dde963525beaa93c1551c085b504b07c0",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "e9cb1647b0756d887f742bf4d026e1e6174d21a7b9f99a8577c3bbdde0dba49b",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "ebd8e5e39c41575f5fa416680233e05c32ddbaa0afcf8ea40afd6f5c840dd370",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "eca6f5f0d39ed5aba54d998f133e0ca8ce37daa5fdc89bc58459efb4b9727b09",
+      "note": "@legal_region is whitelisted via RegionHelper.valid_region? (falls back to default_region) before interpolation into the template path. No raw params reach the render path."
+    },
+    {
+      "fingerprint": "f501945121732b91b7ae064e2dff1e3390ea00b9167e726daf04f0f8769edbd5",
+      "note": "Intentional html_safe rendering of staff-authored HTML (legal documents, email templates, agreements, mortgage contracts). Authors hold admin/manage_* capability \u2014 same trust boundary as the codebase; previews use sample data, not per-request user input."
+    },
+    {
+      "fingerprint": "f81f93c9fc3e0c4722dcb424e1003eb53a9f6c784ed3f02801a9eb7b487cf86a",
+      "note": "HEAD-routed-as-GET only affects the request.get? branch of an idempotent test action. Reviewed, no state change."
+    }
+  ],
+  "updated": "2026-06-13",
+  "brakeman_version": "8.0.2"
+}

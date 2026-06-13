@@ -1,7 +1,7 @@
 class ContractMessage < ApplicationRecord
   # include InputSanitization  # Temporarily disabled for testing
   include Messageable
-  
+
   belongs_to :contract
   # Send the message
   def send_message!
@@ -13,7 +13,7 @@ class ContractMessage < ApplicationRecord
     end
 
     # Only mark as sent if email sending succeeded
-    update!(status: 'sent', sent_at: Time.current)
+    update!(status: "sent", sent_at: Time.current)
     clear_unread_message_cache
     true
   rescue => e
@@ -25,14 +25,14 @@ class ContractMessage < ApplicationRecord
   def self.unread_customer_messages_count(contract)
     customer_messages.where(contract: contract).unread.count
   end
-  
+
   private
-  
+
   # Get the user for template variable processing
   def get_user
     contract.application.user
   end
-  
+
   # Process contract-specific template variables
   def process_resource_template_variables(text)
     processed_text = text.dup
@@ -41,7 +41,7 @@ class ContractMessage < ApplicationRecord
     # Replace contract template variables
     if contract
       processed_text.gsub!(/\{\{contract\.id\}\}/i, sanitize_for_html(contract.id.to_s))
-      processed_text.gsub!(/\{\{contract\.reference_number\}\}/i, sanitize_for_html(contract.id.to_s.rjust(6, '0')))
+      processed_text.gsub!(/\{\{contract\.reference_number\}\}/i, sanitize_for_html(contract.id.to_s.rjust(6, "0")))
       processed_text.gsub!(/\{\{contract\.status\}\}/i, sanitize_for_html(contract.status.to_s))
       processed_text.gsub!(/\{\{contract\.status_display\}\}/i, sanitize_for_html(contract.status.humanize))
       processed_text.gsub!(/\{\{contract\.start_date\}\}/i, sanitize_for_html(contract.start_date.strftime("%B %d, %Y")))
@@ -51,7 +51,7 @@ class ContractMessage < ApplicationRecord
     # Replace application template variables
     if application
       processed_text.gsub!(/\{\{application\.id\}\}/i, sanitize_for_html(application.id.to_s))
-      processed_text.gsub!(/\{\{application\.reference_number\}\}/i, sanitize_for_html(application.id.to_s.rjust(6, '0')))
+      processed_text.gsub!(/\{\{application\.reference_number\}\}/i, sanitize_for_html(application.id.to_s.rjust(6, "0")))
       processed_text.gsub!(/\{\{application\.address\}\}/i, sanitize_for_html(application.address.to_s))
       processed_text.gsub!(/\{\{application\.home_value\}\}/i, sanitize_for_html(application.home_value.to_s))
       processed_text.gsub!(/\{\{application\.formatted_home_value\}\}/i, sanitize_for_html(application.formatted_home_value.to_s)) if application.respond_to?(:formatted_home_value)

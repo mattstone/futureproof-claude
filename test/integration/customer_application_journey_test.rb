@@ -2,18 +2,18 @@ require "test_helper"
 
 class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
   setup do
-    @region = 'au'
+    @region = "au"
 
     # Create or use existing lender
     @lender = Lender.first || Lender.create!(
-      name: 'Test Lender',
-      contact_email: 'lender@test.com',
+      name: "Test Lender",
+      contact_email: "lender@test.com",
       lender_type: :lender,
-      country: 'AU'
+      country: "AU"
     )
 
     @mortgage = Mortgage.first || Mortgage.create!(
-      name: 'EPM Test Mortgage',
+      name: "EPM Test Mortgage",
       mortgage_type: :interest_only,
       lvr: 80,
       status: :active
@@ -79,11 +79,11 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
   def create_borrower_account
     User.create!(
       email: "journey_borrower_#{Time.current.to_i}@test.com",
-      password: 'password123!',
-      password_confirmation: 'password123!',
-      first_name: 'John',
-      last_name: 'Borrower',
-      country_of_residence: 'AU',
+      password: "password123!",
+      password_confirmation: "password123!",
+      first_name: "John",
+      last_name: "Borrower",
+      country_of_residence: "AU",
       terms_accepted: true,
       confirmed_at: Time.current
     )
@@ -95,7 +95,7 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
       home_value: 750000,
       ownership_status: :individual,
       property_state: :primary_residence,
-      region: 'AU',
+      region: "AU",
       status: :created,
       growth_rate: 6.0
     )
@@ -103,10 +103,10 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
 
   def fill_property_details(application)
     application.update!(
-      address: '123 Main Street, Sydney NSW 2000, Australia',
+      address: "123 Main Street, Sydney NSW 2000, Australia",
       has_existing_mortgage: false,
       borrower_age: 65,
-      borrower_names: 'John Borrower',
+      borrower_names: "John Borrower",
       status: :property_details
     )
   end
@@ -130,7 +130,7 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
       ApplicationDocument.create!(
         application_id: application.id,
         document_type: doc_type,
-        status: 'pending'
+        status: "pending"
       )
     end
   end
@@ -146,12 +146,12 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
 
   def generate_documents(application)
     # Generate additional documents (using valid document types)
-    { 'insurance' => 'Insurance Certificate', 'property_valuation' => 'Property Valuation' }.each do |type, name|
+    { "insurance" => "Insurance Certificate", "property_valuation" => "Property Valuation" }.each do |type, name|
       ApplicationDocument.create!(
         application_id: application.id,
         document_type: type,
         name: name,
-        status: 'uploaded'
+        status: "uploaded"
       )
     end
   end
@@ -164,16 +164,16 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
   end
 
   def upload_required_documents(application)
-    application.application_documents.where(status: 'pending').each do |doc|
-      doc.update!(status: 'uploaded')
+    application.application_documents.where(status: "pending").each do |doc|
+      doc.update!(status: "uploaded")
     end
   end
 
   def verify_all_documents(application)
-    application.application_documents.where(status: 'uploaded').each do |doc|
+    application.application_documents.where(status: "uploaded").each do |doc|
       doc.verify!(
-        agent_name: 'admin@test.com',
-        notes: 'Document verified successfully'
+        agent_name: "admin@test.com",
+        notes: "Document verified successfully"
       )
     end
   end
@@ -184,11 +184,11 @@ class CustomerApplicationJourneyTest < ActionDispatch::IntegrationTest
     Distribution.create!(
       application_id: application.id,
       amount: 4500,
-      status: 'completed',
+      status: "completed",
       transaction_id: "TXN-#{Time.current.to_i}",
       processed_at: Time.current,
       distribution_date: Date.current,
-      payment_method: 'bank_transfer'
+      payment_method: "bank_transfer"
     )
   end
 

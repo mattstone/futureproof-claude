@@ -63,11 +63,11 @@ welcome_email = {
     <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 24px; font-family: Arial, sans-serif;">
       Welcome to FutureProof, #{mock_customer[:first_name]}!
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       We're thrilled to have you join thousands of Australians who have chosen FutureProof to secure their financial future with our innovative Equity Preservation Mortgage®.
     </p>
-    
+
     <div style="background: #f0f9ff; border-left: 4px solid #0891b2; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">Your Account Details:</h3>
       <ul style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif;">
@@ -77,17 +77,17 @@ welcome_email = {
         <li><strong>Account Created:</strong> #{mock_customer[:created_at].strftime('%B %d, %Y')}</li>
       </ul>
     </div>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Your journey to financial independence starts here. Our team of mortgage specialists will guide you every step of the way.
     </p>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/dashboard" style="display: inline-block; background: #0891b2; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif;">
         Access Your Dashboard
       </a>
     </div>
-    
+
     <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0; font-family: Arial, sans-serif;">
       Need assistance? Our customer success team is available Monday to Friday, 9 AM to 5 PM AEST at 1300 123 456.
     </p>
@@ -99,17 +99,17 @@ emails << welcome_email
 getting_started_email = {
   filename: "02_onboarding_getting_started.html",
   subject: "Your FutureProof Getting Started Guide",
-  category: "operational", 
+  category: "operational",
   purpose: "Step-by-step onboarding guidance",
   content_body: <<~HTML
     <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 24px; font-family: Arial, sans-serif;">
       Getting Started with FutureProof
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Hi #{mock_customer[:first_name]}, let's get you started on your path to financial freedom with your Equity Preservation Mortgage®.
     </p>
-    
+
     <div style="background: #f0fdf4; border-left: 4px solid #059669; padding: 24px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #065f46; margin: 0 0 20px 0; font-size: 18px; font-family: Arial, sans-serif;">📋 Your 5-Step Journey:</h3>
       <ol style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.8;">
@@ -120,7 +120,7 @@ getting_started_email = {
         <li style="margin-bottom: 12px;"><strong>Application Submission</strong> - Finalize and submit your formal application</li>
       </ol>
     </div>
-    
+
     <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #92400e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">🏆 Why Choose FutureProof?</h3>
       <ul style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.6;">
@@ -130,7 +130,7 @@ getting_started_email = {
         <li>✅ <strong>Australian Regulated</strong> - Fully licensed and compliant</li>
       </ul>
     </div>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/profile/complete" style="display: inline-block; background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif;">
         Complete Your Profile
@@ -156,11 +156,11 @@ app_received_email = {
     <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 24px; font-family: Arial, sans-serif;">
       Application Received Successfully
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Dear #{mock_customer[:first_name]}, we've successfully received your Equity Preservation Mortgage® application.
     </p>
-    
+
     <div style="background: #f0f9ff; border-left: 4px solid #0891b2; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">📋 Application Summary:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -182,7 +182,7 @@ app_received_email = {
         </tr>
       </table>
     </div>
-    
+
     <div style="background: #f0fdf4; border-left: 4px solid #059669; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #065f46; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">⏱️ What Happens Next?</h3>
       <ol style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.6;">
@@ -192,7 +192,7 @@ app_received_email = {
         <li><strong>Approval Decision</strong> - You'll be notified immediately</li>
       </ol>
     </div>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 20px 0; font-family: Arial, sans-serif;">
       We'll keep you updated throughout the process via email and your online dashboard.
     </p>
@@ -210,15 +210,15 @@ app_approved_email = {
     <h1 style="color: #059669; font-size: 32px; margin-bottom: 24px; font-family: Arial, sans-serif; text-align: center;">
       🎉 Congratulations, #{mock_customer[:first_name]}!
     </h1>
-    
+
     <h2 style="color: #1f2937; font-size: 24px; margin-bottom: 20px; font-family: Arial, sans-serif; text-align: center;">
       Your Application Has Been Approved
     </h2>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       We're delighted to inform you that your Equity Preservation Mortgage® application has been approved!
     </p>
-    
+
     <div style="background: #f0fdf4; border: 2px solid #059669; padding: 24px; margin: 30px 0; border-radius: 8px; text-align: center;">
       <h3 style="color: #065f46; margin: 0 0 20px 0; font-size: 20px; font-family: Arial, sans-serif;">✅ Approved Loan Details</h3>
       <div style="font-size: 18px; color: #374151; font-family: Arial, sans-serif; margin-bottom: 16px;">
@@ -228,7 +228,7 @@ app_approved_email = {
         Based on #{(mock_application[:loan_value].to_f / mock_application[:home_value] * 100).round}% of your property value
       </div>
     </div>
-    
+
     <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #92400e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">📋 Next Steps:</h3>
       <ol style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.8;">
@@ -237,13 +237,13 @@ app_approved_email = {
         <li><strong>Settlement</strong> - Final signing and fund disbursement</li>
       </ol>
     </div>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/contract/#{mock_contract[:id]}" style="display: inline-block; background: #059669; color: white; padding: 16px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 18px; font-family: Arial, sans-serif;">
         Review Your Contract
       </a>
     </div>
-    
+
     <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0; font-family: Arial, sans-serif; text-align: center;">
       Your mortgage specialist will contact you within 24 hours to discuss the next steps.
     </p>
@@ -267,11 +267,11 @@ contract_completed_email = {
     <h1 style="color: #059669; font-size: 32px; margin-bottom: 24px; font-family: Arial, sans-serif; text-align: center;">
       🏡 Welcome to the FutureProof Family!
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Congratulations #{mock_customer[:first_name]}! Your #{mock_contract[:contract_type]} contract has been successfully completed and your funds are now available.
     </p>
-    
+
     <div style="background: #f0fdf4; border: 2px solid #059669; padding: 24px; margin: 30px 0; border-radius: 8px;">
       <h3 style="color: #065f46; margin: 0 0 20px 0; font-size: 18px; font-family: Arial, sans-serif; text-align: center;">📄 Contract Summary</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -293,7 +293,7 @@ contract_completed_email = {
         </tr>
       </table>
     </div>
-    
+
     <div style="background: #f0f9ff; border-left: 4px solid #0891b2; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">🔑 What You Can Do Now:</h3>
       <ul style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.6;">
@@ -303,7 +303,7 @@ contract_completed_email = {
         <li><strong>Plan Your Future</strong> - Speak with our financial advisors</li>
       </ul>
     </div>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/account" style="display: inline-block; background: #0891b2; color: white; padding: 16px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 18px; font-family: Arial, sans-serif; margin-right: 16px;">
         Access Your Account
@@ -332,11 +332,11 @@ newsletter_email = {
     <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 24px; font-family: Arial, sans-serif;">
       Property Market Update - #{Time.now.strftime('%B %Y')}
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Hi #{mock_customer[:first_name]}, here's your monthly property market update and insights from the FutureProof team.
     </p>
-    
+
     <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); padding: 24px; margin: 30px 0; border-radius: 8px; border: 1px solid #c7d2fe;">
       <h2 style="color: #1e40af; margin: 0 0 20px 0; font-size: 20px; font-family: Arial, sans-serif;">📈 Market Highlights</h2>
       <div style="display: grid; gap: 16px;">
@@ -350,21 +350,21 @@ newsletter_email = {
         </div>
       </div>
     </div>
-    
+
     <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #a16207; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">💡 Your Property Update</h3>
       <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0; font-family: Arial, sans-serif;">
-        Based on current market trends, properties in your area (#{mock_application[:address].split(',').last.strip}) have experienced strong growth. 
+        Based on current market trends, properties in your area (#{mock_application[:address].split(',').last.strip}) have experienced strong growth.#{' '}
         Your equity position continues to strengthen with an estimated current value of <strong>$#{(mock_application[:home_value] * 1.08).to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}</strong>.
       </p>
     </div>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/property-report" style="display: inline-block; background: #0891b2; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif;">
         View Your Property Report
       </a>
     </div>
-    
+
     <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 32px;">
       <h3 style="color: #1f2937; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">📚 Educational Resources</h3>
       <ul style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.6;">
@@ -387,11 +387,11 @@ referral_email = {
     <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 24px; font-family: Arial, sans-serif; text-align: center;">
       💰 Refer a Friend, Earn $500
     </h1>
-    
+
     <p style="color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
       Hi #{mock_customer[:first_name]}, as a valued FutureProof customer, you're perfectly positioned to help friends and family discover the benefits of our Equity Preservation Mortgage®.
     </p>
-    
+
     <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 24px; margin: 30px 0; border-radius: 8px; text-align: center; border: 2px solid #22c55e;">
       <h2 style="color: #15803d; margin: 0 0 16px 0; font-size: 24px; font-family: Arial, sans-serif;">🎉 Special Referral Bonus</h2>
       <div style="font-size: 32px; font-weight: bold; color: #15803d; margin: 16px 0; font-family: Arial, sans-serif;">$500</div>
@@ -399,7 +399,7 @@ referral_email = {
         For each successful referral that completes their mortgage
       </p>
     </div>
-    
+
     <div style="background: #f0f9ff; border-left: 4px solid #0891b2; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">📋 How It Works:</h3>
       <ol style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.8;">
@@ -409,7 +409,7 @@ referral_email = {
         <li><strong>You Both Win</strong> - You get $500, they get excellent service</li>
       </ol>
     </div>
-    
+
     <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 20px; margin: 30px 0; border-radius: 4px;">
       <h3 style="color: #a16207; margin: 0 0 16px 0; font-size: 16px; font-family: Arial, sans-serif;">👥 Who Can Benefit?</h3>
       <ul style="margin: 0; padding-left: 20px; color: #374151; font-family: Arial, sans-serif; line-height: 1.6;">
@@ -419,7 +419,7 @@ referral_email = {
         <li>Those with traditional reverse mortgages seeking better terms</li>
       </ul>
     </div>
-    
+
     <div style="text-align: center; margin: 32px 0;">
       <a href="https://futureprooffinancial.app/refer" style="display: inline-block; background: #22c55e; color: white; padding: 16px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 18px; font-family: Arial, sans-serif; margin-right: 16px;">
         Start Referring Today
@@ -428,7 +428,7 @@ referral_email = {
         Get Resources
       </a>
     </div>
-    
+
     <p style="color: #6b7280; font-size: 12px; line-height: 1.6; margin: 24px 0 0 0; font-family: Arial, sans-serif; text-align: center;">
       Terms and conditions apply. Referral bonus paid after successful mortgage completion. Maximum 5 referrals per customer per year.
     </p>
@@ -441,13 +441,13 @@ puts "\n💾 Generating #{emails.length} complete email previews..."
 
 emails.each_with_index do |email, index|
   puts "   #{index + 1}. #{email[:filename]} (#{email[:category]})"
-  
+
   # Use EmailHeaderFooterService to render complete email
   complete_email = EmailHeaderFooterService.render_complete_email(
     email[:category],
     email[:content_body]
   )
-  
+
   # Wrap in HTML document structure
   html_content = <<~HTML
     <!DOCTYPE html>
@@ -462,7 +462,7 @@ emails.each_with_index do |email, index|
     </body>
     </html>
   HTML
-  
+
   File.write("#{preview_dir}/#{email[:filename]}", html_content)
 end
 
@@ -492,7 +492,7 @@ metadata_content = <<~TEXT
   COMPLETE EMAIL LIST:
   ===================
 
-  #{emails.map.with_index { |email, i| 
+  #{emails.map.with_index { |email, i|
     "#{i + 1}. #{email[:filename]}
      Subject: #{email[:subject]}
      Category: #{email[:category].upcase}
@@ -539,7 +539,7 @@ puts "📁 All #{emails.length} emails saved to: #{File.absolute_path(preview_di
 puts ""
 puts "🎯 Key Features Demonstrated:"
 puts "   • ✅ Single header per email category (no duplicate headers)"
-puts "   • ✅ Proper operational vs marketing categorization" 
+puts "   • ✅ Proper operational vs marketing categorization"
 puts "   • ✅ Complete customer lifecycle workflow coverage"
 puts "   • ✅ Professional Australian mortgage industry styling"
 puts "   • ✅ Real variable interpolation with customer data"

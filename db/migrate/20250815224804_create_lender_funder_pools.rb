@@ -7,8 +7,8 @@ class CreateLenderFunderPools < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :lender_funder_pools, [:lender_id, :funder_pool_id], 
+
+    add_index :lender_funder_pools, [ :lender_id, :funder_pool_id ],
               unique: true, name: 'index_lender_funder_pools_uniqueness'
   end
 end

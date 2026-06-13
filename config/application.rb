@@ -38,7 +38,7 @@ module Futureproof
 
     # Session security
     config.session_store :cookie_store,
-      key: '_futureproof_session',
+      key: "_futureproof_session",
       secure: Rails.env.production?,
       httponly: true,
       expire_after: 24.hours,

@@ -118,18 +118,18 @@ class ApplicationPresenter
 
   def status_badge_class
     case status
-    when 'created'
-      'badge-secondary'
-    when 'property_details', 'income_and_loan_options'
-      'badge-warning'
-    when 'submitted', 'processing'
-      'badge-info'
-    when 'accepted'
-      'badge-success'
-    when 'rejected'
-      'badge-danger'
+    when "created"
+      "badge-secondary"
+    when "property_details", "income_and_loan_options"
+      "badge-warning"
+    when "submitted", "processing"
+      "badge-info"
+    when "accepted"
+      "badge-success"
+    when "rejected"
+      "badge-danger"
     else
-      'badge-secondary'
+      "badge-secondary"
     end
   end
 
@@ -146,10 +146,10 @@ class ApplicationPresenter
   # =================================
   def borrower_names_formatted
     return nil unless application.has_borrower_names?
-    
+
     # Use concern's parsed method (safe JSON parsing)
     names_data = application.borrower_names_array
-    
+
     if names_data.is_a?(Array) && names_data.any?
       names_data.map { |item| "#{item['name']} (Age: #{item['age']})" }.join("\n")
     else

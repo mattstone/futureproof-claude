@@ -10,7 +10,7 @@ class CreateFaqs < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :faqs, [:jurisdiction, :position]
-    add_index :faqs, [:jurisdiction, :published]
+    add_index :faqs, [ :jurisdiction, :position ]
+    add_index :faqs, [ :jurisdiction, :published ]
   end
 end

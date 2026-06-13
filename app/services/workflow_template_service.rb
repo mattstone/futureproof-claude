@@ -96,7 +96,7 @@ class WorkflowTemplateService
       },
       {
         name: "Application Status Updates",
-        category: "operational", 
+        category: "operational",
         description: "Notify customers of application status changes",
         trigger_type: "application_status_changed",
         trigger_conditions: {
@@ -138,7 +138,7 @@ class WorkflowTemplateService
         name: "Contract Execution Workflow",
         category: "end_of_contract",
         description: "Handle contract signing and completion processes",
-        trigger_type: "contract_signed", 
+        trigger_type: "contract_signed",
         steps: [
           {
             step_type: "send_email",
@@ -290,7 +290,7 @@ class WorkflowTemplateService
           },
           {
             step_type: "send_email",
-            name: "Contract Completed", 
+            name: "Contract Completed",
             description: "Contract completion and next steps",
             position: 2,
             configuration: {
@@ -301,11 +301,11 @@ class WorkflowTemplateService
       }
     ]
   end
-  
+
   def self.create_from_template(template_name, admin_user)
     template = available_templates.find { |t| t[:name] == template_name }
     return nil unless template
-    
+
     workflow = EmailWorkflow.new(
       name: template[:name],
       description: template[:description],
@@ -314,7 +314,7 @@ class WorkflowTemplateService
       active: false, # Start inactive so admin can review
       created_by: admin_user
     )
-    
+
     if workflow.save
       template[:steps].each do |step_template|
         step = workflow.workflow_steps.build(
@@ -326,29 +326,29 @@ class WorkflowTemplateService
         )
         step.save!
       end
-      
+
       workflow
     else
       nil
     end
   end
-  
+
   def self.templates_by_category
     available_templates.group_by { |template| template[:category] }
   end
-  
+
   def self.onboarding_templates
     available_templates.select { |template| template[:category] == "onboarding" }
   end
-  
+
   def self.operational_templates
     available_templates.select { |template| template[:category] == "operational" }
   end
-  
+
   def self.end_of_contract_templates
     available_templates.select { |template| template[:category] == "end_of_contract" }
   end
-  
+
   def self.customer_lifecycle_flow
     # Returns a complete customer lifecycle with all templates in order
     {

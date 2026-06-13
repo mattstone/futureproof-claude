@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class SignupTermsLayoutTest < ActionDispatch::IntegrationTest
   test "terms and conditions checkbox displays properly on signup page" do

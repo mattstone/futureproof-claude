@@ -50,20 +50,20 @@ module Admin
     end
 
     def build_customer_acquisition_overview(apps, portfolio)
-      this_month = apps.where('created_at >= ?', Date.today.beginning_of_month).count
-      last_month = apps.where('created_at >= ?', 1.month.ago.beginning_of_month).where('created_at < ?', Date.today.beginning_of_month).count
+      this_month = apps.where("created_at >= ?", Date.today.beginning_of_month).count
+      last_month = apps.where("created_at >= ?", 1.month.ago.beginning_of_month).where("created_at < ?", Date.today.beginning_of_month).count
 
       top_brokers = Application.joins(:broker)
-                               .where('applications.created_at >= ?', 90.days.ago)
-                               .group('brokers.name')
-                               .order('count_all DESC')
+                               .where("applications.created_at >= ?", 90.days.ago)
+                               .group("brokers.name")
+                               .order("count_all DESC")
                                .limit(3)
                                .count
 
       regions = portfolio.top_line[:applications_by_region]
 
       submitted = apps.where(status: %w[submitted processing accepted rejected]).count
-      accepted = apps.where(status: 'accepted').count
+      accepted = apps.where(status: "accepted").count
       conversion = submitted.positive? ? (accepted.to_f / submitted * 100).round(1) : 0
 
       {
@@ -77,12 +77,12 @@ module Admin
     end
 
     def build_customer_service_overview
-      open_conversations = ChatConversation.where(status: 'active').count
-      borrower_total_30d = BorrowerMessage.by_borrower.where('created_at >= ?', 30.days.ago).count
-      awaiting = BorrowerMessage.by_borrower.where(read_at: nil).where('created_at < ?', 24.hours.ago).count
+      open_conversations = ChatConversation.where(status: "active").count
+      borrower_total_30d = BorrowerMessage.by_borrower.where("created_at >= ?", 30.days.ago).count
+      awaiting = BorrowerMessage.by_borrower.where(read_at: nil).where("created_at < ?", 24.hours.ago).count
       awaiting_pct = borrower_total_30d.positive? ? (awaiting.to_f / borrower_total_30d * 100).round(1) : 0
-      escalations = ChatConversation.where(status: 'escalated').where('updated_at >= ?', 1.week.ago).count
-      stalled = Application.where(status: 'processing').where('updated_at < ?', 7.days.ago).count
+      escalations = ChatConversation.where(status: "escalated").where("updated_at >= ?", 1.week.ago).count
+      stalled = Application.where(status: "processing").where("updated_at < ?", 7.days.ago).count
 
       {
         open_conversations: open_conversations,
@@ -112,7 +112,7 @@ module Admin
 
     def build_geo(portfolio)
       regions = portfolio.top_line
-      iso_for = { 'AU' => '036', 'US' => '840', 'NZ' => '554', 'UK' => '826' }
+      iso_for = { "AU" => "036", "US" => "840", "NZ" => "554", "UK" => "826" }
       iso_for.map do |region, iso|
         {
           region: region,
@@ -125,7 +125,7 @@ module Admin
 
     def build_calendar(apps)
       from = 364.days.ago.to_date
-      counts = apps.where('created_at >= ?', from.beginning_of_day)
+      counts = apps.where("created_at >= ?", from.beginning_of_day)
                    .group("DATE(created_at)").count
                    .transform_keys { |k| k.is_a?(String) ? Date.parse(k) : k }
       days = (from..Date.today).map do |date|
@@ -143,45 +143,45 @@ module Admin
       pool_pct = pool_capacity.positive? ? (pool_allocated / pool_capacity * 100).round(1) : 0
 
       submitted = apps.where(status: %w[submitted processing accepted rejected]).count
-      accepted = apps.where(status: 'accepted').count
+      accepted = apps.where(status: "accepted").count
       conversion = submitted.positive? ? (accepted.to_f / submitted * 100).round(1) : 0
 
       [
         {
-          label: 'Health Score',
+          label: "Health Score",
           value: health[:health_score],
           max: 100,
-          unit: '%',
+          unit: "%",
           detail: health[:health_rating],
           higher_is_better: true,
           warning_at: 75,
           critical_at: 60
         },
         {
-          label: 'Pool Utilisation',
+          label: "Pool Utilisation",
           value: pool_pct,
           max: 100,
-          unit: '%',
+          unit: "%",
           detail: "#{number_to_currency(pool_allocated, precision: 0, unit: '$')} of #{number_to_currency(pool_capacity, precision: 0, unit: '$')}",
           higher_is_better: false,
           warning_at: 90,
           critical_at: 95
         },
         {
-          label: 'Investment Health',
+          label: "Investment Health",
           value: (100 - health[:holiday_pct].to_f).round(1),
           max: 100,
-          unit: '%',
+          unit: "%",
           detail: "#{health[:total_contracts] - health[:holiday_contracts]} of #{health[:total_contracts]} contracts performing",
           higher_is_better: true,
           warning_at: 75,
           critical_at: 60
         },
         {
-          label: 'Conversion Rate',
+          label: "Conversion Rate",
           value: conversion,
           max: 100,
-          unit: '%',
+          unit: "%",
           detail: "#{accepted} accepted of #{submitted} submitted",
           higher_is_better: true,
           warning_at: 50,
@@ -193,16 +193,16 @@ module Admin
     def build_funnel(apps)
       stages = %w[created user_details property_details income_and_loan_options submitted processing accepted]
       stage_labels = {
-        'created' => 'Started',
-        'user_details' => 'User details',
-        'property_details' => 'Property details',
-        'income_and_loan_options' => 'Income & loan',
-        'submitted' => 'Submitted',
-        'processing' => 'Processing',
-        'accepted' => 'Accepted'
+        "created" => "Started",
+        "user_details" => "User details",
+        "property_details" => "Property details",
+        "income_and_loan_options" => "Income & loan",
+        "submitted" => "Submitted",
+        "processing" => "Processing",
+        "accepted" => "Accepted"
       }
       counts = apps.group(:status).count
-      rejected = counts['rejected'].to_i
+      rejected = counts["rejected"].to_i
 
       ever_reached = stages.each_with_index.map do |stage, i|
         stages[i..].sum { |s| counts[s].to_i }
@@ -227,8 +227,8 @@ module Admin
       end
 
       if rejected.positive?
-        nodes << { name: 'Rejected', value: rejected, rejected: true }
-        links << { source: stages.index('processing'), target: nodes.size - 1, value: rejected }
+        nodes << { name: "Rejected", value: rejected, rejected: true }
+        links << { source: stages.index("processing"), target: nodes.size - 1, value: rejected }
       end
 
       { nodes: nodes, links: links, total_started: ever_reached[0] }

@@ -204,7 +204,7 @@ class MonteCarloSimulation
     starting_price = 100.0
     dt = 1.0 / 4.0  # Quarterly time step
 
-    prices = [starting_price]
+    prices = [ starting_price ]
 
     (config.total_quarters - 1).times do
       current_price = prices.last
@@ -424,7 +424,7 @@ class ResultsAnalyzer
     borrower_payments = total_income_received  # For interest-only loan
     amount_owed = total_loan + final_deficit
     amount_available = final_reinvestment + borrower_payments
-    shortfall = [amount_owed - amount_available, 0].max
+    shortfall = [ amount_owed - amount_available, 0 ].max
 
     puts "\nFINAL POSITION:"
     puts "  Amount Owed:              $#{format_currency(amount_owed)}"
@@ -456,10 +456,10 @@ class ResultsAnalyzer
   def export_to_csv(filename: 'simulation_results.csv')
     CSV.open(filename, 'w') do |csv|
       # Header
-      csv << ['Period', 'Year', 'Quarter', 'SP500 Price', 'SP500 Units',
+      csv << [ 'Period', 'Year', 'Quarter', 'SP500 Price', 'SP500 Units',
               'Reinvestment Value', 'Interest Accrued', 'Interest Paid',
               'Interest Deficit', 'Cumulative Deficit', 'Annuity Paid',
-              'On Holiday', 'Funder Earned']
+              'On Holiday', 'Funder Earned' ]
 
       # Data
       simulator.quarters.each do |q|
@@ -506,7 +506,7 @@ if __FILE__ == $0
 
   # 1. Configure the mortgage
   config = MortgageConfiguration.new
-  puts config.to_s
+  puts config
 
   # Ask user: single path or Monte Carlo?
   puts "Choose simulation mode:"

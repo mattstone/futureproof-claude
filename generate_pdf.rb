@@ -7,26 +7,25 @@ markdown_file = 'FutureProof_EPM_Technical_Architecture.md'
 content = File.read(markdown_file)
 
 # Create PDF
-Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf', 
+Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
                         page_size: 'A4',
                         page_layout: :portrait,
-                        margin: [0.5.in, 0.75.in]) do |pdf|
-  
+                        margin: [ 0.5.in, 0.75.in ]) do |pdf|
   # Define colors
   primary_blue = '0066CC'
   dark_gray = '333333'
   light_gray = 'F9F9F9'
-  
+
   # Set default font
   pdf.font 'Helvetica'
-  
+
   # Parse and render content
   lines = content.split("\n")
   i = 0
-  
+
   while i < lines.length
     line = lines[i]
-    
+
     # Title (h1)
     if line.start_with?('# ')
       pdf.move_down(20) if pdf.cursor < pdf.bounds.top - 50
@@ -37,7 +36,7 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       i += 1
       next
     end
-    
+
     # Section heading (h2)
     if line.start_with?('## ')
       pdf.move_down(15)
@@ -47,7 +46,7 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       i += 1
       next
     end
-    
+
     # Subsection (h3)
     if line.start_with?('### ')
       pdf.move_down(10)
@@ -57,13 +56,13 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       i += 1
       next
     end
-    
+
     # Skip empty lines
     if line.strip.empty?
       i += 1
       next
     end
-    
+
     # Skip horizontal rules
     if line.start_with?('---')
       pdf.move_down(10)
@@ -72,7 +71,7 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       i += 1
       next
     end
-    
+
     # Tables
     if line.start_with?('|')
       table_lines = []
@@ -80,26 +79,26 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
         table_lines << lines[i]
         i += 1
       end
-      
+
       # Parse table
       table_data = []
       table_lines.each do |tline|
         cells = tline.split('|').map(&:strip).reject(&:empty?)
         table_data << cells
       end
-      
+
       # Skip header separator
       if table_data.length > 1
         table_data.delete_at(1)
       end
-      
+
       if table_data.any?
         pdf.move_down(10)
         pdf.table(table_data,
                  header: true,
-                 row_colors: [light_gray, 'FFFFFF'],
+                 row_colors: [ light_gray, 'FFFFFF' ],
                  width: pdf.bounds.width) do |table|
-          table.cells.borders = [:bottom]
+          table.cells.borders = [ :bottom ]
           table.cells.border_width = 1
           table.cells.border_color = 'CCCCCC'
           table.header_row.background_color = primary_blue
@@ -111,7 +110,7 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       end
       next
     end
-    
+
     # Regular paragraphs
     if line.length > 0
       pdf.font_size(10) do
@@ -119,13 +118,13 @@ Prawn::Document.generate('FutureProof_EPM_Technical_Architecture.pdf',
       end
       pdf.move_down(4)
     end
-    
+
     i += 1
   end
-  
+
   # Footer on each page
-  pdf.number_pages '<page>/<total>', 
-                   at: [pdf.bounds.right - 50, -20],
+  pdf.number_pages '<page>/<total>',
+                   at: [ pdf.bounds.right - 50, -20 ],
                    align: :right,
                    size: 9,
                    color: '999999'

@@ -10,7 +10,7 @@ module User::Verification
 
   # Generate a new verification code
   def generate_verification_code
-    self.verification_code = SecureRandom.random_number(10**6).to_s.rjust(6, '0')
+    self.verification_code = SecureRandom.random_number(10**6).to_s.rjust(6, "0")
     self.verification_code_expires_at = 15.minutes.from_now
     save
   end

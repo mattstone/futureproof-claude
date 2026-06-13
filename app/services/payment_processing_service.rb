@@ -7,20 +7,20 @@ class PaymentProcessingService
   # 3. Processes distribution through mock payment processor
   # 4. Updates distribution status and transaction ID
   # 5. Logs all activity for compliance
-  
+
   attr_reader :application, :distribution_month, :distribution_year
-  
+
   def initialize(application, year = nil, month = nil)
     @application = application
     @distribution_year = year || Date.current.year
     @distribution_month = month || Date.current.month
   end
-  
+
   def self.process_monthly_distributions(year = nil, month = nil)
     # Process all approved applications for the given month
     year ||= Date.current.year
     month ||= Date.current.month
-    
+
     approved_apps = Application.where(status: :accepted)
     results = {
       success: 0,
@@ -28,10 +28,10 @@ class PaymentProcessingService
       skipped: 0,
       distributions: []
     }
-    
+
     approved_apps.find_each do |app|
       service = new(app, year, month)
-      
+
       begin
         distribution = service.process_payment
         results[:distributions] << distribution
@@ -42,22 +42,22 @@ class PaymentProcessingService
         Rails.logger.error("Failed to process payment for Application #{app.id}: #{e.message}")
       end
     end
-    
+
     results
   end
-  
+
   def process_payment
     # Don't create duplicate distributions for same period
     existing = application.distributions.for_period(@distribution_year, @distribution_month).first
     return existing if existing.present?
-    
+
     # Calculate distribution amount
     distribution_amount = calculate_distribution_amount
     return nil if distribution_amount.zero?
-    
+
     # Determine distribution date (first of the distribution month)
     distribution_date = Date.new(@distribution_year, @distribution_month, 1)
-    
+
     # Create distribution record
     distribution = application.distributions.create!(
       amount: distribution_amount,
@@ -66,73 +66,73 @@ class PaymentProcessingService
       payment_period_year: @distribution_year,
       payment_period_month: @distribution_month,
       status: :pending,
-      payment_method: 'ach',  # Default to ACH
+      payment_method: "ach",  # Default to ACH
       notes: "Automatic monthly EPM distribution for #{Date.new(@distribution_year, @distribution_month, 1).strftime('%B %Y')}"
     )
-    
+
     # Process payment
     process_with_payment_gateway(distribution)
-    
+
     distribution
   end
-  
+
   private
-  
+
   def calculate_distribution_amount
-    return 0 if application.status != 'accepted' || application.equity_investment_amount.nil?
-    
+    return 0 if application.status != "accepted" || application.equity_investment_amount.nil?
+
     # EPM: Calculate distribution based on equity participation
     # This is a placeholder - in production, would be based on property performance
     equity_investment = application.equity_investment_amount.to_f
-    
+
     # Temporary: Simple percentage of equity investment as distribution
-    # TODO: Replace with property income/appreciation calculations  
+    # TODO: Replace with property income/appreciation calculations
     (equity_investment * 0.005).round(2)  # 0.5% of equity per distribution
   end
-  
+
   def calculate_lender_margin(payment_amount)
     # Lender takes 1% margin on each distribution
     (payment_amount * 0.01).round(2)
   end
-  
+
   def process_with_payment_gateway(distribution)
     # In production, this would call Stripe/ACH/Wire transfer API
     # For now, mock the payment processor
-    
+
     mock_processor = MockPaymentProcessor.new
-    
+
     begin
       # Mark as processing
       distribution.mark_as_processing!
-      
+
       # Call mock processor
       transaction_id = mock_processor.process_payment(
         amount: distribution.amount,
         recipient_email: application.user.email,  # Use email for mock processor
         description: "Monthly EPM distribution"
       )
-      
+
       # Mark as completed
       distribution.mark_as_completed!(transaction_id)
-      
+
       Rails.logger.info("Payment processed for Distribution #{distribution.id}: Transaction #{transaction_id}")
     rescue => e
       distribution.mark_as_failed!(e.message)
       raise e
     end
   end
-  
+
   class MockPaymentProcessor
     def process_payment(amount:, recipient_email:, description:)
       # Simulate network latency
       sleep 0.1
-      
+
       # Generate mock transaction ID
       transaction_id = "TXN-#{Time.current.to_i}-#{rand(100000..999999)}"
-      
+
       # Log the mock transaction
       Rails.logger.info("Mock Payment Processor: Transferred $#{amount} to #{recipient_email} (#{description}) - TXN: #{transaction_id}")
-      
+
       # In production, this would integrate with real payment gateway (Stripe, ACH, Wire, etc)
       # For MVP, return mock transaction ID
       transaction_id

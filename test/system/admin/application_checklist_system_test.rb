@@ -1,4 +1,4 @@
-require 'application_system_test_case'
+require "application_system_test_case"
 
 class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
   setup do
@@ -28,9 +28,9 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
       user: @regular_user,
       address: "123 Processing Street, Portland, OR",
       home_value: 800000,
-      status: 'processing',
-      ownership_status: 'individual',
-      property_state: 'primary_residence',
+      status: "processing",
+      ownership_status: "individual",
+      property_state: "primary_residence",
       borrower_age: 65
     )
 
@@ -49,16 +49,16 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
       user: @regular_user,
       address: "456 Submitted Avenue, Seattle, WA",
       home_value: 600000,
-      status: 'submitted',
-      ownership_status: 'individual',
-      property_state: 'primary_residence',
+      status: "submitted",
+      ownership_status: "individual",
+      property_state: "primary_residence",
       borrower_age: 67
     )
 
-    @ai_agent = AiAgent.find_or_create_by(name: 'TestAgent') do |agent|
-      agent.agent_type = 'applications'
+    @ai_agent = AiAgent.find_or_create_by(name: "TestAgent") do |agent|
+      agent.agent_type = "applications"
       agent.is_active = true
-      agent.greeting_style = 'friendly'
+      agent.greeting_style = "friendly"
     end
   end
 
@@ -146,8 +146,8 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert page.has_text?("This application is ready for manual approval")
 
     # Status dropdown should now include "Accepted" option
-    within('.status-update-section') do
-      assert page.has_select?('application[status]', with_options: ['Processing', 'Rejected', 'Accepted'])
+    within(".status-update-section") do
+      assert page.has_select?("application[status]", with_options: [ "Processing", "Rejected", "Accepted" ])
       assert page.has_text?("All checklist items completed. Application can be accepted, rejected, or kept in processing.")
     end
   end
@@ -164,9 +164,9 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert page.has_text?("This application is ready for manual approval")
 
     # Change status to accepted
-    within('.status-update-section') do
-      select 'Accepted', from: 'application[status]'
-      click_button 'Update Status'
+    within(".status-update-section") do
+      select "Accepted", from: "application[status]"
+      click_button "Update Status"
     end
 
     # Should redirect to show page
@@ -176,7 +176,7 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert page.has_text?("Application was successfully updated")
 
     # Application status should be accepted
-    within('.application-status') do
+    within(".application-status") do
       assert page.has_text?("Accepted")
     end
 
@@ -199,9 +199,9 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert page.has_text?("(50%)")
 
     # Should not show "Accepted" option
-    within('.status-update-section') do
-      assert_not page.has_select?('application[status]', with_options: ['Accepted'])
-      assert page.has_select?('application[status]', with_options: ['Processing', 'Rejected'])
+    within(".status-update-section") do
+      assert_not page.has_select?("application[status]", with_options: [ "Accepted" ])
+      assert page.has_select?("application[status]", with_options: [ "Processing", "Rejected" ])
       assert page.has_text?("Complete all checklist items to enable \"Accepted\" status")
     end
   end
@@ -219,7 +219,7 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     visit admin_application_path(@processing_application)
 
     # Should show change history entry for checklist update
-    within('.change-history-section') do
+    within(".change-history-section") do
       assert page.has_text?("checklist_updated")
       assert page.has_text?("Checklist item 'Verification of identity check' marked as completed by #{@admin.display_name}")
     end
@@ -248,7 +248,7 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert page.has_text?("0 of 4 completed")
 
     # Application status should be processing
-    within('.application-status') do
+    within(".application-status") do
       assert page.has_text?("Processing")
     end
   end
@@ -256,7 +256,7 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
   test "auto-created checklist contains standard items" do
     # Trigger auto-creation by changing submitted application to processing
     @submitted_application.current_user = @admin
-    @submitted_application.update!(status: 'processing')
+    @submitted_application.update!(status: "processing")
 
     sign_in_admin
     visit admin_application_path(@submitted_application)
@@ -276,8 +276,8 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     visit edit_admin_application_path(@processing_application)
 
     # Should show 0% progress bar width initially
-    progress_fill = page.find('.progress-fill')
-    assert progress_fill.has_css?('.progress-0')
+    progress_fill = page.find(".progress-fill")
+    assert progress_fill.has_css?(".progress-0")
 
     # Check first item
     first_checkbox = page.all("input[type='checkbox'][value='true']").first
@@ -285,8 +285,8 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     sleep 0.5
 
     # Progress bar should update to 25%
-    progress_fill = page.find('.progress-fill')
-    assert progress_fill.has_css?('.progress-25')
+    progress_fill = page.find(".progress-fill")
+    assert progress_fill.has_css?(".progress-25")
 
     # Check second item
     second_checkbox = page.all("input[type='checkbox'][value='true']")[1]
@@ -294,8 +294,8 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     sleep 0.5
 
     # Progress bar should update to 50%
-    progress_fill = page.find('.progress-fill')
-    assert progress_fill.has_css?('.progress-50')
+    progress_fill = page.find(".progress-fill")
+    assert progress_fill.has_css?(".progress-50")
   end
 
   test "unchecking items updates progress correctly" do
@@ -322,8 +322,8 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     assert_not page.has_text?("All checklist items completed!")
 
     # Status dropdown should not include "Accepted" option anymore
-    within('.status-update-section') do
-      assert_not page.has_select?('application[status]', with_options: ['Accepted'])
+    within(".status-update-section") do
+      assert_not page.has_select?("application[status]", with_options: [ "Accepted" ])
       assert page.has_text?("Complete all checklist items to enable \"Accepted\" status")
     end
   end
@@ -340,9 +340,9 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
     first_checkbox.check
 
     # Find and submit the form manually (since no JS auto-submission)
-    form = first_checkbox.find(:xpath, './ancestor::form')
+    form = first_checkbox.find(:xpath, "./ancestor::form")
     within(form) do
-      click_button 'Update'
+      click_button "Update"
     end
 
     # Should redirect back to edit page
@@ -405,7 +405,7 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
 
     # Try to manually set status to accepted via direct update (bypassing UI)
     @processing_application.current_user = @admin
-    assert_not @processing_application.update(status: 'accepted')
+    assert_not @processing_application.update(status: "accepted")
 
     # Should have validation error
     assert @processing_application.errors[:status].present?
@@ -428,9 +428,9 @@ class Admin::ApplicationChecklistSystemTest < ApplicationSystemTestCase
   def self.setup_chrome_no_js
     Capybara.register_driver :selenium_chrome_headless_no_js do |app|
       options = Selenium::WebDriver::Chrome::Options.new
-      options.add_argument('--headless')
-      options.add_argument('--disable-javascript')
-      options.add_argument('--window-size=1400,1400')
+      options.add_argument("--headless")
+      options.add_argument("--disable-javascript")
+      options.add_argument("--window-size=1400,1400")
 
       Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
     end

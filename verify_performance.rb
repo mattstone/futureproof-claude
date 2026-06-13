@@ -110,7 +110,7 @@ if speedup > 10
   puts "✓ Ruby is SIGNIFICANTLY faster - use Ruby for large batch processing"
   puts "✓ Ruby can handle 100,000 calculations in under #{(ruby_100k_time / 3600).round(1)} hour(s)"
 elsif speedup > 2
-  puts "✓ Ruby is moderately faster - good choice for large batches"  
+  puts "✓ Ruby is moderately faster - good choice for large batches"
 else
   puts "⚠ Performance difference is minimal - choose based on other factors"
 end
