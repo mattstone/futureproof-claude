@@ -1,5 +1,5 @@
-require 'json'
-require 'tempfile'
+require "json"
+require "tempfile"
 
 class PythonCalculatorService
   def initialize(params)
@@ -11,40 +11,40 @@ class PythonCalculatorService
   def calculate
     # Create Python script with Ruby parameters
     python_script = generate_python_script_with_params
-    
+
     # Write script to python directory so imports work
-    python_dir = Rails.root.join('python')
+    python_dir = Rails.root.join("python")
     temp_filename = "ruby_calculator_#{Time.current.to_i}_#{rand(1000)}.py"
     temp_path = python_dir.join(temp_filename)
-    
+
     File.write(temp_path, python_script)
-    
+
     begin
       # Execute Python script and capture output
       Rails.logger.info "Executing Python calculation with Ruby parameters..."
-      
+
       start_time = Time.current
       output = `cd #{python_dir} && python3 #{temp_filename} 2>&1`
       execution_time = Time.current - start_time
-      
+
       Rails.logger.info "Python execution completed in #{execution_time.round(3)} seconds"
-      
+
       # Parse JSON output
       Rails.logger.info "Python script output (first 500 chars): #{output[0..500]}"
-      
-      json_line = output.split("\n").find { |line| line.strip.start_with?('{') }
-      
+
+      json_line = output.split("\n").find { |line| line.strip.start_with?("{") }
+
       if json_line
         Rails.logger.info "Found JSON line, parsing..."
         result = JSON.parse(json_line)
-        
+
         # Convert to Ruby-friendly format
         format_python_result(result, execution_time)
       else
         Rails.logger.error "Full Python script output: #{output}"
         raise StandardError, "Failed to parse Python output: No JSON found"
       end
-      
+
     rescue JSON::ParserError => e
       Rails.logger.error "JSON parsing failed: #{e.message}"
       Rails.logger.error "Python output: #{output}"
@@ -185,11 +185,11 @@ class PythonCalculatorService
                           insurance_profit_margin,insurance_cost,
                           interest_series,wholesale_lending_margin,additional_loan_margins,
                           holiday_enter_fraction, holiday_exit_fraction, subperform_loan_threshold_quarters,
-                          price_paths, S0, dt, year0-1, max_superpay_factor, superpay_start_factor, False, 
+                          price_paths, S0, dt, year0-1, max_superpay_factor, superpay_start_factor, False,#{' '}
                           0, None, principal_repayment, hedged, hedging_max_loss,hedging_cap, hedging_cost_pa )
-      df["CumAnnuityIncome"] = df["AnnuityIncome"].cumsum()                    
-      df["CumInterestAccrued"] = df["Interest"].cumsum()                    
-      df["CumInterestPaid"] = df["InterestPaid"].cumsum()                    
+      df["CumAnnuityIncome"] = df["AnnuityIncome"].cumsum()#{'                    '}
+      df["CumInterestAccrued"] = df["Interest"].cumsum()#{'                    '}
+      df["CumInterestPaid"] = df["InterestPaid"].cumsum()#{'                    '}
       output['pathdf'] = df.to_dict('list')
       output["accounts_table"] = accounts_table(df).to_dict('list')
 
@@ -206,46 +206,46 @@ class PythonCalculatorService
       total_paths: 1,
       chart_data: generate_chart_data_from_python(python_result),
       execution_time: execution_time,
-      data_source: 'python_historical',
-      pathdf: python_result['pathdf'],
-      price_paths: python_result['price_paths'],
-      accounts_table: python_result['accounts_table'],
-      debug_msgs: python_result['debug_msgs']
+      data_source: "python_historical",
+      pathdf: python_result["pathdf"],
+      price_paths: python_result["price_paths"],
+      accounts_table: python_result["accounts_table"],
+      debug_msgs: python_result["debug_msgs"]
     }
   end
 
   def generate_main_outputs_from_python(python_result)
-    pathdf = python_result['pathdf']
+    pathdf = python_result["pathdf"]
     return [] unless pathdf
 
     total_loan = @params[:house_value] * @params[:loan_to_value]
-    
+
     [
-      ["Reinvestment fraction", "", "#{((1 - (@params[:annuity_duration] * @params[:annual_income]) / total_loan) * 100).round(1)}%", "", "", "", ""],
-      ["Total Income", "TI", "$#{@params[:annual_income] * @params[:annuity_duration]}", "", "", "", ""],
-      ["Total Loan", "L", "$#{total_loan.round(0)}", "", "", "", ""],
-      ["Insurance Cost", "", "$#{python_result['debug_msgs']['insurance_cost']}", "", "", "", ""],
-      ["Final Portfolio", "", "$#{pathdf['Reinvestment']&.last&.round(0) || 'N/A'}", "", "", "", ""],
-      ["Cumulative Interest", "", "$#{pathdf['CumInterestAccrued']&.last&.round(0) || 'N/A'}", "", "", "", ""]
+      [ "Reinvestment fraction", "", "#{((1 - (@params[:annuity_duration] * @params[:annual_income]) / total_loan) * 100).round(1)}%", "", "", "", "" ],
+      [ "Total Income", "TI", "$#{@params[:annual_income] * @params[:annuity_duration]}", "", "", "", "" ],
+      [ "Total Loan", "L", "$#{total_loan.round(0)}", "", "", "", "" ],
+      [ "Insurance Cost", "", "$#{python_result['debug_msgs']['insurance_cost']}", "", "", "", "" ],
+      [ "Final Portfolio", "", "$#{pathdf['Reinvestment']&.last&.round(0) || 'N/A'}", "", "", "", "" ],
+      [ "Cumulative Interest", "", "$#{pathdf['CumInterestAccrued']&.last&.round(0) || 'N/A'}", "", "", "", "" ]
     ]
   end
 
   def generate_path_data_from_python(python_result)
-    pathdf = python_result['pathdf']
+    pathdf = python_result["pathdf"]
     return {} unless pathdf
 
     # Convert Python pathdf to Ruby path data format
-    periods = pathdf['Period'] || []
-    years = pathdf['Year'] || []
-    reinvestment = pathdf['Reinvestment'] || []
-    
+    periods = pathdf["Period"] || []
+    years = pathdf["Year"] || []
+    reinvestment = pathdf["Reinvestment"] || []
+
     mean_data = periods.zip(years, reinvestment).map.with_index do |(period, year, reinvest), i|
       [
         period || i,
         1.0, # placeholder for other metrics
         year || (2000 + i/12.0),
         0, # placeholder
-        0, # placeholder  
+        0, # placeholder
         0, # placeholder
         0, # placeholder
         reinvest || 0,
@@ -259,19 +259,19 @@ class PythonCalculatorService
   end
 
   def generate_chart_data_from_python(python_result)
-    pathdf = python_result['pathdf']
+    pathdf = python_result["pathdf"]
     return {} unless pathdf
 
     {
-      portfolio_values: pathdf['Reinvestment'] || [],
-      equity_prices: pathdf['SP500'] || [],
-      periods: pathdf['Period'] || [],
-      years: pathdf['Year'] || []
+      portfolio_values: pathdf["Reinvestment"] || [],
+      equity_prices: pathdf["SP500"] || [],
+      periods: pathdf["Period"] || [],
+      years: pathdf["Year"] || []
     }
   end
 
   def validate_params
-    required_params = [:house_value, :loan_duration, :loan_to_value]
+    required_params = [ :house_value, :loan_duration, :loan_to_value ]
     required_params.each do |param|
       raise ArgumentError, "Missing required parameter: #{param}" unless @params[param].present?
     end

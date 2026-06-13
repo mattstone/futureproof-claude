@@ -1,12 +1,12 @@
 class User < ApplicationRecord
   include InputSanitization
-  
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   # Note: removed :validatable to implement custom scoped email validation
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :timeoutable, :lockable, :trackable,
-         :omniauthable, omniauth_providers: [:saml]
+         :omniauthable, omniauth_providers: [ :saml ]
 
   # Associations
   belongs_to :lender, optional: true
@@ -16,10 +16,10 @@ class User < ApplicationRecord
   # users.terms_version is frozen legacy history (signups now record
   # LegalDocumentAcceptance rows); the old agreed_terms association is gone.
   has_many :user_versions, dependent: :destroy
-  
+
   # Mortgage contract relationships
-  has_many :created_mortgage_contracts, class_name: 'MortgageContract', foreign_key: 'created_by_id', dependent: :nullify
-  has_many :primary_mortgage_contracts, class_name: 'MortgageContract', foreign_key: 'primary_user_id', dependent: :nullify
+  has_many :created_mortgage_contracts, class_name: "MortgageContract", foreign_key: "created_by_id", dependent: :nullify
+  has_many :primary_mortgage_contracts, class_name: "MortgageContract", foreign_key: "primary_user_id", dependent: :nullify
   has_many :mortgage_contract_users, dependent: :destroy
   has_many :additional_mortgage_contracts, through: :mortgage_contract_users, source: :mortgage_contract
 
@@ -32,10 +32,10 @@ class User < ApplicationRecord
 
   # Temporary attribute to store home value during registration
   attr_accessor :pending_home_value
-  
+
   # Track changes with audit functionality
   attr_accessor :current_admin_user
-  
+
   # Callbacks for change tracking
   after_create :log_creation, :create_notification_preference
   after_create :create_initial_application, unless: :admin?
@@ -46,10 +46,10 @@ class User < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :email, uniqueness: { scope: :lender_id, message: "is already taken for this lender" }
   validates :password, presence: true, length: { minimum: 10 }, if: :password_required?
-  
+
   # Lender scoping validation - only required for admin users
   validates :lender, presence: true, if: :admin?
-  
+
   # Existing validations
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
@@ -68,7 +68,7 @@ class User < ApplicationRecord
     conditions = warden_conditions.dup
     if (email = conditions.delete(:email))
       lender_id = conditions.delete(:lender_id)
-      
+
       # If lender_id is provided, use it for scoped lookup
       if lender_id.present?
         where(conditions.to_h).where(email: email, lender_id: lender_id).first
@@ -127,10 +127,10 @@ class User < ApplicationRecord
   def valid_mobile_phone?
     return true if mobile_number.blank? # Allow blank numbers
     return false unless mobile_country_code.present? && mobile_number.present?
-    
+
     begin
       # Clean the mobile number and combine with country code
-      clean_number = mobile_number.gsub(/\D/, '')
+      clean_number = mobile_number.gsub(/\D/, "")
       full_number = "#{mobile_country_code}#{clean_number}"
       Phony.plausible?(full_number)
     rescue
@@ -140,7 +140,7 @@ class User < ApplicationRecord
 
   # Verification code methods
   def generate_verification_code
-    self.verification_code = sprintf('%06d', rand(1000000))
+    self.verification_code = sprintf("%06d", rand(1000000))
     self.verification_code_expires_at = 15.minutes.from_now
     save!
   end
@@ -148,7 +148,7 @@ class User < ApplicationRecord
   def verification_code_valid?(code)
     return false if verification_code.blank? || verification_code_expires_at.blank?
     return false if verification_code_expires_at < Time.current
-    
+
     verification_code == code.to_s
   end
 
@@ -166,13 +166,13 @@ class User < ApplicationRecord
     self.confirmed_at = Time.current
     clear_verification_code
     save!
-    
+
     # Create an application with "created" status to track user progression
     # This allows us to track users who create an account but do not proceed with the application
     unless applications.exists?
       # Use pending_home_value if available, otherwise use default
       home_val = pending_home_value.present? ? pending_home_value.to_i : 1000000
-      
+
       applications.create!(
         status: :created,
         home_value: home_val,
@@ -222,11 +222,11 @@ class User < ApplicationRecord
   def add_known_browser_signature(signature)
     current_signatures = known_browser_signatures_array
     return if current_signatures.include?(signature)
-    
+
     current_signatures << signature
     # Keep only the last 10 browser signatures to prevent unlimited growth
     current_signatures = current_signatures.last(10)
-    
+
     self.known_browser_signatures = current_signatures.to_json
     save!
   end
@@ -237,14 +237,14 @@ class User < ApplicationRecord
 
   def update_browser_tracking(signature, browser_info)
     was_unknown = !known_browser_signature?(signature)
-    
+
     # Update last browser signature and info
     self.last_browser_signature = signature
     self.last_browser_info = browser_info.to_json
-    
+
     # Add to known signatures if not already known
     add_known_browser_signature(signature)
-    
+
     was_unknown
   end
 
@@ -295,14 +295,14 @@ class User < ApplicationRecord
       acceptance.acceptance_type = acceptance_type
     end
   end
-  
+
   # Log when admin views user profile
   def log_view_by(admin_user)
     return unless admin_user&.admin?
 
     user_versions.create!(
       admin_user: admin_user,
-      action: 'viewed',
+      action: "viewed",
       change_details: "Admin #{admin_user.display_name} viewed user profile"
     )
   end
@@ -344,27 +344,27 @@ class User < ApplicationRecord
 
   def self.create_from_sso(auth, lender, is_admin_domain = false)
     # Extract name parts from auth (SAML specific)
-    first_name = auth.info.first_name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname')&.first
-    last_name = auth.info.last_name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname')&.first
-    display_name = auth.info.name || auth.extra&.raw_info&.[]('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname')&.first
+    first_name = auth.info.first_name || auth.extra&.raw_info&.[]("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")&.first
+    last_name = auth.info.last_name || auth.extra&.raw_info&.[]("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")&.first
+    display_name = auth.info.name || auth.extra&.raw_info&.[]("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/displayname")&.first
 
     # Fallback to parsing display name if first/last not available
     if first_name.blank? && display_name.present?
-      name_parts = display_name.split(' ')
+      name_parts = display_name.split(" ")
       first_name = name_parts.first
-      last_name = name_parts[1..-1]&.join(' ')
+      last_name = name_parts[1..-1]&.join(" ")
     end
 
     user = create!(
       email: auth.info.email,
-      first_name: first_name || 'SAML',
-      last_name: last_name || 'User',
+      first_name: first_name || "SAML",
+      last_name: last_name || "User",
       lender: lender,
       sso_provider: auth.provider,
       sso_uid: auth.uid,
       admin: is_admin_domain, # Auto-assign admin for futureproofinancial.co
       confirmed_at: Time.current, # SSO users are pre-verified
-      country_of_residence: 'United States', # Default for SSO users
+      country_of_residence: "United States", # Default for SSO users
       terms_accepted: true, # SSO implies terms acceptance (recorded below)
       password: Devise.friendly_token[0, 20] # Random password for SSO users
     )
@@ -385,19 +385,19 @@ class User < ApplicationRecord
     # Update name if provided and current values are empty/default
     updates = {}
 
-    if auth.info.first_name.present? && (first_name == 'SSO' || first_name.blank?)
+    if auth.info.first_name.present? && (first_name == "SSO" || first_name.blank?)
       updates[:first_name] = auth.info.first_name
     end
 
-    if auth.info.last_name.present? && (last_name == 'User' || last_name.blank?)
+    if auth.info.last_name.present? && (last_name == "User" || last_name.blank?)
       updates[:last_name] = auth.info.last_name
     end
 
     # Parse name if first/last not available but name is
-    if auth.info.name.present? && (first_name == 'SSO' || last_name == 'User')
-      name_parts = auth.info.name.split(' ')
-      updates[:first_name] = name_parts.first if first_name == 'SSO'
-      updates[:last_name] = name_parts[1..-1]&.join(' ') if last_name == 'User'
+    if auth.info.name.present? && (first_name == "SSO" || last_name == "User")
+      name_parts = auth.info.name.split(" ")
+      updates[:first_name] = name_parts.first if first_name == "SSO"
+      updates[:last_name] = name_parts[1..-1]&.join(" ") if last_name == "User"
     end
 
     update!(updates)
@@ -419,18 +419,18 @@ class User < ApplicationRecord
   end
 
   private
-  
+
   # Password validation helper (replacing Devise :validatable)
   def password_required?
     !persisted? || !password.nil? || !password_confirmation.nil?
   end
-  
+
   def log_creation
     return unless current_admin_user&.admin?
-    
+
     user_versions.create!(
       admin_user: current_admin_user,
-      action: 'created',
+      action: "created",
       change_details: "Created user account for #{display_name}",
       new_first_name: first_name,
       new_last_name: last_name,
@@ -443,23 +443,23 @@ class User < ApplicationRecord
       new_confirmed_at: confirmed_at
     )
   end
-  
+
   def log_update
     return unless current_admin_user&.admin?
     return unless saved_changes.any?
-    
+
     # Special handling for admin role changes
     if saved_change_to_admin?
-      action = admin? ? 'admin_promoted' : 'admin_demoted'
+      action = admin? ? "admin_promoted" : "admin_demoted"
       change_details = admin? ? "Promoted #{display_name} to admin" : "Removed admin privileges from #{display_name}"
     elsif saved_change_to_confirmed_at?
-      action = 'confirmed'
+      action = "confirmed"
       change_details = "Confirmed user account for #{display_name}"
     else
-      action = 'updated'
+      action = "updated"
       change_details = build_change_summary
     end
-    
+
     user_versions.create!(
       admin_user: current_admin_user,
       action: action,
@@ -484,41 +484,41 @@ class User < ApplicationRecord
       new_confirmed_at: saved_change_to_confirmed_at ? saved_change_to_confirmed_at[1] : nil
     )
   end
-  
+
   def build_change_summary
     changes_list = []
-    
+
     if saved_change_to_first_name?
       changes_list << "First name changed from '#{saved_change_to_first_name[0]}' to '#{saved_change_to_first_name[1]}'"
     end
-    
+
     if saved_change_to_last_name?
       changes_list << "Last name changed from '#{saved_change_to_last_name[0]}' to '#{saved_change_to_last_name[1]}'"
     end
-    
+
     if saved_change_to_email?
       changes_list << "Email changed from '#{saved_change_to_email[0]}' to '#{saved_change_to_email[1]}'"
     end
-    
+
     if saved_change_to_country_of_residence?
       changes_list << "Country changed from '#{saved_change_to_country_of_residence[0]}' to '#{saved_change_to_country_of_residence[1]}'"
     end
-    
+
     if saved_change_to_mobile_number?
       old_mobile = format_mobile_change(saved_change_to_mobile_country_code ? saved_change_to_mobile_country_code[0] : mobile_country_code, saved_change_to_mobile_number[0])
       new_mobile = format_mobile_change(mobile_country_code, saved_change_to_mobile_number[1])
       changes_list << "Mobile number changed from '#{old_mobile}' to '#{new_mobile}'"
     end
-    
+
     if saved_change_to_terms_version?
       changes_list << "Terms version changed from #{saved_change_to_terms_version[0]} to #{saved_change_to_terms_version[1]}"
     end
-    
+
     changes_list.join("; ")
   end
-  
+
   def format_mobile_change(country_code, number)
-    return number || '' unless country_code.present?
+    return number || "" unless country_code.present?
     "#{country_code} #{number}"
   end
 

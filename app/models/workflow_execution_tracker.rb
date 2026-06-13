@@ -14,7 +14,7 @@ class WorkflowExecutionTracker < ApplicationRecord
   # Check if a workflow has already been executed for a target with run_once logic
   def self.already_executed?(workflow, target, trigger_key, run_once: false)
     return false unless run_once
-    
+
     exists?(
       email_workflow: workflow,
       target: target,
@@ -46,7 +46,7 @@ class WorkflowExecutionTracker < ApplicationRecord
 
   # Cleanup old execution records to prevent table growth
   def self.cleanup_old_records!
-    where('executed_at < ?', 90.days.ago).delete_all
+    where("executed_at < ?", 90.days.ago).delete_all
   end
 
   # Get execution summary for admin

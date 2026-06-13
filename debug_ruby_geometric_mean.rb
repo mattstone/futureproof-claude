@@ -30,7 +30,7 @@ puts "=== RUBY GEOMETRIC MEAN DEBUG ==="
 
 begin
   calc = MortgageCalculatorAdvancedService.new(DEBUG_PARAMS)
-  
+
   # Let's extract the same calculation components that Python uses
   total_loan = DEBUG_PARAMS[:house_value] * DEBUG_PARAMS[:loan_to_value]
   reinvest_fraction = 1.0 - (DEBUG_PARAMS[:annuity_duration] * DEBUG_PARAMS[:annual_income]) / total_loan
@@ -56,11 +56,11 @@ begin
   max_interest_months = fedfunds_data.length
 
   if start_offset + required_months > max_interest_months
-    start_offset = [0, max_interest_months - required_months].max
+    start_offset = [ 0, max_interest_months - required_months ].max
   end
-  start_offset = [0, start_offset].max
+  start_offset = [ 0, start_offset ].max
 
-  interest_series = fedfunds_data[start_offset, required_months] || [0.04] * required_months
+  interest_series = fedfunds_data[start_offset, required_months] || [ 0.04 ] * required_months
 
   puts "Interest data:"
   puts "  start_offset: #{start_offset}"
@@ -81,16 +81,16 @@ begin
   puts "  Match: #{(ruby_avg_cash_rate - python_avg_cash_rate).abs < 0.00000001 ? 'YES' : 'NO'}"
 
   # Initial reinvestment calculation
-  ruby_initial_reinvest = total_loan * reinvest_fraction - 
+  ruby_initial_reinvest = total_loan * reinvest_fraction -
     insurance_profit_margin * insurance_cost / ((1 + ruby_avg_cash_rate) ** DEBUG_PARAMS[:loan_duration])
 
-  python_initial_reinvest = total_loan * reinvest_fraction - 
+  python_initial_reinvest = total_loan * reinvest_fraction -
     insurance_profit_margin * insurance_cost / ((1 + python_avg_cash_rate) ** DEBUG_PARAMS[:loan_duration])
 
   puts "\nInitial reinvestment calculation:"
   puts "  component1 (total_loan * reinvest_fraction): #{total_loan * reinvest_fraction}"
   puts "  component2_num (insurance_profit_margin * insurance_cost): #{insurance_profit_margin * insurance_cost}"
-  
+
   ruby_denominator = ((1 + ruby_avg_cash_rate) ** DEBUG_PARAMS[:loan_duration])
   python_denominator = ((1 + python_avg_cash_rate) ** DEBUG_PARAMS[:loan_duration])
   puts "  ruby_denominator: #{ruby_denominator.round(8)}"

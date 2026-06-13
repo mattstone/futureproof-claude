@@ -12,7 +12,7 @@ class CreateAccountButtonStylingTest < ApplicationSystemTestCase
 
     # Initially, button should be disabled and have disabled class
     assert submit_button[:disabled], "Button should start disabled"
-    assert submit_button[:class].include?('site-btn-disabled'), "Button should have disabled class initially"
+    assert submit_button[:class].include?("site-btn-disabled"), "Button should have disabled class initially"
 
     # Fill out the form to enable the button
     fill_in "First name", with: "Button"
@@ -34,12 +34,12 @@ class CreateAccountButtonStylingTest < ApplicationSystemTestCase
 
     # Check that the disabled class has been removed by our JavaScript
     button_classes = submit_button[:class]
-    assert_not button_classes.include?('site-btn-disabled'), "Button should not have disabled class when enabled"
+    assert_not button_classes.include?("site-btn-disabled"), "Button should not have disabled class when enabled"
 
     # Verify the button has the expected enabled classes
-    assert button_classes.include?('site-btn'), "Button should have site-btn class"
-    assert button_classes.include?('site-btn-primary'), "Button should have site-btn-primary class"
-    assert button_classes.include?('auth-submit-btn'), "Button should have auth-submit-btn class"
+    assert button_classes.include?("site-btn"), "Button should have site-btn class"
+    assert button_classes.include?("site-btn-primary"), "Button should have site-btn-primary class"
+    assert button_classes.include?("auth-submit-btn"), "Button should have auth-submit-btn class"
 
     # Test that hovering works (this verifies our CSS is applied)
     submit_button.hover
@@ -74,6 +74,6 @@ class CreateAccountButtonStylingTest < ApplicationSystemTestCase
 
     # Verify the disabled class is added back
     submit_button = find("input[type='submit'][value='Create Account']")
-    assert submit_button[:class].include?('site-btn-disabled'), "Button should have disabled class when terms unchecked"
+    assert submit_button[:class].include?("site-btn-disabled"), "Button should have disabled class when terms unchecked"
   end
 end

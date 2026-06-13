@@ -13,9 +13,9 @@ class UserMailerPreview < ActionMailer::Preview
     user = User.first || User.new(email: "test@example.com", first_name: "John", last_name: "Doe")
     browser_signature = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
     browser_info = {
-      'browser' => 'Google Chrome',
-      'platform' => 'macOS',
-      'language' => 'en-US'
+      "browser" => "Google Chrome",
+      "platform" => "macOS",
+      "language" => "en-US"
     }
     ip_address = "203.0.113.42"
     location = "Sydney, New South Wales, Australia"

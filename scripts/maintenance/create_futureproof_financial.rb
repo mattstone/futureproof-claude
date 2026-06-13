@@ -26,7 +26,7 @@ begin
     contact_telephone_country_code: "+61",
     contact_telephone: "0432212713"
   )
-  
+
   puts "✅ Successfully created Futureproof Financial!"
   puts "   ID: #{futureproof.id}"
   puts "   Name: #{futureproof.name}"
@@ -37,7 +37,7 @@ begin
   puts "   Email: #{futureproof.contact_email}"
   puts "   Phone: #{futureproof.contact_telephone_country_code} #{futureproof.contact_telephone}"
   puts "   Created: #{futureproof.created_at}"
-  
+
 rescue => e
   puts "❌ Failed to create Futureproof Financial:"
   puts "   Error: #{e.message}"

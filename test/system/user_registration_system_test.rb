@@ -4,9 +4,9 @@ class UserRegistrationSystemTest < ApplicationSystemTestCase
   def setup
     # Clear any existing test users
     User.where(email: [
-      'system.test@example.com',
-      'browser.test@example.com',
-      'form.validation@example.com'
+      "system.test@example.com",
+      "browser.test@example.com",
+      "form.validation@example.com"
     ]).destroy_all
   end
 

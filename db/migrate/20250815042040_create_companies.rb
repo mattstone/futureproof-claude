@@ -11,7 +11,7 @@ class CreateCompanies < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :companies, :company_type
     add_index :companies, :name
   end

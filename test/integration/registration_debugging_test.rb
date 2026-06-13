@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class RegistrationDebuggingTest < ActionDispatch::IntegrationTest
   test "debug registration process step by step" do
@@ -55,7 +55,7 @@ class RegistrationDebuggingTest < ActionDispatch::IntegrationTest
     user = nil
     application = nil
 
-    assert_difference ['User.count', 'Application.count'], 1 do
+    assert_difference [ "User.count", "Application.count" ], 1 do
       user = User.create!(
         first_name: "Manual",
         last_name: "Test",

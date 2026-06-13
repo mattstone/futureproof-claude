@@ -46,7 +46,7 @@ class BrokerDashboardCacheService
   def self.invalidate_applications(broker)
     # Invalidate all pagination variants
     (1..10).each do |page|
-      [10, 20, 50].each do |per_page|
+      [ 10, 20, 50 ].each do |per_page|
         cache_key = "#{CACHE_NAMESPACE}:applications:#{broker.id}:#{page}:#{per_page}"
         Rails.cache.delete(cache_key)
       end

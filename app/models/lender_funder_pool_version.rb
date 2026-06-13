@@ -2,65 +2,65 @@ class LenderFunderPoolVersion < ApplicationRecord
   belongs_to :lender_funder_pool
   belongs_to :user
   alias_method :admin_user, :user
-  
+
   validates :action, presence: true
   validates :change_details, presence: true
-  
+
   scope :recent, -> { order(created_at: :desc) }
   scope :by_action, ->(action) { where(action: action) }
-  scope :changes_only, -> { where.not(action: 'viewed') }
-  scope :views_only, -> { where(action: 'viewed') }
-  
+  scope :changes_only, -> { where.not(action: "viewed") }
+  scope :views_only, -> { where(action: "viewed") }
+
   def action_description
-    pool_name = lender_funder_pool&.funder_pool&.name || 'funder pool'
-    wholesale_funder_name = lender_funder_pool&.funder_pool&.wholesale_funder&.name || 'wholesale funder'
-    
+    pool_name = lender_funder_pool&.funder_pool&.name || "funder pool"
+    wholesale_funder_name = lender_funder_pool&.funder_pool&.wholesale_funder&.name || "wholesale funder"
+
     case action
-    when 'created'
+    when "created"
       "added funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
-    when 'updated'
+    when "updated"
       "updated funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
-    when 'viewed'
+    when "viewed"
       "viewed funder pool relationship with #{pool_name} (#{wholesale_funder_name})"
     else
       action
     end
   end
-  
+
   def formatted_created_at
     created_at.strftime("%B %d, %Y at %I:%M %p")
   end
-  
+
   def has_field_changes?
     previous_active.present? || new_active.present?
   end
-  
+
   def detailed_changes
     changes = []
-    
+
     if has_active_changes?
       changes << {
-        field: 'Status',
+        field: "Status",
         from: format_active_status(previous_active),
         to: format_active_status(new_active)
       }
     end
-    
+
     changes
   end
-  
+
   private
-  
+
   def has_active_changes?
     previous_active.present? && new_active.present? && previous_active != new_active
   end
-  
+
   def format_active_status(status)
     case status
     when true
-      'Active'
+      "Active"
     when false
-      'Inactive'
+      "Inactive"
     else
       status.to_s
     end

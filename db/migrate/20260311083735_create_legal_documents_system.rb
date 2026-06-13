@@ -14,10 +14,10 @@ class CreateLegalDocumentsSystem < ActiveRecord::Migration[7.1]
       t.boolean :is_draft, default: true, null: false
       t.integer :status, default: 0  # draft, review, approved, active, archived
       t.timestamps
-      
-      t.index [:document_type, :jurisdiction, :party_type, :is_active], name: :idx_legal_docs_lookup
-      t.index [:document_type, :jurisdiction, :party_type, :version], unique: true, name: :idx_legal_docs_unique
-      t.index [:is_active, :effective_from], name: :idx_legal_docs_active
+
+      t.index [ :document_type, :jurisdiction, :party_type, :is_active ], name: :idx_legal_docs_lookup
+      t.index [ :document_type, :jurisdiction, :party_type, :version ], unique: true, name: :idx_legal_docs_unique
+      t.index [ :is_active, :effective_from ], name: :idx_legal_docs_active
     end
 
     # Track changes and versions
@@ -29,8 +29,8 @@ class CreateLegalDocumentsSystem < ActiveRecord::Migration[7.1]
       t.text :previous_content, null: true
       t.text :new_content, null: true
       t.timestamps
-      
-      t.index [:legal_document_id, :created_at], name: :idx_legal_doc_versions
+
+      t.index [ :legal_document_id, :created_at ], name: :idx_legal_doc_versions
     end
 
     # Acceptance tracking (when users/lenders accept documents)
@@ -43,9 +43,9 @@ class CreateLegalDocumentsSystem < ActiveRecord::Migration[7.1]
       t.string :acceptance_type  # explicit, implicit, required_for_application
       t.text :notes
       t.timestamps
-      
-      t.index [:legal_document_id, :user_id, :accepted_at], name: :idx_legal_acceptances_user
-      t.index [:legal_document_id, :lender_id, :accepted_at], name: :idx_legal_acceptances_lender
+
+      t.index [ :legal_document_id, :user_id, :accepted_at ], name: :idx_legal_acceptances_user
+      t.index [ :legal_document_id, :lender_id, :accepted_at ], name: :idx_legal_acceptances_lender
     end
 
     # Document templates for quick generation
@@ -59,8 +59,8 @@ class CreateLegalDocumentsSystem < ActiveRecord::Migration[7.1]
       t.integer :sort_order, default: 0
       t.boolean :is_active, default: true
       t.timestamps
-      
-      t.index [:document_type, :jurisdiction, :party_type], name: :idx_legal_templates_lookup
+
+      t.index [ :document_type, :jurisdiction, :party_type ], name: :idx_legal_templates_lookup
     end
 
     # Signature tracking (optional, for future e-signature integration)
@@ -75,8 +75,8 @@ class CreateLegalDocumentsSystem < ActiveRecord::Migration[7.1]
       t.string :ip_address
       t.string :user_agent
       t.timestamps
-      
-      t.index [:legal_document_acceptance_id, :signed_at], name: :idx_legal_signatures
+
+      t.index [ :legal_document_acceptance_id, :signed_at ], name: :idx_legal_signatures
     end
   end
 end

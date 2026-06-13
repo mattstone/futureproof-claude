@@ -68,32 +68,32 @@ puts
 # Test 2: Accuracy comparison
 puts "2. Results Accuracy Comparison:"
 if ruby_result && python_result.is_a?(Hash) && python_result['pathdf']
-  
+
   # Compare key metrics
   ruby_pathdf = ruby_result[:pathdf]
   python_pathdf = python_result['pathdf']
-  
+
   if ruby_pathdf && python_pathdf
     ruby_final_portfolio = ruby_pathdf['PortfolioValue']&.last
     python_final_portfolio = python_pathdf['PortfolioValue']&.last
-    
-    ruby_final_net_equity = ruby_pathdf['NetEquity']&.last  
+
+    ruby_final_net_equity = ruby_pathdf['NetEquity']&.last
     python_final_net_equity = python_pathdf['NetEquity']&.last
-    
+
     puts "   Final Portfolio Value:"
     puts "     Ruby:   #{ruby_final_portfolio&.round(2) || 'N/A'}"
     puts "     Python: #{python_final_portfolio&.round(2) || 'N/A'}"
-    
+
     if ruby_final_portfolio && python_final_portfolio
       diff_pct = ((ruby_final_portfolio - python_final_portfolio).abs / python_final_portfolio * 100).round(4)
       puts "     Difference: #{diff_pct}%"
     end
-    
+
     puts
     puts "   Final Net Equity:"
-    puts "     Ruby:   #{ruby_final_net_equity&.round(2) || 'N/A'}"  
+    puts "     Ruby:   #{ruby_final_net_equity&.round(2) || 'N/A'}"
     puts "     Python: #{python_final_net_equity&.round(2) || 'N/A'}"
-    
+
     if ruby_final_net_equity && python_final_net_equity
       diff_pct = ((ruby_final_net_equity - python_final_net_equity).abs / python_final_net_equity.abs * 100).round(4)
       puts "     Difference: #{diff_pct}%"
@@ -118,7 +118,7 @@ end
 if python_time && python_time != Float::INFINITY
   python_100k_time = python_time * 100_000
   puts "   Python Historical (estimated): #{python_100k_time.round(1)} seconds (#{(python_100k_time/60).round(1)} minutes)"
-  
+
   if ruby_time
     speedup = ruby_100k_time / python_100k_time
     if speedup > 1
@@ -162,14 +162,14 @@ if python_time && ruby_time
   if python_time < ruby_time
     puts "   ✓ Python is faster - consider using Python for large batch processing"
     puts "   ✓ Ruby service good for web interface (individual calculations)"
-  else  
+  else
     puts "   ✓ Ruby is competitive - can handle large batches efficiently"
   end
 else
   puts "   ⚠ Could not determine relative performance"
 end
 
-puts "   ✓ Consider parallel processing for 100k calculations"  
+puts "   ✓ Consider parallel processing for 100k calculations"
 puts "   ✓ Consider caching historical data in memory"
 puts "   ✓ Consider batch processing in chunks of 1,000-10,000"
 

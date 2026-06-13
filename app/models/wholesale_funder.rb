@@ -5,22 +5,22 @@ class WholesaleFunder < ApplicationRecord
   enum :funding_type, { wholesale: 0, warehouse: 1 }, prefix: true
   scope :real, -> { where(demo: false) }
   include ChangeTracking
-  
+
   # Change tracking configuration
   version_association :wholesale_funder_versions
   track_changes :name, :country, :currency
-  
+
   # Associations
   has_many :agreements, as: :agreeable, dependent: :restrict_with_exception
   has_many :funder_pools, dependent: :destroy
   has_many :wholesale_funder_contracts, dependent: :destroy
-  
+
   # Lender relationships
   has_many :lender_wholesale_funders, dependent: :destroy
   has_many :lenders, through: :lender_wholesale_funders
   has_many :active_lenders, -> { where(lender_wholesale_funders: { active: true }) },
            through: :lender_wholesale_funders, source: :lender
-  
+
   # Validations
   validates :name, presence: true, length: { maximum: 255 }, uniqueness: true
   validates :country, presence: true, length: { maximum: 100 }
@@ -38,18 +38,18 @@ class WholesaleFunder < ApplicationRecord
 
   def currency_display
     case currency
-    when 'AUD' then 'Australian Dollar'
-    when 'USD' then 'US Dollar'
-    when 'GBP' then 'British Pound'
+    when "AUD" then "Australian Dollar"
+    when "USD" then "US Dollar"
+    when "GBP" then "British Pound"
     else currency
     end
   end
 
   def currency_symbol
     case currency
-    when 'AUD' then 'A$'
-    when 'USD' then '$'
-    when 'GBP' then '£'
+    when "AUD" then "A$"
+    when "USD" then "$"
+    when "GBP" then "£"
     else currency
     end
   end
@@ -60,15 +60,15 @@ class WholesaleFunder < ApplicationRecord
   end
 
   def currency_aud?
-    currency == 'AUD'
+    currency == "AUD"
   end
 
   def currency_usd?
-    currency == 'USD'
+    currency == "USD"
   end
 
   def currency_gbp?
-    currency == 'GBP'
+    currency == "GBP"
   end
 
   # WholesaleFunderPool summary methods
@@ -130,7 +130,7 @@ class WholesaleFunder < ApplicationRecord
   def committed_amount
     active_lenders.joins(:applications)
                   .where(applications: { status: :accepted })
-                  .sum('applications.equity_investment_amount')
+                  .sum("applications.equity_investment_amount")
   end
 
   # Available amount = total allocated - committed
@@ -150,10 +150,10 @@ class WholesaleFunder < ApplicationRecord
     # Get distributions for applications where lender uses this wholesale funder
     distributions = Distribution.where(
       application_id: Application.where(lender_id: self.lenders.pluck(:id))
-    ).where('distributions.created_at >= ?', start_date)
+    ).where("distributions.created_at >= ?", start_date)
      .sum(:amount)
-    
-    months_count = [months, 1].max
+
+    months_count = [ months, 1 ].max
     (distributions / months_count).round(2)
   end
 

@@ -54,7 +54,7 @@ akane.update!(
           email_template_id: EmailTemplate.find_by(name: "Application Tips")&.id,
           delay: { duration: 1, unit: "days" },
           conditions: {
-            status: ["created", "user_details"]
+            status: [ "created", "user_details" ]
           }
         },
         {
@@ -62,7 +62,7 @@ akane.update!(
           email_template_id: EmailTemplate.find_by(name: "Gentle Reminder")&.id,
           delay: { duration: 3, unit: "days" },
           conditions: {
-            status: ["created", "user_details", "property_details"]
+            status: [ "created", "user_details", "property_details" ]
           }
         }
       ],
@@ -87,7 +87,7 @@ akane.update!(
         handoff_to: "rie"
       },
       exit_conditions: {
-        status: ["processing", "accepted", "rejected"]
+        status: [ "processing", "accepted", "rejected" ]
       }
     }
   ]

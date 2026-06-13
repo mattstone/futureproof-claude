@@ -3,7 +3,7 @@ class UpdateExistingApplicationsWithSydneyAddresses < ActiveRecord::Migration[8.
     # Random Sydney addresses for demonstration purposes
     sydney_addresses = [
       "15 Circular Quay West, Sydney NSW 2000",
-      "42 Kent Street, Sydney NSW 2000", 
+      "42 Kent Street, Sydney NSW 2000",
       "128 George Street, The Rocks NSW 2000",
       "73 Miller Street, North Sydney NSW 2060",
       "91 Pittwater Road, Manly NSW 2095",
@@ -28,7 +28,7 @@ class UpdateExistingApplicationsWithSydneyAddresses < ActiveRecord::Migration[8.
       "567 Elizabeth Street, Surry Hills NSW 2010",
       "89 King Street, Sydney NSW 2000"
     ]
-    
+
     # Update existing applications with random Sydney addresses
     Application.find_each do |application|
       if application.address.blank? || application.address == "Placeholder - to be updated by user"

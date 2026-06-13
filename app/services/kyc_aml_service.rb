@@ -8,7 +8,7 @@ class KycAmlService
   def compliance_status
     kyc = @application.kyc_submission || initialize_kyc
     aml = @application.aml_check || initialize_aml
-    
+
     {
       kyc: kyc_status(kyc),
       aml: aml_status(aml),
@@ -18,7 +18,7 @@ class KycAmlService
   end
 
   # Trigger KYC process
-  def start_kyc_verification(verification_type = 'government_id')
+  def start_kyc_verification(verification_type = "government_id")
     kyc = @application.kyc_submission || KycSubmission.create!(application: @application)
     kyc.update!(status: :pending, verification_type: verification_type)
     kyc
@@ -33,25 +33,25 @@ class KycAmlService
   def verify_compliance!
     kyc = start_kyc_verification
     aml = check_aml
-    
+
     if kyc.pending? && aml.pending?
       {
-        status: 'pending',
-        message: 'KYC and AML checks initiated. Manual review required.',
+        status: "pending",
+        message: "KYC and AML checks initiated. Manual review required.",
         kyc: kyc,
         aml: aml
       }
     elsif kyc.verified? && aml.passed?
       {
-        status: 'approved',
-        message: 'All compliance checks passed',
+        status: "approved",
+        message: "All compliance checks passed",
         kyc: kyc,
         aml: aml
       }
     else
       {
-        status: 'pending_review',
-        message: 'Compliance review in progress',
+        status: "pending_review",
+        message: "Compliance review in progress",
         kyc: kyc,
         aml: aml
       }
@@ -62,7 +62,7 @@ class KycAmlService
   def compliance_dashboard
     kyc = @application.kyc_submission
     aml = @application.aml_check
-    
+
     {
       application_id: @application.id,
       applicant_name: @application.user&.full_name,
@@ -94,7 +94,7 @@ class KycAmlService
     KycSubmission.create!(
       application: @application,
       status: :pending,
-      verification_type: 'government_id'
+      verification_type: "government_id"
     )
   end
 
@@ -102,7 +102,7 @@ class KycAmlService
     AmlCheck.create!(
       application: @application,
       status: :pending,
-      risk_level: 'medium'
+      risk_level: "medium"
     )
   end
 
@@ -128,10 +128,10 @@ class KycAmlService
   end
 
   def overall_status(kyc, aml)
-    return 'approved' if kyc.verified? && aml.passed?
-    return 'rejected' if kyc.rejected? || aml.failed?
-    return 'pending_review' if kyc.submitted? || aml.checking?
-    'pending'
+    return "approved" if kyc.verified? && aml.passed?
+    return "rejected" if kyc.rejected? || aml.failed?
+    return "pending_review" if kyc.submitted? || aml.checking?
+    "pending"
   end
 
   def can_proceed?(kyc, aml)

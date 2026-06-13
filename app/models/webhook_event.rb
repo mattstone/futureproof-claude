@@ -11,7 +11,7 @@ class WebhookEvent < ApplicationRecord
 
   def retry!
     return if attempt_count >= 3
-    
+
     update(attempt_count: attempt_count + 1)
     WebhookDeliveryJob.set(wait: (2 ** attempt_count).minutes).perform_later(id)
   end

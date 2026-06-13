@@ -17,12 +17,12 @@ class AdminAgentMetricsService
 
   def summary
     {
-      total_today: AgentAction.where('created_at >= ?', Time.current.beginning_of_day).count,
-      total_week: AgentAction.where('created_at >= ?', 1.week.ago).count,
+      total_today: AgentAction.where("created_at >= ?", Time.current.beginning_of_day).count,
+      total_week: AgentAction.where("created_at >= ?", 1.week.ago).count,
       total_all: AgentAction.count,
       avg_confidence: AgentAction.where.not(confidence: nil).average(:confidence)&.round(2) || 0,
-      flags_count: AgentAction.where(decision: 'flag', status: 'completed').count,
-      escalations_count: AgentAction.where(action_type: 'escalate', status: 'completed').count,
+      flags_count: AgentAction.where(decision: "flag", status: "completed").count,
+      escalations_count: AgentAction.where(action_type: "escalate", status: "completed").count,
       decision_distribution: AgentAction.where.not(decision: nil).group(:decision).count
     }
   rescue => e
@@ -52,14 +52,14 @@ class AdminAgentMetricsService
   def build_card(agent)
     actions = agent.agent_actions
     total = actions.count
-    approvals = actions.where(decision: 'approve').count
+    approvals = actions.where(decision: "approve").count
     last_action = actions.maximum(:created_at)
 
     AgentCard.new(
       agent: agent,
       total: total,
-      today: actions.where('created_at >= ?', Time.current.beginning_of_day).count,
-      week: actions.where('created_at >= ?', 1.week.ago).count,
+      today: actions.where("created_at >= ?", Time.current.beginning_of_day).count,
+      week: actions.where("created_at >= ?", 1.week.ago).count,
       approval_rate: total.positive? ? (approvals.to_f / total * 100).round(1) : 0,
       avg_confidence: actions.where.not(confidence: nil).average(:confidence)&.round(2) || 0,
       last_action_at: last_action,

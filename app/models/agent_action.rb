@@ -12,13 +12,13 @@ class AgentAction < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
 
   scope :for_entity, ->(entity) { where(actionable: entity) }
-  scope :evaluations, -> { where(action_type: 'evaluate') }
-  scope :decisions, -> { where(action_type: 'decide') }
+  scope :evaluations, -> { where(action_type: "evaluate") }
+  scope :decisions, -> { where(action_type: "decide") }
   scope :by_agent, ->(agent) { where(ai_agent: agent) }
 
   def override!(by:, reason:)
     update!(
-      status: 'overridden',
+      status: "overridden",
       overridden_by: by,
       override_reason: reason
     )

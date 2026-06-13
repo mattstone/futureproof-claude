@@ -10,7 +10,7 @@ class CreateEmailWorkflows < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :email_workflows, [:trigger_type, :active]
+
+    add_index :email_workflows, [ :trigger_type, :active ]
   end
 end

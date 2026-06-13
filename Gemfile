@@ -24,19 +24,19 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 
 # read csv files
-gem 'csv'
+gem "csv"
 
 # HTTP client for API requests
-gem 'httparty'
+gem "httparty"
 
 # Official Anthropic Ruby SDK for Claude API
-gem 'anthropic', '~> 1.36'
+gem "anthropic", "~> 1.36"
 
 # GitHub API client for the admin prompt-change PR bridge
-gem 'octokit', '~> 9.2'
+gem "octokit", "~> 9.2"
 
 # Component layer for the FutureProof Console (/console)
-gem 'view_component', '~> 4.0'
+gem "view_component", "~> 4.0"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -107,11 +107,11 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-  gem 'claude-on-rails'
-  
+  gem "claude-on-rails"
+
   # Preview emails in browser during development
   gem "letter_opener"
-  
+
   # Pretty and colorful logging
   gem "amazing_print"
 end
@@ -125,4 +125,4 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "dockerfile-rails", ">= 1.7", :group => :development
+gem "dockerfile-rails", ">= 1.7", group: :development

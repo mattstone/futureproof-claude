@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class SignupRecaptchaAlignmentTest < ActionDispatch::IntegrationTest
   test "reCAPTCHA is properly centered on signup page" do
@@ -19,6 +19,6 @@ class SignupRecaptchaAlignmentTest < ActionDispatch::IntegrationTest
     assert_not_nil g_recaptcha, "Should have g-recaptcha div"
 
     # Verify that the reCAPTCHA structure is ready for center alignment
-    assert g_recaptcha.attribute('class').value.include?('g-recaptcha'), "Should have g-recaptcha class"
+    assert g_recaptcha.attribute("class").value.include?("g-recaptcha"), "Should have g-recaptcha class"
   end
 end

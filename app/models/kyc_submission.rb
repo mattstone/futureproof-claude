@@ -13,7 +13,7 @@ class KycSubmission < ApplicationRecord
   validates :application_id, presence: true
   validates :status, presence: true
   validates :verification_type, presence: true, inclusion: {
-    in: ['government_id', 'passport', 'license', 'utility_bill', 'bank_statement'],
+    in: [ "government_id", "passport", "license", "utility_bill", "bank_statement" ],
     message: "must be a valid verification type"
   }
   validates :document_url, presence: true, if: :submitted?
@@ -21,7 +21,7 @@ class KycSubmission < ApplicationRecord
   validates :verified_by, presence: true, if: :verified?
 
   # Scopes
-  scope :pending_verification, -> { where(status: :submitted).where('submitted_at > ?', 7.days.ago) }
+  scope :pending_verification, -> { where(status: :submitted).where("submitted_at > ?", 7.days.ago) }
   scope :verified, -> { where(status: :verified) }
   scope :rejected, -> { where(status: :rejected) }
 
@@ -30,13 +30,13 @@ class KycSubmission < ApplicationRecord
     update!(
       status: :submitted,
       document_url: document_url,
-      verification_type: verification_type || 'government_id',
+      verification_type: verification_type || "government_id",
       submitted_at: Time.current
     )
   end
 
   # Mark as verified
-  def verify!(verified_by = 'system')
+  def verify!(verified_by = "system")
     update!(
       status: :verified,
       verified_at: Time.current,
@@ -45,7 +45,7 @@ class KycSubmission < ApplicationRecord
   end
 
   # Mark as rejected
-  def reject!(reason, verified_by = 'system')
+  def reject!(reason, verified_by = "system")
     # NOTE: the table has no failure_reason column (the original code wrote
     # one and raised UnknownAttributeError — rejection never worked); the
     # reason is recorded in notes and in the audit log.
@@ -60,14 +60,14 @@ class KycSubmission < ApplicationRecord
   # Human-readable status display
   def status_display
     case status
-    when 'pending'
-      'Waiting for submission'
-    when 'submitted'
-      'Under review'
-    when 'verified'
-      'Verified ✓'
-    when 'rejected'
-      'Rejected'
+    when "pending"
+      "Waiting for submission"
+    when "submitted"
+      "Under review"
+    when "verified"
+      "Verified ✓"
+    when "rejected"
+      "Rejected"
     else
       status.humanize
     end

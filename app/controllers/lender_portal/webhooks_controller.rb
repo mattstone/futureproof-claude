@@ -1,6 +1,6 @@
 module LenderPortal
   class WebhooksController < BaseController
-    before_action :set_webhook, only: [:show, :edit, :update, :destroy, :test, :delivery_log, :retry]
+    before_action :set_webhook, only: [ :show, :edit, :update, :destroy, :test, :delivery_log, :retry ]
 
     def index
       @webhooks = current_user.webhook_endpoints.order(created_at: :desc)
@@ -43,7 +43,7 @@ module LenderPortal
       else
         service = WebhookTestService.new(@webhook)
         @test_result = service.test_webhook
-        
+
         respond_to do |format|
           format.html { render :test_result }
           format.json { render json: @test_result }

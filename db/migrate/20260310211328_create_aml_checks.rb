@@ -9,7 +9,6 @@ class CreateAmlChecks < ActiveRecord::Migration[8.1]
       t.text :failure_reason
       t.datetime :created_at
       t.datetime :updated_at
-
     end
   end
 end

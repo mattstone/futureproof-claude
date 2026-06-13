@@ -9,15 +9,15 @@ class CreateBusinessProcessWorkflows < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     # Ensure only one workflow per process type
     add_index :business_process_workflows, :process_type, unique: true
     add_index :business_process_workflows, :active
-    
+
     # Add constraint to ensure valid process types
     execute <<-SQL
-      ALTER TABLE business_process_workflows 
-      ADD CONSTRAINT check_process_type 
+      ALTER TABLE business_process_workflows#{' '}
+      ADD CONSTRAINT check_process_type#{' '}
       CHECK (process_type IN ('acquisition', 'conversion', 'standard_operations'))
     SQL
   end

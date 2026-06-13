@@ -15,7 +15,7 @@ class CreateApplicationDocuments < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :application_documents, [:application_id, :document_type]
+    add_index :application_documents, [ :application_id, :document_type ]
     add_index :application_documents, :status
   end
 end

@@ -10,7 +10,7 @@ class CreateApplicationChecklists < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :application_checklists, [:application_id, :position]
+
+    add_index :application_checklists, [ :application_id, :position ]
   end
 end

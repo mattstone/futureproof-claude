@@ -16,8 +16,8 @@ class WebhookDelivery < ApplicationRecord
 
   scope :delivered, -> { where(delivery_status: :delivered) }
   scope :failed, -> { where(delivery_status: :failed) }
-  scope :pending, -> { where(delivery_status: [:pending, :processing]) }
-  scope :retryable, -> { where(delivery_status: :failed).where('retry_count < ?', 3).where('failed_at < ?', 1.hour.ago) }
+  scope :pending, -> { where(delivery_status: [ :pending, :processing ]) }
+  scope :retryable, -> { where(delivery_status: :failed).where("retry_count < ?", 3).where("failed_at < ?", 1.hour.ago) }
 
   # Mark as successfully delivered
   def mark_delivered(response_code, response_body = nil)

@@ -3,15 +3,15 @@ class LoanActivationController < ApplicationController
   before_action :load_application
 
   def show
-    unless @application.status == 'accepted'
-      redirect_to borrower_portal_path(params[:region], @application), alert: 'EPM investment is not approved.'
-      return
+    unless @application.status == "accepted"
+      redirect_to borrower_portal_path(params[:region], @application), alert: "EPM investment is not approved."
+      nil
     end
   end
 
   def activate
-    unless @application.status == 'accepted'
-      redirect_to borrower_portal_path(params[:region], @application), alert: 'EPM investment is not approved.'
+    unless @application.status == "accepted"
+      redirect_to borrower_portal_path(params[:region], @application), alert: "EPM investment is not approved."
       return
     end
 
@@ -27,11 +27,11 @@ class LoanActivationController < ApplicationController
       )
 
       @application.update!(status: :activated)
-      
-      redirect_to borrower_portal_path(params[:region], @application), 
-                  notice: 'EPM Investment activated successfully! Your equity capital disbursement is pending.'
+
+      redirect_to borrower_portal_path(params[:region], @application),
+                  notice: "EPM Investment activated successfully! Your equity capital disbursement is pending."
     rescue StandardError => e
-      redirect_to loan_activation_path(params[:region], @application), 
+      redirect_to loan_activation_path(params[:region], @application),
                   alert: "Activation failed: #{e.message}"
     end
   end
@@ -42,6 +42,6 @@ class LoanActivationController < ApplicationController
     @application = current_user.applications.find(params[:application_id])
     @region = params[:region]
   rescue ActiveRecord::RecordNotFound
-    redirect_to dashboard_path, alert: 'Application not found or access denied.'
+    redirect_to dashboard_path, alert: "Application not found or access denied."
   end
 end

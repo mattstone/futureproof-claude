@@ -3,7 +3,7 @@ class MigrateReferralPartnersToBrokers < ActiveRecord::Migration[8.1]
     # Create brokers from referral partners
     execute <<-SQL
       INSERT INTO brokers (name, email, jurisdiction, phone, encrypted_password, active, created_at, updated_at)
-      SELECT 
+      SELECT#{' '}
         rp.name,
         rp.contact_email,
         CASE rp.region
@@ -25,7 +25,7 @@ class MigrateReferralPartnersToBrokers < ActiveRecord::Migration[8.1]
     # Create broker_lenders associations
     execute <<-SQL
       INSERT INTO broker_lenders (broker_id, lender_id, active, created_at, updated_at)
-      SELECT 
+      SELECT#{' '}
         b.id,
         rp.lender_id,
         CASE rp.status WHEN 'active' THEN true ELSE false END,
@@ -39,7 +39,7 @@ class MigrateReferralPartnersToBrokers < ActiveRecord::Migration[8.1]
     # Create broker_commission_rates from referral partner commission rates
     execute <<-SQL
       INSERT INTO broker_commission_rates (broker_id, lender_id, commission_percentage, payment_trigger, active, created_at, updated_at)
-      SELECT 
+      SELECT#{' '}
         b.id,
         rp.lender_id,
         rp.commission_rate,

@@ -48,7 +48,7 @@ class LegalDocument < ApplicationRecord
   validates :status, presence: true
 
   # Uniqueness constraint: only one active version per document type/jurisdiction/party
-  validates :version, uniqueness: { scope: [:document_type, :jurisdiction, :party_type],
+  validates :version, uniqueness: { scope: [ :document_type, :jurisdiction, :party_type ],
                                     message: "already exists for this document type, jurisdiction, and party type" }
 
   # Scopes
@@ -79,7 +79,7 @@ class LegalDocument < ApplicationRecord
       document_type: document_type,
       jurisdiction: jurisdiction,
       is_active: true
-    ).where(party_type: [party_type, "universal"])
+    ).where(party_type: [ party_type, "universal" ])
      .effective
      .order(party_type: :desc) # Prefer specific party_type over universal
      .first
@@ -87,7 +87,7 @@ class LegalDocument < ApplicationRecord
 
   def self.for_application(application)
     jurisdiction = application.jurisdiction
-    
+
     {
       customer_contracts: current_for("customer_contract", jurisdiction),
       terms_conditions: current_for("terms_conditions", jurisdiction),
@@ -99,7 +99,7 @@ class LegalDocument < ApplicationRecord
 
   def self.for_lender(lender)
     jurisdiction = lender.jurisdiction || "AU"
-    
+
     {
       lender_agreement: current_for("lender_contract", jurisdiction, "lender"),
       terms_conditions: current_for("terms_conditions", jurisdiction),
@@ -116,19 +116,19 @@ class LegalDocument < ApplicationRecord
       content: apply_customizations(template.template_content, customizations),
       is_draft: true
     )
-    
+
     doc.save!
     doc
   end
 
   def self.apply_customizations(template_content, customizations = {})
     content = template_content
-    
+
     # Simple variable substitution: {{variable_name}} → value
     customizations.each do |key, value|
       content = content.gsub("{{#{key}}}", value.to_s)
     end
-    
+
     content
   end
 
@@ -141,7 +141,7 @@ class LegalDocument < ApplicationRecord
         jurisdiction: jurisdiction,
         party_type: party_type
       ).where.not(id: id).update_all(is_active: false)
-      
+
       # Mark this as active
       update!(is_active: true, is_draft: false, status: :active, effective_from: Time.current)
     end
@@ -224,9 +224,9 @@ class LegalDocument < ApplicationRecord
       jurisdiction: jurisdiction,
       party_type: party_type
     ).where("version < ?", version).order(version: :desc).first
-    
+
     return nil unless previous
-    
+
     {
       previous_version: previous.version,
       previous_updated: previous.updated_at,
@@ -237,14 +237,14 @@ class LegalDocument < ApplicationRecord
   # Bulk accept documents (for onboarding workflows)
   def self.require_acceptance_for(user, jurisdiction, party_type = "universal")
     required_types = %w[terms_conditions privacy_policy]
-    
+
     docs = where(
       jurisdiction: jurisdiction,
       is_active: true
     ).where(document_type: required_types)
-     .where(party_type: [party_type, "universal"])
+     .where(party_type: [ party_type, "universal" ])
      .effective
-    
+
     docs.each do |doc|
       unless user.accepted?(doc)
         LegalDocumentAcceptance.create!(
@@ -276,7 +276,7 @@ class LegalDocument < ApplicationRecord
       jurisdiction: jurisdiction,
       party_type: party_type
     ).pluck(:version).map { |v| Gem::Version.new(v) }
-    
+
     if existing_versions.empty?
       self.version = "1.0"
     else
@@ -288,7 +288,7 @@ class LegalDocument < ApplicationRecord
 
   def log_creation
     return unless current_admin_user
-    
+
     legal_document_versions.create!(
       admin_user: current_admin_user,
       action: "created",
@@ -299,14 +299,14 @@ class LegalDocument < ApplicationRecord
 
   def log_update
     return unless current_admin_user || saved_changes.any?
-    
+
     changes = []
     changes << "Title changed" if saved_change_to_title?
     changes << "Content updated" if saved_change_to_content?
     changes << "Status changed to #{status}" if saved_change_to_status?
     changes << "Activated" if saved_change_to_is_active? && is_active?
     changes << "Deactivated" if saved_change_to_is_active? && !is_active?
-    
+
     legal_document_versions.create!(
       admin_user: current_admin_user,
       action: changes.first&.downcase&.sub(" ", "_") || "updated",
@@ -318,7 +318,7 @@ class LegalDocument < ApplicationRecord
 
   def ensure_single_active
     return unless is_active?
-    
+
     LegalDocument.where(
       document_type: document_type,
       jurisdiction: jurisdiction,

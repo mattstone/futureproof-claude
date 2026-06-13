@@ -1,6 +1,6 @@
 class Admin::PrivacyPoliciesController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_privacy_policy, only: [:show, :edit, :update, :activate]
+  before_action :set_privacy_policy, only: [ :show, :edit, :update, :activate ]
 
   def index
     @privacy_policies = PrivacyPolicy.order(version: :desc).page(params[:page]).per(10)
@@ -33,7 +33,7 @@ class Admin::PrivacyPoliciesController < Admin::BaseController
 
         Add your content using simple markup:
         - Use ## for main headings
-        - Use ### for sub-headings  
+        - Use ### for sub-headings#{'  '}
         - Use - for bullet points
         - Use **text** for bold text
 
@@ -59,9 +59,9 @@ class Admin::PrivacyPoliciesController < Admin::BaseController
     @privacy_policy = PrivacyPolicy.new(privacy_policy_params)
     @privacy_policy.is_active = false # New versions start as inactive
     @privacy_policy.current_user = current_user # Track who created it
-    
+
     if @privacy_policy.save
-      redirect_to admin_privacy_policies_path, notice: 'Privacy Policy created successfully.'
+      redirect_to admin_privacy_policies_path, notice: "Privacy Policy created successfully."
     else
       render :new, status: :unprocessable_entity
     end
@@ -73,7 +73,7 @@ class Admin::PrivacyPoliciesController < Admin::BaseController
   def update
     @privacy_policy.current_user = current_user # Track who updated it
     if @privacy_policy.update(privacy_policy_params)
-      redirect_to admin_privacy_policies_path, notice: 'Privacy Policy updated successfully.'
+      redirect_to admin_privacy_policies_path, notice: "Privacy Policy updated successfully."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -82,7 +82,7 @@ class Admin::PrivacyPoliciesController < Admin::BaseController
   def activate
     @privacy_policy.current_user = current_user # Track who activated it
     @privacy_policy.update!(is_active: true)
-    redirect_to admin_privacy_policies_path, notice: 'Privacy Policy activated successfully.'
+    redirect_to admin_privacy_policies_path, notice: "Privacy Policy activated successfully."
   end
 
   def preview

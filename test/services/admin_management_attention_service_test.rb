@@ -16,13 +16,13 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
   end
 
   test "stalled_applications returns nil when none exceed threshold" do
-    Application.where(status: 'processing').update_all(updated_at: Time.current)
+    Application.where(status: "processing").update_all(updated_at: Time.current)
 
     assert_nil @service.stalled_applications
   end
 
   test "stalled_applications returns warning above 5" do
-    apps = Application.where(status: 'processing').limit(6).to_a
+    apps = Application.where(status: "processing").limit(6).to_a
     skip "need at least 6 processing applications in fixtures" if apps.size < 6
 
     apps.each { |a| a.update_columns(updated_at: 10.days.ago) }
@@ -37,9 +37,9 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
   end
 
   test "escalated_conversations_open returns warning above 3" do
-    agent = ChatAgent.create!(name: "Test Akane", agent_type: 'support')
+    agent = ChatAgent.create!(name: "Test Akane", agent_type: "support")
     4.times do
-      ChatConversation.create!(user: @user, chat_agent: agent, status: 'escalated', region: 'au')
+      ChatConversation.create!(user: @user, chat_agent: agent, status: "escalated", region: "au")
     end
 
     signal = @service.escalated_conversations_open
@@ -79,9 +79,9 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
 
   test "agent_failure_rate returns warning above 5%" do
     agent = ai_agents(:akane)
-    AgentAction.create!(ai_agent: agent, actionable: @app, action_type: 'evaluate', status: 'failed', confidence: 0.5)
+    AgentAction.create!(ai_agent: agent, actionable: @app, action_type: "evaluate", status: "failed", confidence: 0.5)
     9.times do
-      AgentAction.create!(ai_agent: agent, actionable: @app, action_type: 'evaluate', status: 'completed', decision: 'approve', confidence: 0.9)
+      AgentAction.create!(ai_agent: agent, actionable: @app, action_type: "evaluate", status: "completed", decision: "approve", confidence: 0.9)
     end
 
     signal = @service.agent_failure_rate
@@ -90,7 +90,7 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
   end
 
   test "cross_jurisdiction_audit_events returns info when 1-5 events" do
-    AuditLog.create!(user: @user, action: 'cross_jurisdiction_access', resource_type: 'Application', resource_id: 1)
+    AuditLog.create!(user: @user, action: "cross_jurisdiction_access", resource_type: "Application", resource_id: 1)
 
     signal = @service.cross_jurisdiction_audit_events
     assert signal
@@ -103,19 +103,19 @@ class AdminManagementAttentionServiceTest < ActiveSupport::TestCase
 
   test "Signal struct exposes all expected fields" do
     signal = AdminManagementAttentionService::Signal.new(
-      severity: :critical, category: 'Test', headline: 'h', detail: 'd', drill_down_path: '/x', metric: 1
+      severity: :critical, category: "Test", headline: "h", detail: "d", drill_down_path: "/x", metric: 1
     )
 
     assert_equal :critical, signal.severity
-    assert_equal 'Test', signal.category
-    assert_equal '/x', signal.drill_down_path
+    assert_equal "Test", signal.category
+    assert_equal "/x", signal.drill_down_path
   end
 
   test "all healthy returns empty array" do
-    Application.where(status: 'processing').update_all(updated_at: Time.current)
+    Application.where(status: "processing").update_all(updated_at: Time.current)
     AgentAction.delete_all
     Contract.update_all(status: :ok)
-    SupportTicket.update_all(status: 'resolved', resolved_at: Time.current)
+    SupportTicket.update_all(status: "resolved", resolved_at: Time.current)
 
     signals = @service.call
 

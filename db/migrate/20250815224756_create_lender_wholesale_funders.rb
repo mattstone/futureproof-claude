@@ -7,8 +7,8 @@ class CreateLenderWholesaleFunders < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :lender_wholesale_funders, [:lender_id, :wholesale_funder_id], 
+
+    add_index :lender_wholesale_funders, [ :lender_id, :wholesale_funder_id ],
               unique: true, name: 'index_lender_wholesale_funders_uniqueness'
   end
 end

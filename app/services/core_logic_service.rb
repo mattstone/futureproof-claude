@@ -1,5 +1,5 @@
 class CoreLogicService
-  BASE_URL = 'https://api.corelogic.asia'.freeze
+  BASE_URL = "https://api.corelogic.asia".freeze
 
   def initialize
     @client_key = Rails.application.credentials.corelogic.client_key
@@ -11,8 +11,8 @@ class CoreLogicService
     response = HTTParty.post(
       "#{BASE_URL}/access/as/token.oauth2?grant_type=client_credentials",
       headers: {
-        'Accept' => 'application/json',
-        'Content-Type' => 'application/x-www-form-urlencoded'
+        "Accept" => "application/json",
+        "Content-Type" => "application/x-www-form-urlencoded"
       },
       body: {
         client_id: @client_key,
@@ -34,7 +34,7 @@ class CoreLogicService
 
     response = HTTParty.get(
       "#{BASE_URL}/property/au/v2/suggest.json",
-      headers: auth_headers(token_data['access_token']),
+      headers: auth_headers(token_data["access_token"]),
       query: { q: query }
     )
 
@@ -58,7 +58,7 @@ class CoreLogicService
 
     response = HTTParty.get(
       "#{BASE_URL}/property-details/au/properties/#{property_id}/location",
-      headers: auth_headers(token_data['access_token']),
+      headers: auth_headers(token_data["access_token"]),
       query: { includeHistoric: false }
     )
 
@@ -82,7 +82,7 @@ class CoreLogicService
 
     response = HTTParty.get(
       "#{BASE_URL}/property-details/au/properties/#{property_id}/attributes/core",
-      headers: auth_headers(token_data['access_token'])
+      headers: auth_headers(token_data["access_token"])
     )
 
     if response.success?
@@ -105,7 +105,7 @@ class CoreLogicService
 
     response = HTTParty.get(
       "#{BASE_URL}/avm/au/properties/#{property_id}/avm/intellival/consumer/current",
-      headers: auth_headers(token_data['access_token'])
+      headers: auth_headers(token_data["access_token"])
     )
 
     if response.success?
@@ -128,7 +128,7 @@ class CoreLogicService
 
     response = HTTParty.get(
       "#{BASE_URL}/property-details/au/properties/#{property_id}/images/default",
-      headers: auth_headers(token_data['access_token'])
+      headers: auth_headers(token_data["access_token"])
     )
 
     if response.success?
@@ -155,16 +155,16 @@ class CoreLogicService
     }
   rescue => e
     Rails.logger.error "CoreLogic Complete Details Error: #{e.message}"
-    { error: 'Failed to fetch complete property details' }
+    { error: "Failed to fetch complete property details" }
   end
 
   private
 
   def auth_headers(token)
     {
-      'Accept' => 'application/json',
-      'Content-Type' => 'application/json',
-      'Authorization' => "Bearer #{token}"
+      "Accept" => "application/json",
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{token}"
     }
   end
 
@@ -174,97 +174,97 @@ class CoreLogicService
 
     [
       {
-        'suggestion' => "#{query.split.first} Collins Street, Melbourne VIC 3000",
-        'property_id' => '12345678',
-        'suggestion_type' => 'Property',
-        'is_active_property' => true,
-        'is_unit' => false,
-        'is_body_corporate' => false
+        "suggestion" => "#{query.split.first} Collins Street, Melbourne VIC 3000",
+        "property_id" => "12345678",
+        "suggestion_type" => "Property",
+        "is_active_property" => true,
+        "is_unit" => false,
+        "is_body_corporate" => false
       },
       {
-        'suggestion' => "Unit 1/#{query.split.first} Collins Street, Melbourne VIC 3000",
-        'property_id' => '12345679',
-        'suggestion_type' => 'Unit',
-        'is_active_property' => true,
-        'is_unit' => true,
-        'is_body_corporate' => true
+        "suggestion" => "Unit 1/#{query.split.first} Collins Street, Melbourne VIC 3000",
+        "property_id" => "12345679",
+        "suggestion_type" => "Unit",
+        "is_active_property" => true,
+        "is_unit" => true,
+        "is_body_corporate" => true
       },
       {
-        'suggestion' => "#{query.split.first} #{query.split[1] || 'Street'} Street, Melbourne VIC 3001",
-        'property_id' => '12345680',
-        'suggestion_type' => 'Property',
-        'is_active_property' => false,
-        'is_unit' => false,
-        'is_body_corporate' => false
+        "suggestion" => "#{query.split.first} #{query.split[1] || 'Street'} Street, Melbourne VIC 3001",
+        "property_id" => "12345680",
+        "suggestion_type" => "Property",
+        "is_active_property" => false,
+        "is_unit" => false,
+        "is_body_corporate" => false
       }
     ]
   end
 
   def get_mock_address(property_id)
     {
-      'single_line' => '123 Collins Street, Melbourne VIC 3000',
-      'street' => {
-        'name_and_number' => '123 Collins Street',
-        'name' => 'Collins Street'
+      "single_line" => "123 Collins Street, Melbourne VIC 3000",
+      "street" => {
+        "name_and_number" => "123 Collins Street",
+        "name" => "Collins Street"
       },
-      'locality' => {
-        'name' => 'Melbourne'
+      "locality" => {
+        "name" => "Melbourne"
       },
-      'postcode' => {
-        'name' => '3000'
+      "postcode" => {
+        "name" => "3000"
       },
-      'state' => 'VIC',
-      'council_area' => 'Melbourne',
-      'latitude' => -37.8136,
-      'longitude' => 144.9631,
-      'is_active_property' => true
+      "state" => "VIC",
+      "council_area" => "Melbourne",
+      "latitude" => -37.8136,
+      "longitude" => 144.9631,
+      "is_active_property" => true
     }
   end
 
   def get_mock_attributes(property_id)
     {
-      'property_type' => 'Apartment',
-      'property_sub_type' => 'Unit',
-      'beds' => 2,
-      'baths' => 1,
-      'car_spaces' => 1,
-      'lock_up_garages' => 0,
-      'land_area' => 85,
-      'is_calculated_land_area' => false,
-      'is_active_property' => true
+      "property_type" => "Apartment",
+      "property_sub_type" => "Unit",
+      "beds" => 2,
+      "baths" => 1,
+      "car_spaces" => 1,
+      "lock_up_garages" => 0,
+      "land_area" => 85,
+      "is_calculated_land_area" => false,
+      "is_active_property" => true
     }
   end
 
   def get_mock_valuation(property_id)
     {
-      'estimate' => 750000,
-      'low_estimate' => 675000,
-      'high_estimate' => 825000,
-      'confidence' => 'Medium',
-      'fsd' => 50000,
-      'valuation_date' => Date.current.to_s
+      "estimate" => 750000,
+      "low_estimate" => 675000,
+      "high_estimate" => 825000,
+      "confidence" => "Medium",
+      "fsd" => 50000,
+      "valuation_date" => Date.current.to_s
     }
   end
 
   def get_mock_images(property_id)
     [
       {
-        'digital_asset_type' => 'Image',
-        'base_photo_url' => 'https://picsum.photos/400/300?random=1',
-        'medium_photo_url' => 'https://picsum.photos/400/300?random=1',
-        'large_photo_url' => 'https://picsum.photos/800/600?random=1',
-        'thumbnail_photo_url' => 'https://picsum.photos/150/150?random=1',
-        'scan_date' => Date.current.to_s,
-        'is_active_property' => true
+        "digital_asset_type" => "Image",
+        "base_photo_url" => "https://picsum.photos/400/300?random=1",
+        "medium_photo_url" => "https://picsum.photos/400/300?random=1",
+        "large_photo_url" => "https://picsum.photos/800/600?random=1",
+        "thumbnail_photo_url" => "https://picsum.photos/150/150?random=1",
+        "scan_date" => Date.current.to_s,
+        "is_active_property" => true
       },
       {
-        'digital_asset_type' => 'Image',
-        'base_photo_url' => 'https://picsum.photos/400/300?random=2',
-        'medium_photo_url' => 'https://picsum.photos/400/300?random=2',
-        'large_photo_url' => 'https://picsum.photos/800/600?random=2',
-        'thumbnail_photo_url' => 'https://picsum.photos/150/150?random=2',
-        'scan_date' => Date.current.to_s,
-        'is_active_property' => true
+        "digital_asset_type" => "Image",
+        "base_photo_url" => "https://picsum.photos/400/300?random=2",
+        "medium_photo_url" => "https://picsum.photos/400/300?random=2",
+        "large_photo_url" => "https://picsum.photos/800/600?random=2",
+        "thumbnail_photo_url" => "https://picsum.photos/150/150?random=2",
+        "scan_date" => Date.current.to_s,
+        "is_active_property" => true
       }
     ]
   end

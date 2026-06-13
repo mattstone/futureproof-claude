@@ -15,11 +15,11 @@ stuck_app_template = EmailTemplate.find_or_create_by(name: 'Application Stuck Re
 
     <div style="margin-bottom: 24px;">
       <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
-      
+    #{'  '}
       <p style="margin: 16px 0; color: #6b7280; font-size: 14px;">
         Your application (Reference: <strong>{{application.reference_number}}</strong>) has been at <strong>{{application.status_display}}</strong> status for some time.
       </p>
-      
+    #{'  '}
       <p style="margin: 16px 0; color: #6b7280; font-size: 14px;">
         We wanted to reach out to see if you need any assistance to move forward with your application.
       </p>
@@ -56,7 +56,7 @@ stuck_app_template = EmailTemplate.find_or_create_by(name: 'Application Stuck Re
 end
 puts "✓ Created: #{stuck_app_template.name}"
 
-# Template for contract stuck workflow  
+# Template for contract stuck workflow
 stuck_contract_template = EmailTemplate.find_or_create_by(name: 'Contract Stuck Reminder') do |template|
   template.template_type = 'application_submitted'
   template.email_category = 'operational'
@@ -69,7 +69,7 @@ stuck_contract_template = EmailTemplate.find_or_create_by(name: 'Contract Stuck 
 
     <div style="margin-bottom: 24px;">
       <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
-      
+    #{'  '}
       <p style="margin: 16px 0; color: #6b7280; font-size: 14px;">
         Your contract has been pending action for some time. We wanted to check if you need any assistance.
       </p>
@@ -102,7 +102,7 @@ status_change_template = EmailTemplate.find_or_create_by(name: 'Application Stat
 
     <div style="margin-bottom: 24px;">
       <p style="margin: 24px 0 0 0; color: #374151; font-size: 16px;">Dear {{user.first_name}},</p>
-      
+    #{'  '}
       <p style="margin: 16px 0; color: #6b7280; font-size: 14px;">
         Good news! Your application status has been updated to <strong>{{application.status_display}}</strong>.
       </p>

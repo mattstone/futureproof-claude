@@ -8,7 +8,7 @@ class CreateChatSystem < ActiveRecord::Migration[8.0]
       t.string :avatar_emoji, default: "🤖"
       t.string :status, default: "active"  # active, inactive, maintenance
       t.jsonb :capabilities, default: {}
-      t.jsonb :region_support, default: ["us", "au", "nz", "uk"]
+      t.jsonb :region_support, default: [ "us", "au", "nz", "uk" ]
       t.timestamps
     end
 

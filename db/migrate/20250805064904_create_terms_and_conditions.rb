@@ -10,7 +10,7 @@ class CreateTermsAndConditions < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :terms_and_conditions, :version, unique: true
     add_index :terms_and_conditions, :is_active
     add_index :terms_and_conditions, :last_updated

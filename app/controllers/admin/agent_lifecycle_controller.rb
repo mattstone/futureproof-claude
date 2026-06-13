@@ -1,7 +1,7 @@
 # Controller for managing agent lifecycle stages visually
 class Admin::AgentLifecycleController < Admin::BaseController
   before_action :ensure_futureproof_admin
-  before_action :set_agent, only: [:show, :edit, :update, :add_stage, :edit_stage, :update_stage, :delete_stage]
+  before_action :set_agent, only: [ :show, :edit, :update, :add_stage, :edit_stage, :update_stage, :delete_stage ]
 
   def index
     @agents = AiAgent.active.order(:name)
@@ -96,39 +96,39 @@ class Admin::AgentLifecycleController < Admin::BaseController
         :stage_color,
         automated_actions: [
           :action_type, :email_template_id, :task_type, :new_status, :message,
-          delay: [:duration, :unit],
+          delay: [ :duration, :unit ],
           conditions: {}
         ],
         exit_conditions: {},
-        handoff_rules: [:handoff_to]
+        handoff_rules: [ :handoff_to ]
       ],
-      communication_style: [:tone, :greeting, :signature]
+      communication_style: [ :tone, :greeting, :signature ]
     )
   end
 
   def build_new_stage
     {
-      'stage_name' => '',
-      'stage_label' => '',
-      'stage_description' => '',
-      'entry_trigger' => '',
-      'stage_color' => 'blue',
-      'automated_actions' => [],
-      'exit_conditions' => {},
-      'handoff_rules' => {}
+      "stage_name" => "",
+      "stage_label" => "",
+      "stage_description" => "",
+      "entry_trigger" => "",
+      "stage_color" => "blue",
+      "automated_actions" => [],
+      "exit_conditions" => {},
+      "handoff_rules" => {}
     }
   end
 
   def build_stage_from_params
     {
-      'stage_name' => params[:stage_name],
-      'stage_label' => params[:stage_label],
-      'stage_description' => params[:stage_description],
-      'entry_trigger' => params[:entry_trigger],
-      'stage_color' => params[:stage_color] || 'blue',
-      'automated_actions' => parse_automated_actions,
-      'exit_conditions' => parse_exit_conditions,
-      'handoff_rules' => parse_handoff_rules
+      "stage_name" => params[:stage_name],
+      "stage_label" => params[:stage_label],
+      "stage_description" => params[:stage_description],
+      "entry_trigger" => params[:entry_trigger],
+      "stage_color" => params[:stage_color] || "blue",
+      "automated_actions" => parse_automated_actions,
+      "exit_conditions" => parse_exit_conditions,
+      "handoff_rules" => parse_handoff_rules
     }
   end
 
@@ -136,18 +136,18 @@ class Admin::AgentLifecycleController < Admin::BaseController
     actions = params[:automated_actions] || []
     actions.map do |action_params|
       {
-        'action_type' => action_params[:action_type],
-        'email_template_id' => action_params[:email_template_id],
-        'task_type' => action_params[:task_type],
-        'new_status' => action_params[:new_status],
-        'message' => action_params[:message],
-        'delay' => {
-          'duration' => action_params.dig(:delay, :duration).to_i,
-          'unit' => action_params.dig(:delay, :unit) || 'minutes'
+        "action_type" => action_params[:action_type],
+        "email_template_id" => action_params[:email_template_id],
+        "task_type" => action_params[:task_type],
+        "new_status" => action_params[:new_status],
+        "message" => action_params[:message],
+        "delay" => {
+          "duration" => action_params.dig(:delay, :duration).to_i,
+          "unit" => action_params.dig(:delay, :unit) || "minutes"
         },
-        'conditions' => action_params[:conditions] || {}
+        "conditions" => action_params[:conditions] || {}
       }.compact
-    end.reject { |a| a['action_type'].blank? }
+    end.reject { |a| a["action_type"].blank? }
   end
 
   def parse_exit_conditions
@@ -156,7 +156,7 @@ class Admin::AgentLifecycleController < Admin::BaseController
 
   def parse_handoff_rules
     handoff_to = params[:handoff_to]
-    handoff_to.present? ? { 'handoff_to' => handoff_to } : {}
+    handoff_to.present? ? { "handoff_to" => handoff_to } : {}
   end
 
   def calculate_agent_stats
@@ -169,9 +169,9 @@ class Admin::AgentLifecycleController < Admin::BaseController
   end
 
   def assign_stage_colors(stages)
-    colors = ['blue', 'green', 'purple', 'orange', 'pink', 'teal']
+    colors = [ "blue", "green", "purple", "orange", "pink", "teal" ]
     stages.each_with_index.map do |stage, index|
-      [stage['stage_name'], stage['stage_color'] || colors[index % colors.length]]
+      [ stage["stage_name"], stage["stage_color"] || colors[index % colors.length] ]
     end.to_h
   end
 end

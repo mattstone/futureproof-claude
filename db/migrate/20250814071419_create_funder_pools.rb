@@ -8,8 +8,8 @@ class CreateFunderPools < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :funder_pools, :name
-    add_index :funder_pools, [:funder_id, :name], unique: true
+    add_index :funder_pools, [ :funder_id, :name ], unique: true
   end
 end

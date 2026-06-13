@@ -25,7 +25,7 @@ class AdminPortfolioMetricsService
   def capital_overview
     raised = FunderPool.real.sum(:amount)
     deployed = Contract.real.sum(:allocated_amount)
-    weighted = FunderPool.real.sum('amount * (benchmark_rate + margin_rate)')
+    weighted = FunderPool.real.sum("amount * (benchmark_rate + margin_rate)")
 
     {
       total_capital_raised: raised,
@@ -50,8 +50,8 @@ class AdminPortfolioMetricsService
   def account_balances
     offset = Contract.real.sum(:offset_balance)
     investment = Contract.real.sum(:investment_balance)
-    invested = Contract.real.where('investment_balance > 0').sum(:investment_balance)
-    weighted_return = Contract.real.where('investment_balance > 0').sum('investment_balance * investment_return_rate')
+    invested = Contract.real.where("investment_balance > 0").sum(:investment_balance)
+    weighted_return = Contract.real.where("investment_balance > 0").sum("investment_balance * investment_return_rate")
 
     {
       total_offset: offset,
@@ -101,23 +101,23 @@ class AdminPortfolioMetricsService
     allocated = FunderPool.real.sum(:allocated)
     capacity = FunderPool.real.sum(:amount)
     [
-      { label: 'Allocated', value: allocated, color: '#dc2626' },
-      { label: 'Available', value: capacity - allocated, color: '#059669' }
+      { label: "Allocated", value: allocated, color: "#dc2626" },
+      { label: "Available", value: capacity - allocated, color: "#059669" }
     ]
   end
 
   def monthly_pl(months: 24)
     data = {}
     cumulative = 0
-    contracts = Contract.real.where.not(status: :awaiting_funding).where('start_date <= ?', Date.today)
+    contracts = Contract.real.where.not(status: :awaiting_funding).where("start_date <= ?", Date.today)
 
     months.times do |i|
       month_date = (months - 1 - i).months.ago.beginning_of_month.to_date
       month_end = month_date.end_of_month
-      active = contracts.where('start_date <= ?', month_end)
+      active = contracts.where("start_date <= ?", month_end)
       monthly_pl = active.sum { |c| monthly_pl_for_contract(c, month_end) }
       cumulative += monthly_pl
-      data[month_date.strftime('%b %Y')] = { monthly: monthly_pl.round(0), cumulative: cumulative.round(0) }
+      data[month_date.strftime("%b %Y")] = { monthly: monthly_pl.round(0), cumulative: cumulative.round(0) }
     end
     data
   end
@@ -144,7 +144,7 @@ class AdminPortfolioMetricsService
       @contracts.joins(:application)
                 .where(contracts: { created_at: month_start..month_end })
                 .where(applications: { home_value: 0.. })
-                .sum('applications.home_value')
+                .sum("applications.home_value")
     end
   end
 
@@ -152,17 +152,17 @@ class AdminPortfolioMetricsService
     data = {}
     months.times do |i|
       month_end = i.months.ago.end_of_month
-      month_name = month_end.strftime('%b %Y')
+      month_name = month_end.strftime("%b %Y")
       data[month_name] = @contracts.joins(:application)
-                                   .where('contracts.created_at <= ?', month_end)
+                                   .where("contracts.created_at <= ?", month_end)
                                    .where(applications: { home_value: 0.. })
-                                   .sum('applications.home_value')
+                                   .sum("applications.home_value")
     end
     data.reverse_each.to_h
   end
 
   def self.contract_net_pl(contract)
-    months_active = contract.start_date ? [(Date.today - contract.start_date).to_i / 30.0, 0].max : 0
+    months_active = contract.start_date ? [ (Date.today - contract.start_date).to_i / 30.0, 0 ].max : 0
     investment_gain = contract.investment_balance.to_f * (contract.investment_return_rate.to_f / 100.0)
     cost_of_capital = contract.allocated_amount.to_f * (contract.cost_of_capital_rate.to_f / 100.0) * (months_active / 12.0)
     investment_gain - contract.total_payments_made.to_f - cost_of_capital
@@ -175,14 +175,14 @@ class AdminPortfolioMetricsService
     months.times do |i|
       month_start = i.months.ago.beginning_of_month
       month_end = i.months.ago.end_of_month
-      data[month_start.strftime('%b %Y')] = yield(month_start, month_end)
+      data[month_start.strftime("%b %Y")] = yield(month_start, month_end)
     end
     data.reverse_each.to_h
   end
 
   def monthly_pl_for_contract(contract, month_end)
-    months_active = [(month_end - contract.start_date).to_i / 30.0, 0].max
-    inv_gain_monthly = contract.investment_balance.to_f * (contract.investment_return_rate.to_f / 100.0) / [months_active, 1].max
+    months_active = [ (month_end - contract.start_date).to_i / 30.0, 0 ].max
+    inv_gain_monthly = contract.investment_balance.to_f * (contract.investment_return_rate.to_f / 100.0) / [ months_active, 1 ].max
     cost_monthly = contract.allocated_amount.to_f * (contract.cost_of_capital_rate.to_f / 100.0) / 12.0
     inv_gain_monthly - contract.monthly_payment.to_f - cost_monthly
   end

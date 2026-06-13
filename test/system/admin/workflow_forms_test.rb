@@ -366,7 +366,7 @@ class Admin::WorkflowFormsTest < ApplicationSystemTestCase
         { "id" => "t1", "type" => "trigger", "config" => {} },
         { "id" => "e1", "type" => "email", "config" => {} }
       ],
-      "connections" => [{ "from" => "t1", "to" => "e1" }]
+      "connections" => [ { "from" => "t1", "to" => "e1" } ]
     }
 
     complex_trigger = {

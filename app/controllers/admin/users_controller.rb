@@ -1,54 +1,54 @@
 class Admin::UsersController < Admin::BaseController
   include AdminSortable
-  before_action :set_user, only: [:show, :edit, :update]
-  before_action :set_current_admin_user, only: [:create, :update]
+  before_action :set_user, only: [ :show, :edit, :update ]
+  before_action :set_current_admin_user, only: [ :create, :update ]
 
   def index
     @users = sort_scope(scoped_users.includes(:lender).order(:email), allowed: %w[email created_at sign_in_count last_sign_in_at])
-    
+
     # Search filter
-    @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
+    @users = @users.where("email ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?",
                          "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
-    
+
     # Lender filter (only show to Futureproof admins)
     if futureproof_admin? && params[:lender_id].present?
       @users = @users.where(lender_id: params[:lender_id])
     end
-    
+
     # Role filter
     case params[:role]
-    when 'admin'
+    when "admin"
       @users = @users.where(admin: true)
-    when 'user'
+    when "user"
       @users = @users.where(admin: false)
     end
-    
+
     # Status filter
     case params[:status]
-    when 'active'
+    when "active"
       @users = @users.where.not(confirmed_at: nil)
-    when 'inactive'
+    when "inactive"
       @users = @users.where(confirmed_at: nil)
     end
-    
+
     if request.format.csv?
       send_data users_csv(@users), filename: "users-#{Date.current}.csv", type: "text/csv"
       return
     end
 
     @users = @users.page(params[:page]).per(10)
-    
+
     # For the filter dropdowns
     @role_options = [
-      ['Admin', 'admin'],
-      ['User', 'user']
+      [ "Admin", "admin" ],
+      [ "User", "user" ]
     ]
-    
+
     @status_options = [
-      ['Active', 'active'],
-      ['Inactive', 'inactive']
+      [ "Active", "active" ],
+      [ "Inactive", "inactive" ]
     ]
-    
+
     # Lender filter options (only for Futureproof admins)
     if futureproof_admin?
       @lender_options = Lender.order(:name).pluck(:name, :id)
@@ -58,7 +58,7 @@ class Admin::UsersController < Admin::BaseController
   def show
     # Log that admin viewed this user
     @user.log_view_by(current_user)
-    
+
     # Get change history for display
     @user_versions = @user.user_versions.includes(:admin_user).recent.limit(20)
   end
@@ -71,7 +71,7 @@ class Admin::UsersController < Admin::BaseController
     @user = User.new(user_params)
     @user.current_admin_user = current_user
     @user.confirmed_at = Time.current if @user.valid?
-    
+
     # Assign lender based on admin type
     if lender_admin?
       @user.lender = admin_lender
@@ -80,9 +80,9 @@ class Admin::UsersController < Admin::BaseController
     else
       @user.lender = Lender.lender_type_futureproof.first
     end
-    
+
     if @user.save
-      redirect_to admin_user_path(@user), notice: 'User was successfully created.'
+      redirect_to admin_user_path(@user), notice: "User was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -99,7 +99,7 @@ class Admin::UsersController < Admin::BaseController
     end
 
     if @user.update(user_params.except(:password, :password_confirmation).merge(password_params))
-      redirect_to admin_user_path(@user), notice: 'User was successfully updated.'
+      redirect_to admin_user_path(@user), notice: "User was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -132,10 +132,10 @@ class Admin::UsersController < Admin::BaseController
   def users_csv(scope)
     require "csv"
     CSV.generate(headers: true) do |csv|
-      csv << ["ID", "Name", "Email", "Role", "Lender", "Confirmed", "Sign-ins", "Last sign-in", "Created"]
+      csv << [ "ID", "Name", "Email", "Role", "Lender", "Confirmed", "Sign-ins", "Last sign-in", "Created" ]
       scope.find_each do |u|
-        csv << [u.id, u.display_name, u.email, u.admin? ? "admin" : "user", u.lender&.name,
-                u.confirmed_at&.iso8601, u.sign_in_count, u.last_sign_in_at&.iso8601, u.created_at.iso8601]
+        csv << [ u.id, u.display_name, u.email, u.admin? ? "admin" : "user", u.lender&.name,
+                u.confirmed_at&.iso8601, u.sign_in_count, u.last_sign_in_at&.iso8601, u.created_at.iso8601 ]
       end
     end
   end
@@ -156,7 +156,7 @@ class Admin::UsersController < Admin::BaseController
       {}
     end
   end
-  
+
   def set_current_admin_user
     @user&.current_admin_user = current_user if @user
   end

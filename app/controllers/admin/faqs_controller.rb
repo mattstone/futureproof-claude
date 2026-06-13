@@ -1,6 +1,6 @@
 module Admin
   class FaqsController < BaseController
-    before_action :set_faq, only: [:edit, :update, :destroy]
+    before_action :set_faq, only: [ :edit, :update, :destroy ]
 
     def index
       current_jurisdiction = session[:admin_jurisdiction] || "Summary"

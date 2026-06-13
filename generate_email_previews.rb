@@ -48,11 +48,11 @@ welcome_content = <<~HTML
         <div class="logo">FutureProof</div>
         <h1>Welcome to Our Platform!</h1>
       </div>
-      
+  #{'    '}
       <div class="content">
         <h1>Welcome to FutureProof, #{mock_customer[:first_name]}!</h1>
         <p>We're thrilled to have you join our platform and begin your journey toward financial security with our innovative Equity Preservation Mortgage®.</p>
-        
+  #{'      '}
         <div class="highlight-box">
           <strong>Your Account Details:</strong>
           <ul>
@@ -62,7 +62,7 @@ welcome_content = <<~HTML
             <li><strong>Account Created:</strong> #{mock_customer[:created_at].strftime('%B %d, %Y')}</li>
           </ul>
         </div>
-        
+  #{'      '}
         <p>Get ready to secure your financial future with our revolutionary mortgage solution that lets you:</p>
         <ul>
           <li>✅ <strong>Preserve your home equity</strong> - Keep ownership while accessing funds</li>
@@ -70,10 +70,10 @@ welcome_content = <<~HTML
           <li>✅ <strong>Access cash from your property</strong> - Unlock your home's value</li>
           <li>✅ <strong>Professional guidance</strong> - Expert support every step of the way</li>
         </ul>
-        
+  #{'      '}
         <p>Your journey to financial independence starts here. Welcome aboard!</p>
       </div>
-      
+  #{'    '}
       <div class="footer">
         <p><strong>FutureProof</strong> - Securing Your Financial Future</p>
         <p><em>This is a demonstration email from the FutureProof workflow system.</em></p>
@@ -83,7 +83,7 @@ welcome_content = <<~HTML
   </html>
 HTML
 
-# Email 2: Getting Started Guide  
+# Email 2: Getting Started Guide
 puts "📧 Generating Email 2: Getting Started Guide"
 puts "-" * 40
 
@@ -117,12 +117,12 @@ guide_content = <<~HTML
         <div class="logo">FutureProof</div>
         <h1>Getting Started Guide</h1>
       </div>
-      
+  #{'    '}
       <div class="content">
         <h2>Getting Started with FutureProof</h2>
         <p>Hi #{mock_customer[:first_name]},</p>
         <p>Congratulations on taking the first step toward financial freedom! Here's your complete guide to getting started with your Equity Preservation Mortgage®:</p>
-        
+  #{'      '}
         <div class="step-box">
           <strong>📋 Your 5-Step Onboarding Process:</strong>
           <ol>
@@ -133,7 +133,7 @@ guide_content = <<~HTML
             <li><strong>Submit your application</strong> - Complete the formal application process with our guidance</li>
           </ol>
         </div>
-        
+  #{'      '}
         <div class="benefits-box">
           <strong>🏆 Why FutureProof is the Right Choice:</strong>
           <ul>
@@ -145,18 +145,18 @@ guide_content = <<~HTML
             <li>✅ <strong>Regulatory compliant</strong> - Fully licensed and regulated</li>
           </ul>
         </div>
-        
+  #{'      '}
         <div class="contact-box">
           <p><strong>Need Help Getting Started?</strong></p>
           <p>Our friendly customer success team is here to help!</p>
           <p class="phone">📞 1-800-FUTURE-1</p>
           <p>Or simply reply to this email and we'll get back to you within 24 hours.</p>
         </div>
-        
+  #{'      '}
         <p>We're excited to help you achieve your financial goals, #{mock_customer[:first_name]}!</p>
         <p>Best regards,<br><strong>The FutureProof Support Team</strong></p>
       </div>
-      
+  #{'    '}
       <div class="footer">
         <p><strong>FutureProof</strong> - Securing Your Financial Future</p>
         <p>Email: support@futureproof.com | Phone: 1-800-FUTURE-1</p>

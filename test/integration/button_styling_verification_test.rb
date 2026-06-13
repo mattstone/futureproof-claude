@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ButtonStylingVerificationTest < ActionDispatch::IntegrationTest
   test "signup page has correct button and checkbox structure for styling" do
@@ -8,16 +8,16 @@ class ButtonStylingVerificationTest < ActionDispatch::IntegrationTest
     # Verify the Create Account button exists with correct classes
     assert_select "input[type='submit'][value='Create Account']" do |elements|
       button = elements.first
-      classes = button['class']
+      classes = button["class"]
 
       # Verify all expected classes are present
-      assert classes.include?('site-btn'), "Button should have site-btn class"
-      assert classes.include?('site-btn-primary'), "Button should have site-btn-primary class"
-      assert classes.include?('auth-submit-btn'), "Button should have auth-submit-btn class"
-      assert classes.include?('site-btn-disabled'), "Button should start with site-btn-disabled class"
+      assert classes.include?("site-btn"), "Button should have site-btn class"
+      assert classes.include?("site-btn-primary"), "Button should have site-btn-primary class"
+      assert classes.include?("auth-submit-btn"), "Button should have auth-submit-btn class"
+      assert classes.include?("site-btn-disabled"), "Button should start with site-btn-disabled class"
 
       # Verify initial disabled state
-      assert button['disabled'], "Button should start disabled"
+      assert button["disabled"], "Button should start disabled"
     end
 
     # Verify the terms checkbox exists

@@ -1,7 +1,7 @@
 class GamesController < ApplicationController
   before_action :authenticate_user!
-  layout 'games'
-  
+  layout "games"
+
   def lace_invaders
     # Simple controller action to render the Lace Invaders game
   end

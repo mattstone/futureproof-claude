@@ -41,7 +41,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     get new_application_path
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 
   test "unauthenticated user cannot access new application" do
@@ -86,7 +86,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
     application = create_test_application(@user, status: :property_details)
 
     get income_and_loan_application_path(application)
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 
   test "application summary page loads" do
@@ -95,7 +95,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
     application = create_test_application(@user, status: :income_and_loan_options)
 
     get summary_application_path(application)
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 
   # ============================================
@@ -114,7 +114,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 
   test "application can be submitted" do
@@ -135,7 +135,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
     )
 
     patch submit_application_path(application)
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
 
     application.reload
     # Status should have changed (exact status depends on workflow)
@@ -185,7 +185,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
       }
     }
     # Message sending may succeed (302 redirect) or show validation errors (200/422)
-    assert_includes [200, 302, 422], response.status
+    assert_includes [ 200, 302, 422 ], response.status
   end
 
   test "admin can reply to user message" do
@@ -212,7 +212,7 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
       }
     }
     # Message sending may succeed (302 redirect) or show validation errors (200/422)
-    assert_includes [200, 302, 422], response.status
+    assert_includes [ 200, 302, 422 ], response.status
   end
 
   # ============================================
@@ -302,6 +302,6 @@ class Checkpoint3ApplicationFlowTest < ActionDispatch::IntegrationTest
     end
 
     get application_path(application)
-    assert_includes [200, 302], response.status
+    assert_includes [ 200, 302 ], response.status
   end
 end

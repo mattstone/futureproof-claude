@@ -16,7 +16,7 @@ class CreateAgentActions < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :agent_actions, [:actionable_type, :actionable_id]
+    add_index :agent_actions, [ :actionable_type, :actionable_id ]
     add_index :agent_actions, :action_type
   end
 end

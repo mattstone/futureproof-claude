@@ -164,8 +164,8 @@ property_values = [
 ]
 
 # Different ownership statuses and property states
-ownership_statuses = [:individual, :joint, :lender, :super]
-property_states = [:primary_residence, :investment, :holiday]
+ownership_statuses = [ :individual, :joint, :lender, :super ]
+property_states = [ :primary_residence, :investment, :holiday ]
 
 # Application statuses with varying distribution
 application_statuses = [
@@ -180,7 +180,7 @@ application_statuses = [
 ]
 
 # Growth rates (property appreciation expectations)
-growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+growth_rates = [ 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
 
 # Create 40 diverse applications
 40.times do |i|
@@ -190,41 +190,41 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
   ownership_status = ownership_statuses.sample
   property_state = property_states.sample
   status = application_statuses[i]
-  
+
   # Determine if property has existing mortgage (about 60% do)
   has_existing_mortgage = rand < 0.6
   existing_mortgage_amount = has_existing_mortgage ? rand(100000...(home_value * 0.8).to_i) : 0
-  
+
   # Create borrower names for joint applications
   borrower_names = if ownership_status == :joint
     [
       { name: "#{user.first_name} #{user.last_name}", age: user_ages[user.id] },
-      { name: "#{['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan'].sample} #{user.last_name}", age: rand(30..65) }
+      { name: "#{[ 'Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan' ].sample} #{user.last_name}", age: rand(30..65) }
     ].to_json
   else
     nil
   end
-  
+
   # Lender names for lender ownership
   lender_name = if ownership_status == :lender
-    ["#{user.last_name} Holdings Pty Ltd", "#{user.first_name} Investment Co", "#{user.last_name} Property Group", "#{user.first_name} Enterprises"].sample
+    [ "#{user.last_name} Holdings Pty Ltd", "#{user.first_name} Investment Co", "#{user.last_name} Property Group", "#{user.first_name} Enterprises" ].sample
   else
     nil
   end
-  
+
   # Super fund names for super ownership
   super_fund_name = if ownership_status == :super
-    ["#{user.last_name} Family Super Fund", "#{user.first_name} SMSF", "#{user.last_name} Superannuation Fund"].sample
+    [ "#{user.last_name} Family Super Fund", "#{user.first_name} SMSF", "#{user.last_name} Superannuation Fund" ].sample
   else
     nil
   end
-  
+
   # Loan and income terms for more advanced applications
-  loan_term = status.in?(['income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected']) ? rand(10..30) : nil
+  loan_term = status.in?([ 'income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected' ]) ? rand(10..30) : nil
   income_payout_term = loan_term ? rand(10..loan_term) : nil
-  mortgage = status.in?(['income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected']) ? mortgages.sample : nil
+  mortgage = status.in?([ 'income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected' ]) ? mortgages.sample : nil
   growth_rate = growth_rates.sample  # Always provide growth rate as it's required
-  
+
   # Rejected reason for rejected applications
   rejected_reason = if status == :rejected
     [
@@ -238,7 +238,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
   else
     nil
   end
-  
+
   application = Application.create!(
     user: user,
     address: address,
@@ -261,9 +261,9 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     created_at: rand(60.days.ago..Time.current),
     updated_at: rand(30.days.ago..Time.current)
   )
-  
+
   # Add some application messages for a subset of applications (about 30%)
-  if rand < 0.3 && application.status.in?(['submitted', 'processing', 'accepted', 'rejected'])
+  if rand < 0.3 && application.status.in?([ 'submitted', 'processing', 'accepted', 'rejected' ])
     # Customer message
     customer_message_content = [
       "I have some questions about my application timeline.",
@@ -273,7 +273,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
       "I have additional documentation to submit.",
       "Can we schedule a call to discuss my application?"
     ].sample
-    
+
     application.application_messages.create!(
       sender_type: 'User',
       sender: user,
@@ -284,7 +284,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
       sent_at: rand(14.days.ago..3.days.ago),
       created_at: rand(14.days.ago..3.days.ago)
     )
-    
+
     # Admin response (for some messages)
     if rand < 0.7
       admin_response_content = [
@@ -294,7 +294,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
         "Your application has been approved! We'll be in touch shortly with the next steps.",
         "We're pleased to inform you that your application has been processed successfully."
       ].sample
-      
+
       application.application_messages.create!(
         sender_type: 'User',
         sender: admin_user,
@@ -307,7 +307,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
       )
     end
   end
-  
+
   # Add application versions (change history) for some applications
   if rand < 0.4
     # Simulate some status changes
@@ -321,9 +321,9 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
         created_at: rand(application.created_at..application.updated_at)
       )
     end
-    
+
     # Simulate admin viewing the application
-    if application.status.in?(['submitted', 'processing', 'accepted', 'rejected'])
+    if application.status.in?([ 'submitted', 'processing', 'accepted', 'rejected' ])
       application.application_versions.create!(
         user: admin_user,
         action: 'viewed',
@@ -332,7 +332,7 @@ growth_rates = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
       )
     end
   end
-  
+
   print "." if i % 5 == 0
 end
 

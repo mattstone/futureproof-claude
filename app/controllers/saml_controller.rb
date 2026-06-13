@@ -15,7 +15,7 @@ class SamlController < ApplicationController
     meta = OneLogin::RubySaml::Metadata.new
     xml = meta.generate(settings, true)
 
-    render xml: xml, content_type: 'application/samlmetadata+xml'
+    render xml: xml, content_type: "application/samlmetadata+xml"
   rescue => e
     Rails.logger.error "SAML metadata error: #{e.message}"
     render plain: "SAML metadata generation error: #{e.message}", status: :internal_server_error

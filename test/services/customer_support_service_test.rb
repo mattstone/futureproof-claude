@@ -196,7 +196,7 @@ class CustomerSupportServiceTest < ActiveSupport::TestCase
         text: @text,
         tool_calls: [],
         usage: { input_tokens: 100, output_tokens: 20, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
-        stop_reason: 'end_turn'
+        stop_reason: "end_turn"
       )
     end
   end
@@ -255,21 +255,21 @@ class CustomerSupportServiceTest < ActiveSupport::TestCase
   end
 
   test "default branch uses no Claude when ANTHROPIC_API_KEY is unset" do
-    original = ENV.delete('ANTHROPIC_API_KEY')
+    original = ENV.delete("ANTHROPIC_API_KEY")
     service = CustomerSupportService.new(session_id: SecureRandom.uuid, region: "au")
 
     result = service.respond(user_message: "What is an EPM?", conversation_history: [])
 
     assert_equal :knowledge_base, result[:source]
   ensure
-    ENV['ANTHROPIC_API_KEY'] = original if original
+    ENV["ANTHROPIC_API_KEY"] = original if original
   end
 
   # Persistence
 
   test "persists conversation to DB when user is provided" do
-    ChatAgent.find_or_create_by!(name: 'Akane') do |a|
-      a.agent_type = 'support'
+    ChatAgent.find_or_create_by!(name: "Akane") do |a|
+      a.agent_type = "support"
     end
     user = users(:john)
     service = CustomerSupportService.new(session_id: SecureRandom.uuid, region: "au", user: user)
@@ -282,12 +282,12 @@ class CustomerSupportServiceTest < ActiveSupport::TestCase
 
     conversation = ChatConversation.last
     assert_equal user, conversation.user
-    assert_equal 'au', conversation.region
+    assert_equal "au", conversation.region
     messages = conversation.chat_messages.chronological.to_a
-    assert_equal 'user', messages.first.role
-    assert_equal 'agent', messages.last.role
-    assert_includes messages.last.content, 'Equity Preservation Mortgage'
-    assert_equal 'knowledge_base', messages.last.metadata['source']
+    assert_equal "user", messages.first.role
+    assert_equal "agent", messages.last.role
+    assert_includes messages.last.content, "Equity Preservation Mortgage"
+    assert_equal "knowledge_base", messages.last.metadata["source"]
   end
 
   test "does not persist when user is nil" do
@@ -301,8 +301,8 @@ class CustomerSupportServiceTest < ActiveSupport::TestCase
   end
 
   test "reuses an active ChatConversation across turns for the same user" do
-    ChatAgent.find_or_create_by!(name: 'Akane') do |a|
-      a.agent_type = 'support'
+    ChatAgent.find_or_create_by!(name: "Akane") do |a|
+      a.agent_type = "support"
     end
     user = users(:john)
     service = CustomerSupportService.new(session_id: SecureRandom.uuid, region: "au", user: user)

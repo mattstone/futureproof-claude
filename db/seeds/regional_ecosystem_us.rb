@@ -61,7 +61,7 @@ unless us_pool
   us_pool.save!(validate: false)
 end
 # Link pool to both US lenders
-[fp_us, pcl].each do |lender|
+[ fp_us, pcl ].each do |lender|
   lfp = LenderFunderPool.find_or_initialize_by(lender: lender, funder_pool: us_pool)
   lfp.active = true
   lfp.save!(validate: false) if lfp.new_record?

@@ -70,13 +70,13 @@ Rails.application.configure do
   # SMTP credentials should be set via rails credentials:edit or environment variables
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    user_name: Rails.application.credentials.dig(:smtp, :user_name) || ENV['SMTP_USERNAME'],
-    password: Rails.application.credentials.dig(:smtp, :password) || ENV['SMTP_PASSWORD'],
-    address: Rails.application.credentials.dig(:smtp, :address) || ENV['SMTP_ADDRESS'] || "smtp.gmail.com",
-    port: Rails.application.credentials.dig(:smtp, :port) || ENV['SMTP_PORT']&.to_i || 587,
+    user_name: Rails.application.credentials.dig(:smtp, :user_name) || ENV["SMTP_USERNAME"],
+    password: Rails.application.credentials.dig(:smtp, :password) || ENV["SMTP_PASSWORD"],
+    address: Rails.application.credentials.dig(:smtp, :address) || ENV["SMTP_ADDRESS"] || "smtp.gmail.com",
+    port: Rails.application.credentials.dig(:smtp, :port) || ENV["SMTP_PORT"]&.to_i || 587,
     authentication: :login,
     enable_starttls_auto: true,
-    domain: 'futureprooffinancial.co'
+    domain: "futureprooffinancial.co"
   }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to

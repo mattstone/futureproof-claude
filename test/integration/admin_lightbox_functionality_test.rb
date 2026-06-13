@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
   def setup
@@ -10,7 +10,7 @@ class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
       property_state: "primary_residence",
       ownership_status: "individual",
       borrower_age: 35,
-      property_images: JSON.dump(["https://example.com/image1.jpg", "https://example.com/image2.jpg"])
+      property_images: JSON.dump([ "https://example.com/image1.jpg", "https://example.com/image2.jpg" ])
     )
     sign_in @admin
   end
@@ -20,8 +20,8 @@ class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Verify that property images section is present
-    assert_select '.property-images-grid'
-    assert_select 'img.property-image', count: 2
+    assert_select ".property-images-grid"
+    assert_select "img.property-image", count: 2
 
     # Verify that the image-lightbox controller is attached to the container
     assert_select '[data-controller="image-lightbox"]'
@@ -39,16 +39,16 @@ class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Check that the property images grid container exists
-    assert_select '.property-images-grid' do
+    assert_select ".property-images-grid" do
       # Each image should be in a property-image-item container
-      assert_select '.property-image-item', count: 2
+      assert_select ".property-image-item", count: 2
 
       # Each image should have the proper classes and attributes
-      assert_select 'img.property-image' do |images|
+      assert_select "img.property-image" do |images|
         images.each_with_index do |img, index|
-          assert img['loading'] == 'lazy'
-          assert img['data-action'] == 'click->image-lightbox#show'
-          assert img['alt'] == "Property image #{index + 1}"
+          assert img["loading"] == "lazy"
+          assert img["data-action"] == "click->image-lightbox#show"
+          assert img["alt"] == "Property image #{index + 1}"
         end
       end
     end
@@ -74,13 +74,13 @@ class AdminLightboxFunctionalityTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Should not have property images section
-    assert_select '.property-images-grid', count: 0
+    assert_select ".property-images-grid", count: 0
     assert_select '[data-controller="image-lightbox"]', count: 0
   end
 
   private
 
   def sign_in(user)
-    post user_session_path, params: { user: { email: user.email, password: 'password1234' } }
+    post user_session_path, params: { user: { email: user.email, password: "password1234" } }
   end
 end

@@ -74,7 +74,7 @@ class LoanActivationTest < ActionDispatch::IntegrationTest
 
   test "activate creates distribution and updates status" do
     sign_in @user
-    
+
     # Verify application is in accepted status
     assert @application.status_accepted?
     assert_equal 0, @application.distributions.count
@@ -91,14 +91,14 @@ class LoanActivationTest < ActionDispatch::IntegrationTest
 
   test "activate creates initial distribution" do
     sign_in @user
-    
+
     # Activate the application
     post loan_activation_confirm_path(:au, @application)
 
     # Verify distribution was created
     @application.reload
     assert_equal 1, @application.distributions.count
-    
+
     distribution = @application.distributions.first
     assert_equal @application.equity_investment_amount, distribution.amount
     assert_equal Date.current, distribution.distribution_date

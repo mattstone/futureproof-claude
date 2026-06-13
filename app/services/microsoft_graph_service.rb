@@ -22,7 +22,7 @@ class MicrosoftGraphService
   def fetch_new_emails(limit: 50)
     authenticate!
 
-    filter_parts = ["isRead eq false"]
+    filter_parts = [ "isRead eq false" ]
     if @subject_prefix.present?
       escaped = @subject_prefix.gsub("'", "''")
       filter_parts << "startsWith(subject, '#{escaped}')"

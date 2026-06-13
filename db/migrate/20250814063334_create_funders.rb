@@ -7,7 +7,7 @@ class CreateFunders < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :funders, :name
     add_index :funders, :country
     add_index :funders, :currency

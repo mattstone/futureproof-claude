@@ -2,7 +2,7 @@
 # dashboards and metrics can exclude them. Identified by the seed's fixed
 # names — no real funder shares them. Reversible: clears the flags.
 class FlagExistingSeededDemoRecords < ActiveRecord::Migration[8.1]
-  SEED_FUNDERS = ["Macquarie Capital", "Blackrock Investments", "IFM Investors"].freeze
+  SEED_FUNDERS = [ "Macquarie Capital", "Blackrock Investments", "IFM Investors" ].freeze
   SEED_POOLS = [
     "Macquarie Growth Fund I", "Macquarie Income Fund II", "Blackrock Global Alpha",
     "Blackrock Fixed Income", "IFM Australian Mortgage Trust"

@@ -1,22 +1,22 @@
 namespace :admin do
   desc "Create an admin user for the admin system"
   task setup: :environment do
-    email = 'admin@futureprooffinancial.co'
-    password = 'admin123'
-    
+    email = "admin@futureprooffinancial.co"
+    password = "admin123"
+
     # Find or create admin user
     admin_user = User.find_by(email: email) || User.new(email: email)
-    
+
     admin_user.assign_attributes(
-      first_name: 'Admin',
-      last_name: 'User',
+      first_name: "Admin",
+      last_name: "User",
       password: password,
       password_confirmation: password,
-      country_of_residence: 'Australia',
+      country_of_residence: "Australia",
       admin: true,
       confirmed_at: Time.current
     )
-    
+
     if admin_user.save
       puts "✅ Admin user created successfully!"
       puts ""

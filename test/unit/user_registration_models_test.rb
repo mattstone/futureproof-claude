@@ -1,12 +1,12 @@
-require 'test_helper'
+require "test_helper"
 
 class UserRegistrationModelsTest < ActiveSupport::TestCase
   def setup
     # Clean up any existing test data
     User.where(email: [
-      'unit.customer@test.com',
-      'unit.admin@test.com',
-      'model.test@test.com'
+      "unit.customer@test.com",
+      "unit.admin@test.com",
+      "model.test@test.com"
     ]).destroy_all
   end
 
@@ -64,7 +64,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
 
   test "user creation triggers application creation callback for customers" do
     # Test customer gets automatic application
-    assert_difference ['User.count', 'Application.count'], 1 do
+    assert_difference [ "User.count", "Application.count" ], 1 do
       User.create!(
         first_name: "Callback",
         last_name: "Customer",
@@ -109,7 +109,7 @@ class UserRegistrationModelsTest < ActiveSupport::TestCase
     assert application.valid?, "Created status should allow nil address"
 
     # Test each status transition requiring address
-    non_created_statuses = [:user_details, :property_details, :income_and_loan_options, :submitted, :processing, :accepted]
+    non_created_statuses = [ :user_details, :property_details, :income_and_loan_options, :submitted, :processing, :accepted ]
 
     non_created_statuses.each do |status|
       application.status = status

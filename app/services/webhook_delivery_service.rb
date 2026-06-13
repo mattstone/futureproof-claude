@@ -8,16 +8,16 @@ class WebhookDeliveryService
 
   def deliver
     raise "Webhook endpoint not found" unless webhook_endpoint
-    
+
     signature = generate_signature
-    
+
     response = HTTParty.post(
       webhook_endpoint.url,
       headers: {
-        'Content-Type' => 'application/json',
-        'X-Webhook-Signature' => signature,
-        'X-Webhook-Event' => webhook_event.event_type,
-        'X-Webhook-Delivery' => webhook_event.id
+        "Content-Type" => "application/json",
+        "X-Webhook-Signature" => signature,
+        "X-Webhook-Event" => webhook_event.event_type,
+        "X-Webhook-Delivery" => webhook_event.id
       },
       body: webhook_event.payload.to_json,
       timeout: 10
@@ -44,6 +44,6 @@ class WebhookDeliveryService
 
   def generate_signature
     payload = webhook_event.payload.to_json
-    OpenSSL::HMAC.hexdigest('sha256', webhook_endpoint.secret, payload)
+    OpenSSL::HMAC.hexdigest("sha256", webhook_endpoint.secret, payload)
   end
 end

@@ -51,16 +51,16 @@ begin
 
   # Show results comparison
   puts "\n=== RESULTS COMPARISON ==="
-  
+
   if @python_result[:pathdf] && @ruby_result[:pathdf]
     puts "Python pathdf columns: #{@python_result[:pathdf].keys.sort}"
     puts "Ruby pathdf columns: #{@ruby_result[:pathdf].keys.sort}"
-    
+
     # Compare price paths
     if @python_result[:price_paths] && @ruby_result[:price_paths]
       py_prices = @python_result[:price_paths][0][1]
       rb_prices = @ruby_result[:price_paths][0][1]
-      
+
       puts "\nPrice Path Comparison:"
       puts "  Python: #{py_prices.first.round(2)} → #{py_prices.last.round(2)} (#{py_prices.length} points)"
       puts "  Ruby:   #{rb_prices.first.round(2)} → #{rb_prices.last.round(2)} (#{rb_prices.length} points)"
@@ -80,7 +80,7 @@ end
 puts "\n=== PERFORMANCE RECOMMENDATION ==="
 puts "For 100,000 calculations:"
 puts "  Ruby Historical Service: ~11 minutes"
-puts "  Python Integration: ~13.5 hours"  
+puts "  Python Integration: ~13.5 hours"
 puts "  Recommendation: Use Ruby for performance-critical applications"
 
 puts "\n=== TEST COMPLETE ==="

@@ -59,7 +59,7 @@ module CspAudit
       end
     end
 
-    [violations, files.size]
+    [ violations, files.size ]
   end
 
   def load_baseline

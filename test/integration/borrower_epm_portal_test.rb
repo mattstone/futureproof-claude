@@ -7,7 +7,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
     @borrower = users(:regular_user)
     @app = applications(:mortgage_application)
     @app.update(user: @borrower)
-    
+
     # Create lender for application
     @lender = Lender.create!(
       name: "Test Lender",
@@ -23,7 +23,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
   test "borrower can access loan dashboard" do
     sign_in @borrower
     get borrower_applications_path
-    
+
     assert_response :success
     assert_select "h1", text: "My Guaranteed Income Plans"
   end
@@ -31,7 +31,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
   test "borrower can view application details" do
     sign_in @borrower
     get borrower_application_path(@app)
-    
+
     assert_response :success
     assert_select "h1", text: "Your Guaranteed Income Plan"
   end
@@ -46,24 +46,24 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
       last_name: "User",
       terms_accepted: true
     )
-    
+
     sign_in other_user
     get borrower_application_path(@app)
-    
+
     assert_redirected_to borrower_root_path
     assert_equal "Access denied", flash[:alert]
   end
 
   test "unauthenticated user cannot access borrower portal" do
     get borrower_applications_path
-    
+
     assert_redirected_to new_user_session_path
   end
 
   test "loan details show EPM fields" do
     sign_in @borrower
     get borrower_application_path(@app)
-    
+
     assert_response :success
     # Should show EPM-specific fields (property value, mortgage, LTV, income term)
     assert_select "*", text: /Your Property Value/i
@@ -74,10 +74,10 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
 
   test "activated loan shows income schedule" do
     @app.update(status: :activated)
-    
+
     sign_in @borrower
     get borrower_application_path(@app)
-    
+
     assert_response :success
     # Check for income payment schedule
     assert_select "*", text: /Income Payment Schedule/i
@@ -87,7 +87,7 @@ class BorrowerEpmPortalTest < ActionDispatch::IntegrationTest
   test "borrower root loads applications list" do
     sign_in @borrower
     get borrower_root_path
-    
+
     assert_response :success
     assert_select "h1", text: "My Guaranteed Income Plans"
   end

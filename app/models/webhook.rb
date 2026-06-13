@@ -16,7 +16,7 @@ class Webhook < ApplicationRecord
   }
 
   # Validations
-  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp(['http', 'https']), message: "must be a valid HTTP(S) URL" }
+  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp([ "http", "https" ]), message: "must be a valid HTTP(S) URL" }
   validates :event, presence: true, inclusion: { in: events.keys }
   validates :secret, presence: true, length: { minimum: 20 }
   validates :lender_id, presence: true

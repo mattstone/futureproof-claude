@@ -11,9 +11,8 @@ class CreateWebhookDeliveries < ActiveRecord::Migration[8.1]
       t.datetime :failed_at
       t.integer :retry_count, default: 0
       t.datetime :created_at
-
     end
-    
+
     add_index :webhook_deliveries, :delivery_status
     add_index :webhook_deliveries, :created_at
   end

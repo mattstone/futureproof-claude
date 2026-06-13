@@ -8,12 +8,12 @@ class CreateMortgageLenders < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     # Add indexes for performance
     add_index :mortgage_lenders, :active
-    add_index :mortgage_lenders, [:mortgage_id, :lender_id], unique: true
-    add_index :mortgage_lenders, [:lender_id, :mortgage_id]
-    
+    add_index :mortgage_lenders, [ :mortgage_id, :lender_id ], unique: true
+    add_index :mortgage_lenders, [ :lender_id, :mortgage_id ]
+
     # Migrate existing data from mortgages.lender_id to the join table
     execute <<-SQL
       INSERT INTO mortgage_lenders (mortgage_id, lender_id, active, created_at, updated_at)
@@ -21,7 +21,7 @@ class CreateMortgageLenders < ActiveRecord::Migration[8.0]
       FROM mortgages
       WHERE lender_id IS NOT NULL
     SQL
-    
+
     # Remove the old lender_id column from mortgages
     remove_foreign_key :mortgages, :lenders if foreign_key_exists?(:mortgages, :lenders)
     remove_index :mortgages, :lender_id if index_exists?(:mortgages, :lender_id)
@@ -31,19 +31,19 @@ class CreateMortgageLenders < ActiveRecord::Migration[8.0]
   def down
     # Add back the lender_id column
     add_reference :mortgages, :lender, foreign_key: true
-    
+
     # Migrate data back (only taking the first active lender for each mortgage)
     execute <<-SQL
-      UPDATE mortgages 
+      UPDATE mortgages#{' '}
       SET lender_id = (
-        SELECT lender_id 
-        FROM mortgage_lenders 
-        WHERE mortgage_lenders.mortgage_id = mortgages.id 
-        AND active = true 
+        SELECT lender_id#{' '}
+        FROM mortgage_lenders#{' '}
+        WHERE mortgage_lenders.mortgage_id = mortgages.id#{' '}
+        AND active = true#{' '}
         LIMIT 1
       )
     SQL
-    
+
     # Drop the join table
     drop_table :mortgage_lenders
   end

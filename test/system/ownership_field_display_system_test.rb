@@ -3,12 +3,12 @@ require "application_system_test_case"
 class OwnershipFieldDisplaySystemTest < ApplicationSystemTestCase
   def setup
     @user = User.create!(
-      email: 'ownership_test@example.com',
-      password: 'password1234',
-      password_confirmation: 'password123',
-      first_name: 'Ownership',
-      last_name: 'Test',
-      country_of_residence: 'Australia',
+      email: "ownership_test@example.com",
+      password: "password1234",
+      password_confirmation: "password123",
+      first_name: "Ownership",
+      last_name: "Test",
+      country_of_residence: "Australia",
       terms_accepted: true
     )
   end
@@ -135,9 +135,9 @@ class OwnershipFieldDisplaySystemTest < ApplicationSystemTestCase
   private
 
   def sign_in(user)
-    visit '/users/sign_in'
-    fill_in 'Email', with: user.email
-    fill_in 'Password', with: 'password123'
-    click_button 'Sign In'
+    visit "/users/sign_in"
+    fill_in "Email", with: user.email
+    fill_in "Password", with: "password123"
+    click_button "Sign In"
   end
 end

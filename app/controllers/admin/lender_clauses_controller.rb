@@ -7,15 +7,15 @@ class Admin::LenderClausesController < Admin::BaseController
       redirect_to edit_admin_lender_clause_path(@lender)
       return
     end
-    
+
     @clause_content = @lender.clause_content
   end
 
   def create
     @lender.clause_content = clause_params[:content]
-    
+
     if @lender.save
-      redirect_back_or_fallback(notice: 'Clause was successfully created.')
+      redirect_back_or_fallback(notice: "Clause was successfully created.")
     else
       @clause_content = clause_params[:content]
       render :new, status: :unprocessable_entity
@@ -30,9 +30,9 @@ class Admin::LenderClausesController < Admin::BaseController
   def update
     had_clause = @lender.has_clause?
     @lender.clause_content = clause_params[:content]
-    
+
     if @lender.save
-      action_word = had_clause ? 'updated' : 'created'
+      action_word = had_clause ? "updated" : "created"
       redirect_back_or_fallback(notice: "Clause was successfully #{action_word}.")
     else
       @clause_content = clause_params[:content]
@@ -43,7 +43,7 @@ class Admin::LenderClausesController < Admin::BaseController
   def destroy
     @lender.clause_content = ""
     @lender.save!
-    redirect_back_or_fallback(notice: 'Clause was successfully deleted.')
+    redirect_back_or_fallback(notice: "Clause was successfully deleted.")
   end
 
   private
@@ -57,7 +57,7 @@ class Admin::LenderClausesController < Admin::BaseController
   end
 
   def redirect_back_or_fallback(options = {})
-    if request.referer && request.referer.include?('mortgages')
+    if request.referer && request.referer.include?("mortgages")
       redirect_back(fallback_location: admin_lenders_path, **options)
     else
       redirect_to admin_lender_path(@lender), **options

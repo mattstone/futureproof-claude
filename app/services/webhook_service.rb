@@ -1,13 +1,13 @@
 # Service for delivering webhook events with signature verification and retry logic
-require 'net/http'
-require 'json'
-require 'openssl'
+require "net/http"
+require "json"
+require "openssl"
 
 class WebhookService
   MAX_RETRIES = 3
   TIMEOUT = 10
-  SIGNATURE_HEADER = 'X-Webhook-Signature'
-  TIMESTAMP_HEADER = 'X-Webhook-Timestamp'
+  SIGNATURE_HEADER = "X-Webhook-Signature"
+  TIMESTAMP_HEADER = "X-Webhook-Timestamp"
 
   def initialize(webhook)
     @webhook = webhook
@@ -16,14 +16,14 @@ class WebhookService
   # Deliver webhook payload with signature
   def deliver(payload)
     delivery = create_delivery(payload)
-    
+
     begin
       response = send_webhook(delivery)
       handle_response(delivery, response)
     rescue Timeout::Error, StandardError => e
       handle_error(delivery, e)
     end
-    
+
     delivery
   end
 
@@ -40,7 +40,7 @@ class WebhookService
     rescue Timeout::Error, StandardError => e
       handle_error(delivery, e)
     end
-    
+
     delivery
   end
 
@@ -58,20 +58,20 @@ class WebhookService
   def send_webhook(delivery)
     uri = URI(@webhook.url)
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == 'https'
+    http.use_ssl = uri.scheme == "https"
     http.read_timeout = TIMEOUT
     http.open_timeout = TIMEOUT
 
     request = Net::HTTP::Post.new(uri.request_uri)
-    request.content_type = 'application/json'
-    request['User-Agent'] = "FutureProof-Webhook/1.0"
-    
+    request.content_type = "application/json"
+    request["User-Agent"] = "FutureProof-Webhook/1.0"
+
     # Add authentication headers
     timestamp = Time.current.to_i.to_s
     signature = generate_signature(delivery.payload, timestamp)
     request[SIGNATURE_HEADER] = signature
     request[TIMESTAMP_HEADER] = timestamp
-    
+
     request.body = delivery.payload.to_json
 
     http.request(request)
@@ -79,7 +79,7 @@ class WebhookService
 
   def generate_signature(payload, timestamp)
     message = "#{timestamp}.#{payload.to_json}"
-    digest = OpenSSL::Digest.new('sha256')
+    digest = OpenSSL::Digest.new("sha256")
     signature = OpenSSL::HMAC.hexdigest(digest, @webhook.secret, message)
     "sha256=#{signature}"
   end

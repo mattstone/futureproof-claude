@@ -40,33 +40,33 @@ begin
   result = calculator.calculate
   puts "Calculation successful!"
   puts "Result keys: #{result.keys.inspect}"
-  
+
   # Output key results for comparison
   puts "=== RUBY CALCULATOR RESULTS ==="
-  
+
   # Handle the actual Ruby structure
   if result[:path_data] && result[:path_data][:mean]
     mean_path = result[:path_data][:mean]
     puts "Using mean path from Monte Carlo simulation"
     puts "Number of periods: #{mean_path.length}"
-    
+
     # Extract data from the mean path (each element is an array with different metrics)
     puts "Initial portfolio value: #{mean_path.first[7].round(2)}"  # Based on structure analysis
     puts "Final portfolio value: #{mean_path.last[7].round(2)}"
     puts "Final loan balance: #{mean_path.last[4].round(2)}"
     puts "Final net equity: #{mean_path.last[8].round(2)}"
-    
+
     # First 10 periods for comparison
     puts "\nFirst 10 portfolio values from Ruby Monte Carlo:"
     puts mean_path[0..9].map { |period| period[7].round(2) }
-    
+
   elsif result[:paths]
     puts "Number of simulated paths: #{result[:paths].length}"
     puts "Portfolio value at end (path 1): #{result[:paths][0][:portfolio_values].last.round(2)}"
     puts "Total loan balance at end: #{result[:paths][0][:loan_balances].last.round(2)}"
     puts "Net equity at end: #{result[:paths][0][:net_equity].last.round(2)}"
     puts "Final equity price (path 1): #{result[:paths][0][:equity_prices].last.round(2)}"
-    
+
   else
     puts "ERROR: Unexpected result structure!"
     puts "Available keys: #{result.keys.inspect}"

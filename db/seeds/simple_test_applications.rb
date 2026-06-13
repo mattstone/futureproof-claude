@@ -48,12 +48,12 @@ puts "Using #{mortgages.count} mortgages for applications"
 
 # Create test users with simple data
 40.times do |i|
-  first_names = ['Sarah', 'Michael', 'Emma', 'David', 'Lisa', 'James', 'Sophie', 'Robert', 'Kate', 'Andrew', 'Nicole', 'Mark', 'Rachel', 'Chris', 'Jessica', 'Paul', 'Amanda', 'Simon', 'Helen', 'Tom', 'Laura', 'Daniel', 'Michelle', 'Anthony', 'Karen', 'Steven', 'Maria', 'Matthew', 'Jennifer', 'Kevin', 'Samantha', 'Jason', 'Angela', 'Ryan', 'Rebecca', 'Benjamin', 'Amy', 'Jonathan', 'Stephanie', 'Brian']
-  last_names = ['Johnson', 'Chen', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young', 'Hernandez', 'King', 'Wright', 'Lopez', 'Hill', 'Scott', 'Green', 'Adams', 'Baker', 'Gonzalez', 'Nelson', 'Carter', 'Mitchell']
-  
+  first_names = [ 'Sarah', 'Michael', 'Emma', 'David', 'Lisa', 'James', 'Sophie', 'Robert', 'Kate', 'Andrew', 'Nicole', 'Mark', 'Rachel', 'Chris', 'Jessica', 'Paul', 'Amanda', 'Simon', 'Helen', 'Tom', 'Laura', 'Daniel', 'Michelle', 'Anthony', 'Karen', 'Steven', 'Maria', 'Matthew', 'Jennifer', 'Kevin', 'Samantha', 'Jason', 'Angela', 'Ryan', 'Rebecca', 'Benjamin', 'Amy', 'Jonathan', 'Stephanie', 'Brian' ]
+  last_names = [ 'Johnson', 'Chen', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young', 'Hernandez', 'King', 'Wright', 'Lopez', 'Hill', 'Scott', 'Green', 'Adams', 'Baker', 'Gonzalez', 'Nelson', 'Carter', 'Mitchell' ]
+
   first_name = first_names[i]
   last_name = last_names[i]
-  
+
   user = User.find_or_create_by(email: "#{first_name.downcase}.#{last_name.downcase}@example.com") do |u|
     u.first_name = first_name
     u.last_name = last_name
@@ -83,57 +83,57 @@ puts "Using #{mortgages.count} mortgages for applications"
   ]
 
   # Property values
-  property_values = [425000, 480000, 520000, 650000, 750000, 820000, 950000, 1100000, 1250000, 1400000, 1550000, 1700000, 1850000, 2000000, 2200000, 2400000, 2600000, 2800000, 3000000, 3200000, 3500000]
-  
+  property_values = [ 425000, 480000, 520000, 650000, 750000, 820000, 950000, 1100000, 1250000, 1400000, 1550000, 1700000, 1850000, 2000000, 2200000, 2400000, 2600000, 2800000, 3000000, 3200000, 3500000 ]
+
   # Status distribution: 3 created, 4 user_details, 6 property_details, 5 income_loan, 8 submitted, 5 processing, 4 accepted, 3 rejected, 2 user_details
-  statuses = [:created, :created, :created, :user_details, :user_details, :user_details, :user_details, :property_details, :property_details, :property_details, :property_details, :property_details, :property_details, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :processing, :processing, :processing, :processing, :processing, :accepted, :accepted, :accepted, :accepted, :rejected, :rejected, :rejected, :user_details, :user_details]
-  
+  statuses = [ :created, :created, :created, :user_details, :user_details, :user_details, :user_details, :property_details, :property_details, :property_details, :property_details, :property_details, :property_details, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :income_and_loan_options, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :submitted, :processing, :processing, :processing, :processing, :processing, :accepted, :accepted, :accepted, :accepted, :rejected, :rejected, :rejected, :user_details, :user_details ]
+
   address = addresses[i]
   home_value = property_values.sample
   status = statuses[i]
-  ownership_status = [:individual, :joint, :lender, :super].sample
-  property_state = [:primary_residence, :investment, :holiday].sample
-  
+  ownership_status = [ :individual, :joint, :lender, :super ].sample
+  property_state = [ :primary_residence, :investment, :holiday ].sample
+
   # Determine if property has existing mortgage (about 60% do)
   has_existing_mortgage = rand < 0.6
   existing_mortgage_amount = has_existing_mortgage ? rand(100000...(home_value * 0.8).to_i) : 0
-  
+
   # Set borrower age for individual ownership
   borrower_age = ownership_status == :individual ? rand(35..65) : nil
-  
+
   # Set required fields based on ownership status
   borrower_names = nil
   lender_name = nil
   super_fund_name = nil
-  
+
   case ownership_status
   when :joint
     # Create borrower names for joint applications
     borrower_names = [
       { name: "#{first_name} #{last_name}", age: rand(35..65) },
-      { name: "#{['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan'].sample} #{last_name}", age: rand(35..65) }
+      { name: "#{[ 'Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan' ].sample} #{last_name}", age: rand(35..65) }
     ].to_json
   when :lender
     lender_name = "#{last_name} Holdings Pty Ltd"
   when :super
     super_fund_name = "#{last_name} Family Super Fund"
   end
-  
+
   # Set mortgage and loan details for advanced applications
-  mortgage = status.in?(['income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected']) ? mortgages.sample : nil
+  mortgage = status.in?([ 'income_and_loan_options', 'submitted', 'processing', 'accepted', 'rejected' ]) ? mortgages.sample : nil
   loan_term = mortgage ? rand(10..30) : nil
   income_payout_term = loan_term ? rand(10..loan_term) : nil
-  
+
   # Growth rate is required
-  growth_rate = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0].sample
-  
+  growth_rate = [ 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ].sample
+
   # Rejected reason for rejected applications
   rejected_reason = if status == :rejected
-    ['Property value outside acceptable range', 'Insufficient income documentation', 'Credit check failed'].sample
+    [ 'Property value outside acceptable range', 'Insufficient income documentation', 'Credit check failed' ].sample
   else
     nil
   end
-  
+
   begin
     application = Application.create!(
       user: user,
@@ -157,9 +157,9 @@ puts "Using #{mortgages.count} mortgages for applications"
       created_at: rand(60.days.ago..Time.current),
       updated_at: rand(30.days.ago..Time.current)
     )
-    
+
     print "." if i % 5 == 0
-    
+
   rescue => e
     puts "\nError creating application #{i + 1}: #{e.message}"
     puts "Status: #{status}, Ownership: #{ownership_status}, Borrower Age: #{borrower_age}"
@@ -168,7 +168,7 @@ end
 
 puts "\n✅ Successfully created #{Application.count} test applications:"
 puts "   - #{Application.status_created.count} applications in 'Created' status"
-puts "   - #{Application.status_user_details.count} applications in 'User Details' status"  
+puts "   - #{Application.status_user_details.count} applications in 'User Details' status"
 puts "   - #{Application.status_property_details.count} applications in 'Property Details' status"
 puts "   - #{Application.status_income_and_loan_options.count} applications in 'Income and Loan Options' status"
 puts "   - #{Application.status_submitted.count} applications in 'Submitted' status"

@@ -333,10 +333,10 @@ end
 
 # Export to CSV
 CSV.open("optimization_results.csv", "w") do |csv|
-  csv << ["Scenario", "Lending Margin %", "Additional Margin %", "Total CoF %",
+  csv << [ "Scenario", "Lending Margin %", "Additional Margin %", "Total CoF %",
           "Insurance Cost %", "Annual Income $", "Income %", "Total Cost Drag %",
           "Holidays Enter %", "Holidays Exit %", "Avg Holidays", "% Time Holiday",
-          "Insurance Risk %", "CAGR %", "Viable?"]
+          "Insurance Risk %", "CAGR %", "Viable?" ]
 
   results.sort_by { |r| -r[:cagr] }.each do |r|
     csv << [

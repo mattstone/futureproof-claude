@@ -23,7 +23,7 @@ module LenderPortal
     def applications
       @applications = Application.where(lender_id: current_user.id)
                                   .includes(:user, :distributions)
-      
+
       # Filter by status
       if params[:status].present?
         @applications = @applications.where(status: params[:status])
@@ -31,17 +31,17 @@ module LenderPortal
 
       # Sort (database-level, not Ruby)
       @applications = case params[:sort]
-                      when 'newest'
+      when "newest"
                         @applications.order(created_at: :desc)
-                      when 'oldest'
+      when "oldest"
                         @applications.order(created_at: :asc)
-                      when 'value_high'
+      when "value_high"
                         @applications.order(loan_amount: :desc)
-                      when 'value_low'
+      when "value_low"
                         @applications.order(loan_amount: :asc)
-                      else
+      else
                         @applications.order(created_at: :desc)
-                      end
+      end
 
       # Use cached stats (avoid duplicate queries)
       @stats = lender_stats(current_user.id)
@@ -124,26 +124,26 @@ module LenderPortal
     def calculate_approval_rate
       total = Application.where(lender_id: current_user.id).count
       return 0 if total.zero?
-      
-      approved = Application.where(lender_id: current_user.id).where("status IN (?)", [:accepted, :activated]).count
+
+      approved = Application.where(lender_id: current_user.id).where("status IN (?)", [ :accepted, :activated ]).count
       ((approved.to_f / total) * 100).round(1)
     end
 
     def calculate_activation_rate
       total = Application.where(lender_id: current_user.id, status: :accepted).count
       return 0 if total.zero?
-      
+
       activated = Application.where(lender_id: current_user.id, status: :activated).count
       ((activated.to_f / total) * 100).round(1)
     end
 
     def calculate_avg_approval_time
       approved_apps = Application.where(lender_id: current_user.id)
-                                  .where("status IN (?)", [:accepted, :activated])
+                                  .where("status IN (?)", [ :accepted, :activated ])
                                   .where("approved_at IS NOT NULL")
-      
+
       return 0 if approved_apps.empty?
-      
+
       total_time = approved_apps.sum { |a| (a.approved_at - a.created_at).to_i / 86400 }
       (total_time / approved_apps.count).round(1)
     end
@@ -152,7 +152,7 @@ module LenderPortal
       # Average annual yield from completed distributions
       active_loans = Application.where(lender_id: current_user.id, status: :activated)
       return 0 if active_loans.empty?
-      
+
       total_yield = active_loans.sum { |a| a.interest_rate }
       (total_yield / active_loans.count * 100).round(2)
     end

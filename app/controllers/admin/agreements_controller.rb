@@ -1,6 +1,6 @@
 module Admin
   class AgreementsController < BaseController
-    before_action :set_agreement, only: [:show, :edit, :update, :send_for_signing, :sign, :record_signature, :cancel]
+    before_action :set_agreement, only: [ :show, :edit, :update, :send_for_signing, :sign, :record_signature, :cancel ]
 
     def index
       @agreements = Agreement.includes(:agreeable, :agreement_signatures, :legal_document).recent
@@ -135,11 +135,11 @@ module Admin
 
     def load_templates(party_type)
       doc_type = case party_type
-                 when "Lender" then "lender_contract"
-                 when "WholesaleFunder" then "wholesale_funder_contract"
-                 when "Broker" then "broker_contract"
-                 else "lender_contract"
-                 end
+      when "Lender" then "lender_contract"
+      when "WholesaleFunder" then "wholesale_funder_contract"
+      when "Broker" then "broker_contract"
+      else "lender_contract"
+      end
       LegalDocument.where(document_type: doc_type, is_active: true).order(:jurisdiction)
     end
 

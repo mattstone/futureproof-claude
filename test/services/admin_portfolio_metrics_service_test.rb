@@ -70,7 +70,7 @@ class AdminPortfolioMetricsServiceTest < ActiveSupport::TestCase
     result = @service.growth_data(scope: Application.all, months: 3)
 
     assert_equal 3, result.size
-    assert_equal result.values.sum, Application.where('created_at >= ?', 3.months.ago.beginning_of_month).count
+    assert_equal result.values.sum, Application.where("created_at >= ?", 3.months.ago.beginning_of_month).count
   end
 
   test "conversion_data returns rate per month" do

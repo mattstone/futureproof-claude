@@ -60,7 +60,7 @@ if Rails.env.development?
     def colorize_log_line(line, severity)
       color = COLORS[severity.to_sym] || COLORS[:RESET]
       emoji = EMOJI[severity.to_sym] || ""
-      
+
       "#{color}#{emoji} #{line}#{COLORS[:RESET]}"
     end
   end

@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ApplicationVersionTest < ActiveSupport::TestCase
   fixtures :users, :applications, :application_versions
@@ -23,16 +23,16 @@ class ApplicationVersionTest < ActiveSupport::TestCase
   end
 
   test "should provide correct action descriptions" do
-    assert_equal 'created application', ApplicationVersion.new(action: 'created').action_description
-    assert_equal 'updated application', ApplicationVersion.new(action: 'updated').action_description
-    assert_equal 'viewed application', ApplicationVersion.new(action: 'viewed').action_description
-    assert_equal 'changed application status', ApplicationVersion.new(action: 'status_changed').action_description
+    assert_equal "created application", ApplicationVersion.new(action: "created").action_description
+    assert_equal "updated application", ApplicationVersion.new(action: "updated").action_description
+    assert_equal "viewed application", ApplicationVersion.new(action: "viewed").action_description
+    assert_equal "changed application status", ApplicationVersion.new(action: "status_changed").action_description
   end
 
   test "should format created_at correctly" do
-    time = Time.zone.parse('2024-01-15 10:30:00')
+    time = Time.zone.parse("2024-01-15 10:30:00")
     version = ApplicationVersion.new(created_at: time)
-    assert_equal 'January 15, 2024 at 10:30 AM', version.formatted_created_at
+    assert_equal "January 15, 2024 at 10:30 AM", version.formatted_created_at
   end
 
   test "should validate action presence and inclusion" do
@@ -40,11 +40,11 @@ class ApplicationVersionTest < ActiveSupport::TestCase
     assert_not version.valid?
     assert_includes version.errors[:action], "can't be blank"
 
-    version.action = 'invalid_action'
+    version.action = "invalid_action"
     assert_not version.valid?
     assert_includes version.errors[:action], "is not included in the list"
 
-    version.action = 'created'
+    version.action = "created"
     # Note: This test only checks action validation, not overall validity
     version.validate
     assert_not version.errors[:action].any?
@@ -94,12 +94,12 @@ class ApplicationVersionTest < ActiveSupport::TestCase
     changes = version.detailed_changes
     assert_equal 2, changes.length
 
-    status_change = changes.find { |c| c[:field] == 'Status' }
-    assert_equal 'Submitted', status_change[:from]
-    assert_equal 'Processing', status_change[:to]
+    status_change = changes.find { |c| c[:field] == "Status" }
+    assert_equal "Submitted", status_change[:from]
+    assert_equal "Processing", status_change[:to]
 
-    home_value_change = changes.find { |c| c[:field] == 'Home Value' }
-    assert_equal '$500,000', home_value_change[:from]
-    assert_equal '$600,000', home_value_change[:to]
+    home_value_change = changes.find { |c| c[:field] == "Home Value" }
+    assert_equal "$500,000", home_value_change[:from]
+    assert_equal "$600,000", home_value_change[:to]
   end
 end

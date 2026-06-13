@@ -9,5 +9,5 @@ class ChatAgent < ApplicationRecord
 
   scope :active, -> { where(status: "active") }
   scope :by_type, ->(type) { where(agent_type: type) }
-  scope :for_region, ->(region) { where("region_support @> ?", [region].to_json) }
+  scope :for_region, ->(region) { where("region_support @> ?", [ region ].to_json) }
 end

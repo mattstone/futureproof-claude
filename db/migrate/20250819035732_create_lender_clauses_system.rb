@@ -27,9 +27,9 @@ class CreateLenderClausesSystem < ActiveRecord::Migration[8.0]
       t.references :created_by, null: true, foreign_key: { to_table: :users }
       t.timestamps
 
-      t.index [:lender_id, :title], name: 'index_lender_clauses_on_lender_and_title'
-      t.index [:lender_id, :version], unique: true
-      t.index [:is_active, :is_draft]
+      t.index [ :lender_id, :title ], name: 'index_lender_clauses_on_lender_and_title'
+      t.index [ :lender_id, :version ], unique: true
+      t.index [ :is_active, :is_draft ]
       t.index :last_updated
     end
 
@@ -43,7 +43,7 @@ class CreateLenderClausesSystem < ActiveRecord::Migration[8.0]
       t.text :new_content
       t.timestamps
 
-      t.index [:lender_clause_id, :created_at]
+      t.index [ :lender_clause_id, :created_at ]
       t.index :action
     end
 
@@ -63,9 +63,9 @@ class CreateLenderClausesSystem < ActiveRecord::Migration[8.0]
       t.references :removed_by, null: true, foreign_key: { to_table: :users }
       t.timestamps
 
-      t.index [:mortgage_contract_id, :is_active]
-      t.index [:lender_clause_id, :contract_version_at_usage]
-      t.index [:clause_position_id, :is_active]
+      t.index [ :mortgage_contract_id, :is_active ]
+      t.index [ :lender_clause_id, :contract_version_at_usage ]
+      t.index [ :clause_position_id, :is_active ]
       t.index :added_at
     end
 
@@ -82,7 +82,7 @@ class CreateLenderClausesSystem < ActiveRecord::Migration[8.0]
           ('Before Signatures', 'before_signatures', 'Insert clauses just before the signature section', 6, true, NOW(), NOW());
         SQL
       end
-      
+
       direction.down do
         execute "DELETE FROM clause_positions WHERE section_identifier IN ('after_section_2', 'after_section_3', 'after_section_4', 'after_section_5', 'after_section_6', 'before_signatures');"
       end

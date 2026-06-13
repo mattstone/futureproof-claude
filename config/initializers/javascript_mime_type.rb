@@ -6,14 +6,14 @@ class JavaScriptMimeTypeFixer
 
   def call(env)
     status, headers, response = @app.call(env)
-    
+
     # Fix MIME type for JavaScript files to support ES6 modules
-    if (headers['content-type'] == 'text/javascript' || headers['content-type'] == 'text/plain') && 
-       (env['PATH_INFO'].end_with?('.js') || env['PATH_INFO'].include?('/assets/') && env['PATH_INFO'].match?(/\.(js|mjs)$/))
-      headers['content-type'] = 'application/javascript'
+    if (headers["content-type"] == "text/javascript" || headers["content-type"] == "text/plain") &&
+       (env["PATH_INFO"].end_with?(".js") || env["PATH_INFO"].include?("/assets/") && env["PATH_INFO"].match?(/\.(js|mjs)$/))
+      headers["content-type"] = "application/javascript"
     end
-    
-    [status, headers, response]
+
+    [ status, headers, response ]
   end
 end
 

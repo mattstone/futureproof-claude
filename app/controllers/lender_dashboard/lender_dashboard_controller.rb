@@ -26,7 +26,7 @@ class LenderDashboard::LenderDashboardController < ApplicationController
     @application = Application.where(lender: @lender).find(params[:id])
     @distributions = @application.distributions.order(distribution_date: :desc)
   rescue ActiveRecord::RecordNotFound
-    redirect_to lender_dashboard_applications_path, alert: 'Equity investment not found or access denied.'
+    redirect_to lender_dashboard_applications_path, alert: "Equity investment not found or access denied."
   end
 
   def payments
@@ -57,9 +57,9 @@ class LenderDashboard::LenderDashboardController < ApplicationController
 
   def update_account
     if @lender.update(lender_params)
-      redirect_to lender_dashboard_account_path, notice: 'Account updated successfully.'
+      redirect_to lender_dashboard_account_path, notice: "Account updated successfully."
     else
-      render :account, alert: 'Failed to update account.'
+      render :account, alert: "Failed to update account."
     end
   end
 
@@ -68,7 +68,7 @@ class LenderDashboard::LenderDashboardController < ApplicationController
   def load_lender
     @lender = current_user.lender
     @region = params[:region]
-    redirect_to dashboard_path, alert: 'Access denied.' unless @lender
+    redirect_to dashboard_path, alert: "Access denied." unless @lender
   end
 
   def lender_params

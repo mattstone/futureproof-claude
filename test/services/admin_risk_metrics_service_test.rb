@@ -39,7 +39,7 @@ class AdminRiskMetricsServiceTest < ActiveSupport::TestCase
     Contract.update_all(status: :ok)
     alerts = AdminRiskMetricsService.new.alerts
 
-    healthy = alerts.find { |a| a[:title] == 'Portfolio Healthy' }
+    healthy = alerts.find { |a| a[:title] == "Portfolio Healthy" }
     assert healthy
     assert_equal :success, healthy[:severity]
   end
@@ -47,10 +47,10 @@ class AdminRiskMetricsServiceTest < ActiveSupport::TestCase
   test "concentration_risk includes all four regions" do
     concentration = @service.concentration_risk
 
-    assert concentration[:by_region].key?('AU')
-    assert concentration[:by_region].key?('US')
-    assert concentration[:by_region].key?('NZ')
-    assert concentration[:by_region].key?('UK')
+    assert concentration[:by_region].key?("AU")
+    assert concentration[:by_region].key?("US")
+    assert concentration[:by_region].key?("NZ")
+    assert concentration[:by_region].key?("UK")
   end
 
   test "concentration_risk value bands sum to total apps" do

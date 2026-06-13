@@ -21,8 +21,8 @@ class Agreement < ApplicationRecord
   validate :content_or_rich_content_present
 
   scope :for_party, ->(party) { where(agreeable: party) }
-  scope :active, -> { where.not(status: [:cancelled, :expired]) }
-  scope :pending_signature, -> { where(status: [:sent, :counterparty_signed]) }
+  scope :active, -> { where.not(status: [ :cancelled, :expired ]) }
+  scope :pending_signature, -> { where(status: [ :sent, :counterparty_signed ]) }
   scope :recent, -> { order(created_at: :desc) }
 
   # Generate a new agreement from a LegalDocument template

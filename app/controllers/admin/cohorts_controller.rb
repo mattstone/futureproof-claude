@@ -7,8 +7,8 @@ module Admin
         count = group.size
         total_allocated = group.sum { |c| c.allocated_amount.to_f }
         pl = group.sum { |c| AdminPortfolioMetricsService.contract_net_pl(c) }
-        investment_at_risk = group.count { |c| c.status.to_s == 'investment_at_risk' }
-        in_holiday = group.count { |c| c.status.to_s == 'in_holiday' }
+        investment_at_risk = group.count { |c| c.status.to_s == "investment_at_risk" }
+        in_holiday = group.count { |c| c.status.to_s == "in_holiday" }
 
         {
           label: label,
@@ -18,7 +18,7 @@ module Admin
           offset_balance: group.sum { |c| c.offset_balance.to_f },
           investment_at_risk: investment_at_risk,
           in_holiday: in_holiday,
-          completed: group.count { |c| c.status.to_s == 'complete' },
+          completed: group.count { |c| c.status.to_s == "complete" },
           pl: pl,
           # Heatmap-ready normalized metrics
           at_risk_rate: count.positive? ? (investment_at_risk.to_f / count * 100).round(1) : 0,
@@ -41,10 +41,10 @@ module Admin
       return { rows: [], metrics: [] } if cohorts.empty?
 
       metrics = [
-        { key: :holiday_rate, label: 'Payment holiday %', polarity: :inverse, format: 'percent' },
-        { key: :pl_per_contract, label: 'P&L / contract', polarity: :direct, format: 'currency' },
-        { key: :count, label: 'Cohort size', polarity: :neutral, format: 'integer' },
-        { key: :age_months, label: 'Age (months)', polarity: :neutral, format: 'integer' }
+        { key: :holiday_rate, label: "Payment holiday %", polarity: :inverse, format: "percent" },
+        { key: :pl_per_contract, label: "P&L / contract", polarity: :direct, format: "currency" },
+        { key: :count, label: "Cohort size", polarity: :neutral, format: "integer" },
+        { key: :age_months, label: "Age (months)", polarity: :neutral, format: "integer" }
       ]
 
       ranges = metrics.each_with_object({}) do |metric, acc|
@@ -61,10 +61,10 @@ module Admin
           # Normalize to 0..1 with polarity
           normalized = if spread.zero?
                          0.5
-                       else
+          else
                          raw = (val - range[:min]) / spread
                          metric[:polarity] == :inverse ? raw : (metric[:polarity] == :direct ? 1.0 - raw : 0.5)
-                       end
+          end
 
           {
             metric: metric[:key],
