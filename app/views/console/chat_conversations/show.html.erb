@@ -1,6 +1,6 @@
 <% content_for :title, "Conversation ##{@conversation.id} — FutureProof Console" %>
 
-<%= render Console::PageHeaderComponent.new(title: "Conversation ##{@conversation.id}",
+<%= render Console::PageHeaderComponent.new(title: @conversation.subject.presence || "Conversation ##{@conversation.id}",
       subtitle: "#{@conversation.user&.email || '(guest)'} · #{@conversation.region}") do |header| %>
   <% header.with_action do %>
     <%= render Console::BadgeComponent.new(status: @conversation.status) %>
@@ -9,6 +9,7 @@
 
 <%= render Console::CardComponent.new do %>
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Subject" => @conversation.subject.presence || "(none)",
         "User" => (@conversation.user&.email || "(guest)"),
         "Agent" => (@conversation.chat_agent&.name || "—"),
         "Region" => @conversation.region,
