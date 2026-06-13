@@ -61,16 +61,47 @@
   <% end %>
 <% end %>
 
-<%= render Console::CardComponent.new(title: "Recent executions") do %>
+<%= render Console::CardComponent.new(title: "Executions") do %>
+  <div class="console-stat-grid">
+    <%= render Console::StatCardComponent.new(value: @execution_stats[:total], label: "Total runs") %>
+    <%= render Console::StatCardComponent.new(value: @execution_stats[:active], label: "Active now",
+          variant: @execution_stats[:active].positive? ? :warning : nil) %>
+    <%= render Console::StatCardComponent.new(value: @execution_stats[:failed], label: "Failed",
+          variant: @execution_stats[:failed].positive? ? :error : nil) %>
+    <%= render Console::StatCardComponent.new(value: @execution_stats[:success_rate] ? "#{@execution_stats[:success_rate]}%" : "—", label: "Success rate") %>
+  </div>
+
   <% if @executions.any? %>
     <ul class="console-doc-list">
       <% @executions.each do |execution| %>
-        <li class="console-doc-item">
+        <li class="console-doc-item console-execution-item">
           <div class="console-doc-name">
             <strong><%= execution.target.try(:display_name) || "#{execution.target_type} ##{execution.target_id}" %></strong>
-            <span class="console-cell-sub"><%= execution.created_at.strftime("%-d %b %Y %H:%M") %></span>
+            <span class="console-cell-sub">run #<%= execution.id %> · <%= execution.created_at.strftime("%-d %b %Y %H:%M") %></span>
+            <% step_runs = execution.workflow_step_executions.sort_by { |se| se.step&.position || 0 } %>
+            <% if step_runs.any? %>
+              <ul class="console-execution-steps">
+                <% step_runs.each do |step_run| %>
+                  <li class="console-cell-sub">
+                    <%= step_run.step&.name.presence || step_run.step&.step_type&.humanize || "step" %>
+                    — <%= step_run.status %>
+                    <% if step_run.completed_at %> at <%= step_run.completed_at.strftime("%H:%M") %><% end %>
+                    <% if step_run.respond_to?(:result) && step_run.status == "failed" && step_run.result.present? %>
+                      · <%= step_run.result.is_a?(Hash) ? step_run.result["error"] : step_run.result %>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
           </div>
-          <%= render Console::BadgeComponent.new(status: execution.status) %>
+          <div class="console-doc-actions">
+            <% if %w[pending processing running paused].include?(execution.status) %>
+              <%= button_to "Cancel run", cancel_execution_console_email_workflow_path(@workflow, execution_id: execution.id),
+                    method: :post, class: "console-btn console-btn-sm console-btn-danger",
+                    data: { turbo_confirm: "Cancel execution ##{execution.id}? Remaining steps will not run." } %>
+            <% end %>
+            <%= render Console::BadgeComponent.new(status: execution.status) %>
+          </div>
         </li>
       <% end %>
     </ul>

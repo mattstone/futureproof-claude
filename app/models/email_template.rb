@@ -1,5 +1,13 @@
 class EmailTemplate < ApplicationRecord
   has_many :email_template_versions, dependent: :destroy
+
+  # Workflows whose send_email steps point at this template (configuration
+  # is plain JSON, so resolve in Ruby — workflow counts are small).
+  def referencing_workflows
+    WorkflowStep.of_type(:send_email).includes(:workflow)
+                .select { |step| step.configuration["email_template_id"].to_s == id.to_s }
+                .map(&:workflow).uniq
+  end
   has_rich_text :content_body
 
   validates :name, presence: true, uniqueness: true

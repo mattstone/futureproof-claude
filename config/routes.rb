@@ -161,6 +161,7 @@ Rails.application.routes.draw do
       member do
         patch :toggle_active
         post :duplicate
+        post :cancel_execution
       end
       collection do
         get :templates

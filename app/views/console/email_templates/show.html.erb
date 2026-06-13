@@ -49,6 +49,25 @@
   <% end %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Used by workflows") do %>
+  <% if @referencing_workflows.any? %>
+    <ul class="console-doc-list">
+      <% @referencing_workflows.each do |workflow| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to workflow.name, console_email_workflow_path(workflow) %></strong>
+            <span class="console-cell-sub"><%= workflow.trigger_type.humanize %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: workflow.active? ? "active" : "inactive") %>
+        </li>
+      <% end %>
+    </ul>
+    <p class="console-muted">Deactivating this template is blocked while active workflows reference it.</p>
+  <% else %>
+    <p class="console-muted">No workflows reference this template — safe to deactivate.</p>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Content") do %>
   <div class="console-clause-preview"><%= @email_template.content_body.presence || @email_template.content %></div>
 <% end %>

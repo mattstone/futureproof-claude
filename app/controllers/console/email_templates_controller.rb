@@ -18,6 +18,7 @@ class Console::EmailTemplatesController < Console::ResourceController
 
   def show
     @available_fields = EmailTemplate.available_fields[@email_template.template_type] || {}
+    @referencing_workflows = @email_template.referencing_workflows
   end
 
   def new
@@ -60,6 +61,12 @@ class Console::EmailTemplatesController < Console::ResourceController
   end
 
   def deactivate
+    active_dependents = @email_template.referencing_workflows.select(&:active?)
+    if active_dependents.any?
+      redirect_to console_email_template_path(@email_template),
+                  alert: "Cannot deactivate — active workflows depend on this template: #{active_dependents.map(&:name).to_sentence}. Deactivate them first." and return
+    end
+
     @email_template.current_user = current_user
     @email_template.update!(is_active: false)
     redirect_to console_email_templates_path, notice: "Template deactivated."
