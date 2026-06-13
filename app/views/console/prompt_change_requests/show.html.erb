@@ -22,6 +22,16 @@
       }) %>
 <% end %>
 
+<% if @request.github_url.present? %>
+  <%= render Console::CardComponent.new(title: "GitHub status") do %>
+    <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+          "State" => (@request.state_cache.presence || "pending").humanize,
+          "Reference" => @request.github_ref,
+          "Last checked" => (@request.state_checked_at ? "#{time_ago_in_words(@request.state_checked_at)} ago" : "never")
+        }) %>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: @request.kind_direct_edit? ? "Proposed prompt text" : "Request") do %>
   <pre class="console-prompt-content"><%= @request.description %></pre>
 <% end %>

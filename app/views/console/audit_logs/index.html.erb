@@ -23,6 +23,9 @@
   <% table.with_column "Resource" do |log| %>
     <%= log.resource_type %><% if log.resource_id %> #<%= log.resource_id %><% end %>
   <% end %>
+  <% table.with_column "Region" do |log| %>
+    <%= log.region.presence || "—" %>
+  <% end %>
   <% table.with_column "Reason" do |log| %>
     <%= truncate(log.reason, length: 60) %>
   <% end %>

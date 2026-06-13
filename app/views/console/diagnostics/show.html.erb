@@ -40,16 +40,32 @@
   <% end %>
 
   <% if defined?(@property_details) && @property_details.present? %>
-    <pre class="console-prompt-content"><%= JSON.pretty_generate(@property_details) %></pre>
+    <% scalars = @property_details.select { |_k, v| v.is_a?(String) || v.is_a?(Numeric) || [ true, false ].include?(v) } %>
+    <% if scalars.any? %>
+      <%= render Console::DescriptionListComponent.new(columns: 3,
+            rows: scalars.transform_keys { |k| k.to_s.humanize }) %>
+    <% end %>
+    <details class="console-version-diff">
+      <summary>Raw response</summary>
+      <pre class="console-prompt-content"><%= JSON.pretty_generate(@property_details) %></pre>
+    </details>
   <% end %>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Error notification pipeline") do %>
   <p class="console-muted">
     Raises a real exception so the production error-notification emails can be verified end-to-end.
-    Production-only; the trigger is logged with your email.
+    Production-only; each trigger is logged with your email.
   </p>
-  <%= button_to "Trigger test error", console_diagnostics_test_error_path, method: :post,
-        class: "console-btn console-btn-danger",
-        data: { turbo_confirm: "Raise a TEST exception in this environment?" } %>
+  <div class="console-message-actions">
+    <%= button_to "Application error", console_diagnostics_test_error_path, method: :post,
+          class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Raise a TEST application exception?" } %>
+    <%= button_to "Database error", console_diagnostics_test_database_error_path, method: :post,
+          class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Raise a TEST database error?" } %>
+    <%= button_to "View error", console_diagnostics_test_view_error_path, method: :post,
+          class: "console-btn console-btn-danger",
+          data: { turbo_confirm: "Raise a TEST view error?" } %>
+  </div>
 <% end %>

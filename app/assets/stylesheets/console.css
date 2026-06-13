@@ -490,6 +490,18 @@
   color: var(--fp-text-secondary);
 }
 
+/* Before/after content panes in the email template change history */
+.console-version-diff {
+  margin-top: var(--fp-space-sm);
+}
+
+.console-diff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--fp-space-md);
+  margin-top: var(--fp-space-sm);
+}
+
 /* Two-column decision / action-type breakdown on the agent dashboard */
 .console-breakdown-grid {
   display: grid;

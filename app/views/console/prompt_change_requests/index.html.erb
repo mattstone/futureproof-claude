@@ -9,6 +9,9 @@
 
 <%= render Console::DataTableComponent.new(records: @records, id: "change_requests",
       empty_message: "No change requests yet.") do |table| %>
+  <% table.with_column "When" do |request| %>
+    <%= request.created_at.strftime("%-d %b %Y %H:%M") %>
+  <% end %>
   <% table.with_column "Title" do |request| %>
     <%= link_to request.title, console_prompt_change_request_path(request) %>
     <% if request.target_slot.present? %>
