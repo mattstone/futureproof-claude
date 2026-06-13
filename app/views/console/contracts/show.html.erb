@@ -2,6 +2,11 @@
 
 <%= render Console::PageHeaderComponent.new(title: "Contract ##{@contract.id}",
       subtitle: @contract.application.address) do |header| %>
+  <% if @contract.demo? %>
+    <% header.with_action do %>
+      <%= render Console::BadgeComponent.new(status: "demo", label: "Demo data") %>
+    <% end %>
+  <% end %>
   <% header.with_action do %>
     <%= render Console::BadgeComponent.new(status: @contract.status) %>
   <% end %>
@@ -13,6 +18,11 @@
 <%= render Console::RelatedRecordsComponent.new do |related| %>
   <% related.with_item(@contract.application.user.display_name, href: console_user_path(@contract.application.user), meta: "customer") %>
   <% related.with_item("Application ##{@contract.application_id}", href: console_application_path(@contract.application_id), meta: @contract.application.status.humanize) %>
+  <% if @contract.mortgage_contract %>
+    <% related.with_item("Signed instrument — #{@contract.mortgage_contract.title}",
+         href: console_mortgage_mortgage_contract_path(@contract.mortgage_contract.mortgage_id, @contract.mortgage_contract),
+         meta: "v#{@contract.mortgage_contract.version}") %>
+  <% end %>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Contract details") do %>
@@ -26,6 +36,44 @@
         "Return rate" => (@contract.investment_return_rate ? "#{@contract.investment_return_rate}%" : nil),
         "Lender" => @contract.lender&.name,
         "Funder pool" => @contract.funder_pool&.name
+      }) %>
+
+  <% if @contract.start_date && @contract.end_date && @contract.end_date > @contract.start_date %>
+    <% total_days = (@contract.end_date - @contract.start_date).to_i %>
+    <% elapsed_days = [ [ (Date.current - @contract.start_date).to_i, 0 ].max, total_days ].min %>
+    <div class="console-term-progress">
+      <progress class="console-progress" value="<%= elapsed_days %>" max="<%= total_days %>"></progress>
+      <span class="console-cell-sub">
+        <%= (elapsed_days * 100.0 / total_days).round %>% of term elapsed ·
+        <%= ((total_days - elapsed_days) / 30.44).round %> months to maturity
+      </span>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Customer & collateral") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Customer" => "#{@contract.application.user.display_name} (#{@contract.application.user.email})",
+        "Country" => @contract.application.user.country_of_residence,
+        "Mobile" => (@contract.application.user.respond_to?(:mobile_number) ? @contract.application.user.mobile_number : nil),
+        "Property" => @contract.application.address,
+        "Home value" => @contract.application.formatted_home_value,
+        "Ownership" => @contract.application.ownership_status_display,
+        "Property state" => @contract.application.property_state_display,
+        "Borrower age" => "#{@contract.application.borrower_age} years",
+        "Existing mortgage" => (@contract.application.has_existing_mortgage? ? @contract.application.formatted_existing_mortgage_amount : "None")
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Economics") do %>
+  <% return_rate = @contract.investment_return_rate.to_f %>
+  <% cost_rate = @contract.cost_of_capital_rate.to_f %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Monthly income to borrower" => (@contract.monthly_payment ? number_to_currency(@contract.monthly_payment, precision: 2) : "Not set"),
+        "Total paid to date" => number_to_currency(@contract.total_payments_made.to_f, precision: 2),
+        "Investment return" => (@contract.investment_return_rate ? "#{return_rate}%" : "Not set"),
+        "Cost of capital" => (@contract.cost_of_capital_rate ? "#{cost_rate}%" : "Not set"),
+        "Spread" => (@contract.investment_return_rate && @contract.cost_of_capital_rate ? "#{(return_rate - cost_rate).round(2)}%" : "—")
       }) %>
 <% end %>
 

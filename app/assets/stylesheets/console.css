@@ -426,6 +426,14 @@
   color: var(--fp-text-primary);
 }
 
+/* Term progress under the contract details list */
+.console-term-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fp-space-xs);
+  margin-top: var(--fp-space-md);
+}
+
 /* ---- Agreement signature panel ------------------------------------------ */
 
 .console-sig-grid {

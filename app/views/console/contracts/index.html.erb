@@ -29,6 +29,17 @@
   <% table.with_column "Allocated", sort: "allocated", numeric: true do |contract| %>
     <%= contract.formatted_allocated_amount %>
   <% end %>
+  <% table.with_column "End", sort: "end" do |contract| %>
+    <%= contract.end_date&.strftime("%-d %b %Y") || "—" %>
+  <% end %>
+  <% table.with_column "Messages" do |contract| %>
+    <% unread = (@unread_counts ||= unread_message_counts(@records))[contract.id].to_i %>
+    <% if unread.positive? %>
+      <%= render Console::BadgeComponent.new(status: "needs_attention", label: "#{unread} unread") %>
+    <% else %>
+      <span class="console-muted">—</span>
+    <% end %>
+  <% end %>
   <% table.with_column "Start", sort: "start" do |contract| %>
     <%= contract.start_date&.strftime("%-d %b %Y") %>
   <% end %>
