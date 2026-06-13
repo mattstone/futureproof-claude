@@ -73,7 +73,10 @@
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Document") do %>
-  <div class="console-clause-preview"><%= @mortgage_contract.content %></div>
+  <div class="console-clause-preview"><%= sanitize @mortgage_contract.rendered_content,
+        tags: %w[h1 h2 h3 h4 p br strong em ul ol li section div span table tr td th a],
+        attributes: %w[href class] %></div>
+  <p class="console-muted">Preview shows the document as customers see it — markup rendered and active lender clauses integrated at their positions.</p>
 <% end %>
 
 <%= render Console::CardComponent.new do %>

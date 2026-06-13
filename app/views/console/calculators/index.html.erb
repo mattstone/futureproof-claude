@@ -4,7 +4,11 @@
 <% end %>
 
 <%= render Console::PageHeaderComponent.new(title: "Monte Carlo calculator",
-      subtitle: "Single-mortgage EPM model with Monte Carlo pricing — Python engine, same parameters as the legacy tool.") %>
+      subtitle: "Single-mortgage EPM model with Monte Carlo pricing — Python engine, same parameters as the legacy tool.") do |header| %>
+  <% header.with_action do %>
+    <%= render Console::BadgeComponent.new(status: "info", label: "Model #{EpmModelConfig.model_version}") %>
+  <% end %>
+<% end %>
 
 <div data-controller="monte-carlo-calculator">
   <%= form_with url: console_calculate_calculators_path,

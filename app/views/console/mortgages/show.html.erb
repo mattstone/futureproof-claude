@@ -19,6 +19,43 @@
   <% end %>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Usage") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Applications (all time)" => @usage[:applications_total],
+        "In flight" => @usage[:applications_in_flight],
+        "Accepted" => @usage[:applications_accepted],
+        "Contracts" => @usage[:contracts]
+      }) %>
+  <% if @usage[:applications_in_flight].positive? %>
+    <p class="console-muted">⚠ <%= pluralize(@usage[:applications_in_flight], "application") %> currently in flight on this product — do not retire or reprice it without clearing them first.</p>
+  <% else %>
+    <p class="console-muted">No in-flight applications — safe to amend or retire.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Financial model") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 2, rows: {
+        "Model version" => EpmModelConfig.model_version,
+        "Validated terms" => EpmModelConfig::VALIDATED_TERMS.map { |t| "#{t}yr" }.join(", ")
+      }) %>
+  <ul class="console-doc-list">
+    <% EpmModelConfig::ANNUITY_RATES.each do |term, rate| %>
+      <li class="console-doc-item">
+        <div class="console-doc-name">
+          <strong><%= term %>-year term</strong>
+          <span class="console-cell-sub">annuity rate <%= (rate * 100).round(2) %>% of property value p.a.</span>
+        </div>
+        <% if EpmModelConfig::VALIDATED_TERMS.include?(term) %>
+          <%= render Console::BadgeComponent.new(status: "verified", label: "Validated") %>
+        <% else %>
+          <%= render Console::BadgeComponent.new(status: "needs_attention", label: "Provisional") %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <p class="console-muted">Provisional terms scale the prior term shape to the <%= EpmModelConfig.model_version %> anchor and are pending Monte Carlo validation — do not quote them externally as validated.</p>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Offered by") do %>
   <% relationships = @mortgage.mortgage_lenders.includes(:lender) %>
   <% if relationships.any? %>

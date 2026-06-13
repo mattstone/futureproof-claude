@@ -21,6 +21,13 @@ class Console::MortgagesController < Console::ResourceController
     @published_contracts = @mortgage.mortgage_contracts.published.order(version: :desc)
     @draft_contracts = @mortgage.mortgage_contracts.drafts.order(version: :desc)
     @versions = collect_all_mortgage_versions
+    product_applications = Application.where(mortgage_id: @mortgage.id)
+    @usage = {
+      applications_total: product_applications.count,
+      applications_in_flight: product_applications.where(status: %i[submitted processing]).count,
+      applications_accepted: product_applications.where(status: %i[accepted activated]).count,
+      contracts: Contract.joins(:application).where(applications: { mortgage_id: @mortgage.id }).count
+    }
   end
 
   def new
