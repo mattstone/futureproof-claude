@@ -1,7 +1,14 @@
 <% content_for :title, "#{@agreement.title} — FutureProof Console" %>
 
 <%= render Console::PageHeaderComponent.new(title: @agreement.title,
-      subtitle: "#{@agreement.agreeable_type}: #{@agreement.agreeable.try(:name)} · #{@agreement.jurisdiction}") do |header| %>
+      subtitle: "#{@agreement.party_type_label}: #{@agreement.agreeable.try(:name)} · #{@agreement.jurisdiction} · v#{@agreement.version}") do |header| %>
+  <% header.with_action do %>
+    <% if @agreement.expired_by_date? && !@agreement.status_expired? %>
+      <%= render Console::BadgeComponent.new(status: "expired", label: "Expired #{@agreement.expires_at.strftime('%-d %b %Y')}") %>
+    <% elsif @agreement.expiring_soon? %>
+      <%= render Console::BadgeComponent.new(status: "needs_attention", label: "Expires #{@agreement.expires_at.strftime('%-d %b %Y')}") %>
+    <% end %>
+  <% end %>
   <% header.with_action do %>
     <%= render Console::BadgeComponent.new(status: @agreement.status) %>
   <% end %>
@@ -15,6 +22,13 @@
             data: { turbo_confirm: "Send this agreement for signing? It can't be edited afterwards." } %>
     <% end %>
   <% end %>
+  <% if @agreement.renewable? %>
+    <% header.with_action do %>
+      <%= button_to "Renew", renew_console_agreement_path(@agreement), method: :post,
+            class: "console-btn console-btn-primary",
+            data: { turbo_confirm: "Create a renewal draft from the current #{@agreement.jurisdiction} template?" } %>
+    <% end %>
+  <% end %>
   <% unless @agreement.status_fully_executed? || @agreement.status_cancelled? %>
     <% header.with_action do %>
       <%= button_to "Cancel", cancel_console_agreement_path(@agreement),
@@ -24,30 +38,81 @@
   <% end %>
 <% end %>
 
-<%= render Console::CardComponent.new(title: "Signatures") do %>
-  <% signatures = @agreement.agreement_signatures %>
-  <% if signatures.any? %>
-    <ul class="console-doc-list">
-      <% signatures.each do |signature| %>
-        <li class="console-doc-item">
-          <div class="console-doc-name">
-            <strong><%= signature.signer_name %></strong>
-            <span class="console-cell-sub"><%= signature.signer_role&.humanize %> · <%= signature.signer_email %> · <%= signature.created_at.strftime("%-d %b %Y %H:%M") %></span>
-          </div>
-          <%= render Console::BadgeComponent.new(status: "signed", label: "Signed") %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="console-muted">No signatures recorded yet.</p>
-  <% end %>
+<%= render Console::CardComponent.new(title: "Details") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Party" => "#{@agreement.agreeable.try(:name)} (#{@agreement.party_type_label})",
+        "Template" => @agreement.legal_document&.title,
+        "Template version" => "v#{@agreement.version}",
+        "Created by" => @agreement.created_by&.display_name,
+        "Created" => @agreement.created_at.strftime("%-d %b %Y %H:%M"),
+        "Sent" => @agreement.sent_at&.strftime("%-d %b %Y %H:%M"),
+        "Executed" => @agreement.executed_at&.strftime("%-d %b %Y %H:%M"),
+        "Expires" => (@agreement.expires_at ? @agreement.expires_at.strftime("%-d %b %Y") : "No expiry set")
+      }) %>
+<% end %>
 
-  <% if @agreement.status_sent? || @agreement.status_counterparty_signed? %>
-    <div class="console-message-actions">
-      <%= link_to "Record counterparty signature", sign_console_agreement_path(@agreement, role: "counterparty"), class: "console-btn console-btn-primary" %>
-      <%= link_to "Record Futureproof signature", sign_console_agreement_path(@agreement, role: "futureproof"), class: "console-btn console-btn-secondary" %>
-    </div>
-  <% end %>
+<%= render Console::CardComponent.new(title: "Signatures") do %>
+  <div class="console-sig-grid">
+    <% [ [ "counterparty", @agreement.party_type_label, @agreement.counterparty_signature ],
+         [ "futureproof", "Futureproof Financial", @agreement.futureproof_signature ] ].each do |role, role_label, signature| %>
+      <div class="console-sig-card <%= signature ? "console-sig-signed" : "console-sig-pending" %>">
+        <div class="console-sig-role"><%= role_label %></div>
+        <% if signature %>
+          <div class="console-sig-name"><%= signature.typed_signature %></div>
+          <span class="console-cell-sub">
+            <%= signature.signer_name %><% if signature.signer_title.present? %> — <%= signature.signer_title %><% end %>
+            · <%= signature.signer_email %>
+          </span>
+          <span class="console-cell-sub">Signed <%= signature.signed_at.strftime("%-d %b %Y %H:%M") %></span>
+        <% else %>
+          <span class="console-cell-sub">Awaiting signature</span>
+          <% if @agreement.signable? %>
+            <%= link_to "Record signature", sign_console_agreement_path(@agreement, role: role),
+                  class: "console-btn console-btn-sm console-btn-primary" %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Audit trail") do %>
+  <ul class="console-doc-list">
+    <li class="console-doc-item">
+      <div class="console-doc-name">
+        <strong>Agreement created</strong>
+        <span class="console-cell-sub"><%= @agreement.created_by&.display_name %> · <%= @agreement.created_at.strftime("%-d %b %Y %H:%M") %></span>
+      </div>
+    </li>
+    <% if @agreement.sent_at %>
+      <li class="console-doc-item">
+        <div class="console-doc-name">
+          <strong>Sent for signing</strong>
+          <span class="console-cell-sub"><%= @agreement.sent_at.strftime("%-d %b %Y %H:%M") %></span>
+        </div>
+      </li>
+    <% end %>
+    <% @agreement.agreement_signatures.order(:signed_at).each do |signature| %>
+      <li class="console-doc-item">
+        <div class="console-doc-name">
+          <strong>Signed as <%= signature.signer_role&.humanize %></strong>
+          <span class="console-cell-sub">
+            <%= signature.signer_name %> (<%= signature.signer_email %>)
+            · <%= signature.signed_at.strftime("%-d %b %Y %H:%M") %>
+            <% if signature.ip_address.present? %> · from <%= signature.ip_address %><% end %>
+          </span>
+        </div>
+      </li>
+    <% end %>
+    <% if @agreement.executed_at %>
+      <li class="console-doc-item">
+        <div class="console-doc-name">
+          <strong>Fully executed</strong>
+          <span class="console-cell-sub"><%= @agreement.executed_at.strftime("%-d %b %Y %H:%M") %></span>
+        </div>
+      </li>
+    <% end %>
+  </ul>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Agreement text") do %>

@@ -26,6 +26,13 @@ class Console::LegalDocumentsController < Console::BaseController
   def show
     @versions = @legal_document.legal_document_versions.recent
     @acceptances = @legal_document.legal_document_acceptances.recent.limit(10)
+    @version_family = LegalDocument.where(document_type: @legal_document.document_type,
+                                          jurisdiction: @legal_document.jurisdiction,
+                                          party_type: @legal_document.party_type)
+                                   .where.not(id: @legal_document.id).order(version: :desc)
+    @changes_from_previous = @legal_document.changes_from_previous
+    @derived_agreements = Agreement.where(legal_document_id: @legal_document.id)
+                                   .includes(:agreeable).order(created_at: :desc).limit(10)
   end
 
   def new

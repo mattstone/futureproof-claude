@@ -426,6 +426,45 @@
   color: var(--fp-text-primary);
 }
 
+/* ---- Agreement signature panel ------------------------------------------ */
+
+.console-sig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--fp-space-md);
+}
+
+.console-sig-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fp-space-xs);
+  padding: var(--fp-space-md);
+  border-radius: var(--fp-radius-md);
+  border: 1px solid var(--fp-border);
+}
+
+.console-sig-signed {
+  border-color: var(--fp-success);
+}
+
+.console-sig-pending {
+  border-style: dashed;
+}
+
+.console-sig-role {
+  font-size: var(--fp-text-sm);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.console-sig-name {
+  font-family: var(--fp-font-display);
+  font-size: var(--fp-text-lg);
+  font-style: italic;
+}
+
 /* Section heading inside a card body (e.g. "Recent applications" in Book) */
 .console-card-subtitle {
   margin: var(--fp-space-lg) 0 var(--fp-space-sm);

@@ -109,6 +109,35 @@ class Agreement < ApplicationRecord
     status_sent? || status_counterparty_signed?
   end
 
+  # Expiry is derived from expires_at at display time — no cron flips the
+  # status, so these are the single source of truth for "is it still good".
+  def expired_by_date?
+    expires_at.present? && expires_at.past? && !status_cancelled?
+  end
+
+  def expiring_soon?(window = 60.days)
+    status_fully_executed? && expires_at.present? && !expired_by_date? && expires_at.before?(window.from_now)
+  end
+
+  def renewable?
+    status_fully_executed? || status_expired? || expired_by_date?
+  end
+
+  # Renewal = a fresh draft from the same template and party, regenerated at
+  # the template's CURRENT version, linked back via notes.
+  def renew!(created_by:)
+    raise "Only executed or expired agreements can be renewed" unless renewable?
+
+    renewal = self.class.generate_from_template(
+      legal_document: legal_document,
+      agreeable: agreeable,
+      created_by: created_by
+    )
+    renewal.notes = "Renewal of agreement ##{id} (#{title})."
+    renewal.save!
+    renewal
+  end
+
   def party_type_label
     case agreeable_type
     when "Lender" then "Lender"

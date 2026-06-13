@@ -15,6 +15,10 @@
       <%= form.label :content, "Agreement text (HTML)", class: "console-field-label" %>
       <%= form.text_area :content, rows: 18, class: "console-textarea" %>
     </div>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :expires_at, label: "Expires",
+          hint: "Optional — executed agreements surface for renewal as this date approaches.") do %>
+      <%= form.date_field :expires_at, class: "console-input" %>
+    <% end %>
     <%= render Console::FormFieldComponent.new(form: form, attribute: :notes) do %>
       <%= form.text_area :notes, rows: 3, class: "console-textarea" %>
     <% end %>
