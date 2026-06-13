@@ -12,6 +12,8 @@
   <%= render Console::StatCardComponent.new(value: @pending, label: "Awaiting signature",
         variant: @pending.positive? ? :warning : nil) %>
   <%= render Console::StatCardComponent.new(value: @executed, label: "Fully executed", variant: :success) %>
+  <%= render Console::StatCardComponent.new(value: @expiring, label: "Expiring \u2264 60 days",
+        variant: @expiring.positive? ? :warning : nil) %>
 </div>
 
 <%= render Console::FilterBarComponent.new(url: console_agreements_path,
@@ -35,6 +37,11 @@
   <% end %>
   <% table.with_column "Status" do |agreement| %>
     <%= render Console::BadgeComponent.new(status: agreement.status) %>
+    <% if agreement.expired_by_date? && !agreement.status_expired? %>
+      <div class="console-cell-sub">expired <%= agreement.expires_at.strftime("%-d %b %Y") %></div>
+    <% elsif agreement.expiring_soon? %>
+      <div class="console-cell-sub">expires <%= agreement.expires_at.strftime("%-d %b %Y") %></div>
+    <% end %>
   <% end %>
   <% table.with_column "Created" do |agreement| %>
     <%= agreement.created_at.strftime("%-d %b %Y") %>

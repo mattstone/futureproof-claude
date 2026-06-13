@@ -50,6 +50,51 @@
   <div class="console-clause-preview"><%= sanitize @legal_document.content, tags: %w[h1 h2 h3 h4 p br strong em ul ol li section table tr td th a], attributes: %w[href] %></div>
 <% end %>
 
+<% if @changes_from_previous %>
+  <%= render Console::CardComponent.new(title: "Changes from v#{@changes_from_previous[:previous_version]}") do %>
+    <% if @changes_from_previous[:changes].any? %>
+      <%= render Console::ChangeHistoryComponent.new(versions: @changes_from_previous[:changes].includes(:admin_user), limit: 15) %>
+    <% else %>
+      <p class="console-muted">No tracked edits since v<%= @changes_from_previous[:previous_version] %> (last updated <%= @changes_from_previous[:previous_updated].strftime("%-d %b %Y") %>).</p>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @version_family.any? %>
+  <%= render Console::CardComponent.new(title: "Other versions") do %>
+    <ul class="console-doc-list">
+      <% @version_family.each do |document| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "v#{document.version}", console_legal_document_path(document) %></strong>
+            <span class="console-cell-sub">
+              <% if document.effective_from %>effective <%= document.effective_from.strftime("%-d %b %Y") %><% end %>
+              <% if document.is_active? %> · live<% end %>
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: document.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+<% if @derived_agreements.any? %>
+  <%= render Console::CardComponent.new(title: "Agreements from this template") do %>
+    <ul class="console-doc-list">
+      <% @derived_agreements.each do |agreement| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to agreement.title, console_agreement_path(agreement) %></strong>
+            <span class="console-cell-sub"><%= agreement.agreeable.try(:name) %> · <%= agreement.created_at.strftime("%-d %b %Y") %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: agreement.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
 <% if @acceptances.any? %>
   <%= render Console::CardComponent.new(title: "Recent acceptances") do %>
     <ul class="console-doc-list">

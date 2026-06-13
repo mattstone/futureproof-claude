@@ -2,7 +2,7 @@
 # drafts, sent for signing, signatures recorded with full audit metadata.
 class Console::AgreementsController < Console::BaseController
   before_action -> { require_capability(:manage_partners) }
-  before_action :set_agreement, only: [ :show, :edit, :update, :send_for_signing, :sign, :record_signature, :cancel ]
+  before_action :set_agreement, only: [ :show, :edit, :update, :send_for_signing, :sign, :record_signature, :cancel, :renew ]
 
   def index
     @agreements = Agreement.includes(:agreeable, :agreement_signatures, :legal_document).recent
@@ -17,6 +17,7 @@ class Console::AgreementsController < Console::BaseController
     @total = @agreements.count
     @pending = @agreements.pending_signature.count
     @executed = @agreements.where(status: :fully_executed).count
+    @expiring = @agreements.where(status: :fully_executed).where(expires_at: ..60.days.from_now).count
     @records = @agreements.page(params[:page]).per(25)
   end
 
@@ -114,6 +115,17 @@ class Console::AgreementsController < Console::BaseController
     redirect_to console_agreement_path(@agreement), alert: e.message
   end
 
+  # New draft from the same template + party, at the template's current
+  # version — the path for an executed agreement coming up for expiry.
+  def renew
+    renewal = @agreement.renew!(created_by: current_user)
+    AuditLog.log_action(user: current_user, action: "agreement_renewed", resource: @agreement,
+                        reason: "Renewal draft ##{renewal.id} created")
+    redirect_to console_agreement_path(renewal), notice: "Renewal draft created from the current template — review and send."
+  rescue => e
+    redirect_to console_agreement_path(@agreement), alert: e.message
+  end
+
   private
 
   def set_agreement
@@ -121,7 +133,7 @@ class Console::AgreementsController < Console::BaseController
   end
 
   def agreement_params
-    params.require(:agreement).permit(:title, :content, :rich_content, :notes)
+    params.require(:agreement).permit(:title, :content, :rich_content, :notes, :expires_at)
   end
 
   def load_parties(party_type)

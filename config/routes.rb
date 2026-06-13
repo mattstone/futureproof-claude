@@ -115,6 +115,7 @@ Rails.application.routes.draw do
         get :sign
         post :record_signature
         patch :cancel
+        post :renew
       end
     end
 
