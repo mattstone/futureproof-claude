@@ -47,9 +47,10 @@ class ApplicationController < ActionController::Base
       return stored_path
     end
 
-    # Default redirects based on user type
+    # Default redirects based on user type. The Console is the admin surface
+    # now; the legacy /admin lives on (deprecated) behind the Console nav footer.
     if resource.admin?
-      admin_root_path
+      console_root_path
     else
       dashboard_path
     end
