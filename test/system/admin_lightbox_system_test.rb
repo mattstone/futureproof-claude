@@ -95,6 +95,7 @@ class AdminLightboxSystemTest < ApplicationSystemTestCase
     fill_in "Email", with: user.email
     fill_in "Password", with: "password"
     click_button "Log in"
-    assert_current_path admin_root_path
+    # Admins now land on the Console (the old /admin is deprecated but live).
+    assert_current_path console_root_path
   end
 end

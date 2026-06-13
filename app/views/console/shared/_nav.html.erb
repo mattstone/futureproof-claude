@@ -203,6 +203,7 @@
 <div class="console-nav-footer">
   <%= link_to "View site", root_path, target: "_blank", rel: "noopener", class: "console-nav-legacy" %>
   <%= link_to "🕹️ Arcade", arcade_path, target: "_blank", rel: "noopener", class: "console-nav-legacy" %>
-  <%# Parallel-run escape hatch; removed at Phase 4 cutover. %>
-  <a href="/admin" class="console-nav-legacy" data-turbo-frame="_top">Legacy admin &rarr;</a>
+  <%# The Console is the admin now; the old /admin is kept (deprecated) for
+      reference — some ideas there are still worth keeping. %>
+  <a href="/admin" class="console-nav-legacy" data-turbo-frame="_top">Deprecated admin system &rarr;</a>
 </div>
