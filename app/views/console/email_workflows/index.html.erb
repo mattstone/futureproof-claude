@@ -39,6 +39,10 @@
   <% table.with_column "Status" do |workflow| %>
     <%= render Console::BadgeComponent.new(status: workflow.active? ? "active" : "inactive") %>
   <% end %>
+  <% table.with_column "Last run" do |workflow| %>
+    <% last_run = @last_runs[workflow.id] %>
+    <%= last_run ? "#{time_ago_in_words(last_run)} ago" : "never" %>
+  <% end %>
   <% table.with_column "Created" do |workflow| %>
     <%= workflow.created_at.strftime("%-d %b %Y") %>
     <% if workflow.created_by %>

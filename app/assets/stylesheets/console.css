@@ -434,6 +434,14 @@
   margin-top: var(--fp-space-md);
 }
 
+/* Nested step results under an execution row */
+.console-execution-steps {
+  margin: var(--fp-space-xs) 0 0;
+  padding-left: var(--fp-space-md);
+  list-style: none;
+  border-left: 2px solid var(--fp-border);
+}
+
 /* ---- Agreement signature panel ------------------------------------------ */
 
 .console-sig-grid {

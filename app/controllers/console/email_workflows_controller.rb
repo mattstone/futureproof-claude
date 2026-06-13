@@ -4,7 +4,7 @@
 # for step add/remove/reorder in the form.
 class Console::EmailWorkflowsController < Console::BaseController
   before_action -> { require_capability(:manage_product) }
-  before_action :set_workflow, only: [ :show, :edit, :update, :toggle_active, :duplicate, :destroy ]
+  before_action :set_workflow, only: [ :show, :edit, :update, :toggle_active, :duplicate, :destroy, :cancel_execution ]
   before_action :load_email_templates, only: [ :new, :create, :edit, :update ]
 
   def index
@@ -17,13 +17,36 @@ class Console::EmailWorkflowsController < Console::BaseController
       active: EmailWorkflow.where(active: true).count,
       executions_30d: WorkflowExecution.where("created_at >= ?", 30.days.ago).count
     }
+    @last_runs = WorkflowExecution.group(:workflow_id).maximum(:created_at)
   end
 
   def show
     @executions = @workflow.workflow_executions
-                           .includes(:target, :workflow_step_executions)
+                           .includes(:target, workflow_step_executions: :step)
                            .order(created_at: :desc)
                            .limit(50)
+    all_executions = @workflow.workflow_executions
+    finished = all_executions.finished.count
+    completed = all_executions.where(status: "completed").count
+    @execution_stats = {
+      total: all_executions.count,
+      active: all_executions.active.count,
+      failed: all_executions.where(status: "failed").count,
+      success_rate: finished.positive? ? (completed * 100.0 / finished).round : nil
+    }
+  end
+
+  # Stop a runaway run — the workflow itself stays active for future triggers.
+  def cancel_execution
+    execution = @workflow.workflow_executions.find(params[:execution_id])
+    if execution.respond_to?(:cancel!) && WorkflowExecution.active.exists?(execution.id)
+      execution.cancel!
+      AuditLog.log_action(user: current_user, action: "workflow_execution_cancelled", resource: @workflow,
+                          reason: "Execution ##{execution.id} cancelled")
+      redirect_to console_email_workflow_path(@workflow), notice: "Execution ##{execution.id} cancelled."
+    else
+      redirect_to console_email_workflow_path(@workflow), alert: "Only active executions can be cancelled."
+    end
   end
 
   def templates
@@ -92,6 +115,11 @@ class Console::EmailWorkflowsController < Console::BaseController
   end
 
   def destroy
+    if @workflow.workflow_executions.active.exists?
+      redirect_to console_email_workflow_path(@workflow),
+                  alert: "Cannot delete — executions are still running. Cancel them first." and return
+    end
+
     @workflow.destroy
     redirect_to console_email_workflows_path, notice: "Workflow deleted."
   end
