@@ -35,6 +35,7 @@ class Console::PipelineTest < ActionDispatch::IntegrationTest
 
   test "cockpit renders all tabs with decision panel for submitted" do
     application = applications(:submitted_application)
+    clear_compliance!(application)
     get console_application_path(application)
 
     assert_response :success
@@ -56,6 +57,7 @@ class Console::PipelineTest < ActionDispatch::IntegrationTest
 
   test "approve drives the full workflow and sets approved terms" do
     application = applications(:processing_application)
+    clear_compliance!(application)
     application.application_checklists.each { |item| item.mark_completed!(users(:admin_user)) }
 
     post approve_console_application_path(application), params: {
@@ -70,6 +72,7 @@ class Console::PipelineTest < ActionDispatch::IntegrationTest
 
   test "approve without a lender is refused" do
     application = applications(:processing_application)
+    clear_compliance!(application)
     post approve_console_application_path(application), params: { loan_amount: 500_000, interest_rate: 7.66, term_years: 30 }
     assert_redirected_to console_application_path(application)
     assert_match(/needs a loan amount/, flash[:alert])
@@ -193,5 +196,16 @@ class Console::PipelineTest < ActionDispatch::IntegrationTest
 
     get console_application_path(application)
     assert_response :not_found
+  end
+
+  private
+
+  # PL-1: approval is gated on cleared compliance, so decision tests set it up.
+  def clear_compliance!(application)
+    KycSubmission.find_or_initialize_by(application: application)
+                 .update!(status: :verified, verification_type: "government_id",
+                          verified_at: Time.current, verified_by: users(:admin_user).display_name)
+    AmlCheck.find_or_initialize_by(application: application)
+            .update!(status: :passed, checked_at: Time.current, passed_at: Time.current)
   end
 end

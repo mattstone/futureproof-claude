@@ -25,6 +25,36 @@
     <% elsif application.ownership_status_lender? && application.company_name.present? %>
       <% dl.with_item("Company") { application.company_name } %>
     <% end %>
+    <% if application.broker %>
+      <% dl.with_item("Broker") do %>
+        <%= link_to application.broker.name, console_broker_path(application.broker) %>
+        <% if application.broker_commission %>
+          <div class="console-cell-sub">
+            commission <%= number_to_currency(application.broker_commission.commission_amount, precision: 0) %>
+            · <%= application.broker_commission.status %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% if application.mortgage.present? && application.loan_value.positive? %>
+      <% dl.with_item("Funding amount") do %>
+        <%= number_to_currency(application.loan_value, precision: 0) %>
+        <div class="console-cell-sub">
+          <%= application.formatted_home_value %>
+          <% if application.has_existing_mortgage? %> − <%= application.formatted_existing_mortgage_amount %> existing<% end %>
+          × LVR <%= application.mortgage.lvr || 80 %>%
+        </div>
+      <% end %>
+    <% end %>
+    <% if defined?(jurisdiction_rules) && jurisdiction_rules %>
+      <% dl.with_item("Jurisdiction rules (#{application.region})") do %>
+        <span class="console-cell-sub">
+          min age <%= jurisdiction_rules[:min_borrower_age] %>
+          · LVR ≤ <%= (jurisdiction_rules[:max_ltv].to_f * 100).round %>%
+          · property <%= number_to_currency(jurisdiction_rules[:min_property_value], precision: 0) %>–<%= number_to_currency(jurisdiction_rules[:max_property_value], precision: 0) %>
+        </span>
+      <% end %>
+    <% end %>
   <% end %>
 
   <% if application.corelogic_data_hash.present? %>

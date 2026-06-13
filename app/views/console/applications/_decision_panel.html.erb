@@ -23,6 +23,7 @@
     <% end %>
 
     <div class="console-decision-grid">
+      <% if kyc_clear && aml_clear %>
       <%= form_with url: approve_console_application_path(application), method: :post, class: "console-decision-form" do %>
         <div class="console-field">
           <label class="console-field-label" for="loan_amount">Loan amount</label>
@@ -50,6 +51,9 @@
         </div>
         <button type="submit" class="console-btn console-btn-success"
                 data-turbo-confirm="Approve this application and create the contract?">Approve application</button>
+      <% end %>
+      <% else %>
+        <p class="console-muted">Approval unlocks once KYC and AML are both cleared.</p>
       <% end %>
 
       <%= form_with url: reject_console_application_path(application), method: :post, class: "console-decision-form" do %>
