@@ -11,7 +11,7 @@ class Console::PartnerOnboardingTest < ActionDispatch::IntegrationTest
   test "onboarding steps derive from reality and flip as things are configured" do
     broker = brokers(:one)
     onboarding = Console::PartnerOnboarding.for(broker)
-    assert_equal 4, onboarding.steps.size
+    assert_equal 5, onboarding.steps.size
     agreement_step = onboarding.steps.find { |s| s.key == :agreement }
     assert_not agreement_step.done
 
@@ -37,7 +37,7 @@ class Console::PartnerOnboardingTest < ActionDispatch::IntegrationTest
     assert_select ".console-onboarding-step", count: 6
 
     get console_broker_path(brokers(:one))
-    assert_select ".console-onboarding-step", count: 4
+    assert_select ".console-onboarding-step", count: 5
   end
 
   test "incomplete steps link to where you complete them" do

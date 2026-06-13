@@ -47,9 +47,10 @@ class Console::BrokersAgreementsTest < ActionDispatch::IntegrationTest
     assert_redirected_to console_broker_path(broker)
   end
 
-  test "broker toggle active" do
-    patch toggle_active_console_broker_path(@broker)
-    assert_not @broker.reload.active?
+  test "broker suspend flips the synced active boolean" do
+    patch suspend_console_broker_path(@broker), params: { reason: "Test suspension" }
+    assert @broker.reload.status_suspended?
+    assert_not @broker.active?
   end
 
   # --- Agreements ---------------------------------------------------------------------

@@ -6,6 +6,14 @@
   <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
     <%= form.text_field :name, class: "console-input", required: true %>
   <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :firm_name, label: "Firm",
+        hint: "Leave blank for a sole operator.") do %>
+    <%= form.text_field :firm_name, class: "console-input" %>
+  <% end %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :accreditation_ref, label: "Accreditation reference",
+        hint: "Checked manually — no automated registry lookup.") do %>
+    <%= form.text_field :accreditation_ref, class: "console-input" %>
+  <% end %>
   <%= render Console::FormFieldComponent.new(form: form, attribute: :email, required: true,
         hint: @broker.new_record? ? "The broker receives a password setup email on creation." : nil) do %>
     <%= form.email_field :email, class: "console-input", required: true %>
