@@ -101,6 +101,114 @@
   <% end %>
 </div>
 
+<div class="console-analytics-grid">
+  <%= render Console::CardComponent.new(title: "Portfolio") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Applications" => number_with_delimiter(@data[:portfolio_summary][:total_applications]),
+          "Capital deployed" => number_to_currency(@data[:portfolio_summary][:total_capital_deployed], precision: 0),
+          "Active investments" => @data[:portfolio_summary][:active_investments],
+          "Pending" => @data[:portfolio_summary][:pending_applications],
+          "Approved" => @data[:portfolio_summary][:approved_applications],
+          "Rejected" => @data[:portfolio_summary][:rejected_applications],
+          "Distributions to date" => number_to_currency(@data[:portfolio_summary][:total_distributions], precision: 0)
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Capital & pools") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Deployed" => number_to_currency(@data[:capital_deployment][:capital_deployed], precision: 0),
+          "Awaiting funding" => number_to_currency(@data[:capital_deployment][:capital_awaiting], precision: 0),
+          "Pool capacity" => number_to_currency(@data[:capital_deployment][:total_pool_capacity], precision: 0),
+          "Pool utilisation" => "#{@data[:capital_deployment][:pool_utilisation]}%",
+          "Investment accounts" => number_to_currency(@data[:account_balances][:total_investment], precision: 0),
+          "Offset balances" => number_to_currency(@data[:account_balances][:total_offset], precision: 0),
+          "Avg investment return" => "#{@data[:account_balances][:avg_investment_return]}%"
+        }) %>
+    <% if @data[:capital_deployment][:top_pools].present? %>
+      <p class="console-cell-sub">Top pools: <%= @data[:capital_deployment][:top_pools].first(3).map { |p| p[:name] }.join(" · ") %></p>
+    <% end %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Contract status") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Total contracts" => @data[:contract_status][:total_contracts],
+          "Active" => @data[:contract_status][:active_contracts],
+          "On investment holiday" => @data[:contract_status][:in_holiday_contracts],
+          "Awaiting funding" => @data[:contract_status][:awaiting_funding_contracts],
+          "Monthly income out" => number_to_currency(@data[:contract_status][:total_monthly_outflows], precision: 0)
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Distributions") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Total paid" => number_to_currency(@data[:distributions][:total], precision: 0),
+          "This month" => number_to_currency(@data[:distributions][:this_month], precision: 0)
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "Concentration risk") do %>
+    <% top_lender = @data[:concentration][:by_lender].first %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "By region" => @data[:concentration][:by_region].map { |r, d| "#{r} #{d[:pct]}%" }.join(" · "),
+          "Top lender" => (top_lender ? "#{top_lender[0]} (#{number_to_currency(top_lender[1], precision: 0)})" : "—"),
+          "Value bands" => @data[:concentration][:by_value_band].map { |b, n| "#{b}: #{n}" }.join(" · "),
+          "Terms" => @data[:concentration][:by_term].map { |t, n| "#{t}yr: #{n}" }.join(" · ")
+        }) %>
+  <% end %>
+
+  <%= render Console::CardComponent.new(title: "EPM model") do %>
+    <%= render Console::DescriptionListComponent.new(rows: {
+          "Model version" => @data[:model_context][:version],
+          "PoD (30yr)" => "#{@data[:model_context][:pod_yr30]}%",
+          "Reinsurance PoC" => "#{@data[:model_context][:reinsurance_poc]}%",
+          "Portfolio PoC (steady state)" => "#{@data[:model_context][:portfolio_poc_steady_state]}%"
+        }) %>
+  <% end %>
+</div>
+
+<%= render Console::CardComponent.new(title: "Maturity watch & at-risk") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Maturing within 12 months" => @data[:monitoring][:maturing_count],
+        "Maturing value" => number_to_currency(@data[:monitoring][:maturing_value], precision: 0),
+        "Avg return rate" => "#{@data[:monitoring][:avg_return_rate]}%",
+        "Return range" => "#{@data[:monitoring][:min_return_rate]}%–#{@data[:monitoring][:max_return_rate]}%"
+      }) %>
+
+  <% if @data[:monitoring][:maturing_soon].any? %>
+    <h3 class="console-card-subtitle">Maturing soonest</h3>
+    <ul class="console-doc-list">
+      <% @data[:monitoring][:maturing_soon].each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Contract ##{contract.id}", console_contract_path(contract) %></strong>
+            <span class="console-cell-sub">
+              <%= contract.application&.user&.display_name %> ·
+              <%= number_to_currency(contract.allocated_amount, precision: 0) %> ·
+              ends <%= contract.end_date&.strftime("%-d %b %Y") %>
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: contract.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if @data[:monitoring][:at_risk_detail].any? %>
+    <h3 class="console-card-subtitle">Investment at risk</h3>
+    <ul class="console-doc-list">
+      <% @data[:monitoring][:at_risk_detail].each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Contract ##{contract.id}", console_contract_path(contract) %></strong>
+            <span class="console-cell-sub"><%= contract.application&.user&.display_name %> · <%= number_to_currency(contract.allocated_amount, precision: 0) %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: contract.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Trends — last 12 months") do %>
   <div class="console-trends-grid">
     <div>

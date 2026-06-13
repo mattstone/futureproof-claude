@@ -25,7 +25,17 @@ class Console::AnalyticsPresenter
       funnel: funnel,
       gauges: gauges(portfolio, risk),
       calendar: calendar,
-      geo: geo(portfolio)
+      geo: geo(portfolio),
+      # Breadth restored from the legacy dashboard — every metric the
+      # services compute now reaches the page (AN-1).
+      portfolio_summary: portfolio.top_line,
+      contract_status: portfolio.contract_summary,
+      account_balances: portfolio.account_balances,
+      capital_deployment: financial[:capital],
+      distributions: financial[:distributions],
+      concentration: risk[:concentration],
+      monitoring: risk[:monitoring],
+      model_context: risk[:model]
     }
   end
 
