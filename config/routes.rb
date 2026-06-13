@@ -181,6 +181,8 @@ Rails.application.routes.draw do
     post "diagnostics/core_logic_search", to: "diagnostics#core_logic_search", as: :diagnostics_core_logic_search
     post "diagnostics/property_details", to: "diagnostics#property_details", as: :diagnostics_property_details
     post "diagnostics/test_error", to: "diagnostics#test_error", as: :diagnostics_test_error
+    post "diagnostics/test_database_error", to: "diagnostics#test_database_error", as: :diagnostics_test_database_error
+    post "diagnostics/test_view_error", to: "diagnostics#test_view_error", as: :diagnostics_test_view_error
     get "system/security", to: "system#security", as: :system_security
 
     resources :legal_documents, only: [ :index, :show, :new, :create, :edit, :update ] do

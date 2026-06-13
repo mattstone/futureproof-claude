@@ -19,6 +19,7 @@ class Console::EmailTemplatesController < Console::ResourceController
   def show
     @available_fields = EmailTemplate.available_fields[@email_template.template_type] || {}
     @referencing_workflows = @email_template.referencing_workflows
+    @versions = @email_template.email_template_versions.includes(:user).order(created_at: :desc).limit(20)
   end
 
   def new

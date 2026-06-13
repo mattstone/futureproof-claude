@@ -71,3 +71,41 @@
 <%= render Console::CardComponent.new(title: "Content") do %>
   <div class="console-clause-preview"><%= @email_template.content_body.presence || @email_template.content %></div>
 <% end %>
+
+<%= render Console::CardComponent.new(title: "Change history") do %>
+  <% if @versions.any? %>
+    <ul class="console-doc-list">
+      <% @versions.each do |version| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= version.action.humanize %></strong>
+            <span class="console-cell-sub">
+              <%= version.user&.display_name || "system" %> · <%= version.created_at.strftime("%-d %b %Y %H:%M") %>
+              <% if version.change_details.present? %> · <%= version.change_details %><% end %>
+            </span>
+            <% if version.previous_subject.present? && version.previous_subject != version.new_subject %>
+              <span class="console-cell-sub">Subject: "<%= version.previous_subject %>" → "<%= version.new_subject %>"</span>
+            <% end %>
+            <% if version.action == "updated" && version.new_content.present? %>
+              <details class="console-version-diff">
+                <summary>View content change</summary>
+                <div class="console-diff-grid">
+                  <div>
+                    <h4 class="console-card-subtitle">Before</h4>
+                    <pre class="console-prompt-content"><%= truncate(version.previous_content.to_s, length: 1500) %></pre>
+                  </div>
+                  <div>
+                    <h4 class="console-card-subtitle">After</h4>
+                    <pre class="console-prompt-content"><%= truncate(version.new_content.to_s, length: 1500) %></pre>
+                  </div>
+                </div>
+              </details>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No recorded changes yet.</p>
+  <% end %>
+<% end %>

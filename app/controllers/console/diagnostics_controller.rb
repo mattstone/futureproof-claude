@@ -58,11 +58,38 @@ class Console::DiagnosticsController < Console::BaseController
   # Raises a real error so the exception-notification pipeline can be
   # verified end-to-end. Production-only, audit-logged, like the legacy page.
   def test_error
-    unless Rails.env.production?
-      redirect_to console_diagnostics_path, alert: "Error testing is only available in production." and return
-    end
+    return unless guard_production!
 
     Rails.logger.info "Error notification test triggered by admin: #{current_user.email}"
-    raise StandardError, "TEST ERROR NOTIFICATION - #{Time.current.strftime('%Y-%m-%d %H:%M:%S UTC')} - Triggered by admin: #{current_user.email}"
+    raise StandardError, "TEST ERROR NOTIFICATION - #{error_stamp} - Triggered by admin: #{current_user.email}"
+  end
+
+  # Exercises the DB-error path of the notification pipeline.
+  def test_database_error
+    return unless guard_production!
+
+    Rails.logger.info "Database error test triggered by admin: #{current_user.email}"
+    ActiveRecord::Base.connection.execute("SELECT * FROM a_table_that_does_not_exist")
+  end
+
+  # Exercises the view/template-error path.
+  def test_view_error
+    return unless guard_production!
+
+    Rails.logger.info "View error test triggered by admin: #{current_user.email}"
+    raise ActionView::Template::Error.new("TEST VIEW ERROR - #{error_stamp} - Triggered by admin: #{current_user.email}")
+  end
+
+  private
+
+  def guard_production!
+    return true if Rails.env.production?
+
+    redirect_to console_diagnostics_path, alert: "Error testing is only available in production."
+    false
+  end
+
+  def error_stamp
+    Time.current.strftime("%Y-%m-%d %H:%M:%S UTC")
   end
 end
