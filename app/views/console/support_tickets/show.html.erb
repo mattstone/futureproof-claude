@@ -39,13 +39,18 @@
     <%= form.submit "Update", class: "console-btn console-btn-secondary" %>
   <% end %>
 
+  <% age_days = ((Time.current - @ticket.created_at) / 86_400.0).round %>
   <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
         "From" => "#{@ticket.sender_name} <#{@ticket.sender_email}>",
         "Source" => @ticket.source,
         "Opened" => @ticket.created_at.strftime("%-d %b %Y %H:%M"),
+        "Age" => (@ticket.status == "closed" ? "closed" : "#{age_days} #{'day'.pluralize(age_days)} open"),
         "Resolved" => @ticket.resolved_at&.strftime("%-d %b %Y %H:%M"),
         "Closed" => @ticket.closed_at&.strftime("%-d %b %Y %H:%M")
       }) %>
+  <% if !@ticket.status.in?(%w[resolved closed]) && age_days > 3 %>
+    <p class="console-muted">⚠ Open <%= age_days %> days — past the 3-day response target.</p>
+  <% end %>
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Conversation") do %>
@@ -69,13 +74,21 @@
 
 <%= render Console::CardComponent.new(title: "Reply") do %>
   <% if @ticket.ai_draft_reply.present? %>
-    <div class="console-flash console-flash-warning">AI draft available — review before sending.</div>
+    <div class="console-flash console-flash-warning">
+      AI draft prefilled below — review before sending.
+      <% if @ticket.ai_suggested_category.present? %> Suggested category: <strong><%= @ticket.ai_suggested_category.humanize %></strong>.<% end %>
+      <% if @ticket.ai_confidence_score.present? %> Confidence: <strong><%= (@ticket.ai_confidence_score.to_f * 100).round %>%</strong>.<% end %>
+    </div>
   <% end %>
-  <%= form_with url: reply_console_support_ticket_path(@ticket), method: :post, class: "console-message-form" do %>
+  <%= form_with url: reply_console_support_ticket_path(@ticket), method: :post, class: "console-message-form", multipart: true do %>
     <div class="console-field">
       <label class="console-field-label" for="support_ticket_message_body_text">Reply to <%= @ticket.sender_email %></label>
       <textarea name="support_ticket_message[body_text]" id="support_ticket_message_body_text" rows="6"
                 class="console-textarea" required><%= @ticket.ai_draft_reply %></textarea>
+    </div>
+    <div class="console-field">
+      <label class="console-field-label" for="support_ticket_message_attachments">Attachments (optional)</label>
+      <input type="file" name="support_ticket_message[attachments][]" id="support_ticket_message_attachments" multiple class="console-input">
     </div>
     <%= submit_tag "Send reply", class: "console-btn console-btn-primary",
           data: { turbo_confirm: "Send this reply to #{@ticket.sender_email}?" } %>

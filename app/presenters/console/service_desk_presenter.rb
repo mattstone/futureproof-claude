@@ -24,8 +24,21 @@ class Console::ServiceDeskPresenter
       open_conversations: ChatConversation.where(status: "active").count,
       awaiting_reply_count: awaiting,
       awaiting_reply_pct: borrower_total_30d.positive? ? (awaiting.to_f / borrower_total_30d * 100).round(1) : 0,
-      escalations_this_week: ChatConversation.where(status: "escalated").where("updated_at >= ?", 1.week.ago).count
+      escalations_this_week: ChatConversation.where(status: "escalated").where("updated_at >= ?", 1.week.ago).count,
+      avg_response_time_hours: avg_response_time_hours
     }
+  end
+
+  # Mean hours from a borrower message to the next lender reply, over the
+  # last 30 days — the response-speed KPI the legacy admin showed.
+  def avg_response_time_hours
+    gaps = []
+    BorrowerMessage.by_borrower.where("created_at >= ?", 30.days.ago).order(:created_at).find_each do |msg|
+      reply = BorrowerMessage.by_lender.where(application_id: msg.application_id)
+                             .where("created_at > ?", msg.created_at).order(:created_at).first
+      gaps << (reply.created_at - msg.created_at) / 3600.0 if reply
+    end
+    gaps.any? ? (gaps.sum / gaps.size).round(1) : 0
   end
 
   def pipeline_aging

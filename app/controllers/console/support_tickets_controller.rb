@@ -98,6 +98,6 @@ class Console::SupportTicketsController < Console::ResourceController
   end
 
   def reply_params
-    params.require(:support_ticket_message).permit(:body_text)
+    params.require(:support_ticket_message).permit(:body_text, attachments: [])
   end
 end

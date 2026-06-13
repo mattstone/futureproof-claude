@@ -9,6 +9,8 @@
   <%= render Console::StatCardComponent.new(value: @health[:awaiting_reply_count], label: "Awaiting reply > 24h",
         variant: @health[:awaiting_reply_count].positive? ? :warning : nil) %>
   <%= render Console::StatCardComponent.new(value: "#{@health[:awaiting_reply_pct]}%", label: "% awaiting (30d)") %>
+  <%= render Console::StatCardComponent.new(value: "#{@health[:avg_response_time_hours]}h", label: "Avg response (30d)",
+        variant: @health[:avg_response_time_hours] > 24 ? :warning : nil) %>
   <%= render Console::StatCardComponent.new(value: @health[:escalations_this_week], label: "Escalations this week",
         href: console_chat_conversations_path(filter: "escalated"),
         variant: @health[:escalations_this_week].positive? ? :error : nil) %>
