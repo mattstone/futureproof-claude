@@ -9,9 +9,163 @@
   <% end %>
 <% end %>
 
-<%= render Console::RelatedRecordsComponent.new do |related| %>
-  <% @applications.each do |application| %>
-    <% related.with_item("Application ##{application.id}", href: console_application_path(application), meta: application.status.humanize) %>
+<%= render Console::CardComponent.new(title: "Journey") do %>
+  <% if @applications.any? %>
+    <ul class="console-doc-list">
+      <% @applications.each do |application| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Application ##{application.id}", console_application_path(application) %></strong>
+            <span class="console-cell-sub">
+              <%= application.address.presence || "No property yet" %>
+              <% if application.home_value.to_f.positive? %> · <%= number_to_currency(application.home_value, precision: 0) %><% end %>
+              <% if application.broker %> · via <%= application.broker.name %><% end %>
+              · started <%= application.created_at.strftime("%-d %b %Y") %>
+            </span>
+          </div>
+          <div class="console-doc-actions">
+            <% if application.status_processing? && application.updated_at < 7.days.ago %>
+              <%= render Console::BadgeComponent.new(status: "needs_attention", label: "Stalled #{(Date.current - application.updated_at.to_date).to_i}d") %>
+            <% end %>
+            <% if application.contract %>
+              <%= link_to "Contract", console_contract_path(application.contract), class: "console-btn console-btn-sm console-btn-secondary" %>
+            <% end %>
+            <%= render Console::BadgeComponent.new(status: application.status) %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No applications yet — this customer hasn't started the journey.</p>
+  <% end %>
+<% end %>
+
+<% if @applications.any? %>
+  <%= render Console::CardComponent.new(title: "Verification") do %>
+    <ul class="console-doc-list">
+      <% @applications.each do |application| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong>Application #<%= application.id %></strong>
+            <span class="console-cell-sub">decisioned on the application page</span>
+          </div>
+          <div class="console-doc-actions">
+            <% if application.kyc_submission %>
+              <%= render Console::BadgeComponent.new(status: application.kyc_submission.status, label: "KYC #{application.kyc_submission.status.humanize}") %>
+            <% else %>
+              <%= render Console::BadgeComponent.new(status: "unknown", label: "KYC not started") %>
+            <% end %>
+            <% if application.aml_check %>
+              <%= render Console::BadgeComponent.new(status: application.aml_check.status,
+                    label: "AML #{application.aml_check.status.humanize}#{" · #{application.aml_check.risk_level} risk" if application.aml_check.risk_level.present?}") %>
+            <% else %>
+              <%= render Console::BadgeComponent.new(status: "unknown", label: "AML not started") %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+<% if @contracts.any? %>
+  <%= render Console::CardComponent.new(title: "Contracts & income") do %>
+    <ul class="console-doc-list">
+      <% @contracts.each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Contract ##{contract.id}", console_contract_path(contract) %></strong>
+            <span class="console-cell-sub">
+              <%= number_to_currency(contract.monthly_payment, precision: 0) %>/month
+              · <%= number_to_currency(contract.allocated_amount, precision: 0) %> allocated
+              <% if contract.funder_pool %> · <%= contract.funder_pool.name %><% end %>
+              <% if contract.start_date %> · since <%= contract.start_date.strftime("%b %Y") %><% end %>
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: contract.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+<% if @quotes.any? %>
+  <%= render Console::CardComponent.new(title: "Quotes") do %>
+    <p class="console-muted">Quotes are immutable and versioned — re-quoting issues a new one.</p>
+    <ul class="console-doc-list">
+      <% @quotes.each do |quote| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= number_to_currency(quote.monthly_income, precision: 0) %>/month for <%= quote.term_years %> years</strong>
+            <span class="console-cell-sub">
+              <%= quote.product_version %> · <%= quote.pricing_model %> model
+              · home <%= number_to_currency(quote.home_value, precision: 0) %> · LVR <%= number_to_percentage(quote.lvr.to_f * 100, precision: 0) %>
+              · issued <%= (quote.issued_at || quote.created_at).strftime("%-d %b %Y") %>
+            </span>
+          </div>
+          <span class="console-cell-sub">app #<%= quote.application_id %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Communications") do %>
+  <% if @conversations.any? || @support_tickets.any? %>
+    <% if @conversations.any? %>
+      <h3 class="console-card-subtitle">AI conversations</h3>
+      <ul class="console-doc-list">
+        <% @conversations.each do |conversation| %>
+          <li class="console-doc-item">
+            <div class="console-doc-name">
+              <strong><%= link_to conversation.subject.presence || "Conversation ##{conversation.id}", console_chat_conversation_path(conversation) %></strong>
+              <span class="console-cell-sub"><%= conversation.chat_agent&.name %> · <%= time_ago_in_words(conversation.updated_at) %> ago</span>
+            </div>
+            <%= render Console::BadgeComponent.new(status: conversation.status) %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+    <% if @support_tickets.any? %>
+      <h3 class="console-card-subtitle">Support tickets</h3>
+      <ul class="console-doc-list">
+        <% @support_tickets.each do |ticket| %>
+          <li class="console-doc-item">
+            <div class="console-doc-name">
+              <strong><%= link_to "##{ticket.ticket_number} — #{ticket.subject}", console_support_ticket_path(ticket) %></strong>
+              <span class="console-cell-sub"><%= ticket.category&.humanize %> · <%= time_ago_in_words(ticket.created_at) %> ago</span>
+            </div>
+            <%= render Console::BadgeComponent.new(status: ticket.status) %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% else %>
+    <p class="console-muted">No conversations or support tickets yet.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Legal acceptances") do %>
+  <% if @legal_acceptances.any? %>
+    <ul class="console-doc-list">
+      <% @legal_acceptances.each do |acceptance| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= acceptance.legal_document&.title || "Document removed" %></strong>
+            <span class="console-cell-sub">
+              v<%= acceptance.legal_document&.version %> · <%= acceptance.legal_document&.jurisdiction %>
+              · accepted <%= acceptance.accepted_at&.strftime("%-d %b %Y %H:%M") %>
+              <% if acceptance.acceptance_type.present? %> · <%= acceptance.acceptance_type.humanize %><% end %>
+            </span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">
+      No acceptance records.
+      <% if @user.terms_accepted? %>Terms were accepted at signup<% if @user.respond_to?(:terms_version) && @user.terms_version.present? %> (legacy version <%= @user.terms_version %>)<% end %>.<% end %>
+    </p>
   <% end %>
 <% end %>
 
