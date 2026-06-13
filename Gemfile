@@ -33,7 +33,7 @@ gem "httparty"
 gem "anthropic", "~> 1.36"
 
 # GitHub API client for the admin prompt-change PR bridge
-gem "octokit", "~> 9.2"
+gem "octokit", "~> 10.0"
 
 # Component layer for the FutureProof Console (/console)
 gem "view_component", "~> 4.0"
