@@ -25,14 +25,23 @@
       <%= text_field_tag :entry_trigger, @stage["entry_trigger"], class: "console-input", placeholder: "e.g. application_submitted" %>
     </div>
     <div class="console-field">
+      <label class="console-field-label" for="stage_color">Stage colour</label>
+      <%= select_tag :stage_color,
+            options_for_select(@stage_colors.map { |c| [ c.humanize, c ] }, @stage["stage_color"].presence || "blue"),
+            class: "console-select" %>
+    </div>
+    <div class="console-field">
       <label class="console-field-label" for="handoff_to">Hands off to (optional)</label>
-      <%= text_field_tag :handoff_to, @stage.dig("handoff_rules", "handoff_to"), class: "console-input", placeholder: "Another agent's stage key" %>
+      <%= select_tag :handoff_to,
+            options_from_collection_for_select(@handoff_agents, :name, :name, @stage.dig("handoff_rules", "handoff_to")),
+            include_blank: "No handoff", class: "console-select" %>
     </div>
 
-    <div class="console-field">
-      <span class="console-field-label">Automated action (optional)</span>
-      <% action = Array(@stage["automated_actions"]).first || {} %>
-      <div class="console-ticket-form">
+    <span class="console-field-label">Automated actions (optional)</span>
+    <p class="console-muted">Each row runs in order when the stage is entered. Leave Type as "None" to drop a row; fill the blank row at the bottom to add another.</p>
+    <% existing = Array(@stage["automated_actions"]) %>
+    <% (existing + [ {} ]).each do |action| %>
+      <div class="console-ticket-form console-action-row">
         <div class="console-field">
           <label class="console-field-label">Type</label>
           <%= select_tag "automated_actions[][action_type]",
@@ -46,6 +55,14 @@
                 include_blank: "—", class: "console-select" %>
         </div>
         <div class="console-field">
+          <label class="console-field-label">Task type</label>
+          <%= text_field_tag "automated_actions[][task_type]", action["task_type"], class: "console-input", placeholder: "e.g. document_verify" %>
+        </div>
+        <div class="console-field">
+          <label class="console-field-label">New status</label>
+          <%= text_field_tag "automated_actions[][new_status]", action["new_status"], class: "console-input" %>
+        </div>
+        <div class="console-field">
           <label class="console-field-label">Delay</label>
           <%= number_field_tag "automated_actions[][delay][duration]", action.dig("delay", "duration"), min: 0, class: "console-input" %>
         </div>
@@ -56,7 +73,7 @@
                 class: "console-select" %>
         </div>
       </div>
-    </div>
+    <% end %>
 
     <div class="console-message-actions">
       <%= submit_tag "Save stage", class: "console-btn console-btn-primary" %>

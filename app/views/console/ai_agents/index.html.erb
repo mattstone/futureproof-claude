@@ -1,7 +1,11 @@
 <% content_for :title, "AI agents — FutureProof Console" %>
 
 <%= render Console::PageHeaderComponent.new(title: "AI agents",
-      subtitle: "The agent roster, live performance and recent completed work.") %>
+      subtitle: "The agent roster, live performance and recent completed work.") do |header| %>
+  <% header.with_action do %>
+    <%= link_to "Action timeline", timeline_console_ai_agents_path, class: "console-btn console-btn-secondary" %>
+  <% end %>
+<% end %>
 
 <div class="console-stat-grid">
   <%= render Console::StatCardComponent.new(value: "#{@stats[:active_agents]}/#{@stats[:total_agents]}", label: "Active agents") %>

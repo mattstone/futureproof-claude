@@ -21,14 +21,29 @@ class Console::AiAgentsController < Console::BaseController
   def show
     @lifecycle_stages = @agent.lifecycle_stages || []
     @performance = AgentPerformance.find_by(agent_name: @agent.name)
-    @recent_actions = AgentAction.where(ai_agent: @agent).order(created_at: :desc).limit(20)
+    @detail = AdminAgentMetricsService.new.agent_detail(@agent)
+    @recent_actions = AgentAction.where(ai_agent: @agent).includes(:actionable).order(created_at: :desc).limit(25)
+    @task_backlog = task_backlog_for(@agent)
     @email_templates = EmailTemplate.order(:template_type, :name)
+  end
+
+  # Cross-agent action audit log with agent / type / decision filters —
+  # restores the legacy admin agent timeline.
+  def timeline
+    scope = AgentAction.includes(:ai_agent, :actionable).order(created_at: :desc)
+    scope = scope.where(ai_agent_id: params[:agent_id]) if params[:agent_id].present?
+    scope = scope.where(action_type: params[:action_type]) if params[:action_type].present?
+    scope = scope.where(decision: params[:decision]) if params[:decision].present?
+    @actions = scope.limit(200)
+    @agents = AiAgent.order(:name)
   end
 
   def edit_stage
     @stage_index = params[:stage_index].presence&.to_i
     @stage = @stage_index ? (@agent.lifecycle_stages || [])[@stage_index] : blank_stage
     @email_templates = EmailTemplate.order(:template_type, :name)
+    @handoff_agents = AiAgent.where.not(id: @agent.id).order(:name)
+    @stage_colors = %w[blue green amber red slate cyan]
   end
 
   def update_stage
@@ -83,8 +98,27 @@ class Console::AiAgentsController < Console::BaseController
       "entry_trigger" => params[:entry_trigger],
       "stage_color" => params[:stage_color].presence || "blue",
       "automated_actions" => parse_automated_actions,
-      "exit_conditions" => {},
+      "exit_conditions" => existing_stage_exit_conditions,
       "handoff_rules" => params[:handoff_to].present? ? { "handoff_to" => params[:handoff_to] } : {}
+    }
+  end
+
+  # Exit conditions have no console editor yet; preserve whatever the stage
+  # already had instead of wiping it on every save (data-loss regression).
+  def existing_stage_exit_conditions
+    index = params[:stage_index].presence&.to_i
+    return {} if index.nil?
+
+    (@agent.lifecycle_stages || [])[index]&.dig("exit_conditions") || {}
+  end
+
+  # Per-agent live queue: tasks join AgentPerformance by agent_name.
+  def task_backlog_for(agent)
+    tasks = AgentTask.joins(:agent_performance).where(agent_performances: { agent_name: agent.name })
+    {
+      pending: tasks.where(status: "pending").count,
+      in_progress: tasks.where(status: "in_progress").count,
+      escalated: tasks.where(status: "escalated").count
     }
   end
 

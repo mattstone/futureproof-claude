@@ -47,6 +47,29 @@ class AdminAgentMetricsService
     AgentRoster.new(performances: AgentPerformance.none, recent_tasks: AgentTask.none)
   end
 
+  # Per-agent dashboard figures (powers console ai_agents#show). Mirrors the
+  # decision/confidence/breakdown metrics the legacy admin agent dashboard had.
+  def agent_detail(agent)
+    actions = agent.agent_actions
+    total = actions.count
+    {
+      total: total,
+      today: actions.where("created_at >= ?", Time.current.beginning_of_day).count,
+      week: actions.where("created_at >= ?", 1.week.ago).count,
+      approval_rate: total.positive? ? (actions.where(decision: "approve").count.to_f / total * 100).round(1) : 0,
+      avg_confidence: actions.where.not(confidence: nil).average(:confidence)&.round(2) || 0,
+      flags: actions.where(decision: "flag").count,
+      rejections: actions.where(decision: "reject").count,
+      overrides: actions.where(status: "overridden").count,
+      decision_breakdown: actions.where.not(decision: nil).group(:decision).count,
+      action_type_breakdown: actions.group(:action_type).count
+    }
+  rescue => e
+    Rails.logger.error("AdminAgentMetricsService#agent_detail error: #{e.message}")
+    { total: 0, today: 0, week: 0, approval_rate: 0, avg_confidence: 0, flags: 0,
+      rejections: 0, overrides: 0, decision_breakdown: {}, action_type_breakdown: {} }
+  end
+
   private
 
   def build_card(agent)
