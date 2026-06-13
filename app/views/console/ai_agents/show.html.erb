@@ -27,6 +27,64 @@
   </div>
 <% end %>
 
+<%= render Console::CardComponent.new(title: "Decision performance") do |card| %>
+  <% card.with_header_action do %>
+    <%= link_to "Action timeline", timeline_console_ai_agents_path(agent_id: @agent.id), class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <div class="console-stat-grid">
+    <%= render Console::StatCardComponent.new(value: @detail[:total], label: "Total actions") %>
+    <%= render Console::StatCardComponent.new(value: "#{@detail[:approval_rate]}%", label: "Approval rate") %>
+    <%= render Console::StatCardComponent.new(value: (@detail[:avg_confidence] * 100).round, label: "Avg confidence %") %>
+    <%= render Console::StatCardComponent.new(value: @detail[:flags], label: "Flags", variant: @detail[:flags].positive? ? :warning : nil) %>
+    <%= render Console::StatCardComponent.new(value: @detail[:rejections], label: "Rejections", variant: @detail[:rejections].positive? ? :error : nil) %>
+    <%= render Console::StatCardComponent.new(value: @detail[:overrides], label: "Overridden", variant: @detail[:overrides].positive? ? :warning : nil) %>
+  </div>
+
+  <% if @detail[:decision_breakdown].any? || @detail[:action_type_breakdown].any? %>
+    <div class="console-breakdown-grid">
+      <% if @detail[:decision_breakdown].any? %>
+        <div>
+          <h3 class="console-card-subtitle">Decisions</h3>
+          <% @detail[:decision_breakdown].sort_by { |_k, v| -v }.each do |decision, count| %>
+            <div class="console-breakdown-row">
+              <span><%= decision.humanize %></span>
+              <span class="console-breakdown-bar">
+                <progress class="console-progress" value="<%= count %>" max="<%= @detail[:total] %>"></progress>
+                <strong><%= count %></strong>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      <% if @detail[:action_type_breakdown].any? %>
+        <div>
+          <h3 class="console-card-subtitle">Action types</h3>
+          <% @detail[:action_type_breakdown].sort_by { |_k, v| -v }.each do |type, count| %>
+            <div class="console-breakdown-row">
+              <span><%= type.humanize %></span>
+              <span class="console-breakdown-bar">
+                <progress class="console-progress" value="<%= count %>" max="<%= @detail[:total] %>"></progress>
+                <strong><%= count %></strong>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Task queue") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+        "Pending" => @task_backlog[:pending],
+        "In progress" => @task_backlog[:in_progress],
+        "Escalated" => @task_backlog[:escalated]
+      }) %>
+  <% if @task_backlog[:escalated].positive? %>
+    <p class="console-muted">⚠ <%= pluralize(@task_backlog[:escalated], "task") %> escalated — needs a human.</p>
+  <% end %>
+<% end %>
+
 <%= render Console::CardComponent.new(title: "Lifecycle stages") do %>
   <% if @lifecycle_stages.any? %>
     <ol class="console-onboarding">
@@ -60,15 +118,25 @@
 
 <% if @recent_actions.any? %>
   <%= render Console::CardComponent.new(title: "Recent actions") do %>
-    <ul class="console-history-list">
+    <ul class="console-doc-list">
       <% @recent_actions.each do |action| %>
-        <li class="console-history-item">
-          <span class="console-history-actor"><%= action.action_type %></span>
-          <span class="console-history-action">
-            <% if action.actionable_type %><%= action.actionable_type.underscore.humanize.downcase %> #<%= action.actionable_id %> · <% end %>
-            <%= action.decision.presence || action.status %>
-          </span>
-          <time class="console-history-time"><%= time_ago_in_words(action.created_at) %> ago</time>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= action.action_type.humanize %><% if action.decision.present? %> — <%= action.decision.humanize %><% end %></strong>
+            <span class="console-cell-sub">
+              <% if action.actionable %>
+                <% if (path = entity_path_for(action)) %>
+                  <%= link_to "#{action.actionable_type.underscore.humanize} ##{action.actionable_id}", path, class: "console-link" %> ·
+                <% else %>
+                  <%= action.actionable_type.underscore.humanize %> #<%= action.actionable_id %> ·
+                <% end %>
+              <% end %>
+              <% if action.confidence.present? %>confidence <%= (action.confidence * 100).round %>% · <% end %>
+              <%= time_ago_in_words(action.created_at) %> ago
+              <% if action.reasoning.present? %><br><span title="<%= action.reasoning %>"><%= truncate(action.reasoning, length: 120) %></span><% end %>
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: action.status) %>
         </li>
       <% end %>
     </ul>

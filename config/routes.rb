@@ -210,6 +210,9 @@ Rails.application.routes.draw do
     end
 
     resources :ai_agents, only: [ :index, :show ] do
+      collection do
+        get :timeline
+      end
       member do
         get :edit_stage
         patch :update_stage
