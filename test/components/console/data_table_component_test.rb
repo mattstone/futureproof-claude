@@ -15,6 +15,10 @@ class Console::DataTableComponentTest < ViewComponent::TestCase
 
     assert_selector "turbo-frame#people"
     assert_selector "table.console-table"
+    # Regression: the frame must break links out to the top page. Without it,
+    # a row's drill-in link loads the show page INTO this frame, which lacks a
+    # matching <turbo-frame>, and Turbo blanks the table with "Content missing".
+    assert_selector "turbo-frame#people[target='_top']"
     assert_selector "th", text: "Name"
     assert_selector "th.console-table-numeric", text: "Amount"
     assert_selector "td", text: "Alice"

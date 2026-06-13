@@ -1,5 +1,10 @@
 <% content %>
-<%= helpers.turbo_frame_tag id, data: { turbo_action: "advance" } do %>
+<%# target: "_top" so drill-in links (row -> show page) drive a full-page
+    visit. Without it, a link inside the frame tries to swap the show page
+    INTO this frame; the show page has no matching <turbo-frame id>, so Turbo
+    blanks the table with its built-in "Content missing" text. Sort / filter /
+    pagination still work as full Drive visits. %>
+<%= helpers.turbo_frame_tag id, target: "_top" do %>
   <div class="console-table-wrap">
     <table class="console-table">
       <thead>
