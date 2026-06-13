@@ -261,10 +261,19 @@
   background: var(--fp-bg-secondary);
 }
 
+/* button_to wraps each segment in a <form>; display:contents lets the
+   buttons sit directly in the flex row so the segments read as one control. */
+.console-region-form {
+  margin: 0;
+  display: contents;
+}
+
 .console-region-option {
-  position: relative;
   padding: var(--fp-space-xs) var(--fp-space-sm);
+  border: 0;
   border-radius: var(--fp-radius-sm);
+  background: transparent;
+  font-family: var(--fp-font-family);
   font-size: var(--fp-text-xs);
   font-weight: var(--fp-font-semibold);
   color: var(--fp-text-secondary);
@@ -276,26 +285,15 @@
   color: var(--fp-text-primary);
 }
 
+.console-region-option:focus-visible {
+  outline: 2px solid var(--fp-primary);
+  outline-offset: 2px;
+}
+
 .console-region-option.is-active {
   background: var(--fp-primary);
   color: var(--fp-text-inverse);
   box-shadow: var(--fp-shadow-sm);
-}
-
-/* Visually hidden radio — the label is the control surface. Kept focusable. */
-.console-region-radio {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
-  margin: 0;
-  pointer-events: none;
-}
-
-.console-region-radio:focus-visible + span {
-  outline: 2px solid var(--fp-primary);
-  outline-offset: 2px;
-  border-radius: var(--fp-radius-sm);
 }
 
 .console-jurisdiction-pinned {

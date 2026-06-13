@@ -19,10 +19,11 @@ class Console::AccessTest < ActionDispatch::IntegrationTest
     get console_root_path
     assert_response :success
     assert_select ".console-page-title", text: "Today"
-    # Region picker is a segmented radio control; the current region is checked.
+    # Region picker is a segmented control of form-backed buttons; the active
+    # region is highlighted.
     assert_select ".console-region-options"
-    assert_select ".console-region-radio[checked]"
-    assert_select ".console-region-option.is-active", text: "Summary"
+    assert_select "button.console-region-option.is-active", text: "Summary"
+    assert_select "button.console-region-option", text: "AU"
   end
 
   test "futureproof admin can switch jurisdiction" do
