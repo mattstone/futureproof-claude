@@ -9,7 +9,8 @@ class Console::ContractsController < Console::ResourceController
   sortable created: "contracts.created_at",
            allocated: "contracts.allocated_amount",
            status: "contracts.status",
-           start: "contracts.start_date"
+           start: "contracts.start_date",
+           end: "contracts.end_date"
   default_sort :created, :desc
   filters status: ->(scope, value) { scope.where(status: value) }
   preloads application: :user
@@ -168,6 +169,14 @@ class Console::ContractsController < Console::ResourceController
   def base_scope
     scoped_contracts
   end
+
+  # One grouped query for the index's unread-message indicators.
+  def unread_message_counts(contracts)
+    ContractMessage.customer_messages.unread
+                   .where(contract_id: contracts.map(&:id))
+                   .group(:contract_id).count
+  end
+  helper_method :unread_message_counts
 
   # Custom: numeric terms match contract or application IDs.
   def apply_search(scope)
