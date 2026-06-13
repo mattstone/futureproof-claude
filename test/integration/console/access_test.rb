@@ -19,7 +19,10 @@ class Console::AccessTest < ActionDispatch::IntegrationTest
     get console_root_path
     assert_response :success
     assert_select ".console-page-title", text: "Today"
-    assert_select ".console-jurisdiction-select"
+    # Region picker is a segmented radio control; the current region is checked.
+    assert_select ".console-region-options"
+    assert_select ".console-region-radio[checked]"
+    assert_select ".console-region-option.is-active", text: "Summary"
   end
 
   test "futureproof admin can switch jurisdiction" do
@@ -44,7 +47,7 @@ class Console::AccessTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "AU", session[:console_jurisdiction]
     # No switcher rendered — jurisdiction shown as a fixed chip instead
-    assert_select ".console-jurisdiction-select", count: 0
+    assert_select ".console-region-options", count: 0
     assert_select ".console-jurisdiction-pinned", text: "AU"
 
     # And the switch endpoint refuses to move them

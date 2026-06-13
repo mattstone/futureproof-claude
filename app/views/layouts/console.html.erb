@@ -13,8 +13,14 @@
   </head>
 
   <body class="console-body">
-    <div class="console-shell" data-controller="console--nav">
-      <aside class="console-sidebar" data-console--nav-target="sidebar">
+    <%# The sidebar is data-turbo-permanent: a nav click swaps only the
+        #console_main frame, and a full-page visit (e.g. a row drill-in)
+        preserves the sidebar element instead of repainting it. The
+        console--nav controller re-highlights the active link on every frame
+        load, since the permanent sidebar is never re-rendered server-side. %>
+    <div class="console-shell" data-controller="console--nav"
+         data-action="turbo:frame-load@document->console--nav#updateActive turbo:load@document->console--nav#updateActive">
+      <aside id="console-sidebar" class="console-sidebar" data-console--nav-target="sidebar" data-turbo-permanent>
         <%= render "console/shared/nav" %>
       </aside>
 
@@ -36,10 +42,12 @@
         </header>
 
         <main class="console-content">
-          <div id="console-flash">
-            <%= render Console::FlashMessagesComponent.new(flash: flash) %>
-          </div>
-          <%= yield %>
+          <%= turbo_frame_tag "console_main", data: { turbo_action: "advance" } do %>
+            <div id="console-flash">
+              <%= render Console::FlashMessagesComponent.new(flash: flash) %>
+            </div>
+            <%= yield %>
+          <% end %>
         </main>
       </div>
     </div>
