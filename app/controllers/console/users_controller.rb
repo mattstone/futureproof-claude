@@ -54,7 +54,14 @@ class Console::UsersController < Console::ResourceController
   def show
     @user.log_view_by(current_user)
     @versions = @user.user_versions.includes(:admin_user).recent.limit(20)
-    @applications = @user.applications.order(created_at: :desc)
+    @applications = @user.applications
+                         .includes(:contract, :kyc_submission, :aml_check, :broker)
+                         .order(created_at: :desc)
+    @contracts = Contract.where(application_id: @applications.map(&:id)).includes(:funder_pool)
+    @quotes = Quote.where(application_id: @applications.map(&:id)).order(created_at: :desc).limit(10)
+    @conversations = ChatConversation.where(user_id: @user.id).includes(:chat_agent).order(updated_at: :desc).limit(10)
+    @support_tickets = @user.support_tickets.order(created_at: :desc).limit(10)
+    @legal_acceptances = @user.legal_document_acceptances.includes(:legal_document).order(accepted_at: :desc)
   end
 
   def edit
