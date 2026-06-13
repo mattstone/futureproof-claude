@@ -28,6 +28,11 @@ class Console::ApplicationsController < Console::ResourceController
     @versions = @application.application_versions.includes(:user).recent.limit(50)
     @agent_actions = @application.agent_actions.includes(:ai_agent).order(created_at: :desc)
     @outstanding_docs_count = @application.application_documents.where(status: %w[pending rejected]).count
+    @jurisdiction_rules = begin
+      EpmJurisdictionService.new(@application.region).rules
+    rescue StandardError
+      nil
+    end
     @unread_messages_count = @application.unread_customer_messages_count
     @quotes = @application.quotes.latest_first
     @lenders = Lender.status_active.order(:name)
@@ -37,6 +42,13 @@ class Console::ApplicationsController < Console::ResourceController
   # Drives the full Application#approve! workflow (loan terms, broker
   # commission, contract generation) — not a bare status flip.
   def approve
+    # Spec (customers.md): KYC + AML are required in every market before
+    # approval. The panel warns; this is the enforcement.
+    unless @application.kyc_submission&.verified? && @application.aml_check&.passed?
+      redirect_to console_application_path(@application),
+                  alert: "Cannot approve — KYC and AML must both be cleared first." and return
+    end
+
     loan_amount = params[:loan_amount].to_f
     interest_rate = params[:interest_rate].to_f
     term_years = params[:term_years].to_i

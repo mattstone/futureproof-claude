@@ -38,6 +38,13 @@ class Console::PartnerLifecycleTest < ActionDispatch::IntegrationTest
   test "suspended lenders disappear from the approval picker" do
     @lender.update_column(:status, Lender.statuses[:suspended])
     application = applications(:submitted_application)
+    # PL-1: the approve form (and its lender picker) only renders once
+    # compliance is cleared.
+    KycSubmission.find_or_initialize_by(application: application)
+                 .update!(status: :verified, verification_type: "government_id",
+                          verified_at: Time.current, verified_by: users(:admin_user).display_name)
+    AmlCheck.find_or_initialize_by(application: application)
+            .update!(status: :passed, checked_at: Time.current, passed_at: Time.current)
 
     get console_application_path(application)
     assert_response :success

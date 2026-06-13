@@ -3,6 +3,12 @@
 <%= render Console::PageHeaderComponent.new(title: "Application ##{@application.id}",
       subtitle: @application.address) do |header| %>
   <% header.with_action do %>
+    <% days_in_stage = (Date.current - @application.updated_at.to_date).to_i %>
+    <% stalled = @application.status_processing? && days_in_stage > 7 %>
+    <%= render Console::BadgeComponent.new(status: stalled ? "needs_attention" : "info",
+          label: "#{days_in_stage}d in stage#{' — stalled' if stalled}") %>
+  <% end %>
+  <% header.with_action do %>
     <span id="application-status-badge"><%= render Console::BadgeComponent.new(status: @application.status) %></span>
   <% end %>
 <% end %>
@@ -17,7 +23,7 @@
 <%= render Console::TabsComponent.new do |tabs| %>
   <% tabs.with_tab("Details", id: "details") do %>
     <%= render "decision_panel", application: @application, lenders: @lenders %>
-    <%= render "details_panel", application: @application %>
+    <%= render "details_panel", application: @application, jurisdiction_rules: @jurisdiction_rules %>
     <%= render "quotes_panel", quotes: @quotes %>
     <%= render "compliance_panel", application: @application %>
     <%= render "valuation_panel", application: @application %>
