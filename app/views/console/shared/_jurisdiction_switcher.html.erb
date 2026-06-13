@@ -1,19 +1,19 @@
 <% if policy.futureproof? %>
-  <%= form_with url: console_set_jurisdiction_path, method: :post,
-        class: "console-region", data: { controller: "auto-submit" } do |f| %>
+  <%# Each region is its own form-backed button — the same reliable submit
+      path as the Sign out button beside it. No JS in the click path. %>
+  <div class="console-region">
     <span class="console-region-label">Region</span>
-    <div class="console-region-options" role="radiogroup" aria-label="Region">
+    <div class="console-region-options" role="group" aria-label="Region">
       <% Console::BaseController::JURISDICTIONS.each do |jurisdiction| %>
-        <label class="console-region-option <%= "is-active" if current_jurisdiction == jurisdiction %>">
-          <%= f.radio_button :jurisdiction, jurisdiction,
-                checked: current_jurisdiction == jurisdiction,
-                class: "console-region-radio",
-                data: { action: "change->auto-submit#filterChanged" } %>
-          <span><%= jurisdiction %></span>
-        </label>
+        <%= button_to jurisdiction, console_set_jurisdiction_path,
+              params: { jurisdiction: jurisdiction },
+              method: :post,
+              class: "console-region-option #{"is-active" if current_jurisdiction == jurisdiction}",
+              form_class: "console-region-form",
+              "aria-pressed": (current_jurisdiction == jurisdiction).to_s %>
       <% end %>
     </div>
-  <% end %>
+  </div>
 <% else %>
   <span class="console-jurisdiction-pinned"><%= current_jurisdiction %></span>
 <% end %>
