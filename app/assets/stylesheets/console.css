@@ -1039,6 +1039,17 @@
   color: var(--fp-text-tertiary);
 }
 
+/* Empty-state next step: a "New X" action under the empty message. */
+.console-empty-action {
+  margin-top: var(--fp-space-md);
+}
+
+/* Leading cell carries the row's identifier — a touch heavier so the eye
+   anchors there and tracks across wide tables. (Not the empty-state cell.) */
+.console-table tbody td:first-child:not(.console-table-empty) {
+  font-weight: var(--fp-font-medium);
+}
+
 .console-table-sort {
   color: inherit;
   text-decoration: none;

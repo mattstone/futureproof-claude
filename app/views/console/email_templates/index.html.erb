@@ -16,7 +16,8 @@
 
 <%= render Console::DataTableComponent.new(records: @records, id: "email_templates",
       csv_path: console_email_templates_path(format: :csv),
-      empty_message: "No templates match those filters.") do |table| %>
+      empty_message: "No templates match those filters.",
+      empty_action: link_to("New template", new_console_email_template_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Name", sort: "name" do |template| %>
     <%= link_to template.name, console_email_template_path(template) %>
   <% end %>

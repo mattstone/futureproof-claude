@@ -28,12 +28,13 @@
         end
       },
       empty_message: "No contracts match those filters.") do |table| %>
-  <% table.with_column "ID" do |contract| %>
-    <%= link_to "##{contract.id}", console_contract_path(contract) %>
-  <% end %>
+  <%# Lead with the human identifier — the customer, not the #ID. %>
   <% table.with_column "Customer" do |contract| %>
     <%= link_to contract.application.user.display_name, console_contract_path(contract) %>
     <div class="console-cell-sub"><%= contract.application.address&.truncate(50) %></div>
+  <% end %>
+  <% table.with_column "Ref" do |contract| %>
+    <%= link_to "##{contract.id}", console_contract_path(contract) %>
   <% end %>
   <% table.with_column "Status", sort: "status" do |contract| %>
     <%= render Console::BadgeComponent.new(status: contract.status) %>
@@ -54,8 +55,5 @@
   <% end %>
   <% table.with_column "Start", sort: "start" do |contract| %>
     <%= contract.start_date&.strftime("%-d %b %Y") %>
-  <% end %>
-  <% table.with_column "Created", sort: "created" do |contract| %>
-    <%= contract.created_at.strftime("%-d %b %Y") %>
   <% end %>
 <% end %>

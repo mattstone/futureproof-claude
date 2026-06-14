@@ -27,7 +27,8 @@
 
 <%= render Console::DataTableComponent.new(records: @records, id: "wholesale_funders",
       csv_path: console_wholesale_funders_path(format: :csv, search: params[:search], country: params[:country], currency: params[:currency]),
-      empty_message: "No wholesale funders match those filters.") do |table| %>
+      empty_message: "No wholesale funders match those filters.",
+      empty_action: link_to("New wholesale funder", new_console_wholesale_funder_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Name", sort: "name" do |funder| %>
     <%= link_to funder.name, console_wholesale_funder_path(funder) %>
   <% end %>

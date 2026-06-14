@@ -19,7 +19,8 @@
 
 <%= render Console::DataTableComponent.new(records: @records, id: "brokers",
       csv_path: console_brokers_path(format: :csv, search: params[:search], jurisdiction: params[:jurisdiction], status: params[:status]),
-      empty_message: "No brokers match those filters.") do |table| %>
+      empty_message: "No brokers match those filters.",
+      empty_action: link_to("New broker", new_console_broker_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Name", sort: "name" do |broker| %>
     <%= link_to broker.name, console_broker_path(broker) %>
   <% end %>

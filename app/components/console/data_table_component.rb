@@ -33,15 +33,18 @@ class Console::DataTableComponent < Console::BaseComponent
   # row_class: an optional ->(record) { "console-row-error" | nil } that tags a
   # row for triage emphasis (left accent + faint tint), so at-risk / stalled
   # rows surface without reading every badge.
-  def initialize(records:, id:, csv_path: nil, empty_message: "Nothing here yet.", row_class: nil)
+  # empty_action: optional rendered link (a "New X" button) shown under the
+  # empty-state message so a genuinely-empty resource offers a next step.
+  def initialize(records:, id:, csv_path: nil, empty_message: "Nothing here yet.", row_class: nil, empty_action: nil)
     @records = records
     @id = id
     @csv_path = csv_path
     @empty_message = empty_message
     @row_class = row_class
+    @empty_action = empty_action
   end
 
-  attr_reader :records, :id, :csv_path, :empty_message, :row_class
+  attr_reader :records, :id, :csv_path, :empty_message, :row_class, :empty_action
 
   def row_class_for(record)
     row_class&.call(record).presence

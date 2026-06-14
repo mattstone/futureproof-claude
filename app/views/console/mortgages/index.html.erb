@@ -16,7 +16,8 @@
 
 <%= render Console::DataTableComponent.new(records: @records, id: "mortgages",
       csv_path: console_mortgages_path(format: :csv, search: params[:search], status: params[:status]),
-      empty_message: "No mortgages match those filters.") do |table| %>
+      empty_message: "No mortgages match those filters.",
+      empty_action: link_to("New mortgage", new_console_mortgage_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Name", sort: "name" do |mortgage| %>
     <%= link_to mortgage.name, console_mortgage_path(mortgage) %>
   <% end %>

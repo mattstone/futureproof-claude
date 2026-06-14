@@ -14,7 +14,8 @@
 </div>
 
 <%= render Console::DataTableComponent.new(records: @faqs, id: "faqs",
-      empty_message: "No FAQs for this jurisdiction yet.") do |table| %>
+      empty_message: "No FAQs for this jurisdiction yet.",
+      empty_action: link_to("New FAQ", new_console_faq_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Question" do |faq| %>
     <%= link_to faq.question, edit_console_faq_path(faq) %>
   <% end %>
