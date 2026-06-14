@@ -3,11 +3,16 @@ class AiAgent < ApplicationRecord
   has_many :agent_actions, dependent: :destroy
   has_many :agent_actions, dependent: :destroy
 
+  # applications=Akane (acquisition) · backoffice=Rie · investment=Yumi ·
+  # customer_service=Misato · engineering=Motoko (the master agent).
+  AGENT_TYPES = %w[applications backoffice investment customer_service engineering].freeze
+  AVATARS = %w[Akane.png Rie.png Yumi.png Motoko.png].freeze
+
   validates :name, presence: true, uniqueness: true
-  validates :agent_type, presence: true, inclusion: { in: %w[applications backoffice investment] }
+  validates :agent_type, presence: true, inclusion: { in: AGENT_TYPES }
   validates :avatar_filename, presence: true, inclusion: {
-    in: %w[Akane.png Rie.png Yumi.png],
-    message: "must be one of the available agent avatars: Akane.png, Rie.png, Yumi.png"
+    in: AVATARS,
+    message: "must be one of the available agent avatars: #{AVATARS.join(', ')}"
   }
 
   scope :active, -> { where(is_active: true) }

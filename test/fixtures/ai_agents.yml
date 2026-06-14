@@ -71,3 +71,26 @@ yumi:
   is_active: true
   created_at: <%= 1.month.ago %>
   updated_at: <%= 1.week.ago %>
+misato:
+  name: "Misato"
+  agent_type: "customer_service"
+  description: "Customer service agent - support tickets, comms and escalations"
+  avatar_filename: "Yumi.png"
+  role_title: "Customer Service Specialist"
+  specialties: "Support, comms, escalations"
+  greeting_style: "professional"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>
+
+motoko:
+  name: "Motoko"
+  agent_type: "engineering"
+  description: "Master engineering and operations agent - builds and runs the others"
+  avatar_filename: "Motoko.png"
+  role_title: "Master Engineering & Operations Agent"
+  specialties: "Engineering, orchestration, platform ops"
+  greeting_style: "professional"
+  is_active: true
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.week.ago %>

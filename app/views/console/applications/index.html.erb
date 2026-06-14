@@ -1,7 +1,7 @@
-<% content_for :title, "Pipeline — FutureProof Console" %>
+<% content_for :title, "Acquisition — FutureProof Console" %>
 
-<%= render Console::PageHeaderComponent.new(title: "Pipeline",
-      subtitle: "Active applications by default — filter by status or search to reach everything, including accepted.") %>
+<%= render Console::PageHeaderComponent.new(title: "Acquisition",
+      subtitle: "Customers in the funnel — active applications by default; filter or search to reach accepted and everything else.") %>
 
 <% agents_for_function("applications").each do |agent| %>
   <%= render "console/shared/agent_operations", agent: agent %>
