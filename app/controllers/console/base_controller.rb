@@ -3,6 +3,24 @@ class Console::BaseController < ApplicationController
 
   JURISDICTIONS = [ "Summary", "AU", "US", "NZ", "UK" ].freeze
 
+  # Region columns are inconsistent across the schema: some hold ISO-ish codes
+  # ("AU"), others legacy full names ("Australia") — and dev data even has a few
+  # upper-cased ("AUSTRALIA"). One jurisdiction therefore matches a set of
+  # accepted column values, so a region filter works whatever the column stores.
+  JURISDICTION_ALIASES = {
+    "AU" => [ "AU", "Australia", "AUSTRALIA" ],
+    "US" => [ "US", "USA", "United States", "UNITED STATES" ],
+    "NZ" => [ "NZ", "New Zealand", "NEW ZEALAND" ],
+    "UK" => [ "UK", "GB", "United Kingdom", "UNITED KINGDOM" ]
+  }.freeze
+
+  # Reverse index: any accepted value (downcased) -> canonical code. Lets us
+  # canonicalise current_jurisdiction whether it arrives as a code (FP-admin
+  # picker) or a country name (a lender pinned to lender.country).
+  CODE_FOR_JURISDICTION = JURISDICTION_ALIASES.flat_map { |code, values|
+    values.map { |v| [ v.downcase, code ] }
+  }.to_h.freeze
+
   before_action :authenticate_user!
   before_action :require_console_access
   before_action :log_console_activity
@@ -50,12 +68,33 @@ class Console::BaseController < ApplicationController
     end
   end
 
+  # The accepted column values for the current jurisdiction, or nil when no
+  # filter applies ("Summary", or a lender country we can't map). Bridges the
+  # code-vs-name column conventions via JURISDICTION_ALIASES.
+  def jurisdiction_match_values
+    jurisdiction = current_jurisdiction
+    return nil if jurisdiction == "Summary"
+
+    code = CODE_FOR_JURISDICTION[jurisdiction.to_s.downcase] || jurisdiction
+    JURISDICTION_ALIASES[code] || [ jurisdiction ]
+  end
+  helper_method :jurisdiction_match_values
+
   # "Summary" means no filter; otherwise restrict to the selected country.
   def scope_by_jurisdiction(scope, column)
-    jurisdiction = current_jurisdiction
-    return scope if jurisdiction == "Summary"
+    values = jurisdiction_match_values
+    return scope unless values
 
-    scope.where(column => jurisdiction)
+    scope.where(column => values)
+  end
+
+  # Records that carry no region of their own inherit it from their
+  # application (contracts, distributions, …) — this is the join key for
+  # region-filtering them. nil when no jurisdiction filter is active.
+  def region_scoped_application_ids
+    return nil unless jurisdiction_match_values
+
+    scope_by_jurisdiction(scoped_applications, :region).select(:id)
   end
 
   # Lender admins see their own book; Futureproof admins see everything.

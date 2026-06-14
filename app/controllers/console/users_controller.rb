@@ -98,12 +98,10 @@ class Console::UsersController < Console::ResourceController
   protected
 
   # Futureproof admins see everyone; lender admins see their own book.
+  # The region picker further narrows by residence country.
   def base_scope
-    if policy.futureproof?
-      User.all
-    else
-      User.where(lender: policy.lender)
-    end
+    scope = policy.futureproof? ? User.all : User.where(lender: policy.lender)
+    scope_by_jurisdiction(scope, :country_of_residence)
   end
 
   private

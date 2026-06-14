@@ -84,7 +84,7 @@ class Console::WholesaleFundersController < Console::ResourceController
   protected
 
   def base_scope
-    WholesaleFunder.all
+    scope_by_jurisdiction(WholesaleFunder.all, :country)
   end
 
   def change_status(partner, new_status)

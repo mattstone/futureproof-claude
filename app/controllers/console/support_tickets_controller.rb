@@ -78,13 +78,16 @@ class Console::SupportTicketsController < Console::ResourceController
   protected
 
   # Tickets without a user (raw email) are Futureproof-only; lender admins
-  # see tickets raised by their own customers.
+  # see tickets raised by their own customers. The region picker narrows to
+  # tickets whose customer resides in the selected country (a subquery so the
+  # lender join isn't duplicated; userless tickets fall outside a region).
   def base_scope
-    if policy.futureproof?
-      SupportTicket.all
-    else
-      SupportTicket.joins(:user).where(users: { lender: policy.lender })
+    scope = policy.futureproof? ? SupportTicket.all : SupportTicket.joins(:user).where(users: { lender: policy.lender })
+
+    if (values = jurisdiction_match_values)
+      scope = scope.where(user: User.where(country_of_residence: values))
     end
+    scope
   end
 
   private

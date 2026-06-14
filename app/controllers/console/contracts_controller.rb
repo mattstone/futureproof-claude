@@ -166,8 +166,13 @@ class Console::ContractsController < Console::ResourceController
 
   protected
 
+  # Contracts have no region column of their own — they inherit the selected
+  # jurisdiction from their application, so filter by the region-scoped app set.
   def base_scope
-    scoped_contracts
+    app_ids = region_scoped_application_ids
+    return scoped_contracts unless app_ids
+
+    scoped_contracts.where(application_id: app_ids)
   end
 
   # One grouped query for the index's unread-message indicators.

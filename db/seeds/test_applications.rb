@@ -242,6 +242,7 @@ growth_rates = [ 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
   application = Application.create!(
     user: user,
     address: address,
+    region: "AU", # all seed addresses above are Australian — keep region consistent
     home_value: home_value,
     ownership_status: ownership_status,
     property_state: property_state,

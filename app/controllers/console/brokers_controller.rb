@@ -110,7 +110,7 @@ class Console::BrokersController < Console::ResourceController
   protected
 
   def base_scope
-    Broker.all
+    scope_by_jurisdiction(Broker.all, :jurisdiction)
   end
 
   # Same audited status flip with a mandatory reason as lenders/funders.
