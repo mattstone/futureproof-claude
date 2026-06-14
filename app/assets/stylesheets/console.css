@@ -389,27 +389,35 @@
   margin-bottom: var(--fp-space-lg);
 }
 
+/* Stat cards are compact by default — a slim metric strip, not page-dominating
+   hero tiles. (Tuned on the agent ops panel, then adopted site-wide.) */
 .console-stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--fp-space-md);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--fp-space-sm);
   margin-bottom: var(--fp-space-lg);
+}
+
+/* A stat grid that ends a card body shouldn't add margin under the card's
+   own padding (e.g. the agent operations panel). */
+.console-card-body > .console-stat-grid:last-child {
+  margin-bottom: 0;
 }
 
 .console-stat {
   display: flex;
   flex-direction: column;
-  gap: var(--fp-space-xs);
+  gap: 2px;
   background: var(--fp-bg-primary);
   border: 1px solid var(--fp-border-light);
   border-radius: var(--fp-radius-md);
   box-shadow: var(--fp-shadow-sm);
-  padding: var(--fp-space-md) var(--fp-space-lg);
+  padding: var(--fp-space-sm) var(--fp-space-md);
 }
 
 .console-stat-value {
   font-family: var(--fp-font-display);
-  font-size: var(--fp-text-3xl);
+  font-size: var(--fp-text-xl);
   font-weight: var(--fp-font-bold);
   color: var(--fp-text-primary);
 }
@@ -1750,14 +1758,10 @@
   .console-detail-cols { grid-template-columns: 1fr; }
 }
 
-/* Hero stat strip on a detail page — the existing stat grid, but the
-   numbers read a touch tighter so they frame the page rather than dominate. */
+/* Hero stat strip on a detail page — now just the compact base stat grid
+   (the dedicated font bump was dropped so heroes match the site-wide size). */
 .console-hero-stats {
   margin-bottom: var(--fp-space-lg);
-}
-
-.console-hero-stats .console-stat-value {
-  font-size: var(--fp-text-2xl);
 }
 
 /* Emphasised description-list value — headline money / rates that should
