@@ -5,8 +5,11 @@
   <% end %>
 </div>
 
-<%# All nav links drive the #console_main frame: clicking one swaps the main
-    content only — the sidebar (data-turbo-permanent) never repaints. %>
+<%# Function-based IA: nav groups mirror how the business is organised, not the
+    data model. Each link drives the #console_main frame so a click swaps only
+    the main content; the sidebar (data-turbo-permanent) never repaints. Items
+    are gated by the same capability their controller enforces; a group renders
+    only if the user can reach at least one item in it. %>
 <nav class="console-nav" aria-label="Console navigation" data-turbo-frame="console_main">
   <div class="console-nav-group console-nav-group-solo">
     <%= link_to console_root_path,
@@ -16,81 +19,87 @@
     <% end %>
   </div>
 
-  <% if policy.view_pipeline? %>
-    <details class="console-nav-group" <%= "open" if request.path.start_with?(console_applications_path) %>>
-      <summary class="console-nav-group-title">Pipeline</summary>
-      <%= link_to console_applications_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_applications_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📋</span> Applications
-        <% if attention_counts[:applications].positive? %>
-          <span class="console-nav-badge"><%= attention_counts[:applications] %></span>
+  <%# ---- Operations ------------------------------------------------------- %>
+  <% if policy.view_pipeline? || policy.manage_users? %>
+    <% operations_active = [ console_applications_path, console_contracts_path, console_users_path,
+                             console_service_desk_path, console_chat_conversations_path, console_support_tickets_path ].any? { |p| request.path.start_with?(p) } %>
+    <details class="console-nav-group" <%= "open" if operations_active %>>
+      <summary class="console-nav-group-title">Operations</summary>
+      <% if policy.view_pipeline? %>
+        <%= link_to console_applications_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_applications_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📥</span> Acquisition
+          <% if attention_counts[:applications].positive? %>
+            <span class="console-nav-badge"><%= attention_counts[:applications] %></span>
+          <% end %>
+        <% end %>
+        <%= link_to console_contracts_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_contracts_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📄</span> Contracts
+        <% end %>
+      <% end %>
+      <% if policy.manage_users? %>
+        <%= link_to console_users_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_users_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">👥</span> Customers
+        <% end %>
+        <%= link_to console_service_desk_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_service_desk_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🛟</span> Service desk
+        <% end %>
+        <%= link_to console_chat_conversations_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_chat_conversations_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">💬</span> AI conversations
+        <% end %>
+        <%= link_to console_support_tickets_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_support_tickets_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🎫</span> Support tickets
+          <% if attention_counts[:tickets].positive? %>
+            <span class="console-nav-badge"><%= attention_counts[:tickets] %></span>
+          <% end %>
         <% end %>
       <% end %>
     </details>
+  <% end %>
 
-    <% portfolio_active = [ console_contracts_path, console_cohorts_path, console_analytics_path ].any? { |p| request.path.start_with?(p) } %>
-    <details class="console-nav-group" <%= "open" if portfolio_active %>>
-      <summary class="console-nav-group-title">Portfolio</summary>
-      <%= link_to console_contracts_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_contracts_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📄</span> Contracts
+  <%# ---- Legal & Compliance ----------------------------------------------- %>
+  <% if policy.manage_product? || policy.view_system? %>
+    <% compliance_active = [ console_legal_documents_path, console_audit_logs_path, console_system_security_path ].any? { |p| request.path.start_with?(p) } %>
+    <details class="console-nav-group" <%= "open" if compliance_active %>>
+      <summary class="console-nav-group-title">Legal &amp; Compliance</summary>
+      <% if policy.manage_product? %>
+        <%= link_to console_legal_documents_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_legal_documents_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">⚖️</span> Legal documents
+        <% end %>
       <% end %>
-      <%= link_to console_cohorts_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_cohorts_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🗂️</span> Cohorts
-      <% end %>
-      <%= link_to console_analytics_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_analytics_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📈</span> Analytics
+      <% if policy.view_system? %>
+        <%= link_to console_audit_logs_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_audit_logs_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📜</span> Audit log
+        <% end %>
+        <%= link_to console_system_security_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_system_security_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🔒</span> Security
+        <% end %>
       <% end %>
     </details>
   <% end %>
 
-  <% if policy.manage_partners? %>
-    <% partners_active = [ console_lenders_path, console_wholesale_funders_path, console_funder_pools_path, console_brokers_path, console_agreements_path ].any? { |p| request.path.start_with?(p) } %>
-    <details class="console-nav-group" <%= "open" if partners_active %>>
-      <summary class="console-nav-group-title">Partners</summary>
-      <%= link_to console_lenders_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_lenders_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🏢</span> Lenders
-      <% end %>
-      <%= link_to console_wholesale_funders_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_wholesale_funders_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">💰</span> Wholesale funders
-      <% end %>
-      <%= link_to console_funder_pools_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_funder_pools_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🪙</span> Funder pools
-      <% end %>
-      <%= link_to console_brokers_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_brokers_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🤝</span> Brokers
-      <% end %>
-      <%= link_to console_agreements_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_agreements_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📑</span> Agreements
-      <% end %>
-    </details>
-  <% end %>
-
+  <%# ---- Marketing -------------------------------------------------------- %>
   <% if policy.manage_product? %>
-    <% product_active = [ console_mortgages_path, console_faqs_path, console_email_templates_path, console_email_workflows_path, console_legal_documents_path, console_calculators_path ].any? { |p| request.path.start_with?(p) } %>
-    <details class="console-nav-group" <%= "open" if product_active %>>
-      <summary class="console-nav-group-title">Product</summary>
-      <%= link_to console_mortgages_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_mortgages_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🏠</span> Mortgages
-      <% end %>
+    <% marketing_active = [ console_faqs_path, console_email_templates_path, console_email_workflows_path ].any? { |p| request.path.start_with?(p) } %>
+    <details class="console-nav-group" <%= "open" if marketing_active %>>
+      <summary class="console-nav-group-title">Marketing</summary>
       <%= link_to console_faqs_path,
             class: "console-nav-link #{'is-active' if request.path.start_with?(console_faqs_path)}",
             data: { "console--nav-target": "link" } do %>
@@ -106,96 +115,113 @@
             data: { "console--nav-target": "link" } do %>
         <span class="console-nav-icon">🔁</span> Email workflows
       <% end %>
-      <%= link_to console_legal_documents_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_legal_documents_path)}",
+    </details>
+  <% end %>
+
+  <%# ---- Partners --------------------------------------------------------- %>
+  <% if policy.manage_partners? %>
+    <% partners_active = [ console_lenders_path, console_wholesale_funders_path, console_brokers_path, console_agreements_path ].any? { |p| request.path.start_with?(p) } %>
+    <details class="console-nav-group" <%= "open" if partners_active %>>
+      <summary class="console-nav-group-title">Partners</summary>
+      <%= link_to console_lenders_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_lenders_path)}",
             data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">⚖️</span> Legal documents
+        <span class="console-nav-icon">🏢</span> Lenders
       <% end %>
-      <%= link_to console_calculators_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_calculators_path)}",
+      <%= link_to console_wholesale_funders_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_wholesale_funders_path)}",
             data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🧮</span> Calculator
+        <span class="console-nav-icon">💰</span> Wholesale funders
+      <% end %>
+      <%= link_to console_brokers_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_brokers_path)}",
+            data: { "console--nav-target": "link" } do %>
+        <span class="console-nav-icon">🤝</span> Brokers
+      <% end %>
+      <%= link_to console_agreements_path,
+            class: "console-nav-link #{'is-active' if request.path.start_with?(console_agreements_path)}",
+            data: { "console--nav-target": "link" } do %>
+        <span class="console-nav-icon">📑</span> Agreements
       <% end %>
     </details>
   <% end %>
 
-  <% if policy.manage_users? %>
-    <% customers_active = [ console_users_path, console_service_desk_path, console_chat_conversations_path, console_support_tickets_path ].any? { |p| request.path.start_with?(p) } %>
-    <details class="console-nav-group" <%= "open" if customers_active %>>
-      <summary class="console-nav-group-title">Customers</summary>
-      <%= link_to console_users_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_users_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">👥</span> Users
+  <%# ---- Finance ---------------------------------------------------------- %>
+  <% if policy.manage_partners? || policy.manage_product? || policy.view_pipeline? %>
+    <% finance_active = [ console_funder_pools_path, console_mortgages_path, console_calculators_path, console_analytics_path, console_cohorts_path ].any? { |p| request.path.start_with?(p) } %>
+    <details class="console-nav-group" <%= "open" if finance_active %>>
+      <summary class="console-nav-group-title">Finance</summary>
+      <% if policy.manage_partners? %>
+        <%= link_to console_funder_pools_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_funder_pools_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🪙</span> Funding pools
+        <% end %>
       <% end %>
-      <%= link_to console_service_desk_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_service_desk_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🛟</span> Service desk
+      <% if policy.manage_product? %>
+        <%= link_to console_mortgages_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_mortgages_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🏠</span> Mortgages
+        <% end %>
+        <%= link_to console_calculators_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_calculators_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🧮</span> Calculator
+        <% end %>
       <% end %>
-      <%= link_to console_chat_conversations_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_chat_conversations_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">💬</span> AI conversations
-      <% end %>
-      <%= link_to console_support_tickets_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_support_tickets_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🎫</span> Support tickets
-        <% if attention_counts[:tickets].positive? %>
-          <span class="console-nav-badge"><%= attention_counts[:tickets] %></span>
+      <% if policy.view_pipeline? %>
+        <%= link_to console_analytics_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_analytics_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📈</span> Business performance
+        <% end %>
+        <%= link_to console_cohorts_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_cohorts_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🗂️</span> Cohorts
         <% end %>
       <% end %>
     </details>
   <% end %>
 
-  <% if policy.publish_prompts? %>
-    <% dev_active = [ console_prompts_path, console_prompt_change_requests_path, console_diagnostics_path ].any? { |p| request.path.start_with?(p) } %>
+  <%# ---- Development ------------------------------------------------------ %>
+  <% if policy.publish_prompts? || policy.run_diagnostics? || policy.view_system? %>
+    <% dev_active = [ console_prompts_path, console_prompt_change_requests_path, console_diagnostics_path, console_ai_agents_path ].any? { |p| request.path.start_with?(p) } %>
     <details class="console-nav-group" <%= "open" if dev_active %>>
       <summary class="console-nav-group-title">Development</summary>
-      <%= link_to console_prompts_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompts_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🧠</span> Prompts
-      <% end %>
-      <%= link_to console_prompt_change_requests_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompt_change_requests_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📝</span> Change requests
-        <% if attention_counts[:change_requests].positive? %>
-          <span class="console-nav-badge"><%= attention_counts[:change_requests] %></span>
+      <% if policy.publish_prompts? %>
+        <%= link_to console_prompts_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompts_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🧠</span> Prompts
+        <% end %>
+        <%= link_to console_prompt_change_requests_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_prompt_change_requests_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📝</span> Change requests
+          <% if attention_counts[:change_requests].positive? %>
+            <span class="console-nav-badge"><%= attention_counts[:change_requests] %></span>
+          <% end %>
         <% end %>
       <% end %>
-      <%= link_to console_diagnostics_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_diagnostics_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🩺</span> Diagnostics
+      <% if policy.run_diagnostics? %>
+        <%= link_to console_diagnostics_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_diagnostics_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🩺</span> Diagnostics
+        <% end %>
+      <% end %>
+      <% if policy.view_system? %>
+        <%= link_to console_ai_agents_path,
+              class: "console-nav-link #{'is-active' if request.path.start_with?(console_ai_agents_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">🤖</span> Agent configuration
+        <% end %>
       <% end %>
       <a href="https://github.com/mattstone/futureproof-claude/pulls" target="_blank" rel="noopener" class="console-nav-link" data-turbo-frame="_top">
         <span class="console-nav-icon">⬆️</span> GitHub PRs ↗
       </a>
-    </details>
-  <% end %>
-
-  <% if policy.view_system? %>
-    <% system_active = [ console_ai_agents_path, console_audit_logs_path, console_system_security_path ].any? { |p| request.path.start_with?(p) } %>
-    <details class="console-nav-group" <%= "open" if system_active %>>
-      <summary class="console-nav-group-title">System</summary>
-      <%= link_to console_ai_agents_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_ai_agents_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🤖</span> AI agents
-      <% end %>
-      <%= link_to console_audit_logs_path,
-            class: "console-nav-link #{'is-active' if request.path.start_with?(console_audit_logs_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">📜</span> Audit log
-      <% end %>
-      <%= link_to console_system_security_path,
-            class: "console-nav-link #{'is-active' if current_page?(console_system_security_path)}",
-            data: { "console--nav-target": "link" } do %>
-        <span class="console-nav-icon">🔒</span> Security
-      <% end %>
     </details>
   <% end %>
 </nav>

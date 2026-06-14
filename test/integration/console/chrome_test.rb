@@ -24,12 +24,29 @@ class Console::ChromeTest < ActionDispatch::IntegrationTest
 
   test "nav groups are collapsible and the active group is open" do
     get console_contracts_path
-    # Portfolio group (contains Contracts) renders open.
-    assert_select "details.console-nav-group[open] summary.console-nav-group-title", text: "Portfolio"
+    # Operations group (contains Contracts) renders open.
+    assert_select "details.console-nav-group[open] summary.console-nav-group-title", text: "Operations"
   end
 
   test "external footer links break out of the content frame" do
     get console_root_path
     assert_select "a[href='/admin'][data-turbo-frame=_top]"
+  end
+
+  test "nav is organised into function groups" do
+    get console_root_path
+    %w[Operations Marketing Partners Finance Development].each do |group|
+      assert_select "summary.console-nav-group-title", text: group
+    end
+    assert_select "summary.console-nav-group-title", text: "Legal & Compliance"
+  end
+
+  test "items land in their function group" do
+    get console_root_path
+    assert_select "a.console-nav-link[href=?]", console_applications_path, text: /Acquisition/
+    assert_select "a.console-nav-link[href=?]", console_funder_pools_path, text: /Funding pools/
+    assert_select "a.console-nav-link[href=?]", console_legal_documents_path, text: /Legal documents/
+    assert_select "a.console-nav-link[href=?]", console_analytics_path, text: /Business performance/
+    assert_select "a.console-nav-link[href=?]", console_ai_agents_path, text: /Agent configuration/
   end
 end
