@@ -50,4 +50,39 @@ class Console::AgentColocationTest < ActionDispatch::IntegrationTest
     get console_root_path
     assert_select "a.console-nav-link[href=?]", console_investments_path, text: /Investments/
   end
+
+  # --- Provisioned agents (Misato, Motoko) -----------------------------------------
+
+  test "the customer service agent appears on the service desk" do
+    agent = ai_agents(:misato) # agent_type: customer_service
+    get console_service_desk_path
+    assert_response :success
+    assert_select "a[href=?]", console_ai_agent_path(agent), text: /Configure/
+  end
+
+  test "the master agent is reachable in Development's agent roster" do
+    agent = ai_agents(:motoko) # agent_type: engineering
+    get console_ai_agents_path
+    assert_response :success
+    assert_select "a[href=?]", console_ai_agent_path(agent)
+  end
+
+  # --- Page titles aligned to the nav ----------------------------------------------
+
+  test "the pipeline page is titled Acquisition and analytics is Business performance" do
+    get console_applications_path
+    assert_select ".console-page-title", text: "Acquisition"
+
+    get console_analytics_path
+    assert_select ".console-page-title", text: "Business performance"
+  end
+
+  # --- Investments region scoping --------------------------------------------------
+
+  test "account balances honour the injected contract scope" do
+    # An empty scope yields zero — proving the figures are scope-driven, not global.
+    empty = AdminPortfolioMetricsService.new(contracts_scope: Contract.none).account_balances
+    assert_equal 0, empty[:total_investment]
+    assert_equal 0, empty[:total_account_value]
+  end
 end

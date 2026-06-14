@@ -48,10 +48,10 @@ class AdminPortfolioMetricsService
   end
 
   def account_balances
-    offset = Contract.real.sum(:offset_balance)
-    investment = Contract.real.sum(:investment_balance)
-    invested = Contract.real.where("investment_balance > 0").sum(:investment_balance)
-    weighted_return = Contract.real.where("investment_balance > 0").sum("investment_balance * investment_return_rate")
+    offset = @contracts.sum(:offset_balance)
+    investment = @contracts.sum(:investment_balance)
+    invested = @contracts.where("investment_balance > 0").sum(:investment_balance)
+    weighted_return = @contracts.where("investment_balance > 0").sum("investment_balance * investment_return_rate")
 
     {
       total_offset: offset,
