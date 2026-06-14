@@ -7,6 +7,10 @@
   <% end %>
 <% end %>
 
+<% agents_for_function("backoffice").each do |agent| %>
+  <%= render "console/shared/agent_operations", agent: agent %>
+<% end %>
+
 <%= render Console::FilterBarComponent.new(url: console_contracts_path,
       search_value: params[:search], search_placeholder: "Contract/application ID, name, email, address…",
       clear_url: console_contracts_path) do |bar| %>
