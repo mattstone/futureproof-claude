@@ -394,7 +394,9 @@ The decisions above describe the architecture; this section is the **operating d
 
 ## 14.3 Live today vs. backlog
 
-In force now: untrusted-input hard rules, the global kill switch + model-id audit, deterministic fallback paths, in-region model calls, and prompt versioning via git. The remainder is the backlog that matures alongside the gateway (Section 12) — captured here so the standard is set *before* the capability is built.
+In force now: untrusted-input hard rules, the global kill switch + model-id audit, deterministic fallback paths, in-region model calls, prompt versioning via git, and the agent eval harness (`test/evals/`) gating CI. The remainder is the backlog that matures alongside the gateway (Section 12) — captured here so the standard is set *before* the capability is built.
+
+**Runbooks.** The operating detail behind these standards lives in two companion documents: `docs/AI_INCIDENT_RUNBOOK.md` (detect → contain → remediate → redress → post-mortem → feed the eval set) and `docs/AI_MODEL_GOVERNANCE.md` (NIST AI RMF / lender model-risk mapping, the agent register of record, lifecycle controls, and the per-region regulator map).
 
 # 15. Glossary
 
