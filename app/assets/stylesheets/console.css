@@ -1717,3 +1717,57 @@
   flex-wrap: wrap;
   margin-top: var(--fp-space-sm);
 }
+
+/* =========================================================================
+   Content-area UX pass (Tier 1: detail-page hierarchy)
+   ========================================================================= */
+
+/* ---- Detail layout ------------------------------------------------------ */
+
+/* Side-by-side cards for naturally paired, narrow sections — e.g. a decision
+   beside the compliance gate it depends on, or identity beside security.
+   Equal columns; stacks on narrow viewports. The cards keep their own
+   margin-bottom, so the grid gap only governs the horizontal rhythm. */
+.console-detail-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--fp-space-lg);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .console-detail-cols { grid-template-columns: 1fr; }
+}
+
+/* Hero stat strip on a detail page — the existing stat grid, but the
+   numbers read a touch tighter so they frame the page rather than dominate. */
+.console-hero-stats {
+  margin-bottom: var(--fp-space-lg);
+}
+
+.console-hero-stats .console-stat-value {
+  font-size: var(--fp-text-2xl);
+}
+
+/* Emphasised description-list value — headline money / rates that should
+   read louder than ordinary fields (Tier 3 adoption). */
+.console-dl-value-strong {
+  font-size: var(--fp-text-lg);
+  font-weight: var(--fp-font-semibold);
+  color: var(--fp-text-primary);
+}
+
+/* ---- Triage row emphasis (data tables) ---------------------------------- */
+/* At-risk / stalled rows carry a left accent + faint tint so problems surface
+   without reading every badge. Row hover still neutralises the tint (the
+   hover background sits on the <td>, which paints over the <tr> tint). */
+.console-table tbody tr.console-row-warning { background: var(--fp-warning-bg); }
+.console-table tbody tr.console-row-error   { background: var(--fp-error-bg); }
+
+.console-table tbody tr.console-row-warning td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--fp-warning);
+}
+
+.console-table tbody tr.console-row-error td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--fp-error);
+}

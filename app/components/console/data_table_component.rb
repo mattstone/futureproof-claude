@@ -30,14 +30,22 @@ class Console::DataTableComponent < Console::BaseComponent
     @columns ||= []
   end
 
-  def initialize(records:, id:, csv_path: nil, empty_message: "Nothing here yet.")
+  # row_class: an optional ->(record) { "console-row-error" | nil } that tags a
+  # row for triage emphasis (left accent + faint tint), so at-risk / stalled
+  # rows surface without reading every badge.
+  def initialize(records:, id:, csv_path: nil, empty_message: "Nothing here yet.", row_class: nil)
     @records = records
     @id = id
     @csv_path = csv_path
     @empty_message = empty_message
+    @row_class = row_class
   end
 
-  attr_reader :records, :id, :csv_path, :empty_message
+  attr_reader :records, :id, :csv_path, :empty_message, :row_class
+
+  def row_class_for(record)
+    row_class&.call(record).presence
+  end
 
   def paginated?
     records.respond_to?(:current_page)

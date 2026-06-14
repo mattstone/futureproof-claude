@@ -9,6 +9,13 @@
   <% end %>
 <% end %>
 
+<div class="console-stat-grid console-hero-stats">
+  <%= render Console::StatCardComponent.new(value: @applications.size, label: "Applications") %>
+  <%= render Console::StatCardComponent.new(value: @contracts.size, label: "Live contracts") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@contracts.sum { |c| c.monthly_payment.to_f }, precision: 0), label: "Monthly income") %>
+  <%= render Console::StatCardComponent.new(value: @quotes.size, label: "Quotes issued") %>
+</div>
+
 <%= render Console::CardComponent.new(title: "Journey") do %>
   <% if @applications.any? %>
     <ul class="console-doc-list">
@@ -169,6 +176,7 @@
   <% end %>
 <% end %>
 
+<div class="console-detail-cols">
 <%= render Console::CardComponent.new(title: "Identity") do %>
   <%= render Console::DescriptionListComponent.new(rows: {
         "Name" => @user.full_name,
@@ -182,7 +190,7 @@
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Security") do %>
-  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+  <%= render Console::DescriptionListComponent.new(columns: 2, rows: {
         "Confirmed" => (@user.confirmed_at ? @user.confirmed_at.strftime("%-d %b %Y") : "Not confirmed"),
         "Sign-ins" => @user.sign_in_count,
         "Last sign-in" => (@user.last_sign_in_at ? "#{time_ago_in_words(@user.last_sign_in_at)} ago" : "Never"),
@@ -213,6 +221,7 @@
           data: { turbo_confirm: "Email a password reset link to #{@user.email}?" } %>
   </div>
 <% end %>
+</div>
 
 <%= render Console::CardComponent.new do %>
   <%= render Console::ChangeHistoryComponent.new(versions: @versions) %>
