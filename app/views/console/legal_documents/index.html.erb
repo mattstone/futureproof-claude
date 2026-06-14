@@ -25,7 +25,8 @@
 <% end %>
 
 <%= render Console::DataTableComponent.new(records: @records, id: "legal_documents",
-      empty_message: "No documents match those filters.") do |table| %>
+      empty_message: "No documents match those filters.",
+      empty_action: link_to("New document", new_console_legal_document_path, class: "console-btn console-btn-sm console-btn-primary")) do |table| %>
   <% table.with_column "Title" do |document| %>
     <%= link_to document.title, console_legal_document_path(document) %>
     <div class="console-cell-sub">v<%= document.version %> · <%= document.party_type.humanize %></div>

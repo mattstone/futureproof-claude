@@ -94,16 +94,25 @@
         "Last payment" => (@distributions.first ? "#{number_to_currency(@distributions.first.amount, precision: 2)} on #{@distributions.first.distribution_date&.strftime('%-d %b %Y')}" : "None yet")
       }) %>
 
+  <%# One control instead of a stack of near-identical reason forms: pick the
+      action, give a reason, apply. Each option is an audited transition. %>
   <% if @available_transitions.any? %>
-    <% @available_transitions.each do |kind, spec| %>
-      <%= form_with url: transition_console_contract_path(@contract, kind: kind), method: :patch, class: "console-ticket-form" do %>
-        <div class="console-field">
-          <label class="console-field-label" for="reason"><%= spec[:label] %> — reason</label>
-          <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
-        </div>
-        <%= submit_tag spec[:label], class: "console-btn #{kind == 'complete' ? 'console-btn-danger' : (kind == 'flag_at_risk' ? 'console-btn-danger' : 'console-btn-secondary')}",
-              data: { turbo_confirm: "#{spec[:label]} for contract ##{@contract.id}? This is audit-logged." } %>
-      <% end %>
+    <%= form_with url: transition_console_contract_path(@contract), method: :patch, class: "console-ticket-form" do %>
+      <div class="console-field">
+        <label class="console-field-label" for="kind">Servicing action</label>
+        <select name="kind" id="kind" class="console-select" required>
+          <option value="">Select an action…</option>
+          <% @available_transitions.each do |kind, spec| %>
+            <option value="<%= kind %>"><%= spec[:label] %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="console-field">
+        <label class="console-field-label" for="reason">Reason</label>
+        <%= text_field_tag :reason, nil, class: "console-input", required: true, placeholder: "Recorded in the audit log" %>
+      </div>
+      <%= submit_tag "Apply action", class: "console-btn console-btn-secondary",
+            data: { turbo_confirm: "Apply this servicing action to contract ##{@contract.id}? It is audit-logged." } %>
     <% end %>
   <% else %>
     <p class="console-muted">No servicing transitions available from <%= @contract.status_display %>.</p>

@@ -25,7 +25,12 @@
       <tbody>
         <% if records.respond_to?(:empty?) && records.empty? %>
           <tr>
-            <td class="console-table-empty" colspan="<%= columns.size %>"><%= empty_message %></td>
+            <td class="console-table-empty" colspan="<%= columns.size %>">
+              <%= empty_message %>
+              <% if empty_action %>
+                <div class="console-empty-action"><%= empty_action %></div>
+              <% end %>
+            </td>
           </tr>
         <% else %>
           <% records.each do |record| %>

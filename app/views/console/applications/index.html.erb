@@ -18,12 +18,13 @@
       csv_path: console_applications_path(format: :csv, search: params[:search], status: params[:status]),
       row_class: ->(a) { "console-row-warning" if a.status_processing? && a.updated_at < 7.days.ago },
       empty_message: "No applications match — clear the filters to see the active pipeline.") do |table| %>
-  <% table.with_column "ID" do |application| %>
-    <%= link_to "##{application.id}", console_application_path(application) %>
-  <% end %>
+  <%# Lead with the human identifier — the customer name, not the #ID. %>
   <% table.with_column "Customer" do |application| %>
     <%= link_to application.user.display_name, console_application_path(application) %>
     <div class="console-cell-sub"><%= application.user.email %></div>
+  <% end %>
+  <% table.with_column "Ref" do |application| %>
+    <%= link_to "##{application.id}", console_application_path(application) %>
   <% end %>
   <% table.with_column "Address" do |application| %>
     <%= application.address.presence || "—" %>
