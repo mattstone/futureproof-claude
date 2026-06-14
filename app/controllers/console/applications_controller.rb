@@ -251,7 +251,7 @@ class Console::ApplicationsController < Console::ResourceController
   protected
 
   def base_scope
-    scope = scoped_applications
+    scope = scope_by_jurisdiction(scoped_applications, :region)
 
     if params[:status].present?
       scope = scope.where(status: params[:status])
