@@ -48,7 +48,7 @@
 <%= render Console::CardComponent.new(title: "Facility") do %>
   <% pool_capacity = @pools.sum { |pool| pool.amount.to_f } %>
   <% facility = @wholesale_funder.total_allocated_amount.to_f %>
-  <%= render Console::DescriptionListComponent.new(columns: 3, rows: {
+  <%= render Console::DescriptionListComponent.new(columns: 3, strong: true, rows: {
         "Facility size" => number_to_currency(facility, precision: 0),
         "In pools" => number_to_currency(pool_capacity, precision: 0),
         "Unpooled headroom" => number_to_currency(facility - pool_capacity, precision: 0),

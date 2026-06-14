@@ -31,7 +31,8 @@
   <%= render Console::StatCardComponent.new(value: number_to_currency(@contract.investment_balance, precision: 0), label: "Investment balance") %>
   <% rr = @contract.investment_return_rate.to_f %>
   <%= render Console::StatCardComponent.new(value: (@contract.investment_return_rate ? "#{rr}%" : "—"),
-        label: "Investment return", variant: (rr.negative? ? :error : (rr.positive? ? :success : nil))) %>
+        label: "Investment return", variant: (rr.negative? ? :error : (rr.positive? ? :success : nil)),
+        context: (@contract.cost_of_capital_rate ? "cost of capital #{@contract.cost_of_capital_rate}%" : nil)) %>
   <%= render Console::StatCardComponent.new(value: number_to_currency(@income_paid, precision: 0), label: "Income paid to date") %>
 </div>
 

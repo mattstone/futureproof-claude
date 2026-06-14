@@ -13,10 +13,17 @@ class Console::DescriptionListComponent < Console::BaseComponent
     @items ||= []
   end
 
-  def initialize(rows: {}, columns: 2)
+  # strong: render values louder (console-dl-value-strong) — for money-summary
+  # lists where every value is a headline figure.
+  def initialize(rows: {}, columns: 2, strong: false)
     @rows = rows
     @columns = columns
+    @strong = strong
   end
 
-  attr_reader :rows, :columns
+  attr_reader :rows, :columns, :strong
+
+  def value_class
+    "console-dl-value #{'console-dl-value-strong' if strong}".strip
+  end
 end
