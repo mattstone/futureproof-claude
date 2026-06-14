@@ -226,7 +226,9 @@ class CustomerSupportService
         usage: result[:usage],
         tool_calls: result[:tool_calls],
         # Which prompt content served this call (slot => content sha, or "fallback")
-        prompt_slots: result[:prompt_slots]
+        prompt_slots: result[:prompt_slots],
+        # Model that produced this response (audit / governance)
+        model: result[:model]
       }.compact
     )
   rescue StandardError => e
@@ -259,7 +261,8 @@ class CustomerSupportService
       escalate: escalate,
       usage: result.usage,
       tool_calls: result.tool_calls,
-      prompt_slots: prompt[:slots]
+      prompt_slots: prompt[:slots],
+      model: ClaudeChatService::MODEL
     }
   rescue StandardError => e
     Rails.logger.error("Claude chat failed, falling back to KB: #{e.class}: #{e.message}")

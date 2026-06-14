@@ -67,6 +67,24 @@ class ClaudeChatServiceTest < ActiveSupport::TestCase
     ENV["ANTHROPIC_API_KEY"] = original
   end
 
+  test "available? honours the AI_ASSISTANT_DISABLED kill switch" do
+    original_key = ENV["ANTHROPIC_API_KEY"]
+    original_kill = ENV["AI_ASSISTANT_DISABLED"]
+    ENV["ANTHROPIC_API_KEY"] = "sk-test"
+
+    ENV["AI_ASSISTANT_DISABLED"] = "1"
+    refute ClaudeChatService.available?, "kill switch should disable live Claude even with a key present"
+
+    ENV["AI_ASSISTANT_DISABLED"] = "false"
+    assert ClaudeChatService.available?, "an explicit falsey value keeps it enabled"
+
+    ENV.delete("AI_ASSISTANT_DISABLED")
+    assert ClaudeChatService.available?, "default (unset) is enabled"
+  ensure
+    ENV["ANTHROPIC_API_KEY"] = original_key
+    original_kill.nil? ? ENV.delete("AI_ASSISTANT_DISABLED") : (ENV["AI_ASSISTANT_DISABLED"] = original_kill)
+  end
+
   test "raises ConfigurationError when no client and no API key" do
     original = ENV["ANTHROPIC_API_KEY"]
     ENV.delete("ANTHROPIC_API_KEY")

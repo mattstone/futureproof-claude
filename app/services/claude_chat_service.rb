@@ -8,7 +8,14 @@ class ClaudeChatService
   class ConfigurationError < StandardError; end
 
   def self.available?
-    ENV["ANTHROPIC_API_KEY"].present?
+    ENV["ANTHROPIC_API_KEY"].present? && enabled?
+  end
+
+  # Global kill switch. Set AI_ASSISTANT_DISABLED=1 (or true) to instantly stop
+  # all live Claude calls — every caller then degrades to its safe deterministic
+  # path (e.g. the support knowledge-base) with no deploy. Default (unset) = on.
+  def self.enabled?
+    !ActiveModel::Type::Boolean.new.cast(ENV["AI_ASSISTANT_DISABLED"])
   end
 
   def initialize(client: nil)
