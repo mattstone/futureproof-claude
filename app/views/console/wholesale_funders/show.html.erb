@@ -45,6 +45,9 @@
   <%= render Console::StatCardComponent.new(value: "#{@wholesale_funder.utilization_percentage}%", label: "Utilisation") %>
 </div>
 
+<div class="console-detail-grid">
+  <div><%# main column — operational cards %>
+
 <%= render Console::CardComponent.new(title: "Facility") do %>
   <% pool_capacity = @pools.sum { |pool| pool.amount.to_f } %>
   <% facility = @wholesale_funder.total_allocated_amount.to_f %>
@@ -145,6 +148,9 @@
   <% end %>
 <% end %>
 
+  </div><%# end main column %>
+
+  <div><%# rail — reference cards %>
 <%= render Console::CardComponent.new do %>
   <%= render Console::ChangeHistoryComponent.new(versions: @versions, limit: 30) %>
 <% end %>
@@ -171,3 +177,5 @@
     <% end %>
   <% end %>
 <% end %>
+  </div><%# end rail %>
+</div><%# end detail grid %>

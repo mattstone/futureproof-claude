@@ -1758,6 +1758,27 @@
   .console-detail-cols { grid-template-columns: 1fr; }
 }
 
+/* Main + rail for a long detail page (e.g. a partner's 10+ cards): a wide main
+   column of operational cards beside a narrower rail of reference cards
+   (history, lifecycle). Each side is its OWN vertical stack — two grid
+   children, not a grid of individual cards — so columns never ragged-align
+   row-by-row. Stacks to one column on narrow viewports. */
+.console-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0 var(--fp-space-lg);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .console-detail-grid { grid-template-columns: 1fr; }
+}
+
+/* The last card in each column shouldn't add margin under the column. */
+.console-detail-grid > div > .console-card:last-child {
+  margin-bottom: 0;
+}
+
 /* Hero stat strip on a detail page — now just the compact base stat grid
    (the dedicated font bump was dropped so heroes match the site-wide size). */
 .console-hero-stats {
