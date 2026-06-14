@@ -5,11 +5,16 @@
     <span class="console-region-label">Region</span>
     <div class="console-region-options" role="group" aria-label="Region">
       <% Console::BaseController::JURISDICTIONS.each do |jurisdiction| %>
+        <%# turbo: false → a region change does a real full-page navigation, so
+            it always re-scopes the page AND refreshes the chrome to the current
+            version (can't get stuck on a cached topbar). The topbar lives
+            outside the content frame, so a Turbo visit wouldn't reliably
+            repaint it. %>
         <%= button_to jurisdiction, console_set_jurisdiction_path,
               params: { jurisdiction: jurisdiction },
               method: :post,
               class: "console-region-option #{"is-active" if current_jurisdiction == jurisdiction}",
-              form_class: "console-region-form",
+              form: { class: "console-region-form", data: { turbo: "false" } },
               "aria-pressed": (current_jurisdiction == jurisdiction).to_s %>
       <% end %>
     </div>
