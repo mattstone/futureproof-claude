@@ -29,7 +29,7 @@
           </tr>
         <% else %>
           <% records.each do |record| %>
-            <tr>
+            <tr class="<%= row_class_for(record) %>">
               <% columns.each do |column| %>
                 <td class="<%= 'console-table-numeric' if column.numeric %>"><%= capture_block(column.block, record) %></td>
               <% end %>

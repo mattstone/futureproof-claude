@@ -13,8 +13,10 @@
   <% bar.with_select(:status, options: Application.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
 <% end %>
 
+<%# Triage emphasis: applications stalled in processing >7 days read amber. %>
 <%= render Console::DataTableComponent.new(records: @records, id: "applications",
       csv_path: console_applications_path(format: :csv, search: params[:search], status: params[:status]),
+      row_class: ->(a) { "console-row-warning" if a.status_processing? && a.updated_at < 7.days.ago },
       empty_message: "No applications match — clear the filters to see the active pipeline.") do |table| %>
   <% table.with_column "ID" do |application| %>
     <%= link_to "##{application.id}", console_application_path(application) %>

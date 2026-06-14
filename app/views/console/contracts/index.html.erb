@@ -17,8 +17,16 @@
   <% bar.with_select(:status, options: Contract.statuses.keys.map { |k| [ k.humanize, k ] }, selected: params[:status]) %>
 <% end %>
 
+<%# Triage emphasis: at-risk contracts read red, holidays amber, so the
+    portfolio's trouble spots surface without scanning every status badge. %>
 <%= render Console::DataTableComponent.new(records: @records, id: "contracts",
       csv_path: console_contracts_path(format: :csv, search: params[:search], status: params[:status]),
+      row_class: ->(c) {
+        case c.status
+        when "investment_at_risk" then "console-row-error"
+        when "in_holiday" then "console-row-warning"
+        end
+      },
       empty_message: "No contracts match those filters.") do |table| %>
   <% table.with_column "ID" do |contract| %>
     <%= link_to "##{contract.id}", console_contract_path(contract) %>

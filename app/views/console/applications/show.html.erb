@@ -22,10 +22,14 @@
 
 <%= render Console::TabsComponent.new do |tabs| %>
   <% tabs.with_tab("Details", id: "details") do %>
-    <%= render "decision_panel", application: @application, lenders: @lenders %>
+    <%# The decision sits beside the compliance gate it depends on, so the
+        KYC/AML state is visible at the moment of the approve/reject choice. %>
+    <div class="console-detail-cols">
+      <%= render "decision_panel", application: @application, lenders: @lenders %>
+      <%= render "compliance_panel", application: @application %>
+    </div>
     <%= render "details_panel", application: @application, jurisdiction_rules: @jurisdiction_rules %>
     <%= render "quotes_panel", quotes: @quotes %>
-    <%= render "compliance_panel", application: @application %>
     <%= render "valuation_panel", application: @application %>
   <% end %>
 

@@ -30,8 +30,16 @@
   <% bar.with_select(:category, options: SupportTicket::CATEGORIES.map { |c| [ c.humanize, c ] }, selected: params[:category]) %>
 <% end %>
 
+<%# Triage emphasis: unresolved urgent tickets read red, high amber. %>
 <%= render Console::DataTableComponent.new(records: @records, id: "tickets",
       csv_path: console_support_tickets_path(format: :csv, search: params[:search], status: params[:status], priority: params[:priority], category: params[:category]),
+      row_class: ->(t) {
+        next nil if %w[resolved closed].include?(t.status)
+        case t.priority
+        when "urgent" then "console-row-error"
+        when "high" then "console-row-warning"
+        end
+      },
       empty_message: "No tickets match those filters.") do |table| %>
   <% table.with_column "Ticket" do |ticket| %>
     <%= link_to ticket.ticket_number, console_support_ticket_path(ticket) %>

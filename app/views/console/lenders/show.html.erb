@@ -6,6 +6,13 @@
   <% end %>
 <% end %>
 
+<div class="console-stat-grid console-hero-stats">
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@capacity[:allocated], precision: 0), label: "Allocated") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@capacity[:capacity], precision: 0), label: "Pool capacity") %>
+  <%= render Console::StatCardComponent.new(value: "#{@capacity[:utilisation]}%", label: "Utilisation") %>
+  <%= render Console::StatCardComponent.new(value: @capacity[:active_contracts], label: "Active contracts") %>
+</div>
+
 <%= render "console/shared/partner_onboarding", onboarding: @onboarding, links: {
       licence: edit_console_lender_path(@lender),
       agreement: new_console_agreement_path(party_type: "Lender", agreeable_id: @lender.id),

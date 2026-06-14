@@ -25,6 +25,16 @@
   <% end %>
 <% end %>
 
+<%# Hero strip — the numbers that answer "is this healthy?" at a glance. %>
+<div class="console-stat-grid console-hero-stats">
+  <%= render Console::StatCardComponent.new(value: @contract.formatted_allocated_amount, label: "Allocated") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@contract.investment_balance, precision: 0), label: "Investment balance") %>
+  <% rr = @contract.investment_return_rate.to_f %>
+  <%= render Console::StatCardComponent.new(value: (@contract.investment_return_rate ? "#{rr}%" : "—"),
+        label: "Investment return", variant: (rr.negative? ? :error : (rr.positive? ? :success : nil))) %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@income_paid, precision: 0), label: "Income paid to date") %>
+</div>
+
 <%= render Console::CardComponent.new(title: "Contract details") do %>
   <%= render Console::DescriptionListComponent.new(rows: {
         "Status" => @contract.status_display,
