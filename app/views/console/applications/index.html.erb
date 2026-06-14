@@ -3,6 +3,10 @@
 <%= render Console::PageHeaderComponent.new(title: "Pipeline",
       subtitle: "Active applications by default — filter by status or search to reach everything, including accepted.") %>
 
+<% agents_for_function("applications").each do |agent| %>
+  <%= render "console/shared/agent_operations", agent: agent %>
+<% end %>
+
 <%= render Console::FilterBarComponent.new(url: console_applications_path,
       search_value: params[:search], search_placeholder: "ID, name, email or address…",
       clear_url: console_applications_path) do |bar| %>

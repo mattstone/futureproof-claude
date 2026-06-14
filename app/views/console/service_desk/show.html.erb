@@ -3,6 +3,10 @@
 <%= render Console::PageHeaderComponent.new(title: "Service desk",
       subtitle: "Who's waiting on us, where the pipeline is aging, and what's escalated.") %>
 
+<% agents_for_function("customer_service").each do |agent| %>
+  <%= render "console/shared/agent_operations", agent: agent %>
+<% end %>
+
 <div class="console-stat-grid">
   <%= render Console::StatCardComponent.new(value: @health[:open_conversations], label: "Open conversations",
         href: console_chat_conversations_path) %>

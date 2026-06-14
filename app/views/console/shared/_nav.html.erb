@@ -171,6 +171,11 @@
         <% end %>
       <% end %>
       <% if policy.view_pipeline? %>
+        <%= link_to console_investments_path,
+              class: "console-nav-link #{'is-active' if current_page?(console_investments_path)}",
+              data: { "console--nav-target": "link" } do %>
+          <span class="console-nav-icon">📊</span> Investments
+        <% end %>
         <%= link_to console_analytics_path,
               class: "console-nav-link #{'is-active' if current_page?(console_analytics_path)}",
               data: { "console--nav-target": "link" } do %>

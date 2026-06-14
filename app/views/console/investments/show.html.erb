@@ -1,0 +1,68 @@
+<% content_for :title, "Investments — FutureProof Console" %>
+
+<%= render Console::PageHeaderComponent.new(title: "Investments",
+      subtitle: "Borrower investment accounts, returns and income distribution across the portfolio.") %>
+
+<div class="console-stat-grid">
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@balances[:total_investment], precision: 0), label: "Total invested") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@balances[:total_account_value], precision: 0), label: "Total account value") %>
+  <%= render Console::StatCardComponent.new(value: "#{@balances[:avg_investment_return]}%", label: "Weighted avg return") %>
+  <%= render Console::StatCardComponent.new(value: number_to_currency(@distributions_total, precision: 0), label: "Income distributed") %>
+  <%= render Console::StatCardComponent.new(value: "#{(100 - @health[:holiday_pct].to_f).round(1)}%", label: "Investment health",
+        variant: (100 - @health[:holiday_pct].to_f) < 65 ? :warning : nil) %>
+</div>
+
+<% agents_for_function("investment").each do |agent| %>
+  <%= render "console/shared/agent_operations", agent: agent %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Returns & income") do %>
+  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+        "Offset balances" => number_to_currency(@balances[:total_offset], precision: 0),
+        "Avg return rate" => "#{@monitoring[:avg_return_rate]}%",
+        "Return range" => "#{@monitoring[:min_return_rate]}%–#{@monitoring[:max_return_rate]}%",
+        "Income this month" => number_to_currency(@distributions_month, precision: 0),
+        "On investment holiday" => "#{@health[:holiday_pct]}%",
+        "Performing contracts" => "#{@health[:total_contracts].to_i - @health[:holiday_contracts].to_i} / #{@health[:total_contracts]}"
+      }) %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Largest investment accounts") do %>
+  <% if @top_accounts.any? %>
+    <ul class="console-doc-list">
+      <% @top_accounts.each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Contract ##{contract.id}", console_contract_path(contract) %></strong>
+            <span class="console-cell-sub">
+              <%= contract.application&.user&.display_name %> ·
+              <%= number_to_currency(contract.investment_balance, precision: 0) %>
+              <% if contract.investment_return_rate %> · <%= contract.investment_return_rate %>% return<% end %>
+            </span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: contract.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">No funded investment accounts yet.</p>
+  <% end %>
+<% end %>
+
+<%= render Console::CardComponent.new(title: "Investment at risk") do %>
+  <% if @monitoring[:at_risk_detail].any? %>
+    <ul class="console-doc-list">
+      <% @monitoring[:at_risk_detail].each do |contract| %>
+        <li class="console-doc-item">
+          <div class="console-doc-name">
+            <strong><%= link_to "Contract ##{contract.id}", console_contract_path(contract) %></strong>
+            <span class="console-cell-sub"><%= contract.application&.user&.display_name %> · <%= number_to_currency(contract.allocated_amount, precision: 0) %></span>
+          </div>
+          <%= render Console::BadgeComponent.new(status: contract.status) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="console-muted">Nothing flagged investment-at-risk. 🎉</p>
+  <% end %>
+<% end %>

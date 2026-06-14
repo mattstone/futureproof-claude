@@ -1,0 +1,20 @@
+<%# One agent's live operations, surfaced inside its functional area. The full
+    dashboard, lifecycle and configuration live in Development → Agent
+    configuration; this is the in-context "how's my agent doing" view. %>
+<% detail = AdminAgentMetricsService.new.agent_detail(agent) %>
+<%= render Console::CardComponent.new(title: "#{agent.name} · #{agent.role_title}") do |card| %>
+  <% card.with_header_action do %>
+    <%= render Console::BadgeComponent.new(status: agent.is_active? ? "active" : "inactive") %>
+  <% end %>
+  <% card.with_header_action do %>
+    <%= link_to "Configure →", console_ai_agent_path(agent), class: "console-btn console-btn-sm console-btn-secondary" %>
+  <% end %>
+  <div class="console-stat-grid">
+    <%= render Console::StatCardComponent.new(value: detail[:today], label: "Actions today") %>
+    <%= render Console::StatCardComponent.new(value: detail[:week], label: "This week") %>
+    <%= render Console::StatCardComponent.new(value: "#{detail[:approval_rate]}%", label: "Approval rate") %>
+    <%= render Console::StatCardComponent.new(value: (detail[:avg_confidence] * 100).round, label: "Avg confidence %") %>
+    <%= render Console::StatCardComponent.new(value: detail[:flags], label: "Flags",
+          variant: detail[:flags].positive? ? :warning : nil) %>
+  </div>
+<% end %>

@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     end
     resources :cohorts, only: [ :index ]
     get "analytics", to: "analytics#show"
+    get "investments", to: "investments#show", as: :investments
 
     resources :lenders, only: [ :index, :show, :new, :create, :edit, :update ] do
       collection do
