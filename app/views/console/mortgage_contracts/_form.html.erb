@@ -6,12 +6,12 @@
   <%= render Console::FormFieldComponent.new(form: form, attribute: :title, required: true) do %>
     <%= form.text_field :title, class: "console-input", required: true %>
   <% end %>
-  <div class="console-field">
-    <%= form.label :content, "Content (simple markup: ## headings, - bullets, **bold**)", class: "console-field-label" %>
+  <%= render Console::FormFieldComponent.new(form: form, attribute: :content, required: true,
+        hint: "Simple markup: ## headings, - bullets, **bold**") do %>
     <%= form.text_area :content, rows: 24, class: "console-textarea", required: true %>
-  </div>
+  <% end %>
 
-  <div class="console-message-actions">
+  <div class="console-form-actions">
     <%= form.submit submit_label, class: "console-btn console-btn-primary" %>
     <%= link_to "Cancel", console_mortgage_path(@mortgage), class: "console-btn console-btn-secondary" %>
   </div>

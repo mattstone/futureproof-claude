@@ -37,7 +37,7 @@
 <% end %>
 
 <%= render Console::CardComponent.new(title: "Book") do %>
-  <%= render Console::DescriptionListComponent.new(columns: 4, rows: {
+  <%= render Console::DescriptionListComponent.new(columns: 4, strong: true, rows: {
         "Pool capacity" => number_to_currency(@capacity[:capacity], precision: 0),
         "Allocated" => number_to_currency(@capacity[:allocated], precision: 0),
         "Utilisation" => "#{@capacity[:utilisation]}%",

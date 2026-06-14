@@ -1782,3 +1782,58 @@
 .console-table tbody tr.console-row-error td:first-child {
   box-shadow: inset 3px 0 0 0 var(--fp-error);
 }
+
+/* =========================================================================
+   Content-area UX pass (Tier 3: polish)
+   ========================================================================= */
+
+/* ---- Long-form grouping ------------------------------------------------- */
+
+/* A long form groups its fields into labelled sections instead of one wall. */
+.console-fieldset {
+  border: 1px solid var(--fp-border-light);
+  border-radius: var(--fp-radius-md);
+  padding: var(--fp-space-md) var(--fp-space-lg) var(--fp-space-sm);
+  margin: 0 0 var(--fp-space-lg);
+}
+
+.console-fieldset-legend {
+  padding: 0 var(--fp-space-xs);
+  font-size: var(--fp-text-xs);
+  font-weight: var(--fp-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fp-text-tertiary);
+}
+
+/* Semantic form-actions row (the messages feature's class was being reused
+   generically; this is the clearly-named alias). */
+.console-form-actions {
+  display: flex;
+  gap: var(--fp-space-sm);
+  margin-top: var(--fp-space-md);
+}
+
+/* ---- Stat card context line --------------------------------------------- */
+/* A quiet caption under a stat's label (e.g. "cost of capital 6.2%"). */
+.console-stat-context {
+  font-size: var(--fp-text-xs);
+  color: var(--fp-text-tertiary);
+}
+
+/* ---- Responsive: pin the identifier column ------------------------------ */
+/* On narrow viewports, scrolling a wide table right must never lose the row's
+   name. The pinned cell needs an opaque background so columns don't show
+   through as they slide beneath it. */
+@media (max-width: 1100px) {
+  .console-table th:first-child,
+  .console-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+
+  .console-table thead th:first-child { background: var(--fp-bg-tertiary); }
+  .console-table tbody td:first-child { background: var(--fp-bg-primary); }
+  .console-table tbody tr:hover td:first-child { background: var(--fp-bg-secondary); }
+}

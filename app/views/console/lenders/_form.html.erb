@@ -3,40 +3,55 @@
     <div class="console-flash console-flash-error"><%= @lender.errors.full_messages.to_sentence %></div>
   <% end %>
 
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
-    <%= form.text_field :name, class: "console-input", required: true %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :lender_type, label: "Type") do %>
-    <%= form.select :lender_type, [ [ "Futureproof", "futureproof" ], [ "Lender", "lender" ] ], {}, class: "console-select" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :country, required: true) do %>
-    <%= form.select :country, %w[AU US NZ UK], {}, class: "console-select" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :address) do %>
-    <%= form.text_field :address, class: "console-input" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :postcode) do %>
-    <%= form.text_field :postcode, class: "console-input" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :licence_ref,
-        label: "Licence reference",
-        hint: "Authorisation reference with #{RegionHelper::REGIONS_CONFIG.dig(@lender.country.to_s.downcase, 'regulatory_body') || 'the jurisdiction regulator'}") do %>
-    <%= form.text_field :licence_ref, class: "console-input" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_name, label: "Contact name") do %>
-    <%= form.text_field :contact_name, class: "console-input" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_email, required: true) do %>
-    <%= form.email_field :contact_email, class: "console-input", required: true %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_telephone_country_code, label: "Phone country code") do %>
-    <%= form.text_field :contact_telephone_country_code, class: "console-input" %>
-  <% end %>
-  <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_telephone, label: "Phone") do %>
-    <%= form.text_field :contact_telephone, class: "console-input" %>
-  <% end %>
+  <fieldset class="console-fieldset">
+    <legend class="console-fieldset-legend">Identity</legend>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :name, required: true) do %>
+      <%= form.text_field :name, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :lender_type, label: "Type") do %>
+      <%= form.select :lender_type, [ [ "Futureproof", "futureproof" ], [ "Lender", "lender" ] ], {}, class: "console-select" %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :country, required: true) do %>
+      <%= form.select :country, %w[AU US NZ UK], {}, class: "console-select" %>
+    <% end %>
+  </fieldset>
 
-  <div class="console-message-actions">
+  <fieldset class="console-fieldset">
+    <legend class="console-fieldset-legend">Location</legend>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :address) do %>
+      <%= form.text_field :address, class: "console-input" %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :postcode) do %>
+      <%= form.text_field :postcode, class: "console-input" %>
+    <% end %>
+  </fieldset>
+
+  <fieldset class="console-fieldset">
+    <legend class="console-fieldset-legend">Licensing</legend>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :licence_ref,
+          label: "Licence reference",
+          hint: "Authorisation reference with #{RegionHelper::REGIONS_CONFIG.dig(@lender.country.to_s.downcase, 'regulatory_body') || 'the jurisdiction regulator'}") do %>
+      <%= form.text_field :licence_ref, class: "console-input" %>
+    <% end %>
+  </fieldset>
+
+  <fieldset class="console-fieldset">
+    <legend class="console-fieldset-legend">Contact</legend>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_name, label: "Contact name") do %>
+      <%= form.text_field :contact_name, class: "console-input" %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_email, required: true) do %>
+      <%= form.email_field :contact_email, class: "console-input", required: true %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_telephone_country_code, label: "Phone country code") do %>
+      <%= form.text_field :contact_telephone_country_code, class: "console-input" %>
+    <% end %>
+    <%= render Console::FormFieldComponent.new(form: form, attribute: :contact_telephone, label: "Phone") do %>
+      <%= form.text_field :contact_telephone, class: "console-input" %>
+    <% end %>
+  </fieldset>
+
+  <div class="console-form-actions">
     <%= form.submit @lender.persisted? ? "Save changes" : "Create lender", class: "console-btn console-btn-primary" %>
     <%= link_to "Cancel", @lender.persisted? ? console_lender_path(@lender) : console_lenders_path, class: "console-btn console-btn-secondary" %>
   </div>
