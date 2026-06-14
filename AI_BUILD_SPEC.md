@@ -368,7 +368,35 @@ Aligned to the build brief roadmap (§15): the agent layer is the build brief's 
 - **Eval-set maintenance.** Golden sets must stay representative as products and markets evolve — an ongoing cost, not a one-off.
 - **Model migration.** Models evolve; pin versions, run regression evals, and migrate deliberately.
 
-# 14. Glossary
+# 14. AI operating standards & maturity backlog
+
+The decisions above describe the architecture; this section is the **operating discipline** around it — the standards every agent is held to, and the backlog of practices to mature as the gateway (Section 12) is built out. Each item is tagged **[live]** (in force today), **[phase-gated]** (lands with the noted gateway phase), or **[policy]** (a written standard / runbook, not code).
+
+## 14.1 Agent & development standards
+
+- **Untrusted-input handling (prompt injection).** [live] All conversation content — user messages, pasted text, document or application content — is **data, not instructions**. Agents refuse embedded attempts to override the rules, extract or rewrite the system prompt, change persona, or impersonate staff or another customer; tools read only the *authenticated* user's own data. Enforced today in the support agent's hard rules; re-tested by red-teaming whenever an agent gains write capability (Section 7).
+- **Context engineering.** [phase-gated] Treat the context window as the scarce resource: just-in-time retrieval via tools over front-loading, **compaction** for long-running turns, and **sub-agent context isolation** (a focused sub-agent does the heavy reading and returns a distilled result) for Motoko-class work. Extends the context recipe (Section 5).
+- **Tool ergonomics.** [live, ongoing] Tools are the contract with the model: unambiguous names and descriptions, **error messages that teach** ("X failed because Y; try Z"), token-efficient results, and a hard read/write split. Audited whenever a tool is added (Section 4).
+- **Evals as a living gate.** [phase-gated] Beyond the one-time promotion gate (Section 8): the eval suite runs in **CI on every prompt or model change** (a prompt change *is* a code change), uses **LLM-as-judge with explicit rubrics** for fuzzy quality, includes **adversarial / red-team cases**, and is monitored for **production drift**.
+- **Model-upgrade playbook.** [policy] On any model version bump: re-run the eval suite, re-tune effort/thinking, watch for behaviour drift, and promote only on a green eval. Pin versions; migrate deliberately — the same discipline we apply to dependency patches.
+- **Idempotency & kill switch.** [live, partial] Consequential tool actions carry idempotency keys so a retry never double-executes. A **global kill switch** (`AI_ASSISTANT_DISABLED`) drops all live model calls to the safe deterministic path with no deploy; per-agent `is_active` and the capability staircase give finer-grained rollback.
+- **Determinism where it matters.** [live] Decisions that must be machine-consumed are pushed to code or structured outputs; the model is reserved for the genuinely fuzzy steps. (The rules-based decision service and the deterministic knowledge-base fallback already embody this.)
+
+## 14.2 Business & operating standards
+
+- **Model governance.** [policy] Align to **NIST AI RMF** and lender model-risk discipline — validation, ongoing monitoring, documentation (the SR 11-7 mindset; ASIC/FCA expectations). Folds into the Regional Regulatory Readiness work. Every agent has a named owner, a documented purpose, an eval bar, and a monitoring plan.
+- **Customer transparency.** [policy] Customers are told when they are interacting with AI and always have a clear path to a human (the escalation control). Disclosure is a trust asset, consistent with our refusal of "robo-advice" framing and the advice wall (Section 1).
+- **AI incident response & redress.** [policy] A runbook for an agent error: detect → contain (kill switch / capability rollback) → remediate → customer redress → post-mortem → **feed the failure into the eval set** so it cannot recur.
+- **Decision-quality drift monitoring.** [phase-gated] Production dashboards track not just throughput but **quality signals** — escalation rate, human-override rate, hallucination/complaint correlation — with alerts, so a degrading agent surfaces before a customer does (extends Section 9).
+- **Data minimisation & retention.** [live, policy] Minimise PII into prompts (send only what the turn needs); retention limits on transcripts; a documented no-training-on-customer-data assurance; model calls stay in-region (Section 2.2 residency).
+- **ROI per agent.** [policy] Measure each agent's value (deflection, conversion lift, error reduction) against its token cost, so AI earns its place per action type rather than being applied by default.
+- **Human trust calibration.** [policy] The humans in the loop are trained on when to trust vs. override an agent; the capability staircase (Section 6) operationalises that trust, earned per action type on evidence.
+
+## 14.3 Live today vs. backlog
+
+In force now: untrusted-input hard rules, the global kill switch + model-id audit, deterministic fallback paths, in-region model calls, and prompt versioning via git. The remainder is the backlog that matures alongside the gateway (Section 12) — captured here so the standard is set *before* the capability is built.
+
+# 15. Glossary
 
 | Term | Meaning |
 |------|---------|
